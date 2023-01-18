@@ -1,4 +1,4 @@
-from utils.download_content import get_content_from_url, get_content_from_pdf
+from utils.download_content import get_content
 from utils.extract_content import extract_confession_part_from_content
 
 
@@ -14,12 +14,8 @@ def get_confession_pages():
 
 
 def get_fresh_confessions_part(url, page_type):
-    if page_type == 'html_page':
-        content = get_content_from_url(url)
-    elif page_type == 'pdf':
-        content = get_content_from_pdf(url)
-    else:
-        print(f'unrecognized page_type {page_type}')
+    content = get_content(url, page_type)
+    if content is None:
         return None
 
     return extract_confession_part_from_content(content, page_type)
