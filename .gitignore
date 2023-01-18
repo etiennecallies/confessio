@@ -1,2 +1,6 @@
+# Python
+*.pyc
+
 # Jetbrains IDE
 .idea/
+

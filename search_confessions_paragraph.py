@@ -1,3 +1,7 @@
+from utils.download_content import get_content_from_url, get_content_from_pdf
+from utils.extract_content import extract_confession_part_from_content
+
+
 def get_confession_pages():
     # TODO get confession_pages
 
@@ -9,39 +13,24 @@ def get_confession_pages():
     ]
 
 
-def get_content_from_url(url):
-    print(f'getting content from url {url}')
-    # TODO
+def get_fresh_confessions_part(url, page_type):
+    if page_type == 'html_page':
+        content = get_content_from_url(url)
+    elif page_type == 'pdf':
+        content = get_content_from_pdf(url)
+    else:
+        print(f'unrecognized page_type {page_type}')
+        return None
 
-    return ''
-
-
-def get_content_from_pdf(url):
-    print(f'getting content from pdf with url {url}')
-    # TODO
-
-    return ''
-
-
-def extract_confession_part_from_content(content):
-    print(f'getting content from {url}')
-    # TODO
-
-    return content
+    return extract_confession_part_from_content(content, page_type)
 
 
 if __name__ == '__main__':
     confession_pages = get_confession_pages()
 
     for url, page_type in confession_pages:
-        if page_type == 'html_page':
-            content = get_content_from_url(url)
-        elif page_type == 'pdf':
-            content = get_content_from_pdf(url)
-        else:
-            print(f'unrecognized page_type {page_type}')
-            continue
+        confession_part = get_fresh_confessions_part(url, page_type)
 
-        confession_part = extract_confession_part_from_content(content)
-
-
+        print()
+        print(url, page_type)
+        print(confession_part)
