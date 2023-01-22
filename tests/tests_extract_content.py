@@ -1,6 +1,6 @@
 import unittest
 
-from utils.extract_content import get_paragraphs, get_words, normalize_content
+from utils.extract_content import get_content_tree, get_words, normalize_content
 
 
 class MyTestCase(unittest.TestCase):
@@ -13,7 +13,7 @@ class MyTestCase(unittest.TestCase):
     def test_get_paragraphs(self):
         for content, page_type, expected_paragraphs in self.test_get_paragraphs_fixtures():
             with self.subTest():
-                paragraphs = get_paragraphs(content, page_type)
+                paragraphs = get_content_tree(content, page_type)
                 self.assertEqual(paragraphs, expected_paragraphs)
 
     def test_get_words(self):
