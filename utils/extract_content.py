@@ -1,18 +1,52 @@
-import json
 import string
-from unidecode import unidecode
+
 from bs4 import BeautifulSoup
 from bs4 import element as el
+from unidecode import unidecode
 
-
-##################################
-# SEARCH FOR CONFESSIONS IN TEXT #
-##################################
+##################
+# LEXICAL SEARCH #
+##################
 
 CONFESSIONS_MENTIONS = [
     'confession',
     'confessions',
     'reconciliation',
+]
+
+DATES_MENTIONS = [
+    'jour',
+    'jours',
+    'matin',
+    'matins',
+    'soir',
+    'soirs',
+    'lundi',
+    'lundis',
+    'mardi',
+    'mardis',
+    'mercredi',
+    'mercredis',
+    'jeudi',
+    'jeudis',
+    'vendredi',
+    'vendredis',
+    'samedi',
+    'samedis',
+    'dimanche',
+    'dimanches',
+    'janvier',
+    'fevrier',
+    'mars',
+    'avril',
+    'mai',
+    'juin',
+    'juillet',
+    'aout',
+    'septembre',
+    'octobre',
+    'novembre',
+    'decembre',
 ]
 
 
@@ -27,22 +61,32 @@ def get_words(content):
     return set(content.split())
 
 
-def has_confession_mentions(content: string):
+def has_any_of_words(content: string, lexical_list):
     normalized_content = normalize_content(content)
     words = get_words(normalized_content)
 
-    for mention in CONFESSIONS_MENTIONS:
+    for mention in lexical_list:
         if mention in words:
             return True
 
     return False
 
 
+def has_confession_mentions(content: string):
+    return has_any_of_words(content, CONFESSIONS_MENTIONS)
+
+
+def is_schedule_description(content: string):
+    return has_any_of_words(content, DATES_MENTIONS)
+
+
 ##############
 # PARSE HTML #
 ##############
 TITLES_TAGS = [
-    'h3'
+    'h1',
+    'h2',
+    'h3',
 ]
 
 
@@ -73,13 +117,13 @@ def load_from_html(element: el) -> 'ContentTree':
     element_children = list(element.find_all(recursive=False))
 
     # By analysing children elements tag names we can group children in clusters
-    children_tag_names = map(lambda e: e.name, element_children)
+    children_tag_names = list(map(lambda e: e.name, element_children))
     children_by_section = group_children_by_section(children_tag_names)
 
     children = []
     for title_element, children_elements in children_by_section:
         # we recursively load all children
-        children_trees = map(load_from_html, [element_children[i] for i in children_elements])
+        children_trees = list(map(load_from_html, [element_children[i] for i in children_elements]))
 
         if title_element is None:
             # if we don't have any title, we just append all children
@@ -115,6 +159,19 @@ class ContentTree:
         self.raw_content = raw_content
         self.children = children
 
+    def __str__(self):
+        children_str = "[]"
+        if self.children:
+            children_str = "\n".join(map(lambda c: ContentTree._indent(str(c)), self.children))
+        return f"""text: {self.text}
+raw_content: {self.raw_content}
+children:
+{children_str}"""
+
+    @staticmethod
+    def _indent(s: str):
+        return '\n'.join([f'    {line}' for line in s.split('\n')])
+
     @staticmethod
     def _flatten(list_of_lists):
         return [item for sublist in list_of_lists for item in sublist]
@@ -144,7 +201,7 @@ class ContentTree:
 def extract_confession_part_from_content(text, page_type):
     content_tree = ContentTree.load_content_tree_from_text(text, page_type)
     raw_contents_with_confessions = content_tree.get_raw_contents_with_confessions()
-    print(json.dumps(raw_contents_with_confessions))
+    # print(json.dumps(raw_contents_with_confessions))  # TODO create command to insert it in fixtures ?
     delimiter = '<br>' if page_type == 'html_page' else '\n'
 
     return delimiter.join(raw_contents_with_confessions)

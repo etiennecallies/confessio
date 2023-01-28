@@ -6,10 +6,10 @@ def get_confession_pages():
     # TODO get confession_pages
 
     return [
-        ('https://paroissechaville.com/Horaires-et-adresses', 'html_page'),
-        ('https://www.diocese-annecy.fr/diocese/les-paroisses/doyenne-de-la-moyenne-vallee-de-larve/paroisse-saint-bernard-du-mont-blanc/livret-fp-hebdo-13-01-2023.pdf', 'pdf'),
-        ('https://www.saintjacquesduhautpas.com/sacrements/', 'html_page'),
-        ('https://www.paroisse-maisons-laffitte.com/index.php/horaires2', 'html_page'),
+        # ('https://paroissechaville.com/Horaires-et-adresses', 'html_page'),
+        # ('https://www.diocese-annecy.fr/diocese/les-paroisses/doyenne-de-la-moyenne-vallee-de-larve/paroisse-saint-bernard-du-mont-blanc/livret-fp-hebdo-13-01-2023.pdf', 'pdf'),
+        ('https://www.saintjacquesduhautpas.com/sacrements/', 'html_page'),  # TODO append has_schedule to has_confessions
+        # ('https://www.paroisse-maisons-laffitte.com/index.php/horaires2', 'html_page'),
     ]
 
 

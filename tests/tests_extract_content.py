@@ -9,7 +9,8 @@ class MyTestCase(unittest.TestCase):
     @staticmethod
     def test_get_paragraphs_fixtures():
         return [
-            ('chaville.txt', 'html_page', 'chaville.json')
+            # ('chaville.txt', 'html_page', 'chaville.json'),
+            ('mock1.html', 'html_page', 'mock1.json'),  # TODO fix issue of title text being None
         ]
 
     def test_get_paragraphs(self):
@@ -22,6 +23,7 @@ class MyTestCase(unittest.TestCase):
                     expected_paragraphs = json.load(f)
                 content = '\n'.join(lines)
                 content_tree = ContentTree.load_content_tree_from_text(content, page_type)
+                print(str(content_tree))  # TODO remove after debug
                 raw_contents_with_confessions = content_tree.get_raw_contents_with_confessions()
                 self.assertEqual(raw_contents_with_confessions, expected_paragraphs)
 
