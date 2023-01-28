@@ -1,20 +1,29 @@
+import json
+import os
 import unittest
 
-from utils.extract_content import get_content_tree, get_words, normalize_content
+from utils.extract_content import get_words, normalize_content, ContentTree
 
 
 class MyTestCase(unittest.TestCase):
     @staticmethod
     def test_get_paragraphs_fixtures():
         return [
-            ('chaville.txt', 'pdf', [''])
+            ('chaville.txt', 'html_page', 'chaville.json')
         ]
 
     def test_get_paragraphs(self):
-        for content, page_type, expected_paragraphs in self.test_get_paragraphs_fixtures():
+        tests_dir = os.path.dirname(os.path.realpath(__file__))
+        for content_file_name, page_type, expected_json_file in self.test_get_paragraphs_fixtures():
             with self.subTest():
-                paragraphs = get_content_tree(content, page_type)
-                self.assertEqual(paragraphs, expected_paragraphs)
+                with open(f'{tests_dir}/fixtures/{content_file_name}') as f:
+                    lines = f.readlines()
+                with open(f'{tests_dir}/fixtures/{expected_json_file}') as f:
+                    expected_paragraphs = json.load(f)
+                content = '\n'.join(lines)
+                content_tree = ContentTree.load_content_tree_from_text(content, page_type)
+                raw_contents_with_confessions = content_tree.get_raw_contents_with_confessions()
+                self.assertEqual(raw_contents_with_confessions, expected_paragraphs)
 
     def test_get_words(self):
         content = 'Bonjour, les confessions sont à 13h le mardi.'

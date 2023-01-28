@@ -1,65 +1,19 @@
+import json
 import string
 from unidecode import unidecode
-from bs4 import BeautifulSoup, PageElement
+from bs4 import BeautifulSoup
+from bs4 import element as el
+
+
+##################################
+# SEARCH FOR CONFESSIONS IN TEXT #
+##################################
 
 CONFESSIONS_MENTIONS = [
     'confession',
     'confessions',
     'reconciliation',
 ]
-
-
-def flatten(list_of_lists):
-    return [item for sublist in list_of_lists for item in sublist]
-
-
-class ContentTree:
-    text: string
-    raw_content: string
-    children: list['ContentTree']
-
-    def __init__(self, text, raw_content, children):
-        self.text = text
-        self.raw_content = raw_content
-        self.children = children
-
-    def search_for_confessions(self):
-        if self.text is not None and has_confession_mentions(self.text):
-            return [self.raw_content]
-
-        return flatten(map(ContentTree.search_for_confessions, self.children))
-
-
-def load_from_html(element: PageElement) -> ContentTree:
-    text = element.find(text=True, recursive=False)
-    raw_content = element.prettify()
-
-    if element.name in ['h3']:
-        return ContentTree(text, raw_content, load_from_html(element.next_siblings))
-
-    children_names = map(lambda e: e.name, element.find_all(recursive=False))
-    children_indices_lists = split_children(children_names)
-    element_children = list(element.find_all(recursive=False))
-    for title_element, children_elements in children_indices_lists:
-
-        # TODO finish this
-
-        title_tree = load_from_html(element_children[title_element])
-        children_tree = map(load_from_html, [element_children[i] for i in children_elements])
-        raw_content = title_tree.raw_content + ''.join(
-            [child_tree.raw_content for child_tree in children_tree])
-        return ContentTree(title_tree.text, raw_content, children_tree)
-
-
-def get_content_tree(content, page_type) -> ContentTree:
-    if page_type == 'html_page':
-        soup = BeautifulSoup(content, 'html.parser')
-        body = soup.find('body')
-
-        return load_from_html(body)
-
-    # TODO split text into paragraphs (including title of paragraphs)
-    return ContentTree('', '', [])
 
 
 def normalize_content(content):
@@ -84,16 +38,113 @@ def has_confession_mentions(content: string):
     return False
 
 
-def extract_confession_part_from_content(content, page_type):
-    content_tree = get_content_tree(content, page_type)
-    trees_with_confessions = content_tree.search_for_confessions()
+##############
+# PARSE HTML #
+##############
+TITLES_TAGS = [
+    'h3'
+]
+
+
+def group_children_by_section(children_names):
+    """Given a list of tags (i.e. ["p", "h1", "p", "p", "h1", "p", "p"],
+    returns a list of tuples (title_index, list of children indices)
+    example [(None, 0), (1, [2, 3]), (4, [5, 6])]"""
+    result = []
+    current_title_index = None
+    for i, name in enumerate(children_names):
+        if name in TITLES_TAGS:
+            current_title_index = len(result)
+            result.append((i, []))
+        elif current_title_index is not None:
+            result[current_title_index][1].append(i)
+        else:
+            result.append((None, [i]))
+
+    return result
+
+
+def load_from_html(element: el) -> 'ContentTree':
+    # We get text and raw_content
+    text = element.find(text=True, recursive=False)
+    raw_content = element.prettify()
+
+    # We get all children elements
+    element_children = list(element.find_all(recursive=False))
+
+    # By analysing children elements tag names we can group children in clusters
+    children_tag_names = map(lambda e: e.name, element_children)
+    children_by_section = group_children_by_section(children_tag_names)
+
+    children = []
+    for title_element, children_elements in children_by_section:
+        # we recursively load all children
+        children_trees = map(load_from_html, [element_children[i] for i in children_elements])
+
+        if title_element is None:
+            # if we don't have any title, we just append all children
+            children.extend(children_trees)
+            continue
+
+        # if we have a title for this section we load it
+        title_tree = load_from_html(element_children[title_element])
+        # raw_content is the concatenation of title raw_content and children raw_content's
+        raw_content = ''.join(
+            [title_tree.raw_content]
+            + [child_tree.raw_content for child_tree in children_trees])
+
+        # we append this new element
+        children.append(ContentTree(title_tree.text, raw_content, children_trees))
+
+    return ContentTree(text, raw_content, children)
+
+
+################
+# CONTENT TREE #
+################
+
+class ContentTree:
+    """Tree representation of page content"""
+
+    text: string
+    raw_content: string
+    children: list['ContentTree']
+
+    def __init__(self, text, raw_content, children):
+        self.text = text
+        self.raw_content = raw_content
+        self.children = children
+
+    @staticmethod
+    def _flatten(list_of_lists):
+        return [item for sublist in list_of_lists for item in sublist]
+
+    def get_raw_contents_with_confessions(self):
+        if self.text is not None and has_confession_mentions(self.text):
+            return [self.raw_content]
+
+        return self._flatten(map(ContentTree.get_raw_contents_with_confessions, self.children))
+
+    @staticmethod
+    def load_content_tree_from_text(content, page_type) -> 'ContentTree':
+        if page_type == 'html_page':
+            soup = BeautifulSoup(content, 'html.parser')
+            body = soup.find('body')
+
+            return load_from_html(body)
+
+        # TODO split text into paragraphs (including title of paragraphs)
+        return ContentTree('', '', [])
+
+
+########
+# MAIN #
+########
+
+def extract_confession_part_from_content(text, page_type):
+    content_tree = ContentTree.load_content_tree_from_text(text, page_type)
+    raw_contents_with_confessions = content_tree.get_raw_contents_with_confessions()
+    print(json.dumps(raw_contents_with_confessions))
     delimiter = '<br>' if page_type == 'html_page' else '\n'
 
-    return delimiter.join(trees_with_confessions)
-
-
-if __name__ == '__main__':
-    with open('../tests/fixtures/chaville.txt') as f:
-        lines = f.readlines()
-    content = '\n'.join(lines)
-    print(extract_confession_part_from_content(content, page_type='html_page'))
+    return delimiter.join(raw_contents_with_confessions)
