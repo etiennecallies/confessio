@@ -83,29 +83,6 @@ def is_schedule_description(content: string):
 ##############
 # PARSE HTML #
 ##############
-TITLES_TAGS = [
-    'h1',
-    'h2',
-    'h3',
-]
-
-
-def group_children_by_section(children_names):
-    """Given a list of tags (i.e. ["p", "h1", "p", "p", "h1", "p", "p"],
-    returns a list of tuples (title_index, list of children indices)
-    example [(None, 0), (1, [2, 3]), (4, [5, 6])]"""
-    result = []
-    current_title_index = None
-    for i, name in enumerate(children_names):
-        if name in TITLES_TAGS:
-            current_title_index = len(result)
-            result.append((i, []))
-        elif current_title_index is not None:
-            result[current_title_index][1].append(i)
-        else:
-            result.append((None, [i]))
-
-    return result
 
 
 def load_from_html(element: el) -> 'ContentTree':
@@ -115,37 +92,18 @@ def load_from_html(element: el) -> 'ContentTree':
 
     # We get all children elements
     element_children = list(element.find_all(recursive=False))
+    children_trees = list(map(load_from_html, element_children))
 
-    # By analysing children elements tag names we can group children in clusters
-    children_tag_names = list(map(lambda e: e.name, element_children))
-    children_by_section = group_children_by_section(children_tag_names)
-
-    children = []
-    for title_element, children_elements in children_by_section:
-        # we recursively load all children
-        children_trees = list(map(load_from_html, [element_children[i] for i in children_elements]))
-
-        if title_element is None:
-            # if we don't have any title, we just append all children
-            children.extend(children_trees)
-            continue
-
-        # if we have a title for this section we load it
-        title_tree = load_from_html(element_children[title_element])
-        # raw_content is the concatenation of title raw_content and children raw_content's
-        raw_content = ''.join(
-            [title_tree.raw_content]
-            + [child_tree.raw_content for child_tree in children_trees])
-
-        # we append this new element
-        children.append(ContentTree(title_tree.text, raw_content, children_trees))
-
-    return ContentTree(text, raw_content, children)
+    return ContentTree(text, raw_content, children_trees)
 
 
 ################
 # CONTENT TREE #
 ################
+
+MAX_CONFESSIONS_BACKWARD_SEARCH_DEPTH = 1
+MAX_ELEMENTS_WITHOUT_SCHEDULES = 1
+
 
 class ContentTree:
     """Tree representation of page content"""
@@ -163,24 +121,70 @@ class ContentTree:
         children_str = "[]"
         if self.children:
             children_str = "\n".join(map(lambda c: ContentTree._indent(str(c)), self.children))
-        return f"""text: {self.text}
-raw_content: {self.raw_content}
-children:
-{children_str}"""
+
+        return '\n'.join([
+            f'text: {self.text}',
+            f'raw_content: {self.raw_content}',
+            f'children:',
+            f'{children_str}'
+        ])
 
     @staticmethod
     def _indent(s: str):
         return '\n'.join([f'    {line}' for line in s.split('\n')])
 
-    @staticmethod
-    def _flatten(list_of_lists):
-        return [item for sublist in list_of_lists for item in sublist]
+    def get_confessions_with_schedules(self):
+        raw_contents, depth = self._get_raw_contents_with_confessions()
 
-    def get_raw_contents_with_confessions(self):
+        return raw_contents
+
+    def _get_raw_contents_with_confessions(self):
         if self.text is not None and has_confession_mentions(self.text):
-            return [self.raw_content]
+            if self.has_any_schedules_description():
+                return [self.raw_content], None
+            else:
+                return [], 0
 
-        return self._flatten(map(ContentTree.get_raw_contents_with_confessions, self.children))
+        results = []
+        children_buffer = []
+        remaining_elements = None
+        min_depth = None
+        for child in self.children:
+            raw_contents, depth = child._get_raw_contents_with_confessions()
+            if raw_contents:
+                # child contains confessions and schedules
+                results.extend(children_buffer)
+                children_buffer = []
+                results.extend(raw_contents)
+            elif depth is not None and depth <= MAX_CONFESSIONS_BACKWARD_SEARCH_DEPTH:
+                # child contains confessions but no schedules
+                if min_depth is None or depth < min_depth:
+                    min_depth = depth
+                children_buffer.append(child.raw_content)
+                remaining_elements = MAX_ELEMENTS_WITHOUT_SCHEDULES
+            elif remaining_elements is not None:
+                # if we have seen confessions before, we look for schedules
+                # until we exhaust the remaining_elements
+                if child.has_any_schedules_description():
+                    results.extend(children_buffer)
+                    children_buffer = []
+                    results.append(child.raw_content)
+                    remaining_elements = MAX_ELEMENTS_WITHOUT_SCHEDULES
+                else:
+                    remaining_elements -= 1
+                    if remaining_elements == 0:
+                        children_buffer = []
+                        remaining_elements = None
+                    else:
+                        children_buffer.append(child.raw_content)
+
+        return results, min_depth + 1 if min_depth is not None else None
+
+    def has_any_schedules_description(self):
+        if self.text is not None and is_schedule_description(self.text):
+            return True
+
+        return any(map(ContentTree.has_any_schedules_description, self.children))
 
     @staticmethod
     def load_content_tree_from_text(content, page_type) -> 'ContentTree':
@@ -200,7 +204,7 @@ children:
 
 def extract_confession_part_from_content(text, page_type):
     content_tree = ContentTree.load_content_tree_from_text(text, page_type)
-    raw_contents_with_confessions = content_tree.get_raw_contents_with_confessions()
+    raw_contents_with_confessions = content_tree.get_confessions_with_schedules()
     # print(json.dumps(raw_contents_with_confessions))  # TODO create command to insert it in fixtures ?
     delimiter = '<br>' if page_type == 'html_page' else '\n'
 
