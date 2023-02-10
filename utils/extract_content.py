@@ -101,7 +101,7 @@ def load_from_html(element: el) -> 'ContentTree':
 # CONTENT TREE #
 ################
 
-MAX_CONFESSIONS_BACKWARD_SEARCH_DEPTH = 1
+MAX_CONFESSIONS_BACKWARD_SEARCH_DEPTH = 2
 MAX_ELEMENTS_WITHOUT_SCHEDULES = 1
 
 
@@ -210,7 +210,6 @@ class ContentTree:
 def extract_confession_part_from_content(text, page_type):
     content_tree = ContentTree.load_content_tree_from_text(text, page_type)
     raw_contents_with_confessions = content_tree.get_confessions_with_schedules()
-    # print(json.dumps(raw_contents_with_confessions))  # TODO create command to insert it in fixtures ?
     delimiter = '<br>' if page_type == 'html_page' else '\n'
 
     return delimiter.join(raw_contents_with_confessions)

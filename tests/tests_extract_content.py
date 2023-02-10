@@ -12,6 +12,7 @@ class MyTestCase(unittest.TestCase):
             ('chaville', 'html_page'),
             ('mock1', 'html_page'),
             ('mock2', 'html_page'),
+            ('maisons-laffitte', 'html_page'),
         ]
 
     def test_get_paragraphs(self):
@@ -25,6 +26,7 @@ class MyTestCase(unittest.TestCase):
                 content = '\n'.join(lines)
                 content_tree = ContentTree.load_content_tree_from_text(content, page_type)
                 raw_contents_with_confessions = content_tree.get_confessions_with_schedules()
+                # print(json.dumps(raw_contents_with_confessions))
                 self.assertEqual(raw_contents_with_confessions, expected_paragraphs)
 
     def test_get_words(self):
