@@ -7,23 +7,23 @@ from utils.extract_content import get_words, normalize_content, ContentTree
 
 class MyTestCase(unittest.TestCase):
     @staticmethod
-    def test_get_paragraphs_fixtures():
+    def get_paragraphs_fixtures():
         return [
-            ('chaville.html', 'html_page', 'chaville.json'),  # TODO fix this
-            # ('mock1.html', 'html_page', 'mock1.json'),
+            ('chaville', 'html_page'),
+            ('mock1', 'html_page'),
+            ('mock2', 'html_page'),
         ]
 
     def test_get_paragraphs(self):
         tests_dir = os.path.dirname(os.path.realpath(__file__))
-        for content_file_name, page_type, expected_json_file in self.test_get_paragraphs_fixtures():
+        for file_name, page_type in self.get_paragraphs_fixtures():
             with self.subTest():
-                with open(f'{tests_dir}/fixtures/{content_file_name}') as f:
+                with open(f'{tests_dir}/fixtures/{file_name}.html') as f:
                     lines = f.readlines()
-                with open(f'{tests_dir}/fixtures/{expected_json_file}') as f:
+                with open(f'{tests_dir}/fixtures/{file_name}.json') as f:
                     expected_paragraphs = json.load(f)
                 content = '\n'.join(lines)
                 content_tree = ContentTree.load_content_tree_from_text(content, page_type)
-                # print(str(content_tree))
                 raw_contents_with_confessions = content_tree.get_confessions_with_schedules()
                 self.assertEqual(raw_contents_with_confessions, expected_paragraphs)
 

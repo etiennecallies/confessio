@@ -147,38 +147,43 @@ class ContentTree:
 
         results = []
         children_buffer = []
-        remaining_elements = None
-        min_depth = None
+        remaining_attempts_without_schedules = None
+        min_confessions_depth = None
         for child in self.children:
-            raw_contents, depth = child._get_raw_contents_with_confessions()
+            raw_contents, confessions_depth = child._get_raw_contents_with_confessions()
             if raw_contents:
                 # child contains confessions and schedules
                 results.extend(children_buffer)
                 children_buffer = []
                 results.extend(raw_contents)
-            elif depth is not None and depth <= MAX_CONFESSIONS_BACKWARD_SEARCH_DEPTH:
+            elif confessions_depth is not None \
+                    and confessions_depth <= MAX_CONFESSIONS_BACKWARD_SEARCH_DEPTH:
                 # child contains confessions but no schedules
-                if min_depth is None or depth < min_depth:
-                    min_depth = depth
+                if min_confessions_depth is None or confessions_depth < min_confessions_depth:
+                    min_confessions_depth = confessions_depth
                 children_buffer.append(child.raw_content)
-                remaining_elements = MAX_ELEMENTS_WITHOUT_SCHEDULES
-            elif remaining_elements is not None:
+                remaining_attempts_without_schedules = MAX_ELEMENTS_WITHOUT_SCHEDULES
+            elif remaining_attempts_without_schedules is not None:
                 # if we have seen confessions before, we look for schedules
-                # until we exhaust the remaining_elements
+                # until we exhaust the remaining_attempts_without_schedules
                 if child.has_any_schedules_description():
                     results.extend(children_buffer)
                     children_buffer = []
                     results.append(child.raw_content)
-                    remaining_elements = MAX_ELEMENTS_WITHOUT_SCHEDULES
+                    remaining_attempts_without_schedules = MAX_ELEMENTS_WITHOUT_SCHEDULES
                 else:
-                    remaining_elements -= 1
-                    if remaining_elements == 0:
+                    if remaining_attempts_without_schedules == 0:
                         children_buffer = []
-                        remaining_elements = None
+                        remaining_attempts_without_schedules = None
                     else:
+                        remaining_attempts_without_schedules -= 1
                         children_buffer.append(child.raw_content)
 
-        return results, min_depth + 1 if min_depth is not None else None
+        # if there is no results (confessions + schedules), and confessions only has been found
+        # We return min depth of confessions found plus one
+        final_depth = min_confessions_depth + 1 \
+            if min_confessions_depth is not None and not results else None
+        return results, final_depth
 
     def has_any_schedules_description(self):
         if self.text is not None and is_schedule_description(self.text):
