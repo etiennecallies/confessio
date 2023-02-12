@@ -14,6 +14,7 @@ class MyTestCase(unittest.TestCase):
             ('mock2', 'html_page'),
             ('maisons-laffitte', 'html_page'),
             ('ste-jeanne-darc', 'html_page'),
+            ('st-jacques-du-haut-pas', 'html_page'),
         ]
 
     def test_get_paragraphs(self):
