@@ -1,6 +1,7 @@
+import re
 import string
 
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, Comment
 from bs4 import element as el
 from unidecode import unidecode
 
@@ -52,6 +53,11 @@ DATES_MENTIONS = [
     'ordinaire',
 ]
 
+DATE_REGEX = [
+    r'\dh\d\d',
+    r'\d\dh\d\d',
+]
+
 
 def normalize_content(content):
     return unidecode(content.lower())
@@ -64,13 +70,19 @@ def get_words(content):
     return set(content.split())
 
 
-def has_any_of_words(content: string, lexical_list):
+def has_any_of_words(content: string, lexical_list, regex_list=None):
     normalized_content = normalize_content(content)
     words = get_words(normalized_content)
 
     for mention in lexical_list:
         if mention in words:
             return True
+
+    if regex_list:
+        for regex in regex_list:
+            for w in words:
+                if re.fullmatch(regex, w):
+                    return True
 
     return False
 
@@ -80,7 +92,7 @@ def has_confession_mentions(content: string):
 
 
 def is_schedule_description(content: string):
-    return has_any_of_words(content, DATES_MENTIONS)
+    return has_any_of_words(content, DATES_MENTIONS, DATE_REGEX)
 
 
 ##############
@@ -90,7 +102,8 @@ def is_schedule_description(content: string):
 
 def load_from_html(element: el) -> 'ContentTree':
     # We get text and raw_content
-    text = element.find(text=True, recursive=False)
+    all_strings = element.find_all(text=lambda t: not isinstance(t, Comment), recursive=False)
+    text = ' '.join(all_strings).rstrip()
     raw_content = element.prettify()
 
     # We get all children elements
@@ -158,7 +171,14 @@ class ContentTree:
                 # child contains confessions and schedules
                 results.extend(children_buffer)
                 children_buffer = []
-                results.extend(raw_contents)
+
+                # We check if we were waiting for schedules
+                if remaining_attempts_without_schedules is not None \
+                        and child.has_any_schedules_description():
+                    results.append(child.raw_content)
+                    remaining_attempts_without_schedules = MAX_ELEMENTS_WITHOUT_SCHEDULES
+                else:
+                    results.extend(raw_contents)
             elif confessions_depth is not None \
                     and confessions_depth <= MAX_CONFESSIONS_BACKWARD_SEARCH_DEPTH:
                 # child contains confessions but no schedules

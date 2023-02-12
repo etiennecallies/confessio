@@ -2,7 +2,7 @@ import json
 import os
 import unittest
 
-from utils.extract_content import get_words, normalize_content, ContentTree
+from utils.extract_content import get_words, normalize_content, ContentTree, is_schedule_description
 
 
 class MyTestCase(unittest.TestCase):
@@ -15,6 +15,7 @@ class MyTestCase(unittest.TestCase):
             ('maisons-laffitte', 'html_page'),
             ('ste-jeanne-darc', 'html_page'),
             ('st-jacques-du-haut-pas', 'html_page'),
+            ('st-bruno-des-chartreux', 'html_page'),
         ]
 
     def test_get_paragraphs(self):
@@ -27,6 +28,7 @@ class MyTestCase(unittest.TestCase):
                     expected_paragraphs = json.load(f)
                 content = '\n'.join(lines)
                 content_tree = ContentTree.load_content_tree_from_text(content, page_type)
+                # print(content_tree)
                 raw_contents_with_confessions = content_tree.get_confessions_with_schedules()
                 # print(json.dumps(raw_contents_with_confessions))
                 self.assertEqual(raw_contents_with_confessions, expected_paragraphs)
@@ -42,6 +44,12 @@ class MyTestCase(unittest.TestCase):
         expected_normalized_content = 'bonjour, les confessions sont a 13h le mardi.'
         normalized_content = normalize_content(content)
         self.assertEqual(normalized_content, expected_normalized_content)
+
+    def test_is_schedule_description(self):
+        content = "Le célébrant asssure une permanence de confession avant la messe dans le " \
+                  "confessional de la chapelle Saint-Pierre, à droite en entrant dans l'église, " \
+                  "de 9h45 à 10h25."
+        self.assertTrue(is_schedule_description(content))
 
 
 if __name__ == '__main__':
