@@ -4,7 +4,11 @@ import requests
 def get_content_from_url(url):
     print(f'getting content from url {url}')
 
-    r = requests.get(url)
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) '
+                      'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36'
+    }
+    r = requests.get(url, headers=headers)
     if r.status_code != 200:
         print(r.status_code)
         print(r.text)

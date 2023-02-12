@@ -47,6 +47,9 @@ DATES_MENTIONS = [
     'octobre',
     'novembre',
     'decembre',
+    'careme',
+    'temps',
+    'ordinaire',
 ]
 
 
@@ -101,7 +104,7 @@ def load_from_html(element: el) -> 'ContentTree':
 # CONTENT TREE #
 ################
 
-MAX_CONFESSIONS_BACKWARD_SEARCH_DEPTH = 2
+MAX_CONFESSIONS_BACKWARD_SEARCH_DEPTH = 5
 MAX_ELEMENTS_WITHOUT_SCHEDULES = 1
 
 
@@ -175,6 +178,7 @@ class ContentTree:
                     if remaining_attempts_without_schedules == 0:
                         children_buffer = []
                         remaining_attempts_without_schedules = None
+                        min_confessions_depth = None
                     else:
                         remaining_attempts_without_schedules -= 1
                         children_buffer.append(child.raw_content)

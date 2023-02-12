@@ -13,6 +13,7 @@ class MyTestCase(unittest.TestCase):
             ('mock1', 'html_page'),
             ('mock2', 'html_page'),
             ('maisons-laffitte', 'html_page'),
+            ('ste-jeanne-darc', 'html_page'),
         ]
 
     def test_get_paragraphs(self):
