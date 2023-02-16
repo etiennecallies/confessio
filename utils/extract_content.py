@@ -1,8 +1,9 @@
 import re
 import string
 
-from bs4 import BeautifulSoup, Comment
+from bs4 import BeautifulSoup
 from bs4 import element as el
+from bs4.element import Comment
 from unidecode import unidecode
 
 ##################
@@ -149,71 +150,111 @@ class ContentTree:
     def _indent(s: str):
         return '\n'.join([f'    {line}' for line in s.split('\n')])
 
-    def get_confessions_with_schedules(self):
-        raw_contents, depth = self._get_raw_contents_with_confessions()
+    def get_confessions_and_schedules_raw_contents(self):
+        raw_contents, depth = self._search_for_confessions_and_schedules()
 
         return raw_contents
 
-    def _get_raw_contents_with_confessions(self):
+    def _search_for_confessions_and_schedules(self):
+        """
+        :return: a tuple of :
+         - relevant list of raw_contents containing confessions and schedules
+         - depth of the found confessions if no schedule has been found
+        """
+
         if self.text is not None and has_confession_mentions(self.text):
-            if self.has_any_schedules_description():
+            # If text has confession mention, we look for schedules description recursively
+            if self.has_schedules_description_recursively():
+                # If we have both, we return current raw_content
                 return [self.raw_content], None
             else:
+                # Otherwise we return the depth of confession mentions
                 return [], 0
 
-        results = []
+        raw_contents = []
         children_buffer = []
         remaining_attempts_without_schedules = None
         min_confessions_depth = None
         for child in self.children:
-            raw_contents, confessions_depth = child._get_raw_contents_with_confessions()
-            if raw_contents:
+            child_raw_contents, confessions_depth = child._search_for_confessions_and_schedules()
+            if child_raw_contents:
                 # child contains confessions and schedules
-                results.extend(children_buffer)
+
+                # we flush buffer
+                raw_contents.extend(children_buffer)
                 children_buffer = []
 
-                # We check if we were waiting for schedules
                 if remaining_attempts_without_schedules is not None \
-                        and child.has_any_schedules_description():
-                    results.append(child.raw_content)
+                        and child.has_schedules_description_recursively():
+                    # If we were looking for schedules, and if we actually found schedules,
+                    # we append entire child
+                    raw_contents.append(child.raw_content)
+                    # and we are still looking for schedules
                     remaining_attempts_without_schedules = MAX_ELEMENTS_WITHOUT_SCHEDULES
                 else:
-                    results.extend(raw_contents)
+                    # otherwise we append only the relevant parts
+                    raw_contents.extend(child_raw_contents)
+
             elif confessions_depth is not None \
                     and confessions_depth <= MAX_CONFESSIONS_BACKWARD_SEARCH_DEPTH:
                 # child contains confessions but no schedules
+
+                # we update minimum confessions found so far
                 if min_confessions_depth is None or confessions_depth < min_confessions_depth:
                     min_confessions_depth = confessions_depth
+
+                # we keep the child in buffer
                 children_buffer.append(child.raw_content)
+                # and we are now looking for schedules
                 remaining_attempts_without_schedules = MAX_ELEMENTS_WITHOUT_SCHEDULES
+
             elif remaining_attempts_without_schedules is not None:
+                # child does not contain confession
+
                 # if we have seen confessions before, we look for schedules
                 # until we exhaust the remaining_attempts_without_schedules
-                if child.has_any_schedules_description():
-                    results.extend(children_buffer)
+
+                if child.has_schedules_description_recursively():
+                    # we found schedules
+
+                    # we flush buffer
+                    raw_contents.extend(children_buffer)
                     children_buffer = []
-                    results.append(child.raw_content)
+
+                    # we append the child
+                    raw_contents.append(child.raw_content)
+                    # and we are still looking for schedules
                     remaining_attempts_without_schedules = MAX_ELEMENTS_WITHOUT_SCHEDULES
                 else:
+                    # we did not find schedules
+
                     if remaining_attempts_without_schedules == 0:
+                        # we exhausted attempts, we reset all variables
                         children_buffer = []
                         remaining_attempts_without_schedules = None
                         min_confessions_depth = None
                     else:
+                        # we still have some attempts
                         remaining_attempts_without_schedules -= 1
+                        # we keep the child in buffer, as it can contain other information
+                        # than schedules (e.g. location of confessions)
                         children_buffer.append(child.raw_content)
 
-        # if there is no results (confessions + schedules), and confessions only has been found
-        # We return min depth of confessions found plus one
-        final_depth = min_confessions_depth + 1 \
-            if min_confessions_depth is not None and not results else None
-        return results, final_depth
+        if raw_contents or min_confessions_depth is None:
+            # if there is a complete result (confessions + schedules)
+            # or if there is no pending result (confessions recently found)
+            final_depth = None
+        else:
+            # if there is no complete results and one pending result
+            final_depth = min_confessions_depth + 1
 
-    def has_any_schedules_description(self):
+        return raw_contents, final_depth
+
+    def has_schedules_description_recursively(self):
         if self.text is not None and is_schedule_description(self.text):
             return True
 
-        return any(map(ContentTree.has_any_schedules_description, self.children))
+        return any(map(ContentTree.has_schedules_description_recursively, self.children))
 
     @staticmethod
     def load_content_tree_from_text(content, page_type) -> 'ContentTree':
@@ -233,7 +274,7 @@ class ContentTree:
 
 def extract_confession_part_from_content(text, page_type):
     content_tree = ContentTree.load_content_tree_from_text(text, page_type)
-    raw_contents_with_confessions = content_tree.get_confessions_with_schedules()
+    raw_contents_with_confessions = content_tree.get_confessions_and_schedules_raw_contents()
     delimiter = '<br>' if page_type == 'html_page' else '\n'
 
     return delimiter.join(raw_contents_with_confessions)

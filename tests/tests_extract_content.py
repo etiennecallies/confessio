@@ -29,9 +29,9 @@ class MyTestCase(unittest.TestCase):
                 content = '\n'.join(lines)
                 content_tree = ContentTree.load_content_tree_from_text(content, page_type)
                 # print(content_tree)
-                raw_contents_with_confessions = content_tree.get_confessions_with_schedules()
+                raw_contents = content_tree.get_confessions_and_schedules_raw_contents()
                 # print(json.dumps(raw_contents_with_confessions))
-                self.assertEqual(raw_contents_with_confessions, expected_paragraphs)
+                self.assertEqual(raw_contents, expected_paragraphs)
 
     def test_get_words(self):
         content = 'Bonjour, les confessions sont à 13h le mardi.'
