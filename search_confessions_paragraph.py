@@ -11,7 +11,10 @@ def get_confession_pages():
         # ('https://www.saintjacquesduhautpas.com/sacrements/', 'html_page'),
         # ('https://www.paroisse-maisons-laffitte.com/index.php/horaires2', 'html_page'),
         # ('https://jeannedarc-versailles.com/horaires/', 'html_page'),
-        ('https://paroissesaintbruno.pagesperso-orange.fr/messes.html', 'html_page'),
+        # ('https://paroissesaintbruno.pagesperso-orange.fr/messes.html', 'html_page'),
+        # ('https://www.eglise-saintgermaindespres.fr/sacrements/reconciliation/', 'html_page'),  # Bof un peu large...
+        # ('https://notredameversailles.fr/vie-chretienne/vivre-les-sacrements/sacrement-de-penitence-et-de-reconciliation/', 'html_page'),  # Bof, un peu large aussi...
+        ('https://paroissecroixrousse.fr/pour-le-temps-de-noel/', 'html_page'),
     ]
 
 
