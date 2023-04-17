@@ -4,7 +4,7 @@ python-dotenv
 whitenoise
 django-theme-pixel==1.0.3
 
-# psycopg2-binary
+psycopg2-binary==2.9.6
 # mysqlclient
 
 folium==0.14.0

@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.gis",
 
     'theme_pixel',
     "home",
@@ -101,7 +102,7 @@ DB_NAME     = os.getenv('DB_NAME'     , None)
 if DB_ENGINE and DB_NAME and DB_USERNAME:
     DATABASES = { 
       'default': {
-        'ENGINE'  : 'django.db.backends.' + DB_ENGINE, 
+        'ENGINE'  : DB_ENGINE,
         'NAME'    : DB_NAME,
         'USER'    : DB_USERNAME,
         'PASSWORD': DB_PASS,
@@ -164,3 +165,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 LOGIN_REDIRECT_URL = '/'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# https://stackoverflow.com/questions/67283705/m1-mac-geodjango-gdal-mach-o-but-wrong-architecture
+GDAL_LIBRARY_PATH="/opt/homebrew/Cellar/gdal/3.6.3_1/lib/libgdal.dylib"
+GEOS_LIBRARY_PATH="/opt/homebrew/Cellar/geos/3.11.2/lib/libgeos_c.dylib"
