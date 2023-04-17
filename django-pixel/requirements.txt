@@ -6,3 +6,5 @@ django-theme-pixel==1.0.3
 
 # psycopg2-binary
 # mysqlclient
+
+folium==0.14.0
