@@ -19,7 +19,7 @@ class TimeStampMixin(models.Model):
 class Parish(TimeStampMixin):
     name = models.CharField(max_length=100)
     home_url = models.URLField()
-    confession_hours_url = models.URLField()
+    confession_hours_url = models.URLField(null=True, blank=True)
 
 
 class Church(TimeStampMixin):
