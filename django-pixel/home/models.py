@@ -28,3 +28,4 @@ class Church(TimeStampMixin):
     address = models.CharField(max_length=100)
     zipcode = models.CharField(max_length=5)
     city = models.CharField(max_length=50)
+    parish = models.ForeignKey('Parish', on_delete=models.CASCADE)

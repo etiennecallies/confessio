@@ -7,9 +7,9 @@ from.models import Church, Parish
 
 @admin.register(Parish)
 class ParishAdmin(OSMGeoAdmin):
-    pass
+    list_display = ["name"]
 
 
 @admin.register(Church)
 class ChurchAdmin(OSMGeoAdmin):
-    pass
+    list_display = ["name"]
