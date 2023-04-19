@@ -28,4 +28,10 @@ class Church(TimeStampMixin):
     address = models.CharField(max_length=100)
     zipcode = models.CharField(max_length=5)
     city = models.CharField(max_length=50)
-    parish = models.ForeignKey('Parish', on_delete=models.CASCADE)
+    parish = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='churches')
+
+
+class Scrapping(TimeStampMixin):
+    confession_html = models.TextField()
+    nb_iterations = models.PositiveSmallIntegerField()
+    parish = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='scrappings')
