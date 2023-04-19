@@ -1,6 +1,15 @@
-# Python
 *.pyc
+*.DS_Store
+*.egg*
+/dist/
+/.idea
+/docs/_build/
+/node_modules/
+build/
+env
+/staticfiles/
 
-# Jetbrains IDE
-.idea/
+#src
+*.sqlite*
 
+.env
