@@ -1,9 +1,8 @@
-from utils.download_content import get_content
-from utils.extract_content import extract_confession_part_from_content
+from scrapping.utils.download_content import get_content
+from scrapping.utils.extract_content import extract_confession_part_from_content
 
 
 def get_confession_pages():
-    # TODO get confession_pages
 
     return [
         # ('https://paroissechaville.com/Horaires-et-adresses', 'html_page'),

@@ -167,5 +167,7 @@ LOGIN_REDIRECT_URL = '/'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # https://stackoverflow.com/questions/67283705/m1-mac-geodjango-gdal-mach-o-but-wrong-architecture
-GDAL_LIBRARY_PATH="/opt/homebrew/Cellar/gdal/3.6.3_1/lib/libgdal.dylib"
-GEOS_LIBRARY_PATH="/opt/homebrew/Cellar/geos/3.11.2/lib/libgeos_c.dylib"
+if os.getenv('GDAL_LIBRARY_PATH'):
+    GDAL_LIBRARY_PATH = os.getenv('GDAL_LIBRARY_PATH')
+if os.getenv('GEOS_LIBRARY_PATH'):
+    GEOS_LIBRARY_PATH = os.getenv('GEOS_LIBRARY_PATH')
