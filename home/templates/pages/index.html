@@ -29,7 +29,7 @@
           </div>
           <div class="col-12 text-left">
             {% for parish in parishes %}
-                <div>
+                <div id="{{ parish.uuid }}">
                     <p>
                         <a href="{{ parish.home_url }}">{{ parish.name }}</a></p>
                     <p>
@@ -37,7 +37,7 @@
                             {{ church.name }}
                         {% endfor %}
                     </p>
-                    <p>
+                    <div>
                         {% if parish.has_confessions %}
                             {% trans 'BeforeConfessionHTML' %}
                             <p>
@@ -50,7 +50,7 @@
                         <a href="{{ parish.confession_hours_url }}">
                             {% trans 'goToExternalConfessionPage' %}
                         </a>
-                    </p>
+                    </div>
                 </div>
             {% endfor %}
           </div>

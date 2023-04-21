@@ -23,8 +23,13 @@ def get_popup_and_color(parish, church):
         raise NotImplemented
 
     link_wording = 'voir ci-dessous'
+    popup_html = f"""
+        <b>{church.name}</b><br>
+        {wording}<br>
+        <a href="#{parish.uuid}" target="_parent">{link_wording}</a>
+    """
 
-    return f'<b>{church.name}</b><br>{wording}<br>{link_wording}', color
+    return popup_html, color
 
 
 def index(request):
@@ -39,10 +44,10 @@ def index(request):
     for parish in parishes:
         for church in parish.churches.all():
             tootltip_text = f'{church.name}'
-            popup_content, color = get_popup_and_color(parish, church)
+            popup_html, color = get_popup_and_color(parish, church)
             folium.Marker(get_latitude_longitude(church.location),
                           tooltip=tootltip_text,
-                          popup=Popup(html=popup_content, max_width=None),
+                          popup=Popup(html=popup_html, max_width=None),
                           icon=Icon(icon='cross', prefix='fa', color=color),
                           ).add_to(folium_map)
 
