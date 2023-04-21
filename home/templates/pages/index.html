@@ -6,6 +6,7 @@
 <main>
 
   {% include 'includes/pre-loader.html' %}
+  {% load i18n %}
 
   <!-- Hero -->
   <section class="section-header overflow-hidden pt-7 pt-lg-8 pb-9 pb-lg-12 bg-primary text-white">
@@ -25,6 +26,29 @@
             <div class="col-12">
                 {{ map_html|safe }}
             </div>
+          </div>
+          <div class="col-12 text-left">
+            {% for parish in parishes %}
+                <div>
+                    <p>
+                        <a href="{{ parish.home_url }}">{{ parish.name }}</a></p>
+                    <p>
+                        {% for church in parish.churches.all %}
+                            {{ church.name }}
+                        {% endfor %}
+                    </p>
+                    <p>
+                        {% trans 'BeforeConfessionHTML' %}
+                        <a href="{{ parish.confession_hours_url }}">
+                            {% trans 'goToExternalConfessionPage' %}
+                        </a>
+                    </p>
+                    <p>
+                        <iframe srcdoc="{{ parish.get_latest_scraping.confession_html }}" class="col-12">
+                        </iframe>
+                    </p>
+                </div>
+            {% endfor %}
           </div>
           <h2 class="lead fw-normal text-muted mb-4 px-lg-10">
             Modern Bootstrap 5 Kit migrated to Django 

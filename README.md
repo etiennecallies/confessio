@@ -15,6 +15,13 @@ Follow instructions [here](https://mits003.github.io/studio_null/2021/07/install
 python -m unittest
 ```
 
+## Translations
+Inside `/home` directory:
+```shell
+django-admin makemessages -l fr
+django-admin compilemessages
+```
+
 
 TODO clean the following part
 # [Django Pixel Bootstrap 5](https://appseed.us/product/pixel-bootstrap/django/)

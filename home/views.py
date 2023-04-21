@@ -1,6 +1,5 @@
-from django.shortcuts import render
-from django.http import HttpResponse
 import folium
+from django.shortcuts import render
 
 from home.models import Parish
 
@@ -14,7 +13,7 @@ def get_latitude_longitude(point):
 def index(request):
 
     # Load parishes
-    # TODO load parish and last scrappings at the same time
+    # TODO load parish and latest scrappings at the same time
     parishes = Parish.objects.all()
 
     # Create Map Object
@@ -22,15 +21,15 @@ def index(request):
 
     for parish in parishes:
         for church in parish.churches.all():
+            tootltip_text = f'{church.name}'
             popup_content = f'{church.name}'
             folium.Marker(get_latitude_longitude(church.location),
-                          tooltip='Click for more',
+                          tooltip=tootltip_text,
                           popup=popup_content,
                           ).add_to(m)
 
     # Get HTML Representation of Map Object
     map_html = m._repr_html_()
-    print(map_html)
 
     context = {
         'map_html': map_html,

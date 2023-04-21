@@ -20,6 +20,15 @@ class Parish(TimeStampMixin):
     name = models.CharField(max_length=100)
     home_url = models.URLField()
     confession_hours_url = models.URLField(null=True, blank=True)
+    _latest_scraping = None
+    _has_search_latest_scraping = False
+
+    def get_latest_scraping(self) -> 'Scrapping':
+        if not self._has_search_latest_scraping:
+            self._latest_scraping = self.scrappings.latest('updated_at')
+            self._has_search_latest_scraping = False
+
+        return self._latest_scraping
 
 
 class Church(TimeStampMixin):
