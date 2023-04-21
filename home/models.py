@@ -14,6 +14,7 @@ class TimeStampMixin(models.Model):
 
     class Meta:
         abstract = True
+        get_latest_by = ['updated_at']
 
 
 class Parish(TimeStampMixin):
@@ -23,9 +24,12 @@ class Parish(TimeStampMixin):
     _latest_scraping = None
     _has_search_latest_scraping = False
 
-    def get_latest_scraping(self) -> 'Scrapping':
+    def get_latest_scraping(self) -> 'Scraping':
         if not self._has_search_latest_scraping:
-            self._latest_scraping = self.scrappings.latest('updated_at')
+            try:
+                self._latest_scraping = self.scrapings.latest()
+            except Scraping.DoesNotExist:
+                self._latest_scraping = None
             self._has_search_latest_scraping = False
 
         return self._latest_scraping
@@ -40,7 +44,7 @@ class Church(TimeStampMixin):
     parish = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='churches')
 
 
-class Scrapping(TimeStampMixin):
+class Scraping(TimeStampMixin):
     confession_html = models.TextField()
     nb_iterations = models.PositiveSmallIntegerField()
-    parish = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='scrappings')
+    parish = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='scrapings')

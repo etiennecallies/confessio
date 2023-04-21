@@ -1,5 +1,5 @@
-from scrapping.utils.download_content import get_content
-from scrapping.utils.extract_content import extract_confession_part_from_content
+from scraping.utils.download_content import get_content
+from scraping.utils.extract_content import extract_confession_part_from_content
 
 
 def get_confession_pages():

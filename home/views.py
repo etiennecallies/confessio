@@ -13,7 +13,7 @@ def get_latitude_longitude(point):
 def index(request):
 
     # Load parishes
-    # TODO load parish and latest scrappings at the same time
+    # TODO load parish and latest scraping at the same time
     parishes = Parish.objects.all()
 
     # Create Map Object
