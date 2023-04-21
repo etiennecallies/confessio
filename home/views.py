@@ -1,14 +1,30 @@
 import folium
 from django.shortcuts import render
-from folium import Icon
+from folium import Icon, Popup
 
 from home.models import Parish
+from django.utils.translation import gettext as _
 
 
 # Create your views here.
 
 def get_latitude_longitude(point):
     return [point.coords[1], point.coords[0]]
+
+
+def get_popup_and_color(parish, church):
+    if parish.has_confessions():
+        wording = _("ConfessionsExist")
+        color = 'blue'
+    elif parish.not_scraped_yet():
+        wording = _("NotScrapedYet")
+        color = 'beige'
+    else:
+        raise NotImplemented
+
+    link_wording = 'voir ci-dessous'
+
+    return f'<b>{church.name}</b><br>{wording}<br>{link_wording}', color
 
 
 def index(request):
@@ -23,11 +39,11 @@ def index(request):
     for parish in parishes:
         for church in parish.churches.all():
             tootltip_text = f'{church.name}'
-            popup_content = f'{church.name}'
+            popup_content, color = get_popup_and_color(parish, church)
             folium.Marker(get_latitude_longitude(church.location),
                           tooltip=tootltip_text,
-                          popup=popup_content,
-                          icon=Icon(icon='cross', prefix='fa', color='orange'),
+                          popup=Popup(html=popup_content, max_width=None),
+                          icon=Icon(icon='cross', prefix='fa', color=color),
                           ).add_to(folium_map)
 
     # Get HTML Representation of Map Object

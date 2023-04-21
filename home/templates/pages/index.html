@@ -38,14 +38,18 @@
                         {% endfor %}
                     </p>
                     <p>
-                        {% trans 'BeforeConfessionHTML' %}
+                        {% if parish.has_confessions %}
+                            {% trans 'BeforeConfessionHTML' %}
+                            <p>
+                                <iframe srcdoc="{{ parish.get_latest_scraping.confession_html }}" class="col-12">
+                                </iframe>
+                            </p>
+                        {% elif parish.not_scraped_yet %}
+                            {% trans 'NotScrapedYet' %}
+                        {% endif %}
                         <a href="{{ parish.confession_hours_url }}">
                             {% trans 'goToExternalConfessionPage' %}
                         </a>
-                    </p>
-                    <p>
-                        <iframe srcdoc="{{ parish.get_latest_scraping.confession_html }}" class="col-12">
-                        </iframe>
                     </p>
                 </div>
             {% endfor %}

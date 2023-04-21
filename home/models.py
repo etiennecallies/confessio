@@ -30,9 +30,15 @@ class Parish(TimeStampMixin):
                 self._latest_scraping = self.scrapings.latest()
             except Scraping.DoesNotExist:
                 self._latest_scraping = None
-            self._has_search_latest_scraping = False
+            self._has_search_latest_scraping = True
 
         return self._latest_scraping
+
+    def has_confessions(self) -> bool:
+        return self.get_latest_scraping() is not None
+
+    def not_scraped_yet(self) -> bool:
+        return self.get_latest_scraping() is None
 
 
 class Church(TimeStampMixin):
