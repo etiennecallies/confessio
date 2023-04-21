@@ -1,5 +1,6 @@
 import folium
 from django.shortcuts import render
+from folium import Icon
 
 from home.models import Parish
 
@@ -17,7 +18,7 @@ def index(request):
     parishes = Parish.objects.all()
 
     # Create Map Object
-    m = folium.Map(location=[48.859, 2.342], zoom_start=13)
+    folium_map = folium.Map(location=[48.859, 2.342], zoom_start=13)
 
     for parish in parishes:
         for church in parish.churches.all():
@@ -26,10 +27,11 @@ def index(request):
             folium.Marker(get_latitude_longitude(church.location),
                           tooltip=tootltip_text,
                           popup=popup_content,
-                          ).add_to(m)
+                          icon=Icon(icon='cross', prefix='fa', color='orange'),
+                          ).add_to(folium_map)
 
     # Get HTML Representation of Map Object
-    map_html = m._repr_html_()
+    map_html = folium_map._repr_html_()
 
     context = {
         'map_html': map_html,
