@@ -22,7 +22,7 @@ def get_popup_and_color(parish, church):
     else:
         raise NotImplemented
 
-    link_wording = 'voir ci-dessous'
+    link_wording = _("JumpBelow")
     popup_html = f"""
         <b>{church.name}</b><br>
         {wording}<br>

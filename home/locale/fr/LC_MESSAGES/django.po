@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-04-21 17:38+0200\n"
+"POT-Creation-Date: 2023-04-21 19:37+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,11 +18,15 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: templates/pages/index.html:41
+#: templates/pages/index.html:42
 msgid "BeforeConfessionHTML"
 msgstr "Voici l'extrait de leur site concernant les confessions :"
 
-#: templates/pages/index.html:43
+#: templates/pages/index.html:48 views.py:20
+msgid "NotScrapedYet"
+msgstr "Traitement en cours"
+
+#: templates/pages/index.html:51
 msgid "goToExternalConfessionPage"
 msgstr "Aller sur la page des confessions de la paroisse"
 
@@ -30,6 +34,6 @@ msgstr "Aller sur la page des confessions de la paroisse"
 msgid "ConfessionsExist"
 msgstr "Des confessions existent"
 
-#: views.py:20
-msgid "NotScrapedYet"
-msgstr "Traitement en cours"
+#: views.py:25
+msgid "JumpBelow"
+msgstr "Voir ci-dessous"
