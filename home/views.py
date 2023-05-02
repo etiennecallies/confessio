@@ -41,22 +41,29 @@ def index(request):
     # Create Map Object
     folium_map = folium.Map(location=[48.859, 2.342], zoom_start=13)
 
+    # We save marker_names, they will be displayed in template and used in javascript
+    church_marker_names = {}
+
     for parish in parishes:
         for church in parish.churches.all():
             tootltip_text = f'{church.name}'
             popup_html, color = get_popup_and_color(parish, church)
-            folium.Marker(get_latitude_longitude(church.location),
-                          tooltip=tootltip_text,
-                          popup=Popup(html=popup_html, max_width=None),
-                          icon=Icon(icon='cross', prefix='fa', color=color),
-                          ).add_to(folium_map)
+            marker = folium.Marker(get_latitude_longitude(church.location), tooltip=tootltip_text,
+                                   popup=Popup(html=popup_html, max_width=None),
+                                   icon=Icon(icon='cross', prefix='fa', color=color))
+            church_marker_names[church.uuid] = marker.get_name()
+            marker.add_to(folium_map)
 
     # Get HTML Representation of Map Object
     map_html = folium_map._repr_html_()
 
+    # Hack: we add an id to iframe of map since we need to get the element in javascript
+    map_html = map_html.replace('<iframe srcdoc=', '<iframe id="map-iframe" srcdoc=')
+
     context = {
         'map_html': map_html,
-        'parishes': parishes
+        'parishes': parishes,
+        'church_marker_names': church_marker_names
     }
 
     # Page from the theme 

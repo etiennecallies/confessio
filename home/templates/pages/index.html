@@ -23,7 +23,7 @@
             </svg>
           </div>
           <div class="text-center">
-            <div class="col-12">
+            <div class="col-12" id="map">
                 {{ map_html|safe }}
             </div>
           </div>
@@ -35,6 +35,14 @@
                     <p>
                         {% for church in parish.churches.all %}
                             {{ church.name }}
+                            {# This is awful but I don't see any way to get dict value by key #}
+                            {% for church_uuid, marker_name in church_marker_names.items %}
+                                {% if church_uuid == church.uuid %}
+                                    <a href="#map" onclick="return popupChurch('{{ marker_name }}');">
+                                        {% trans 'locateOnMap' %}
+                                    </a>
+                                {% endif %}
+                            {% endfor %}
                         {% endfor %}
                     </p>
                     <div>
@@ -720,3 +728,7 @@
 </main>
 
 {% endblock content %}
+
+{% block javascripts %}
+    <script src="{% static 'js/index.js' %}"></script>
+{% endblock javascripts %}
