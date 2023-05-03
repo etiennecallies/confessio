@@ -1,5 +1,6 @@
 {% extends 'layouts/base.html' %}
 {% load static %}
+{% load custom_tags %}
 
 {% block content %}
 
@@ -35,14 +36,9 @@
                     <p>
                         {% for church in parish.churches.all %}
                             {{ church.name }}
-                            {# This is awful but I don't see any way to get dict value by key #}
-                            {% for church_uuid, marker_name in church_marker_names.items %}
-                                {% if church_uuid == church.uuid %}
-                                    <a href="#map" onclick="return popupChurch('{{ marker_name }}');">
-                                        {% trans 'locateOnMap' %}
-                                    </a>
-                                {% endif %}
-                            {% endfor %}
+                            <a href="#map" onclick="return popupChurch('{{ church_marker_names|get_item:church.uuid }}');">
+                                {% trans 'locateOnMap' %}
+                            </a>
                         {% endfor %}
                     </p>
                     <div>
