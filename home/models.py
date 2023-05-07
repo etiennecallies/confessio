@@ -69,7 +69,7 @@ class Page(TimeStampMixin):
 
     def has_confessions(self) -> bool:
         return self.get_latest_scraping() is not None\
-            and self.get_latest_scraping().confession_html is not None
+            and self.get_latest_scraping().confession_html
 
 
 class Scraping(TimeStampMixin):
