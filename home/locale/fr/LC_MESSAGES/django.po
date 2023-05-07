@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-02 20:07+0200\n"
+"POT-Creation-Date: 2023-05-07 20:21+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,26 +18,34 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: templates/pages/index.html:37
+#: templates/pages/index.html:45
 msgid "locateOnMap"
 msgstr "Situer sur la carte"
 
-#: templates/pages/index.html:42
+#: templates/pages/index.html:54
 msgid "BeforeConfessionHTML"
 msgstr "Voici l'extrait de leur site concernant les confessions :"
 
-#: templates/pages/index.html:48 views.py:20
-msgid "NotScrapedYet"
-msgstr "Traitement en cours"
+#: templates/pages/index.html:62
+msgid "PageNotScrapedYet"
+msgstr "Traitement en cours pour cette page"
 
-#: templates/pages/index.html:51
+#: templates/pages/index.html:65
 msgid "goToExternalConfessionPage"
 msgstr "Aller sur la page des confessions de la paroisse"
+
+#: templates/pages/index.html:69 views.py:20
+msgid "NotScrapedYet"
+msgstr "Traitement en cours pour cette paroisse"
 
 #: views.py:17
 msgid "ConfessionsExist"
 msgstr "Des confessions existent"
 
-#: views.py:25
+#: views.py:23
+msgid "NoConfessionFound"
+msgstr "Pas de confessions trouvées"
+
+#: views.py:28
 msgid "JumpBelow"
 msgstr "Voir ci-dessous"

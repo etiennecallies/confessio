@@ -22,6 +22,12 @@ django-admin makemessages -l fr
 django-admin compilemessages
 ```
 
+## Scraping
+
+```shell
+python manage.py scrap_parishes
+```
+
 
 TODO clean the following part
 # [Django Pixel Bootstrap 5](https://appseed.us/product/pixel-bootstrap/django/)

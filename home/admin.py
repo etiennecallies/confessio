@@ -18,11 +18,10 @@ class ParishAdmin(ModelAdmin):
 class ChurchAdmin(OSMGeoAdmin):
     list_display = ["name"]
 
-
-# https://books.agiliq.com/projects/django-admin-cookbook/en/latest/fk_display.html
-class ParishChoiceField(ModelChoiceField):
-    def label_from_instance(self, obj):
-        return "Parish: {}".format(obj.name)
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'parish':
+            return ParishChoiceField(queryset=Parish.objects.all())
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 @admin.register(Page)
@@ -37,3 +36,9 @@ class PageAdmin(ModelAdmin):
         if db_field.name == 'parish':
             return ParishChoiceField(queryset=Parish.objects.all())
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+
+# https://books.agiliq.com/projects/django-admin-cookbook/en/latest/fk_display.html
+class ParishChoiceField(ModelChoiceField):
+    def label_from_instance(self, obj):
+        return "Parish: {}".format(obj.name)

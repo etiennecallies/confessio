@@ -47,22 +47,32 @@
                                                 </p>
                                             </div>
                                         {% endfor %}
-                                        <p class="mb-0">
-                                            {% if parish.has_confessions %}
-                                                {% trans 'BeforeConfessionHTML' %}
-                                                <p>
-                                                    <iframe srcdoc="{{ parish.get_latest_scraping.confession_html }}"
-                                                            style="height: 300px"
-                                                            class="col-12">
-                                                    </iframe>
-                                                </p>
-                                            {% elif parish.not_scraped_yet %}
+                                        <div class="mb-0">
+                                            {% if parish.has_pages %}
+                                                {% for page in parish.get_pages %}
+                                                    {% if page.has_confessions %}
+                                                        {% trans 'BeforeConfessionHTML' %}
+                                                        <p>
+                                                            <iframe srcdoc="{{ page.get_latest_scraping.confession_html }}"
+                                                                    style="height: 300px"
+                                                                    class="col-12">
+                                                            </iframe>
+                                                        </p>
+                                                    {% elif not page.has_been_scraped %}
+                                                        {% trans 'PageNotScrapedYet' %}
+                                                    {% elif not page.has_confessions %}
+                                                        {% trans 'NoConfessionFound' %}
+                                                    {% endif %}
+                                                    <p>
+                                                        <a class="link-info" href="{{ page.url }}">
+                                                            {% trans 'goToExternalConfessionPage' %}
+                                                        </a>
+                                                    </p>
+                                                {% endfor %}
+                                            {% else %}
                                                 {% trans 'NotScrapedYet' %}
                                             {% endif %}
-                                            <a class="link-info" href="{{ parish.confession_hours_url }}">
-                                                {% trans 'goToExternalConfessionPage' %}
-                                            </a>
-                                        </p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
