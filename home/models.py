@@ -41,6 +41,11 @@ class Parish(TimeStampMixin):
         return self.get_latest_scraping() is None
 
 
+class Page(TimeStampMixin):
+    url = models.URLField()
+    parish = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='pages')
+
+
 class Church(TimeStampMixin):
     name = models.CharField(max_length=100)
     location = gis_models.PointField()
