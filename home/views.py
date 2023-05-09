@@ -13,13 +13,13 @@ def get_latitude_longitude(point):
 
 
 def get_popup_and_color(parish: Parish, church):
-    if parish.has_confessions():
+    if parish.one_page_has_confessions():
         wording = _("ConfessionsExist")
         color = 'blue'
-    elif parish.not_scraped_yet() or not parish.has_pages():
+    elif not parish.has_pages() or not parish.all_pages_scraped():
         wording = _("NotScrapedYet")
         color = 'beige'
-    elif not parish.has_confessions():
+    elif not parish.one_page_has_confessions():
         wording = _("NoConfessionFound")
         color = 'black'
     else:

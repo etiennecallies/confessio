@@ -1,5 +1,5 @@
 import uuid
-from typing import List
+from typing import List, Optional
 
 from django.contrib.gis.db import models as gis_models
 from django.db import models
@@ -32,10 +32,10 @@ class Parish(TimeStampMixin):
     def has_pages(self) -> bool:
         return len(self.get_pages()) > 0
 
-    def not_scraped_yet(self) -> bool:
-        return not any(map(Page.has_been_scraped, self.get_pages()))
+    def all_pages_scraped(self) -> bool:
+        return all(map(Page.has_been_scraped, self.get_pages()))
 
-    def has_confessions(self) -> bool:
+    def one_page_has_confessions(self) -> bool:
         return any(map(Page.has_confessions, self.get_pages()))
 
 
@@ -54,7 +54,7 @@ class Page(TimeStampMixin):
     _latest_scraping = None
     _has_search_latest_scraping = False
 
-    def get_latest_scraping(self) -> 'Scraping':
+    def get_latest_scraping(self) -> Optional['Scraping']:
         if not self._has_search_latest_scraping:
             try:
                 self._latest_scraping = self.scrapings.latest()
