@@ -51,7 +51,7 @@
                                             {% if parish.has_pages %}
                                                 {% for page in parish.get_pages %}
                                                     {% if page.has_confessions %}
-                                                        {% trans 'BeforeConfessionHTML' %}
+                                                        {% blocktrans with url=page.url %}BeforeConfessionHTML {{ url }}{% endblocktrans %}
                                                         <p>
                                                             <iframe srcdoc="{{ page.get_latest_scraping.confession_html }}"
                                                                     style="height: 300px"
@@ -59,15 +59,14 @@
                                                             </iframe>
                                                         </p>
                                                     {% elif not page.has_been_scraped %}
-                                                        {% trans 'PageNotScrapedYet' %}
+                                                        <p>
+                                                            {% blocktrans with url=page.url %}PageNotScrapedYet {{ url }}{% endblocktrans %}
+                                                        </p>
                                                     {% elif not page.has_confessions %}
-                                                        {% trans 'NoConfessionFound' %}
+                                                        <p>
+                                                            {% blocktrans with url=page.url %}NoConfessionFoundPage {{ url }}{% endblocktrans %}
+                                                        </p>
                                                     {% endif %}
-                                                    <p>
-                                                        <a class="link-info" href="{{ page.url }}">
-                                                            {% trans 'goToExternalConfessionPage' %}
-                                                        </a>
-                                                    </p>
                                                 {% endfor %}
                                             {% else %}
                                                 {% trans 'NotScrapedYet' %}

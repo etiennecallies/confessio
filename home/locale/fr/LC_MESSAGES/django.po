@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-07 20:21+0200\n"
+"POT-Creation-Date: 2023-05-09 07:55+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,18 +23,28 @@ msgid "locateOnMap"
 msgstr "Situer sur la carte"
 
 #: templates/pages/index.html:54
-msgid "BeforeConfessionHTML"
-msgstr "Voici l'extrait de leur site concernant les confessions :"
+#, python-format
+msgid "BeforeConfessionHTML %(url)s"
+msgstr ""
+"Voici l'extrait de leur "
+"<a href=\"%(url)s\" class=\"link-info\">page</a> "
+"concernant les confessions :"
 
-#: templates/pages/index.html:62
-msgid "PageNotScrapedYet"
-msgstr "Traitement en cours pour cette page"
+#: templates/pages/index.html:63
+#, python-format
+msgid "PageNotScrapedYet %(url)s"
+msgstr ""
+"Traitement en cours pour cette "
+"<a href=\"%(url)s\" class=\"link-info\">page</a>."
 
-#: templates/pages/index.html:65
-msgid "goToExternalConfessionPage"
-msgstr "Aller sur la page des confessions de la paroisse"
+#: templates/pages/index.html:67
+#, python-format
+msgid "NoConfessionFoundPage %(url)s"
+msgstr ""
+"Pas de confessions trouvées sur cette "
+"<a href=\"%(url)s\" class=\"link-info\">page</a>."
 
-#: templates/pages/index.html:69 views.py:20
+#: templates/pages/index.html:72 views.py:20
 msgid "NotScrapedYet"
 msgstr "Traitement en cours pour cette paroisse"
 
