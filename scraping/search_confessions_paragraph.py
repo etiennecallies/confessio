@@ -13,7 +13,8 @@ def get_confession_pages():
         # ('https://paroissesaintbruno.pagesperso-orange.fr/messes.html', 'html_page'),
         # ('https://www.eglise-saintgermaindespres.fr/sacrements/reconciliation/', 'html_page'),  # Bof un peu large...
         # ('https://notredameversailles.fr/vie-chretienne/vivre-les-sacrements/sacrement-de-penitence-et-de-reconciliation/', 'html_page'),  # Bof, un peu large aussi...
-        ('https://paroissecroixrousse.fr/pour-le-temps-de-noel/', 'html_page'),
+        # ('https://paroissecroixrousse.fr/pour-le-temps-de-noel/', 'html_page'),
+        ('https://www.eglise-saintgermaindespres.fr/l_eglise/horaires/', 'html_page'),
     ]
 
 
