@@ -2,8 +2,8 @@ import json
 import os
 import unittest
 
-from scraping.utils.extract_content import get_words, normalize_content, ContentTree, \
-    is_schedule_description
+from scraping.utils.extract_content import ContentTree, is_schedule_description
+from scraping.utils.string_search import normalize_content, get_words
 
 
 class MyTestCase(unittest.TestCase):

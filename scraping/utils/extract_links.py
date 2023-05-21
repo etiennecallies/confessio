@@ -3,7 +3,7 @@ from urllib.parse import urlparse, ParseResult
 from bs4 import BeautifulSoup, SoupStrainer, Comment
 from bs4 import element as el
 
-from scraping.utils.extract_content import has_any_of_words
+from scraping.utils.string_search import has_any_of_words
 
 CONFESSIONS_OR_SCHEDULES_MENTIONS = [
     'confession',
