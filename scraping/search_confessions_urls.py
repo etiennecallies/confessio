@@ -4,7 +4,8 @@ from scraping.utils.extract_links import parse_content_links
 
 def fetch_list_of_links(home_url: str):
     content = get_content_from_url(home_url)
-    parse_content_links(content, home_url)
+
+    return parse_content_links(content, home_url)
 
 
 if __name__ == '__main__':

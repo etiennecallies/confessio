@@ -65,3 +65,5 @@ def parse_content_links(content, home_url):
     links = get_links(element, home_url)
     for link in links:
         print(link)
+
+    return links

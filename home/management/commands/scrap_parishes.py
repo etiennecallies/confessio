@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 
 from home.models import Parish, Scraping
-from scraping.search_confessions_paragraph import get_fresh_confessions_part
+from scraping.search_confessions_paragraphs import get_fresh_confessions_part
 
 
 class Command(BaseCommand):
