@@ -23,9 +23,9 @@ class MyTestCase(unittest.TestCase):
         tests_dir = os.path.dirname(os.path.realpath(__file__))
         for file_name, page_type in self.get_paragraphs_fixtures():
             with self.subTest():
-                with open(f'{tests_dir}/fixtures/{file_name}.html') as f:
+                with open(f'{tests_dir}/fixtures/paragraphs/{file_name}.html') as f:
                     lines = f.readlines()
-                with open(f'{tests_dir}/fixtures/{file_name}.json') as f:
+                with open(f'{tests_dir}/fixtures/paragraphs/{file_name}.json') as f:
                     expected_paragraphs = json.load(f)
                 content = '\n'.join(lines)
                 content_tree = ContentTree.load_content_tree_from_text(content, page_type)
