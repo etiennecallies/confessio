@@ -1,6 +1,6 @@
 from scraping.utils.download_content import get_content_from_url
 from scraping.utils.extract_content import extract_confession_part_from_content
-from scraping.utils.extract_links import parse_content_links
+from scraping.utils.extract_links import parse_content_links, remove_http_https_duplicate
 
 MAX_VISITED_LINKS = 100
 
@@ -24,7 +24,7 @@ def search_for_confession_pages(home_url):
             if new_link not in visited_links:
                 links_to_visit.add(new_link)
 
-    return results
+    return remove_http_https_duplicate(results)
 
 
 if __name__ == '__main__':

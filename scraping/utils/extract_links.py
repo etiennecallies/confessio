@@ -65,3 +65,21 @@ def parse_content_links(content, home_url):
     links = get_links(element, home_url)
 
     return links
+
+
+def remove_http_https_duplicate(links: list):
+    """If links appear twice in given list with different scheme, we keep only https"""
+    d = {}
+    for link in links:
+        link_with_https = link.replace('http://', 'https://')
+        link_parsed = urlparse(link)
+        d.setdefault(link_with_https, set()).add(link_parsed.scheme)
+
+    results = []
+    for link_with_https, schemes in d.items():
+        if 'https' in schemes:
+            results.append(link_with_https)
+        else:
+            results.append(link_with_https.replace('https://', f'{schemes[0]}://'))
+
+    return results
