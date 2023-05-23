@@ -25,7 +25,7 @@ django-admin compilemessages
 ## Scraping
 
 ```shell
-python manage.py scrap_parishes
+python manage.py scrape_parishes
 ```
 
 
