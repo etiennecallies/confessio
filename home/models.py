@@ -73,6 +73,6 @@ class Page(TimeStampMixin):
 
 
 class Scraping(TimeStampMixin):
-    confession_html = models.TextField()
+    confession_html = models.TextField(null=True)
     nb_iterations = models.PositiveSmallIntegerField()
     page = models.ForeignKey('Page', on_delete=models.CASCADE, related_name='scrapings')
