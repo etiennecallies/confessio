@@ -1,3 +1,5 @@
+from typing import Optional
+
 from bs4 import BeautifulSoup
 from bs4 import element as el
 from bs4.element import Comment
@@ -227,10 +229,12 @@ class ContentTree:
         return any(map(ContentTree.has_schedules_description_recursively, self.children))
 
     @staticmethod
-    def load_content_tree_from_text(content, page_type) -> 'ContentTree':
+    def load_content_tree_from_text(content, page_type) -> Optional['ContentTree']:
         if page_type == 'html_page':
             soup = BeautifulSoup(content, 'html.parser')
             body = soup.find('body')
+            if body is None:
+                return None
 
             return load_from_html(body)
 
@@ -244,7 +248,13 @@ class ContentTree:
 
 def extract_confession_part_from_content(text, page_type):
     content_tree = ContentTree.load_content_tree_from_text(text, page_type)
+    if content_tree is None:
+        return None
+
     raw_contents_with_confessions = content_tree.get_confessions_and_schedules_raw_contents()
+    if not raw_contents_with_confessions:
+        return None
+
     delimiter = '<br>' if page_type == 'html_page' else '\n'
 
     return delimiter.join(raw_contents_with_confessions)
