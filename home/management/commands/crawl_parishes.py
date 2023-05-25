@@ -12,11 +12,6 @@ class Command(BaseCommand):
         parishes = Parish.objects.all()
 
         for parish in parishes:
-            if not parish.home_url:
-                self.stdout.write(
-                    self.style.WARNING(f'No home_url for this parish {parish.name} {parish.uuid}')
-                )
-                continue
             urls = search_for_confession_pages(parish.home_url)
             existing_urls = list(map(lambda p: p.url, parish.get_pages()))
 
