@@ -22,7 +22,7 @@ class Parish(TimeStampMixin):
     name = models.CharField(max_length=100)
     home_url = models.URLField(null=True)
     messesinfo_network_id = models.CharField(max_length=100, null=True)
-    messesinfo_community_id = models.CharField(max_length=100, null=True)
+    messesinfo_community_id = models.CharField(max_length=100, null=True, unique=True)
     _pages = None
 
     def get_pages(self) -> List['Page']:
@@ -47,7 +47,7 @@ class Church(TimeStampMixin):
     address = models.CharField(max_length=100)
     zipcode = models.CharField(max_length=5)
     city = models.CharField(max_length=50)
-    messesinfo_id = models.CharField(max_length=100, null=True)
+    messesinfo_id = models.CharField(max_length=100, null=True, unique=True)
     parish = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='churches')
 
 
