@@ -32,7 +32,7 @@
                                                 {{ parish.name }}
                                             </a>
                                         </h2>
-                                        {% for church in parish.churches.all %}
+                                        {% for church in parish_churches|get_item:parish.uuid %}
                                             <div class="row">
                                                 <p class="col-md-9">
                                                     <span class="fw-bold">{{ church.name }}</span><br>

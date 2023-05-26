@@ -1,9 +1,6 @@
-import folium
 from django.shortcuts import render
-from folium import Icon, Popup
 
-from home.models import Parish
-from home.services.map_service import get_popup_and_color, get_latitude_longitude
+from home.services.map_service import get_churches_in_box, prepare_map
 
 
 def index(request):
@@ -11,24 +8,9 @@ def index(request):
     zoom = 13
 
     # Load parishes
-    # TODO load parish and latest scraping at the same time
-    parishes = Parish.objects.all()
+    churches = get_churches_in_box(location, zoom)
 
-    # Create Map Object
-    folium_map = folium.Map(location=location, zoom_start=zoom)
-
-    # We save marker_names, they will be displayed in template and used in javascript
-    church_marker_names = {}
-
-    for parish in parishes:
-        for church in parish.churches.all():
-            tootltip_text = f'{church.name}'
-            popup_html, color = get_popup_and_color(parish, church)
-            marker = folium.Marker(get_latitude_longitude(church.location), tooltip=tootltip_text,
-                                   popup=Popup(html=popup_html, max_width=None),
-                                   icon=Icon(icon='cross', prefix='fa', color=color))
-            church_marker_names[church.uuid] = marker.get_name()
-            marker.add_to(folium_map)
+    folium_map, church_marker_names = prepare_map(location, zoom, churches)
 
     # Get HTML Representation of Map Object
     map_html = folium_map._repr_html_()
@@ -36,10 +18,18 @@ def index(request):
     # Hack: we add an id to iframe of map since we need to get the element in javascript
     map_html = map_html.replace('<iframe srcdoc=', '<iframe id="map-iframe" srcdoc=')
 
+    # We get all parishes and their churches
+    parishes_by_uuid = {}
+    parish_churches = {}
+    for church in churches:
+        parishes_by_uuid[church.parish.uuid] = church.parish
+        parish_churches.setdefault(church.parish.uuid, []).append(church)
+
     context = {
         'map_html': map_html,
-        'parishes': parishes,
-        'church_marker_names': church_marker_names
+        'church_marker_names': church_marker_names,
+        'parishes': parishes_by_uuid.values(),
+        'parish_churches': parish_churches,
     }
 
     # Page from the theme 
