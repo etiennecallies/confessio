@@ -4,14 +4,17 @@ from home.services.map_service import get_churches_in_box, prepare_map, get_chur
 
 
 def index(request):
-    center = [48.859, 2.342]
+    bounds = (48.82, 48.9, 2.33, 2.35)
 
-    # min_lat, max_lat, min_long, max_long = 48.82, 48.9, 2.33, 2.35
-    # churches = get_churches_in_box(min_lat, max_lat, min_long, max_long)
+    if bounds:
+        min_lat, max_lat, min_long, max_long = bounds
+        center = [min_lat + max_lat / 2, min_long + max_long / 2]
+        churches = get_churches_in_box(min_lat, max_lat, min_long, max_long)
+    else:
+        center = [48.859, 2.342]
+        churches = get_churches_around(center)
 
-    churches = get_churches_around(center)
-
-    folium_map, church_marker_names = prepare_map(center, churches)
+    folium_map, church_marker_names = prepare_map(center, churches, bounds)
 
     # Get HTML Representation of Map Object
     map_html = folium_map._repr_html_()
