@@ -1,16 +1,17 @@
 from django.shortcuts import render
 
-from home.services.map_service import get_churches_in_box, prepare_map
+from home.services.map_service import get_churches_in_box, prepare_map, get_churches_around
 
 
 def index(request):
-    location = [48.859, 2.342]
-    zoom = 13
+    center = [48.859, 2.342]
 
-    # Load parishes
-    churches = get_churches_in_box(location, zoom)
+    # min_lat, max_lat, min_long, max_long = 48.82, 48.9, 2.33, 2.35
+    # churches = get_churches_in_box(min_lat, max_lat, min_long, max_long)
 
-    folium_map, church_marker_names = prepare_map(location, zoom, churches)
+    churches = get_churches_around(center)
+
+    folium_map, church_marker_names = prepare_map(center, churches)
 
     # Get HTML Representation of Map Object
     map_html = folium_map._repr_html_()
