@@ -18,8 +18,11 @@
                     <div class="input-group mb-4">
                         <input class="form-control"
                                type="text"
+                               id="search-input"
                                placeholder="{% trans 'searchPlaceHolder' %}">
                         <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        <div class="address-feedback position-absolute list-group text-black bg-white" style="z-index:1100;">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -100,5 +103,6 @@
 {% endblock content %}
 
 {% block javascripts %}
+    {{ block.super }}
     <script src="{% static 'js/index.js' %}"></script>
 {% endblock javascripts %}
