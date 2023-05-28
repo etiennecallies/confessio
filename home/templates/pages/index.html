@@ -12,6 +12,18 @@
   <!-- Hero -->
   <section class="section-header overflow-hidden pt-7 pt-lg-8 pb-9 pb-lg-12 bg-primary">
     <div class="container">
+        <div class="row text-white">
+            <div class="col-12">
+                <div class="form-group">
+                    <div class="input-group mb-4">
+                        <input class="form-control"
+                               type="text"
+                               placeholder="{% trans 'searchPlaceHolder' %}">
+                        <span class="input-group-text"><i class="fas fa-search"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
       <div class="row text-white">
         <div class="col-12 text-center" id="map">
           {{ map_html|safe }}

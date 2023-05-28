@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-09 07:55+0200\n"
+"POT-Creation-Date: 2023-05-28 19:22+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,44 +18,47 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: templates/pages/index.html:45
-msgid "locateOnMap"
-msgstr "Situer sur la carte"
-
-#: templates/pages/index.html:54
-#, python-format
-msgid "BeforeConfessionHTML %(url)s"
-msgstr ""
-"Voici l'extrait de leur "
-"<a href=\"%(url)s\" class=\"link-info\">page</a> "
-"concernant les confessions :"
-
-#: templates/pages/index.html:63
-#, python-format
-msgid "PageNotScrapedYet %(url)s"
-msgstr ""
-"Traitement en cours pour cette "
-"<a href=\"%(url)s\" class=\"link-info\">page</a>."
-
-#: templates/pages/index.html:67
-#, python-format
-msgid "NoConfessionFoundPage %(url)s"
-msgstr ""
-"Pas de confessions trouvées sur cette "
-"<a href=\"%(url)s\" class=\"link-info\">page</a>."
-
-#: templates/pages/index.html:72 views.py:20
-msgid "NotScrapedYet"
-msgstr "Traitement en cours pour cette paroisse"
-
-#: views.py:17
+#: services/map_service.py:44
 msgid "ConfessionsExist"
 msgstr "Des confessions existent"
 
-#: views.py:23
+#: services/map_service.py:47 templates/pages/index.html:84
+msgid "NotScrapedYet"
+msgstr "Traitement en cours pour cette paroisse"
+
+#: services/map_service.py:50
 msgid "NoConfessionFound"
 msgstr "Pas de confessions trouvées"
 
-#: views.py:28
+#: services/map_service.py:55
 msgid "JumpBelow"
 msgstr "Voir ci-dessous"
+
+#: templates/pages/index.html:21
+msgid "searchPlaceHolder"
+msgstr "Chercher une ville..."
+
+#: templates/pages/index.html:57
+msgid "locateOnMap"
+msgstr "Situer sur la carte"
+
+#: templates/pages/index.html:66
+#, python-format
+msgid "BeforeConfessionHTML %(url)s"
+msgstr ""
+"Voici l'extrait de leur <a href=\"%(url)s\" class=\"link-info\">page</a> "
+"concernant les confessions :"
+
+#: templates/pages/index.html:75
+#, python-format
+msgid "PageNotScrapedYet %(url)s"
+msgstr ""
+"Traitement en cours pour cette <a href=\"%(url)s\" class=\"link-info\">page</"
+"a>."
+
+#: templates/pages/index.html:79
+#, python-format
+msgid "NoConfessionFoundPage %(url)s"
+msgstr ""
+"Pas de confessions trouvées sur cette <a href=\"%(url)s\" class=\"link-"
+"info\">page</a>."
