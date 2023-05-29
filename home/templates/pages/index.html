@@ -12,17 +12,18 @@
   <!-- Hero -->
   <section class="section-header overflow-hidden pt-7 pt-lg-8 pb-9 pb-lg-12 bg-primary">
     <div class="container">
-        <div class="row text-white">
+        <div class="row text-white mb-4">
             <div class="col-12">
                 <div class="form-group">
-                    <div class="input-group mb-4">
+                    <div class="input-group">
                         <input class="form-control"
                                type="text"
                                id="search-input"
-                               placeholder="{% trans 'searchPlaceHolder' %}">
+                               placeholder="{% trans 'searchPlaceHolder' %}"
+                               list="list-autocomplete-search"
+                               oninput="onInput()">
+                        <datalist id="list-autocomplete-search"></datalist>
                         <span class="input-group-text"><i class="fas fa-search"></i></span>
-                        <div class="address-feedback position-absolute list-group text-black bg-white" style="z-index:1100;">
-                        </div>
                     </div>
                 </div>
             </div>
