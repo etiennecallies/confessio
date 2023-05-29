@@ -45,7 +45,7 @@ function onInput() {
       type: 'municipality'
     }, function(data, status, xhr) {
       let optionList = "";
-      $.each(data.features, function(i, obj) {
+      data.features.forEach(obj => {
         let displayValue = obj.properties.name;
         let contextValue = obj.properties.context;
         let latitude = obj.geometry.coordinates[1];
