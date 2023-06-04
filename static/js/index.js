@@ -60,7 +60,7 @@ $( function() {
     }).autocomplete( "instance" )._renderItem = function( ul, item ) {
       return $( "<li>" )
         .append( "<div><span style='font-weight: bold'>" + item.label + "</span> " +
-            "<span style='font-style: italic'>" + item.context + "</span></div>" )
+            "<span style='font-style: italic; float: right'>" + item.context + "</span></div>" )
         .appendTo( ul );
     };
 });
