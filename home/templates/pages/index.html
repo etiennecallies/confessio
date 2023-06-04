@@ -19,12 +19,13 @@
                         <input class="form-control"
                                type="text"
                                id="search-input"
+                               name="locationName"
                                placeholder="{% trans 'searchPlaceHolder' %}"
-                               list="list-autocomplete-search"
-                               oninput="onInput()">
-                        <datalist id="list-autocomplete-search"></datalist>
+                               >
                         <span class="input-group-text"><i class="fas fa-search"></i></span>
                     </div>
+                    <input type="hidden" id="latitude-input" name="latitude">
+                    <input type="hidden" id="longitude-input" name="longitude">
                 </div>
             </div>
         </div>

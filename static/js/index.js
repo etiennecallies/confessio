@@ -1,5 +1,6 @@
 /*
  * Open popup on map.
+ * Does not require JQuery.
  */
 function popupChurch(markerName){
     document.getElementById("map-iframe").contentWindow[markerName].openPopup();
@@ -8,56 +9,56 @@ function popupChurch(markerName){
 /*
  * Handles place auto-completion
  * https://www.csimouton.fr/auto-completion-dadresse-avec-la-base-api-adresse-data-gouv-fr-bootstrap-jquery/
+ *
+ * Requires JQuery UI autocomplete.
+ *
+ * https://jqueryui.com/autocomplete/#remote-with-cache
+ * https://jqueryui.com/autocomplete/#custom-data
+ * https://api.jqueryui.com/autocomplete/
+ *
+ * Adresse API documentation
+ * https://adresse.data.gouv.fr/api-doc/adresse
  */
-let fetchTrigger = 0;
+$( function() {
+    let cache = {};
+    $( "#search-input" ).autocomplete({
+      minLength: 2,
+      source: function( request, response ) {
+        let term = request.term;
+        if (term in cache) {
+          response(cache[term]);
+          return;
+        }
 
-function onInput() {
-  let searchInput = document.getElementById("search-input");
-  let val = searchInput.value;
-  let opts = document.getElementById('list-autocomplete-search').childNodes;
-  let datalist = document.getElementById("list-autocomplete-search");
-  for (let i = 0; i < opts.length; i++) {
-    if (opts[i].getAttribute('data-string-value') === val) {
-      datalist.setAttribute('data-last-search-string', val);
-      datalist.setAttribute('data-last-latitude', opts[i].getAttribute('data-latitude'));
-      datalist.setAttribute('data-last-longitude', opts[i].getAttribute('data-longitude'));
-      return;
-    }
-  }
-
-  // We cancel precedent timeout trigger if any
-  clearTimeout(fetchTrigger);
-
-  // We trigger a new timeout
-  fetchTrigger = setTimeout(function() {
-    let searchString = searchInput.value;
-    let lastSearchString = datalist.getAttribute('data-last-search-string');
-    if (searchString.length === 0) {
-      return false;
-    } else if(searchString === lastSearchString) {
-      return false;
-    }
-
-    $.get('https://api-adresse.data.gouv.fr/search/', {
-      q: searchString,
-      limit: 15,
-      autocomplete: 1,
-      type: 'municipality'
-    }, function(data, status, xhr) {
-      let optionList = "";
-      data.features.forEach(obj => {
-        let displayValue = obj.properties.name;
-        let contextValue = obj.properties.context;
-        let latitude = obj.geometry.coordinates[1];
-        let longitude = obj.geometry.coordinates[0];
-
-        optionList += '<option value="' + displayValue + '"' +
-            ' data-string-value="' + displayValue + '"' +
-            ' data-latitude="' + latitude + '"' +
-            ' data-longitude="' + longitude + '"' +
-            '>' + contextValue + '</option>';
-      });
-      datalist.innerHTML = optionList;
-    }, 'json');
-  }, 500);
-}
+        $.getJSON( "https://api-adresse.data.gouv.fr/search/", {
+          q: request.term,
+          limit: 15,
+          autocomplete: 1,
+          type: 'municipality'
+        }, function( data, status, xhr ) {
+          let optionList = [];
+          data.features.forEach(obj => {
+            optionList.push({
+              value: obj.properties.name,
+              label: obj.properties.name,
+              context: obj.properties.context,
+              latitude: obj.geometry.coordinates[1],
+              longitude: obj.geometry.coordinates[0]
+            });
+          });
+          cache[term] = optionList;
+          response(optionList);
+        });
+      },
+      select: function( event, ui ) {
+        $( "#latitude-input" ).val( ui.item.latitude );
+        $( "#longitude-input" ).val( ui.item.longitude );
+        $( "#search-input" ).val( ui.item.value );
+      }
+    }).autocomplete( "instance" )._renderItem = function( ul, item ) {
+      return $( "<li>" )
+        .append( "<div><span style='font-weight: bold'>" + item.label + "</span> " +
+            "<span style='font-style: italic'>" + item.context + "</span></div>" )
+        .appendTo( ul );
+    };
+});
