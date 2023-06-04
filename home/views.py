@@ -8,15 +8,20 @@ def index(request):
     latitude = request.GET.get('latitude', '')
     longitude = request.GET.get('longitude', '')
 
-    # TODO get bounds
-    bounds = request.GET.get('bounds', '')
-    # bounds = (48.82, 48.9, 2.33, 2.35)
+    min_lat = request.GET.get('minLat', '')
+    min_lng = request.GET.get('minLng', '')
+    max_lat = request.GET.get('maxLat', '')
+    max_lng = request.GET.get('maxLng', '')
 
-    if bounds:
-        min_lat, max_lat, min_long, max_long = bounds
-        center = [min_lat + max_lat / 2, min_long + max_long / 2]
-        churches = get_churches_in_box(min_lat, max_lat, min_long, max_long)
+    if min_lat and min_lng and max_lat and max_lng:
+        min_lat, max_lat, min_lng, max_lng = \
+            float(min_lat), float(max_lat), float(min_lng), float(max_lng)
+        bounds = (min_lat, max_lat, min_lng, max_lng)
+        center = [min_lat + max_lat / 2, min_lng + max_lng / 2]
+        churches = get_churches_in_box(min_lat, max_lat, min_lng, max_lng)
     else:
+        bounds = None
+
         if latitude and longitude:
             center = [float(latitude), float(longitude)]
         else:
@@ -30,8 +35,12 @@ def index(request):
     # Get HTML Representation of Map Object
     map_html = folium_map._repr_html_()
 
-    # Hack: we add an id to iframe of map since we need to get the element in javascript
-    map_html = map_html.replace('<iframe srcdoc=', '<iframe id="map-iframe" srcdoc=')
+    # Hack 1: we add an id to iframe of map since we need to get the element in javascript
+    # Hack 2: we add the name of the map js object as attribute since we will need to retrieve it
+    map_html = map_html.replace(
+        '<iframe srcdoc=',
+        f'<iframe id="map-iframe" data-map-name="{folium_map.get_name()}" srcdoc='
+    )
 
     # We get all parishes and their churches
     parishes_by_uuid = {}

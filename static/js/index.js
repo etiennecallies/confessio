@@ -1,5 +1,6 @@
 /*
  * Open popup on map.
+ *
  * Does not require JQuery.
  */
 function popupChurch(markerName){
@@ -7,8 +8,7 @@ function popupChurch(markerName){
 }
 
 /*
- * Handles place auto-completion
- * https://www.csimouton.fr/auto-completion-dadresse-avec-la-base-api-adresse-data-gouv-fr-bootstrap-jquery/
+ * Handles place auto-completion.
  *
  * Requires JQuery UI autocomplete.
  *
@@ -51,9 +51,9 @@ $( function() {
         });
       },
       select: function( event, ui ) {
-        $( "#latitude-input" ).val( ui.item.latitude );
-        $( "#longitude-input" ).val( ui.item.longitude );
-        $( "#search-input" ).val( ui.item.value );
+        $("#latitude-input").val(ui.item.latitude);
+        $("#longitude-input").val(ui.item.longitude);
+        $("#search-input").val(ui.item.value);
 
         $("#search-form").submit();
       }
@@ -63,4 +63,29 @@ $( function() {
             "<span style='font-style: italic; float: right'>" + item.context + "</span></div>" )
         .appendTo( ul );
     };
+});
+
+/*
+ * Watch map movement.
+ *
+ * Requires JQuery (to wait for the iframe to be loaded).
+ */
+$(document).ready(function () {
+  $('#map-iframe').load(function() {
+    let mapObjectName = $('#map-iframe').attr('data-map-name');
+    let map = document.getElementById("map-iframe").contentWindow[mapObjectName];
+
+    map.on('moveend', function(evt){
+      // TODO compare with last movement and show label 'search in this area'
+      let bounds = map.getBounds();
+      let minLat = bounds._southWest.lat;
+      let minLng = bounds._southWest.lng;
+      let maxLat = bounds._northEast.lat;
+      let maxLng = bounds._northEast.lng;
+      $("#min-lat-input").val(minLat);
+      $("#min-lng-input").val(minLng);
+      $("#max-lat-input").val(maxLat);
+      $("#max-lng-input").val(maxLng);
+    });
+  });
 });

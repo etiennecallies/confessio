@@ -1,4 +1,5 @@
-from typing import List
+from typing import List, Tuple, Dict
+from uuid import UUID
 
 from django.contrib.gis.geos import Point, Polygon
 from django.contrib.gis.measure import D
@@ -62,7 +63,7 @@ def get_popup_and_color(church: Church):
     return popup_html, color
 
 
-def prepare_map(center, churches: List[Church], bounds):
+def prepare_map(center, churches: List[Church], bounds) -> Tuple[Map, Dict[UUID, str]]:
     # Create Map Object
     folium_map = Map(location=center)
 
