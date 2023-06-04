@@ -22,7 +22,7 @@ function popupChurch(markerName){
 $( function() {
     let cache = {};
     $( "#search-input" ).autocomplete({
-      minLength: 2,
+      minLength: 3,
       source: function( request, response ) {
         let term = request.term;
         if (term in cache) {
@@ -54,6 +54,8 @@ $( function() {
         $( "#latitude-input" ).val( ui.item.latitude );
         $( "#longitude-input" ).val( ui.item.longitude );
         $( "#search-input" ).val( ui.item.value );
+
+        $("#search-form").submit();
       }
     }).autocomplete( "instance" )._renderItem = function( ul, item ) {
       return $( "<li>" )
