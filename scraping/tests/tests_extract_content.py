@@ -17,6 +17,7 @@ class MyTestCase(unittest.TestCase):
             ('ste-jeanne-darc', 'html_page'),
             ('st-jacques-du-haut-pas', 'html_page'),
             ('st-bruno-des-chartreux', 'html_page'),
+            ('amplepuis', 'html_page'),
         ]
 
     def test_get_paragraphs(self):
@@ -31,7 +32,7 @@ class MyTestCase(unittest.TestCase):
                 content_tree = ContentTree.load_content_tree_from_text(content, page_type)
                 # print(content_tree)
                 raw_contents = content_tree.get_confessions_and_schedules_raw_contents()
-                # print(json.dumps(raw_contents_with_confessions))
+                # print(json.dumps(raw_contents))
                 self.assertEqual(raw_contents, expected_paragraphs)
 
     def test_get_words(self):

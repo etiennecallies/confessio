@@ -15,7 +15,7 @@ def get_words(content):
     return set(content.split())
 
 
-def has_any_of_words(content: str, lexical_list, regex_list=None):
+def has_any_of_words(content: str, lexical_list, regex_list=None, expr_list=None):
     normalized_content = normalize_content(content)
     words = get_words(normalized_content)
 
@@ -28,5 +28,10 @@ def has_any_of_words(content: str, lexical_list, regex_list=None):
             for w in words:
                 if re.fullmatch(regex, w):
                     return True
+
+    if expr_list:
+        for expr in expr_list:
+            if expr in normalized_content:
+                return True
 
     return False

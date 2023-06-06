@@ -2,6 +2,7 @@ import json
 import os
 import unittest
 
+from scraping.utils.download_content import get_domain
 from scraping.utils.extract_links import parse_content_links
 
 
@@ -21,7 +22,7 @@ class TestExtractLinks(unittest.TestCase):
                 with open(f'{tests_dir}/fixtures/urls/{file_name}.json') as f:
                     expected_links = json.load(f)
                 content = '\n'.join(lines)
-                links = parse_content_links(content, {home_url})
+                links = parse_content_links(content, {get_domain(home_url)})
                 self.assertSetEqual(links, set(expected_links))
 
 

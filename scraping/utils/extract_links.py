@@ -79,6 +79,6 @@ def remove_http_https_duplicate(links: list):
         if 'https' in schemes:
             results.append(link_with_https)
         else:
-            results.append(link_with_https.replace('https://', f'{schemes[0]}://'))
+            results.append(link_with_https.replace('https://', f'{list(schemes)[0]}://'))
 
     return results

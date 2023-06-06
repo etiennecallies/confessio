@@ -52,11 +52,17 @@ DATES_MENTIONS = [
     'careme',
     'temps',
     'ordinaire',
+    'fete',
+    'fetes',
 ]
 
 DATE_REGEX = [
     r'\dh\d\d',
     r'\d\dh\d\d',
+]
+
+DATE_EXPR = [
+    'rendez-vous',
 ]
 
 
@@ -65,7 +71,7 @@ def has_confession_mentions(content: str):
 
 
 def is_schedule_description(content: str):
-    return has_any_of_words(content, DATES_MENTIONS, DATE_REGEX)
+    return has_any_of_words(content, DATES_MENTIONS, DATE_REGEX, DATE_EXPR)
 
 
 ##############
