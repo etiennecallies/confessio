@@ -1,3 +1,4 @@
+from typing import Set
 from urllib.parse import urlparse, ParseResult
 
 from bs4 import BeautifulSoup, SoupStrainer, Comment
@@ -24,21 +25,19 @@ def might_be_confession_link(path, text):
     return False
 
 
-def is_internal_link(url: str, url_parsed: ParseResult, home_url_parsed: ParseResult):
+def is_internal_link(url: str, url_parsed: ParseResult, home_url_aliases: Set[str]):
     if url.startswith('#'):
         # link on same page
         return False
 
-    if url_parsed.netloc != home_url_parsed.netloc:
+    if url_parsed.netloc not in home_url_aliases:
         # external link
         return False
 
     return True
 
 
-def get_links(element: el, home_url: str):
-    home_url_parsed = urlparse(home_url)
-
+def get_links(element: el, home_url_aliases: Set[str]):
     results = set()
 
     for link in element:
@@ -46,7 +45,7 @@ def get_links(element: el, home_url: str):
             full_url = link['href']
             url_parsed = urlparse(full_url)
 
-            if not is_internal_link(full_url, url_parsed, home_url_parsed):
+            if not is_internal_link(full_url, url_parsed, home_url_aliases):
                 continue
 
             # Extract link text
@@ -60,9 +59,9 @@ def get_links(element: el, home_url: str):
     return results
 
 
-def parse_content_links(content, home_url):
+def parse_content_links(content, home_url_aliases: Set[str]):
     element = BeautifulSoup(content, 'html.parser', parse_only=SoupStrainer('a'))
-    links = get_links(element, home_url)
+    links = get_links(element, home_url_aliases)
 
     return links
 
