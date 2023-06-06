@@ -1,7 +1,8 @@
-from typing import Set
+from typing import Set, Optional
 from urllib.parse import urlparse
 
 import requests
+from requests import RequestException
 
 
 def get_headers():
@@ -48,13 +49,18 @@ def get_domain(url):
     return url_parsed.netloc
 
 
-def get_url_aliases(url) -> Set[str]:
+def get_url_aliases(url) -> Optional[Set[str]]:
     print(f'getting url aliases for {url}')
 
     aliases = {get_domain(url)}
 
     headers = get_headers()
-    r = requests.get(url, headers=headers, allow_redirects=False)
+    try:
+        r = requests.get(url, headers=headers, allow_redirects=False)
+    except RequestException as e:
+        print(e)
+        return None
+
     if r.status_code == 302 and 'location' in r.headers:
         aliases.update(get_url_aliases(r.headers['location']))
 

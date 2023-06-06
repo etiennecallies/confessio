@@ -1,4 +1,4 @@
-from typing import Set
+from typing import Set, List
 from urllib.parse import urlparse, ParseResult
 
 from bs4 import BeautifulSoup, SoupStrainer, Comment
@@ -66,7 +66,7 @@ def parse_content_links(content, home_url_aliases: Set[str]):
     return links
 
 
-def remove_http_https_duplicate(links: list):
+def remove_http_https_duplicate(links: list) -> List[str]:
     """If links appear twice in given list with different scheme, we keep only https"""
     d = {}
     for link in links:

@@ -79,3 +79,10 @@ class Scraping(TimeStampMixin):
     confession_html = models.TextField(null=True)
     nb_iterations = models.PositiveSmallIntegerField()
     page = models.ForeignKey('Page', on_delete=models.CASCADE, related_name='scrapings')
+
+
+class Crawling(TimeStampMixin):
+    success = models.BooleanField()
+    error_detail = models.TextField(null=True)
+    nb_visited_links = models.PositiveSmallIntegerField()
+    parish = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='crawlings')
