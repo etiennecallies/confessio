@@ -12,7 +12,7 @@
   <!-- Hero -->
   <section class="section-header overflow-hidden pt-7 pt-lg-8 pb-9 pb-lg-12 bg-primary">
     <div class="container">
-        <div class="row text-white mb-4">
+        <div class="row text-white mb-3">
             <div class="col-12">
                 <form id="search-form">
                     <div class="form-group">
@@ -26,12 +26,21 @@
                                    >
                             <input type="hidden" id="latitude-input" name="latitude">
                             <input type="hidden" id="longitude-input" name="longitude">
-                            <input type="hidden" id="min-lat-input" name="minLat">
-                            <input type="hidden" id="min-lng-input" name="minLng">
-                            <input type="hidden" id="max-lat-input" name="maxLat">
-                            <input type="hidden" id="max-lng-input" name="maxLng">
                             <button type="submit" class="input-group-text"><i class="fas fa-search"></i></button>
                         </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="row text-white mb-3 text-center">
+            <div class="col-sm">
+                <form id="search-in-this-area-form">
+                    <div class="form-group">
+                        <input type="hidden" id="min-lat-input" name="minLat">
+                        <input type="hidden" id="min-lng-input" name="minLng">
+                        <input type="hidden" id="max-lat-input" name="maxLat">
+                        <input type="hidden" id="max-lng-input" name="maxLng">
+                        <button type="submit" class="btn btn-tertiary" style="visibility: hidden" id="search-in-this-area-btn">{% trans 'searchInThisArea' %}</button>
                     </div>
                 </form>
             </div>

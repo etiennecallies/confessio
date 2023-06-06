@@ -76,16 +76,12 @@ $(document).ready(function () {
     let map = document.getElementById("map-iframe").contentWindow[mapObjectName];
 
     map.on('moveend', function(evt){
-      // TODO compare with last movement and show label 'search in this area'
       let bounds = map.getBounds();
-      let minLat = bounds._southWest.lat;
-      let minLng = bounds._southWest.lng;
-      let maxLat = bounds._northEast.lat;
-      let maxLng = bounds._northEast.lng;
-      $("#min-lat-input").val(minLat);
-      $("#min-lng-input").val(minLng);
-      $("#max-lat-input").val(maxLat);
-      $("#max-lng-input").val(maxLng);
+      $("#min-lat-input").val(bounds._southWest.lat);
+      $("#min-lng-input").val(bounds._southWest.lng);
+      $("#max-lat-input").val(bounds._northEast.lat);
+      $("#max-lng-input").val(bounds._northEast.lng);
+      $("#search-in-this-area-btn").css('visibility', 'visible');
     });
   });
 });
