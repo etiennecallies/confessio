@@ -23,6 +23,10 @@ def search_for_confession_pages(home_url) -> Tuple[List[str], int, Optional[str]
         visited_links.add(link)
 
         content = get_content_from_url(link)
+        if content is None:
+            # something went wrong (e.g. 404), we just ignore this page
+            continue
+
         confession_part = extract_confession_part_from_content(content, 'html_page')
         if confession_part:
             results.append(link)

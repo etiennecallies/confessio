@@ -20,7 +20,9 @@ class Command(BaseCommand):
             self.stdout.write(
                 self.style.HTTP_INFO(f'Starting crawling for parish {parish.name} {parish.uuid}')
             )
+
             urls, nb_visited_links, error_detail = search_for_confession_pages(parish.home_url)
+
             success = error_detail is None
             crawling = Crawling(
                 success=success,
