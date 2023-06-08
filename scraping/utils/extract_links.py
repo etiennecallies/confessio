@@ -26,6 +26,9 @@ def might_be_confession_link(path, text):
 
 
 def is_internal_link(url: str, url_parsed: ParseResult, home_url_aliases: Set[str]):
+    if url_parsed.scheme not in ['http', 'https']:
+        return False
+
     if url.startswith('#'):
         # link on same page
         return False

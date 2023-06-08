@@ -9,10 +9,14 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('-n', '--name', help='name of parish to crawl')
+        parser.add_argument('--no-success', action="store_true",
+                            help='exclude parishes that have been already successfully crawled')
 
     def handle(self, *args, **options):
         if options['name']:
             parishes = Parish.objects.filter(name__contains=options['name']).all()
+        elif options['no_success']:
+            parishes = Parish.objects.exclude(crawlings__success=True).all()
         else:
             parishes = Parish.objects.all()
 
