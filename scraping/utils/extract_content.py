@@ -13,6 +13,8 @@ from scraping.utils.string_search import has_any_of_words
 CONFESSIONS_MENTIONS = [
     'confession',
     'confessions',
+    'confesse',
+    'confesser',
     'reconciliation',
 ]
 

@@ -31,7 +31,7 @@ def search_for_confession_pages(home_url) -> Tuple[List[str], int, Optional[str]
         if confession_part:
             results.append(link)
 
-        new_links = parse_content_links(content, home_url_aliases)
+        new_links = parse_content_links(content, home_url, home_url_aliases)
         for new_link in new_links:
             if new_link not in visited_links:
                 links_to_visit.add(new_link)
@@ -42,5 +42,6 @@ def search_for_confession_pages(home_url) -> Tuple[List[str], int, Optional[str]
 if __name__ == '__main__':
     # home_url = 'https://www.eglise-saintgermaindespres.fr/'
     # home_url = 'https://www.saintjacquesduhautpas.com/'
-    home_url = 'https://paroisses-amplepuis-thizy.blogspot.fr/'
+    # home_url = 'https://paroisses-amplepuis-thizy.blogspot.fr/'
+    home_url = 'https://paroissesaintbruno.pagesperso-orange.fr/'
     print(search_for_confession_pages(home_url))

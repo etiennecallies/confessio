@@ -1,9 +1,10 @@
 from typing import Set, List
-from urllib.parse import urlparse, ParseResult
+from urllib.parse import urlparse, ParseResult, urljoin
 
 from bs4 import BeautifulSoup, SoupStrainer, Comment
 from bs4 import element as el
 
+from scraping.utils.download_content import get_home
 from scraping.utils.string_search import has_any_of_words
 
 CONFESSIONS_OR_SCHEDULES_MENTIONS = [
@@ -40,13 +41,18 @@ def is_internal_link(url: str, url_parsed: ParseResult, home_url_aliases: Set[st
     return True
 
 
-def get_links(element: el, home_url_aliases: Set[str]):
+def get_links(element: el, home_url: str, home_url_aliases: Set[str]):
     results = set()
 
     for link in element:
         if link.has_attr('href'):
             full_url = link['href']
             url_parsed = urlparse(full_url)
+
+            # If the link is like "sacrements.html", we build it from any home_url we have
+            if not url_parsed.netloc:
+                full_url = urljoin(get_home(home_url), url_parsed.path)
+                url_parsed = urlparse(full_url)
 
             if not is_internal_link(full_url, url_parsed, home_url_aliases):
                 continue
@@ -62,9 +68,9 @@ def get_links(element: el, home_url_aliases: Set[str]):
     return results
 
 
-def parse_content_links(content, home_url_aliases: Set[str]):
+def parse_content_links(content, home_url: str, home_url_aliases: Set[str]):
     element = BeautifulSoup(content, 'html.parser', parse_only=SoupStrainer('a'))
-    links = get_links(element, home_url_aliases)
+    links = get_links(element, home_url, home_url_aliases)
 
     return links
 

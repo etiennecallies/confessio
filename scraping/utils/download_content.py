@@ -48,6 +48,12 @@ def get_domain(url):
     return url_parsed.netloc
 
 
+def get_home(url):
+    url_parsed = urlparse(url)
+
+    return f'{url_parsed.scheme}://{url_parsed.netloc}/'
+
+
 def get_url_aliases(url) -> Optional[Set[str]]:
     print(f'getting url aliases for {url}')
 

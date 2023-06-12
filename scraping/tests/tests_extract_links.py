@@ -11,6 +11,7 @@ class TestExtractLinks(unittest.TestCase):
     def parse_content_links_fixtures():
         return [
             ('https://www.eglise-saintgermaindespres.fr/', 'st-germain-des-pres'),
+            ('https://paroissesaintbruno.pagesperso-orange.fr/', 'st-bruno-des-chartreux'),
         ]
 
     def test_parse_content_links(self):
@@ -22,7 +23,7 @@ class TestExtractLinks(unittest.TestCase):
                 with open(f'{tests_dir}/fixtures/urls/{file_name}.json') as f:
                     expected_links = json.load(f)
                 content = '\n'.join(lines)
-                links = parse_content_links(content, {get_domain(home_url)})
+                links = parse_content_links(content, home_url, {get_domain(home_url)})
                 self.assertSetEqual(links, set(expected_links))
 
 

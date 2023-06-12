@@ -17,6 +17,7 @@ class MyTestCase(unittest.TestCase):
             ('ste-jeanne-darc', 'html_page'),
             ('st-jacques-du-haut-pas', 'html_page'),
             ('st-bruno-des-chartreux', 'html_page'),
+            ('st-bruno-des-chartreux2', 'html_page'),
             ('amplepuis', 'html_page'),
         ]
 
