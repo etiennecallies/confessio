@@ -7,8 +7,14 @@ from scraping.search_confessions_paragraphs import get_fresh_confessions_part
 class Command(BaseCommand):
     help = "Launch the scraping of all parishes"
 
+    def add_arguments(self, parser):
+        parser.add_argument('-n', '--name', help='name of parish to crawl')
+
     def handle(self, *args, **options):
-        parishes = Parish.objects.all()
+        if options['name']:
+            parishes = Parish.objects.filter(name__contains=options['name']).all()
+        else:
+            parishes = Parish.objects.all()
 
         for parish in parishes:
 
