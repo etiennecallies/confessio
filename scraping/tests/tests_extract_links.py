@@ -22,7 +22,7 @@ class TestExtractLinks(unittest.TestCase):
                     lines = f.readlines()
                 with open(f'{tests_dir}/fixtures/urls/{file_name}.json') as f:
                     expected_links = json.load(f)
-                content = '\n'.join(lines)
+                content = ''.join(lines)
                 links = parse_content_links(content, home_url, {get_domain(home_url)})
                 self.assertSetEqual(links, set(expected_links))
 

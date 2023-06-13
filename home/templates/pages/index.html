@@ -86,7 +86,7 @@
                                                     {% if page.has_confessions %}
                                                         {% blocktrans with url=page.url %}BeforeConfessionHTML {{ url }}{% endblocktrans %}
                                                         <p>
-                                                            <iframe srcdoc="{{ page.get_latest_scraping.confession_html }}"
+                                                            <iframe srcdoc="{% firstof firstof page.get_latest_scraping.confession_html_refined page.get_latest_scraping.confession_html %}"
                                                                     style="height: 300px"
                                                                     class="col-12">
                                                             </iframe>

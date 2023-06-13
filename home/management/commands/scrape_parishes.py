@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand, CommandError
 
 from home.models import Parish, Scraping
 from scraping.search_confessions_paragraphs import get_fresh_confessions_part
+from scraping.utils.refine_content import refine_confession_content
 
 
 class Command(BaseCommand):
@@ -22,6 +23,7 @@ class Command(BaseCommand):
                 # Actually do the scraping
                 url_to_scrap = page.url
                 confession_part = get_fresh_confessions_part(url_to_scrap, 'html_page')
+                refined_html = refine_confession_content(confession_part)
 
                 # Compare result to last scraping
                 last_scraping = page.get_latest_scraping()
@@ -32,6 +34,7 @@ class Command(BaseCommand):
                 else:
                     new_scraping = Scraping(
                         confession_html=confession_part,
+                        confession_html_refined=refined_html,
                         nb_iterations=1,
                         page=page,
                     )
