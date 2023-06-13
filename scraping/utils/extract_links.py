@@ -15,6 +15,10 @@ CONFESSIONS_OR_SCHEDULES_MENTIONS = [
     'sacrements',
     'horaire',
     'horaires',
+    'noel',
+    'careme',
+    'paques',
+    'pascal',
 ]
 
 
