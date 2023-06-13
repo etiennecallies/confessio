@@ -22,6 +22,9 @@ def get_content_from_url(url):
 
         return None
 
+    # https://stackoverflow.com/a/52615216
+    r.encoding = r.apparent_encoding
+
     return r.text
 
 
