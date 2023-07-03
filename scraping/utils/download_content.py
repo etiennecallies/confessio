@@ -69,7 +69,7 @@ def get_url_aliases(url) -> Optional[Set[str]]:
         print(e)
         return None
 
-    if r.status_code == 302 and 'location' in r.headers:
+    if r.status_code in [301, 302] and 'location' in r.headers:
         aliases.update(get_url_aliases(r.headers['location']))
 
     return aliases

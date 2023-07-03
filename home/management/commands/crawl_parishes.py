@@ -16,7 +16,7 @@ class Command(BaseCommand):
         if options['name']:
             parishes = Parish.objects.filter(name__contains=options['name']).all()
         elif options['no_success']:
-            parishes = Parish.objects.filter(crawlings__nb_success_links=0).all()
+            parishes = Parish.objects.exclude(crawlings__nb_success_links__gt=0).all()
         else:
             parishes = Parish.objects.all()
 
@@ -48,6 +48,10 @@ class Command(BaseCommand):
 
                 self.stdout.write(
                     self.style.SUCCESS(f'Successfully crawled parish {parish.name} {parish.uuid}')
+                )
+            elif nb_visited_links > 0:
+                self.stdout.write(
+                    self.style.WARNING(f'No page found for parish {parish.name} {parish.uuid}')
                 )
             else:
                 self.stdout.write(
