@@ -1,5 +1,5 @@
 from typing import Set, List
-from urllib.parse import urlparse, ParseResult, urljoin
+from urllib.parse import urlparse, ParseResult, urljoin, parse_qs, urlencode
 
 from bs4 import BeautifulSoup, SoupStrainer, Comment
 from bs4 import element as el
@@ -45,6 +45,17 @@ def is_internal_link(url: str, url_parsed: ParseResult, home_url_aliases: Set[st
     return True
 
 
+def clean_url_query(url_parsed: ParseResult):
+    query = parse_qs(url_parsed.query, keep_blank_values=True)
+
+    # We remove share parameter (share=twitter, share=facebook...)
+    query.pop('share', None)
+
+    url_parsed = url_parsed._replace(query=urlencode(query, True))
+
+    return url_parsed.geturl()
+
+
 def get_links(element: el, home_url: str, home_url_aliases: Set[str]):
     results = set()
 
@@ -58,7 +69,27 @@ def get_links(element: el, home_url: str, home_url_aliases: Set[str]):
                 full_url = urljoin(get_home(home_url), url_parsed.path)
                 url_parsed = urlparse(full_url)
 
+            # We ignore external links (ex: facebook page...)
             if not is_internal_link(full_url, url_parsed, home_url_aliases):
+                continue
+
+            # If the link ends with a hash fragment, we just remove it
+            if '#' in full_url:
+                full_url = urljoin(get_home(full_url), url_parsed.path)
+                url_parsed = urlparse(full_url)
+
+            # If the link ends with a slash, we just remove it
+            if url_parsed.path.endswith('/'):
+                full_url = urljoin(get_home(full_url), url_parsed.path[:-1])
+                url_parsed = urlparse(full_url)
+
+            # If the link contains parameters we remove the non-useful ones
+            if url_parsed.query:
+                full_url = clean_url_query(url_parsed)
+                url_parsed = urlparse(full_url)
+
+            # If this is a link to an image, we ignore it
+            if url_parsed.path.endswith('.jpg') or url_parsed.path.endswith('.jpeg'):
                 continue
 
             # Extract link text
