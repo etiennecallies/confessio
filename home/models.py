@@ -83,7 +83,7 @@ class Scraping(TimeStampMixin):
 
 
 class Crawling(TimeStampMixin):
-    success = models.BooleanField()
     error_detail = models.TextField(null=True)
     nb_visited_links = models.PositiveSmallIntegerField()
+    nb_success_links = models.PositiveSmallIntegerField()
     parish = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='crawlings')

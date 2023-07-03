@@ -16,7 +16,7 @@ class Command(BaseCommand):
         if options['name']:
             parishes = Parish.objects.filter(name__contains=options['name']).all()
         elif options['no_success']:
-            parishes = Parish.objects.exclude(crawlings__success=True).all()
+            parishes = Parish.objects.filter(crawlings__nb_success_links=0).all()
         else:
             parishes = Parish.objects.all()
 
@@ -27,16 +27,15 @@ class Command(BaseCommand):
 
             urls, nb_visited_links, error_detail = search_for_confession_pages(parish.home_url)
 
-            success = error_detail is None
             crawling = Crawling(
-                success=success,
                 nb_visited_links=nb_visited_links,
+                nb_success_links=len(urls),
                 error_detail=error_detail,
                 parish=parish,
             )
             crawling.save()
 
-            if success:
+            if urls:
                 existing_urls = list(map(lambda p: p.url, parish.get_pages()))
 
                 for url in urls:
