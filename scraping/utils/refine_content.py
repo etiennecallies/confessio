@@ -9,6 +9,9 @@ def remove_img(soup: BeautifulSoup):
     for s in soup.select('img'):
         s.extract()
 
+    for s in soup.select('svg'):
+        s.extract()
+
     return soup
 
 

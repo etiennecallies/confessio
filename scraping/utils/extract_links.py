@@ -13,6 +13,7 @@ CONFESSIONS_OR_SCHEDULES_MENTIONS = [
     'reconciliation',
     'sacrement',
     'sacrements',
+    'pardon',
     'horaire',
     'horaires',
     'noel',
