@@ -19,6 +19,7 @@ class MyTestCase(unittest.TestCase):
             ('st-bruno-des-chartreux', 'html_page'),
             ('st-bruno-des-chartreux2', 'html_page'),
             ('amplepuis', 'html_page'),
+            ('ntre-dame-de-lassomption', 'html_page'),
         ]
 
     def test_get_paragraphs(self):
@@ -34,7 +35,7 @@ class MyTestCase(unittest.TestCase):
                 # print(content_tree)
                 raw_contents = content_tree.get_confessions_and_schedules_raw_contents()
                 # print(json.dumps(raw_contents))
-                self.assertEqual(raw_contents, expected_paragraphs)
+                self.assertEqual(raw_contents, expected_paragraphs, msg=file_name)
 
     def test_get_words(self):
         content = 'Bonjour, les confessions sont à 13h le mardi.'

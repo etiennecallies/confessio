@@ -16,6 +16,7 @@ CONFESSIONS_MENTIONS = [
     'confesse',
     'confesser',
     'reconciliation',
+    'pardon',
 ]
 
 DATES_MENTIONS = [
