@@ -9,6 +9,8 @@ class TestExtractLinks(unittest.TestCase):
     def parse_content_links_fixtures():
         return [
             'val-de-saone',
+            'laredemption-st-joseph',
+            'st-georges',
         ]
 
     def test_parse_content_links(self):
