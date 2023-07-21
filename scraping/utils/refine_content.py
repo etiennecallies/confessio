@@ -57,29 +57,51 @@ def build_text(soup: BeautifulSoup):
     if is_table(soup):
         return soup.prettify()
 
-    if is_link(soup):
-        return soup.prettify()
-
-    result = ''
+    results = []
     for element in get_element_and_text(soup):
         if is_span(element):
-            result += clean_text(element.text) + ' '
+            results.append(clean_text(element.text))
         elif is_text(element):
-            result += clean_text(str(element)) + ' '
+            results.append(clean_text(str(element)))
         elif is_comment(element):
             continue
+        elif is_link(element):
+            results.append(flatten_string(element.prettify()))
         else:
-            result += build_text(element) + '\n'
+            text = build_text(element)
+            if text:
+                results.append('<br>\n' + text + '<br>\n')
 
-    return result
+    results = filter(lambda s: len(s) > 0, results)
+
+    return ' '.join(results)
 
 
 def clean_text(text: str):
     text = re.sub(r'^\s*', '', text)
-    text = re.sub(r'([^\n])\n\s*', r'\1\n', text)
-    text = re.sub(r'([^ ]) +', r'\1 ', text)
+    text = re.sub(r'( )+', r' ', text)
+    text = re.sub(r'\n ', r'\n', text)
     text = re.sub(r' \n', r'\n', text)
+    text = re.sub(r'(\n)+', r'\n', text)
     text = re.sub(r'\s*$', '', text)
+
+    return text
+
+
+def flatten_string(text: str):
+    text = re.sub(r'^\s*', '', text)
+    text = re.sub(r'\s+', ' ', text)
+    text = re.sub(r'\s*$', '', text)
+
+    return text
+
+
+def clean_paragraph(text: str):
+    text = re.sub(r'<br> ', r'<br>', text)
+    text = re.sub(r' <br>', r'<br>', text)
+    text = re.sub(r'(<br>\n)+', r'<br>\n', text)
+    text = re.sub(r'^<br>(\n)?', '', text)
+    text = re.sub(r'<br>(\n)?$', '', text)
 
     return text
 
@@ -96,6 +118,6 @@ def refine_confession_content(content_html):
     soup = remove_img(soup)
 
     text = build_text(soup)
-    text = clean_text(text)
+    text = clean_paragraph(text)
 
     return text
