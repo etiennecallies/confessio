@@ -86,10 +86,7 @@
                                                     {% if page.has_confessions %}
                                                         {% blocktrans with url=page.url %}BeforeConfessionHTML {{ url }}{% endblocktrans %}
                                                         <p>
-                                                            <iframe srcdoc="{% firstof firstof page.get_latest_scraping.confession_html_refined page.get_latest_scraping.confession_html %}"
-                                                                    style="height: 300px"
-                                                                    class="col-12">
-                                                            </iframe>
+                                                            {% firstof page.get_latest_scraping.confession_html_refined|safe page.get_latest_scraping.confession_html|safe %}
                                                         </p>
                                                     {% elif not page.has_been_scraped %}
                                                         <p>
