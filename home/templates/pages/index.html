@@ -84,10 +84,12 @@
                                             {% if parish.has_pages %}
                                                 {% for page in parish.get_pages %}
                                                     {% if page.has_confessions %}
-                                                        {% blocktrans with url=page.url %}BeforeConfessionHTML {{ url }}{% endblocktrans %}
-                                                        <p>
-                                                            {% firstof page.get_latest_scraping.confession_html_refined|safe page.get_latest_scraping.confession_html|safe %}
+                                                        <p class="lead mt-3 mb-1">
+                                                            {% blocktrans with url=page.url %}BeforeConfessionHTML {{ url }}{% endblocktrans %}
                                                         </p>
+                                                        <div>
+                                                            {% firstof page.get_latest_scraping.confession_html_refined|safe page.get_latest_scraping.confession_html|safe %}
+                                                        </div>
                                                     {% elif not page.has_been_scraped %}
                                                         <p>
                                                             {% blocktrans with url=page.url %}PageNotScrapedYet {{ url }}{% endblocktrans %}
