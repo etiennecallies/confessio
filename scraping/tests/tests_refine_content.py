@@ -9,6 +9,7 @@ class TestExtractLinks(unittest.TestCase):
     def parse_content_links_fixtures():
         return [
             'val-de-saone',
+            'val-de-saone2',
             'laredemption-st-joseph',
             'st-georges',
         ]
@@ -24,6 +25,7 @@ class TestExtractLinks(unittest.TestCase):
                 input_html = ''.join(lines_input)
                 expected_output = ''.join(lines_output)
                 output = refine_confession_content(input_html)
+                # print(output)
                 self.assertEqual(expected_output, output)
 
 

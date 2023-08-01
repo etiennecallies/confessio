@@ -17,6 +17,13 @@ def remove_img(soup: BeautifulSoup):
     return soup
 
 
+def remove_script(soup: BeautifulSoup):
+    for s in soup.select('script'):
+        s.extract()
+
+    return soup
+
+
 ###################
 # CONVERT TO TEXT #
 ###################
@@ -116,6 +123,7 @@ def refine_confession_content(content_html):
 
     soup = BeautifulSoup(content_html, 'html.parser')
     soup = remove_img(soup)
+    soup = remove_script(soup)
 
     text = build_text(soup)
     text = clean_paragraph(text)
