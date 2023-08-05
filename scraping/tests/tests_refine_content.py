@@ -13,6 +13,7 @@ class TestExtractLinks(unittest.TestCase):
             'laredemption-st-joseph',
             'st-georges',
             'st-bonaventure',
+            'bellecombe',
         ]
 
     def test_parse_content_links(self):

@@ -21,6 +21,9 @@ def remove_script(soup: BeautifulSoup):
     for s in soup.select('script'):
         s.extract()
 
+    for s in soup.select('style'):
+        s.extract()
+
     return soup
 
 
@@ -62,6 +65,10 @@ def get_element_and_text(element):
     return element.contents
 
 
+def clear_formatting(element: BeautifulSoup):
+    element.string = element.getText()
+
+
 def build_text(soup: BeautifulSoup):
     if is_table(soup):
         return soup.prettify()
@@ -75,6 +82,7 @@ def build_text(soup: BeautifulSoup):
         elif is_comment(element):
             continue
         elif is_link(element):
+            clear_formatting(element)
             results.append(flatten_string(element.prettify()))
         else:
             text = build_text(element)
