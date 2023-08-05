@@ -1,6 +1,6 @@
 import re
 
-from bs4 import BeautifulSoup, NavigableString, Comment
+from bs4 import BeautifulSoup, NavigableString, Comment, ProcessingInstruction
 
 
 ##############
@@ -45,15 +45,17 @@ def is_span(element):
         'span',
         'em',
         'strong',
+        'u',
+        'sup',
     ]
 
 
 def is_text(element):
-    return isinstance(element, NavigableString) and not isinstance(element, Comment)
+    return isinstance(element, NavigableString) and not is_comment(element)
 
 
 def is_comment(element):
-    return isinstance(element, Comment)
+    return isinstance(element, Comment) or isinstance(element, ProcessingInstruction)
 
 
 def get_element_and_text(element):
@@ -85,6 +87,7 @@ def build_text(soup: BeautifulSoup):
 
 
 def clean_text(text: str):
+    text = text.replace('\u200b', '')
     text = re.sub(r'^\s*', '', text)
     text = re.sub(r'( )+', r' ', text)
     text = re.sub(r'\n ', r'\n', text)
