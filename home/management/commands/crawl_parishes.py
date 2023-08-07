@@ -26,8 +26,10 @@ class Command(BaseCommand):
                 self.style.HTTP_INFO(f'Starting crawling for parish {parish.name} {parish.uuid}')
             )
 
+            # Actually crawling parish
             urls, nb_visited_links, error_detail = search_for_confession_pages(parish.home_url)
 
+            # Inserting global statistics
             crawling = Crawling(
                 nb_visited_links=nb_visited_links,
                 nb_success_links=len(urls),
@@ -36,10 +38,15 @@ class Command(BaseCommand):
             )
             crawling.save()
 
-            if urls:
-                existing_pages = parish.get_pages()
-                existing_urls = list(map(lambda p: p.url, existing_pages))
+            # Removing old pages
+            existing_pages = parish.get_pages()
+            existing_urls = list(map(lambda p: p.url, existing_pages))
+            for page in existing_pages:
+                if page.url not in urls:
+                    page.deleted_at = Now()
+                    page.save()
 
+            if urls:
                 # Adding new pages
                 for url in urls:
                     if url not in existing_urls:
@@ -48,12 +55,6 @@ class Command(BaseCommand):
                             parish=parish
                         )
                         new_page.save()
-
-                # Removing old pages
-                for page in existing_pages:
-                    if page.url not in urls:
-                        page.deleted_at = Now()
-                        page.save()
 
                 self.stdout.write(
                     self.style.SUCCESS(f'Successfully crawled parish {parish.name} {parish.uuid}')
