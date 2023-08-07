@@ -66,6 +66,13 @@ def get_element_and_text(element):
 
 
 def clear_formatting(element: BeautifulSoup):
+    # remove all attributes except "href"
+    attrs = dict(element.attrs)
+    for attr in attrs:
+        if attr not in ['href']:
+            del element.attrs[attr]
+
+    # keeping only text as html
     element.string = element.getText()
 
 

@@ -28,7 +28,7 @@ class TestExtractLinks(unittest.TestCase):
                 expected_output = ''.join(lines_output)
                 output = refine_confession_content(input_html)
                 # print(output)
-                self.assertEqual(expected_output, output)
+                self.assertEqual(expected_output, output, file_name)
 
 
 if __name__ == '__main__':
