@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+from django.db.models.functions import Now
 
 from home.models import Parish, Page, Crawling
 from scraping.search_confessions_urls import search_for_confession_pages
@@ -36,8 +37,10 @@ class Command(BaseCommand):
             crawling.save()
 
             if urls:
-                existing_urls = list(map(lambda p: p.url, parish.get_pages()))
+                existing_pages = parish.get_pages()
+                existing_urls = list(map(lambda p: p.url, existing_pages))
 
+                # Adding new pages
                 for url in urls:
                     if url not in existing_urls:
                         new_page = Page(
@@ -45,6 +48,12 @@ class Command(BaseCommand):
                             parish=parish
                         )
                         new_page.save()
+
+                # Removing old pages
+                for page in existing_pages:
+                    if page.url not in urls:
+                        page.deleted_at = Now()
+                        page.save()
 
                 self.stdout.write(
                     self.style.SUCCESS(f'Successfully crawled parish {parish.name} {parish.uuid}')

@@ -40,7 +40,7 @@ class Command(BaseCommand):
                     )
                     new_scraping.save()
                 self.stdout.write(
-                    self.style.SUCCESS(f'Successfully scrapped page {page.url} {page.uuid}')
+                    self.style.HTTP_INFO(f'Successfully scrapped page {page.url} {page.uuid}')
                 )
 
             self.stdout.write(
