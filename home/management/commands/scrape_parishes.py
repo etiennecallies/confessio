@@ -18,6 +18,9 @@ class Command(BaseCommand):
             parishes = Parish.objects.all()
 
         for parish in parishes:
+            self.stdout.write(
+                self.style.HTTP_INFO(f'Starting to scrape parish {parish.name} {parish.uuid}')
+            )
 
             for page in parish.get_pages():
                 # Actually do the scraping

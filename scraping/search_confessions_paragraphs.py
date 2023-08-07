@@ -1,5 +1,6 @@
 from scraping.utils.download_content import get_content
 from scraping.utils.extract_content import extract_confession_part_from_content
+from scraping.utils.refine_content import refine_confession_content
 
 
 def get_confession_pages():
@@ -15,7 +16,8 @@ def get_confession_pages():
         # ('https://notredameversailles.fr/vie-chretienne/vivre-les-sacrements/sacrement-de-penitence-et-de-reconciliation/', 'html_page'),  # Bof, un peu large aussi...
         # ('https://paroissecroixrousse.fr/pour-le-temps-de-noel/', 'html_page'),
         # ('https://www.eglise-saintgermaindespres.fr/l_eglise/horaires/', 'html_page'),
-        ('https://paroissecroixrousse.fr/pour-le-temps-de-noel/', 'html_page'),
+        # ('https://paroissecroixrousse.fr/pour-le-temps-de-noel/', 'html_page'),
+        ('https://www.paroissedevaise.fr/evenements/categorie/pardon/jour/2023-09-01/', 'html_page'),
     ]
 
 
@@ -32,7 +34,10 @@ if __name__ == '__main__':
 
     for url, page_type in confession_pages:
         confession_part = get_fresh_confessions_part(url, page_type)
+        refined_html = refine_confession_content(confession_part)
 
         print()
         print(url, page_type)
         print(confession_part)
+        print()
+        print(refined_html)

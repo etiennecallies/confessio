@@ -5,7 +5,7 @@ from scraping.utils.extract_content import extract_confession_part_from_content
 from scraping.utils.extract_links import parse_content_links, remove_http_https_duplicate
 from scraping.utils.refine_content import refine_confession_content
 
-MAX_VISITED_LINKS = 100
+MAX_VISITED_LINKS = 50
 
 
 def search_for_confession_pages(home_url) -> Tuple[List[str], int, Optional[str]]:
@@ -41,6 +41,9 @@ def search_for_confession_pages(home_url) -> Tuple[List[str], int, Optional[str]
         for new_link in new_links:
             if new_link not in visited_links:
                 links_to_visit.add(new_link)
+
+    if len(visited_links) == MAX_VISITED_LINKS:
+        error_detail = f'Reached limit of {MAX_VISITED_LINKS} visited links.'
 
     return remove_http_https_duplicate(results), len(visited_links), error_detail
 
