@@ -99,7 +99,7 @@ def load_from_html(element: el) -> 'ContentTree':
 # CONTENT TREE #
 ################
 
-MAX_CONFESSIONS_BACKWARD_SEARCH_DEPTH = 5
+MAX_CONFESSIONS_BACKWARD_SEARCH_DEPTH = 6
 MAX_ELEMENTS_WITHOUT_SCHEDULES = 2
 
 

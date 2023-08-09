@@ -20,6 +20,7 @@ class MyTestCase(unittest.TestCase):
             ('st-bruno-des-chartreux2', 'html_page'),
             ('amplepuis', 'html_page'),
             ('ntre-dame-de-lassomption', 'html_page'),
+            ('st-bonaventure', 'html_page'),
         ]
 
     def test_get_paragraphs(self):
