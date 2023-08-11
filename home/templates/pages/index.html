@@ -100,8 +100,10 @@
                                                         </p>
                                                     {% endif %}
                                                 {% endfor %}
+                                            {% elif not parish.has_been_crawled %}
+                                                {% trans 'NotCrawledYet' %}
                                             {% else %}
-                                                {% trans 'NotScrapedYet' %}
+                                                {% trans 'NoConfessionFound' %}
                                             {% endif %}
                                         </div>
                                     </div>

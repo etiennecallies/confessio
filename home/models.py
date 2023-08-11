@@ -23,7 +23,23 @@ class Parish(TimeStampMixin):
     home_url = models.URLField()
     messesinfo_network_id = models.CharField(max_length=100, null=True)
     messesinfo_community_id = models.CharField(max_length=100, null=True, unique=True)
+
     _pages = None
+    _latest_crawling = None
+    _has_search_latest_crawling = False
+
+    def get_latest_crawling(self) -> Optional['Crawling']:
+        if not self._has_search_latest_crawling:
+            try:
+                self._latest_crawling = self.crawlings.latest()
+            except Scraping.DoesNotExist:
+                self._latest_crawling = None
+            self._has_search_latest_crawling = True
+
+        return self._latest_crawling
+
+    def has_been_crawled(self) -> bool:
+        return self.get_latest_crawling() is not None
 
     def get_pages(self) -> List['Page']:
         if self._pages is None:
@@ -55,6 +71,7 @@ class Page(TimeStampMixin):
     url = models.URLField()
     deleted_at = models.DateTimeField(null=True)
     parish = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='pages')
+
     _latest_scraping = None
     _has_search_latest_scraping = False
 
@@ -73,14 +90,7 @@ class Page(TimeStampMixin):
 
     def has_confessions(self) -> bool:
         return self.get_latest_scraping() is not None\
-            and self.get_latest_scraping().confession_html
-
-
-class Scraping(TimeStampMixin):
-    confession_html = models.TextField(null=True)
-    confession_html_refined = models.TextField(null=True)
-    nb_iterations = models.PositiveSmallIntegerField()
-    page = models.ForeignKey('Page', on_delete=models.CASCADE, related_name='scrapings')
+            and self.get_latest_scraping().confession_html_refined
 
 
 class Crawling(TimeStampMixin):
@@ -88,3 +98,10 @@ class Crawling(TimeStampMixin):
     nb_visited_links = models.PositiveSmallIntegerField()
     nb_success_links = models.PositiveSmallIntegerField()
     parish = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='crawlings')
+
+
+class Scraping(TimeStampMixin):
+    confession_html = models.TextField(null=True)
+    confession_html_refined = models.TextField(null=True)
+    nb_iterations = models.PositiveSmallIntegerField()
+    page = models.ForeignKey('Page', on_delete=models.CASCADE, related_name='scrapings')

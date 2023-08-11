@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-06 08:21+0200\n"
+"POT-Creation-Date: 2023-08-11 19:05+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,15 +22,15 @@ msgstr ""
 msgid "ConfessionsExist"
 msgstr "Des confessions existent"
 
-#: services/map_service.py:48 templates/pages/index.html:105
-msgid "NotScrapedYet"
+#: services/map_service.py:48 templates/pages/index.html:104
+msgid "NotCrawledYet"
 msgstr "Traitement en cours pour cette paroisse"
 
-#: services/map_service.py:51
+#: services/map_service.py:51 templates/pages/index.html:106
 msgid "NoConfessionFound"
 msgstr "Pas de confessions trouvées"
 
-#: services/map_service.py:56
+#: services/map_service.py:54
 msgid "JumpBelow"
 msgstr "Voir ci-dessous"
 
@@ -46,21 +46,21 @@ msgstr "Rechercher dans cette zone"
 msgid "locateOnMap"
 msgstr "Situer sur la carte"
 
-#: templates/pages/index.html:87
+#: templates/pages/index.html:88
 #, python-format
 msgid "BeforeConfessionHTML %(url)s"
 msgstr ""
 "Voici l'extrait de leur <a href=\"%(url)s\" class=\"link-info\">page</a> "
 "concernant les confessions :"
 
-#: templates/pages/index.html:96
+#: templates/pages/index.html:95
 #, python-format
 msgid "PageNotScrapedYet %(url)s"
 msgstr ""
 "Traitement en cours pour cette <a href=\"%(url)s\" class=\"link-info\">page</"
 "a>."
 
-#: templates/pages/index.html:100
+#: templates/pages/index.html:99
 #, python-format
 msgid "NoConfessionFoundPage %(url)s"
 msgstr ""

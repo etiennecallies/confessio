@@ -30,7 +30,9 @@ class Command(BaseCommand):
 
                 # Compare result to last scraping
                 last_scraping = page.get_latest_scraping()
-                if last_scraping is not None and last_scraping.confession_html == confession_part:
+                if last_scraping is not None \
+                        and last_scraping.confession_html == confession_part \
+                        and last_scraping.confession_html_refined == refined_html:
                     # If a scraping exists and is identical to last one
                     last_scraping.nb_iterations += 1
                     last_scraping.save()
