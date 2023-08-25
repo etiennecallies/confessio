@@ -19,10 +19,8 @@ class TimeStampMixin(models.Model):
 
 
 class Parish(TimeStampMixin):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=300)
     home_url = models.URLField()
-    messesinfo_network_id = models.CharField(max_length=100, null=True)
-    messesinfo_community_id = models.CharField(max_length=100, null=True, unique=True)
 
     _pages = None
     _latest_crawling = None
@@ -57,6 +55,13 @@ class Parish(TimeStampMixin):
         return any(map(Page.has_confessions, self.get_pages()))
 
 
+class ParishSource(TimeStampMixin):
+    name = models.CharField(max_length=100)
+    messesinfo_network_id = models.CharField(max_length=100, null=True)
+    messesinfo_community_id = models.CharField(max_length=100, null=True, unique=True)
+    parish = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='sources')
+
+
 class Church(TimeStampMixin):
     name = models.CharField(max_length=100)
     location = gis_models.PointField(geography=True)
@@ -65,6 +70,8 @@ class Church(TimeStampMixin):
     city = models.CharField(max_length=50)
     messesinfo_id = models.CharField(max_length=100, null=True, unique=True)
     parish = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='churches')
+    parish_source = models.ForeignKey('ParishSource', on_delete=models.SET_NULL,
+                                      blank=True, null=True, related_name='churches')
 
 
 class Page(TimeStampMixin):

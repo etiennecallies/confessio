@@ -16,7 +16,12 @@ def get_content_from_url(url):
     print(f'getting content from url {url}')
 
     headers = get_headers()
-    r = requests.get(url, headers=headers)
+    try:
+        r = requests.get(url, headers=headers)
+    except RequestException as e:
+        print(e)
+        return None
+
     if r.status_code != 200:
         print(f'got status code {r.status_code}')
 
