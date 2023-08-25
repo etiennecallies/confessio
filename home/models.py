@@ -20,7 +20,7 @@ class TimeStampMixin(models.Model):
 
 class Parish(TimeStampMixin):
     name = models.CharField(max_length=300)
-    home_url = models.URLField()
+    home_url = models.URLField(unique=True)
 
     _pages = None
     _latest_crawling = None
