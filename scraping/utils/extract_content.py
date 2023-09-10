@@ -62,18 +62,21 @@ DATES_MENTIONS = [
     'octobre',
     'novembre',
     'decembre',
-    'careme',
-    'temps',
-    'ordinaire',
     'fete',
     'fetes',
-    'vacances',
-    'scolaire',
-    'scolaires',
 ]
 
 DATES_EXPR = [
     'rendez-vous',
+]
+
+PERIOD_MENTIONS = [
+    'careme',
+    'temps',
+    'ordinaire',
+    'vacances',
+    'scolaire',
+    'scolaires',
 ]
 
 
@@ -87,6 +90,10 @@ def is_schedule_description(content: str):
 
 def is_date_description(content: str):
     return has_any_of_words(content, DATES_MENTIONS, DATES_EXPR)
+
+
+def is_period_description(content: str):
+    return has_any_of_words(content, PERIOD_MENTIONS)
 
 
 ######################
@@ -108,10 +115,11 @@ def extract_content(refined_content: str):
         has_confession = has_confession_mentions(line_without_link)
         is_schedule = is_schedule_description(line_without_link)
         is_date = is_date_description(line_without_link)
+        is_period = is_period_description(line_without_link)
 
-        if (is_schedule or is_date) \
+        if (is_schedule or is_period) \
                 and (has_confession or remaining_buffering_attempts is not None):
-            # If we found schedules or date and waiting for it
+            # If we found schedules or period and were waiting for it
 
             # If we found schedules only, we add date_buffer
             if not is_date:
@@ -122,8 +130,8 @@ def extract_content(refined_content: str):
             results.append(line)
             date_buffer = []
             remaining_buffering_attempts = MAX_BUFFERING_ATTEMPTS
-        elif has_confession:
-            # If we found confessions but not schedules
+        elif has_confession or (is_date and remaining_buffering_attempts is not None):
+            # If we found confessions, or date and waiting for it
             buffer.append(line)
             remaining_buffering_attempts = MAX_BUFFERING_ATTEMPTS
         elif remaining_buffering_attempts == 0:
