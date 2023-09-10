@@ -50,6 +50,7 @@ def is_span(element):
         'strong',
         'u',
         'sup',
+        'b',
     ]
 
 

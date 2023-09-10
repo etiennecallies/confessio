@@ -57,6 +57,9 @@ DATES_MENTIONS = [
     'ordinaire',
     'fete',
     'fetes',
+    'vacances',
+    'scolaire',
+    'scolaires',
 ]
 
 DATE_REGEX = [
@@ -249,6 +252,40 @@ class ContentTree:
 
         # TODO split text into paragraphs (including title of paragraphs)
         return ContentTree('', '', [])
+
+
+######################
+# EXTRACT ON REFINED #
+######################
+
+def extract_content(refined_content: str):
+    results = []
+    remaining_attempts_without_schedules = None
+    buffer = []
+
+    # Split into lines (or <table>)
+    for line in refined_content.split('<br>\n'):
+        if is_schedule_description(line) and \
+                (has_confession_mentions(line) or remaining_attempts_without_schedules is not None):
+            # If we found schedules and we were waiting for it
+            results.extend(buffer)
+            buffer = []
+            results.append(line)
+            remaining_attempts_without_schedules = MAX_ELEMENTS_WITHOUT_SCHEDULES
+        elif has_confession_mentions(line):
+            # If we found confessions but not schedules
+            buffer.append(line)
+            remaining_attempts_without_schedules = MAX_ELEMENTS_WITHOUT_SCHEDULES
+        elif remaining_attempts_without_schedules == 0:
+            # If we found nothing and we reached limit without anything
+            buffer = []
+            remaining_attempts_without_schedules = None
+        elif remaining_attempts_without_schedules is not None:
+            # If we found nothing and we still have some remaining attempts left
+            buffer.append(line)
+            remaining_attempts_without_schedules -= 1
+
+    return results
 
 
 ########

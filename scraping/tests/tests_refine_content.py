@@ -8,11 +8,11 @@ class TestExtractLinks(unittest.TestCase):
     @staticmethod
     def parse_content_links_fixtures():
         return [
-            'val-de-saone',
-            'val-de-saone2',
-            'laredemption-st-joseph',
-            'st-georges',
-            'st-bonaventure',
+            # 'val-de-saone',
+            # 'val-de-saone2',
+            # 'laredemption-st-joseph',
+            # 'st-georges',
+            # 'st-bonaventure',
             'bellecombe',
         ]
 

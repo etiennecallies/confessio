@@ -2,7 +2,8 @@ import json
 import os
 import unittest
 
-from scraping.utils.extract_content import ContentTree, is_schedule_description
+from scraping.utils.extract_content import ContentTree, is_schedule_description, extract_content
+from scraping.utils.refine_content import refine_confession_content
 from scraping.utils.string_search import normalize_content, get_words
 
 
@@ -37,6 +38,27 @@ class MyTestCase(unittest.TestCase):
                 raw_contents = content_tree.get_confessions_and_schedules_raw_contents()
                 # print(json.dumps(raw_contents))
                 self.assertEqual(raw_contents, expected_paragraphs, msg=file_name)
+
+    def test_extract(self):
+        tests_dir = os.path.dirname(os.path.realpath(__file__))
+        for file_name, page_type in self.get_paragraphs_fixtures():
+            with self.subTest():
+                with open(f'{tests_dir}/fixtures/paragraphs/{file_name}.html') as f:
+                    lines = f.readlines()
+                with open(f'{tests_dir}/fixtures/paragraphs/{file_name}.txt') as f:
+                    expected_lines = f.readlines()
+                content_html = ''.join(lines)
+                expected_extracted_refined = ''.join(expected_lines)
+
+                refined_content = refine_confession_content(content_html)
+                # print('refined_content', refined_content)
+                paragraphs = extract_content(refined_content)
+                # print('paragraphs', paragraphs)
+                extracted_refined = '<br>\n'.join(paragraphs)
+                # print(extracted_refined)
+
+                self.maxDiff = None
+                self.assertEqual(expected_extracted_refined, extracted_refined, msg=file_name)
 
     def test_get_words(self):
         content = 'Bonjour, les confessions sont à 13h le mardi.'
