@@ -22,6 +22,7 @@ class MyTestCase(unittest.TestCase):
             ('ntre-dame-de-lassomption', 'html_page'),
             ('st-bonaventure', 'html_page'),
             ('st-nomdejesus', 'html_page'),
+            ('fourviere', 'html_page'),
         ]
 
     def test_extract(self):

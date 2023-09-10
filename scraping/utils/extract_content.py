@@ -1,4 +1,4 @@
-from scraping.utils.refine_content import refine_confession_content
+from scraping.utils.refine_content import refine_confession_content, remove_link_from_html
 from scraping.utils.string_search import has_any_of_words
 
 ##################
@@ -91,8 +91,9 @@ def extract_content(refined_content: str):
 
     # Split into lines (or <table>)
     for line in refined_content.split('<br>\n'):
-        has_confession = has_confession_mentions(line)
-        is_schedule = is_schedule_description(line)
+        line_without_link = remove_link_from_html(line)
+        has_confession = has_confession_mentions(line_without_link)
+        is_schedule = is_schedule_description(line_without_link)
 
         if is_schedule and (has_confession or remaining_buffering_attempts is not None):
             # If we found schedules and we were waiting for it

@@ -132,6 +132,13 @@ def clean_paragraph(text: str):
     return text
 
 
+###############
+# REMOVE LINK #
+###############
+
+def remove_link_from_html(html: str) -> str:
+    return re.sub('href="[^"]+"', '', html)
+
 ########
 # MAIN #
 ########
