@@ -103,7 +103,7 @@ def load_from_html(element: el) -> 'ContentTree':
 ################
 
 MAX_CONFESSIONS_BACKWARD_SEARCH_DEPTH = 6
-MAX_ELEMENTS_WITHOUT_SCHEDULES = 2
+MAX_BUFFERING_ATTEMPTS = 2
 
 
 class ContentTree:
@@ -174,7 +174,7 @@ class ContentTree:
                     # we append entire child
                     raw_contents.append(child.raw_content)
                     # and we are still looking for schedules
-                    remaining_attempts_without_schedules = MAX_ELEMENTS_WITHOUT_SCHEDULES
+                    remaining_attempts_without_schedules = MAX_BUFFERING_ATTEMPTS
                 else:
                     # otherwise we append only the relevant parts
                     raw_contents.extend(child_raw_contents)
@@ -190,7 +190,7 @@ class ContentTree:
                 # we keep the child in buffer
                 children_buffer.append(child.raw_content)
                 # and we are now looking for schedules
-                remaining_attempts_without_schedules = MAX_ELEMENTS_WITHOUT_SCHEDULES
+                remaining_attempts_without_schedules = MAX_BUFFERING_ATTEMPTS
 
             elif remaining_attempts_without_schedules is not None:
                 # child does not contain confession
@@ -208,7 +208,7 @@ class ContentTree:
                     # we append the child
                     raw_contents.append(child.raw_content)
                     # and we are still looking for schedules
-                    remaining_attempts_without_schedules = MAX_ELEMENTS_WITHOUT_SCHEDULES
+                    remaining_attempts_without_schedules = MAX_BUFFERING_ATTEMPTS
                 else:
                     # we did not find schedules
 
@@ -260,30 +260,32 @@ class ContentTree:
 
 def extract_content(refined_content: str):
     results = []
-    remaining_attempts_without_schedules = None
+    remaining_buffering_attempts = None
     buffer = []
 
     # Split into lines (or <table>)
     for line in refined_content.split('<br>\n'):
-        if is_schedule_description(line) and \
-                (has_confession_mentions(line) or remaining_attempts_without_schedules is not None):
+        has_confession = has_confession_mentions(line)
+        is_schedule = is_schedule_description(line)
+
+        if is_schedule and (has_confession or remaining_buffering_attempts is not None):
             # If we found schedules and we were waiting for it
             results.extend(buffer)
             buffer = []
             results.append(line)
-            remaining_attempts_without_schedules = MAX_ELEMENTS_WITHOUT_SCHEDULES
-        elif has_confession_mentions(line):
+            remaining_buffering_attempts = MAX_BUFFERING_ATTEMPTS
+        elif has_confession:
             # If we found confessions but not schedules
             buffer.append(line)
-            remaining_attempts_without_schedules = MAX_ELEMENTS_WITHOUT_SCHEDULES
-        elif remaining_attempts_without_schedules == 0:
+            remaining_buffering_attempts = MAX_BUFFERING_ATTEMPTS
+        elif remaining_buffering_attempts == 0:
             # If we found nothing and we reached limit without anything
             buffer = []
-            remaining_attempts_without_schedules = None
-        elif remaining_attempts_without_schedules is not None:
-            # If we found nothing and we still have some remaining attempts left
+            remaining_buffering_attempts = None
+        elif remaining_buffering_attempts is not None:
+            # If we found nothing, and we still have some remaining attempts left
             buffer.append(line)
-            remaining_attempts_without_schedules -= 1
+            remaining_buffering_attempts -= 1
 
     return results
 
