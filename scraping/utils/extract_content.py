@@ -60,6 +60,8 @@ DATES_MENTIONS = [
 DATE_REGEX = [
     r'\dh\d\d',
     r'\d\dh\d\d',
+    r'\d\d:\d\d',
+    r'\d:\d\d',
 ]
 
 DATE_EXPR = [

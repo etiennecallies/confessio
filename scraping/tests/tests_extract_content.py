@@ -21,6 +21,7 @@ class MyTestCase(unittest.TestCase):
             ('amplepuis', 'html_page'),
             ('ntre-dame-de-lassomption', 'html_page'),
             ('st-bonaventure', 'html_page'),
+            ('st-nomdejesus', 'html_page'),
         ]
 
     def test_extract(self):
@@ -55,6 +56,10 @@ class MyTestCase(unittest.TestCase):
         content = "Le célébrant asssure une permanence de confession avant la messe dans le " \
                   "confessional de la chapelle Saint-Pierre, à droite en entrant dans l'église, " \
                   "de 9h45 à 10h25."
+        self.assertTrue(is_schedule_description(content))
+
+    def test_is_schedule_description_hour(self):
+        content = "18:00 - 19:00"
         self.assertTrue(is_schedule_description(content))
 
 

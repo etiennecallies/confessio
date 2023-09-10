@@ -25,9 +25,8 @@ def has_any_of_words(content: str, lexical_list, regex_list=None, expr_list=None
 
     if regex_list:
         for regex in regex_list:
-            for w in words:
-                if re.fullmatch(regex, w):
-                    return True
+            if re.findall(regex, normalized_content):
+                return True
 
     if expr_list:
         for expr in expr_list:
