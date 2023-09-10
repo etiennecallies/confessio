@@ -3,7 +3,6 @@ from typing import Optional, List, Tuple
 from scraping.utils.download_content import get_content_from_url, get_url_aliases
 from scraping.utils.extract_content import extract_confession_part_from_content
 from scraping.utils.extract_links import parse_content_links, remove_http_https_duplicate
-from scraping.utils.refine_content import refine_confession_content
 
 MAX_VISITED_LINKS = 50
 
@@ -15,7 +14,7 @@ def search_for_confession_pages(home_url) -> Tuple[List[str], int, Optional[str]
 
     visited_links = set()
     links_to_visit = {home_url}
-    refined_html_seen = set()
+    confession_parts_seen = set()
 
     error_detail = None
 
@@ -24,20 +23,19 @@ def search_for_confession_pages(home_url) -> Tuple[List[str], int, Optional[str]
         link = links_to_visit.pop()
         visited_links.add(link)
 
-        content = get_content_from_url(link)
-        if content is None:
+        html_content = get_content_from_url(link)
+        if html_content is None:
             # something went wrong (e.g. 404), we just ignore this page
             continue
 
         # Looking if new confession part is found
-        confession_part = extract_confession_part_from_content(content, 'html_page')
-        refined_html = refine_confession_content(confession_part)
-        if refined_html and refined_html not in refined_html_seen:
+        confession_part = extract_confession_part_from_content(html_content)
+        if confession_part and confession_part not in confession_parts_seen:
             results.append(link)
-            refined_html_seen.add(refined_html)
+            confession_parts_seen.add(confession_part)
 
         # Looking for new links to visit
-        new_links = parse_content_links(content, home_url, home_url_aliases)
+        new_links = parse_content_links(html_content, home_url, home_url_aliases)
         for new_link in new_links:
             if new_link not in visited_links:
                 links_to_visit.add(new_link)

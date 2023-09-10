@@ -4,6 +4,7 @@ from bs4 import BeautifulSoup
 from bs4 import element as el
 from bs4.element import Comment
 
+from scraping.utils.refine_content import refine_confession_content
 from scraping.utils.string_search import has_any_of_words
 
 ##################
@@ -294,15 +295,13 @@ def extract_content(refined_content: str):
 # MAIN #
 ########
 
-def extract_confession_part_from_content(text, page_type):
-    content_tree = ContentTree.load_content_tree_from_text(text, page_type)
-    if content_tree is None:
+def extract_confession_part_from_content(html_content):
+    refined_content = refine_confession_content(html_content)
+    if refined_content is None:
         return None
 
-    raw_contents_with_confessions = content_tree.get_confessions_and_schedules_raw_contents()
-    if not raw_contents_with_confessions:
+    paragraphs = extract_content(refined_content)
+    if not paragraphs:
         return None
 
-    delimiter = '<br>' if page_type == 'html_page' else '\n'
-
-    return delimiter.join(raw_contents_with_confessions)
+    return '<br>\n'.join(paragraphs)

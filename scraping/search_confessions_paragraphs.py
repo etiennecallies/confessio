@@ -1,7 +1,5 @@
 from scraping.utils.download_content import get_content
 from scraping.utils.extract_content import extract_confession_part_from_content
-from scraping.utils.refine_content import refine_confession_content
-
 
 def get_confession_pages():
 
@@ -22,11 +20,11 @@ def get_confession_pages():
 
 
 def get_fresh_confessions_part(url, page_type):
-    content = get_content(url, page_type)
-    if content is None:
+    html_content = get_content(url, page_type)
+    if html_content is None:
         return None
 
-    return extract_confession_part_from_content(content, page_type)
+    return extract_confession_part_from_content(html_content)
 
 
 if __name__ == '__main__':
@@ -34,10 +32,7 @@ if __name__ == '__main__':
 
     for url, page_type in confession_pages:
         confession_part = get_fresh_confessions_part(url, page_type)
-        refined_html = refine_confession_content(confession_part)
 
         print()
         print(url, page_type)
         print(confession_part)
-        print()
-        print(refined_html)

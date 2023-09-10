@@ -97,7 +97,7 @@ class Page(TimeStampMixin):
 
     def has_confessions(self) -> bool:
         return self.get_latest_scraping() is not None\
-            and self.get_latest_scraping().confession_html_refined
+            and self.get_latest_scraping().confession_html
 
 
 class Crawling(TimeStampMixin):
@@ -109,6 +109,5 @@ class Crawling(TimeStampMixin):
 
 class Scraping(TimeStampMixin):
     confession_html = models.TextField(null=True)
-    confession_html_refined = models.TextField(null=True)
     nb_iterations = models.PositiveSmallIntegerField()
     page = models.ForeignKey('Page', on_delete=models.CASCADE, related_name='scrapings')

@@ -2,8 +2,8 @@ import json
 import os
 import unittest
 
-from scraping.utils.extract_content import ContentTree, is_schedule_description, extract_content
-from scraping.utils.refine_content import refine_confession_content
+from scraping.utils.extract_content import ContentTree, is_schedule_description, \
+    extract_confession_part_from_content
 from scraping.utils.string_search import normalize_content, get_words
 
 
@@ -48,17 +48,12 @@ class MyTestCase(unittest.TestCase):
                 with open(f'{tests_dir}/fixtures/paragraphs/{file_name}.txt') as f:
                     expected_lines = f.readlines()
                 content_html = ''.join(lines)
-                expected_extracted_refined = ''.join(expected_lines)
+                expected_confession_part = ''.join(expected_lines)
 
-                refined_content = refine_confession_content(content_html)
-                # print('refined_content', refined_content)
-                paragraphs = extract_content(refined_content)
-                # print('paragraphs', paragraphs)
-                extracted_refined = '<br>\n'.join(paragraphs)
-                # print(extracted_refined)
+                confession_part = extract_confession_part_from_content(content_html)
+                # print(confession_part)
 
-                self.maxDiff = None
-                self.assertEqual(expected_extracted_refined, extracted_refined, msg=file_name)
+                self.assertEqual(expected_confession_part, confession_part, msg=file_name)
 
     def test_get_words(self):
         content = 'Bonjour, les confessions sont à 13h le mardi.'
