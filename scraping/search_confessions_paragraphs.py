@@ -18,7 +18,8 @@ def get_confession_pages():
         # ('https://paroissecroixrousse.fr/pour-le-temps-de-noel/', 'html_page'),
         # ('https://www.paroissedevaise.fr/evenements/categorie/pardon/jour/2023-09-01/', 'html_page'),
         # ('https://www.fourviere.org/fr/prier-notre-dame-de-fourviere/priere-et-celebrations/confessions/', 'html_page'),
-        ('https://www.paroissedevaise.fr/evenements/categorie/pardon/jour/2023-09-14/', 'html_page'),
+        # ('https://www.paroissedevaise.fr/evenements/categorie/pardon/jour/2023-09-14/', 'html_page'),
+        ('https://www.paroissedevaise.fr/event/apres-midi-du-pardon-a-ecully/', 'html_page'),
     ]
 
 

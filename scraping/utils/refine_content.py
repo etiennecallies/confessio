@@ -1,4 +1,5 @@
 import re
+import string
 
 from bs4 import BeautifulSoup, NavigableString, Comment, ProcessingInstruction
 
@@ -114,6 +115,14 @@ def clean_text(text: str):
     return text
 
 
+def contains_char_or_digits(text):
+    char_or_digits = set(string.ascii_letters + string.digits)
+    for t in text:
+        if t in char_or_digits:
+            return True
+    return False
+
+
 def flatten_string(text: str):
     text = re.sub(r'^\s*', '', text)
     text = re.sub(r'\s+', ' ', text)
@@ -129,6 +138,8 @@ def clean_paragraph(text: str):
     text = re.sub(r'^<br>(\n)?', '', text)
     text = re.sub(r'<br>(\n)?$', '', text)
 
+    text = '<br>\n'.join(filter(contains_char_or_digits, text.split('<br>\n')))
+
     return text
 
 
@@ -138,6 +149,7 @@ def clean_paragraph(text: str):
 
 def remove_link_from_html(html: str) -> str:
     return re.sub('href="[^"]+"', '', html)
+
 
 ########
 # MAIN #
