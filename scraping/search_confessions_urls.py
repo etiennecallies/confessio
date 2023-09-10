@@ -1,4 +1,4 @@
-from typing import Optional, List, Tuple
+from typing import Optional, Tuple, Dict
 
 from scraping.utils.download_content import get_content_from_url, get_url_aliases
 from scraping.utils.extract_content import extract_confession_part_from_content
@@ -7,10 +7,10 @@ from scraping.utils.extract_links import parse_content_links, remove_http_https_
 MAX_VISITED_LINKS = 50
 
 
-def search_for_confession_pages(home_url) -> Tuple[List[str], int, Optional[str]]:
+def search_for_confession_pages(home_url) -> Tuple[Dict[str, str], int, Optional[str]]:
     home_url_aliases = get_url_aliases(home_url)
     if home_url_aliases is None:
-        return [], 0, 'error in get_url_aliases'
+        return {}, 0, 'error in get_url_aliases'
 
     visited_links = set()
     links_to_visit = {home_url}
@@ -18,7 +18,7 @@ def search_for_confession_pages(home_url) -> Tuple[List[str], int, Optional[str]
 
     error_detail = None
 
-    results = []
+    results = {}
     while len(links_to_visit) > 0 and len(visited_links) < MAX_VISITED_LINKS:
         link = links_to_visit.pop()
         visited_links.add(link)
@@ -31,7 +31,7 @@ def search_for_confession_pages(home_url) -> Tuple[List[str], int, Optional[str]
         # Looking if new confession part is found
         confession_part = extract_confession_part_from_content(html_content)
         if confession_part and confession_part not in confession_parts_seen:
-            results.append(link)
+            results[link] = confession_part
             confession_parts_seen.add(confession_part)
 
         # Looking for new links to visit
