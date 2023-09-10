@@ -23,6 +23,7 @@ class MyTestCase(unittest.TestCase):
             ('st-bonaventure', 'html_page'),
             ('st-nomdejesus', 'html_page'),
             ('fourviere', 'html_page'),
+            ('cdde', 'html_page'),
         ]
 
     def test_extract(self):
@@ -39,6 +40,7 @@ class MyTestCase(unittest.TestCase):
                 confession_part = extract_confession_part_from_content(content_html)
                 # print(confession_part)
 
+                self.maxDiff = None
                 self.assertEqual(expected_confession_part, confession_part, msg=file_name)
 
     def test_get_words(self):
