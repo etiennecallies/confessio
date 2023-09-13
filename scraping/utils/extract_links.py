@@ -1,11 +1,12 @@
 from typing import Set, Dict
-from urllib.parse import urlparse, ParseResult, urljoin, parse_qs, urlencode
+from urllib.parse import urlparse, ParseResult, parse_qs, urlencode
 
 from bs4 import BeautifulSoup, SoupStrainer, Comment
 from bs4 import element as el
 
-from scraping.utils.download_content import get_home
 from scraping.utils.string_search import has_any_of_words
+from scraping.utils.url_utils import is_internal_link, get_clean_full_url, \
+    replace_scheme_and_hostname
 
 CONFESSIONS_OR_SCHEDULES_MENTIONS = [
     'confession',
@@ -31,21 +32,6 @@ def might_be_confession_link(path, text):
     return False
 
 
-def is_internal_link(url: str, url_parsed: ParseResult, home_url_aliases: Set[str]):
-    if url_parsed.scheme not in ['http', 'https']:
-        return False
-
-    if url.startswith('#'):
-        # link on same page
-        return False
-
-    if url_parsed.netloc not in home_url_aliases:
-        # external link
-        return False
-
-    return True
-
-
 def clean_url_query(url_parsed: ParseResult):
     query = parse_qs(url_parsed.query, keep_blank_values=True)
 
@@ -67,22 +53,15 @@ def get_links(element: el, home_url: str, home_url_aliases: Set[str]):
 
             # If the link is like "sacrements.html", we build it from any home_url we have
             if not url_parsed.netloc:
-                full_url = urljoin(get_home(home_url), url_parsed.path)
+                full_url = replace_scheme_and_hostname(url_parsed, new_url=home_url)
                 url_parsed = urlparse(full_url)
 
             # We ignore external links (ex: facebook page...)
             if not is_internal_link(full_url, url_parsed, home_url_aliases):
                 continue
 
-            # If the link ends with a hash fragment, we just remove it
-            if '#' in full_url:
-                full_url = urljoin(get_home(full_url), url_parsed.path)
-                url_parsed = urlparse(full_url)
-
-            # If the link ends with a slash, we just remove it
-            if url_parsed.path.endswith('/'):
-                full_url = urljoin(get_home(full_url), url_parsed.path[:-1])
-                url_parsed = urlparse(full_url)
+            full_url = get_clean_full_url(full_url)  # we use standardized url to ensure unicity
+            url_parsed = urlparse(full_url)
 
             # If the link contains parameters we remove the non-useful ones
             if url_parsed.query:

@@ -1,8 +1,9 @@
 from typing import Set, Optional
-from urllib.parse import urlparse
 
 import requests
 from requests import RequestException
+
+from scraping.utils.url_utils import get_domain
 
 
 def get_headers():
@@ -51,17 +52,6 @@ def get_content(url, page_type):
         return None
 
 
-def get_domain(url):
-    url_parsed = urlparse(url)
-    return url_parsed.netloc
-
-
-def get_home(url):
-    url_parsed = urlparse(url)
-
-    return f'{url_parsed.scheme}://{url_parsed.netloc}/'
-
-
 def get_url_aliases(url) -> Optional[Set[str]]:
     print(f'getting url aliases for {url}')
 
@@ -75,6 +65,11 @@ def get_url_aliases(url) -> Optional[Set[str]]:
         return None
 
     if r.status_code in [301, 302] and 'location' in r.headers:
-        aliases.update(get_url_aliases(r.headers['location']))
+        location = r.headers['location']
+        url_aliases = get_url_aliases(location)
+        if url_aliases is None:
+            print(f'tried to follow redirect location {location} but got error')
+        else:
+            aliases.update(url_aliases)
 
     return aliases

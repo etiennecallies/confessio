@@ -30,7 +30,7 @@ class Parish(TimeStampMixin):
         if not self._has_search_latest_crawling:
             try:
                 self._latest_crawling = self.crawlings.latest()
-            except Scraping.DoesNotExist:
+            except Crawling.DoesNotExist:
                 self._latest_crawling = None
             self._has_search_latest_crawling = True
 

@@ -6,6 +6,7 @@ from django.contrib.gis.geos import Point
 
 from home.models import Church, Parish, ParishSource
 from scraping.utils.extract_title import get_page_title
+from scraping.utils.url_utils import get_clean_full_url
 
 
 def post_messesinfo_request(messesinfo_request):
@@ -55,7 +56,7 @@ def get_parish(home_url, name) -> Parish:
     return parish
 
 
-def get_parish_source(messesinfo_community_id) -> Optional[ParishSource]:
+def fetch_parish_source(messesinfo_community_id) -> Optional[ParishSource]:
     messesinfo_request = f'{{"F":"cef.kephas.shared.request.AppRequestFactory",' \
                          f'"I":[{{"O":"cAFxqYS1T1aS3fEnag2PwGf6i9w=",' \
                          f'"P":["{messesinfo_community_id}"],"R":[]}}]}}'
@@ -71,7 +72,8 @@ def get_parish_source(messesinfo_community_id) -> Optional[ParishSource]:
             print(f'no url for {messesinfo_community_id}, ignoring this parish')
             return None
 
-        home_url = parish_data['url']
+        url = parish_data['url']
+        home_url = get_clean_full_url(url)  # we use standardized url to ensure unicity
         name = parish_data['name']
 
         parish = get_parish(home_url, name)
@@ -120,7 +122,7 @@ def get_churches_on_page(network_id, page):
                 parish_source = ParishSource.objects.get(
                     messesinfo_community_id=messesinfo_community_id)
             except ParishSource.DoesNotExist:
-                parish_source = get_parish_source(messesinfo_community_id)
+                parish_source = fetch_parish_source(messesinfo_community_id)
                 if parish_source is None:
                     print(f'no valid parish for church {church_messesinfo_id} ignoring this church')
                     continue
