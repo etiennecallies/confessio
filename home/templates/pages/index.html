@@ -84,9 +84,16 @@
                                             {% if parish.has_pages %}
                                                 {% for page in parish.get_pages %}
                                                     {% if page.has_confessions %}
-                                                        <p class="lead mt-3 mb-1">
-                                                            {% blocktrans with url=page.url %}BeforeConfessionHTML {{ url }}{% endblocktrans %}
-                                                        </p>
+                                                        <div class="row mt-3 mb-1">
+                                                            <p class="col-md-9 lead">
+                                                                {% blocktrans with url=page.url %}BeforeConfessionHTML {{ url }}{% endblocktrans %}
+                                                            </p>
+                                                            <p class="col-md-3">
+                                                                {% if request.user.is_authenticated %}
+                                                                    <a href="/qualify-page" class="link-info"><i class="fab fa-instagram"></i> Qualifier</a>
+                                                                {% endif %}
+                                                            </p>
+                                                        </div>
                                                         <div>
                                                             {{ page.get_latest_scraping.confession_html|safe }}
                                                         </div>
