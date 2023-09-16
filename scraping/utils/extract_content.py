@@ -152,6 +152,15 @@ def extract_content(refined_content: str):
     return results
 
 
+def get_confession_pieces(confession_html):
+    # TODO
+    return [
+        ("Le dimanche en période de vacances scolaires", ['period', 'date']),
+        ("""Sacrement du Pardon :Ce sacrement est le signe de l'amour infini de Dieu. Le pardon de Dieu est toujours possible si nous faisons une démarche vraiment sincère. En se reconnaissant pécheur, nous croyons que l'Amour infini de Dieu sera toujours le plus fort. Le dialogue avec un prêtre est le signe efficace de la réconciliation avec Dieu et avec nos frères. Le pardon de Dieu est exprimé par le prêtre. Le dialogue avec un prêtre est le signe efficace de la réconciliation avec Dieu et avec nos frères. Le pardon de Dieu est exprimé par le prêtre.""", []),
+        ("Confession à 13h", ['schedule', 'confession']),
+    ]
+
+
 ########
 # MAIN #
 ########
