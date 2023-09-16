@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-08-11 19:05+0200\n"
+"POT-Creation-Date: 2023-09-16 18:43+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,11 +22,13 @@ msgstr ""
 msgid "ConfessionsExist"
 msgstr "Des confessions existent"
 
-#: services/map_service.py:48 templates/pages/index.html:104
+#: services/map_service.py:48 templates/pages/index.html:111
+#: templates/pages/qualify_page.html:111
 msgid "NotCrawledYet"
 msgstr "Traitement en cours pour cette paroisse"
 
-#: services/map_service.py:51 templates/pages/index.html:106
+#: services/map_service.py:51 templates/pages/index.html:113
+#: templates/pages/qualify_page.html:113
 msgid "NoConfessionFound"
 msgstr "Pas de confessions trouvées"
 
@@ -34,33 +36,37 @@ msgstr "Pas de confessions trouvées"
 msgid "JumpBelow"
 msgstr "Voir ci-dessous"
 
-#: templates/pages/index.html:24
+#: templates/pages/index.html:24 templates/pages/qualify_page.html:24
 msgid "searchPlaceHolder"
 msgstr "Chercher une ville..."
 
-#: templates/pages/index.html:43
+#: templates/pages/index.html:43 templates/pages/qualify_page.html:43
 msgid "searchInThisArea"
 msgstr "Rechercher dans cette zone"
 
-#: templates/pages/index.html:78
+#: templates/pages/index.html:78 templates/pages/qualify_page.html:78
 msgid "locateOnMap"
 msgstr "Situer sur la carte"
 
-#: templates/pages/index.html:88
+#: templates/pages/index.html:89 templates/pages/qualify_page.html:89
 #, python-format
 msgid "BeforeConfessionHTML %(url)s"
 msgstr ""
 "Voici l'extrait de leur <a href=\"%(url)s\" class=\"link-info\">page</a> "
 "concernant les confessions :"
 
-#: templates/pages/index.html:95
+#: templates/pages/index.html:93
+msgid "QualifyPage"
+msgstr "Qualifier"
+
+#: templates/pages/index.html:102 templates/pages/qualify_page.html:102
 #, python-format
 msgid "PageNotScrapedYet %(url)s"
 msgstr ""
 "Traitement en cours pour cette <a href=\"%(url)s\" class=\"link-info\">page</"
 "a>."
 
-#: templates/pages/index.html:99
+#: templates/pages/index.html:106 templates/pages/qualify_page.html:106
 #, python-format
 msgid "NoConfessionFoundPage %(url)s"
 msgstr ""

@@ -90,7 +90,7 @@
                                                             </p>
                                                             <p class="col-md-3">
                                                                 {% if request.user.is_authenticated %}
-                                                                    <a href="/qualify-page" class="link-info"><i class="fab fa-instagram"></i> Qualifier</a>
+                                                                    <a href="{% url 'qualify_page' page.uuid %}" class="link-info"><i class="fas fa-tags"></i> {% trans 'QualifyPage' %}</a>
                                                                 {% endif %}
                                                             </p>
                                                         </div>

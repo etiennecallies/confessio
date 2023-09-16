@@ -1,5 +1,8 @@
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseNotFound
 from django.shortcuts import render
 
+from home.models import Page
 from home.services.map_service import get_churches_in_box, prepare_map, get_churches_around
 
 
@@ -57,5 +60,19 @@ def index(request):
         'parish_churches': parish_churches,
     }
 
-    # Page from the theme 
     return render(request, 'pages/index.html', context)
+
+
+@login_required
+def qualify_page(request, page_uuid):
+    try:
+        page = Page.objects.get(uuid=page_uuid)
+    except Page.DoesNotExist:
+        return HttpResponseNotFound("Page not found")
+
+    context = {
+        'page': page,
+        'parish': page.parish
+    }
+
+    return render(request, 'pages/qualify_page.html', context)
