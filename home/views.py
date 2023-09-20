@@ -88,7 +88,10 @@ def qualify_page(request, page_uuid):
         'period': 'warning',
         'date': 'black',
         'schedule': 'purple',
-        'confession': 'success'
+        'confession': 'success',
+        'place': 'info',
+        'spiritual': 'danger',
+        'other': 'gray',
     }
 
     colored_pieces = []

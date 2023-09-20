@@ -103,7 +103,7 @@ def is_period_description(content: str):
 MAX_BUFFERING_ATTEMPTS = 2
 
 
-def build_tags(has_confession, is_schedule, is_date, is_period):
+def build_tags(has_confession, is_schedule, is_date, is_period, is_place, is_spiritual, is_other):
     tags = []
     if has_confession:
         tags.append('confession')
@@ -116,6 +116,15 @@ def build_tags(has_confession, is_schedule, is_date, is_period):
 
     if is_period:
         tags.append('period')
+
+    if is_place:
+        tags.append('place')
+
+    if is_spiritual:
+        tags.append('spiritual')
+
+    if is_other:
+        tags.append('other')
 
     return tags
 
@@ -134,8 +143,12 @@ def get_confession_pieces(refined_content: str):
         is_schedule = is_schedule_description(line_without_link)
         is_date = is_date_description(line_without_link)
         is_period = is_period_description(line_without_link)
+        is_place = False
+        is_spiritual = False
+        is_other = False
 
-        tags = build_tags(has_confession, is_schedule, is_date, is_period)
+        tags = build_tags(has_confession, is_schedule, is_date, is_period,
+                          is_place, is_spiritual, is_other)
         line_and_tags = line, tags
 
         if (is_schedule or is_period) \
