@@ -27,14 +27,15 @@
                                 <p class="col-md-9 lead">
                                     {% blocktrans with url=page.url %}BeforeConfessionHTML {{ url }}{% endblocktrans %}
                                 </p>
-                                <form>
+                                <form action="{% url 'qualify_page' page.uuid %}" method="post">
+                                    {% csrf_token %}
                                     {% for colored_piece in colored_pieces %}
                                         <div class="row mb-2">
                                             <div class="col-md-7">{{ colored_piece.text|safe }}</div>
                                             <div class="col-md-5 text-end">
                                                 {% for tag_name, tag in colored_piece.tags.items %}
-                                                    <input type="checkbox" class="btn-check" id="{{ colored_piece.position }}-{{ tag_name }}" {{ tag.checked|yesno:"checked," }} autocomplete="off">
-                                                    <label class="btn btn-outline-{{ tag.color }}" for="{{ colored_piece.position }}-{{ tag_name }}">{{ tag_name }}</label>
+                                                    <input type="checkbox" class="btn-check" id="{{ tag.id }}" name="{{ tag.id }}" {{ tag.checked|yesno:"checked," }} autocomplete="off">
+                                                    <label class="btn btn-outline-{{ tag.color }}" for="{{ tag.id }}">{{ tag_name }}</label>
                                                 {% endfor %}
                                             </div>
                                         </div>

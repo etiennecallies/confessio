@@ -4,6 +4,7 @@ from django.shortcuts import render
 
 from home.models import Page
 from home.services.map_service import get_churches_in_box, prepare_map, get_churches_around
+from home.services.tag_service import color_pieces
 from scraping.utils.extract_content import get_confession_pieces
 
 
@@ -76,40 +77,16 @@ def qualify_page(request, page_uuid):
         return HttpResponseBadRequest("No scraping for this page")
 
     confession_html = latest_scraping.confession_html
+    confession_pieces = get_confession_pieces(confession_html)
+    colored_pieces = color_pieces(confession_pieces)
 
     if request.method == "POST":
         # TODO save
         # TODO re-compute confession_html
-        pass
-
-    confession_pieces = get_confession_pieces(confession_html)
-
-    tag_colors = {
-        'period': 'warning',
-        'date': 'black',
-        'schedule': 'purple',
-        'confession': 'success',
-        'place': 'info',
-        'spiritual': 'danger',
-        'other': 'gray',
-    }
-
-    colored_pieces = []
-    for i, (text, tags) in enumerate(confession_pieces):
-        new_tags = {}
-        for tag, color in tag_colors.items():
-            new_tags[tag] = {
-                'checked': tag in tags,
-                'color': color
-            }
-
-        colored_pieces.append(
-            {
-                "position": i,
-                "text": text,
-                "tags": new_tags
-            }
-        )
+        for piece in colored_pieces:
+            for tag_name, tag in piece['tags'].items():
+                # TODO is it ok ?
+                print(tag['id'], request.POST.get(tag['id']))
 
     context = {
         'page': page,
