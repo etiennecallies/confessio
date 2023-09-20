@@ -111,3 +111,14 @@ class Scraping(TimeStampMixin):
     confession_html = models.TextField(null=True)
     nb_iterations = models.PositiveSmallIntegerField()
     page = models.ForeignKey('Page', on_delete=models.CASCADE, related_name='scrapings')
+
+
+class Sentence(TimeStampMixin):
+    line = models.TextField(null=False, unique=True)
+    is_confession = models.BooleanField()
+    is_schedule = models.BooleanField()
+    is_date = models.BooleanField()
+    is_period = models.BooleanField()
+    is_place = models.BooleanField()
+    is_spiritual = models.BooleanField()
+    is_other = models.BooleanField()

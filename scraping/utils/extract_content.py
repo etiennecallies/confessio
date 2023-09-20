@@ -80,7 +80,7 @@ PERIOD_MENTIONS = [
 ]
 
 
-def has_confession_mentions(content: str):
+def is_confession_mentions(content: str):
     return has_any_of_words(content, CONFESSIONS_MENTIONS)
 
 
@@ -103,9 +103,9 @@ def is_period_description(content: str):
 MAX_BUFFERING_ATTEMPTS = 2
 
 
-def build_tags(has_confession, is_schedule, is_date, is_period, is_place, is_spiritual, is_other):
+def build_tags(is_confession, is_schedule, is_date, is_period, is_place, is_spiritual, is_other):
     tags = []
-    if has_confession:
+    if is_confession:
         tags.append('confession')
 
     if is_schedule:
@@ -139,7 +139,7 @@ def get_confession_pieces(refined_content: str):
     for line in refined_content.split('<br>\n'):
         line_without_link = remove_link_from_html(line)
 
-        has_confession = has_confession_mentions(line_without_link)
+        is_confession = is_confession_mentions(line_without_link)
         is_schedule = is_schedule_description(line_without_link)
         is_date = is_date_description(line_without_link)
         is_period = is_period_description(line_without_link)
@@ -147,12 +147,12 @@ def get_confession_pieces(refined_content: str):
         is_spiritual = False
         is_other = False
 
-        tags = build_tags(has_confession, is_schedule, is_date, is_period,
+        tags = build_tags(is_confession, is_schedule, is_date, is_period,
                           is_place, is_spiritual, is_other)
         line_and_tags = line, tags
 
         if (is_schedule or is_period) \
-                and (has_confession or remaining_buffering_attempts is not None):
+                and (is_confession or remaining_buffering_attempts is not None):
             # If we found schedules or period and were waiting for it
 
             # If we found schedules only, we add date_buffer
@@ -164,7 +164,7 @@ def get_confession_pieces(refined_content: str):
             results.append(line_and_tags)
             date_buffer = []
             remaining_buffering_attempts = MAX_BUFFERING_ATTEMPTS
-        elif has_confession or (is_date and remaining_buffering_attempts is not None):
+        elif is_confession or (is_date and remaining_buffering_attempts is not None):
             # If we found confessions, or date and waiting for it
             buffer.append(line_and_tags)
             remaining_buffering_attempts = MAX_BUFFERING_ATTEMPTS
