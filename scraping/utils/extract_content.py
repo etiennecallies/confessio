@@ -103,7 +103,24 @@ def is_period_description(content: str):
 MAX_BUFFERING_ATTEMPTS = 2
 
 
-def extract_content(refined_content: str):
+def build_tags(has_confession, is_schedule, is_date, is_period):
+    tags = []
+    if has_confession:
+        tags.append('confession')
+
+    if is_schedule:
+        tags.append('schedule')
+
+    if is_date:
+        tags.append('date')
+
+    if is_period:
+        tags.append('period')
+
+    return tags
+
+
+def get_confession_pieces(refined_content: str):
     results = []
     remaining_buffering_attempts = None
     buffer = []
@@ -112,10 +129,14 @@ def extract_content(refined_content: str):
     # Split into lines (or <table>)
     for line in refined_content.split('<br>\n'):
         line_without_link = remove_link_from_html(line)
+
         has_confession = has_confession_mentions(line_without_link)
         is_schedule = is_schedule_description(line_without_link)
         is_date = is_date_description(line_without_link)
         is_period = is_period_description(line_without_link)
+
+        tags = build_tags(has_confession, is_schedule, is_date, is_period)
+        line_and_tags = line, tags
 
         if (is_schedule or is_period) \
                 and (has_confession or remaining_buffering_attempts is not None):
@@ -127,12 +148,12 @@ def extract_content(refined_content: str):
 
             results.extend(buffer)
             buffer = []
-            results.append(line)
+            results.append(line_and_tags)
             date_buffer = []
             remaining_buffering_attempts = MAX_BUFFERING_ATTEMPTS
         elif has_confession or (is_date and remaining_buffering_attempts is not None):
             # If we found confessions, or date and waiting for it
-            buffer.append(line)
+            buffer.append(line_and_tags)
             remaining_buffering_attempts = MAX_BUFFERING_ATTEMPTS
         elif remaining_buffering_attempts == 0:
             # If we found nothing and we reached limit without anything
@@ -140,11 +161,11 @@ def extract_content(refined_content: str):
             remaining_buffering_attempts = None
         elif remaining_buffering_attempts is not None:
             # If we found nothing, and we still have some remaining attempts left
-            buffer.append(line)
+            buffer.append(line_and_tags)
             remaining_buffering_attempts -= 1
         elif is_date and not is_schedule:
             # If we found date but not is_schedule we add line to date buffer
-            date_buffer.append(line)
+            date_buffer.append(line_and_tags)
         elif is_date or not is_schedule:
             # If we found both date and schedules OR neither of the two we clear date buffer
             date_buffer = []
@@ -152,13 +173,14 @@ def extract_content(refined_content: str):
     return results
 
 
-def get_confession_pieces(confession_html):
-    # TODO
-    return [
-        ("Le dimanche en période de vacances scolaires", ['period', 'date']),
-        ("""Sacrement du Pardon :Ce sacrement est le signe de l'amour infini de Dieu. Le pardon de Dieu est toujours possible si nous faisons une démarche vraiment sincère. En se reconnaissant pécheur, nous croyons que l'Amour infini de Dieu sera toujours le plus fort. Le dialogue avec un prêtre est le signe efficace de la réconciliation avec Dieu et avec nos frères. Le pardon de Dieu est exprimé par le prêtre. Le dialogue avec un prêtre est le signe efficace de la réconciliation avec Dieu et avec nos frères. Le pardon de Dieu est exprimé par le prêtre.""", []),
-        ("Confession à 13h", ['schedule', 'confession']),
-    ]
+def extract_content(refined_content: str):
+    confession_pieces = get_confession_pieces(refined_content)
+    if not confession_pieces:
+        return []
+
+    lines, tags = zip(*confession_pieces)
+
+    return lines
 
 
 ########

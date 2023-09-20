@@ -30,7 +30,7 @@
                                 <form>
                                     {% for colored_piece in colored_pieces %}
                                         <div class="row mb-2">
-                                            <div class="col-md-7">{{ colored_piece.text }}</div>
+                                            <div class="col-md-7">{{ colored_piece.text|safe }}</div>
                                             <div class="col-md-5">
                                                 {% for tag_name, tag in colored_piece.tags.items %}
                                                     <input type="checkbox" class="btn-check" id="{{ colored_piece.position }}-{{ tag_name }}" {{ tag.checked|yesno:"checked," }} autocomplete="off">
