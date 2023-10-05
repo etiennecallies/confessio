@@ -4,8 +4,9 @@ from django.shortcuts import render
 
 from home.models import Page, Sentence
 from home.services.map_service import get_churches_in_box, prepare_map, get_churches_around
-from home.services.tag_service import color_pieces, update_sentence
+from home.services.tag_service import color_pieces
 from scraping.utils.extract_content import get_confession_pieces
+from scraping.utils.tagging import update_sentence
 
 
 def index(request):
@@ -77,24 +78,21 @@ def qualify_page(request, page_uuid):
         return HttpResponseBadRequest("No scraping for this page")
 
     confession_html = latest_scraping.confession_html
-    confession_pieces = get_confession_pieces(confession_html)
-    colored_pieces = color_pieces(confession_pieces)
     confession_html_hash = hash(confession_html)
+    confession_pieces = get_confession_pieces(confession_html, use_sentence=True)
+    colored_pieces = color_pieces(confession_pieces)
 
     if request.method == "POST":
         confession_html_hash_post = request.POST.get('confession_html_hash')
         if not confession_html_hash_post or confession_html_hash != int(confession_html_hash_post):
             return HttpResponseBadRequest("confession_html has changed in the mean time")
 
-        # TODO save
-        # TODO re-compute confession_html
-        new_confession_pieces = []
         for piece in colored_pieces:
-            line = piece['text']
+            line_without_link = piece['text_without_link']
             try:
-                sentence = Sentence.objects.get(line=line)
+                sentence = Sentence.objects.get(line=line_without_link)
             except Sentence.DoesNotExist:
-                sentence = Sentence(line=line)
+                sentence = Sentence(line=line_without_link)
 
             checked_per_tag = {}
             for tag_name, tag in piece['tags'].items():
@@ -103,10 +101,8 @@ def qualify_page(request, page_uuid):
 
             sentence.save()
 
-            all_checks = [t for t, checked in checked_per_tag.items() if checked]
-            new_confession_pieces.append((line, all_checks))
-
-        colored_pieces = color_pieces(new_confession_pieces)
+        confession_pieces = get_confession_pieces(confession_html, use_sentence=True)
+        colored_pieces = color_pieces(confession_pieces)
 
     context = {
         'page': page,

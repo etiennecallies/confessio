@@ -12,7 +12,7 @@ Follow instructions [here](https://mits003.github.io/studio_null/2021/07/install
 
 ## Run unit tests
 ```shell
-python -m unittest
+python manage.py test
 ```
 
 ## Translations

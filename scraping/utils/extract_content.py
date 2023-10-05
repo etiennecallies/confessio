@@ -1,5 +1,9 @@
+from typing import List
+
+from home.models import Sentence
 from scraping.utils.refine_content import refine_confession_content, remove_link_from_html
 from scraping.utils.string_search import has_any_of_words
+from scraping.utils.tagging import tags_from_sentence, Tag
 
 ##################
 # LEXICAL SEARCH #
@@ -96,6 +100,32 @@ def is_period_description(content: str):
     return has_any_of_words(content, PERIOD_MENTIONS)
 
 
+########
+# TAGS #
+########
+
+def get_tags(line_without_link: str, use_sentence: bool) -> List[Tag]:
+    sentence = None
+    if use_sentence:
+        try:
+            sentence = Sentence.objects.get(line=line_without_link)
+        except Sentence.DoesNotExist:
+            sentence = None
+
+    if sentence is None:
+        sentence = Sentence(
+            is_confession=is_confession_mentions(line_without_link),
+            is_schedule=is_schedule_description(line_without_link),
+            is_date=is_date_description(line_without_link),
+            is_period=is_period_description(line_without_link),
+            is_place=False,
+            is_spiritual=False,
+            is_other=False
+        )
+
+    return tags_from_sentence(sentence)
+
+
 ######################
 # EXTRACT ON REFINED #
 ######################
@@ -103,33 +133,7 @@ def is_period_description(content: str):
 MAX_BUFFERING_ATTEMPTS = 2
 
 
-def build_tags(is_confession, is_schedule, is_date, is_period, is_place, is_spiritual, is_other):
-    tags = []
-    if is_confession:
-        tags.append('confession')
-
-    if is_schedule:
-        tags.append('schedule')
-
-    if is_date:
-        tags.append('date')
-
-    if is_period:
-        tags.append('period')
-
-    if is_place:
-        tags.append('place')
-
-    if is_spiritual:
-        tags.append('spiritual')
-
-    if is_other:
-        tags.append('other')
-
-    return tags
-
-
-def get_confession_pieces(refined_content: str):
+def get_confession_pieces(refined_content: str, use_sentence=False):
     results = []
     remaining_buffering_attempts = None
     buffer = []
@@ -139,24 +143,15 @@ def get_confession_pieces(refined_content: str):
     for line in refined_content.split('<br>\n'):
         line_without_link = remove_link_from_html(line)
 
-        is_confession = is_confession_mentions(line_without_link)
-        is_schedule = is_schedule_description(line_without_link)
-        is_date = is_date_description(line_without_link)
-        is_period = is_period_description(line_without_link)
-        is_place = False
-        is_spiritual = False
-        is_other = False
+        tags = get_tags(line_without_link, use_sentence)
+        line_and_tags = line, line_without_link, tags
 
-        tags = build_tags(is_confession, is_schedule, is_date, is_period,
-                          is_place, is_spiritual, is_other)
-        line_and_tags = line, tags
-
-        if (is_schedule or is_period) \
-                and (is_confession or remaining_buffering_attempts is not None):
+        if (Tag.SCHEDULE in tags or Tag.PERIOD in tags) \
+                and (Tag.CONFESSION in tags or remaining_buffering_attempts is not None):
             # If we found schedules or period and were waiting for it
 
             # If we found schedules only, we add date_buffer
-            if not is_date:
+            if Tag.DATE not in tags:
                 results.extend(date_buffer)
 
             results.extend(buffer)
@@ -164,7 +159,8 @@ def get_confession_pieces(refined_content: str):
             results.append(line_and_tags)
             date_buffer = []
             remaining_buffering_attempts = MAX_BUFFERING_ATTEMPTS
-        elif is_confession or (is_date and remaining_buffering_attempts is not None):
+        elif Tag.CONFESSION in tags \
+                or (Tag.DATE in tags and remaining_buffering_attempts is not None):
             # If we found confessions, or date and waiting for it
             buffer.append(line_and_tags)
             remaining_buffering_attempts = MAX_BUFFERING_ATTEMPTS
@@ -176,10 +172,10 @@ def get_confession_pieces(refined_content: str):
             # If we found nothing, and we still have some remaining attempts left
             buffer.append(line_and_tags)
             remaining_buffering_attempts -= 1
-        elif is_date and not is_schedule:
+        elif Tag.DATE in tags and Tag.SCHEDULE not in tags:
             # If we found date but not is_schedule we add line to date buffer
             date_buffer.append(line_and_tags)
-        elif is_date or not is_schedule:
+        elif Tag.DATE in tags or Tag.SCHEDULE not in tags:
             # If we found both date and schedules OR neither of the two we clear date buffer
             date_buffer = []
 
@@ -191,7 +187,7 @@ def extract_content(refined_content: str):
     if not confession_pieces:
         return []
 
-    lines, tags = zip(*confession_pieces)
+    lines, _lines_without_link, _tags = zip(*confession_pieces)
 
     return lines
 
