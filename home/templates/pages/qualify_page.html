@@ -40,9 +40,7 @@
                                             </div>
                                         </div>
                                     {% endfor %}
-                                    <label>
-                                        <textarea name="confession_html" style="visibility:hidden;position:absolute;">{{ page.get_latest_scraping.confession_html|safe }}</textarea>
-                                    </label>
+                                    <input type="hidden" name="confession_html_hash" value="{{ confession_html_hash }}">
                                     <button type="submit" class="btn btn-primary mt-4">Submit</button>
                                 </form>
                                 <div>

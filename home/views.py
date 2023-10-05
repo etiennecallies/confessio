@@ -2,9 +2,9 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseNotFound, HttpResponseBadRequest
 from django.shortcuts import render
 
-from home.models import Page
+from home.models import Page, Sentence
 from home.services.map_service import get_churches_in_box, prepare_map, get_churches_around
-from home.services.tag_service import color_pieces
+from home.services.tag_service import color_pieces, update_sentence
 from scraping.utils.extract_content import get_confession_pieces
 
 
@@ -79,19 +79,39 @@ def qualify_page(request, page_uuid):
     confession_html = latest_scraping.confession_html
     confession_pieces = get_confession_pieces(confession_html)
     colored_pieces = color_pieces(confession_pieces)
+    confession_html_hash = hash(confession_html)
 
     if request.method == "POST":
+        confession_html_hash_post = request.POST.get('confession_html_hash')
+        if not confession_html_hash_post or confession_html_hash != int(confession_html_hash_post):
+            return HttpResponseBadRequest("confession_html has changed in the mean time")
+
         # TODO save
         # TODO re-compute confession_html
+        new_confession_pieces = []
         for piece in colored_pieces:
+            line = piece['text']
+            try:
+                sentence = Sentence.objects.get(line=line)
+            except Sentence.DoesNotExist:
+                sentence = Sentence(line=line)
+
+            checked_per_tag = {}
             for tag_name, tag in piece['tags'].items():
-                # TODO is it ok ?
-                print(tag['id'], request.POST.get(tag['id']))
+                checked_per_tag[tag_name] = request.POST.get(tag['id']) == 'on'
+            update_sentence(sentence, checked_per_tag)
+
+            sentence.save()
+
+            all_checks = [t for t, checked in checked_per_tag.items() if checked]
+            new_confession_pieces.append((line, all_checks))
+
+        colored_pieces = color_pieces(new_confession_pieces)
 
     context = {
         'page': page,
         'parish': page.parish,
-        'confession_html': confession_html,
+        'confession_html_hash': confession_html_hash,
         'colored_pieces': colored_pieces,
     }
 

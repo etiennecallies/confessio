@@ -27,3 +27,21 @@ def color_pieces(confession_pieces):
         )
 
     return colored_pieces
+
+
+def update_sentence(sentence, checked_per_tag):
+    for tag_name, checked in checked_per_tag.items():
+        if tag_name == 'period':
+            sentence.is_period = checked
+        if tag_name == 'date':
+            sentence.is_date = checked
+        if tag_name == 'schedule':
+            sentence.is_schedule = checked
+        if tag_name == 'confession':
+            sentence.is_confession = checked
+        if tag_name == 'place':
+            sentence.is_place = checked
+        if tag_name == 'spiritual':
+            sentence.is_spiritual = checked
+        if tag_name == 'other':
+            sentence.is_other = checked
