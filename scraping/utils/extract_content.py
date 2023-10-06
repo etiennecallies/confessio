@@ -182,8 +182,8 @@ def get_confession_pieces(refined_content: str, use_sentence=False):
     return results
 
 
-def extract_content(refined_content: str):
-    confession_pieces = get_confession_pieces(refined_content)
+def extract_content(refined_content: str, use_sentence=False):
+    confession_pieces = get_confession_pieces(refined_content, use_sentence)
     if not confession_pieces:
         return []
 
