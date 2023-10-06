@@ -1,3 +1,4 @@
+from home.models import Scraping
 from scraping.utils.extract_content import extract_content
 
 
@@ -14,3 +15,8 @@ def prune_content(refined_html):
         return None
 
     return '<br>\n'.join(paragraphs)
+
+
+def prune_scraping(scraping: Scraping):
+    scraping.confession_html_pruned = prune_content(scraping.confession_html)
+    scraping.save()

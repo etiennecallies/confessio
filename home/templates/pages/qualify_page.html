@@ -31,7 +31,7 @@
                                     {% csrf_token %}
                                     {% for colored_piece in colored_pieces %}
                                         <div class="row mb-2">
-                                            <div class="col-md-7">{{ colored_piece.text|safe }}</div>
+                                            <div class="col-md-7 {{ colored_piece.color }}">{{ colored_piece.text|safe }}</div>
                                             <div class="col-md-5 text-end">
                                                 {% for tag_name, tag in colored_piece.tags.items %}
                                                     <input type="checkbox" class="btn-check" id="{{ tag.id }}" name="{{ tag.id }}" {{ tag.checked|yesno:"checked," }} autocomplete="off">

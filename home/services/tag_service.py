@@ -1,7 +1,11 @@
+from scraping.utils.extract_content import split_and_tag, prune_lines
 from scraping.utils.tagging import Tag
 
 
-def color_pieces(confession_pieces):
+def get_colored_pieces(confession_html: str):
+    lines_and_tags = split_and_tag(confession_html, use_sentence=True)
+    kept_indices = prune_lines(lines_and_tags)
+
     tag_colors = {
         Tag.PERIOD: 'warning',
         Tag.DATE: 'black',
@@ -13,7 +17,7 @@ def color_pieces(confession_pieces):
     }
 
     colored_pieces = []
-    for i, (text, text_without_link, tags) in enumerate(confession_pieces):
+    for i, (text, text_without_link, tags) in enumerate(lines_and_tags):
         new_tags = {}
         for tag, color in tag_colors.items():
             new_tags[tag] = {
@@ -26,6 +30,7 @@ def color_pieces(confession_pieces):
             {
                 "text": text,
                 "text_without_link": text_without_link,
+                "color": '' if i in kept_indices else 'text-warning',
                 "tags": new_tags
             }
         )

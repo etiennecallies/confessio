@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 
 from home.models import Sentence
 from scraping.utils.refine_content import refine_confession_content, remove_link_from_html
@@ -133,19 +133,27 @@ def get_tags(line_without_link: str, use_sentence: bool) -> List[Tag]:
 MAX_BUFFERING_ATTEMPTS = 2
 
 
-def get_confession_pieces(refined_content: str, use_sentence=False):
+def split_and_tag(refined_content: str, use_sentence=False
+                  ) -> List[Tuple[str, str, List[Tag]]]:
     results = []
-    remaining_buffering_attempts = None
-    buffer = []
-    date_buffer = []
 
     # Split into lines (or <table>)
     for line in refined_content.split('<br>\n'):
         line_without_link = remove_link_from_html(line)
 
         tags = get_tags(line_without_link, use_sentence)
-        line_and_tags = line, line_without_link, tags
+        results.append((line, line_without_link, tags))
 
+    return results
+
+
+def prune_lines(lines_and_tags: List[Tuple[str, str, List[Tag]]]):
+    results = []
+    remaining_buffering_attempts = None
+    buffer = []
+    date_buffer = []
+
+    for i, (line, line_without_link, tags) in enumerate(lines_and_tags):
         if Tag.SPIRITUAL in tags:
             # We ignore spiritual content
             continue
@@ -160,13 +168,13 @@ def get_confession_pieces(refined_content: str, use_sentence=False):
 
             results.extend(buffer)
             buffer = []
-            results.append(line_and_tags)
+            results.append(i)
             date_buffer = []
             remaining_buffering_attempts = MAX_BUFFERING_ATTEMPTS
         elif Tag.CONFESSION in tags \
                 or (Tag.DATE in tags and remaining_buffering_attempts is not None):
             # If we found confessions, or date and waiting for it
-            buffer.append(line_and_tags)
+            buffer.append(i)
             remaining_buffering_attempts = MAX_BUFFERING_ATTEMPTS
         elif remaining_buffering_attempts == 0:
             # If we found nothing and we reached limit without anything
@@ -174,11 +182,11 @@ def get_confession_pieces(refined_content: str, use_sentence=False):
             remaining_buffering_attempts = None
         elif remaining_buffering_attempts is not None:
             # If we found nothing, and we still have some remaining attempts left
-            buffer.append(line_and_tags)
+            buffer.append(i)
             remaining_buffering_attempts -= 1
         elif Tag.DATE in tags and Tag.SCHEDULE not in tags:
             # If we found date but not is_schedule we add line to date buffer
-            date_buffer.append(line_and_tags)
+            date_buffer.append(i)
         elif Tag.DATE in tags or Tag.SCHEDULE not in tags:
             # If we found both date and schedules OR neither of the two we clear date buffer
             date_buffer = []
@@ -187,7 +195,9 @@ def get_confession_pieces(refined_content: str, use_sentence=False):
 
 
 def extract_content(refined_content: str, use_sentence=False):
-    confession_pieces = get_confession_pieces(refined_content, use_sentence)
+    lines_and_tags = split_and_tag(refined_content, use_sentence)
+    indices = prune_lines(lines_and_tags)
+    confession_pieces = list(map(lines_and_tags.__getitem__, indices))
     if not confession_pieces:
         return []
 

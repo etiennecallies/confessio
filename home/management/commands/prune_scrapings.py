@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 
 from home.models import Scraping
-from scraping.utils.prune_content import prune_content
+from scraping.utils.prune_content import prune_scraping
 
 
 class Command(BaseCommand):
@@ -12,9 +12,7 @@ class Command(BaseCommand):
 
         counter = 0
         for scraping in scrapings:
-
-            scraping.confession_html_pruned = prune_content(scraping.confession_html)
-            scraping.save()
+            prune_scraping(scraping)
             counter += 1
 
         self.stdout.write(
