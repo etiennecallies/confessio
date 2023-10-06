@@ -95,7 +95,7 @@
                                                             </p>
                                                         </div>
                                                         <div>
-                                                            {{ page.get_latest_scraping.confession_html|safe }}
+                                                            {{ page.get_latest_scraping.confession_html_pruned|default:page.get_latest_scraping.confession_html|safe }}
                                                         </div>
                                                     {% elif not page.has_been_scraped %}
                                                         <p>
