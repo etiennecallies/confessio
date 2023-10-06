@@ -146,6 +146,10 @@ def get_confession_pieces(refined_content: str, use_sentence=False):
         tags = get_tags(line_without_link, use_sentence)
         line_and_tags = line, line_without_link, tags
 
+        if Tag.SPIRITUAL in tags:
+            # We ignore spiritual content
+            continue
+
         if (Tag.SCHEDULE in tags or Tag.PERIOD in tags) \
                 and (Tag.CONFESSION in tags or remaining_buffering_attempts is not None):
             # If we found schedules or period and were waiting for it

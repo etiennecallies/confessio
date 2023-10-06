@@ -9,4 +9,8 @@ def prune_content(refined_html):
     if not refined_html:
         return None
 
-    return extract_content(refined_html, use_sentence=True)
+    paragraphs = extract_content(refined_html, use_sentence=True)
+    if not paragraphs:
+        return None
+
+    return '<br>\n'.join(paragraphs)

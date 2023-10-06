@@ -80,6 +80,7 @@ def qualify_page(request, page_uuid):
     confession_html = latest_scraping.confession_html
     confession_html_hash = hash(confession_html)
     confession_pieces = get_confession_pieces(confession_html, use_sentence=True)
+    # TODO add a boolean pruned, and diplay in gray those lines
     colored_pieces = color_pieces(confession_pieces)
 
     if request.method == "POST":
