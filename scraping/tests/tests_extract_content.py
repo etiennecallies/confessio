@@ -1,9 +1,9 @@
 import os
 import unittest
 
-from scraping.utils.extract_content import is_schedule_description, \
-    extract_confession_part_from_content
+from scraping.utils.extract_content import extract_confession_part_from_content
 from scraping.utils.string_search import normalize_content, get_words
+from scraping.utils.tagging import is_schedule_description
 
 
 class MyTestCase(unittest.TestCase):

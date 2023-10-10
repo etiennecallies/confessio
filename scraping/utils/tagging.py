@@ -1,8 +1,106 @@
 from enum import Enum
 from typing import List
 
-from home.models import Sentence
+from scraping.utils.string_search import has_any_of_words
 
+##################
+# LEXICAL SEARCH #
+##################
+
+CONFESSIONS_MENTIONS = [
+    'confession',
+    'confessions',
+    'confesse',
+    'confesser',
+    'reconciliation',
+    'pardon',
+]
+
+SCHEDULES_MENTIONS = []
+
+SCHEDULES_REGEX = [
+    r'\dh',
+    r'\d\dh',
+    r'\dh\d\d',
+    r'\d\dh\d\d',
+    r'\d\d:\d\d',
+    r'\d:\d\d',
+]
+
+SCHEDULES_EXPR = [
+    'rendez-vous',
+]
+
+DATES_MENTIONS = [
+    'jour',
+    'jours',
+    'matin',
+    'matins',
+    'soir',
+    'soirs',
+    'lundi',
+    'lundis',
+    'mardi',
+    'mardis',
+    'mercredi',
+    'mercredis',
+    'jeudi',
+    'jeudis',
+    'vendredi',
+    'vendredis',
+    'samedi',
+    'samedis',
+    'dimanche',
+    'dimanches',
+    'janvier',
+    'fevrier',
+    'mars',
+    'avril',
+    'mai',
+    'juin',
+    'juillet',
+    'aout',
+    'septembre',
+    'octobre',
+    'novembre',
+    'decembre',
+    'fete',
+    'fetes',
+]
+
+DATES_EXPR = [
+    'rendez-vous',
+]
+
+PERIOD_MENTIONS = [
+    'careme',
+    'temps',
+    'ordinaire',
+    'vacances',
+    'scolaire',
+    'scolaires',
+]
+
+
+def is_confession_mentions(content: str):
+    return has_any_of_words(content, CONFESSIONS_MENTIONS)
+
+
+def is_schedule_description(content: str):
+    return has_any_of_words(content, SCHEDULES_MENTIONS, SCHEDULES_EXPR, SCHEDULES_REGEX)
+
+
+def is_date_description(content: str):
+    return has_any_of_words(content, DATES_MENTIONS, DATES_EXPR)
+
+
+def is_period_description(content: str):
+    return has_any_of_words(content, PERIOD_MENTIONS)
+
+
+########
+# ENUM #
+########
 
 class Tag(Enum):
     CONFESSION = 'confession'
@@ -14,45 +112,22 @@ class Tag(Enum):
     OTHER = 'other'
 
 
-def tags_from_sentence(sentence: Sentence) -> List[Tag]:
+########
+# MAIN #
+########
+
+def get_tags_with_regex(line_without_link: str) -> List[Tag]:
     tags = []
-    if sentence.is_confession:
+    if is_confession_mentions(line_without_link):
         tags.append(Tag.CONFESSION)
 
-    if sentence.is_schedule:
+    if is_schedule_description(line_without_link):
         tags.append(Tag.SCHEDULE)
 
-    if sentence.is_date:
+    if is_date_description(line_without_link):
         tags.append(Tag.DATE)
 
-    if sentence.is_period:
+    if is_period_description(line_without_link):
         tags.append(Tag.PERIOD)
 
-    if sentence.is_place:
-        tags.append(Tag.PLACE)
-
-    if sentence.is_spiritual:
-        tags.append(Tag.SPIRITUAL)
-
-    if sentence.is_other:
-        tags.append(Tag.OTHER)
-
     return tags
-
-
-def update_sentence(sentence: Sentence, checked_per_tag):
-    for tag_name, checked in checked_per_tag.items():
-        if tag_name == Tag.PERIOD:
-            sentence.is_period = checked
-        if tag_name == Tag.DATE:
-            sentence.is_date = checked
-        if tag_name == Tag.SCHEDULE:
-            sentence.is_schedule = checked
-        if tag_name == Tag.CONFESSION:
-            sentence.is_confession = checked
-        if tag_name == Tag.PLACE:
-            sentence.is_place = checked
-        if tag_name == Tag.SPIRITUAL:
-            sentence.is_spiritual = checked
-        if tag_name == Tag.OTHER:
-            sentence.is_other = checked

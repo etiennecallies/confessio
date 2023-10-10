@@ -1,9 +1,10 @@
 from scraping.utils.extract_content import split_and_tag, prune_lines
+from scraping.utils.prune_content import SentenceFromDbTagInterface
 from scraping.utils.tagging import Tag
 
 
 def get_colored_pieces(confession_html: str):
-    lines_and_tags = split_and_tag(confession_html, use_sentence=True)
+    lines_and_tags = split_and_tag(confession_html, SentenceFromDbTagInterface())
     kept_indices = prune_lines(lines_and_tags)
 
     tag_colors = {

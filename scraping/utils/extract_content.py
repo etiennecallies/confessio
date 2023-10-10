@@ -1,129 +1,23 @@
+from abc import abstractmethod
 from typing import List, Tuple
 
-from home.models import Sentence
 from scraping.utils.refine_content import refine_confession_content, remove_link_from_html
-from scraping.utils.string_search import has_any_of_words
-from scraping.utils.tagging import tags_from_sentence, Tag
-
-##################
-# LEXICAL SEARCH #
-##################
-
-CONFESSIONS_MENTIONS = [
-    'confession',
-    'confessions',
-    'confesse',
-    'confesser',
-    'reconciliation',
-    'pardon',
-]
-
-SCHEDULES_MENTIONS = []
-
-SCHEDULES_REGEX = [
-    r'\dh',
-    r'\d\dh',
-    r'\dh\d\d',
-    r'\d\dh\d\d',
-    r'\d\d:\d\d',
-    r'\d:\d\d',
-]
-
-SCHEDULES_EXPR = [
-    'rendez-vous',
-]
-
-DATES_MENTIONS = [
-    'jour',
-    'jours',
-    'matin',
-    'matins',
-    'soir',
-    'soirs',
-    'lundi',
-    'lundis',
-    'mardi',
-    'mardis',
-    'mercredi',
-    'mercredis',
-    'jeudi',
-    'jeudis',
-    'vendredi',
-    'vendredis',
-    'samedi',
-    'samedis',
-    'dimanche',
-    'dimanches',
-    'janvier',
-    'fevrier',
-    'mars',
-    'avril',
-    'mai',
-    'juin',
-    'juillet',
-    'aout',
-    'septembre',
-    'octobre',
-    'novembre',
-    'decembre',
-    'fete',
-    'fetes',
-]
-
-DATES_EXPR = [
-    'rendez-vous',
-]
-
-PERIOD_MENTIONS = [
-    'careme',
-    'temps',
-    'ordinaire',
-    'vacances',
-    'scolaire',
-    'scolaires',
-]
+from scraping.utils.tagging import Tag, get_tags_with_regex
 
 
-def is_confession_mentions(content: str):
-    return has_any_of_words(content, CONFESSIONS_MENTIONS)
+#############
+# INTERFACE #
+#############
+
+class BaseTagInterface:
+    @abstractmethod
+    def get_tags(self, line_without_link: str) -> List[Tag]:
+        pass
 
 
-def is_schedule_description(content: str):
-    return has_any_of_words(content, SCHEDULES_MENTIONS, SCHEDULES_EXPR, SCHEDULES_REGEX)
-
-
-def is_date_description(content: str):
-    return has_any_of_words(content, DATES_MENTIONS, DATES_EXPR)
-
-
-def is_period_description(content: str):
-    return has_any_of_words(content, PERIOD_MENTIONS)
-
-
-########
-# TAGS #
-########
-
-def get_tags(line_without_link: str, use_sentence: bool) -> List[Tag]:
-    sentence = None
-    if use_sentence:
-        try:
-            sentence = Sentence.objects.get(line=line_without_link)
-        except Sentence.DoesNotExist:
-            sentence = None
-
-    if sentence is None:
-        sentence = Sentence(
-            is_confession=is_confession_mentions(line_without_link),
-            is_schedule=is_schedule_description(line_without_link),
-            is_date=is_date_description(line_without_link),
-            is_period=is_period_description(line_without_link),
-            is_place=False,
-            is_spiritual=False,
-            is_other=False
-        )
-
-    return tags_from_sentence(sentence)
+class RegexOnlyTagInterface(BaseTagInterface):
+    def get_tags(self, line_without_link: str) -> List[Tag]:
+        return get_tags_with_regex(line_without_link)
 
 
 ######################
@@ -133,15 +27,14 @@ def get_tags(line_without_link: str, use_sentence: bool) -> List[Tag]:
 MAX_BUFFERING_ATTEMPTS = 2
 
 
-def split_and_tag(refined_content: str, use_sentence=False
-                  ) -> List[Tuple[str, str, List[Tag]]]:
+def split_and_tag(refined_content: str, tag_interface: BaseTagInterface) -> List[Tuple[str, str, List[Tag]]]:
     results = []
 
     # Split into lines (or <table>)
     for line in refined_content.split('<br>\n'):
         line_without_link = remove_link_from_html(line)
 
-        tags = get_tags(line_without_link, use_sentence)
+        tags = tag_interface.get_tags(line_without_link)
         results.append((line, line_without_link, tags))
 
     return results
@@ -194,8 +87,8 @@ def prune_lines(lines_and_tags: List[Tuple[str, str, List[Tag]]]):
     return results
 
 
-def extract_content(refined_content: str, use_sentence=False):
-    lines_and_tags = split_and_tag(refined_content, use_sentence)
+def extract_content(refined_content: str, tag_interface: BaseTagInterface):
+    lines_and_tags = split_and_tag(refined_content, tag_interface)
     indices = prune_lines(lines_and_tags)
     confession_pieces = list(map(lines_and_tags.__getitem__, indices))
     if not confession_pieces:
@@ -215,7 +108,7 @@ def extract_confession_part_from_content(html_content):
     if refined_content is None:
         return None
 
-    paragraphs = extract_content(refined_content)
+    paragraphs = extract_content(refined_content, RegexOnlyTagInterface())
     if not paragraphs:
         return None
 

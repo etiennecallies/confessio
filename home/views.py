@@ -4,9 +4,8 @@ from django.shortcuts import render
 
 from home.models import Page, Sentence
 from home.services.map_service import get_churches_in_box, prepare_map, get_churches_around
-from home.services.tag_service import get_colored_pieces
-from scraping.utils.prune_content import prune_scraping
-from scraping.utils.tagging import update_sentence
+from home.services.color_service import get_colored_pieces
+from scraping.utils.prune_content import prune_scraping, update_sentence
 
 
 def index(request):
