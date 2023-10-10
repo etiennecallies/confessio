@@ -10,6 +10,8 @@ pip install -r requirements.txt
 ### Install GIS dependencies
 Follow instructions [here](https://mits003.github.io/studio_null/2021/07/install-gdal-on-macos/)
 
+Also, you can configure GDAL_LIBRARY_PATH and GEOS_LIBRARY_PATH env var in .env.
+
 ## Run unit tests
 ```shell
 python manage.py test
@@ -28,6 +30,18 @@ django-admin compilemessages
 python manage.py scrape_parishes
 ```
 
+## Database
+Works currently on postgresql 15.4, and requires postgis extension.
+
+To apply existing migrations:
+```shell
+python manage.py migrate
+```
+
+To detect new migrations:
+```
+python manage.py makemigrations
+```
 
 TODO clean the following part
 # [Django Pixel Bootstrap 5](https://appseed.us/product/pixel-bootstrap/django/)
