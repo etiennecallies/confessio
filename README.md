@@ -14,6 +14,8 @@ Also, you can configure GDAL_LIBRARY_PATH and GEOS_LIBRARY_PATH env var in .env.
 
 ## Run unit tests
 ```shell
+python -m unittest
+OR
 python manage.py test
 ```
 
