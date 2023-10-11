@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from scraping.crawl_messesinfos_churches import get_churches_on_page
+from scraping.services.crawl_messesinfos_service import get_churches_on_page
 
 
 class Command(BaseCommand):

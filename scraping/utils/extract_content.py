@@ -2,7 +2,7 @@ from abc import abstractmethod
 from typing import List, Tuple
 
 from scraping.utils.refine_content import refine_confession_content, remove_link_from_html
-from scraping.utils.tagging import Tag, get_tags_with_regex
+from scraping.utils.tag_line import Tag, get_tags_with_regex
 
 
 #############

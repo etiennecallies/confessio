@@ -2,9 +2,16 @@ from scraping.utils.download_content import get_content
 from scraping.utils.extract_content import extract_confession_part_from_content
 
 
-def get_confession_pages():
+def get_fresh_confessions_part(url, page_type):
+    html_content = get_content(url, page_type)
+    if html_content is None:
+        return None
 
-    return [
+    return extract_confession_part_from_content(html_content)
+
+
+if __name__ == '__main__':
+    confession_pages = [
         # ('https://paroissechaville.com/Horaires-et-adresses', 'html_page'),
         # ('https://www.diocese-annecy.fr/diocese/les-paroisses/doyenne-de-la-moyenne-vallee-de-larve/paroisse-saint-bernard-du-mont-blanc/livret-fp-hebdo-13-01-2023.pdf', 'pdf'),
         # ('https://www.saintjacquesduhautpas.com/sacrements/', 'html_page'),
@@ -22,21 +29,9 @@ def get_confession_pages():
         ('https://www.paroissedevaise.fr/event/apres-midi-du-pardon-a-ecully/', 'html_page'),
     ]
 
-
-def get_fresh_confessions_part(url, page_type):
-    html_content = get_content(url, page_type)
-    if html_content is None:
-        return None
-
-    return extract_confession_part_from_content(html_content)
-
-
-if __name__ == '__main__':
-    confession_pages = get_confession_pages()
-
-    for url, page_type in confession_pages:
-        confession_part = get_fresh_confessions_part(url, page_type)
+    for url_, page_type_ in confession_pages:
+        confession_part = get_fresh_confessions_part(url_, page_type_)
 
         print()
-        print(url, page_type)
+        print(url_, page_type_)
         print(confession_part)

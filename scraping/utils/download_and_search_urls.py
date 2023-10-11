@@ -51,5 +51,5 @@ if __name__ == '__main__':
     # home_url = 'https://www.saintjacquesduhautpas.com/'
     # home_url = 'https://paroisses-amplepuis-thizy.blogspot.fr/'
     # home_url = 'https://paroissesaintbruno.pagesperso-orange.fr/'
-    home_url = 'https://paroissecroixrousse.fr/'
-    print(search_for_confession_pages(home_url))
+    home_url_ = 'https://paroissecroixrousse.fr/'
+    print(search_for_confession_pages(home_url_))

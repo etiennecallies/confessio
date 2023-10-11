@@ -1,8 +1,8 @@
 from django.core.management.base import BaseCommand
 
 from home.models import Parish
-from scraping.scrape_page import upsert_scraping
-from scraping.search_confessions_paragraphs import get_fresh_confessions_part
+from scraping.services.scrape_page_service import upsert_scraping
+from scraping.utils.download_and_extract import get_fresh_confessions_part
 
 
 class Command(BaseCommand):
