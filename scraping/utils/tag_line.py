@@ -16,7 +16,10 @@ CONFESSIONS_MENTIONS = [
     'pardon',
 ]
 
-SCHEDULES_MENTIONS = []
+SCHEDULES_MENTIONS = [
+    'heure',
+    'heures',
+]
 
 SCHEDULES_REGEX = [
     r'\dh',

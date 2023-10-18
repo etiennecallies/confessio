@@ -1,6 +1,7 @@
 from home.models import Sentence
 from scraping.services.prune_scraping_service import SentenceFromDbTagInterface
-from scraping.utils.extract_content import split_and_tag, prune_lines
+from scraping.utils.extract_content import split_and_tag
+from scraping.utils.prune_lines import get_pruned_lines_indices
 from scraping.utils.tag_line import Tag
 
 
@@ -10,7 +11,7 @@ from scraping.utils.tag_line import Tag
 
 def get_colored_pieces(confession_html: str):
     lines_and_tags = split_and_tag(confession_html, SentenceFromDbTagInterface())
-    kept_indices = prune_lines(lines_and_tags)
+    kept_indices = get_pruned_lines_indices(lines_and_tags)
 
     tag_colors = {
         Tag.PERIOD: 'warning',
