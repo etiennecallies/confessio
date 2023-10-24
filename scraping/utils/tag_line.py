@@ -19,6 +19,8 @@ CONFESSIONS_MENTIONS = [
 SCHEDULES_MENTIONS = [
     'heure',
     'heures',
+    'apres',
+    'avant',
 ]
 
 SCHEDULES_REGEX = [

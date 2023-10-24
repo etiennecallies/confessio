@@ -21,6 +21,7 @@ class MyTestCase(unittest.TestCase):
             ('amplepuis', 'html_page'),
             ('ntre-dame-de-lassomption', 'html_page'),
             ('ntre-dame-des-lumieres', 'html_page'),
+            ('ntre-dame-des-lumieres2', 'html_page'),
             ('st-bonaventure', 'html_page'),
             ('st-nomdejesus', 'html_page'),
             ('fourviere', 'html_page'),
