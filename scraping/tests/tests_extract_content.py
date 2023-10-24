@@ -32,9 +32,9 @@ class MyTestCase(unittest.TestCase):
         tests_dir = os.path.dirname(os.path.realpath(__file__))
         for file_name, page_type in self.get_paragraphs_fixtures():
             with self.subTest():
-                with open(f'{tests_dir}/fixtures/paragraphs/{file_name}.html') as f:
+                with open(f'{tests_dir}/fixtures/extract/{file_name}.html') as f:
                     lines = f.readlines()
-                with open(f'{tests_dir}/fixtures/paragraphs/{file_name}.txt') as f:
+                with open(f'{tests_dir}/fixtures/extract/{file_name}.txt') as f:
                     expected_lines = f.readlines()
                 content_html = ''.join(lines)
                 expected_confession_part = ''.join(expected_lines)
