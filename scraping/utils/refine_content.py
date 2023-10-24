@@ -1,7 +1,9 @@
 import re
 import string
+import warnings
 
-from bs4 import BeautifulSoup, NavigableString, Comment, ProcessingInstruction
+from bs4 import BeautifulSoup, NavigableString, Comment, ProcessingInstruction, \
+    MarkupResemblesLocatorWarning
 
 
 ##############
@@ -117,7 +119,7 @@ def clean_text(text: str):
 
 def contains_char_or_digits(text):
     char_or_digits = set(string.ascii_letters + string.digits)
-    for t in text:
+    for t in remove_link_from_html(text):
         if t in char_or_digits:
             return True
     return False
@@ -148,7 +150,10 @@ def clean_paragraph(text: str):
 ###############
 
 def remove_link_from_html(html: str) -> str:
-    return re.sub('href="[^"]+"', '', html)
+    # https://stackoverflow.com/a/41496131
+    warnings.filterwarnings("ignore", category=MarkupResemblesLocatorWarning, module='bs4')
+
+    return BeautifulSoup(html, 'html.parser').text
 
 
 ########

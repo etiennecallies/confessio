@@ -11,6 +11,7 @@ class TestExtractLinks(unittest.TestCase):
             'val-de-saone',
             'val-de-saone2',
             'laredemption-st-joseph',
+            'ntre-dame-des-lumieres',
             'st-georges',
             'st-bonaventure',
             'bellecombe',
@@ -29,6 +30,7 @@ class TestExtractLinks(unittest.TestCase):
                 expected_output = ''.join(lines_output)
                 output = refine_confession_content(input_html)
                 # print(output)
+                self.maxDiff = None
                 self.assertEqual(expected_output, output, file_name)
 
 
