@@ -75,6 +75,12 @@ DATES_EXPR = [
     'rendez-vous',
 ]
 
+DATES_REGEX = [
+    r'\d\d\/\d\d',
+    r'\d\d\/\d\d/\d\d\d\d',
+    r'\d\d\d\d\/\d\d\d\d',
+]
+
 PERIOD_MENTIONS = [
     'careme',
     'temps',
@@ -94,7 +100,7 @@ def is_schedule_description(content: str):
 
 
 def is_date_description(content: str):
-    return has_any_of_words(content, DATES_MENTIONS, DATES_EXPR)
+    return has_any_of_words(content, DATES_MENTIONS, DATES_EXPR, DATES_REGEX)
 
 
 def is_period_description(content: str):
