@@ -1,6 +1,7 @@
 import re
 import string
 import warnings
+from typing import Optional
 
 from bs4 import BeautifulSoup, NavigableString, Comment, ProcessingInstruction, \
     MarkupResemblesLocatorWarning
@@ -154,6 +155,14 @@ def remove_link_from_html(html: str) -> str:
     warnings.filterwarnings("ignore", category=MarkupResemblesLocatorWarning, module='bs4')
 
     return BeautifulSoup(html, 'html.parser').text
+
+
+def get_text_if_not_table(html: str) -> Optional[str]:
+    element = BeautifulSoup(html, 'html.parser')
+    if is_table(element):
+        return None
+
+    return element.text
 
 
 ########

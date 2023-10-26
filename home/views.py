@@ -4,6 +4,7 @@ from django.shortcuts import render
 
 from home.models import Page, Sentence
 from home.services.map_service import get_churches_in_box, prepare_map, get_churches_around
+from home.services.page_url_service import get_page_url_with_pointer
 from home.services.qualify_service import get_colored_pieces, update_sentence
 from scraping.services.prune_scraping_service import prune_scraping
 
@@ -53,13 +54,21 @@ def index(request):
     for church in churches:
         parishes_by_uuid[church.parish.uuid] = church.parish
         parish_churches.setdefault(church.parish.uuid, []).append(church)
+    parishes = parishes_by_uuid.values()
+
+    # Page url with #:~:text=
+    page_urls = {}
+    for parish in parishes:
+        for page in parish.get_pages():
+            page_urls[page.uuid] = get_page_url_with_pointer(page)
 
     context = {
         'location': location,
         'map_html': map_html,
         'church_marker_names': church_marker_names,
-        'parishes': parishes_by_uuid.values(),
+        'parishes': parishes,
         'parish_churches': parish_churches,
+        'page_urls': page_urls,
     }
 
     return render(request, 'pages/index.html', context)
