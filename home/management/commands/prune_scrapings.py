@@ -7,8 +7,15 @@ from scraping.services.prune_scraping_service import prune_scraping
 class Command(BaseCommand):
     help = "Prune content"
 
+    def add_arguments(self, parser):
+        parser.add_argument('--only-not-pruned', action="store_true",
+                            help='prune only not pruned scraping')
+
     def handle(self, *args, **options):
-        scrapings = Scraping.objects.all()
+        if options['only_not_pruned']:
+            scrapings = Scraping.objects.filter(pruned_at__isnull=True).all()
+        else:
+            scrapings = Scraping.objects.all()
 
         counter = 0
         for scraping in scrapings:

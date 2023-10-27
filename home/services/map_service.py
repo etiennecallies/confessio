@@ -44,7 +44,9 @@ def get_popup_and_color(church: Church):
     if church.parish.one_page_has_confessions():
         wording = _("ConfessionsExist")
         color = 'blue'
-    elif not church.parish.has_been_crawled() or not church.parish.all_pages_scraped():
+    elif not church.parish.has_been_crawled() \
+            or not church.parish.all_pages_scraped() \
+            or not church.parish.all_pages_pruned():
         wording = _("NotCrawledYet")
         color = 'beige'
     else:

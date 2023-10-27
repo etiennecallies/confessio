@@ -1,5 +1,7 @@
 from typing import List
 
+from django.db.models.functions import Now
+
 from home.models import Scraping
 from home.models import Sentence
 from scraping.utils.extract_content import BaseTagInterface
@@ -64,4 +66,5 @@ def prune_content(refined_html):
 
 def prune_scraping(scraping: Scraping):
     scraping.confession_html_pruned = prune_content(scraping.confession_html)
+    scraping.pruned_at = Now()
     scraping.save()

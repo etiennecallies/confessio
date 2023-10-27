@@ -51,6 +51,9 @@ class Parish(TimeStampMixin):
     def all_pages_scraped(self) -> bool:
         return all(map(Page.has_been_scraped, self.get_pages()))
 
+    def all_pages_pruned(self) -> bool:
+        return all(map(Page.latest_scraping_has_been_pruned, self.get_pages()))
+
     def one_page_has_confessions(self) -> bool:
         return any(map(Page.has_confessions, self.get_pages()))
 
@@ -95,9 +98,13 @@ class Page(TimeStampMixin):
     def has_been_scraped(self) -> bool:
         return self.get_latest_scraping() is not None
 
+    def latest_scraping_has_been_pruned(self) -> bool:
+        return self.get_latest_scraping() is not None\
+            and self.get_latest_scraping().has_been_pruned()
+
     def has_confessions(self) -> bool:
         return self.get_latest_scraping() is not None\
-            and self.get_latest_scraping().confession_html
+            and self.get_latest_scraping().confession_html_pruned
 
 
 class Crawling(TimeStampMixin):
@@ -110,8 +117,12 @@ class Crawling(TimeStampMixin):
 class Scraping(TimeStampMixin):
     confession_html = models.TextField(null=True)
     confession_html_pruned = models.TextField(null=True)
+    pruned_at = models.DateTimeField(null=True)
     nb_iterations = models.PositiveSmallIntegerField()
     page = models.ForeignKey('Page', on_delete=models.CASCADE, related_name='scrapings')
+
+    def has_been_pruned(self) -> bool:
+        return self.pruned_at is not None
 
 
 class Sentence(TimeStampMixin):
