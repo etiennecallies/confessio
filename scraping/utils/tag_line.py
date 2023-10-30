@@ -113,7 +113,7 @@ def is_period_description(content: str):
 # ENUM #
 ########
 
-class Tag(Enum):
+class Tag(str, Enum):
     CONFESSION = 'confession'
     SCHEDULE = 'schedule'
     DATE = 'date'

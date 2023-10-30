@@ -54,8 +54,8 @@ class PostBuffer:
         if self.remaining_attempts == 0:
             return None
 
-        self.remaining_attempts -= 1
         if Tag.SPIRITUAL not in tags:
+            self.remaining_attempts -= 1
             self.buffer.append(i)
 
         return self
