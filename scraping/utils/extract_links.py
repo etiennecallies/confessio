@@ -38,6 +38,10 @@ def clean_url_query(url_parsed: ParseResult):
     # We remove share parameter (share=twitter, share=facebook...)
     query.pop('share', None)
 
+    # We remove calendar parameter (outlook-ical=1 ...)
+    query.pop('ical', None)
+    query.pop('outlook-ical', None)
+
     url_parsed = url_parsed._replace(query=urlencode(query, True))
 
     return url_parsed.geturl()
@@ -68,8 +72,10 @@ def get_links(element: el, home_url: str, home_url_aliases: Set[str]):
                 full_url = clean_url_query(url_parsed)
                 url_parsed = urlparse(full_url)
 
-            # If this is a link to an image, we ignore it
-            if url_parsed.path.endswith('.jpg') or url_parsed.path.endswith('.jpeg'):
+            # If this is a link to an image or a calendar we ignore it
+            if url_parsed.path.endswith('.jpg') \
+                    or url_parsed.path.endswith('.jpeg') \
+                    or url_parsed.path.endswith('.ics'):
                 continue
 
             # Extract link text
