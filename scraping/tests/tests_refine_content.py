@@ -16,6 +16,7 @@ class TestExtractLinks(unittest.TestCase):
             'st-bonaventure',
             'bellecombe',
             'vaise',
+            'paroisseoullins',
         ]
 
     def test_parse_content_links(self):
