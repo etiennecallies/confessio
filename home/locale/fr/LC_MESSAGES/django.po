@@ -74,7 +74,7 @@ msgstr "Confessio"
 msgid "confessioDescription"
 msgstr ""
 "Un premier moteur de recherche inter-paroissial d'horaires de confession "
-"basé sur l'intelligence artificielle."
+"utilisant l'intelligence artificielle."
 
 #: templates/pages/index.html:29
 msgid "searchPlaceHolder"
