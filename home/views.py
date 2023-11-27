@@ -122,3 +122,7 @@ def qualify_page(request, page_uuid):
     }
 
     return render(request, 'pages/qualify_page.html', context)
+
+
+def contact(request):
+    return render(request, 'pages/contact.html')

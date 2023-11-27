@@ -6,12 +6,17 @@
 
 <main>
 
-  {% include 'includes/pre-loader.html' %}
   {% load i18n %}
 
   <!-- Hero -->
-  <section class="section-header overflow-hidden pt-7 pt-lg-8 pb-9 pb-lg-12 bg-primary">
+  <section class="section-header overflow-hidden pt-5 pb-5 bg-primary">
     <div class="container">
+        <div class="row text-white justify-content-center">
+            <div class="col-12 col-md-12 text-center">
+                <h1 class="display-2">{% trans 'confessioTitle' %}</h1>
+                <p>{% trans 'confessioDescription' %}</p>
+            </div>
+        </div>
         <div class="row text-white mb-3">
             <div class="col-12">
                 <form id="search-form">

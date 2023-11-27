@@ -1,0 +1,67 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+    <main>
+        <!-- Hero -->
+        <section class="section section-header pt-5 pb-5 bg-primary text-white">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-12 col-xl-8 text-center">
+                        <h1 class="display-2">{% trans 'contactUs' %}</h1>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Section -->
+        <section class="section section-lg pt-2 pb-2">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-12 col-lg-8">
+                        <!-- Contact Card -->
+                        <div class="card border-0 p-2 p-md-3 p-lg-5">
+                            <div class="card-header bg-white border-0 text-center">
+                                <h2>{% trans 'contactTitle' %}</h2>
+                                <p>{% trans 'contactSubTitle' %}</p>
+                            </div>
+                            <div class="card-body px-0 pt-0">
+                                <form action="#">
+                                    <!-- Form -->
+                                    <div class="mb-4">
+                                        <label for="name">Your Name</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text" id="basic-addon3"><span class="fas fa-user-circle"></span></span>
+                                            <input type="text" class="form-control" placeholder="e.g. Bonnie Green" id="name" required>
+                                        </div>
+                                    </div>
+                                    <!-- End of Form -->
+                                    <!-- Form -->
+                                    <div class="mb-4">
+                                        <label for="email">Your Email</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text" id="basic-addon4"><span class="fas fa-envelope"></span></span>
+                                            <input type="email" class="form-control" placeholder="example@company.com" id="email" required>
+                                        </div>
+                                    </div>
+                                    <!-- End of Form -->
+                                    <div class="mb-4">
+                                        <label for="message">Your Message</label>
+                                        <textarea placeholder="Your message" class="form-control" id="message" rows="4" required></textarea>
+                                    </div>
+                                    <!-- End of Form -->
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn rounded btn-secondary">Send message</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <!-- End of Contact Card -->
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- End of section -->
+    </main>
+
+    {% endblock content %}
