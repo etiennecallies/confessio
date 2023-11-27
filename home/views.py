@@ -31,8 +31,9 @@ def index(request):
         if latitude and longitude:
             center = [float(latitude), float(longitude)]
         else:
-            # Default coordinates (Paris)
-            center = [48.859, 2.342]
+            # Default coordinates
+            # center = [48.859, 2.342]  # Paris
+            center = [45.758, 4.832]  # Lyon - Bellecour
 
         churches = get_churches_around(center)
 

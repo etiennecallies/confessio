@@ -78,7 +78,7 @@ msgstr ""
 
 #: templates/pages/index.html:29
 msgid "searchPlaceHolder"
-msgstr "Chercher une ville..."
+msgstr "Chercher une ville... (uniquement dans le diocèse de Lyon pour l'instant)"
 
 #: templates/pages/index.html:48
 msgid "searchInThisArea"
