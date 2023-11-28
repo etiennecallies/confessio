@@ -8,7 +8,7 @@
                 <img class="navbar-brand-dark" src="{% static 'assets/img/brand/light.svg' %}" alt="Logo light">
                 <img class="navbar-brand-light" src="{% static 'assets/img/brand/dark.svg' %}" alt="Logo dark">
             </a>
-            <div class="navbar-collapse collapse me-auto" id="navbar_global">
+            <div class="navbar-collapse collapse" id="navbar_global">
                 <div class="navbar-collapse-header">
                     <div class="row">
                         <div class="col-6 collapse-brand">
@@ -21,7 +21,7 @@
                         </div>
                     </div>
                 </div>
-                <ul class="navbar-nav navbar-nav-hover align-items-center">
+                <ul class="navbar-nav navbar-nav-hover align-items-center ms-auto">
                     <li class="nav-item">
                         <a href="{% url 'contact' %}" class="nav-link">{% trans 'navContact' %}</a>
                     </li>
