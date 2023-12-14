@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
+from django.core.mail import send_mail, BadHeaderError
 from django.http import HttpResponseNotFound, HttpResponseBadRequest
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 from home.models import Page, Sentence
 from home.services.map_service import get_churches_in_box, prepare_map, get_churches_around
@@ -125,5 +126,18 @@ def qualify_page(request, page_uuid):
     return render(request, 'pages/qualify_page.html', context)
 
 
-def contact(request):
-    return render(request, 'pages/contact.html')
+def contact(request, message=None):
+    if request.method == "GET":
+        return render(request, 'pages/contact.html', {'message': message})
+    else:
+        name = request.POST.get('name')
+        from_email = request.POST.get('email')
+        message = request.POST.get('message')
+        subject = f'New message from {name} on confessio'
+        try:
+            send_mail(subject, message, from_email, ["atnk+cp@hotmail.fr"])
+        except BadHeaderError as e:
+            print(e)
+            return redirect("contact_with_message", message='failure')
+        return redirect("contact_with_message", message='success')
+

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-11-27 08:41+0100\n"
+"POT-Creation-Date: 2023-12-14 10:04+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -50,11 +50,11 @@ msgstr "Made in 🇫🇷 with ✝️ without 🍪"
 msgid "navContact"
 msgstr "Contact"
 
-#: templates/includes/navigation.html:33
+#: templates/includes/navigation.html:30
 msgid "navLogout"
 msgstr "Se déconnecter"
 
-#: templates/includes/navigation.html:36
+#: templates/includes/navigation.html:32
 msgid "navLogin"
 msgstr "Se connecter"
 
@@ -65,6 +65,22 @@ msgstr "Prendre contact, signaler une erreur, contribuer au projet ?"
 #: templates/pages/contact.html:26
 msgid "contactSubTitle"
 msgstr "Cool! Laissez-nous un message 🙂"
+
+#: templates/pages/contact.html:32
+msgid "contactSuccessStrong"
+msgstr "Merci !"
+
+#: templates/pages/contact.html:32
+msgid "contactSuccess"
+msgstr "Votre message a bien été envoyé."
+
+#: templates/pages/contact.html:40
+msgid "contactFailureStrong"
+msgstr "Oh zut !"
+
+#: templates/pages/contact.html:40
+msgid "contactFailure"
+msgstr "Quelque chose n'a pas fonctionné, veuillez réessayer un autre jour."
 
 #: templates/pages/index.html:16
 msgid "confessioTitle"
@@ -78,7 +94,8 @@ msgstr ""
 
 #: templates/pages/index.html:29
 msgid "searchPlaceHolder"
-msgstr "Chercher une ville... (uniquement dans le diocèse de Lyon pour l'instant)"
+msgstr ""
+"Chercher une ville... (uniquement dans le diocèse de Lyon pour l'instant)"
 
 #: templates/pages/index.html:48
 msgid "searchInThisArea"
