@@ -164,10 +164,12 @@ STATICFILES_DIRS = ('static',)
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# Email
 LOGIN_REDIRECT_URL = '/'
 DEFAULT_FROM_EMAIL = "no-reply@confessio.fr"
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+# Postgis
 # https://stackoverflow.com/questions/67283705/m1-mac-geodjango-gdal-mach-o-but-wrong-architecture
 if os.getenv('GDAL_LIBRARY_PATH'):
     GDAL_LIBRARY_PATH = os.getenv('GDAL_LIBRARY_PATH')
