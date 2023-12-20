@@ -1,0 +1,1 @@
+Inspired by https://realpython.com/automating-django-deployments-with-fabric-and-ansible/

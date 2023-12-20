@@ -1,0 +1,35 @@
+# App Name
+app_name: confessio
+
+# Deployer User and Groups
+deployer_user: ubuntu
+deployer_group: ubuntu
+
+# Github Code's Repo URL
+code_repository_url: https://github.com/etiennecallies/confessio
+
+# App Directory
+app_dir: /home/{{ deployer_user }}/{{app_name}}
+
+# DB Configuration
+db_password: lookup('ansible.builtin.env', 'PROD_DB_PASSWORD')
+db_name: "{{ app_name }}"
+db_user: "{{ deployer_user }}"
+
+# Django secret
+secret_key: lookup('ansible.builtin.env', 'PROD_SECRET_KEY')
+
+# Application Dependencies Setup
+venv_dir: '/home/{{ deployer_user }}/envs/{{ app_name }}'
+venv_python: '{{ venv_dir }}/bin/python3.9.11'
+
+# Remote Server Details
+server_ip: lookup('ansible.builtin.env', 'REMOTE_SERVER_IP')
+wsgi_server_port: 8000
+
+# Deploy Dir in App Directory
+deploy_dir: '{{ app_dir }}/deploy'
+
+# WSGI Vars
+django_wsgi_module: core.wsgi
+django_settings_module: core.production_settings
