@@ -1,14 +1,33 @@
 ##
 # Set up and configure postgres
+# Inspired by :
+# - https://stormatics.tech/blogs/install-postgresql-using-ansible-on-remote-servers
+# - https://gist.github.com/kharandziuk/d11aab8b1560d408032911140a0b103a
 ##
-- name: Install and configure db
-  dnf: name={{item}} state=latest
-  become: yes
+- name: add postgres repository
+  apt_repository:
+    repo: "deb http://apt.postgresql.org/pub/repos/apt/ {{ ansible_distribution_release }}-pgdg main"
+    state: present
+
+- name: Download PostgreSQL key and add it to system keyring
+  apt_key:
+    url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+    state: present
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+
+- name: install pg
+  apt:
+    name: "{{ item }}"
+    state: installed
+    update_cache: yes
   with_items:
-    - postgresql-server
-    - postgresql-contrib
-    - postgresql-devel
-    - python-psycopg2
+  - "python-psycopg2"
+  - "postgresql-{{ pg_version }}"
+  - "postgresql-contrib-{{ pg_version }}"
+  - "postgresql-{{ pg_version }}-postgis-2.2"
 
 - name: Run initdb command
   raw: postgresql-setup initdb
@@ -33,3 +52,10 @@
   become_user: postgres
   notify:
     - restart postgres
+
+- name: install postgis extension
+  postgresql_ext:
+    name: postgis
+    db: "{{ app_name }}"
+  become: true
+  become_user: postgres

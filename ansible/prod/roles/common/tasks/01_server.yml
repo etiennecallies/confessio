@@ -1,25 +1,36 @@
-##
-# Update the DNF package cache and install packages as a root user
-##
+# https://citizix.com/how-to-use-ansible-to-install-and-configure-postgres-14-on-ubuntu-20-04/
+- name: Update apt repo and cache on Ubuntu box
+  apt:
+    update_cache: yes
+    force_apt_get: yes
+
+- name: Upgrade all packages on servers
+  apt:
+    upgrade: dist
+    force_apt_get: yes
+
 - name: Install required packages
-  dnf: name={{item}} state=latest
-  become: yes
-  with_items:
-    - vim
-    - fail2ban
-    - python3-devel
-    - python-virtualenv
-    - python3-virtualenv
-    - python-devel
-    - gcc
-    - libselinux-python
-    - redhat-rpm-config
-    - libtiff-devel
-    - libjpeg-devel
-    - libzip-devel
-    - freetype-devel
-    - lcms2-devel
-    - libwebp-devel
-    - tcl-devel
-    - tk-devel
-    - policycoreutils-devel
+  apt:
+    name:
+      - wget
+      - python3-psycopg2
+      - acl
+    state: latest
+
+# https://stackoverflow.com/questions/35852652/how-to-install-a-python-version-on-server-using-ansible
+- name: Check if python is already latest
+  command: python3 --version
+  register: python_version_result
+  failed_when: "{{ python_version_result.stdout | replace('Python ', '') | version_compare(python_version, '>=') }}"
+
+- name: Install prerequisites
+  apt: name=python-software-properties state=present
+  become: true
+
+- name: Add deadsnakes repo
+  apt_repository: repo="ppa:deadsnakes/ppa"
+  become: true
+
+- name: Install python
+  apt: name="python{{ python_version }}" state=present
+  become: true

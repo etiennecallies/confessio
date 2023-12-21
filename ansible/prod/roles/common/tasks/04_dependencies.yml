@@ -7,7 +7,7 @@
 - name: Install dependencies
   pip:    requirements={{ app_dir }}/requirements.txt
           virtualenv={{ venv_dir }}
-          virtualenv_python=python3.9.11
+          virtualenv_python=python{{ python_version }}
 
 - name: Create the .env file for running ad-hoc python commands in our virtualenv
   template: src=env.j2 dest={{ app_dir }}/.env

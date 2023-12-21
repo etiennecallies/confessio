@@ -12,6 +12,7 @@ code_repository_url: https://github.com/etiennecallies/confessio
 app_dir: /home/{{ deployer_user }}/{{app_name}}
 
 # DB Configuration
+pg_version: 15.4
 db_password: lookup('ansible.builtin.env', 'PROD_DB_PASSWORD')
 db_name: "{{ app_name }}"
 db_user: "{{ deployer_user }}"
@@ -21,10 +22,12 @@ secret_key: lookup('ansible.builtin.env', 'PROD_SECRET_KEY')
 
 # Application Dependencies Setup
 venv_dir: '/home/{{ deployer_user }}/envs/{{ app_name }}'
-venv_python: '{{ venv_dir }}/bin/python3.9.11'
+python_version: '3.9'
+venv_python: '{{ venv_dir }}/bin/python{{ python_version }}'
 
 # Remote Server Details
-server_ip: lookup('ansible.builtin.env', 'REMOTE_SERVER_IP')
+server_ip: 'changeme'
+ansible_distribution_release: 'trusty or changeme'
 wsgi_server_port: 8000
 
 # Deploy Dir in App Directory
