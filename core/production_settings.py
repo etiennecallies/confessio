@@ -9,9 +9,15 @@ from settings import *
 import os
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY')
-if not SECRET_KEY:
-    raise ValueError('no SECRET_KEY found')
+if not os.environ.get('DJANGO_SECRET_KEY'):
+    raise ValueError('no DJANGO_SECRET_KEY found')
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+
+
+# Allow server host only
+if not os.environ.get('SERVER_HOST'):
+    raise ValueError('no SERVER_HOST found')
+ALLOWED_HOSTS = [f'.{os.environ.get("SERVER_HOST")}']
 
 # Render Production Code
 DEBUG = False
@@ -37,4 +43,9 @@ DATABASES = {
     'PORT'    : DB_PORT,
     },
 }
+
+# Email
+LOGIN_REDIRECT_URL = '/'
+DEFAULT_FROM_EMAIL = f"no-reply@{os.environ.get('SERVER_HOST')}"
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 

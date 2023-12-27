@@ -15,7 +15,7 @@ GROUP={{ deployer_group }}
 # Number of worker processes Gunicorn should spawn
 NUM_WORKERS=1
 # Settings file that Gunicorn should use
-DJANGO_SETTINGS_MODULE={{django_settings_module}}
+DJANGO_SETTINGS_MODULE={{ django_settings_module }}
 # WSGI module name
 DJANGO_WSGI_MODULE={{ django_wsgi_module }}
 
@@ -29,6 +29,7 @@ source bin/activate
 cd $DJANGODIR
 # Defining the Environment Variables
 export DJANGO_SECRET_KEY='{{ django_secret_key }}'
+export SERVER_HOST='{{ server_host }}'
 export PROD_DB_ENGINE=django.contrib.gis.db.backends.postgis
 export PROD_DB_USERNAME='{{ deployer_user }}'
 export PROD_DB_PASS='{{ db_password }}'
