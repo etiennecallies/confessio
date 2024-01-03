@@ -16,31 +16,31 @@
 -->
 
 {% load static %}
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <!-- Primary Meta Tags -->
-    <title>Pixel - Free Bootstrap 5 UI Kit</title>
+    <title>{% trans 'confessioPageTitle' %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="title" content="Pixel - Free Bootstrap 5 UI Kit">
-    <meta name="author" content="Themesberg">
-    <meta name="description" content="Open source and free Bootstrap 5 UI Kit featuring 80 UI components, 5 example pages, and a Gulp and Sass workflow.">
+    <meta name="title" content="{% trans 'confessioPageTitle' %}">
+    <meta name="description" content="{% trans 'confessioDescription' %}">
     <link rel="canonical" href="https://themesberg.com/product/ui-kit/pixel-free-bootstrap-5-ui-kit">
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://demo.themesberg.com/pixel-bootstrap-5-ui-kit">
-    <meta property="og:title" content="Pixel - Free Bootstrap 5 UI Kit">
-    <meta property="og:description" content="Open source and free Bootstrap 5 UI Kit featuring 80 UI components, 5 example pages, and a Gulp and Sass workflow.">
+    <meta property="og:title" content="{% trans 'confessioPageTitle' %}">
+    <meta property="og:description" content="{% trans 'confessioDescription' %}">
     <meta property="og:image" content="https://themesberg.s3.us-east-2.amazonaws.com/public/products/pixel-lite/pixel-lite-preview.jpg">
     
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://demo.themesberg.com/pixel-bootstrap-5-ui-kit">
-    <meta property="twitter:title" content="Pixel - Free Bootstrap 5 UI Kit">
-    <meta property="twitter:description" content="Open source and free Bootstrap 5 UI Kit featuring 80 UI components, 5 example pages, and a Gulp and Sass workflow.">
+    <meta property="twitter:title" content="{% trans 'confessioPageTitle' %}">
+    <meta property="twitter:description" content="{% trans 'confessioDescription' %}">
     <meta property="twitter:image" content="https://themesberg.s3.us-east-2.amazonaws.com/public/products/pixel-lite/pixel-lite-preview.jpg">
     
     <!-- Favicon -->
@@ -64,8 +64,6 @@
 
     <!-- JQuery UI CSS -->
     <link type="text/css" href="{% static 'assets/css/jquery-ui.min.css' %}" rel="stylesheet">
-
-
     
 </head>
 

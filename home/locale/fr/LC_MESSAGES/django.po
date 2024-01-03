@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-14 10:04+0100\n"
+"POT-Creation-Date: 2024-01-03 18:05+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -58,6 +58,18 @@ msgstr "Se déconnecter"
 msgid "navLogin"
 msgstr "Se connecter"
 
+#: templates/layouts/base.html:26 templates/layouts/base.html:28
+#: templates/layouts/base.html:35 templates/layouts/base.html:42
+msgid "confessioPageTitle"
+msgstr "Confessio - horaires des confessions"
+
+#: templates/layouts/base.html:29 templates/layouts/base.html:36
+#: templates/layouts/base.html:43 templates/pages/index.html:17
+msgid "confessioDescription"
+msgstr ""
+"Un premier moteur de recherche inter-paroissial d'horaires de confession "
+"utilisant l'intelligence artificielle."
+
 #: templates/pages/contact.html:25
 msgid "contactTitle"
 msgstr "Prendre contact, signaler une erreur, contribuer au projet ?"
@@ -85,12 +97,6 @@ msgstr "Quelque chose n'a pas fonctionné, veuillez réessayer un autre jour."
 #: templates/pages/index.html:16
 msgid "confessioTitle"
 msgstr "Confessio"
-
-#: templates/pages/index.html:17
-msgid "confessioDescription"
-msgstr ""
-"Un premier moteur de recherche inter-paroissial d'horaires de confession "
-"utilisant l'intelligence artificielle."
 
 #: templates/pages/index.html:29
 msgid "searchPlaceHolder"
