@@ -36,3 +36,9 @@ deploy_dir: '{{ app_dir }}/deploy'
 # WSGI Vars
 django_wsgi_module: core.wsgi
 django_settings_module: core.production_settings
+
+# Email
+contact_email: lookup('ansible.builtin.env', 'CONTACT_EMAIL')
+
+# Letsencrypt
+letsencrypt_email: lookup('ansible.builtin.env', 'PROD_LETSENCRYPT_EMAIL')

@@ -1,3 +1,5 @@
+import os
+
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail, BadHeaderError
 from django.http import HttpResponseNotFound, HttpResponseBadRequest
@@ -135,7 +137,7 @@ def contact(request, message=None):
         message = request.POST.get('message')
         subject = f'New message from {name} on confessio'
         try:
-            send_mail(subject, message, from_email, ["atnk+cp@hotmail.fr"])
+            send_mail(subject, message, from_email, [os.environ.get('CONTACT_EMAIL')])
         except BadHeaderError as e:
             print(e)
             return redirect("contact_with_message", message='failure')
