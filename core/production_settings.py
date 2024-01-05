@@ -56,3 +56,5 @@ LOGIN_REDIRECT_URL = '/'
 DEFAULT_FROM_EMAIL = f"no-reply@{os.environ.get('SERVER_HOST')}"
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+# Static files
+# STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
