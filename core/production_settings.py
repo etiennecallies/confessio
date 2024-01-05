@@ -4,7 +4,7 @@ Django settings for production.
 Use DJANGO_SETTINGS_MODULE=core.production_settings to use it.
 """
 
-from settings import *
+from core.settings import *
 
 import os
 
@@ -18,6 +18,13 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 if not os.environ.get('SERVER_HOST'):
     raise ValueError('no SERVER_HOST found')
 ALLOWED_HOSTS = [f'.{os.environ.get("SERVER_HOST")}']
+SECURE_SSL_REDIRECT = True
+SECURE_HSTS_SECONDS = 60
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 # Render Production Code
 DEBUG = False
