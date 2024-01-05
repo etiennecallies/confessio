@@ -34,3 +34,6 @@
 - name: Install python
   apt: name="python{{ python_version }}" state=present
   become: true
+
+- name: copy .inputrc
+  template: src=.inputrc dest=~

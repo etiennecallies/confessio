@@ -14,6 +14,7 @@
   notify:
     - restart nginx
 
+# https://gist.github.com/mattiaslundberg/ba214a35060d3c8603e9b1ec8627d349
 - name: create letsencrypt directory
   file: name=/var/www/letsencrypt state=directory
 
