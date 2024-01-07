@@ -8,11 +8,12 @@
     name: git
     state: present
     update_cache: yes
+  become: true
 
 # https://theusmanhaider.medium.com/ansible-clone-private-git-repository-c8a2c9ec8a61
 - name: Clone or pull the latest code
   git:
-    repo: {{ code_repository_url }}
-    dest: {{ app_dir }}
+    repo: "{{ code_repository_url }}"
+    dest: "{{ app_dir }}"
     accept_hostkey: yes
   become: no
