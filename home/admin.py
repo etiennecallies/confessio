@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
-from django.contrib.gis.admin import OSMGeoAdmin
+from django.contrib.gis.admin import GISModelAdmin
 from django.forms import ModelChoiceField
 
 from .models import Church, Parish, Page
@@ -15,7 +15,7 @@ class ParishAdmin(ModelAdmin):
 
 
 @admin.register(Church)
-class ChurchAdmin(OSMGeoAdmin):
+class ChurchAdmin(GISModelAdmin):
     list_display = ["name"]
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):

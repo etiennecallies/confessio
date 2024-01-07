@@ -28,7 +28,7 @@ if not SECRET_KEY:
     SECRET_KEY = ''.join(random.choice(string.ascii_lowercase) for i in range(32))
 
 # Render Deployment Code
-DEBUG = False
+DEBUG = True
 
 # Docker HOST
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']

@@ -2,7 +2,7 @@
 
 ## Local env with pyenv
 ```
-pyenv virtualenv 3.9.11 confessio
+pyenv virtualenv 3.11.4 confessio
 pyenv activate confessio
 pip install -r requirements.txt
 ```
