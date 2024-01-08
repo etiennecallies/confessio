@@ -3,27 +3,60 @@
 ##
 - name: install nginx
   apt: name=nginx state=latest
-  become: yes
+  become: true
 
-- name: install letsencrypt
-  apt: name=letsencrypt state=latest
-
-- name: Write nginx conf file
-  template: src=confessio.conf dest=/etc/nginx/conf.d/{{ app_name }}.conf
-  become: yes
+- name: Create the Nginx configuration file
+  ansible.builtin.template: src=confessio.conf
+            dest=/etc/nginx/sites-available/{{ app_name }}
+            backup=yes
+            mode=0644
+  become: true
   notify:
     - restart nginx
 
+- name: Ensure that the default site is disabled
+  ansible.builtin.file: path=/etc/nginx/sites-enabled/default state=absent
+  become: true
+  notify:
+    - restart nginx
+
+- name: Ensure that the application site is enabled
+  ansible.builtin.file: src=/etc/nginx/sites-available/{{ app_name }}
+        dest=/etc/nginx/sites-enabled/{{ app_name }}
+        state=link
+  become: true
+  notify:
+    - restart nginx
+
+- name: Ensure Nginx service is started
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: true
+  become: true
+
 # https://gist.github.com/mattiaslundberg/ba214a35060d3c8603e9b1ec8627d349
+- name: Install certbot snap with option --classic
+  community.general.snap:
+    name: certbot
+    classic: yes
+  become: true
+
 - name: create letsencrypt directory
-  file: name=/var/www/letsencrypt state=directory
+  file:
+    name: /var/www/letsencrypt
+    state: directory
+    owner: "{{ deployer_user }}"
+    mode: "755"
+  become: true
 
 - name: Create letsencrypt certificate
-  shell: letsencrypt certonly -n --webroot -w /var/www/letsencrypt -m {{ letsencrypt_email }} --agree-tos -d {{ server_host }}
+  shell: certbot certonly -n --webroot -w /var/www/letsencrypt -m {{ letsencrypt_email }} --agree-tos -d {{ server_host }}
   args:
     creates: /etc/letsencrypt/live/{{ server_host }}
   notify:
     - restart nginx
+  become: true
 
 - name: Add letsencrypt cronjob for cert renewal
   cron:
