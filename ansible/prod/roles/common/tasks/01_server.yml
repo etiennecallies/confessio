@@ -16,6 +16,8 @@
     name:
       - wget
       - python3-psycopg2
+      - python3-pip
+      - python3-venv
       - acl
     state: latest
   become: true

@@ -12,12 +12,12 @@ code_repository_url: git@github.com:etiennecallies/confessio.git
 app_dir: /home/{{ deployer_user }}/{{app_name}}
 
 # DB Configuration
-db_password: lookup('ansible.builtin.env', 'PROD_DB_PASSWORD')
+db_password: "{{ lookup('ansible.builtin.env', 'PROD_DB_PASSWORD') }}"
 db_name: "{{ app_name }}"
 db_user: "{{ deployer_user }}"
 
 # Django secret
-secret_key: lookup('ansible.builtin.env', 'PROD_SECRET_KEY')
+secret_key: "{{ lookup('ansible.builtin.env', 'PROD_SECRET_KEY') }}"
 
 # Application Dependencies Setup
 venv_dir: '/home/{{ deployer_user }}/envs/{{ app_name }}'
@@ -36,7 +36,7 @@ django_wsgi_module: core.wsgi
 django_settings_module: core.production_settings
 
 # Email
-contact_email: lookup('ansible.builtin.env', 'CONTACT_EMAIL')
+contact_email: "{{ lookup('ansible.builtin.env', 'CONTACT_EMAIL') }}"
 
 # Letsencrypt
-letsencrypt_email: lookup('ansible.builtin.env', 'PROD_LETSENCRYPT_EMAIL')
+letsencrypt_email: "{{ lookup('ansible.builtin.env', 'PROD_LETSENCRYPT_EMAIL') }}"

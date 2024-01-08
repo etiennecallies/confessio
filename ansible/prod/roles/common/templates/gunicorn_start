@@ -28,15 +28,6 @@ cd $VIRTUALENV
 source bin/activate
 cd $DJANGODIR
 # Defining the Environment Variables
-export DJANGO_SECRET_KEY='{{ django_secret_key }}'
-export SERVER_HOST='{{ server_host }}'
-export PROD_DB_ENGINE=django.contrib.gis.db.backends.postgis
-export PROD_DB_USERNAME='{{ deployer_user }}'
-export PROD_DB_PASS='{{ db_password }}'
-export PROD_DB_HOST='localhost'
-export PROD_DB_PORT=5432
-export PROD_DB_NAME='{{ app_name }}'
-export CONTACT_EMAIL='{{ contact_email }}'
 export DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
 export PYTHONPATH=$DJANGODIR:$PYTHONPATH
 
