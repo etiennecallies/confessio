@@ -8,7 +8,7 @@ After=network.target
 PIDFile=/var/run/djangoBootstrap.pid
 User={{ deployer_user }}
 Group={{ deployer_group }}
-ExecStart=/bin/sh {{ deploy_dir }}/gunicorn_start
+ExecStart=/bin/bash {{ deploy_dir }}/gunicorn_start
 Restart=on-abort
 
 [Install]

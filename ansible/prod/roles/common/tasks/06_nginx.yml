@@ -8,7 +8,6 @@
 - name: Create the Nginx configuration file
   ansible.builtin.template: src=confessio.conf
             dest=/etc/nginx/sites-available/{{ app_name }}
-            backup=yes
             mode=0644
   become: true
   notify:
@@ -35,13 +34,14 @@
     enabled: true
   become: true
 
-# https://gist.github.com/mattiaslundberg/ba214a35060d3c8603e9b1ec8627d349
+# https://codeberg.org/ansible/certbot/src/branch/main/tasks/install.yml
 - name: Install certbot snap with option --classic
   community.general.snap:
     name: certbot
     classic: yes
   become: true
 
+# https://gist.github.com/mattiaslundberg/ba214a35060d3c8603e9b1ec8627d349
 - name: create letsencrypt directory
   file:
     name: /var/www/letsencrypt
