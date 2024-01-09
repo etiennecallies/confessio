@@ -11,7 +11,7 @@
     owner: www-data
     group: www-data
     recurse: yes
-    mode: "766"
+    mode: "777"
   become: true
 
 - name: Add user to www-data group
@@ -19,6 +19,7 @@
     name: "{{ deployer_user }}"
     append: true
     groups: www-data
+  become: true
 
 - name: Get all static files
   shell: ". {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py collectstatic --noinput"
