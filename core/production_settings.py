@@ -58,4 +58,6 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Static files
 # STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+if not os.environ.get('STATIC_ROOT'):
+    raise ValueError('no STATIC_ROOT found')
+STATIC_ROOT = os.environ.get('STATIC_ROOT')

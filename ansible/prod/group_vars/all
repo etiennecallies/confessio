@@ -10,6 +10,7 @@ code_repository_url: git@github.com:etiennecallies/confessio.git
 
 # App Directory
 app_dir: /home/{{ deployer_user }}/{{app_name}}
+static_root: /var/www/{{app_name}}
 
 # DB Configuration
 db_password: "{{ lookup('ansible.builtin.env', 'PROD_DB_PASSWORD') }}"
