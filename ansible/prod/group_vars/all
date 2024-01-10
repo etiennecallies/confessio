@@ -38,6 +38,11 @@ django_settings_module: core.production_settings
 
 # Email
 contact_email: "{{ lookup('ansible.builtin.env', 'CONTACT_EMAIL') }}"
+admin_email: "{{ lookup('ansible.builtin.env', 'ADMIN_EMAIL') }}"
 
 # Letsencrypt
 letsencrypt_email: "{{ lookup('ansible.builtin.env', 'PROD_LETSENCRYPT_EMAIL') }}"
+
+# AWS
+aws_access_key: "{{ lookup('ansible.builtin.env', 'PROD_AWS_ACCESS_KEY') }}"
+aws_secret_key: "{{ lookup('ansible.builtin.env', 'PROD_AWS_SECRET_KEY') }}"

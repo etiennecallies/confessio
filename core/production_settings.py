@@ -62,3 +62,15 @@ if not os.environ.get('STATIC_ROOT'):
     raise ValueError('no STATIC_ROOT found')
 STATIC_ROOT = os.environ.get('STATIC_ROOT')
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
+
+# DB BACKUP
+INSTALLED_APPS += ['dbbackup']
+DBBACKUP_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+DBBACKUP_STORAGE_OPTIONS = {
+    'access_key': os.environ.get('AWS_ACCESS_KEY'),
+    'secret_key': os.environ.get('AWS_SECRET_KEY'),
+    'bucket_name': os.environ.get('DBBACKUP_BUCKET') or 'confessio-dbbackup-daily',
+    'default_acl': 'private',
+}
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+ADMINS = [('Mr Admin', os.environ.get('ADMIN_EMAIL'))]
