@@ -45,6 +45,14 @@ To detect new migrations:
 python manage.py makemigrations
 ```
 
+### Database backup on S3
+```shell
+# add credentials
+aws configure --profile confessio
+# check daily backup
+aws s3 ls confessio-dbbackup-daily --profile confessio
+```
+
 TODO clean the following part
 # [Django Pixel Bootstrap 5](https://appseed.us/product/pixel-bootstrap/django/)
 
