@@ -1,10 +1,7 @@
 ##
 # Make sure the app is running
 ##
-- name: make sure confessio service is running
-  ansible.builtin.service:
-    name: confessio
-    state: started
-    enabled: true
+- name: restart confessio service
+  service: name=confessio state=restarted enabled=yes
   become: true
 
