@@ -17,3 +17,4 @@ beautifulsoup4==4.9.3
 # Used in production
 django-dbbackup==4.0.2
 django-storages==1.14.2
+boto3==1.34.15
