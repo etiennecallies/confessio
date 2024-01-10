@@ -4,17 +4,6 @@
 # - https://stormatics.tech/blogs/install-postgresql-using-ansible-on-remote-servers
 # - https://gist.github.com/kharandziuk/d11aab8b1560d408032911140a0b103a
 
-- name: install pg
-  apt:
-    name: "{{ item }}"
-    state: present
-    update_cache: yes
-  with_items:
-  - "postgresql"
-  - "postgresql-contrib"
-  - "postgresql-postgis"
-  become: true
-
 - name: Start and enable postgres
   service: name=postgresql enabled=yes state=started
   become: true
@@ -35,6 +24,13 @@
   become_user: postgres
   become: true
 
+- name: install postgis extension
+  postgresql_ext:
+    name: postgis
+    db: "{{ app_name }}"
+  become: true
+  become_user: postgres
+
 - name: copy pg_hba.conf
   template:
     src: pg_hba.conf
@@ -45,10 +41,3 @@
   become: true
   notify:
     - restart postgres
-
-- name: install postgis extension
-  postgresql_ext:
-    name: postgis
-    db: "{{ app_name }}"
-  become: true
-  become_user: postgres

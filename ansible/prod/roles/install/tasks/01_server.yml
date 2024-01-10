@@ -19,6 +19,11 @@
       - python3-pip
       - python3-venv
       - acl
+      - git
+      - postgresql
+      - postgresql-contrib
+      - postgresql-postgis
+      - nginx
     state: latest
   become: true
 

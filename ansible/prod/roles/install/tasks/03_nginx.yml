@@ -1,20 +1,16 @@
 ##
 # Configure nginx web server
 ##
-- name: install nginx
-  apt: name=nginx state=latest
+- name: Ensure that the default site is disabled
+  ansible.builtin.file: path=/etc/nginx/sites-enabled/default state=absent
   become: true
+  notify:
+    - restart nginx
 
 - name: Create the Nginx configuration file
   ansible.builtin.template: src=confessio.conf
             dest=/etc/nginx/sites-available/{{ app_name }}
             mode=0644
-  become: true
-  notify:
-    - restart nginx
-
-- name: Ensure that the default site is disabled
-  ansible.builtin.file: path=/etc/nginx/sites-enabled/default state=absent
   become: true
   notify:
     - restart nginx

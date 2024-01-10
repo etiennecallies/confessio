@@ -1,0 +1,8 @@
+##
+# This playbook deploys the whole app stack
+##
+- name: apply install configuration to server
+  hosts: all
+  user: ubuntu
+  roles:
+    - install

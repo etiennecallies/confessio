@@ -8,7 +8,3 @@
   pip:    requirements={{ app_dir }}/requirements.txt
           virtualenv={{ venv_dir }}
           virtualenv_command='python3 -m venv'
-
-- name: Create the .env file for running ad-hoc python commands in our virtualenv
-  template: src=env.j2 dest={{ app_dir }}/.env
-  become: true

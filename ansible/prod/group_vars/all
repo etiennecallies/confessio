@@ -30,7 +30,7 @@ server_host: 'confessio.fr'
 wsgi_server_port: 8000
 
 # Deploy Dir in App Directory
-deploy_dir: '{{ app_dir }}/deploy'
+deploy_dir: '/home/{{ deployer_user }}/deploy'
 
 # WSGI Vars
 django_wsgi_module: core.wsgi

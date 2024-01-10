@@ -2,14 +2,6 @@
 # Clone and pull the repo
 ##
 
-# https://www.edureka.co/community/41267/install-git-using-ansible
-- name: Install git
-  apt:
-    name: git
-    state: present
-    update_cache: yes
-  become: true
-
 # https://theusmanhaider.medium.com/ansible-clone-private-git-repository-c8a2c9ec8a61
 - name: Clone or pull the latest code
   git:
@@ -17,3 +9,7 @@
     dest: "{{ app_dir }}"
     accept_hostkey: yes
   become: no
+
+- name: Create the .env file
+  template: src=env.j2 dest={{ app_dir }}/.env
+  become: true

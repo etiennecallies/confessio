@@ -1,0 +1,15 @@
+##
+# Add cron to backup db on S3
+##
+
+- name: Add cron for daily backup
+  cron:
+    name: daily_backup
+    special_time: daily
+    job: ". {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py dbbackup --compress"
+
+- name: Add cron for weekly backup
+  cron:
+    name: weekly_backup
+    special_time: weekly
+    job: ". {{ app_dir }}/.env; DBBACKUP_BUCKET=confessio-dbbackup-weekly {{ venv_python }} {{ app_dir }}/manage.py dbbackup --compress"

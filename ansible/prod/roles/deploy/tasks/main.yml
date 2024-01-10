@@ -1,0 +1,7 @@
+##
+# Update code and run migrations
+##
+- include: 01_git.yml
+- include: 02_dependencies.yml
+- include: 03_migrations.yml
+- include: 99_launch.yml

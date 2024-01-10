@@ -1,8 +1,8 @@
 ##
-# This playbook deploys the whole app stack
+# This playbook deploys new version
 ##
-- name: apply common configuration to server
+- name: deploy with most recent code
   hosts: all
   user: ubuntu
   roles:
-    - common
+    - deploy
