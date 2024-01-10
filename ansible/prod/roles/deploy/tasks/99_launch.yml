@@ -1,7 +1,0 @@
-##
-# Make sure the app is running
-##
-- name: restart confessio service
-  service: name=confessio state=restarted enabled=yes
-  become: true
-

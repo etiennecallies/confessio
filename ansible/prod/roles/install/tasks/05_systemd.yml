@@ -7,4 +7,3 @@
   become: yes
   notify:
     - restart app
-    - restart nginx

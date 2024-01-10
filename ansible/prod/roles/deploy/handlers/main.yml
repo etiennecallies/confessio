@@ -1,0 +1,3 @@
+- name: restart app
+  service: name=confessio state=restarted enabled=yes
+  become: yes
