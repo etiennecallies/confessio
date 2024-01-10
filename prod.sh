@@ -8,4 +8,9 @@ elif [ "$unamestr" = 'FreeBSD' ] || [ "$unamestr" = 'Darwin' ]; then
   export $(grep -v '^#' .env | xargs -0)
 fi
 
-ANSIBLE_CONFIG=ansible/ansible.cfg ansible-playbook ansible/prod/deploy.yml -K -u ubuntu -i ansible/prod/hosts -vvv
+if [[ $# -eq 0 ]] ; then
+    echo 'please specify install or deploy'
+    exit 1
+fi
+
+ANSIBLE_CONFIG=ansible/ansible.cfg ansible-playbook ansible/prod/$1.yml -K -u ubuntu -i ansible/prod/hosts -vvv

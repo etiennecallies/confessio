@@ -43,6 +43,9 @@ Here is a policy (a little bit too permissive on resources though):
 ## Run ansible playbook
 
 ```shell
-./deploy_prod.sh
+# first installation of server
+./prod.sh install
+# after any change of code
+./prod.sh deploy
 ```
 This is mainly inspired by https://realpython.com/automating-django-deployments-with-fabric-and-ansible/
