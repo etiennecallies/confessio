@@ -18,6 +18,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 if not os.environ.get('SERVER_HOST'):
     raise ValueError('no SERVER_HOST found')
 ALLOWED_HOSTS = [f'.{os.environ.get("SERVER_HOST")}']
+CSRF_TRUSTED_ORIGINS = [f'https://*.{os.environ.get("SERVER_HOST")}']
 SECURE_SSL_REDIRECT = False
 SECURE_HSTS_SECONDS = 60
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
