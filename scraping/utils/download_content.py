@@ -5,6 +5,8 @@ from requests import RequestException
 
 from scraping.utils.url_utils import get_domain
 
+TIMEOUT = 3
+
 
 def get_headers():
     return {
@@ -18,7 +20,7 @@ def get_content_from_url(url):
 
     headers = get_headers()
     try:
-        r = requests.get(url, headers=headers)
+        r = requests.get(url, headers=headers, timeout=TIMEOUT)
     except RequestException as e:
         print(e)
         return None
@@ -59,7 +61,7 @@ def get_url_aliases(url) -> Optional[Set[str]]:
 
     headers = get_headers()
     try:
-        r = requests.get(url, headers=headers, allow_redirects=False)
+        r = requests.get(url, headers=headers, allow_redirects=False, timeout=TIMEOUT)
     except RequestException as e:
         print(e)
         return None
