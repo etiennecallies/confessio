@@ -7,26 +7,25 @@
   notify:
     - restart nginx
 
-- name: Create the Nginx configuration file
-  ansible.builtin.template: src=confessio.conf
-            dest=/etc/nginx/sites-available/{{ app_name }}
-            mode=0644
+# https://gist.github.com/mattiaslundberg/ba214a35060d3c8603e9b1ec8627d349
+- name: Install nginx site for letsencrypt requests
+  template:
+    src: templates/confessio-http.conf
+    dest: /etc/nginx/sites-available/{{ app_name }}-http
   become: true
   notify:
     - restart nginx
 
-- name: Ensure that the application site is enabled
-  ansible.builtin.file: src=/etc/nginx/sites-available/{{ app_name }}
-        dest=/etc/nginx/sites-enabled/{{ app_name }}
+- name: Ensure that the http site is enabled
+  ansible.builtin.file: src=/etc/nginx/sites-available/{{ app_name }}-http
+        dest=/etc/nginx/sites-enabled/{{ app_name }}-http
         state=link
   become: true
-  notify:
-    - restart nginx
 
-- name: Ensure Nginx service is started
+- name: Ensure Nginx service is restarted
   ansible.builtin.service:
     name: nginx
-    state: started
+    state: restarted
     enabled: true
   become: true
 
@@ -59,3 +58,26 @@
     name: letsencrypt_renewal
     special_time: weekly
     job: letsencrypt --renew certonly -n --webroot -w /var/www/letsencrypt -m {{ letsencrypt_email }} --agree-tos -d {{ server_host }} && service nginx reload
+
+- name: Generate dhparams
+  shell: openssl dhparam -out /etc/nginx/dhparams.pem 2048
+  args:
+    creates: /etc/nginx/dhparams.pem
+  become: true
+
+##
+# Configure nginx config for https
+##
+- name: Create the Nginx configuration file
+  ansible.builtin.template: src=confessio.conf
+            dest=/etc/nginx/sites-available/{{ app_name }}
+            mode=0644
+  become: true
+  notify:
+    - restart nginx
+
+- name: Ensure that the application site is enabled
+  ansible.builtin.file: src=/etc/nginx/sites-available/{{ app_name }}
+        dest=/etc/nginx/sites-enabled/{{ app_name }}
+        state=link
+  become: true

@@ -49,3 +49,8 @@ Here is a policy (a little bit too permissive on resources though):
 ./prod.sh deploy
 ```
 This is mainly inspired by https://realpython.com/automating-django-deployments-with-fabric-and-ansible/
+
+### Restore DB backup
+```
+. /home/ubuntu/confessio/.env; /home/ubuntu/envs/confessio/bin/python3.11 /home/ubuntu/confessio/manage.py dbrestore --uncompress
+```
