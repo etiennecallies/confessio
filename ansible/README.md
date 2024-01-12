@@ -52,5 +52,7 @@ This is mainly inspired by https://realpython.com/automating-django-deployments-
 
 ### Restore DB backup
 ```
+sudo -u postgres psql -c "ALTER ROLE ubuntu SUPERUSER;"
 . /home/ubuntu/confessio/.env; /home/ubuntu/envs/confessio/bin/python3.11 /home/ubuntu/confessio/manage.py dbrestore --uncompress
+sudo -u postgres psql -c "ALTER ROLE ubuntu NOSUPERUSER;"
 ```
