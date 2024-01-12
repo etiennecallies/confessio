@@ -24,6 +24,13 @@
   become_user: postgres
   become: true
 
+- name: install postgis extension
+  postgresql_ext:
+    name: postgis
+    db: "{{ app_name }}"
+  become: true
+  become_user: postgres
+
 - name: copy pg_hba.conf
   template:
     src: pg_hba.conf
