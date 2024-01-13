@@ -58,6 +58,7 @@ DEFAULT_FROM_EMAIL = f"no-reply@{os.environ.get('SERVER_HOST')}"
 EMAIL_BACKEND = 'django_ses.SESBackend'
 
 # Static files
+# Might be a faster way to deliver static files in the future
 # STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 if not os.environ.get('STATIC_ROOT'):
     raise ValueError('no STATIC_ROOT found')
