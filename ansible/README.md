@@ -40,6 +40,30 @@ Here is a policy (a little bit too permissive on resources though):
 }
 ```
 
+## AWS SES
+We use AWS SES to send email.
+
+Here is a policy to add to the IAM user to allow email sending:
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "ses:SendEmail",
+                "ses:GetSendQuota",
+                "ses:SendRawEmail"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+```
+
+You'll have to verify domain and some email address on SES console.
+
 ## Run ansible playbook
 
 ```shell
@@ -51,8 +75,12 @@ Here is a policy (a little bit too permissive on resources though):
 This is mainly inspired by https://realpython.com/automating-django-deployments-with-fabric-and-ansible/
 
 ### Restore DB backup
-```
+```shell
+# SSH to server then grant ubuntu postgresql superuser privilege
+# This is required because backup will drop/create postgis extension
 sudo -u postgres psql -c "ALTER ROLE ubuntu SUPERUSER;"
+# This will restore last backup
 . /home/ubuntu/confessio/.env; /home/ubuntu/envs/confessio/bin/python3.11 /home/ubuntu/confessio/manage.py dbrestore --uncompress
+# Revoke superuser access
 sudo -u postgres psql -c "ALTER ROLE ubuntu NOSUPERUSER;"
 ```
