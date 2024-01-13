@@ -44,5 +44,5 @@ admin_email: "{{ lookup('ansible.builtin.env', 'ADMIN_EMAIL') }}"
 letsencrypt_email: "{{ lookup('ansible.builtin.env', 'PROD_LETSENCRYPT_EMAIL') }}"
 
 # AWS
-aws_access_key: "{{ lookup('ansible.builtin.env', 'PROD_AWS_ACCESS_KEY') }}"
-aws_secret_key: "{{ lookup('ansible.builtin.env', 'PROD_AWS_SECRET_KEY') }}"
+aws_access_key: "{{ lookup('ansible.builtin.env', 'AWS_ACCESS_KEY') }}"
+aws_secret_key: "{{ lookup('ansible.builtin.env', 'AWS_SECRET_KEY') }}"

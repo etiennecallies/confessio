@@ -4,6 +4,7 @@ gunicorn
 python-dotenv
 whitenoise
 django-theme-pixel==1.0.3
+django-ses==3.5.2
 psycopg2-binary==2.9.6
 
 # Used in django app

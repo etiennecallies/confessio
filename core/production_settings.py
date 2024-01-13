@@ -68,8 +68,8 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 INSTALLED_APPS += ['dbbackup']
 DBBACKUP_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 DBBACKUP_STORAGE_OPTIONS = {
-    'access_key': os.environ.get('AWS_ACCESS_KEY'),
-    'secret_key': os.environ.get('AWS_SECRET_KEY'),
+    'access_key': AWS_ACCESS_KEY_ID,
+    'secret_key': AWS_SECRET_ACCESS_KEY,
     'bucket_name': os.environ.get('DBBACKUP_BUCKET') or 'confessio-dbbackup-daily',
     'default_acl': 'private',
 }

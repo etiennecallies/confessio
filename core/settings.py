@@ -160,7 +160,10 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Email
 LOGIN_REDIRECT_URL = '/'
 DEFAULT_FROM_EMAIL = "no-reply@confessio.fr"
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django_ses.SESBackend'
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_KEY')
+AWS_SES_REGION_NAME = 'eu-west-3'
 
 # Postgis
 # https://stackoverflow.com/questions/67283705/m1-mac-geodjango-gdal-mach-o-but-wrong-architecture
