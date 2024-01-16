@@ -1,4 +1,5 @@
 from home.models import Page, Scraping
+from scraping.services.prune_scraping_service import prune_scraping_and_save
 
 
 def upsert_scraping(page: Page, confession_part: str) -> Scraping:
@@ -17,7 +18,7 @@ def upsert_scraping(page: Page, confession_part: str) -> Scraping:
         nb_iterations=1,
         page=page,
     )
-    new_scraping.save()
+    prune_scraping_and_save(new_scraping)
 
     return new_scraping
 

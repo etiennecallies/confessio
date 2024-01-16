@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 
 from home.models import Scraping
-from scraping.services.prune_scraping_service import prune_scraping
+from scraping.services.prune_scraping_service import prune_scraping_and_save
 
 
 class Command(BaseCommand):
@@ -19,7 +19,7 @@ class Command(BaseCommand):
 
         counter = 0
         for scraping in scrapings:
-            prune_scraping(scraping)
+            prune_scraping_and_save(scraping)
             counter += 1
 
         self.stdout.write(

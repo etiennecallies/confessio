@@ -64,7 +64,7 @@ def prune_content(refined_html):
     return '<br>\n'.join(paragraphs)
 
 
-def prune_scraping(scraping: Scraping):
+def prune_scraping_and_save(scraping: Scraping):
     scraping.confession_html_pruned = prune_content(scraping.confession_html)
     scraping.pruned_at = Now()
     scraping.save()

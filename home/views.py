@@ -9,7 +9,7 @@ from home.models import Page, Sentence
 from home.services.map_service import get_churches_in_box, prepare_map, get_churches_around
 from home.services.page_url_service import get_page_url_with_pointer
 from home.services.qualify_service import get_colored_pieces, update_sentence
-from scraping.services.prune_scraping_service import prune_scraping
+from scraping.services.prune_scraping_service import prune_scraping_and_save
 
 
 def index(request):
@@ -113,7 +113,7 @@ def qualify_page(request, page_uuid):
 
             sentence.save()
 
-        prune_scraping(latest_scraping)
+        prune_scraping_and_save(latest_scraping)
 
     # We get piece with fresh color
     colored_pieces = get_colored_pieces(confession_html)
