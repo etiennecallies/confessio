@@ -29,3 +29,9 @@
 
 - name: copy .inputrc
   template: src=.inputrc dest=~
+
+- name: Authorize additional_pub_key1
+  authorized_key:
+    user: "{{ deployer_user }}"
+    state: present
+    key: "{{ additional_pub_key1 }}"
