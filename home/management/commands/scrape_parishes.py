@@ -1,11 +1,10 @@
-from django.core.management.base import BaseCommand
-
+from home.management.abstract_command import AbstractCommand
 from home.models import Parish
 from scraping.services.scrape_page_service import upsert_scraping
 from scraping.utils.download_and_extract import get_fresh_confessions_part
 
 
-class Command(BaseCommand):
+class Command(AbstractCommand):
     help = "Launch the scraping of all parishes"
 
     def add_arguments(self, parser):
@@ -18,9 +17,7 @@ class Command(BaseCommand):
             parishes = Parish.objects.all()
 
         for parish in parishes:
-            self.stdout.write(
-                self.style.HTTP_INFO(f'Starting to scrape parish {parish.name} {parish.uuid}')
-            )
+            self.info(f'Starting to scrape parish {parish.name} {parish.uuid}')
 
             for page in parish.get_pages():
                 # Actually do the scraping
@@ -28,10 +25,6 @@ class Command(BaseCommand):
 
                 # Insert or update scraping
                 upsert_scraping(page, confession_part)
-                self.stdout.write(
-                    self.style.HTTP_INFO(f'Successfully scrapped page {page.url} {page.uuid}')
-                )
+                self.info(f'Successfully scrapped page {page.url} {page.uuid}')
 
-            self.stdout.write(
-                self.style.SUCCESS(f'Successfully scrapped parish {parish.name} {parish.uuid}')
-            )
+            self.success(f'Successfully scrapped parish {parish.name} {parish.uuid}')

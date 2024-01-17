@@ -1,10 +1,9 @@
-from django.core.management.base import BaseCommand
-
+from home.management.abstract_command import AbstractCommand
 from home.models import Scraping
 from scraping.services.prune_scraping_service import prune_scraping_and_save
 
 
-class Command(BaseCommand):
+class Command(AbstractCommand):
     help = "Prune content"
 
     def add_arguments(self, parser):
@@ -22,6 +21,4 @@ class Command(BaseCommand):
             prune_scraping_and_save(scraping)
             counter += 1
 
-        self.stdout.write(
-            self.style.SUCCESS(f'Successfully pruned {counter} scrapings')
-        )
+        self.success(f'Successfully pruned {counter} scrapings')

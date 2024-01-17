@@ -1,10 +1,9 @@
-from django.core.management.base import BaseCommand
-
+from home.management.abstract_command import AbstractCommand
 from home.models import Parish
 from scraping.services.crawl_parish_service import crawl_parish
 
 
-class Command(BaseCommand):
+class Command(AbstractCommand):
     help = "Launch the search of all urls with confessions hours, starting for home url"
 
     def add_arguments(self, parser):
@@ -21,24 +20,14 @@ class Command(BaseCommand):
             parishes = Parish.objects.all()
 
         for parish in parishes:
-            self.stdout.write(
-                self.style.HTTP_INFO(f'Starting crawling for parish {parish.name} {parish.uuid}')
-            )
+            self.info(f'Starting crawling for parish {parish.name} {parish.uuid}')
 
             got_pages_with_content, some_pages_visited, error_detail = crawl_parish(parish)
 
             if got_pages_with_content:
-                self.stdout.write(
-                    self.style.SUCCESS(f'Successfully crawled parish {parish.name} {parish.uuid}')
-                )
+                self.success(f'Successfully crawled parish {parish.name} {parish.uuid}')
             elif some_pages_visited:
-                self.stdout.write(
-                    self.style.WARNING(f'No page found for parish {parish.name} {parish.uuid}')
-                )
+                self.warning(f'No page found for parish {parish.name} {parish.uuid}')
             else:
-                self.stdout.write(
-                    self.style.ERROR(f'Error while crawling parish {parish.name} {parish.uuid}')
-                )
-                self.stdout.write(
-                    self.style.ERROR(error_detail)
-                )
+                self.error(f'Error while crawling parish {parish.name} {parish.uuid}')
+                self.error(error_detail)
