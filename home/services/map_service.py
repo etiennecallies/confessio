@@ -1,12 +1,16 @@
 from typing import List, Tuple, Dict
 from uuid import UUID
 
+from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.geos import Point, Polygon
 from django.contrib.gis.measure import D
 from django.utils.translation import gettext as _
 
 from home.models import Church
 from folium import Map, Icon, Popup, Marker
+
+
+MAX_CHURCHES_IN_RESULTS = 50
 
 
 ##########
@@ -18,7 +22,10 @@ def get_churches_around(center) -> List[Church]:
     center_as_point = Point(x=longitude, y=latitude)
 
     # TODO load parish and latest scraping at the same time
-    churches = Church.objects.filter(location__dwithin=(center_as_point, D(km=5))).all()
+    churches = Church.objects\
+        .filter(location__dwithin=(center_as_point, D(km=5))) \
+        .annotate(distance=Distance('location', center_as_point)) \
+        .order_by('distance')[:MAX_CHURCHES_IN_RESULTS]
 
     return churches
 
@@ -27,7 +34,7 @@ def get_churches_in_box(min_lat, max_lat, min_long, max_long) -> List[Church]:
     polygon = Polygon.from_bbox((min_long, min_lat, max_long, max_lat))
 
     # TODO load parish and latest scraping at the same time
-    churches = Church.objects.filter(location__within=polygon).all()
+    churches = Church.objects.filter(location__within=polygon).all()[:MAX_CHURCHES_IN_RESULTS]
 
     return churches
 

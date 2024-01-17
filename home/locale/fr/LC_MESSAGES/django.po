@@ -36,7 +36,7 @@ msgstr "Voir ci-dessous"
 
 #: templates/includes/footer.html:9
 msgid "footerAboutUs"
-msgstr "Ce site est en phase de développement à l'initiative d'un laïque."
+msgstr "Ce site, d'initiative laïque, est en phase de développement."
 
 #: templates/includes/footer.html:9 templates/pages/contact.html:12
 msgid "contactUs"
