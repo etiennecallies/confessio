@@ -4,7 +4,8 @@
 - name: Add cron for crawling parishes
   cron:
     name: daily_crawl_parishes
-    special_time: daily
+    hour: 1
+    minute: 0
     job: "(tmux has-session -t crawl_parishes || tmux new-session -d -s crawl_parishes) && tmux send-keys -t crawl_parishes '. {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py crawl_parishes' C-m"
 
 - name: Add cron for scraping pages

@@ -5,7 +5,8 @@
 - name: Add cron for daily backup
   cron:
     name: daily_backup
-    special_time: daily
+    hour: 0
+    minute: 0
     job: ". {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py dbbackup --compress"
 
 - name: Add cron for weekly backup
