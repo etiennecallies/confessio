@@ -127,6 +127,8 @@ class Scraping(TimeStampMixin):
 
 class Sentence(TimeStampMixin):
     line = models.TextField(null=False, unique=True)
+    updated_by = models.ForeignKey('auth.User', on_delete=models.DO_NOTHING, null=False)
+    scraping = models.ForeignKey('Scraping', on_delete=models.DO_NOTHING, null=False)
     is_confession = models.BooleanField()
     is_schedule = models.BooleanField()
     is_date = models.BooleanField()

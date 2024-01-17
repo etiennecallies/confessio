@@ -104,7 +104,11 @@ def qualify_page(request, page_uuid):
             try:
                 sentence = Sentence.objects.get(line=line_without_link)
             except Sentence.DoesNotExist:
-                sentence = Sentence(line=line_without_link)
+                sentence = Sentence(
+                    line=line_without_link,
+                    scraping=latest_scraping,
+                    updated_by=request.user,
+                )
 
             checked_per_tag = {}
             for tag_name, tag in piece['tags'].items():
