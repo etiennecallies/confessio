@@ -1,0 +1,37 @@
+/* https://themesberg.com/docs/pixel-bootstrap/components/alerts/ */
+button.close {
+    padding: 0;
+    background-color: transparent;
+    border: 0;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+.alert-dismissible .close {
+    top: 50%;
+    right: 1.5rem;
+    padding: 0;
+    transform: translateY(-50%);
+    color: rgba(255,255,255,0.6);
+    opacity: 1;
+    position: absolute;
+}
+
+.close>span:not(.sr-only) {
+    display: block;
+    height: 1.25rem;
+    width: 1.25rem;
+    background-color: rgba(0,0,0,0);
+    color: rgba(0,0,0,0.6);
+    line-height: 22px;
+    border-radius: 50%;
+    font-size: 1.25rem;
+    transition: all 0.2s ease;
+}
+
+.alert-dismissible .close>span:not(.sr-only) {
+    font-size: 1.5rem;
+    background-color: transparent;
+    color: rgba(255,255,255,0.6);
+}
