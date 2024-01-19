@@ -94,7 +94,7 @@
                                                                 {% blocktrans with url=page_urls|get_item:page.uuid %}BeforeConfessionHTML {{ url }}{% endblocktrans %}
                                                             </p>
                                                             <p class="col-md-3">
-                                                                {% if request.user.is_authenticated %}
+                                                                {% if request.user.is_authenticated and perms.home.change_sentence %}
                                                                     <a href="{% url 'qualify_page' page.uuid %}" class="link-info"><i class="fas fa-tags"></i> {% trans 'QualifyPage' %}</a>
                                                                 {% endif %}
                                                             </p>

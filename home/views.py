@@ -1,6 +1,6 @@
 import os
 
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.core.mail import send_mail, BadHeaderError
 from django.http import HttpResponseNotFound, HttpResponseBadRequest
 from django.shortcuts import render, redirect
@@ -79,6 +79,7 @@ def index(request):
 
 
 @login_required
+@permission_required("home.change_sentence")
 def qualify_page(request, page_uuid):
     try:
         page = Page.objects.get(uuid=page_uuid)
