@@ -52,6 +52,12 @@ def index(request):
         f'<iframe id="map-iframe" data-map-name="{folium_map.get_name()}" srcdoc='
     )
 
+    # Hack 3: we add a class to force map to be a squared on mobile in CSS
+    map_html = map_html.replace(
+        '<div style="position:relative;width:100%;height:0;padding-bottom:60%;">',
+        '<div class="map-container">'
+    )
+
     # We get all parishes and their churches
     parishes_by_uuid = {}
     parish_churches = {}

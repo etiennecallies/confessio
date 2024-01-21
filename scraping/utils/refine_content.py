@@ -70,7 +70,7 @@ def get_element_and_text(element):
     return element.contents
 
 
-def clear_formatting(element: BeautifulSoup):
+def clear_link_formatting(element: BeautifulSoup):
     # remove all attributes except "href"
     attrs = dict(element.attrs)
     for attr in attrs:
@@ -81,8 +81,17 @@ def clear_formatting(element: BeautifulSoup):
     element.string = element.getText()
 
 
+def clear_table_formatting(element: BeautifulSoup):
+    # remove all attributes except "href"
+    attrs = dict(element.attrs)
+    for attr in attrs:
+        if attr in ['style', 'width']:
+            del element.attrs[attr]
+
+
 def build_text(soup: BeautifulSoup):
     if is_table(soup):
+        clear_table_formatting(soup)
         return soup.prettify()
 
     results = []
@@ -94,7 +103,7 @@ def build_text(soup: BeautifulSoup):
         elif is_comment(element):
             continue
         elif is_link(element):
-            clear_formatting(element)
+            clear_link_formatting(element)
             results.append(flatten_string(element.prettify()))
         else:
             text = build_text(element)
