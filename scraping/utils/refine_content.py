@@ -97,7 +97,7 @@ def build_text(soup: BeautifulSoup):
     results = []
     for element in get_element_and_text(soup):
         if is_span(element):
-            results.append(clean_text(element.text))
+            results.append(clean_text(element.get_text(' ')))
         elif is_text(element):
             results.append(clean_text(str(element)))
         elif is_comment(element):

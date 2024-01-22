@@ -13,6 +13,7 @@ class TestExtractLinks(unittest.TestCase):
             'laredemption-st-joseph',
             'ntre-dame-des-lumieres',
             'st-georges',
+            'st-nizier',
             'st-bonaventure',
             'bellecombe',
             'vaise',
