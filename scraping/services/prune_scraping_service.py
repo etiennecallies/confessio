@@ -69,12 +69,12 @@ def add_necessary_moderation(scraping: Scraping):
         )
         moderation.save()
 
-    previous_moderations = ScrapingModeration.objects.exclude(scraping=scraping)\
+    previous_not_validated_moderations = ScrapingModeration.objects.exclude(scraping=scraping)\
         .filter(scraping__page__exact=scraping.page,
                 category=category,
                 validated_at__isnull=True)
 
-    for previous_moderation in previous_moderations:
+    for previous_moderation in previous_not_validated_moderations:
         previous_moderation.delete()
 
 

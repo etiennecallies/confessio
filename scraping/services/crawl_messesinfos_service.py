@@ -24,6 +24,23 @@ def post_messesinfo_request(messesinfo_request):
     return r.json()
 
 
+def add_moderation(parish: Parish, category: ParishModeration.Category, home_url):
+    try:
+        # we need to delete existing moderation first
+        existing_category = ParishModeration.objects.get(parish=parish, category=category)
+        existing_category.delete()
+    except ParishModeration.DoesNotExist:
+        pass
+
+    parish_moderation = ParishModeration(
+        parish=parish,
+        category=category,
+        name=parish.name,
+        home_url=home_url,
+    )
+    parish_moderation.save()
+
+
 def get_parish(home_url, name) -> Parish:
     try:
         parish = Parish.objects.get(home_url=home_url)
@@ -47,13 +64,7 @@ def get_parish(home_url, name) -> Parish:
         parish.save()
 
         # We will need to moderate generated parish name
-        parish_moderation = ParishModeration(
-            parish=parish,
-            category=moderation_category,
-            name=parish.name,
-            home_url=home_url,
-        )
-        parish_moderation.save()
+        add_moderation(parish, moderation_category, home_url)
 
     except Parish.DoesNotExist:
         parish = Parish(
