@@ -136,3 +136,58 @@ class Sentence(TimeStampMixin):
     is_place = models.BooleanField()
     is_spiritual = models.BooleanField()
     is_other = models.BooleanField()
+
+
+##############
+# MODERATION #
+##############
+
+class ModerationMixin(TimeStampMixin):
+    validated_at = models.DateTimeField(null=True)
+    validated_by = models.ForeignKey('auth.User', on_delete=models.DO_NOTHING, null=True)
+
+    class Meta:
+        abstract = True
+
+
+class ParishModeration(ModerationMixin):
+    class Category(models.TextChoices):
+        NAME_CONCATENATED = "name_concat"
+        NAME_WEBSITE_TITLE = "name_websit"
+        HOME_URL_NO_RESPONSE = "hu_no_resp"
+        HOME_URL_NO_CONFESSION = "hu_no_conf"
+
+    parish = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='moderations')
+    category = models.CharField(max_length=11, choices=Category)
+
+    name = models.CharField(max_length=300)
+    home_url = models.URLField()
+
+    class Meta:
+        unique_together = ('parish', 'category')
+
+
+class ChurchModeration(ModerationMixin):
+    class Category(models.TextChoices):
+        LOCATION_NULL = "loc_null"
+
+    church = models.ForeignKey('Church', on_delete=models.CASCADE, related_name='moderations')
+    category = models.CharField(max_length=8, choices=Category)
+
+    location = gis_models.PointField(geography=True)
+
+    class Meta:
+        unique_together = ('church', 'category')
+
+
+class ScrapingModeration(ModerationMixin):
+    class Category(models.TextChoices):
+        CONFESSION_HTML_PRUNED_NEW = "chp_new"
+
+    scraping = models.ForeignKey('Scraping', on_delete=models.CASCADE, related_name='moderations')
+    category = models.CharField(max_length=7, choices=Category)
+
+    confession_html_pruned = models.TextField(null=False)
+
+    class Meta:
+        unique_together = ('scraping', 'category')
