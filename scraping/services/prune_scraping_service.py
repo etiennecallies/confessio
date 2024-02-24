@@ -2,7 +2,7 @@ from typing import List
 
 from django.db.models.functions import Now
 
-from home.models import Scraping
+from home.models import Scraping, ScrapingModeration
 from home.models import Sentence
 from scraping.utils.extract_content import BaseTagInterface
 from scraping.utils.extract_content import extract_content
@@ -49,6 +49,35 @@ def tags_from_sentence(sentence: Sentence) -> List[Tag]:
     return tags
 
 
+##############
+# MODERATION #
+##############
+
+def add_necessary_moderation(scraping: Scraping):
+    if scraping.confession_html_pruned is None:
+        # TODO we might want to moderate when scraping has been nullified by pruning
+        return
+
+    category = ScrapingModeration.Category.CONFESSION_HTML_PRUNED_NEW
+    try:
+        ScrapingModeration.objects.get(confession_html_pruned=scraping.confession_html_pruned)
+    except ScrapingModeration.DoesNotExist:
+        moderation = ScrapingModeration(
+            scraping=scraping,
+            category=category,
+            confession_html_pruned=scraping.confession_html_pruned,
+        )
+        moderation.save()
+
+    previous_moderations = ScrapingModeration.objects.exclude(scraping=scraping)\
+        .filter(scraping__page__exact=scraping.page,
+                category=category,
+                validated_at__isnull=True)
+
+    for previous_moderation in previous_moderations:
+        previous_moderation.delete()
+
+
 ########
 # MAIN #
 ########
@@ -68,3 +97,5 @@ def prune_scraping_and_save(scraping: Scraping):
     scraping.confession_html_pruned = prune_content(scraping.confession_html)
     scraping.pruned_at = Now()
     scraping.save()
+
+    add_necessary_moderation(scraping)

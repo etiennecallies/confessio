@@ -4,7 +4,7 @@ from typing import Optional
 import requests
 from django.contrib.gis.geos import Point
 
-from home.models import Church, Parish, ParishSource
+from home.models import Church, Parish, ParishSource, ParishModeration, ChurchModeration
 from scraping.utils.extract_title import get_page_title
 from scraping.utils.url_utils import get_clean_full_url
 
@@ -32,6 +32,7 @@ def get_parish(home_url, name) -> Parish:
         if page_title:
             # If home_url's title exists we replace parish name by it
             parish.name = page_title
+            moderation_category = ParishModeration.Category.NAME_WEBSITE_TITLE
         else:
             # If there is a problem with home_url, new name is concatenation of all names
             previous_sources = parish.sources.all()
@@ -40,9 +41,19 @@ def get_parish(home_url, name) -> Parish:
             print(f'got new name {concatenated_name}')
 
             parish.name = concatenated_name
+            moderation_category = ParishModeration.Category.NAME_CONCATENATED
 
         # We update parish
         parish.save()
+
+        # We will need to moderate generated parish name
+        parish_moderation = ParishModeration(
+            parish=parish,
+            category=moderation_category,
+            name=parish.name,
+            home_url=home_url,
+        )
+        parish_moderation.save()
 
     except Parish.DoesNotExist:
         parish = Parish(
@@ -140,6 +151,14 @@ def get_churches_on_page(network_id, page):
             )
             church.save()
             nb_churches_saved += 1
+
+            if not church.location.x or not church.location.y:
+                church_moderation = ChurchModeration(
+                    church=church,
+                    category=ChurchModeration.Category.LOCATION_NULL,
+                    location=church.location
+                )
+                church_moderation.save()
 
         print(f'{nb_churches_saved} churches saved')
 
