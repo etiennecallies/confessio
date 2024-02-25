@@ -4,6 +4,9 @@
     <h2 class="mb-3">
         Church: {{ church_moderation.get_category_display }}
     </h2>
+    <p>Name : {{ church.name }}</p>
+    <p>Address : {{ church.address }}</p>
+    <p>City : {{ church.city }}</p>
     <p><a class="btn btn-primary" href="{% url 'admin:home_church_change' church.uuid %}" target="_blank" role="button">
         Open admin <i class="fas fa-up-right-from-square"></i>
     </a></p>

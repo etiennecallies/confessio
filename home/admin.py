@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
-from django.contrib.gis.admin import GISModelAdmin
 from django.forms import ModelChoiceField
+from leaflet.admin import LeafletGeoAdmin
 
 from .models import Church, Parish, Page
 
@@ -15,8 +15,9 @@ class ParishAdmin(ModelAdmin):
 
 
 @admin.register(Church)
-class ChurchAdmin(GISModelAdmin):
+class ChurchAdmin(LeafletGeoAdmin):
     list_display = ["name"]
+    display_raw = True
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'parish':

@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.gis",
 
+    'leaflet',  # used in admin
     'theme_pixel',
     "home",
 ]

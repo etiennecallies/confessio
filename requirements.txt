@@ -7,6 +7,9 @@ django-theme-pixel==1.0.3
 django-ses==3.5.2
 psycopg2-binary==2.9.6
 
+# Used in django admin
+django-leaflet==0.29.0
+
 # Used in django app
 folium==0.14.0
 
