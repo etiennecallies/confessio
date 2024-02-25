@@ -2,9 +2,12 @@ import uuid
 from abc import abstractmethod
 from typing import List, Optional
 
+from django.contrib.auth.models import User
 from django.contrib.gis.db import models as gis_models
 from django.db import models
 from django.db.models import Count
+from django.db.models.functions import Now
+from django.urls import reverse
 
 
 # Create your models here.
@@ -163,9 +166,16 @@ class ModerationMixin(TimeStampMixin):
 
     @classmethod
     def get_stats_by_category(cls):
-        return list(map(lambda d: d | {'resource': cls.resource},
-                        cls.objects.filter(validated_at__isnull=True).all()
+        return list(map(lambda d: d | {
+            'resource': cls.resource,
+            'url': reverse('moderate_next_' + str(cls.resource), kwargs={'category': d['category']})
+        }, cls.objects.filter(validated_at__isnull=True).all()
                         .values('category').annotate(total=Count('category'))))
+
+    def validate(self, user: User):
+        self.validated_at = Now()
+        self.validated_by = user
+        self.save()
 
 
 class ParishModeration(ModerationMixin):

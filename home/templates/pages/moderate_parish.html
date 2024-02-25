@@ -1,0 +1,45 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+{% load custom_tags %}
+
+{% block content %}
+
+<main>
+
+  {% load i18n %}
+
+  <!-- Hero -->
+  <section class="section-header overflow-hidden pt-7 pt-lg-8 pb-9 pb-lg-12 bg-primary">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 text-left">
+            <div class="card shadow">
+                <div class="card-body px-md-5 py-md-5 text-left">
+                    <div class="row align-items-center">
+                        <div class="col-12">
+                            <h2 class="mb-3">
+                                {{ parish_moderation.category }}
+                            </h2>
+                            <form action="{% url 'moderate_one_parish' parish_moderation.category parish_moderation.uuid %}" method="post">
+                                {% csrf_token %}
+                                <p>Name : {{ parish_moderation.name }}</p>
+                                {% if parish.name != parish_moderation.name %}
+                                    <p>New name : {{ parish.name }}<p>
+                                {% endif %}
+                                <p>Home url : {{ parish_moderation.home_url }}</p>
+                                {% if parish.home_url != parish_moderation.home_url %}
+                                    <p>New home url : {{ parish.home_url }}<p>
+                                {% endif %}
+                                <button type="submit" class="btn btn-primary mt-4">Validate & next</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+{% endblock content %}
