@@ -1,68 +1,48 @@
-{% extends 'layouts/base.html' %}
-{% load static %}
-{% load custom_tags %}
+{% extends 'layouts/single_card.html' %}
 
-{% block content %}
+{% load i18n %}
 
-<main>
+{% block card %}
 
-  {% load i18n %}
-
-  <!-- Hero -->
-  <section class="section-header overflow-hidden pt-7 pt-lg-8 pb-9 pb-lg-12 bg-primary">
-    <div class="container">
-      <div class="row">
-        <div class="col-12 text-left">
-            <div class="card shadow">
-                <div class="card-body px-md-5 py-md-5 text-left">
-                    <div class="row align-items-center">
-                        <div class="col-12">
-                            <h2 class="mb-3">
-                                <a class="link-info"
-                                    href="{{ parish.home_url }}">
-                                    {{ parish.name }}
-                                </a>
-                            </h2>
-                            {% if page.has_confessions %}
-                                <p class="col-md-9 lead">
-                                    {% blocktrans with url=page.url %}BeforeConfessionHTML {{ url }}{% endblocktrans %}
-                                </p>
-                                <form action="{% url 'qualify_page' page.uuid %}" method="post">
-                                    {% csrf_token %}
-                                    {% for colored_piece in colored_pieces %}
-                                        <div class="row mb-2">
-                                            <div class="col-md-7 {{ colored_piece.color }}">{{ colored_piece.text|safe }}</div>
-                                            <div class="col-md-5 text-end">
-                                                {% for tag_name, tag in colored_piece.tags.items %}
-                                                    <input type="checkbox" class="btn-check" id="{{ tag.id }}" name="{{ tag.id }}" {{ tag.checked|yesno:"checked," }} autocomplete="off">
-                                                    <label class="btn btn-outline-{{ tag.color }}" for="{{ tag.id }}">{{ tag_name.value }}</label>
-                                                {% endfor %}
-                                            </div>
-                                        </div>
-                                    {% endfor %}
-                                    <input type="hidden" name="confession_html_hash" value="{{ confession_html_hash }}">
-                                    <button type="submit" class="btn btn-primary mt-4">Submit</button>
-                                </form>
-                                <div>
-
-                                </div>
-                            {% elif not page.has_been_scraped %}
-                                <p>
-                                    {% blocktrans with url=page.url %}PageNotScrapedYet {{ url }}{% endblocktrans %}
-                                </p>
-                            {% elif not page.has_confessions %}
-                                <p>
-                                    {% blocktrans with url=page.url %}NoConfessionFoundPage {{ url }}{% endblocktrans %}
-                                </p>
-                            {% endif %}
+    <div class="col-12">
+        <h2 class="mb-3">
+            <a class="link-info"
+                href="{{ parish.home_url }}">
+                {{ parish.name }}
+            </a>
+        </h2>
+        {% if page.has_confessions %}
+            <p class="col-md-9 lead">
+                {% blocktrans with url=page.url %}BeforeConfessionHTML {{ url }}{% endblocktrans %}
+            </p>
+            <form action="{% url 'qualify_page' page.uuid %}" method="post">
+                {% csrf_token %}
+                {% for colored_piece in colored_pieces %}
+                    <div class="row mb-2">
+                        <div class="col-md-7 {{ colored_piece.color }}">{{ colored_piece.text|safe }}</div>
+                        <div class="col-md-5 text-end">
+                            {% for tag_name, tag in colored_piece.tags.items %}
+                                <input type="checkbox" class="btn-check" id="{{ tag.id }}" name="{{ tag.id }}" {{ tag.checked|yesno:"checked," }} autocomplete="off">
+                                <label class="btn btn-outline-{{ tag.color }}" for="{{ tag.id }}">{{ tag_name.value }}</label>
+                            {% endfor %}
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-      </div>
-    </div>
-  </section>
-</main>
+                {% endfor %}
+                <input type="hidden" name="confession_html_hash" value="{{ confession_html_hash }}">
+                <button type="submit" class="btn btn-primary mt-4">Submit</button>
+            </form>
+            <div>
 
-{% endblock content %}
+            </div>
+        {% elif not page.has_been_scraped %}
+            <p>
+                {% blocktrans with url=page.url %}PageNotScrapedYet {{ url }}{% endblocktrans %}
+            </p>
+        {% elif not page.has_confessions %}
+            <p>
+                {% blocktrans with url=page.url %}NoConfessionFoundPage {{ url }}{% endblocktrans %}
+            </p>
+        {% endif %}
+    </div>
+
+{% endblock card %}

@@ -1,0 +1,26 @@
+{% extends 'layouts/base.html' %}
+
+{% block content %}
+
+<main>
+  <!-- Hero -->
+  <section class="section-header overflow-hidden pt-7 pt-lg-8 pb-9 pb-lg-12 bg-primary">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 text-left">
+            <div class="card shadow">
+                <div class="card-body px-md-5 py-md-5 text-left">
+                    <div class="row align-items-center">
+                        <div class="col-12">
+                            {% block card %}{% endblock card %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+{% endblock content %}

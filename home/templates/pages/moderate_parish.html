@@ -1,55 +1,29 @@
-{% extends 'layouts/base.html' %}
-{% load static %}
-{% load custom_tags %}
+{% extends 'layouts/single_card.html' %}
 
-{% block content %}
-
-<main>
-
-  {% load i18n %}
-
-  <!-- Hero -->
-  <section class="section-header overflow-hidden pt-7 pt-lg-8 pb-9 pb-lg-12 bg-primary">
-    <div class="container">
-      <div class="row">
-        <div class="col-12 text-left">
-            <div class="card shadow">
-                <div class="card-body px-md-5 py-md-5 text-left">
-                    <div class="row align-items-center">
-                        <div class="col-12">
-                            <h2 class="mb-3">
-                                Parish: {{ parish_moderation.get_category_display }}
-                            </h2>
-                            <p><a class="btn btn-primary" href="{% url 'admin:home_parish_change' parish.uuid %}" target="_blank" role="button">
-                                Open admin <i class="fas fa-up-right-from-square"></i>
-                            </a></p>
-                            <p>Name : {{ parish_moderation.name }}</p>
-                            {% if parish.name != parish_moderation.name %}
-                                <p>New name : {{ parish.name }}</p>
-                            {% endif %}
-                            <p>Home url : <a href="{{ parish_moderation.home_url }}">{{ parish_moderation.home_url }}</a></p>
-                            {% if parish.home_url != parish_moderation.home_url %}
-                                <p>New home url : <a href="{{ parish.home_url }}">{{ parish.home_url }}</a></p>
-                            {% endif %}
-                            {% if latest_crawling %}
-                                <h3 class="mb-3">Latest crawling</h3>
-                                <p>Date : {{ latest_crawling.created_at }}</p>
-                                <p>Nb visited links : {{ latest_crawling.nb_visited_links }}</p>
-                                <p>Nb success links : {{ latest_crawling.nb_success_links }}</p>
-                                <p>Error detail : {{ latest_crawling.error_detail }}</p>
-                            {% endif %}
-                            <form action="{% url 'moderate_one_parish' parish_moderation.category parish_moderation.uuid %}" method="post">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-primary mt-4">Validate & next</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-      </div>
-    </div>
-  </section>
-</main>
-
-{% endblock content %}
+{% block card %}
+    <h2 class="mb-3">
+        Parish: {{ parish_moderation.get_category_display }}
+    </h2>
+    <p><a class="btn btn-primary" href="{% url 'admin:home_parish_change' parish.uuid %}" target="_blank" role="button">
+        Open admin <i class="fas fa-up-right-from-square"></i>
+    </a></p>
+    <p>Name : {{ parish_moderation.name }}</p>
+    {% if parish.name != parish_moderation.name %}
+        <p>New name : {{ parish.name }}</p>
+    {% endif %}
+    <p>Home url : <a href="{{ parish_moderation.home_url }}">{{ parish_moderation.home_url }}</a></p>
+    {% if parish.home_url != parish_moderation.home_url %}
+        <p>New home url : <a href="{{ parish.home_url }}">{{ parish.home_url }}</a></p>
+    {% endif %}
+    {% if latest_crawling %}
+        <h3 class="mb-3">Latest crawling</h3>
+        <p>Date : {{ latest_crawling.created_at }}</p>
+        <p>Nb visited links : {{ latest_crawling.nb_visited_links }}</p>
+        <p>Nb success links : {{ latest_crawling.nb_success_links }}</p>
+        <p>Error detail : {{ latest_crawling.error_detail }}</p>
+    {% endif %}
+    <form action="{% url 'moderate_one_parish' parish_moderation.category parish_moderation.uuid %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary mt-4">Validate & next</button>
+    </form>
+{% endblock card %}
