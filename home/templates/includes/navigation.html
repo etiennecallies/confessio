@@ -35,16 +35,18 @@
                     </li>
                     {% if request.user.is_authenticated and perms.home.change_sentence %}
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             {% trans 'moderationMenu' %}
                             <i class="fas fa-angle-down nav-link-arrow ml-2"></i>
                             </a>
-                            <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                                {% get_moderation_stats as moderation_stats %}
-                                {% for moderation_stat in moderation_stats %}
-                                    <li><a class="dropdown-item" href="{{ moderation_stat|get_item:'url' }}">{{ moderation_stat|get_item:'resource' }} {{ moderation_stat|get_item:'category' }} {{ moderation_stat|get_item:'total' }}</a></li>
-                                {% endfor %}
-                            </ul>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                <ul class="list-style-none">
+                                    {% get_moderation_stats as moderation_stats %}
+                                    {% for moderation_stat in moderation_stats %}
+                                        <li><a class="dropdown-item" href="{{ moderation_stat|get_item:'url' }}">{{ moderation_stat|get_item:'resource' }} {{ moderation_stat|get_item:'category' }} {{ moderation_stat|get_item:'total' }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
                         </li>
                     {% endif %}
                 </ul>
