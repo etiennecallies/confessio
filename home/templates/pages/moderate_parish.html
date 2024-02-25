@@ -22,7 +22,7 @@
         <p>Nb success links : {{ latest_crawling.nb_success_links }}</p>
         <p>Error detail : {{ latest_crawling.error_detail }}</p>
     {% endif %}
-    <form action="{% url 'moderate_one_parish' parish_moderation.category parish_moderation.uuid %}" method="post">
+    <form method="post">
         {% csrf_token %}
         <button type="submit" class="btn btn-primary mt-4">Validate & next</button>
     </form>

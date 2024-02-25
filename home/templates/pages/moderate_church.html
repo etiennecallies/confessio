@@ -1,0 +1,19 @@
+{% extends 'layouts/single_card.html' %}
+
+{% block card %}
+    <h2 class="mb-3">
+        Church: {{ church_moderation.get_category_display }}
+    </h2>
+    <p><a class="btn btn-primary" href="{% url 'admin:home_church_change' church.uuid %}" target="_blank" role="button">
+        Open admin <i class="fas fa-up-right-from-square"></i>
+    </a></p>
+    <p>Location : {{ church_moderation.location }}</p>
+    {% if church.location != church_moderation.location %}
+        <p>New location : {{ church.location }}</p>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary mt-4">Validate & next</button>
+    </form>
+{% endblock card %}

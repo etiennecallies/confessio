@@ -1,39 +1,68 @@
 from django.contrib.auth.decorators import login_required, permission_required
-from django.http import HttpResponseNotFound
+from django.http import HttpResponseBadRequest
 from django.shortcuts import render, redirect
 
-from home.models import ParishModeration
+from home.models import ParishModeration, ChurchModeration, ScrapingModeration
+
+
+def get_moderate_response(request, category: str, resource: str,
+                          class_moderation, moderation_uuid, build_context):
+    if category not in class_moderation.Category.values:
+        return HttpResponseBadRequest(f"category {category} is not valid for {resource}")
+
+    if moderation_uuid is None:
+        moderation = class_moderation.objects.filter(
+            category=category, validated_at__isnull=True).first()
+        if moderation is None:
+            return redirect('index')
+        else:
+            return redirect(f'moderate_one_' + resource,
+                            category=category,
+                            moderation_uuid=moderation.uuid)
+
+    try:
+        moderation = class_moderation.objects.get(uuid=moderation_uuid)
+    except class_moderation.DoesNotExist:
+        print(f"{resource} {moderation_uuid} not found. "
+              f"Probably because problem was solved meanwhile. "
+              f"Redirecting to next moderation.")
+        return redirect('moderate_next_' + resource, category=category)
+
+    if request.method == "POST":
+        moderation.validate(request.user)
+
+        return redirect('moderate_next_' + resource, category=category)
+
+    return render(request, f'pages/moderate_{resource}.html', build_context(moderation))
 
 
 @login_required
 @permission_required("home.change_sentence")
 def moderate_parish(request, category, moderation_uuid=None):
-    # TODO check category or 400
+    return get_moderate_response(request, category, 'parish', ParishModeration, moderation_uuid,
+                                 lambda moderation: {
+                                     'parish_moderation': moderation,
+                                     'parish': moderation.parish,
+                                     'latest_crawling': moderation.parish.get_latest_crawling(),
+                                 })
 
-    if moderation_uuid is None:
-        parish_moderation = ParishModeration.objects.filter(
-            category=category, validated_at__isnull=True).first()
-        if parish_moderation is None:
-            return redirect('index')
-        else:
-            return redirect('moderate_one_parish',
-                            category=category,
-                            moderation_uuid=parish_moderation.uuid)
 
-    try:
-        parish_moderation = ParishModeration.objects.get(uuid=moderation_uuid)
-    except ParishModeration.DoesNotExist:
-        return HttpResponseNotFound("Page not found")
+@login_required
+@permission_required("home.change_sentence")
+def moderate_church(request, category, moderation_uuid=None):
+    return get_moderate_response(request, category, 'church', ChurchModeration, moderation_uuid,
+                                 lambda moderation: {
+                                     'church_moderation': moderation,
+                                     'church': moderation.church,
+                                 })
 
-    if request.method == "POST":
-        parish_moderation.validate(request.user)
 
-        return redirect('moderate_next_parish', category=category)
+@login_required
+@permission_required("home.change_sentence")
+def moderate_scraping(request, category, moderation_uuid=None):
+    return get_moderate_response(request, category, 'scraping', ScrapingModeration, moderation_uuid,
+                                 lambda moderation: {
+                                     'scraping_moderation': moderation,
+                                     'scraping': moderation.scraping,
+                                 })
 
-    context = {
-        'parish_moderation': parish_moderation,
-        'parish': parish_moderation.parish,
-        'latest_crawling': parish_moderation.parish.get_latest_crawling(),
-    }
-
-    return render(request, 'pages/moderate_parish.html', context)

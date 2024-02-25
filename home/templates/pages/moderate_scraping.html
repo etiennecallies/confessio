@@ -1,0 +1,19 @@
+{% extends 'layouts/single_card.html' %}
+
+{% block card %}
+    <h2 class="mb-3">
+        Scraping: {{ scraping_moderation.get_category_display }}
+    </h2>
+    <p><a class="btn btn-primary" href="{% url 'qualify_page' scraping.page.uuid %}" target="_blank" role="button">
+        Qualify page <i class="fas fa-up-right-from-square"></i>
+    </a></p>
+    <p>Confession HTML pruned :<br> {{ scraping_moderation.confession_html_pruned|safe }}</p>
+    {% if scraping.confession_html_pruned != scraping_moderation.confession_html_pruned %}
+        <p>New confession HTML pruned : {{ scraping.confession_html_pruned|safe }}</p>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary mt-4">Validate & next</button>
+    </form>
+{% endblock card %}
