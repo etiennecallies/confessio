@@ -18,18 +18,25 @@
                     <div class="row align-items-center">
                         <div class="col-12">
                             <h2 class="mb-3">
-                                {{ parish_moderation.category }}
+                                Parish: {{ parish_moderation.get_category_display }}
                             </h2>
+                            <p>Name : {{ parish_moderation.name }}</p>
+                            {% if parish.name != parish_moderation.name %}
+                                <p>New name : {{ parish.name }}<p>
+                            {% endif %}
+                            <p>Home url : <a href="{{ parish_moderation.home_url }}">{{ parish_moderation.home_url }}</a></p>
+                            {% if parish.home_url != parish_moderation.home_url %}
+                                <p>New home url : <a href="{{ parish.home_url }}">{{ parish.home_url }}</a><p>
+                            {% endif %}
+                            {% if latest_crawling %}
+                                <h3 class="mb-3">Latest crawling</h3>
+                                <p>Date : {{ latest_crawling.created_at }}</p>
+                                <p>Nb visited links : {{ latest_crawling.nb_visited_links }}</p>
+                                <p>Nb success links : {{ latest_crawling.nb_success_links }}</p>
+                                <p>Error detail : {{ latest_crawling.error_detail }}</p>
+                            {% endif %}
                             <form action="{% url 'moderate_one_parish' parish_moderation.category parish_moderation.uuid %}" method="post">
                                 {% csrf_token %}
-                                <p>Name : {{ parish_moderation.name }}</p>
-                                {% if parish.name != parish_moderation.name %}
-                                    <p>New name : {{ parish.name }}<p>
-                                {% endif %}
-                                <p>Home url : {{ parish_moderation.home_url }}</p>
-                                {% if parish.home_url != parish_moderation.home_url %}
-                                    <p>New home url : {{ parish.home_url }}<p>
-                                {% endif %}
                                 <button type="submit" class="btn btn-primary mt-4">Validate & next</button>
                             </form>
                         </div>

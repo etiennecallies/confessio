@@ -33,6 +33,7 @@ def moderate_parish(request, category, moderation_uuid=None):
     context = {
         'parish_moderation': parish_moderation,
         'parish': parish_moderation.parish,
+        'latest_crawling': parish_moderation.parish.get_latest_crawling(),
     }
 
     return render(request, 'pages/moderate_parish.html', context)
