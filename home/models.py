@@ -1,8 +1,10 @@
 import uuid
+from abc import abstractmethod
 from typing import List, Optional
 
 from django.contrib.gis.db import models as gis_models
 from django.db import models
+from django.db.models import Count
 
 
 # Create your models here.
@@ -146,8 +148,24 @@ class ModerationMixin(TimeStampMixin):
     validated_at = models.DateTimeField(null=True)
     validated_by = models.ForeignKey('auth.User', on_delete=models.DO_NOTHING, null=True)
 
+    @property
+    @abstractmethod
+    def resource(self):
+        pass
+
+    @property
+    @abstractmethod
+    def category(self):
+        pass
+
     class Meta:
         abstract = True
+
+    @classmethod
+    def get_stats_by_category(cls):
+        return list(map(lambda d: d | {'resource': cls.resource},
+                        cls.objects.filter(validated_at__isnull=True).all()
+                        .values('category').annotate(total=Count('category'))))
 
 
 class ParishModeration(ModerationMixin):
@@ -157,6 +175,7 @@ class ParishModeration(ModerationMixin):
         HOME_URL_NO_RESPONSE = "hu_no_resp"
         HOME_URL_NO_CONFESSION = "hu_no_conf"
 
+    resource = 'parish'
     parish = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=11, choices=Category)
 
@@ -171,6 +190,7 @@ class ChurchModeration(ModerationMixin):
     class Category(models.TextChoices):
         LOCATION_NULL = "loc_null"
 
+    resource = 'church'
     church = models.ForeignKey('Church', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=8, choices=Category)
 
@@ -184,6 +204,7 @@ class ScrapingModeration(ModerationMixin):
     class Category(models.TextChoices):
         CONFESSION_HTML_PRUNED_NEW = "chp_new"
 
+    resource = 'scraping'
     scraping = models.ForeignKey('Scraping', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=7, choices=Category)
 

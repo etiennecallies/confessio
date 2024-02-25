@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-03 18:05+0100\n"
+"POT-Creation-Date: 2024-02-25 10:42+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,19 +18,19 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: services/map_service.py:45
+#: services/map_service.py:52
 msgid "ConfessionsExist"
 msgstr "Des confessions existent"
 
-#: services/map_service.py:50 templates/pages/index.html:116
+#: services/map_service.py:57 templates/pages/index.html:116
 msgid "NotCrawledYet"
 msgstr "Traitement en cours pour cette paroisse"
 
-#: services/map_service.py:53 templates/pages/index.html:118
+#: services/map_service.py:60 templates/pages/index.html:118
 msgid "NoConfessionFound"
 msgstr "Pas de confessions trouvées"
 
-#: services/map_service.py:56
+#: services/map_service.py:63
 msgid "JumpBelow"
 msgstr "Voir ci-dessous"
 
@@ -46,25 +46,29 @@ msgstr "Nous contacter"
 msgid "footerFranceCookie"
 msgstr "Made in 🇫🇷 with ✝️ without 🍪"
 
-#: templates/includes/navigation.html:26
+#: templates/includes/navigation.html:27
 msgid "navContact"
 msgstr "Contact"
 
-#: templates/includes/navigation.html:30
+#: templates/includes/navigation.html:31
 msgid "navLogout"
 msgstr "Se déconnecter"
 
-#: templates/includes/navigation.html:32
+#: templates/includes/navigation.html:33
 msgid "navLogin"
 msgstr "Se connecter"
 
+#: templates/includes/navigation.html:39
+msgid "moderationMenu"
+msgstr "Modération"
+
 #: templates/layouts/base.html:26 templates/layouts/base.html:28
-#: templates/layouts/base.html:35 templates/layouts/base.html:42
+#: templates/layouts/base.html:34 templates/layouts/base.html:41
 msgid "confessioPageTitle"
 msgstr "Confessio - horaires des confessions"
 
-#: templates/layouts/base.html:29 templates/layouts/base.html:36
-#: templates/layouts/base.html:43 templates/pages/index.html:17
+#: templates/layouts/base.html:29 templates/layouts/base.html:35
+#: templates/layouts/base.html:42 templates/pages/index.html:17
 msgid "confessioDescription"
 msgstr ""
 "Un premier moteur de recherche inter-paroissial d'horaires de confession "
