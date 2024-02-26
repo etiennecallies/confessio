@@ -11,9 +11,9 @@
     {% if parish.name != parish_moderation.name %}
         <p>New name : {{ parish.name }}</p>
     {% endif %}
-    <p>Home url : <a href="{{ parish_moderation.home_url }}">{{ parish_moderation.home_url }}</a></p>
+    <p>Home url : <a href="{{ parish_moderation.home_url }}" target="_blank">{{ parish_moderation.home_url }}</a></p>
     {% if parish.home_url != parish_moderation.home_url %}
-        <p>New home url : <a href="{{ parish.home_url }}">{{ parish.home_url }}</a></p>
+        <p>New home url : <a href="{{ parish.home_url }}" target="_blank">{{ parish.home_url }}</a></p>
     {% endif %}
     {% if latest_crawling %}
         <h3 class="mb-3">Latest crawling</h3>
