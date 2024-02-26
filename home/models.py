@@ -216,6 +216,7 @@ class ParishModeration(ModerationMixin):
 class ChurchModeration(ModerationMixin):
     class Category(models.TextChoices):
         LOCATION_NULL = "loc_null"
+        LOCATION_FROM_API = "loc_api"
 
     resource = 'church'
     church = models.ForeignKey('Church', on_delete=models.CASCADE, related_name='moderations')

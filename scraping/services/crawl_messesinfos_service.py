@@ -6,6 +6,7 @@ from django.contrib.gis.geos import Point
 
 from home.models import Church, Parish, ParishSource, ParishModeration, ChurchModeration
 from scraping.utils.extract_title import get_page_title
+from scraping.utils.geocode_address import geocode
 from scraping.utils.url_utils import get_clean_full_url
 
 
@@ -164,9 +165,18 @@ def get_churches_on_page(network_id, page):
             nb_churches_saved += 1
 
             if not church.location.x or not church.location.y:
+                coordinates = geocode(church.name, church.address, church.city, church.zipcode)
+                if not coordinates:
+                    category = ChurchModeration.Category.LOCATION_NULL
+                else:
+                    longitude, latitude = coordinates
+                    church.location = Point(longitude, latitude)
+                    church.save()
+                    category = ChurchModeration.Category.LOCATION_FROM_API
+
                 church_moderation = ChurchModeration(
                     church=church,
-                    category=ChurchModeration.Category.LOCATION_NULL,
+                    category=category,
                     location=church.location
                 )
                 church_moderation.save()
