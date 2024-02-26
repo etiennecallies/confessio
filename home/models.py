@@ -173,9 +173,16 @@ class ModerationMixin(TimeStampMixin):
                         .values('category').annotate(total=Count('category'))))
 
     def validate(self, user: User):
-        self.validated_at = Now()
-        self.validated_by = user
-        self.save()
+        if self.delete_on_validate():
+            self.delete()
+        else:
+            self.validated_at = Now()
+            self.validated_by = user
+            self.save()
+
+    @abstractmethod
+    def delete_on_validate(self) -> bool:
+        pass
 
 
 class ParishModeration(ModerationMixin):
@@ -195,6 +202,16 @@ class ParishModeration(ModerationMixin):
     class Meta:
         unique_together = ('parish', 'category')
 
+    def delete_on_validate(self) -> bool:
+        # If parish home_url has been changed, those moderation objects are not relevant any more
+        if self.category in [self.Category.HOME_URL_NO_RESPONSE,
+                             self.Category.HOME_URL_NO_CONFESSION]\
+                and self.home_url != self.parish.home_url:
+            return True
+
+        # for other categories we don't need to delete, we could though
+        return False
+
 
 class ChurchModeration(ModerationMixin):
     class Category(models.TextChoices):
@@ -209,6 +226,10 @@ class ChurchModeration(ModerationMixin):
     class Meta:
         unique_together = ('church', 'category')
 
+    def delete_on_validate(self) -> bool:
+        # we do not need to delete ChurchModeration, we could though
+        return False
+
 
 class ScrapingModeration(ModerationMixin):
     class Category(models.TextChoices):
@@ -222,3 +243,8 @@ class ScrapingModeration(ModerationMixin):
 
     class Meta:
         unique_together = ('scraping', 'category')
+
+    def delete_on_validate(self) -> bool:
+        # we keep ScrapingModeration even if confession_html_pruned has changed
+        # in order to keep track of which confession_html_pruned has been moderated
+        return False

@@ -16,12 +16,17 @@
         <p>New home url : <a href="{{ parish.home_url }}" target="_blank">{{ parish.home_url }}</a></p>
     {% endif %}
     {% if latest_crawling %}
-        <h3 class="mb-3">Latest crawling</h3>
+        <h3>Latest crawling</h3>
         <p>Date : {{ latest_crawling.created_at }}</p>
         <p>Nb visited links : {{ latest_crawling.nb_visited_links }}</p>
         <p>Nb success links : {{ latest_crawling.nb_success_links }}</p>
         <p>Error detail : {{ latest_crawling.error_detail }}</p>
     {% endif %}
+    <h3>Churches</h3>
+    {% for church in parish.churches.all %}
+        <h5>{{ church.name }}</h5>
+        <p>City : {{ church.city }}</p>
+    {% endfor %}
     <form method="post">
         {% csrf_token %}
         <button type="submit" class="btn btn-primary mt-4">Validate & next</button>
