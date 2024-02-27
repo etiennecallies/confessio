@@ -2,7 +2,16 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponseBadRequest
 from django.shortcuts import render, redirect
 
-from home.models import ParishModeration, ChurchModeration, ScrapingModeration
+from home.models import ParishModeration, ChurchModeration, ScrapingModeration, ModerationMixin
+
+
+def redirect_to_moderation(moderation: ModerationMixin, category: str, resource: str):
+    if moderation is None:
+        return redirect('index')
+    else:
+        return redirect(f'moderate_one_' + resource,
+                        category=category,
+                        moderation_uuid=moderation.uuid)
 
 
 def get_moderate_response(request, category: str, resource: str,
@@ -11,21 +20,31 @@ def get_moderate_response(request, category: str, resource: str,
         return HttpResponseBadRequest(f"category {category} is not valid for {resource}")
 
     if moderation_uuid is None:
-        moderation = class_moderation.objects.filter(
-            category=category, validated_at__isnull=True).first()
-        if moderation is None:
-            return redirect('index')
+        after_uuid = request.GET.get('after_uuid', None)
+        if after_uuid:
+            try:
+                after_moderation = class_moderation.objects.get(uuid=after_uuid)
+            except class_moderation.DoesNotExist:
+                print(f"Attempted to get {resource} {after_uuid} to get next moderation."
+                      f"Resource was not found. Redirecting to first moderation.")
+                return redirect('moderate_next_' + resource, category=category)
+
+            next_moderation = class_moderation.objects.filter(
+                category=category, validated_at__isnull=True,
+                created_at__gt=after_moderation.created_at)\
+                .order_by('created_at').first()
         else:
-            return redirect(f'moderate_one_' + resource,
-                            category=category,
-                            moderation_uuid=moderation.uuid)
+            next_moderation = class_moderation.objects.filter(
+                category=category, validated_at__isnull=True)\
+                .order_by('created_at').first()
+        return redirect_to_moderation(next_moderation, category, resource)
 
     try:
         moderation = class_moderation.objects.get(uuid=moderation_uuid)
     except class_moderation.DoesNotExist:
         print(f"{resource} {moderation_uuid} not found. "
               f"Probably because problem was solved meanwhile. "
-              f"Redirecting to next moderation.")
+              f"Redirecting to first moderation.")
         return redirect('moderate_next_' + resource, category=category)
 
     if request.method == "POST":

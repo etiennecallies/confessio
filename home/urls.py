@@ -3,8 +3,13 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+    # index
     path('', views.index, name='index'),
+
+    # qualify
     path('qualify-page/<uuid:page_uuid>', views.qualify_page, name='qualify_page'),
+
+    # moderation
     path('moderate-parish/<category>', views.moderate_parish, name='moderate_next_parish'),
     path('moderate-parish/<category>/<uuid:moderation_uuid>', views.moderate_parish,
          name='moderate_one_parish'),
@@ -14,6 +19,8 @@ urlpatterns = [
     path('moderate-scraping/<category>', views.moderate_scraping, name='moderate_next_scraping'),
     path('moderate-scraping/<category>/<uuid:moderation_uuid>', views.moderate_scraping,
          name='moderate_one_scraping'),
+
+    # contact
     path('contact', views.contact, name='contact'),
     path('contact/<message>', views.contact, name='contact_with_message'),
 ]
