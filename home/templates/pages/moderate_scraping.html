@@ -12,14 +12,14 @@
         <p>New confession HTML pruned : {{ scraping.confession_html_pruned|safe }}</p>
     {% endif %}
 
-    <div class="row">
-        <div class="col-2">
+    <div>
+        <div class="d-inline-block">
             <form method="post">
             {% csrf_token %}
             <button type="submit" class="btn btn-primary">Validate & next</button>
             </form>
         </div>
-        <div class="col-2">
+        <div class="d-inline-block">
             <a class="btn btn-info" role="button"
                href="{% url 'moderate_next_scraping' scraping_moderation.category %}?after_uuid={{ scraping_moderation.uuid }}">Next</a>
         </div>
