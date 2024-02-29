@@ -1,5 +1,6 @@
 from typing import List
 
+from django.db.models import Q
 from django.db.models.functions import Now
 
 from home.models import Scraping, ScrapingModeration
@@ -59,6 +60,16 @@ def add_necessary_moderation(scraping: Scraping):
         return
 
     category = ScrapingModeration.Category.CONFESSION_HTML_PRUNED_NEW
+
+    # First we delete every previous unvalidated moderation and current moderation
+    moderations_to_delete = ScrapingModeration.objects\
+        .filter(scraping__page__exact=scraping.page,
+                category=category)\
+        .filter(Q(scraping__exact=scraping) | Q(validated_at__isnull=True))
+
+    for moderation_to_delete in moderations_to_delete:
+        moderation_to_delete.delete()
+
     try:
         ScrapingModeration.objects.get(confession_html_pruned=scraping.confession_html_pruned)
     except ScrapingModeration.DoesNotExist:
@@ -68,14 +79,6 @@ def add_necessary_moderation(scraping: Scraping):
             confession_html_pruned=scraping.confession_html_pruned,
         )
         moderation.save()
-
-    previous_not_validated_moderations = ScrapingModeration.objects.exclude(scraping=scraping)\
-        .filter(scraping__page__exact=scraping.page,
-                category=category,
-                validated_at__isnull=True)
-
-    for previous_moderation in previous_not_validated_moderations:
-        previous_moderation.delete()
 
 
 ########
