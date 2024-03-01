@@ -1,4 +1,5 @@
 {% extends 'layouts/single_card.html' %}
+{% load static %}
 
 {% load i18n %}
 
@@ -23,7 +24,7 @@
                         <div class="col-md-5 text-end">
                             {% for tag_name, tag in colored_piece.tags.items %}
                                 <input type="checkbox" class="btn-check" id="{{ tag.id }}" name="{{ tag.id }}" {{ tag.checked|yesno:"checked," }} autocomplete="off">
-                                <label class="btn btn-outline-{{ tag.color }}" for="{{ tag.id }}">{{ tag_name.value }}</label>
+                                <label class="btn btn-fixed-outline-{{ tag.color }}" for="{{ tag.id }}">{{ tag_name.value }}</label>
                             {% endfor %}
                         </div>
                     </div>
