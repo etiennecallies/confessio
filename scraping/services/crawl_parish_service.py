@@ -2,18 +2,25 @@ from typing import Tuple, Optional
 
 from django.db.models.functions import Now
 
-from home.models import Parish, Crawling, Page, ParishModeration
+from home.models import Parish, Crawling, Page, ParishModeration, ScrapingModeration
 from scraping.services.scrape_page_service import upsert_scraping
 from scraping.utils.download_and_search_urls import search_for_confession_pages
 
 
 def remove_not_validated_moderation(parish: Parish, category: ParishModeration.Category):
     try:
-        moderation = ParishModeration.objects.get(parish=parish, category=category)
-        if moderation.validated_at is None:
-            moderation.delete()
+        moderation = ParishModeration.objects.get(parish=parish, category=category,
+                                                  validated_at__isnull=True)
+        moderation.delete()
     except ParishModeration.DoesNotExist:
         pass
+
+
+def remove_not_validated_moderation_for_page(page: Page):
+    moderations = ScrapingModeration.objects.filter(scraping__page__exact=page,
+                                                    validated_at__isnull=True)
+    for moderation in moderations:
+        moderation.delete()
 
 
 def add_moderation(parish: Parish, category: ParishModeration.Category):
@@ -49,6 +56,9 @@ def crawl_parish(parish: Parish) -> Tuple[bool, bool, Optional[str]]:
             # Page did exist but not anymore
             page.deleted_at = Now()
             page.save()
+
+            # We remove all pending scraping moderations related to this page
+            remove_not_validated_moderation_for_page(page)
         else:
             # Page still exists, we update scraping
             confession_part = confession_parts_by_url[page.url]
