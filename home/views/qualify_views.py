@@ -11,7 +11,7 @@ from scraping.services.prune_scraping_service import prune_scraping_and_save
 @permission_required("home.change_sentence")
 def qualify_page(request, page_uuid):
     try:
-        page = Page.objects.get(uuid=page_uuid)
+        page = Page.objects.get(uuid=page_uuid, deleted_at__isnull=False)
     except Page.DoesNotExist:
         return HttpResponseNotFound("Page not found")
 
