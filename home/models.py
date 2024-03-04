@@ -132,8 +132,8 @@ class Scraping(TimeStampMixin):
 
 class Sentence(TimeStampMixin):
     line = models.TextField(null=False, unique=True)
-    updated_by = models.ForeignKey('auth.User', on_delete=models.DO_NOTHING, null=False)
-    scraping = models.ForeignKey('Scraping', on_delete=models.DO_NOTHING, null=False)
+    updated_by = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
+    scraping = models.ForeignKey('Scraping', on_delete=models.SET_NULL, null=True)
     is_confession = models.BooleanField()
     is_schedule = models.BooleanField()
     is_date = models.BooleanField()
@@ -149,7 +149,7 @@ class Sentence(TimeStampMixin):
 
 class ModerationMixin(TimeStampMixin):
     validated_at = models.DateTimeField(null=True)
-    validated_by = models.ForeignKey('auth.User', on_delete=models.DO_NOTHING, null=True)
+    validated_by = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
 
     @property
     @abstractmethod
