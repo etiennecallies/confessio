@@ -23,7 +23,7 @@
             </form>
         </div>
         <div class="d-inline-block">
-            <a class="btn btn-info" role="button" href="{% url 'moderate_next_church' church_moderation.category %}?after_uuid={{ church_moderation.uuid }}">Next</a>
+            <a class="btn btn-info" role="button" href="{{ next_url }}">Next</a>
         </div>
     </div>
 {% endblock card %}

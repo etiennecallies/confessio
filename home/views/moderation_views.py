@@ -1,8 +1,10 @@
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponseBadRequest
 from django.shortcuts import render, redirect
+from django.urls import reverse
 
 from home.models import ParishModeration, ChurchModeration, ScrapingModeration, ModerationMixin
+from scraping.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 
 
 def redirect_to_moderation(moderation: ModerationMixin, category: str, resource: str):
@@ -20,23 +22,12 @@ def get_moderate_response(request, category: str, resource: str,
         return HttpResponseBadRequest(f"category {category} is not valid for {resource}")
 
     if moderation_uuid is None:
-        after_uuid = request.GET.get('after_uuid', None)
-        if after_uuid:
-            try:
-                after_moderation = class_moderation.objects.get(uuid=after_uuid)
-            except class_moderation.DoesNotExist:
-                print(f"Attempted to get {resource} {after_uuid} to get next moderation."
-                      f"Resource was not found. Redirecting to first moderation.")
-                return redirect('moderate_next_' + resource, category=category)
-
-            next_moderation = class_moderation.objects.filter(
-                category=category, validated_at__isnull=True,
-                created_at__gt=after_moderation.created_at)\
-                .order_by('created_at').first()
-        else:
-            next_moderation = class_moderation.objects.filter(
-                category=category, validated_at__isnull=True)\
-                .order_by('created_at').first()
+        created_after_ts = int(request.GET.get('created_after', '0'))
+        created_after = ts_us_to_datetime(created_after_ts)
+        next_moderation = class_moderation.objects.filter(
+            category=category, validated_at__isnull=True,
+            created_at__gt=created_after) \
+            .order_by('created_at').first()
         return redirect_to_moderation(next_moderation, category, resource)
 
     try:
@@ -47,12 +38,15 @@ def get_moderate_response(request, category: str, resource: str,
               f"Redirecting to first moderation.")
         return redirect('moderate_next_' + resource, category=category)
 
+    created_at_ts_us = datetime_to_ts_us(moderation.created_at)
+    next_url = reverse('moderate_next_' + resource,
+                       kwargs={'category': category}) + f'?created_after={created_at_ts_us}'
     if request.method == "POST":
         moderation.validate(request.user)
 
-        return redirect('moderate_next_' + resource, category=category)
+        return redirect(next_url)
 
-    return render_moderation(request, moderation)
+    return render_moderation(request, moderation, next_url)
 
 
 @login_required
@@ -62,11 +56,12 @@ def moderate_parish(request, category, moderation_uuid=None):
                                  render_parish_moderation)
 
 
-def render_parish_moderation(request, moderation: ParishModeration):
+def render_parish_moderation(request, moderation: ParishModeration, next_url):
     return render(request, f'pages/moderate_parish.html', {
         'parish_moderation': moderation,
         'parish': moderation.parish,
         'latest_crawling': moderation.parish.get_latest_crawling(),
+        'next_url': next_url,
     })
 
 
@@ -77,10 +72,11 @@ def moderate_church(request, category, moderation_uuid=None):
                                  render_church_moderation)
 
 
-def render_church_moderation(request, moderation: ChurchModeration):
+def render_church_moderation(request, moderation: ChurchModeration, next_url):
     return render(request, f'pages/moderate_church.html', {
         'church_moderation': moderation,
         'church': moderation.church,
+        'next_url': next_url,
     })
 
 
@@ -91,8 +87,9 @@ def moderate_scraping(request, category, moderation_uuid=None):
                                  render_scraping_moderation)
 
 
-def render_scraping_moderation(request, moderation: ScrapingModeration):
+def render_scraping_moderation(request, moderation: ScrapingModeration, next_url):
     return render(request, f'pages/moderate_scraping.html', {
         'scraping_moderation': moderation,
         'scraping': moderation.scraping,
+        'next_url': next_url,
     })
