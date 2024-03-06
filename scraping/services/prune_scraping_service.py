@@ -65,7 +65,7 @@ def add_necessary_moderation(scraping: Scraping):
     moderations_to_delete = ScrapingModeration.objects\
         .filter(scraping__page__exact=scraping.page,
                 category=category)\
-        .filter(Q(scraping__exact=scraping) | Q(validated_at__isnull=True))
+        .filter(Q(scraping__exact=scraping) | Q(validated_at__isnull=True)).all()
 
     for moderation_to_delete in moderations_to_delete:
         if moderation_to_delete.scraping == scraping and moderations_to_delete.validated_at is None:
