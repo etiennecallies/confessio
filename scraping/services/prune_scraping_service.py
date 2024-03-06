@@ -61,14 +61,18 @@ def add_necessary_moderation(scraping: Scraping):
 
     category = ScrapingModeration.Category.CONFESSION_HTML_PRUNED_NEW
 
-    # First we delete every previous unvalidated moderation or validated current moderation
+    # First we delete every previous unvalidated moderation or current moderation
     moderations_to_delete = ScrapingModeration.objects\
         .filter(scraping__page__exact=scraping.page,
                 category=category)\
-        .filter(Q(scraping__exact=scraping) ^ Q(validated_at__isnull=True))  # ^ is XOR
+        .filter(Q(scraping__exact=scraping) | Q(validated_at__isnull=True))
 
     for moderation_to_delete in moderations_to_delete:
-        moderation_to_delete.delete()
+        if moderation_to_delete.scraping == scraping and moderations_to_delete.validated_at is None:
+            moderation_to_delete.confession_html_pruned = scraping.confession_html_pruned
+            moderation_to_delete.save()
+        else:
+            moderation_to_delete.delete()
 
     try:
         ScrapingModeration.objects.get(confession_html_pruned=scraping.confession_html_pruned)
