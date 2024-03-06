@@ -61,11 +61,11 @@ def add_necessary_moderation(scraping: Scraping):
 
     category = ScrapingModeration.Category.CONFESSION_HTML_PRUNED_NEW
 
-    # First we delete every previous unvalidated moderation and current moderation
+    # First we delete every previous unvalidated moderation or validated current moderation
     moderations_to_delete = ScrapingModeration.objects\
         .filter(scraping__page__exact=scraping.page,
                 category=category)\
-        .filter(Q(scraping__exact=scraping) | Q(validated_at__isnull=True))
+        .filter(Q(scraping__exact=scraping) ^ Q(validated_at__isnull=True))  # ^ is XOR
 
     for moderation_to_delete in moderations_to_delete:
         moderation_to_delete.delete()
