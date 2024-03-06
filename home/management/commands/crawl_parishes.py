@@ -13,11 +13,12 @@ class Command(AbstractCommand):
 
     def handle(self, *args, **options):
         if options['name']:
-            parishes = Parish.objects.filter(name__contains=options['name']).all()
+            parishes = Parish.objects.filter(is_active=True, name__contains=options['name']).all()
         elif options['no_success']:
-            parishes = Parish.objects.exclude(crawlings__nb_success_links__gt=0).all()
+            parishes = Parish.objects.filter(is_active=True)\
+                .exclude(crawlings__nb_success_links__gt=0).all()
         else:
-            parishes = Parish.objects.all()
+            parishes = Parish.objects.filter(is_active=True).all()
 
         for parish in parishes:
             self.info(f'Starting crawling for parish {parish.name} {parish.uuid}')

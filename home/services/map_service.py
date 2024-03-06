@@ -23,7 +23,7 @@ def get_churches_around(center) -> List[Church]:
 
     # TODO load parish and latest scraping at the same time
     churches = Church.objects\
-        .filter(location__dwithin=(center_as_point, D(km=5))) \
+        .filter(location__dwithin=(center_as_point, D(km=5)), parish__is_active=True) \
         .annotate(distance=Distance('location', center_as_point)) \
         .order_by('distance')[:MAX_CHURCHES_IN_RESULTS]
 
@@ -34,7 +34,8 @@ def get_churches_in_box(min_lat, max_lat, min_long, max_long) -> List[Church]:
     polygon = Polygon.from_bbox((min_long, min_lat, max_long, max_lat))
 
     # TODO load parish and latest scraping at the same time
-    churches = Church.objects.filter(location__within=polygon).all()[:MAX_CHURCHES_IN_RESULTS]
+    churches = Church.objects\
+        .filter(location__within=polygon, parish__is_active=True).all()[:MAX_CHURCHES_IN_RESULTS]
 
     return churches
 
