@@ -66,8 +66,9 @@ python manage.py scrape_parishes
 
 We use ansible to deploy to production. See [ansible README](./ansible/README.md) for instructions.
 
-On local machine you can check S3 backups like this:
+
 ### Database backup on S3
+On local machine you can check S3 backups like this:
 ```shell
 # add credentials, you will be asked for AWS access and secret key
 aws configure --profile confessio
@@ -75,6 +76,10 @@ aws configure --profile confessio
 aws s3 ls confessio-dbbackup-daily --profile confessio
 ```
 
+### Launch Django command in prod
+```shell
+./prod.sh manage crawl_parishes
+```
 ---
 
 # Legacy documentation of  [Django Pixel Bootstrap 5](https://appseed.us/product/pixel-bootstrap/django/)

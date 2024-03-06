@@ -1,0 +1,2 @@
+- name: Launch manage with extra_command
+  shell: ". {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py {{ extra_command }}"

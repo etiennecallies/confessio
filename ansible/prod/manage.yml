@@ -1,0 +1,5 @@
+- name: runs a django manage.py command
+  hosts: all
+  user: ubuntu
+  roles:
+    - manage
