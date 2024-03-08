@@ -149,12 +149,32 @@ class Sentence(TimeStampMixin):
 ##############
 
 class ModerationMixin(TimeStampMixin):
-    validated_at = models.DateTimeField(null=True)
-    validated_by = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
-
     @property
     @abstractmethod
     def resource(self):
+        pass
+
+    validated_at = models.DateTimeField(null=True)
+    marked_as_bug_at = models.DateTimeField(null=True)
+
+    @property
+    @abstractmethod
+    def validated_by(self):
+        pass
+
+    @validated_by.setter
+    @abstractmethod
+    def validated_by(self, validated_by):
+        pass
+
+    @property
+    @abstractmethod
+    def marked_as_bug_by(self):
+        pass
+
+    @marked_as_bug_by.setter
+    @abstractmethod
+    def marked_as_bug_by(self, marked_as_bug_by):
         pass
 
     @property
@@ -166,12 +186,29 @@ class ModerationMixin(TimeStampMixin):
         abstract = True
 
     @classmethod
-    def get_stats_by_category(cls):
-        return list(map(lambda d: d | {
+    def get_category_stat(cls, stat, is_bug: bool, count: int):
+        return {
             'resource': cls.resource,
-            'url': reverse('moderate_next_' + str(cls.resource), kwargs={'category': d['category']})
-        }, cls.objects.filter(validated_at__isnull=True).all()
-                        .values('category').annotate(total=Count('category'))))
+            'url': reverse('moderate_next_' + str(cls.resource),
+                           kwargs={'category': stat['category'], 'is_bug': is_bug}),
+            'category': stat['category'],
+            'is_bug': is_bug,
+            'total': count,
+        }
+
+    @classmethod
+    def get_stats_by_category(cls):
+        stats = []
+        query_stats = cls.objects.filter(validated_at__isnull=True).all().values('category')\
+            .annotate(total_count=Count('category'), bug_count=Count('marked_as_bug_at'))
+        for stat in query_stats:
+            if stat['bug_count']:
+                stats.append(cls.get_category_stat(stat, is_bug=True, count=stat['bug_count']))
+            if stat['total_count'] - stat['bug_count']:
+                stats.append(cls.get_category_stat(stat, is_bug=False,
+                                                   count=stat['total_count'] - stat['bug_count']))
+
+        return stats
 
     def validate(self, user: User):
         if self.delete_on_validate():
@@ -185,6 +222,11 @@ class ModerationMixin(TimeStampMixin):
     def delete_on_validate(self) -> bool:
         pass
 
+    def mark_as_bug(self, user: User):
+        self.marked_as_bug_at = Now()
+        self.marked_as_bug_by = user
+        self.save()
+
 
 class ParishModeration(ModerationMixin):
     class Category(models.TextChoices):
@@ -194,6 +236,10 @@ class ParishModeration(ModerationMixin):
         HOME_URL_NO_CONFESSION = "hu_no_conf"
 
     resource = 'parish'
+    validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
+                                     on_delete=models.SET_NULL, null=True)
+    marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
+                                         on_delete=models.SET_NULL, null=True)
     parish = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=11, choices=Category)
 
@@ -220,6 +266,10 @@ class ChurchModeration(ModerationMixin):
         LOCATION_FROM_API = "loc_api"
 
     resource = 'church'
+    validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
+                                     on_delete=models.SET_NULL, null=True)
+    marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
+                                         on_delete=models.SET_NULL, null=True)
     church = models.ForeignKey('Church', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=8, choices=Category)
 
@@ -238,6 +288,10 @@ class ScrapingModeration(ModerationMixin):
         CONFESSION_HTML_PRUNED_NEW = "chp_new"
 
     resource = 'scraping'
+    validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
+                                     on_delete=models.SET_NULL, null=True)
+    marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
+                                         on_delete=models.SET_NULL, null=True)
     scraping = models.ForeignKey('Scraping', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=7, choices=Category)
 

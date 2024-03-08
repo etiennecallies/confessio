@@ -43,7 +43,7 @@
                                 <ul class="list-style-none">
                                     {% get_moderation_stats as moderation_stats %}
                                     {% for moderation_stat in moderation_stats %}
-                                        <li><a class="dropdown-item" href="{{ moderation_stat|get_item:'url' }}">{{ moderation_stat|get_item:'resource' }} {{ moderation_stat|get_item:'category' }} {{ moderation_stat|get_item:'total' }}</a></li>
+                                        <li><a class="dropdown-item" href="{{ moderation_stat|get_item:'url' }}">{{ moderation_stat|get_item:'resource' }} {{ moderation_stat|get_item:'category' }}{% if moderation_stat|get_item:'is_bug' %} <span class="badge badge-danger m-1">Bug</span>{% endif %} {{ moderation_stat|get_item:'total' }}</a></li>
                                     {% endfor %}
                                 </ul>
                             </div>

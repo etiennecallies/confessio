@@ -7,17 +7,23 @@ from home.models import ParishModeration, ChurchModeration, ScrapingModeration, 
 from scraping.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 
 
-def redirect_to_moderation(moderation: ModerationMixin, category: str, resource: str):
+def redirect_to_moderation(moderation: ModerationMixin, category: str, resource: str, is_bug: bool):
     if moderation is None:
         return redirect('index')
     else:
         return redirect(f'moderate_one_' + resource,
                         category=category,
+                        is_bug=is_bug,
                         moderation_uuid=moderation.uuid)
 
 
-def get_moderate_response(request, category: str, resource: str,
+def get_moderate_response(request, category: str, resource: str, is_bug_as_str: bool,
                           class_moderation, moderation_uuid, render_moderation):
+    if is_bug_as_str not in ['True', 'False']:
+        return HttpResponseBadRequest(f"is_bug_as_str {is_bug_as_str} is not valid")
+
+    is_bug = is_bug_as_str == 'True'
+
     if category not in class_moderation.Category.values:
         return HttpResponseBadRequest(f"category {category} is not valid for {resource}")
 
@@ -25,10 +31,10 @@ def get_moderate_response(request, category: str, resource: str,
         created_after_ts = int(request.GET.get('created_after', '0'))
         created_after = ts_us_to_datetime(created_after_ts)
         next_moderation = class_moderation.objects.filter(
-            category=category, validated_at__isnull=True,
+            category=category, validated_at__isnull=True, marked_as_bug_at__isnull=not is_bug,
             created_at__gt=created_after) \
             .order_by('created_at').first()
-        return redirect_to_moderation(next_moderation, category, resource)
+        return redirect_to_moderation(next_moderation, category, resource, is_bug)
 
     try:
         moderation = class_moderation.objects.get(uuid=moderation_uuid)
@@ -36,13 +42,17 @@ def get_moderate_response(request, category: str, resource: str,
         print(f"{resource} {moderation_uuid} not found. "
               f"Probably because problem was solved meanwhile. "
               f"Redirecting to first moderation.")
-        return redirect('moderate_next_' + resource, category=category)
+        return redirect('moderate_next_' + resource, category=category, is_bug=is_bug)
 
     created_at_ts_us = datetime_to_ts_us(moderation.created_at)
-    next_url = reverse('moderate_next_' + resource,
-                       kwargs={'category': category}) + f'?created_after={created_at_ts_us}'
+    next_url = \
+        reverse('moderate_next_' + resource, kwargs={'category': category, 'is_bug': is_bug}) \
+        + f'?created_after={created_at_ts_us}'
     if request.method == "POST":
-        moderation.validate(request.user)
+        if 'mark_as_bug' in request.POST:
+            moderation.mark_as_bug(request.user)
+        else:
+            moderation.validate(request.user)
 
         return redirect(next_url)
 
@@ -51,9 +61,9 @@ def get_moderate_response(request, category: str, resource: str,
 
 @login_required
 @permission_required("home.change_sentence")
-def moderate_parish(request, category, moderation_uuid=None):
-    return get_moderate_response(request, category, 'parish', ParishModeration, moderation_uuid,
-                                 render_parish_moderation)
+def moderate_parish(request, category, is_bug, moderation_uuid=None):
+    return get_moderate_response(request, category, 'parish', is_bug, ParishModeration,
+                                 moderation_uuid, render_parish_moderation)
 
 
 def render_parish_moderation(request, moderation: ParishModeration, next_url):
@@ -67,9 +77,9 @@ def render_parish_moderation(request, moderation: ParishModeration, next_url):
 
 @login_required
 @permission_required("home.change_sentence")
-def moderate_church(request, category, moderation_uuid=None):
-    return get_moderate_response(request, category, 'church', ChurchModeration, moderation_uuid,
-                                 render_church_moderation)
+def moderate_church(request, category, is_bug, moderation_uuid=None):
+    return get_moderate_response(request, category, 'church', is_bug, ChurchModeration,
+                                 moderation_uuid, render_church_moderation)
 
 
 def render_church_moderation(request, moderation: ChurchModeration, next_url):
@@ -82,9 +92,9 @@ def render_church_moderation(request, moderation: ChurchModeration, next_url):
 
 @login_required
 @permission_required("home.change_sentence")
-def moderate_scraping(request, category, moderation_uuid=None):
-    return get_moderate_response(request, category, 'scraping', ScrapingModeration, moderation_uuid,
-                                 render_scraping_moderation)
+def moderate_scraping(request, category, is_bug, moderation_uuid=None):
+    return get_moderate_response(request, category, 'scraping', is_bug, ScrapingModeration,
+                                 moderation_uuid, render_scraping_moderation)
 
 
 def render_scraping_moderation(request, moderation: ScrapingModeration, next_url):

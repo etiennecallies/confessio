@@ -35,6 +35,15 @@
             <button type="submit" class="btn btn-primary">Validate & next</button>
             </form>
         </div>
+        {% if not parish_moderation.marked_as_bug_at %}
+            <div class="d-inline-block">
+                <form method="post">
+                <input type="hidden" name="mark_as_bug">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Report bug & next</button>
+                </form>
+            </div>
+        {% endif %}
         <div class="d-inline-block">
             <a class="btn btn-info" role="button" href="{{ next_url }}">Next</a>
         </div>

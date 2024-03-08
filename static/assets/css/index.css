@@ -179,4 +179,12 @@ table {
   .btn-fixed-outline-purple:disabled, .btn-fixed-outline-purple.disabled {
     color: #6f42c1;
     background-color: transparent; }
-  
+
+
+/* Not included in  pixel css ...
+https://themesberg.com/docs/pixel-bootstrap/components/badges/
+*/
+.badge-danger {
+    color: #fff;
+    background-color: #A91E2C
+}
