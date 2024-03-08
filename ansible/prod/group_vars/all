@@ -49,3 +49,4 @@ aws_secret_key: "{{ lookup('ansible.builtin.env', 'AWS_SECRET_KEY') }}"
 
 # SSH
 additional_pub_key1: "{{ lookup('ansible.builtin.env', 'ADDITIONAL_PUB_KEY1') }}"
+whitelisted_ip1: "{{ lookup('ansible.builtin.env', 'WHITELISTED_IP1') }}"

@@ -8,6 +8,16 @@
   service: name=postgresql enabled=yes state=started
   become: true
 
+- name: Modify listen_addresses in postgresql.conf to accept remote connection
+  lineinfile:
+    path: /etc/postgresql/15/main/postgresql.conf
+    regexp: "^#?listen_addresses = '.*'"
+    line: "listen_addresses = '*'"
+    state: present
+  become: true
+  notify:
+    - restart postgres
+
 - name: Configure a new postgresql user
   postgresql_user:
     name: "{{ db_user }}"
