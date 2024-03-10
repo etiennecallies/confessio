@@ -1,4 +1,5 @@
 from abc import abstractmethod
+from typing import Optional
 
 from django.contrib.auth.models import User
 from django.contrib.gis.db import models as gis_models
@@ -9,6 +10,8 @@ from django.urls import reverse
 
 from home.models.base_models import TimeStampMixin
 
+BUG_DESCRIPTION_MAX_LENGTH = 200
+
 
 class ModerationMixin(TimeStampMixin):
     @property
@@ -18,6 +21,8 @@ class ModerationMixin(TimeStampMixin):
 
     validated_at = models.DateTimeField(null=True)
     marked_as_bug_at = models.DateTimeField(null=True)
+    bug_description = models.CharField(max_length=BUG_DESCRIPTION_MAX_LENGTH, null=True,
+                                       default=None)
 
     @property
     @abstractmethod
@@ -84,9 +89,10 @@ class ModerationMixin(TimeStampMixin):
     def delete_on_validate(self) -> bool:
         pass
 
-    def mark_as_bug(self, user: User):
+    def mark_as_bug(self, user: User, bug_description: Optional[str]):
         self.marked_as_bug_at = Now()
         self.marked_as_bug_by = user
+        self.bug_description = bug_description
         self.save()
 
 

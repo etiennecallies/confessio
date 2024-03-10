@@ -3,7 +3,8 @@ from django.http import HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
-from home.models import ParishModeration, ChurchModeration, ScrapingModeration, ModerationMixin
+from home.models import ParishModeration, ChurchModeration, ScrapingModeration, ModerationMixin, \
+    BUG_DESCRIPTION_MAX_LENGTH
 from scraping.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 
 
@@ -49,8 +50,12 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
         reverse('moderate_next_' + resource, kwargs={'category': category, 'is_bug': is_bug}) \
         + f'?created_after={created_at_ts_us}'
     if request.method == "POST":
-        if 'mark_as_bug' in request.POST:
-            moderation.mark_as_bug(request.user)
+        if 'bug_description' in request.POST:
+            bug_description = request.POST.get('bug_description')
+            if bug_description is not None and len(bug_description) > BUG_DESCRIPTION_MAX_LENGTH:
+                return HttpResponseBadRequest(f"bug_description is len {len(bug_description)} but "
+                                              f"max size is {BUG_DESCRIPTION_MAX_LENGTH}")
+            moderation.mark_as_bug(request.user, bug_description)
         else:
             moderation.validate(request.user)
 
@@ -72,6 +77,7 @@ def render_parish_moderation(request, moderation: ParishModeration, next_url):
         'parish': moderation.parish,
         'latest_crawling': moderation.parish.get_latest_crawling(),
         'next_url': next_url,
+        'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
     })
 
 
@@ -87,6 +93,7 @@ def render_church_moderation(request, moderation: ChurchModeration, next_url):
         'church_moderation': moderation,
         'church': moderation.church,
         'next_url': next_url,
+        'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
     })
 
 
@@ -102,4 +109,5 @@ def render_scraping_moderation(request, moderation: ScrapingModeration, next_url
         'scraping_moderation': moderation,
         'scraping': moderation.scraping,
         'next_url': next_url,
+        'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
     })
