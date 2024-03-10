@@ -32,6 +32,10 @@ def clean_parsed_url(url_parsed: ParseResult) -> ParseResult:
 
     url_parsed = url_parsed._replace(fragment='')
 
+    netloc = url_parsed.netloc
+    if netloc.endswith(' '):
+        url_parsed = url_parsed._replace(netloc=netloc.strip())
+
     return url_parsed
 
 

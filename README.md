@@ -80,6 +80,14 @@ aws s3 ls confessio-dbbackup-daily --profile confessio
 ```shell
 ./prod.sh manage crawl_parishes
 ```
+
+## Check data integrity
+```postgresql
+-- Check that no home_url ends with slash
+select name, home_url from home_parish hp where home_url like '%/';
+-- Check that no home_url ends with space
+select name, home_url from home_parish hp where home_url like '% ';
+```
 ---
 
 # Legacy documentation of  [Django Pixel Bootstrap 5](https://appseed.us/product/pixel-bootstrap/django/)
