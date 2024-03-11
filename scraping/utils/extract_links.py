@@ -21,6 +21,7 @@ CONFESSIONS_OR_SCHEDULES_MENTIONS = [
     'careme',
     'paques',
     'pascal',
+    'priere',
 ]
 
 
