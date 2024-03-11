@@ -5,6 +5,7 @@ from django.shortcuts import render
 from home.models import Page
 from home.services.qualify_service import get_colored_pieces, save_sentence
 from scraping.services.prune_scraping_service import prune_scraping_and_save
+from scraping.utils.hash_utils import hash_string_to_hex
 
 
 @login_required
@@ -20,11 +21,14 @@ def qualify_page(request, page_uuid):
         return HttpResponseBadRequest("No scraping for this page")
 
     confession_html = latest_scraping.confession_html
-    confession_html_hash = hash(confession_html)
+    if not confession_html:
+        return HttpResponseNotFound("No more confession_html on this page")
+
+    confession_html_hash = hash_string_to_hex(confession_html)
 
     if request.method == "POST":
         confession_html_hash_post = request.POST.get('confession_html_hash')
-        if not confession_html_hash_post or confession_html_hash != int(confession_html_hash_post):
+        if not confession_html_hash_post or confession_html_hash != confession_html_hash_post:
             return HttpResponseBadRequest("confession_html has changed in the mean time")
 
         # We get previous color
