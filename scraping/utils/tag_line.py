@@ -25,11 +25,15 @@ SCHEDULES_MENTIONS = [
 
 SCHEDULES_REGEX = [
     r'\dh',
+    r'\d h',
     r'\d\dh',
+    r'\d\d h',
     r'\dh\d\d',
+    r'\d h \d\d',
     r'\d\dh\d\d',
-    r'\d\d:\d\d',
+    r'\d\d h \d\d',
     r'\d:\d\d',
+    r'\d\d:\d\d',
 ]
 
 SCHEDULES_EXPR = [

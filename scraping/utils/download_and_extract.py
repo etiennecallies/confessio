@@ -27,7 +27,8 @@ if __name__ == '__main__':
         # ('https://www.fourviere.org/fr/prier-notre-dame-de-fourviere/priere-et-celebrations/confessions/', 'html_page'),
         # ('https://www.paroissedevaise.fr/evenements/categorie/pardon/jour/2023-09-14/', 'html_page'),
         # ('https://www.paroissedevaise.fr/event/apres-midi-du-pardon-a-ecully/', 'html_page'),
-        ('https://notredamedeslumieres-caluire.paroisse.net/rubriques/droite/approfondir-sa-foi-1/reconciliation', 'html_page'),
+        # ('https://notredamedeslumieres-caluire.paroisse.net/rubriques/droite/approfondir-sa-foi-1/reconciliation', 'html_page'),
+        ('http://www.paroisses-pentes-et-saone.fr/soiree-confessions-avec-adoration/', 'html_page'),
     ]
 
     for url_, page_type_ in confession_pages:

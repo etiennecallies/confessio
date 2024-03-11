@@ -12,7 +12,7 @@ def get_words(content, punctuation=None):
     for char in (punctuation or string.punctuation):
         content = content.replace(char, ' ')
 
-    return set(content.split())
+    return content.split()
 
 
 def get_punctuation_except(regex_list):
@@ -24,13 +24,17 @@ def get_punctuation_except(regex_list):
     return result
 
 
+def get_consecutive_words(words, k):
+    return [" ".join([words[i + j] for j in range(k)]) for i in range(len(words) + 1 - k)]
+
+
 def has_any_of_words(content: str, lexical_list, expr_list=None, regex_list=None):
     normalized_content = normalize_content(content)
 
     if lexical_list:
-        words = get_words(normalized_content)
+        words_set = set(get_words(normalized_content))
         for mention in lexical_list:
-            if mention in words:
+            if mention in words_set:
                 return True
 
     if expr_list:
@@ -42,7 +46,8 @@ def has_any_of_words(content: str, lexical_list, expr_list=None, regex_list=None
         punctuation = get_punctuation_except(regex_list)
         words = get_words(normalized_content, punctuation)
         for regex in regex_list:
-            for w in words:
+            k = len(regex.split())  # number of words in regex
+            for w in get_consecutive_words(words, k):
                 if re.fullmatch(regex, w):
                     return True
 

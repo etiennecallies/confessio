@@ -51,7 +51,7 @@ class MyTestCase(unittest.TestCase):
 
     def test_get_words(self):
         content = 'Bonjour, les confessions sont à 13h le mardi.'
-        expected_words = {'Bonjour', 'les', 'confessions', 'sont', 'à', '13h', 'le', 'mardi'}
+        expected_words = ['Bonjour', 'les', 'confessions', 'sont', 'à', '13h', 'le', 'mardi']
         words = get_words(content)
         self.assertEqual(words, expected_words)
 
@@ -69,6 +69,12 @@ class MyTestCase(unittest.TestCase):
 
     def test_is_schedule_description_hour(self):
         content = "18:00 - 19:00"
+        self.assertTrue(is_schedule_description(content))
+
+    def test_is_schedule_description_spcae(self):
+        content = "Profitons en quel que soit notre âge d’une soirée « Confessions  et  " \
+                  "Adoration »,  le jeudi 21 décembre  de 20 h à 21 h 30 à la Paroisse " \
+                  "Notre Dame Saint-Vincent."
         self.assertTrue(is_schedule_description(content))
 
 
