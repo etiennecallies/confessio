@@ -1,4 +1,4 @@
-from typing import List, Set
+from typing import Set
 
 from django.db.models import Q
 from django.db.models.functions import Now
