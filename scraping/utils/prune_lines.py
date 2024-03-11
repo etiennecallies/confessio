@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, Set
 
 from scraping.utils.tag_line import Tag
 
@@ -19,7 +19,7 @@ class PreBuffer:
             [self.last_place_line, self.last_date_line, self.last_place_line]
         ))
 
-    def from_tags(self, tags: List[Tag], i: int):
+    def from_tags(self, tags: Set[Tag], i: int):
         if Tag.PERIOD in tags:
             self.last_period_line = i
         if Tag.DATE in tags:
@@ -42,7 +42,7 @@ class PostBuffer:
     is_post_schedule: bool = False
     remaining_attempts: int = MAX_BUFFERING_ATTEMPTS
 
-    def add_line(self, i: int, tags: List[Tag], results: List[int]):
+    def add_line(self, i: int, tags: Set[Tag], results: List[int]):
         self.buffer.append(i)
         self.is_post_schedule = self.is_post_schedule or Tag.SCHEDULE in tags
         self.remaining_attempts = MAX_BUFFERING_ATTEMPTS
@@ -50,7 +50,7 @@ class PostBuffer:
             results.extend(self.buffer)
             self.buffer = []
 
-    def decrement(self, i: int, tags: List[Tag]) -> 'Optional[PostBuffer]':
+    def decrement(self, i: int, tags: Set[Tag]) -> 'Optional[PostBuffer]':
         if self.remaining_attempts == 0:
             return None
 
@@ -61,7 +61,7 @@ class PostBuffer:
         return self
 
 
-def get_pruned_lines_indices(lines_and_tags: List[Tuple[str, str, List[Tag]]]) -> List[int]:
+def get_pruned_lines_indices(lines_and_tags: List[Tuple[str, str, Set[Tag]]]) -> List[int]:
     results = []
     pre_buffer: Optional[PreBuffer] = None
     post_buffer: Optional[PostBuffer] = None

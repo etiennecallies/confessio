@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Set
 
 from django.db.models import Q
 from django.db.models.functions import Now
@@ -15,7 +15,7 @@ from scraping.utils.tag_line import Tag, get_tags_with_regex
 ###################
 
 class SentenceFromDbTagInterface(BaseTagInterface):
-    def get_tags(self, line_without_link: str) -> List[Tag]:
+    def get_tags(self, line_without_link: str) -> Set[Tag]:
         try:
             return tags_from_sentence(Sentence.objects.get(line=line_without_link))
         except Sentence.DoesNotExist:
@@ -24,28 +24,28 @@ class SentenceFromDbTagInterface(BaseTagInterface):
         return get_tags_with_regex(line_without_link)
 
 
-def tags_from_sentence(sentence: Sentence) -> List[Tag]:
-    tags = []
+def tags_from_sentence(sentence: Sentence) -> Set[Tag]:
+    tags = set()
     if sentence.is_confession:
-        tags.append(Tag.CONFESSION)
+        tags.add(Tag.CONFESSION)
 
     if sentence.is_schedule:
-        tags.append(Tag.SCHEDULE)
+        tags.add(Tag.SCHEDULE)
 
     if sentence.is_date:
-        tags.append(Tag.DATE)
+        tags.add(Tag.DATE)
 
     if sentence.is_period:
-        tags.append(Tag.PERIOD)
+        tags.add(Tag.PERIOD)
 
     if sentence.is_place:
-        tags.append(Tag.PLACE)
+        tags.add(Tag.PLACE)
 
     if sentence.is_spiritual:
-        tags.append(Tag.SPIRITUAL)
+        tags.add(Tag.SPIRITUAL)
 
     if sentence.is_other:
-        tags.append(Tag.OTHER)
+        tags.add(Tag.OTHER)
 
     return tags
 

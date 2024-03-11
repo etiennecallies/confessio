@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import List, Tuple
+from typing import List, Tuple, Set
 
 from scraping.utils.prune_lines import get_pruned_lines_indices
 from scraping.utils.refine_content import refine_confession_content, remove_link_from_html
@@ -12,12 +12,12 @@ from scraping.utils.tag_line import Tag, get_tags_with_regex
 
 class BaseTagInterface:
     @abstractmethod
-    def get_tags(self, line_without_link: str) -> List[Tag]:
+    def get_tags(self, line_without_link: str) -> Set[Tag]:
         pass
 
 
 class RegexOnlyTagInterface(BaseTagInterface):
-    def get_tags(self, line_without_link: str) -> List[Tag]:
+    def get_tags(self, line_without_link: str) -> Set[Tag]:
         return get_tags_with_regex(line_without_link)
 
 
@@ -25,7 +25,8 @@ class RegexOnlyTagInterface(BaseTagInterface):
 # EXTRACT ON REFINED #
 ######################
 
-def split_and_tag(refined_content: str, tag_interface: BaseTagInterface) -> List[Tuple[str, str, List[Tag]]]:
+def split_and_tag(refined_content: str, tag_interface: BaseTagInterface
+                  ) -> List[Tuple[str, str, Set[Tag]]]:
     results = []
 
     # Split into lines (or <table>)

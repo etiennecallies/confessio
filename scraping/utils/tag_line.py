@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List
+from typing import Set
 
 from scraping.utils.string_search import has_any_of_words
 
@@ -131,18 +131,18 @@ class Tag(str, Enum):
 # MAIN #
 ########
 
-def get_tags_with_regex(line_without_link: str) -> List[Tag]:
-    tags = []
+def get_tags_with_regex(line_without_link: str) -> Set[Tag]:
+    tags = set()
     if is_confession_mentions(line_without_link):
-        tags.append(Tag.CONFESSION)
+        tags.add(Tag.CONFESSION)
 
     if is_schedule_description(line_without_link):
-        tags.append(Tag.SCHEDULE)
+        tags.add(Tag.SCHEDULE)
 
     if is_date_description(line_without_link):
-        tags.append(Tag.DATE)
+        tags.add(Tag.DATE)
 
     if is_period_description(line_without_link):
-        tags.append(Tag.PERIOD)
+        tags.add(Tag.PERIOD)
 
     return tags

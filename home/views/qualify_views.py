@@ -2,8 +2,8 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponseNotFound, HttpResponseBadRequest
 from django.shortcuts import render
 
-from home.models import Page, Sentence
-from home.services.qualify_service import get_colored_pieces, update_sentence
+from home.models import Page
+from home.services.qualify_service import get_colored_pieces, save_sentence
 from scraping.services.prune_scraping_service import prune_scraping_and_save
 
 
@@ -31,21 +31,12 @@ def qualify_page(request, page_uuid):
         colored_pieces = get_colored_pieces(confession_html)
         for piece in colored_pieces:
             line_without_link = piece['text_without_link']
-            try:
-                sentence = Sentence.objects.get(line=line_without_link)
-            except Sentence.DoesNotExist:
-                sentence = Sentence(
-                    line=line_without_link,
-                    scraping=latest_scraping,
-                    updated_by=request.user,
-                )
 
             checked_per_tag = {}
             for tag_name, tag in piece['tags'].items():
                 checked_per_tag[tag_name] = request.POST.get(tag['id']) == 'on'
-            update_sentence(sentence, checked_per_tag)
 
-            sentence.save()
+            save_sentence(line_without_link, latest_scraping, request.user, checked_per_tag)
 
         prune_scraping_and_save(latest_scraping)
 

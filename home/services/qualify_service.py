@@ -1,8 +1,10 @@
-from home.models import Sentence
+from django.contrib.auth.models import User
+
+from home.models import Sentence, Scraping
 from scraping.services.prune_scraping_service import SentenceFromDbTagInterface
 from scraping.utils.extract_content import split_and_tag
 from scraping.utils.prune_lines import get_pruned_lines_indices
-from scraping.utils.tag_line import Tag
+from scraping.utils.tag_line import Tag, get_tags_with_regex
 
 
 ############################
@@ -65,3 +67,25 @@ def update_sentence(sentence: Sentence, checked_per_tag):
             sentence.is_spiritual = checked
         if tag_name == Tag.OTHER:
             sentence.is_other = checked
+
+
+def save_sentence(line_without_link: str, scraping: Scraping, user: User,
+                  checked_per_tag: dict[str, bool]):
+    regex_tags = get_tags_with_regex(line_without_link)
+    checked_tags = set([Tag(tag_name) for tag_name, checked in checked_per_tag.items() if checked])
+    if regex_tags == checked_tags:
+        # We don't save sentence if tags are equal with regex
+        return
+
+    try:
+        sentence = Sentence.objects.get(line=line_without_link)
+    except Sentence.DoesNotExist:
+        sentence = Sentence(
+            line=line_without_link,
+            scraping=scraping,
+            updated_by=user,
+        )
+
+    update_sentence(sentence, checked_per_tag)
+
+    sentence.save()
