@@ -7,8 +7,13 @@ fi
 
 source .env;
 
-# In case of manage, we store the django command in EXTRA_COMMAND variable
-NEXT_ARGUMENTS=("${@:2}")
-EXTRA_COMMAND=$(IFS=' '; echo "${NEXT_ARGUMENTS[*]}")
+# Assigning the first argument to ansible playbook variable
+ansible_playbook=$1
 
-ANSIBLE_CONFIG=ansible/ansible.cfg ansible-playbook ansible/prod/$1.yml -K -u ubuntu -i ansible/prod/hosts -vvv --extra-vars '{"extra_command": "'$EXTRA_COMMAND'"}'
+# Shift the arguments so the rest represent the command to be executed on the prod server
+shift
+
+# In case of manage, we store the django command in extra_vars variable
+extra_vars=$(printf '{"extra_command": "%s"}' "$*")
+
+ANSIBLE_CONFIG=ansible/ansible.cfg ansible-playbook ansible/prod/$ansible_playbook.yml -K -u ubuntu -i ansible/prod/hosts -vvv --extra-vars "$extra_vars"

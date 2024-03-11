@@ -80,6 +80,7 @@ aws s3 ls confessio-dbbackup-daily --profile confessio
 ### Launch Django command in prod
 ```shell
 ./prod.sh manage crawl_parishes
+./prod.sh manage "crawl_parishes -n 'Sainte Claire Entre Loire et Rhins'"
 ```
 
 ## Check data integrity
