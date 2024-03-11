@@ -42,8 +42,9 @@ $ python manage.py runserver
 At this point, the app runs at `http://127.0.0.1:8000/`.
 ## Testing
 ```shell
-python -m unittest
-OR
+# without django loading
+python -m unittest discover scraping
+# OR with django loading
 python manage.py test
 ```
 
