@@ -62,12 +62,20 @@
                                 <div class="card-body px-md-5 py-md-5 text-left">
                                     <div class="row align-items-center">
                                         <div class="col-12">
-                                            <h2 class="mb-3">
-                                                <a class="link-info"
-                                                    href="{{ parish.home_url }}">
-                                                    {{ parish.name }}
-                                                </a>
-                                            </h2>
+                                            <div class="row mb-3">
+                                                <h3 class="col-md-8">
+                                                    <a class="link-info"
+                                                        href="{% url 'index' %}?parishUuid={{ parish.uuid }}">
+                                                        {{ parish.name }}
+                                                    </a>
+                                                </h3>
+                                                <h3 class="col-md-4 text-md-end">
+                                                    <span class="small"><span class="small">
+                                                    <a class="text-muted small" href="{{ parish.home_url }}">{% trans 'goToParishSite' %}
+                                                        <i class="fas fa-up-right-from-square"></i>
+                                                    </a></span></span>
+                                                </h3>
+                                            </div>
                                             {% for church in parish_churches|get_item:parish.uuid %}
                                                 <div class="row">
                                                     <p class="col-md-9">

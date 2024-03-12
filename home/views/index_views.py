@@ -1,6 +1,10 @@
+from django.core.exceptions import ValidationError
+from django.http import HttpResponseNotFound
 from django.shortcuts import render
 
-from home.services.map_service import get_churches_in_box, get_churches_around, prepare_map
+from home.models import Parish
+from home.services.map_service import get_churches_in_box, get_churches_around, prepare_map, \
+    get_churches_by_parish, get_center
 from home.services.page_url_service import get_page_url_with_pointer
 
 
@@ -14,12 +18,23 @@ def index(request):
     max_lat = request.GET.get('maxLat', '')
     max_lng = request.GET.get('maxLng', '')
 
+    parish_uuid = request.GET.get('parishUuid', '')
+
     if min_lat and min_lng and max_lat and max_lng:
         min_lat, max_lat, min_lng, max_lng = \
             float(min_lat), float(max_lat), float(min_lng), float(max_lng)
         bounds = (min_lat, max_lat, min_lng, max_lng)
         center = [min_lat + max_lat / 2, min_lng + max_lng / 2]
         churches = get_churches_in_box(min_lat, max_lat, min_lng, max_lng)
+    elif parish_uuid:
+        try:
+            parish = Parish.objects.get(uuid=parish_uuid, is_active=True)
+        except (ValidationError, Parish.DoesNotExist):
+            return HttpResponseNotFound("Parish dos not exist with this uuid")
+
+        bounds = None
+        churches = get_churches_by_parish(parish)
+        center = get_center(churches)
     else:
         bounds = None
 

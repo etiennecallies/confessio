@@ -1,3 +1,4 @@
+from statistics import mean
 from typing import List, Tuple, Dict
 from uuid import UUID
 
@@ -6,7 +7,7 @@ from django.contrib.gis.geos import Point, Polygon
 from django.contrib.gis.measure import D
 from django.utils.translation import gettext as _
 
-from home.models import Church
+from home.models import Church, Parish
 from folium import Map, Icon, Popup, Marker
 
 
@@ -40,9 +41,24 @@ def get_churches_in_box(min_lat, max_lat, min_long, max_long) -> List[Church]:
     return churches
 
 
+def get_churches_by_parish(parish: Parish) -> List[Church]:
+    # TODO load parish and latest scraping at the same time
+    churches = Church.objects\
+        .filter(parish=parish).all()[:MAX_CHURCHES_IN_RESULTS]
+
+    return churches
+
+
 ###########
 # DISPLAY #
 ###########
+
+def get_center(churches: List[Church]) -> List[float]:
+    latitude = mean(map(lambda c: c.location.y, churches))
+    longitude = mean(map(lambda c: c.location.x, churches))
+
+    return [latitude, longitude]
+
 
 def get_latitude_longitude(point):
     return [point.coords[1], point.coords[0]]
