@@ -1,5 +1,6 @@
 import json
 from dataclasses import dataclass
+from difflib import SequenceMatcher
 from typing import Optional
 
 import requests
@@ -47,7 +48,7 @@ def get_data_gouv_response(query) -> list[AutocompleteResult]:
 
 
 def get_parish_by_name_response(query) -> list[AutocompleteResult]:
-    parishes = Parish.objects.filter(is_active=True, name__contains=query)\
+    parishes = Parish.objects.filter(is_active=True, name__icontains=query)\
         [:MAX_AUTOCOMPLETE_RESULTS]
 
     results = []
@@ -61,10 +62,23 @@ def get_parish_by_name_response(query) -> list[AutocompleteResult]:
     return results
 
 
+def get_distance(query, result: AutocompleteResult) -> float:
+    return SequenceMatcher(None, query, result.name).ratio()
+
+
+def sort_results(query, results: list[AutocompleteResult]) -> list[AutocompleteResult]:
+    tuples = zip(map(lambda r: get_distance(query, r), results), results)
+    sorted_tuples = sorted(tuples, key=lambda t: t[0])
+    _, sorted_values = zip(*sorted_tuples)
+
+    return sorted_values
+
+
 def get_aggreagated_response(query) -> list[AutocompleteResult]:
     # TODO async call
     data_gouv_results = get_data_gouv_response(query)
     parish_by_name_results = get_parish_by_name_response(query)
 
-    # TODO merge and sort
-    return data_gouv_results + parish_by_name_results
+    sorted_results = sort_results(query, data_gouv_results + parish_by_name_results)
+
+    return sorted_results[:MAX_AUTOCOMPLETE_RESULTS]
