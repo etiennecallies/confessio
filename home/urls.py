@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
     # index
     path('', views.index, name='index'),
+    path('autocomplete', views.autocomplete, name='autocomplete'),
 
     # qualify
     path('qualify-page/<uuid:page_uuid>', views.qualify_page, name='qualify_page'),

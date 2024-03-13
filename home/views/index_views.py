@@ -1,8 +1,11 @@
+import dataclasses
+
 from django.core.exceptions import ValidationError
-from django.http import HttpResponseNotFound
+from django.http import HttpResponseNotFound, JsonResponse
 from django.shortcuts import render
 
 from home.models import Parish
+from home.services.autocomplete_service import get_aggreagated_response
 from home.services.map_service import get_churches_in_box, get_churches_around, prepare_map, \
     get_churches_by_parish, get_center
 from home.services.page_url_service import get_page_url_with_pointer
@@ -89,3 +92,11 @@ def index(request):
     }
 
     return render(request, 'pages/index.html', context)
+
+
+def autocomplete(request):
+    query = request.GET.get('query', '')
+    results = get_aggreagated_response(query)
+    response = list(map(dataclasses.asdict, results))
+
+    return JsonResponse(response, safe=False)
