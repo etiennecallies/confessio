@@ -163,7 +163,7 @@ class ScrapingModeration(ModerationMixin):
     scraping = models.ForeignKey('Scraping', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=7, choices=Category)
 
-    confession_html_pruned = models.TextField(null=False, unique=True)
+    confession_html_pruned = models.TextField(null=False)
 
     class Meta:
         unique_together = ('scraping', 'category')
