@@ -54,29 +54,48 @@ def tags_from_sentence(sentence: Sentence) -> Set[Tag]:
 # MODERATION #
 ##############
 
+def check_if_scraping_moderation_already_exists(confession_html_pruned):
+    try:
+        ScrapingModeration.objects.get(confession_html_pruned=confession_html_pruned)
+        return True
+    except ScrapingModeration.DoesNotExist:
+        return False
+
+
 def add_necessary_moderation(scraping: Scraping):
+    category = ScrapingModeration.Category.CONFESSION_HTML_PRUNED_NEW
+
     if scraping.confession_html_pruned is None:
+        try:
+            moderation = ScrapingModeration.objects.get(scraping=scraping, category=category)
+            moderation.delete()
+        except ScrapingModeration.DoesNotExist:
+            pass
+
         # TODO we might want to moderate when scraping has been nullified by pruning
         return
 
-    category = ScrapingModeration.Category.CONFESSION_HTML_PRUNED_NEW
+    # We check if a scraping_moderation already exists for this content
+    scraping_moderation_already_exists = check_if_scraping_moderation_already_exists(
+        scraping.confession_html_pruned)
 
-    # First we delete every previous unvalidated moderation or current moderation
+    # Then we delete every previous unvalidated moderation or current moderation
     moderations_to_delete = ScrapingModeration.objects\
         .filter(scraping__page__exact=scraping.page,
                 category=category)\
         .filter(Q(scraping__exact=scraping) | Q(validated_at__isnull=True))
 
     for moderation_to_delete in moderations_to_delete:
-        if moderation_to_delete.scraping == scraping and moderation_to_delete.validated_at is None:
+        if moderation_to_delete.scraping == scraping and moderation_to_delete.validated_at is None \
+                and not scraping_moderation_already_exists:
+            # We modify current moderation if not validated yet
             moderation_to_delete.confession_html_pruned = scraping.confession_html_pruned
             moderation_to_delete.save()
+            scraping_moderation_already_exists = True
         else:
             moderation_to_delete.delete()
 
-    try:
-        ScrapingModeration.objects.get(confession_html_pruned=scraping.confession_html_pruned)
-    except ScrapingModeration.DoesNotExist:
+    if not scraping_moderation_already_exists:
         moderation = ScrapingModeration(
             scraping=scraping,
             category=category,
