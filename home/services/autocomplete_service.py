@@ -6,7 +6,7 @@ from typing import Optional
 import requests
 
 from home.models import Parish
-
+from scraping.utils.department_utils import get_departments_context
 
 MAX_AUTOCOMPLETE_RESULTS = 15
 
@@ -18,6 +18,28 @@ class AutocompleteResult:
     context: str
     latitude: Optional[float] = None
     longitude: Optional[float] = None
+    parish_uuid: Optional[str] = None
+
+    @classmethod
+    def from_parish(cls, parish: Parish) -> 'AutocompleteResult':
+        # TODO save context in parish, and create a command to fill it
+
+        cities = set()
+        zipcodes = set()
+        for church in parish.churches.all():
+            cities.add(church.city)
+            zipcodes.add(church.zipcode)
+        if len(cities) == 1 and len(zipcodes) == 1:
+            context = f'{zipcodes.pop()} {cities.pop()}'
+        else:
+            context = get_departments_context(zipcodes)
+
+        return AutocompleteResult(
+            type='parish',
+            name=parish.name,
+            context=context,
+            parish_uuid=parish.uuid,
+        )
 
 
 def get_data_gouv_response(query) -> list[AutocompleteResult]:
@@ -51,15 +73,7 @@ def get_parish_by_name_response(query) -> list[AutocompleteResult]:
     parishes = Parish.objects.filter(is_active=True, name__icontains=query)\
         [:MAX_AUTOCOMPLETE_RESULTS]
 
-    results = []
-    for parish in parishes:
-        results.append(AutocompleteResult(
-            type='parish',
-            name=parish.name,
-            context=parish.name,  # TODO find dominant department
-        ))
-
-    return results
+    return list(map(AutocompleteResult.from_parish, parishes))
 
 
 def get_distance(query, result: AutocompleteResult) -> float:

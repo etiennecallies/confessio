@@ -20,6 +20,8 @@ function popupChurch(markerName){
  * https://adresse.data.gouv.fr/api-doc/adresse
  */
 $( function() {
+    let autocompleteUrl = $('#search-input').attr('data-autocomplete-url');
+
     let cache = {};
     $( "#search-input" ).autocomplete({
       minLength: 3,
@@ -30,21 +32,12 @@ $( function() {
           return;
         }
 
-        $.getJSON( "https://api-adresse.data.gouv.fr/search/", {
-          q: request.term,
-          limit: 15,
-          autocomplete: 1,
-          type: 'municipality'
+        $.getJSON( autocompleteUrl, {
+          query: request.term,
         }, function( data, status, xhr ) {
           let optionList = [];
-          data.features.forEach(obj => {
-            optionList.push({
-              value: obj.properties.name,
-              label: obj.properties.name,
-              context: obj.properties.context,
-              latitude: obj.geometry.coordinates[1],
-              longitude: obj.geometry.coordinates[0]
-            });
+          data.forEach(obj => {
+            optionList.push(obj);
           });
           cache[term] = optionList;
           response(optionList);
@@ -53,13 +46,17 @@ $( function() {
       select: function( event, ui ) {
         $("#latitude-input").val(ui.item.latitude);
         $("#longitude-input").val(ui.item.longitude);
-        $("#search-input").val(ui.item.value);
+        $("#search-input").val(ui.item.name);
+        $("#parish-uuid-input").val(ui.item.parish_uuid);
 
         $("#search-form").submit();
       }
     }).autocomplete( "instance" )._renderItem = function( ul, item ) {
+      let badge =
+          item.type === 'municipality' ? '<span class="badge badge-primary">Ville</span>' :
+              (item.type === 'parish' ? '<span class="badge badge-success">Paroisse</span>' : '');
       return $( "<li>" )
-        .append( "<div><span style='font-weight: bold'>" + item.label + "</span> " +
+        .append( "<div><span class='autocomplete-name'>" + item.name + " " + badge + "</span>" +
             "<span style='font-style: italic; float: right'>" + item.context + "</span></div>" )
         .appendTo( ul );
     };

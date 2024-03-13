@@ -68,6 +68,14 @@ table {
     padding-left: 1rem;
 }
 
+/* Autocomplete label */
+.autocomplete-name {
+    font-weight: bold;
+}
+.autocomplete-name .badge {
+    vertical-align: text-top;
+}
+
 
 /*
  * On mobile the hover state remains after click.
@@ -187,4 +195,12 @@ https://themesberg.com/docs/pixel-bootstrap/components/badges/
 .badge-danger {
     color: #fff;
     background-color: #A91E2C
+}
+.badge-primary {
+    color: #fff;
+    background-color: #1c2540
+}
+.badge-success {
+    color: #fff;
+    background-color: #3aaf85
 }

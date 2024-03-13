@@ -26,9 +26,11 @@
                                    name="location"
                                    placeholder="{% trans 'searchPlaceHolder' %}"
                                    value="{{ location }}"
+                                   data-autocomplete-url="{% url 'autocomplete' %}"
                                    >
                             <input type="hidden" id="latitude-input" name="latitude">
                             <input type="hidden" id="longitude-input" name="longitude">
+                            <input type="hidden" id="parish-uuid-input" name="parishUuid">
                             <button type="submit" class="input-group-text"><i class="fas fa-search"></i></button>
                         </div>
                     </div>
