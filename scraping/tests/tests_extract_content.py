@@ -27,6 +27,7 @@ class MyTestCase(unittest.TestCase):
             ('fourviere', 'html_page'),
             ('cdde', 'html_page'),
             ('vaise', 'html_page'),
+            ('ferreol', 'html_page'),
         ]
 
     def test_extract(self):

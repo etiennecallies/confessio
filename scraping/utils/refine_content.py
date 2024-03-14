@@ -36,9 +36,16 @@ def remove_script(soup: BeautifulSoup):
 ###################
 
 def is_table(element):
-    return element.name in [
+    if element.name in [
         'table',
-    ]
+    ]:
+        if 'mailpoet' in element.prettify():
+            # mailpoet is a newsletter framework that uses <table> for its structure
+            # https://www.paroissesferreoletozanam.fr/?mailpoet_router=&endpoint=view_in_browser&action=view&data=WzExMSwiMmZkYjYyM2UzZTUwIiwwLDAsMTY3LDFd
+            return False
+        return True
+
+    return False
 
 
 def is_link(element):
