@@ -9,9 +9,14 @@ class Command(AbstractCommand):
     def add_arguments(self, parser):
         parser.add_argument('--only-not-pruned', action="store_true",
                             help='prune only not pruned scraping')
+        parser.add_argument('--scraping-uuid', action='append',
+                            default=[], help='uuid of scraping to prune (can be repeated)')
 
     def handle(self, *args, **options):
-        if options['only_not_pruned']:
+        if options['scraping_uuid']:
+            scrapings = Scraping.objects.filter(page__parish__is_active=True,
+                                                uuid__in=options['scraping_uuid']).all()
+        elif options['only_not_pruned']:
             scrapings = Scraping.objects\
                 .filter(page__parish__is_active=True, pruned_at__isnull=True).all()
         else:
