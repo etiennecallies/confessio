@@ -1,4 +1,4 @@
-from typing import Set
+from typing import Set, Optional
 
 from django.db.models import Q
 from django.db.models.functions import Now
@@ -54,7 +54,24 @@ def tags_from_sentence(sentence: Sentence) -> Set[Tag]:
 # MODERATION #
 ##############
 
-def check_if_scraping_moderation_already_exists(confession_html_pruned):
+def get_current_moderation(scraping: Scraping,
+                           category) -> Optional[ScrapingModeration]:
+    try:
+        return ScrapingModeration.objects.get(scraping=scraping, category=category)
+    except ScrapingModeration.DoesNotExist:
+        return None
+
+
+def add_new_moderation(scraping: Scraping, category):
+    moderation = ScrapingModeration(
+        scraping=scraping,
+        category=category,
+        confession_html_pruned=scraping.confession_html_pruned,
+    )
+    moderation.save()
+
+
+def similar_scraping_exists(confession_html_pruned) -> bool:
     try:
         ScrapingModeration.objects.get(confession_html_pruned=confession_html_pruned)
         return True
@@ -65,6 +82,7 @@ def check_if_scraping_moderation_already_exists(confession_html_pruned):
 def add_necessary_moderation(scraping: Scraping):
     category = ScrapingModeration.Category.CONFESSION_HTML_PRUNED_NEW
 
+    # 1. If confession_html_pruned is empty
     if scraping.confession_html_pruned is None:
         try:
             moderation = ScrapingModeration.objects.get(scraping=scraping, category=category)
@@ -75,33 +93,38 @@ def add_necessary_moderation(scraping: Scraping):
         # TODO we might want to moderate when scraping has been nullified by pruning
         return
 
-    # We check if a scraping_moderation already exists for this content
-    scraping_moderation_already_exists = check_if_scraping_moderation_already_exists(
-        scraping.confession_html_pruned)
+    # 2. If scraping has already moderation
+    current_moderation = get_current_moderation(scraping, category)
+    if current_moderation is not None:
+        if current_moderation.confession_html_pruned == scraping.confession_html_pruned:
+            # confession_html_pruned has not changed, we do nothing
+            return
 
-    # Then we delete every previous unvalidated moderation or current moderation
+        if current_moderation.validated_at is None:
+            # confession_html_pruned has changed, but not validated yet, we just update it
+            current_moderation.confession_html_pruned = scraping.confession_html_pruned
+            current_moderation.save()
+            return
+
+        # confession_html_pruned has changed and was validated, we remove it and add a new one
+        current_moderation.delete()
+        add_new_moderation(scraping, category)
+        return
+
+    # 3. No moderation for this scraping yet
+    # first, we delete every previous unvalidated moderation
     moderations_to_delete = ScrapingModeration.objects\
         .filter(scraping__page__exact=scraping.page,
-                category=category)\
-        .filter(Q(scraping__exact=scraping) | Q(validated_at__isnull=True))
+                category=category,
+                validated_at__isnull=True)\
+        .exclude(scraping=scraping)
 
     for moderation_to_delete in moderations_to_delete:
-        if moderation_to_delete.scraping == scraping and moderation_to_delete.validated_at is None \
-                and not scraping_moderation_already_exists:
-            # We modify current moderation if not validated yet
-            moderation_to_delete.confession_html_pruned = scraping.confession_html_pruned
-            moderation_to_delete.save()
-            scraping_moderation_already_exists = True
-        else:
-            moderation_to_delete.delete()
+        moderation_to_delete.delete()
 
-    if not scraping_moderation_already_exists:
-        moderation = ScrapingModeration(
-            scraping=scraping,
-            category=category,
-            confession_html_pruned=scraping.confession_html_pruned,
-        )
-        moderation.save()
+    # then, we add new moderation, only if not already exists
+    if not similar_scraping_exists(scraping.confession_html_pruned):
+        add_new_moderation(scraping, category)
 
 
 ########
