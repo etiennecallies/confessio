@@ -56,8 +56,8 @@ $( function() {
           item.type === 'municipality' ? '<span class="badge badge-primary">Ville</span>' :
               (item.type === 'parish' ? '<span class="badge badge-success">Paroisse</span>' : '');
       return $( "<li>" )
-        .append( "<div><span class='autocomplete-name'>" + item.name + " " + badge + "</span>" +
-            "<span style='font-style: italic; float: right'>" + item.context + "</span></div>" )
+        .append( "<div class='row'><div class='col-md autocomplete-name'>" + item.name + " " + badge + "</div>" +
+            "<div class='col-md text-end' style='font-style: italic'>" + item.context + "</div></div>" )
         .appendTo( ul );
     };
 });
