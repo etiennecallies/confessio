@@ -69,6 +69,10 @@ def is_text(element):
     return isinstance(element, NavigableString) and not is_comment(element)
 
 
+def is_br(element):
+    return element.name == 'br'
+
+
 def is_comment(element):
     return isinstance(element, Comment) or isinstance(element, ProcessingInstruction)
 
@@ -96,10 +100,28 @@ def clear_table_formatting(element: BeautifulSoup):
             del element.attrs[attr]
 
 
+def rec_prettify(element: BeautifulSoup):
+    last_prettified_html = None
+    prettified_html = element.prettify()
+
+    max_iterations = 100
+
+    while last_prettified_html is None or prettified_html != last_prettified_html:
+        prettified_bs4 = BeautifulSoup(prettified_html, 'html.parser')
+        last_prettified_html = prettified_html
+        prettified_html = prettified_bs4.prettify()
+
+        max_iterations -= 1
+        if max_iterations <= 0:
+            raise ValueError('too many prettify')
+
+    return prettified_html
+
+
 def build_text(soup: BeautifulSoup):
     if is_table(soup):
         clear_table_formatting(soup)
-        return soup.prettify()
+        return rec_prettify(soup)
 
     results = []
     for element in get_element_and_text(soup):
@@ -107,6 +129,12 @@ def build_text(soup: BeautifulSoup):
             results.append(clean_text(element.get_text(' ')))
         elif is_text(element):
             results.append(clean_text(str(element)))
+        elif is_br(element):
+            results.append('<br>\n')
+            br_text = element.get_text(' ')
+            if br_text:
+                results.append(clean_text(br_text))
+                results.append('<br>\n')
         elif is_comment(element):
             continue
         elif is_link(element):
@@ -153,6 +181,7 @@ def flatten_string(text: str):
 def clean_paragraph(text: str):
     text = re.sub(r'<br> ', r'<br>', text)
     text = re.sub(r' <br>', r'<br>', text)
+    text = re.sub(r'<br>\n +', r'<br>\n', text)
     text = re.sub(r'(<br>\n)+', r'<br>\n', text)
     text = re.sub(r'^<br>(\n)?', '', text)
     text = re.sub(r'<br>(\n)?$', '', text)

@@ -18,6 +18,7 @@ class TestExtractLinks(unittest.TestCase):
             'bellecombe',
             'vaise',
             'paroisseoullins',
+            'tassin',
         ]
 
     def test_parse_content_links(self):
@@ -30,10 +31,18 @@ class TestExtractLinks(unittest.TestCase):
                     lines_output = f.readlines()
                 input_html = ''.join(lines_input)
                 expected_output = ''.join(lines_output)
+
+                # Test that input produces expected output
                 output = refine_confession_content(input_html)
                 # print(output)
                 self.maxDiff = None
                 self.assertEqual(expected_output, output, file_name)
+
+                # Idempotent test
+                output_on_output = refine_confession_content(expected_output)
+                # print(output_on_output)
+                self.maxDiff = None
+                self.assertEqual(expected_output, output_on_output, file_name)
 
 
 if __name__ == '__main__':
