@@ -31,7 +31,7 @@ if __name__ == '__main__':
         # ('http://www.paroisses-pentes-et-saone.fr/soiree-confessions-avec-adoration/', 'html_page'),
         # ('https://www.paroissesainteclaire.com/evenements.html', 'html_page'),
         # ('https://www.espace-saint-ignace.fr/?page_id=1252', 'html_page'),
-        ('http://www.paroisse-saint-claude-tassin.eu/page19.html', 'html_page'),
+        ('https://smdv.fr/events/adoration-et-confession-2-2', 'html_page'),
     ]
 
     for url_, page_type_ in confession_pages:

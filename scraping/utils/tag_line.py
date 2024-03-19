@@ -41,6 +41,7 @@ SCHEDULES_EXPR = [
 ]
 
 DATES_MENTIONS = [
+    'date',
     'jour',
     'jours',
     'matin',
