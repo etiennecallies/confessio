@@ -70,7 +70,7 @@ def is_text(element):
 
 
 def is_br(element):
-    return element.name == 'br'
+    return element.name == 'br' and not element.get_text(' ')
 
 
 def is_comment(element):
@@ -131,10 +131,6 @@ def build_text(soup: BeautifulSoup):
             results.append(clean_text(str(element)))
         elif is_br(element):
             results.append('<br>\n')
-            br_text = element.get_text(' ')
-            if br_text:
-                results.append(clean_text(br_text))
-                results.append('<br>\n')
         elif is_comment(element):
             continue
         elif is_link(element):
