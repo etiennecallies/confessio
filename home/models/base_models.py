@@ -25,7 +25,7 @@ class Parish(TimeStampMixin):
     name = models.CharField(max_length=300)
     home_url = models.URLField(unique=True)
     is_active = models.BooleanField(default=True)
-    diocese = models.ForeignKey('Diocese', on_delete=models.CASCADE, related_name='parishes', null=True)
+    diocese = models.ForeignKey('Diocese', on_delete=models.CASCADE, related_name='parishes')
 
     _pages = None
     _latest_crawling = None
