@@ -4,7 +4,7 @@ from typing import Optional
 import requests
 from django.contrib.gis.geos import Point
 
-from home.models import Church, Parish, ParishSource, ParishModeration, ChurchModeration
+from home.models import Church, Parish, ParishSource, ParishModeration, ChurchModeration, Diocese
 from scraping.utils.extract_title import get_page_title
 from scraping.utils.geocode_address import geocode
 from scraping.utils.url_utils import get_clean_full_url
@@ -42,7 +42,7 @@ def add_moderation(parish: Parish, category: ParishModeration.Category, home_url
     parish_moderation.save()
 
 
-def get_parish(home_url, name) -> Parish:
+def get_parish(home_url, name, diocese: Diocese) -> Parish:
     try:
         parish = Parish.objects.get(home_url=home_url)
         page_title = get_page_title(home_url)
@@ -71,6 +71,7 @@ def get_parish(home_url, name) -> Parish:
         parish = Parish(
             name=name,
             home_url=home_url,
+            diocese=diocese,
         )
 
         # We save parish
@@ -79,7 +80,7 @@ def get_parish(home_url, name) -> Parish:
     return parish
 
 
-def fetch_parish_source(messesinfo_community_id) -> Optional[ParishSource]:
+def fetch_parish_source(messesinfo_community_id, diocese: Diocese) -> Optional[ParishSource]:
     messesinfo_request = f'{{"F":"cef.kephas.shared.request.AppRequestFactory",' \
                          f'"I":[{{"O":"cAFxqYS1T1aS3fEnag2PwGf6i9w=",' \
                          f'"P":["{messesinfo_community_id}"],"R":[]}}]}}'
@@ -99,7 +100,7 @@ def fetch_parish_source(messesinfo_community_id) -> Optional[ParishSource]:
         home_url = get_clean_full_url(url)  # we use standardized url to ensure unicity
         name = parish_data['name']
 
-        parish = get_parish(home_url, name)
+        parish = get_parish(home_url, name, diocese)
 
         parish_source = ParishSource(
             name=name,
@@ -117,6 +118,12 @@ def fetch_parish_source(messesinfo_community_id) -> Optional[ParishSource]:
 
 
 def get_churches_on_page(network_id, page):
+    try:
+        diocese = Diocese.objects.get(messesinfo_network_id=network_id)
+    except Diocese.DoesNotExist:
+        print(f'no diocese for network_id {network_id}')
+        return None
+
     messesinfo_request = f'{{"F":"cef.kephas.shared.request.AppRequestFactory",' \
                          f'"I":[{{"O":"$i2wVYlJYdDXj9pOVHx42kKyAu8=",' \
                          f'"P":["{network_id}",{page},25,"48.856614:2.352222",null]}}]}}'
@@ -145,7 +152,7 @@ def get_churches_on_page(network_id, page):
                 parish_source = ParishSource.objects.get(
                     messesinfo_community_id=messesinfo_community_id)
             except ParishSource.DoesNotExist:
-                parish_source = fetch_parish_source(messesinfo_community_id)
+                parish_source = fetch_parish_source(messesinfo_community_id, diocese)
                 if parish_source is None:
                     print(f'no valid parish for church {church_messesinfo_id} ignoring this church')
                     continue

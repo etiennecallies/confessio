@@ -3,10 +3,12 @@ from django.contrib.admin import ModelAdmin
 from django.forms import ModelChoiceField
 from leaflet.admin import LeafletGeoAdmin
 
-from .models import Church, Parish, Page
+from .models import Church, Parish, Page, Diocese
 
 
-# Register your models here.
+@admin.register(Diocese)
+class DioceseAdmin(ModelAdmin):
+    list_display = ["name", "slug", "messesinfo_network_id"]
 
 
 @admin.register(Parish)

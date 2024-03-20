@@ -15,10 +15,17 @@ class TimeStampMixin(models.Model):
         get_latest_by = ['updated_at']
 
 
+class Diocese(TimeStampMixin):
+    name = models.CharField(max_length=100, unique=True)
+    slug = models.CharField(max_length=100, unique=True)
+    messesinfo_network_id = models.CharField(max_length=100, unique=True)
+
+
 class Parish(TimeStampMixin):
     name = models.CharField(max_length=300)
     home_url = models.URLField(unique=True)
     is_active = models.BooleanField(default=True)
+    diocese = models.ForeignKey('Diocese', on_delete=models.CASCADE, related_name='parishes', null=True)
 
     _pages = None
     _latest_crawling = None
