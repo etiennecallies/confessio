@@ -1,6 +1,5 @@
 from typing import Set, Optional
 
-from django.db.models import Q
 from django.db.models.functions import Now
 
 from home.models import Scraping, ScrapingModeration
@@ -82,7 +81,17 @@ def similar_scraping_exists(confession_html_pruned) -> bool:
 def add_necessary_moderation(scraping: Scraping):
     category = ScrapingModeration.Category.CONFESSION_HTML_PRUNED_NEW
 
-    # 1. If confession_html_pruned is empty
+    # first, we delete every previous unvalidated moderation
+    moderations_to_delete = ScrapingModeration.objects\
+        .filter(scraping__page__exact=scraping.page,
+                category=category,
+                validated_at__isnull=True)\
+        .exclude(scraping=scraping)
+
+    for moderation_to_delete in moderations_to_delete:
+        moderation_to_delete.delete()
+
+    # 1. If confession_html_pruned is empty. We remove moderation if exists.
     if scraping.confession_html_pruned is None:
         try:
             moderation = ScrapingModeration.objects.get(scraping=scraping, category=category)
@@ -111,18 +120,7 @@ def add_necessary_moderation(scraping: Scraping):
         add_new_moderation(scraping, category)
         return
 
-    # 3. No moderation for this scraping yet
-    # first, we delete every previous unvalidated moderation
-    moderations_to_delete = ScrapingModeration.objects\
-        .filter(scraping__page__exact=scraping.page,
-                category=category,
-                validated_at__isnull=True)\
-        .exclude(scraping=scraping)
-
-    for moderation_to_delete in moderations_to_delete:
-        moderation_to_delete.delete()
-
-    # then, we add new moderation, only if not already exists
+    # 3. No moderation for this scraping yet. We add new moderation, only if not already exists
     if not similar_scraping_exists(scraping.confession_html_pruned):
         add_new_moderation(scraping, category)
 
