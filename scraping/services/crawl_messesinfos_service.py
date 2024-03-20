@@ -117,18 +117,19 @@ def fetch_parish_source(messesinfo_community_id, diocese: Diocese) -> Optional[P
         return None
 
 
-def get_churches_on_page(network_id, page):
+def get_churches_on_page(messesinfo_network_id: str, page):
     try:
-        diocese = Diocese.objects.get(messesinfo_network_id=network_id)
+        diocese = Diocese.objects.get(messesinfo_network_id=messesinfo_network_id)
     except Diocese.DoesNotExist:
-        print(f'no diocese for network_id {network_id}')
+        print(f'no diocese for network_id {messesinfo_network_id}')
         return None
 
     messesinfo_request = f'{{"F":"cef.kephas.shared.request.AppRequestFactory",' \
                          f'"I":[{{"O":"$i2wVYlJYdDXj9pOVHx42kKyAu8=",' \
-                         f'"P":["{network_id}",{page},25,"48.856614:2.352222",null]}}]}}'
+                         f'"P":["DIOCESE:{messesinfo_network_id.upper()}",{page},' \
+                         f'25,"48.856614:2.352222",null]}}]}}'
 
-    print(f'fetching churches in {network_id} on page {page}')
+    print(f'fetching churches in {messesinfo_network_id} on page {page}')
     data = post_messesinfo_request(messesinfo_request)
 
     if data == {"S": [True], "I": [[]]}:

@@ -6,14 +6,14 @@ class Command(AbstractCommand):
     help = "Launch the scraping of messesinfo in given network"
 
     def handle(self, *args, **options):
-        network_id = "DIOCESE:LY"
+        messesinfo_network_id = "ly"
         page = 0
         total_churches = 0
 
         while True:
-            new_churches = get_churches_on_page(network_id, page)
+            new_churches = get_churches_on_page(messesinfo_network_id, page)
             if new_churches is None:
-                self.error(f'An error occured while crawling churches in {network_id}')
+                self.error(f'An error occured while crawling churches in {messesinfo_network_id}')
                 return
 
             if new_churches == 0:
@@ -22,4 +22,4 @@ class Command(AbstractCommand):
             total_churches += new_churches
             page += 1
 
-        self.success(f'Successfully crawled {total_churches} churches in {network_id}')
+        self.success(f'Successfully crawled {total_churches} churches in {messesinfo_network_id}')
