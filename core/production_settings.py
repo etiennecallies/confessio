@@ -76,3 +76,8 @@ DBBACKUP_STORAGE_OPTIONS = {
 }
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 ADMINS = [('Mr Admin', os.environ.get('ADMIN_EMAIL'))]
+
+# Request (statistics)
+REQUEST_BASE_URL = f'https://{os.environ.get("SERVER_HOST")}'
+REQUEST_IGNORE_IP = [os.environ.get('WHITELISTED_IP1')]
+REQUEST_IGNORE_USERNAME = [os.environ.get('WHITELISTED_USER1')]

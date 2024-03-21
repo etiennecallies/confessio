@@ -6,6 +6,7 @@ whitenoise
 django-theme-pixel==1.0.3
 django-ses==3.5.2
 psycopg2-binary==2.9.6
+django-request==1.6.3
 
 # Used in django admin
 django-leaflet==0.29.0

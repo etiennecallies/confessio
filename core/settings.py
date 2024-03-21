@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "django.contrib.gis",
 
     'leaflet',  # used in admin
+    'request',  # statistics
     'theme_pixel',
     "home",
 ]
@@ -61,6 +62,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "request.middleware.RequestMiddleware",
 ]
 
 ROOT_URLCONF = "core.urls"
@@ -172,3 +174,54 @@ if os.getenv('GDAL_LIBRARY_PATH'):
     GDAL_LIBRARY_PATH = os.getenv('GDAL_LIBRARY_PATH')
 if os.getenv('GEOS_LIBRARY_PATH'):
     GEOS_LIBRARY_PATH = os.getenv('GEOS_LIBRARY_PATH')
+
+# Request (statistics)
+REQUEST_LOG_IP = False
+REQUEST_IGNORE_PATHS = (
+    r'^admin/',
+    r'^qualify/',
+    r'^moderate/',
+)
+REQUEST_IGNORE_USER_AGENTS = (
+    r'^$',                    # ignore requests with no user agent string set
+    r'Googlebot',
+    r'Bingbot',
+    r'Baiduspider',
+    r'YandexBot',
+    r'DuckDuckBot',
+    r'Slurp',                 # Yahoo
+    r'BLEXBot',
+    r'Sogou Spider',
+    r'Sogou web spider',  # Sogou's web crawler
+    r'Exabot',
+    r'MJ12bot',
+    r'AhrefsBot',
+    r'SemrushBot',
+    r'DotBot',
+    r'Yeti',                  # Naver
+    r'SeznamBot',
+    r'AddThis',
+    r'SosoSpider',
+    r'Facebot',               # Facebook
+    r'facebookexternalhit',  # Facebook's link preview generator
+    r'Instagram',  # Instagram's bot for link preview
+    r'Twitterbot',
+    r'LinkedInBot',
+    r'Discordbot',
+    r'TelegramBot',
+    r'Pinterestbot',
+    r'Tumblr',
+    r'Applebot',
+    r'WhatsApp',
+    r'Discordbot',
+    r'Slackbot',
+    r'LineBot',
+    r'Baidu-YunGuanCe',
+    r'ia_archiver',  # Alexa's web crawler
+)
+REQUEST_TRAFFIC_MODULES = (
+    'request.traffic.UniqueVisitor',
+    'request.traffic.UniqueVisit',
+    'request.traffic.Hit',
+    'request.traffic.Search',
+)
