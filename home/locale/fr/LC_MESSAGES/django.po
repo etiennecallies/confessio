@@ -121,7 +121,7 @@ msgstr "Confessio"
 #: templates/pages/index.html:27
 msgid "searchPlaceHolder"
 msgstr ""
-"Chercher une ville... (uniquement dans le diocèse de Lyon pour l'instant)"
+"Chercher une ville, une paroisse... (uniquement dans le diocèse de Lyon pour l'instant)"
 
 #: templates/pages/index.html:48
 msgid "searchInThisArea"
