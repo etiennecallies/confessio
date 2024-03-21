@@ -106,23 +106,25 @@ def autocomplete(request):
     return JsonResponse(response, safe=False)
 
 
-def diocese_list(request):
-    query = request.GET.get('query', '')
-    results = get_aggreagated_response(query)
-    response = list(map(dataclasses.asdict, results))
-
-    return JsonResponse(response, safe=False)
-
-
 def diocese_view(request, diocese_slug):
     try:
         diocese = Diocese.objects.get(slug=diocese_slug)
     except Diocese.DoesNotExist:
         return HttpResponseNotFound("Diocese not found")
 
-    location = None
+    location = ''
     bounds = None
     churches = get_churches_by_diocese(diocese)
     center = get_center(churches)
 
     return render_map(request, center, churches, bounds, location)
+
+
+def dioceses_list(request):
+    dioceses = Diocese.objects.all()
+
+    context = {
+        'dioceses': dioceses,
+    }
+
+    return render(request, 'pages/dioceses.html', context)

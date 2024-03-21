@@ -23,9 +23,9 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <!-- Primary Meta Tags -->
-    <title>{% trans 'confessioPageTitle' %}</title>
+    <title>{% block title %}{% trans 'confessioPageTitle' %}{% endblock title %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="title" content="{% trans 'confessioPageTitle' %}">
+    <meta name="title" content="{% block seo_title %}{% trans 'confessioPageTitle' %}{% endblock seo_title %}">
     <meta name="description" content="{% trans 'confessioDescription' %}">
 
     <!-- Open Graph / Facebook -->

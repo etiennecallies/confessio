@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-12 07:56+0100\n"
+"POT-Creation-Date: 2024-03-21 08:43+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,19 +18,19 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: services/map_service.py:69
+#: services/map_service.py:77
 msgid "ConfessionsExist"
 msgstr "Des confessions existent"
 
-#: services/map_service.py:74 templates/pages/index.html:122
+#: services/map_service.py:82 templates/pages/index.html:124
 msgid "NotCrawledYet"
 msgstr "Traitement en cours pour cette paroisse"
 
-#: services/map_service.py:77 templates/pages/index.html:124
+#: services/map_service.py:85 templates/pages/index.html:126
 msgid "NoConfessionFound"
 msgstr "Pas de confessions trouvées"
 
-#: services/map_service.py:80
+#: services/map_service.py:88
 msgid "JumpBelow"
 msgstr "Voir ci-dessous"
 
@@ -38,11 +38,15 @@ msgstr "Voir ci-dessous"
 msgid "footerAboutUs"
 msgstr "Ce site, d'initiative laïque, est en phase de développement."
 
-#: templates/includes/footer.html:9 templates/pages/contact.html:11
+#: templates/includes/footer.html:9 templates/pages/contact.html:14
 msgid "contactUs"
 msgstr "Nous contacter"
 
-#: templates/includes/footer.html:17
+#: templates/includes/footer.html:16
+msgid "footerDiocesesList"
+msgstr "Voir la liste des diocèses opérés"
+
+#: templates/includes/footer.html:24
 msgid "footerFranceCookie"
 msgstr "Made in 🇫🇷 with ✝️ without 🍪"
 
@@ -74,29 +78,41 @@ msgstr ""
 "Un premier moteur de recherche inter-paroissial d'horaires de confession "
 "utilisant l'intelligence artificielle."
 
-#: templates/pages/contact.html:24
+#: templates/pages/contact.html:4 templates/pages/contact.html:5
+msgid "contactPageTitle"
+msgstr "Confessio - Nous contacter"
+
+#: templates/pages/contact.html:27
 msgid "contactTitle"
 msgstr "Prendre contact, signaler une erreur, contribuer au projet ?"
 
-#: templates/pages/contact.html:25
+#: templates/pages/contact.html:28
 msgid "contactSubTitle"
 msgstr "Cool! Laissez-nous un message 🙂"
 
-#: templates/pages/contact.html:31
+#: templates/pages/contact.html:34
 msgid "contactSuccessStrong"
 msgstr "Merci !"
 
-#: templates/pages/contact.html:31
+#: templates/pages/contact.html:34
 msgid "contactSuccess"
 msgstr "Votre message a bien été envoyé."
 
-#: templates/pages/contact.html:39
+#: templates/pages/contact.html:42
 msgid "contactFailureStrong"
 msgstr "Oh zut !"
 
-#: templates/pages/contact.html:39
+#: templates/pages/contact.html:42
 msgid "contactFailure"
 msgstr "Quelque chose n'a pas fonctionné, veuillez réessayer un autre jour."
+
+#: templates/pages/dioceses.html:6 templates/pages/dioceses.html:7
+msgid "diocesesPageTitle"
+msgstr "Confessio - Liste des diocèses"
+
+#: templates/pages/dioceses.html:10
+msgid "diocesesTitle"
+msgstr "Liste des diocèses opérés"
 
 #: templates/pages/index.html:14
 msgid "confessioTitle"
@@ -107,37 +123,37 @@ msgid "searchPlaceHolder"
 msgstr ""
 "Chercher une ville... (uniquement dans le diocèse de Lyon pour l'instant)"
 
-#: templates/pages/index.html:46
+#: templates/pages/index.html:48
 msgid "searchInThisArea"
 msgstr "Rechercher dans cette zone"
 
-#: templates/pages/index.html:74
+#: templates/pages/index.html:76
 msgid "goToParishSite"
 msgstr "Aller sur le site"
 
-#: templates/pages/index.html:89
+#: templates/pages/index.html:91
 msgid "locateOnMap"
 msgstr "Situer sur la carte"
 
-#: templates/pages/index.html:100 templates/pages/qualify_page.html:16
+#: templates/pages/index.html:102 templates/pages/qualify_page.html:16
 #, python-format
 msgid "BeforeConfessionHTML %(url)s"
 msgstr ""
 "Voici l'extrait de leur <a href=\"%(url)s\" class=\"link-info\">page</a> "
 "concernant les confessions :"
 
-#: templates/pages/index.html:104
+#: templates/pages/index.html:106
 msgid "QualifyPage"
 msgstr "Qualifier"
 
-#: templates/pages/index.html:113
+#: templates/pages/index.html:115
 #, python-format
 msgid "PageNotScrapedYet %(url)s"
 msgstr ""
 "Traitement en cours pour cette <a href=\"%(url)s\" class=\"link-info\">page</"
 "a>."
 
-#: templates/pages/index.html:117
+#: templates/pages/index.html:119
 #, python-format
 msgid "NoConfessionFoundPage %(url)s"
 msgstr ""
