@@ -13,3 +13,9 @@
     name: hourly_scrape_parishes
     special_time: hourly
     job: "(tmux has-session -t scrape_parishes || tmux new-session -d -s scrape_parishes) && tmux send-keys -t scrape_parishes '. {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py scrape_parishes' C-m"
+
+- name: Add cron for crawling parishes with error
+  cron:
+    name: hourly_crawl_parishes_in_error
+    special_time: hourly
+    job: "(tmux has-session -t crawl_parishes_in_error || tmux new-session -d -s crawl_parishes_in_error) && tmux send-keys -t crawl_parishes_in_error '. {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py crawl_parishes --in-error' C-m"

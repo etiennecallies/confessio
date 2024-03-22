@@ -1,5 +1,5 @@
 from home.management.abstract_command import AbstractCommand
-from home.models import Parish
+from home.models import Parish, ParishModeration
 from scraping.services.crawl_parish_service import crawl_parish
 
 
@@ -8,15 +8,17 @@ class Command(AbstractCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('-n', '--name', help='name of parish to crawl')
-        parser.add_argument('--no-success', action="store_true",
-                            help='exclude parishes that have been already successfully crawled')
+        parser.add_argument('--in-error', action="store_true",
+                            help='only parishes with not validated home url moderation')
 
     def handle(self, *args, **options):
         if options['name']:
             parishes = Parish.objects.filter(is_active=True, name__contains=options['name']).all()
-        elif options['no_success']:
-            parishes = Parish.objects.filter(is_active=True)\
-                .exclude(crawlings__nb_success_links__gt=0).all()
+        elif options['in_error']:
+            parishes = Parish.objects.filter(is_active=True).filter(
+                moderations__category__in=[ParishModeration.Category.HOME_URL_NO_RESPONSE,
+                                           ParishModeration.Category.HOME_URL_NO_CONFESSION],
+                moderations__validated_at__isnull=True).all()
         else:
             parishes = Parish.objects.filter(is_active=True).all()
 
