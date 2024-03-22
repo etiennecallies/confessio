@@ -33,6 +33,13 @@ $ python manage.py makemigrations
 $ python manage.py createsuperuser
 ```
 
+### Load prod database dump in local
+
+This will download and load the latest prod database dump in local. Your psql user must be superadmin.
+```bash
+$ python manage.py dbrestore --uncompress
+```
+
 ### Start the app
 
 ```bash

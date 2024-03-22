@@ -49,6 +49,7 @@ INSTALLED_APPS = [
 
     'leaflet',  # used in admin
     'request',  # statistics
+    'dbbackup',
     'theme_pixel',
     "home",
 ]
@@ -174,6 +175,15 @@ if os.getenv('GDAL_LIBRARY_PATH'):
     GDAL_LIBRARY_PATH = os.getenv('GDAL_LIBRARY_PATH')
 if os.getenv('GEOS_LIBRARY_PATH'):
     GEOS_LIBRARY_PATH = os.getenv('GEOS_LIBRARY_PATH')
+
+# Dbbackup
+DBBACKUP_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+DBBACKUP_STORAGE_OPTIONS = {
+    'access_key': AWS_ACCESS_KEY_ID,
+    'secret_key': AWS_SECRET_ACCESS_KEY,
+    'bucket_name': os.environ.get('DBBACKUP_BUCKET') or 'confessio-dbbackup-daily',
+    'default_acl': 'private',
+}
 
 # Request (statistics)
 REQUEST_LOG_IP = False
