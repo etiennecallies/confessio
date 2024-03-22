@@ -184,8 +184,9 @@ REQUEST_IGNORE_PATHS = (
 )
 REQUEST_IGNORE_USER_AGENTS = (
     r'^$',                    # ignore requests with no user agent string set
+    r'Go-http-client',
     r'Googlebot',
-    r'Bingbot',
+    r'[bB]ingbot',
     r'Baiduspider',
     r'YandexBot',
     r'DuckDuckBot',
@@ -218,6 +219,7 @@ REQUEST_IGNORE_USER_AGENTS = (
     r'LineBot',
     r'Baidu-YunGuanCe',
     r'ia_archiver',  # Alexa's web crawler
+    r'Bytespider',  # Alexa's web crawler
 )
 REQUEST_TRAFFIC_MODULES = (
     'request.traffic.UniqueVisitor',
