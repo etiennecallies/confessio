@@ -5,8 +5,14 @@ from scraping.services.crawl_messesinfos_service import get_churches_on_page
 class Command(AbstractCommand):
     help = "Launch the scraping of messesinfo in given network"
 
+    def add_arguments(self, parser):
+        parser.add_argument('messesinfo_network_id', type=str,
+                            help='Two letters code of messesinfo network_id (diocese)')
+
     def handle(self, *args, **options):
-        messesinfo_network_id = "ly"
+        messesinfo_network_id = options['messesinfo_network_id']
+        self.info(f'Starting crawling messesinfo parishes in {messesinfo_network_id}')
+
         page = 0
         total_churches = 0
 
