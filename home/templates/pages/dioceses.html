@@ -9,6 +9,6 @@
 {% block card %}
     <h1>{% trans 'diocesesTitle' %}</h1>
     {% for diocese in dioceses %}
-        <p><a href="{% url 'diocese_view' diocese.slug %}">Diocèse de {{ diocese.name }}</a></p>
+        <p><a href="{% url 'diocese_view' diocese.slug %}">{{ diocese.name }}</a></p>
     {% endfor %}
 {% endblock card %}
