@@ -39,8 +39,6 @@ django_settings_module: core.production_settings
 # Email
 contact_email: "{{ lookup('ansible.builtin.env', 'CONTACT_EMAIL') }}"
 admin_email: "{{ lookup('ansible.builtin.env', 'ADMIN_EMAIL') }}"
-
-# Letsencrypt
 letsencrypt_email: "{{ lookup('ansible.builtin.env', 'PROD_LETSENCRYPT_EMAIL') }}"
 
 # AWS
@@ -51,3 +49,6 @@ aws_secret_key: "{{ lookup('ansible.builtin.env', 'AWS_SECRET_KEY') }}"
 additional_pub_key1: "{{ lookup('ansible.builtin.env', 'ADDITIONAL_PUB_KEY1') }}"
 whitelisted_ip1: "{{ lookup('ansible.builtin.env', 'WHITELISTED_IP1') }}"
 whitelisted_user1: "{{ lookup('ansible.builtin.env', 'WHITELISTED_USER1') }}"
+
+# API keys
+openai_api_key: "{{ lookup('ansible.builtin.env', 'OPENAI_API_KEY') }}"

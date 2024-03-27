@@ -28,7 +28,18 @@ def geocode(name, address, city, zipcode):
         print('got no geocoding results', data)
         return None
 
-    return data['features'][0].get('geometry', {}).get('coordinates', None)
+    feature = data['features'][0]
+    coordinates = feature.get('geometry', {}).get('coordinates', None)
+    zipcode = feature.get('properties', {}).get('postcode', None)
+    city = feature.get('properties', {}).get('city', None)
+    address = feature.get('properties', {}).get('name', None)
+
+    return {
+        'coordinates': coordinates,
+        'zipcode': zipcode,
+        'city': city,
+        'address': address,
+    }
 
 
 if __name__ == '__main__':
