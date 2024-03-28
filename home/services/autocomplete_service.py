@@ -27,9 +27,13 @@ class AutocompleteResult:
         cities = set()
         zipcodes = set()
         for church in parish.churches.all():
-            cities.add(church.city)
-            zipcodes.add(church.zipcode)
-        if len(cities) == 1 and len(zipcodes) == 1:
+            if church.city:
+                cities.add(church.city)
+            if church.zipcode:
+                zipcodes.add(church.zipcode)
+        if len(zipcodes) == 0:
+            context = ''
+        elif len(cities) == 1 and len(zipcodes) == 1:
             context = f'{zipcodes.pop()} {cities.pop()}'
         else:
             context = get_departments_context(zipcodes)
@@ -51,13 +55,11 @@ def get_data_gouv_response(query) -> list[AutocompleteResult]:
         'type': 'municipality',
     })
     data = response.json()
-    print(json.dumps(data))
     if 'features' not in data or not data['features']:
         return []
 
     results = []
     for result in data['features']:
-        print(result)
         results.append(AutocompleteResult(
             type='municipality',
             name=result['properties']['name'],
