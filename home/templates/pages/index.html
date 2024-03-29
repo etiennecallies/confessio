@@ -70,18 +70,30 @@
                                                         href="{% url 'index' %}?parishUuid={{ parish.uuid }}">
                                                         {{ parish.name }}
                                                     </a>
+                                                    {% if request.user.is_authenticated and request.user.is_staff %}
+                                                        <a class="text-muted small" href="{% url 'admin:home_parish_change' parish.uuid %}" target="_blank">
+                                                            - Admin <i class="fas fa-up-right-from-square"></i>
+                                                        </a>
+                                                    {% endif %}
                                                 </h3>
                                                 <h3 class="col-md-4 text-md-end">
                                                     <span class="small"><span class="small">
                                                     <a class="text-muted small" href="{{ parish.home_url }}" target="_blank">{% trans 'goToParishSite' %}
                                                         <i class="fas fa-up-right-from-square"></i>
-                                                    </a></span></span>
+                                                    </a>
+                                                    </span></span>
                                                 </h3>
                                             </div>
                                             {% for church in parish_churches|get_item:parish.uuid %}
                                                 <div class="row">
                                                     <p class="col-md-9">
-                                                        <span class="fw-bold">{{ church.name }}</span><br>
+                                                        <span class="fw-bold">{{ church.name }}</span>
+                                                        {% if request.user.is_authenticated and request.user.is_staff %}
+                                                            <a class="text-muted" href="{% url 'admin:home_church_change' church.uuid %}" target="_blank">
+                                                                - Admin <i class="fas fa-up-right-from-square"></i>
+                                                            </a>
+                                                        {% endif %}
+                                                        <br>
                                                         <span class="text-muted">{{ church.address }} {{ church.zipcode }} {{ church.city }}</span>
                                                     </p>
                                                     <p class="col-md-3">
