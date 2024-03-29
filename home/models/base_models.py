@@ -72,11 +72,11 @@ class ParishSource(TimeStampMixin):
 
 class Church(TimeStampMixin):
     name = models.CharField(max_length=100)
-    location = gis_models.PointField(geography=True)
-    address = models.CharField(max_length=100)
-    zipcode = models.CharField(max_length=5)
-    city = models.CharField(max_length=50)
-    messesinfo_id = models.CharField(max_length=100, null=True, unique=True)
+    location = gis_models.PointField(geography=True, null=True)
+    address = models.CharField(max_length=100, null=True)
+    zipcode = models.CharField(max_length=5, null=True)
+    city = models.CharField(max_length=50, null=True)
+    messesinfo_id = models.CharField(max_length=100, null=True, unique=True, blank=True)
     parish = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='churches')
     parish_source = models.ForeignKey('ParishSource', on_delete=models.SET_NULL,
                                       blank=True, null=True, related_name='churches')

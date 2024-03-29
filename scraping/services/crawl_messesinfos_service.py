@@ -194,11 +194,11 @@ def compute_church_coordinates(church: Church):
         longitude, latitude = result.get('coordinates')
         church.location = Point(longitude, latitude)
         if not church.address:
-            church.address = result.get('address', '')
+            church.address = result.get('address', None)
         if not church.zipcode:
-            church.zipcode = result.get('zipcode', '')
+            church.zipcode = result.get('zipcode', None)
         if not church.city:
-            church.city = result.get('city', '')
+            church.city = result.get('city', None)
         church.save()
         category = ChurchModeration.Category.LOCATION_FROM_API
 

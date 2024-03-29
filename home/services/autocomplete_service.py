@@ -32,7 +32,7 @@ class AutocompleteResult:
             if church.zipcode:
                 zipcodes.add(church.zipcode)
         if len(zipcodes) == 0:
-            context = ''
+            context = None
         elif len(cities) == 1 and len(zipcodes) == 1:
             context = f'{zipcodes.pop()} {cities.pop()}'
         else:

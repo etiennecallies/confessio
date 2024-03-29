@@ -3,7 +3,6 @@ from dataclasses import dataclass
 
 import requests
 from bs4 import BeautifulSoup
-from django.contrib.gis.geos import Point
 from fructose import Fructose
 
 from home.models import Diocese, Parish, Church
@@ -123,7 +122,7 @@ def get_churches_on_lehavre(page: int):
                 address=church_data.address,
                 zipcode=church_data.zipcode,
                 city=church_data.city,
-                location=Point(0, 0),  # will be updated later
+                location=None,  # will be updated later
                 parish=parish
             )
             church.save()
