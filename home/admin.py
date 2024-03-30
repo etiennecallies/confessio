@@ -15,6 +15,11 @@ class DioceseAdmin(ModelAdmin):
 class ParishAdmin(ModelAdmin):
     list_display = ["name"]
 
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'diocese':
+            return DioceseChoiceField(queryset=Diocese.objects.all())
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
 
 @admin.register(Church)
 class ChurchAdmin(LeafletGeoAdmin):
@@ -45,3 +50,8 @@ class PageAdmin(ModelAdmin):
 class ParishChoiceField(ModelChoiceField):
     def label_from_instance(self, obj):
         return "Parish: {}".format(obj.name)
+
+
+class DioceseChoiceField(ModelChoiceField):
+    def label_from_instance(self, obj):
+        return "Diocese: {}".format(obj.name)
