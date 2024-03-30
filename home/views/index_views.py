@@ -83,6 +83,9 @@ def index(request):
             return HttpResponseNotFound("Parish dos not exist with this uuid")
 
         churches = get_churches_by_parish(parish)
+        if len(churches) == 0:
+            return HttpResponseNotFound("No church found for this parish")
+
         center = get_center(churches)
     else:
 
