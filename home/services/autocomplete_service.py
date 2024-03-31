@@ -87,7 +87,7 @@ def sort_results(query, results: list[AutocompleteResult]) -> list[AutocompleteR
         return []
 
     tuples = zip(map(lambda r: get_distance(query, r), results), results)
-    sorted_tuples = sorted(tuples, key=lambda t: t[0])
+    sorted_tuples = sorted(tuples, key=lambda t: t[0], reverse=True)
     _, sorted_values = zip(*sorted_tuples)
 
     return sorted_values
