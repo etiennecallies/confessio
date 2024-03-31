@@ -7,7 +7,7 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('autocomplete', views.autocomplete, name='autocomplete'),
     path('dioceses', views.dioceses_list, name='dioceses_list'),
-    path('diocese/<str:diocese_slug>', views.diocese_view, name='diocese_view'),
+    path('diocese/<str:diocese_slug>', views.index, name='diocese_view'),
 
     # qualify
     path('qualify/page/<uuid:page_uuid>', views.qualify_page, name='qualify_page'),

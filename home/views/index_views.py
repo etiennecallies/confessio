@@ -56,7 +56,7 @@ def render_map(request, center, churches, bounds, location):
     return render(request, 'pages/index.html', context)
 
 
-def index(request):
+def index(request, diocese_slug=None):
     location = request.GET.get('location', '')
     latitude = request.GET.get('latitude', '')
     longitude = request.GET.get('longitude', '')
@@ -67,8 +67,6 @@ def index(request):
     max_lng = request.GET.get('maxLng', '')
 
     parish_uuid = request.GET.get('parishUuid', '')
-
-    bounds = None
 
     if min_lat and min_lng and max_lat and max_lng:
         min_lat, max_lat, min_lng, max_lng = \
@@ -87,16 +85,28 @@ def index(request):
             return HttpResponseNotFound("No church found for this parish")
 
         center = get_center(churches)
-    else:
-
-        if latitude and longitude:
-            center = [float(latitude), float(longitude)]
-        else:
-            # Default coordinates
-            # center = [48.859, 2.342]  # Paris
-            center = [45.758, 4.832]  # Lyon - Bellecour
-
+        bounds = None
+    elif latitude and longitude:
+        center = [float(latitude), float(longitude)]
         churches = get_churches_around(center)
+        bounds = None
+    elif diocese_slug:
+        try:
+            diocese = Diocese.objects.get(slug=diocese_slug)
+        except Diocese.DoesNotExist:
+            return HttpResponseNotFound("Diocese not found")
+
+        churches = get_churches_by_diocese(diocese)
+        if len(churches) == 0:
+            return HttpResponseNotFound("No church found for this diocese")
+        center = get_center(churches)
+        bounds = None
+    else:
+        # Default coordinates
+        # center = [48.859, 2.342]  # Paris
+        center = [45.758, 4.832]  # Lyon - Bellecour
+        churches = get_churches_around(center)
+        bounds = None
 
     return render_map(request, center, churches, bounds, location)
 
@@ -107,20 +117,6 @@ def autocomplete(request):
     response = list(map(dataclasses.asdict, results))
 
     return JsonResponse(response, safe=False)
-
-
-def diocese_view(request, diocese_slug):
-    try:
-        diocese = Diocese.objects.get(slug=diocese_slug)
-    except Diocese.DoesNotExist:
-        return HttpResponseNotFound("Diocese not found")
-
-    location = ''
-    bounds = None
-    churches = get_churches_by_diocese(diocese)
-    center = get_center(churches)
-
-    return render_map(request, center, churches, bounds, location)
 
 
 def dioceses_list(request):
