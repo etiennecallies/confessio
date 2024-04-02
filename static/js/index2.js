@@ -68,10 +68,9 @@ $( function() {
  * Requires JQuery (to wait for the iframe to be loaded).
  */
 $(document).ready(function () {
-  let $mapIframe = $('#map-iframe');
 
   function handleIframeLoaded() {
-    let mapObjectName = $mapIframe.attr('data-map-name');
+    let mapObjectName = $('#map-iframe').attr('data-map-name');
     let map = document.getElementById("map-iframe").contentWindow[mapObjectName];
 
     map.on('moveend', function (evt) {
@@ -84,8 +83,11 @@ $(document).ready(function () {
     });
   }
 
+  let $mapIframe = $('#map-iframe');
+
   // Check if the iframe is already loaded
   if ($mapIframe.get(0).contentWindow.document.readyState === 'complete') {
+    console.log('iframe already loaded');
     handleIframeLoaded();
   } else {
     // Wait for the iframe to be loaded
