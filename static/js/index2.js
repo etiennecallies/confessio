@@ -68,10 +68,20 @@ $( function() {
  * Requires JQuery (to wait for the iframe to be loaded).
  */
 $(document).ready(function () {
+  let $mapIframe = $('#map-iframe');
 
-  function handleIframeLoaded() {
-    let mapObjectName = $('#map-iframe').attr('data-map-name');
-    let map = document.getElementById("map-iframe").contentWindow[mapObjectName];
+  async function getMap() {
+    let mapObjectName = $mapIframe.attr('data-map-name');
+    let map;
+    while (!map) {
+      await new Promise(resolve => setTimeout(resolve, 50));
+      map = document.getElementById("map-iframe").contentWindow[mapObjectName];
+    }
+    return map;
+  }
+
+  async function handleIframeLoaded() {
+    const map = await getMap();
 
     map.on('moveend', function (evt) {
       let bounds = map.getBounds();
@@ -82,8 +92,6 @@ $(document).ready(function () {
       $("#search-in-this-area-btn").css('visibility', 'visible');
     });
   }
-
-  let $mapIframe = $('#map-iframe');
 
   // Check if the iframe is already loaded
   if ($mapIframe.get(0).contentWindow.document.readyState === 'complete') {
