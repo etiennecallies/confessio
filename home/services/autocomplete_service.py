@@ -4,9 +4,13 @@ from difflib import SequenceMatcher
 from typing import Optional
 
 import requests
+from django.contrib.postgres.lookups import Unaccent
+from django.db.models import Value
+from django.db.models.functions import Replace, Lower
 
 from home.models import Parish
 from scraping.utils.department_utils import get_departments_context
+from scraping.utils.string_search import unhyphen_content, normalize_content
 
 MAX_AUTOCOMPLETE_RESULTS = 15
 
@@ -72,8 +76,10 @@ def get_data_gouv_response(query) -> list[AutocompleteResult]:
 
 
 def get_parish_by_name_response(query) -> list[AutocompleteResult]:
-    parishes = Parish.objects.filter(is_active=True, name__icontains=query)\
-        [:MAX_AUTOCOMPLETE_RESULTS]
+    query_term = unhyphen_content(normalize_content(query))
+    parishes = Parish.objects.annotate(
+        search_name=Replace(Unaccent(Lower('name')), Value('-'), Value(' '))
+    ).filter(is_active=True, search_name__contains=query_term)[:MAX_AUTOCOMPLETE_RESULTS]
 
     return list(map(AutocompleteResult.from_parish, parishes))
 

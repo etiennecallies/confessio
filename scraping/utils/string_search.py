@@ -8,6 +8,10 @@ def normalize_content(content):
     return unidecode(content.lower())
 
 
+def unhyphen_content(content):
+    return content.replace('-', ' ')
+
+
 def get_words(content, punctuation=None):
     for char in (punctuation or string.punctuation):
         content = content.replace(char, ' ')

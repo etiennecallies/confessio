@@ -1,8 +1,8 @@
 # Used by django
-django
-gunicorn
-python-dotenv
-whitenoise
+Django==5.0.1
+gunicorn==21.2.0
+python-dotenv==1.0.0
+whitenoise==6.6.0
 django-theme-pixel==1.0.3
 django-ses==3.5.2
 psycopg2-binary==2.9.6
