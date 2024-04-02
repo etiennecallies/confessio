@@ -68,11 +68,13 @@ $( function() {
  * Requires JQuery (to wait for the iframe to be loaded).
  */
 $(document).ready(function () {
-  $('#map-iframe').load(function() {
-    let mapObjectName = $('#map-iframe').attr('data-map-name');
+  let $mapIframe = $('#map-iframe');
+
+  function handleIframeLoaded() {
+    let mapObjectName = $mapIframe.attr('data-map-name');
     let map = document.getElementById("map-iframe").contentWindow[mapObjectName];
 
-    map.on('moveend', function(evt){
+    map.on('moveend', function (evt) {
       let bounds = map.getBounds();
       $("#min-lat-input").val(bounds._southWest.lat);
       $("#min-lng-input").val(bounds._southWest.lng);
@@ -80,5 +82,15 @@ $(document).ready(function () {
       $("#max-lng-input").val(bounds._northEast.lng);
       $("#search-in-this-area-btn").css('visibility', 'visible');
     });
-  });
+  }
+
+  // Check if the iframe is already loaded
+  if ($mapIframe.get(0).contentWindow.document.readyState === 'complete') {
+    handleIframeLoaded();
+  } else {
+    // Wait for the iframe to be loaded
+    $mapIframe.load(function () {
+      handleIframeLoaded();
+    });
+  }
 });
