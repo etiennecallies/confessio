@@ -5,6 +5,7 @@ from django.db.models.functions import Now
 from home.models import Parish, Crawling, Page, ParishModeration, ScrapingModeration
 from scraping.services.scrape_page_service import upsert_scraping
 from scraping.utils.download_and_search_urls import search_for_confession_pages
+from scraping.utils.url_utils import get_clean_full_url
 
 
 def remove_not_validated_moderation(parish: Parish, category: ParishModeration.Category):
@@ -50,20 +51,23 @@ def crawl_parish(parish: Parish) -> Tuple[bool, bool, Optional[str]]:
     )
     crawling.save()
 
-    # Updating parish home_url
-    if len(home_url_aliases) > 1:
-        new_url = home_url_aliases[-1][0]
-        # Check that there is not already a Parish with this home_url
-        try:
-            parish_with_url = Parish.objects.get(home_url=new_url)
-            print(f'conflict between parish {parish.name} ({parish.uuid}) '
-                  f'and {parish_with_url.name} ({parish_with_url.uuid}) '
-                  f'about url {new_url} Adding moderation.')
-            add_moderation(parish, ParishModeration.Category.HOME_URL_CONFLICT, parish_with_url)
-        except Parish.DoesNotExist:
-            parish.home_url = new_url
-            parish.save()
-            remove_not_validated_moderation(parish, ParishModeration.Category.HOME_URL_CONFLICT)
+    # Checking for home_url to be updated
+    if home_url_aliases:
+        new_url = get_clean_full_url(home_url_aliases[-1][0])
+        if parish.home_url != new_url:
+            # Check that there is not already a Parish with this home_url
+            try:
+                parish_with_url = Parish.objects.get(home_url=new_url)
+                print(f'conflict between parish {parish.name} ({parish.uuid}) '
+                      f'and {parish_with_url.name} ({parish_with_url.uuid}) '
+                      f'about url {new_url} Adding moderation.')
+                add_moderation(parish, ParishModeration.Category.HOME_URL_CONFLICT, parish_with_url)
+            except Parish.DoesNotExist:
+                print(f'replacing home_url from {parish.home_url} to {new_url} '
+                      f'for parish {parish.name}')
+                parish.home_url = new_url
+                parish.save()
+                remove_not_validated_moderation(parish, ParishModeration.Category.HOME_URL_CONFLICT)
 
     # Removing old pages
     existing_pages = parish.get_pages()

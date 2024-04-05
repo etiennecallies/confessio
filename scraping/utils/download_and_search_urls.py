@@ -36,7 +36,7 @@ def search_for_confession_pages(home_url) -> Tuple[Dict[str, str], int,
             confession_parts_seen.add(confession_part)
 
         # Looking for new links to visit
-        aliases_domains = [alias[1] for alias in home_url_aliases]
+        aliases_domains = set([alias[1] for alias in home_url_aliases])
         new_links = parse_content_links(html_content, home_url, aliases_domains)
         for new_link in new_links:
             if new_link not in visited_links:
