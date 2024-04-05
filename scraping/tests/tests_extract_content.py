@@ -73,10 +73,14 @@ class MyTestCase(unittest.TestCase):
         content = "18:00 - 19:00"
         self.assertTrue(is_schedule_description(content))
 
-    def test_is_schedule_description_spcae(self):
+    def test_is_schedule_description_space(self):
         content = "Profitons en quel que soit notre âge d’une soirée « Confessions  et  " \
                   "Adoration »,  le jeudi 21 décembre  de 20 h à 21 h 30 à la Paroisse " \
                   "Notre Dame Saint-Vincent."
+        self.assertTrue(is_schedule_description(content))
+
+    def test_is_schedule_description_column(self):
+        content = "Vendredi 9h: Vauxrenard"
         self.assertTrue(is_schedule_description(content))
 
 
