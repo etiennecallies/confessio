@@ -8,9 +8,9 @@ MAX_VISITED_LINKS = 50
 
 
 def search_for_confession_pages(home_url) -> Tuple[Dict[str, str], int, Optional[str]]:
-    home_url_aliases = get_url_aliases(home_url)
+    home_url_aliases, error_message = get_url_aliases(home_url)
     if home_url_aliases is None:
-        return {}, 0, 'error in get_url_aliases'
+        return {}, 0, f'error in get_url_aliases: {error_message}'
 
     visited_links = set()
     links_to_visit = {home_url}
@@ -52,5 +52,6 @@ if __name__ == '__main__':
     # home_url = 'https://paroisses-amplepuis-thizy.blogspot.fr/'
     # home_url = 'https://paroissesaintbruno.pagesperso-orange.fr/'
     # home_url_ = 'https://paroissecroixrousse.fr/'
-    home_url_ = 'https://www.espace-saint-ignace.fr/'
+    # home_url_ = 'https://www.espace-saint-ignace.fr/'
+    home_url_ = 'https://www.paroisse-st-martin-largentiere.fr'
     print(search_for_confession_pages(home_url_))

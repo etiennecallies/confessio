@@ -36,25 +36,7 @@ def get_content_from_url(url):
     return r.text
 
 
-def get_content_from_pdf(url):
-    print(f'getting content from pdf with url {url}')
-    # TODO download pdf
-    # TODO use poppler-utils
-
-    return ''
-
-
-def get_content(url, page_type):
-    if page_type == 'html_page':
-        return get_content_from_url(url)
-    elif page_type == 'pdf':
-        return get_content_from_pdf(url)
-    else:
-        print(f'unrecognized page_type {page_type}')
-        return None
-
-
-def get_url_aliases(url) -> Optional[Set[str]]:
+def get_url_aliases(url) -> tuple[Optional[Set[str]], Optional[str]]:
     print(f'getting url aliases for {url}')
 
     aliases = {get_domain(url)}
@@ -63,15 +45,14 @@ def get_url_aliases(url) -> Optional[Set[str]]:
     try:
         r = requests.get(url, headers=headers, allow_redirects=False, timeout=TIMEOUT)
     except RequestException as e:
-        print(e)
-        return None
+        return None, str(e)
 
     if r.status_code in [301, 302] and 'location' in r.headers:
         location = r.headers['location']
-        url_aliases = get_url_aliases(location)
+        url_aliases, error_message = get_url_aliases(location)
         if url_aliases is None:
-            print(f'tried to follow redirect location {location} but got error')
+            print(f'tried to follow redirect location {location} but got error {error_message}')
         else:
             aliases.update(url_aliases)
 
-    return aliases
+    return aliases, None

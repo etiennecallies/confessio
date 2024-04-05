@@ -74,7 +74,7 @@ $(document).ready(function () {
     let mapObjectName = $mapIframe.attr('data-map-name');
     let map;
     while (!map) {
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 200));
       map = document.getElementById("map-iframe").contentWindow[mapObjectName];
     }
     return map;
