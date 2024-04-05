@@ -12,6 +12,7 @@ def search_for_confession_pages(home_url, aliases_domains: set[str], forbidden_p
     visited_links = set()
     links_to_visit = {home_url}
     confession_parts_seen = set()
+    not_aliases_domains = set()
 
     error_detail = None
 
@@ -32,7 +33,8 @@ def search_for_confession_pages(home_url, aliases_domains: set[str], forbidden_p
             confession_parts_seen.add(confession_part)
 
         # Looking for new links to visit
-        new_links = parse_content_links(html_content, home_url, aliases_domains, forbidden_paths)
+        new_links = parse_content_links(html_content, home_url, aliases_domains,
+                                        not_aliases_domains, forbidden_paths)
         for new_link in new_links:
             if new_link not in visited_links:
                 links_to_visit.add(new_link)
