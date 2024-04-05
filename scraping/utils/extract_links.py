@@ -1,4 +1,4 @@
-from typing import Set, Dict
+from typing import Dict
 from urllib.parse import urlparse, ParseResult, parse_qs, urlencode
 
 from bs4 import BeautifulSoup, SoupStrainer, Comment
@@ -48,7 +48,7 @@ def clean_url_query(url_parsed: ParseResult):
     return url_parsed.geturl()
 
 
-def get_links(element: el, home_url: str, home_url_aliases: Set[str]):
+def get_links(element: el, home_url: str, home_url_aliases: list[str]):
     results = set()
 
     for link in element:
@@ -90,7 +90,7 @@ def get_links(element: el, home_url: str, home_url_aliases: Set[str]):
     return results
 
 
-def parse_content_links(content, home_url: str, home_url_aliases: Set[str]):
+def parse_content_links(content, home_url: str, home_url_aliases: list[str]):
     element = BeautifulSoup(content, 'html.parser', parse_only=SoupStrainer('a'))
     links = get_links(element, home_url, home_url_aliases)
 

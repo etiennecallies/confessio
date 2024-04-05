@@ -1,4 +1,3 @@
-from typing import Set
 from urllib.parse import urlparse, ParseResult
 
 
@@ -39,7 +38,7 @@ def clean_parsed_url(url_parsed: ParseResult) -> ParseResult:
     return url_parsed
 
 
-def is_internal_link(url: str, url_parsed: ParseResult, home_url_aliases: Set[str]):
+def is_internal_link(url: str, url_parsed: ParseResult, home_url_aliases: list[str]):
     if url_parsed.scheme not in ['http', 'https']:
         return False
 

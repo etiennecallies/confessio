@@ -102,6 +102,7 @@ class ParishModeration(ModerationMixin):
         NAME_WEBSITE_TITLE = "name_websit"
         HOME_URL_NO_RESPONSE = "hu_no_resp"
         HOME_URL_NO_CONFESSION = "hu_no_conf"
+        HOME_URL_CONFLICT = "hu_conflict"
 
     resource = 'parish'
     validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
@@ -113,6 +114,8 @@ class ParishModeration(ModerationMixin):
 
     name = models.CharField(max_length=300)
     home_url = models.URLField()
+    other_parish = models.ForeignKey('Parish', on_delete=models.SET_NULL,
+                                     related_name='other_moderations', null=True)
 
     class Meta:
         unique_together = ('parish', 'category')

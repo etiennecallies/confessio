@@ -1,4 +1,4 @@
-from typing import Set, Optional
+from typing import Optional
 
 import requests
 from requests import RequestException
@@ -36,23 +36,22 @@ def get_content_from_url(url):
     return r.text
 
 
-def get_url_aliases(url) -> tuple[Optional[Set[str]], Optional[str]]:
+def get_url_aliases(url) -> tuple[list[str], Optional[str]]:
     print(f'getting url aliases for {url}')
-
-    aliases = {get_domain(url)}
 
     headers = get_headers()
     try:
         r = requests.get(url, headers=headers, allow_redirects=False, timeout=TIMEOUT)
     except RequestException as e:
-        return None, str(e)
+        return [], str(e)
 
+    aliases = [get_domain(url)]
     if r.status_code in [301, 302] and 'location' in r.headers:
         location = r.headers['location']
         url_aliases, error_message = get_url_aliases(location)
         if url_aliases is None:
             print(f'tried to follow redirect location {location} but got error {error_message}')
         else:
-            aliases.update(url_aliases)
+            aliases.extend(url_aliases)
 
     return aliases, None

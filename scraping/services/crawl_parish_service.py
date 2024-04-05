@@ -23,20 +23,22 @@ def remove_not_validated_moderation_for_page(page: Page):
         moderation.delete()
 
 
-def add_moderation(parish: Parish, category: ParishModeration.Category):
+def add_moderation(parish: Parish, category: ParishModeration.Category,
+                   other_parish: Optional[Parish] = None):
     try:
         ParishModeration.objects.get(parish=parish, category=category)
     except ParishModeration.DoesNotExist:
         moderation = ParishModeration(
             parish=parish, category=category,
-            name=parish.name, home_url=parish.home_url
+            name=parish.name, home_url=parish.home_url,
+            other_parish=other_parish,
         )
         moderation.save()
 
 
 def crawl_parish(parish: Parish) -> Tuple[bool, bool, Optional[str]]:
     # Actually crawling parish
-    confession_parts_by_url, nb_visited_links, error_detail = \
+    confession_parts_by_url, nb_visited_links, home_url_aliases, error_detail = \
         search_for_confession_pages(parish.home_url)
 
     # Inserting global statistics
@@ -47,6 +49,21 @@ def crawl_parish(parish: Parish) -> Tuple[bool, bool, Optional[str]]:
         parish=parish,
     )
     crawling.save()
+
+    # Updating parish home_url
+    if len(home_url_aliases) > 1:
+        new_url = home_url_aliases[-1]
+        # Check that there is not already a Parish with this home_url
+        try:
+            parish_with_url = Parish.objects.get(home_url=new_url)
+            print(f'conflict between parish {parish.name} ({parish.uuid}) '
+                  f'and {parish_with_url.name} ({parish_with_url.uuid}) '
+                  f'about url {new_url} Adding moderation.')
+            add_moderation(parish, ParishModeration.Category.HOME_URL_CONFLICT, parish_with_url)
+        except Parish.DoesNotExist:
+            parish.home_url = new_url
+            parish.save()
+            remove_not_validated_moderation(parish, ParishModeration.Category.HOME_URL_CONFLICT)
 
     # Removing old pages
     existing_pages = parish.get_pages()

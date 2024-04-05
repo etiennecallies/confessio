@@ -7,13 +7,13 @@ from scraping.utils.extract_links import parse_content_links, remove_http_https_
 MAX_VISITED_LINKS = 50
 
 
-def search_for_confession_pages(home_url) -> Tuple[Dict[str, str], int, Optional[str]]:
+def search_for_confession_pages(home_url) -> Tuple[Dict[str, str], int, list[str], Optional[str]]:
     home_url_aliases, error_message = get_url_aliases(home_url)
-    if home_url_aliases is None:
-        return {}, 0, f'error in get_url_aliases: {error_message}'
+    if not home_url_aliases:
+        return {}, 0, home_url_aliases, f'error in get_url_aliases: {error_message}'
 
     visited_links = set()
-    links_to_visit = {home_url}
+    links_to_visit = {home_url_aliases[-1]}
     confession_parts_seen = set()
 
     error_detail = None
@@ -43,7 +43,7 @@ def search_for_confession_pages(home_url) -> Tuple[Dict[str, str], int, Optional
     if len(visited_links) == MAX_VISITED_LINKS:
         error_detail = f'Reached limit of {MAX_VISITED_LINKS} visited links.'
 
-    return remove_http_https_duplicate(results), len(visited_links), error_detail
+    return remove_http_https_duplicate(results), len(visited_links), home_url_aliases, error_detail
 
 
 if __name__ == '__main__':
