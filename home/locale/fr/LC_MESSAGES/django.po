@@ -145,17 +145,3 @@ msgstr ""
 #: templates/pages/index.html:106
 msgid "QualifyPage"
 msgstr "Qualifier"
-
-#: templates/pages/index.html:115
-#, python-format
-msgid "PageNotScrapedYet %(url)s"
-msgstr ""
-"Traitement en cours pour cette <a href=\"%(url)s\" class=\"link-info\">page</"
-"a>."
-
-#: templates/pages/index.html:119
-#, python-format
-msgid "NoConfessionFoundPage %(url)s"
-msgstr ""
-"Pas de confessions trouvées sur cette <a href=\"%(url)s\" class=\"link-"
-"info\">page</a>."

@@ -106,7 +106,7 @@
                                                 </div>
                                             {% endfor %}
                                             <div class="mb-0">
-                                                {% if parish.has_pages %}
+                                                {% if parish.one_page_has_confessions %}
                                                     {% for page in parish.get_pages %}
                                                         {% if page.has_confessions %}
                                                             <div class="row mt-3 mb-1">
@@ -122,14 +122,6 @@
                                                             <div>
                                                                 {{ page.get_latest_scraping.confession_html_pruned|safe }}
                                                             </div>
-                                                        {% elif not page.has_been_scraped or not page.latest_scraping_has_been_pruned %}
-                                                            <p>
-                                                                {% blocktrans with url=page_urls|get_item:page.uuid %}PageNotScrapedYet {{ url }}{% endblocktrans %}
-                                                            </p>
-                                                        {% elif not page.has_confessions %}
-                                                            <p>
-                                                                {% blocktrans with url=page_urls|get_item:page.uuid %}NoConfessionFoundPage {{ url }}{% endblocktrans %}
-                                                            </p>
                                                         {% endif %}
                                                     {% endfor %}
                                                 {% elif not parish.has_been_crawled %}
