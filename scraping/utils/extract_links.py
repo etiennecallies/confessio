@@ -52,7 +52,7 @@ def is_child_link(url_parsed, home_url):
     return url_parsed.path.startswith(urlparse(home_url).path)
 
 
-def get_links(element: el, home_url: str, aliases_domains: set[str]):
+def get_links(element: el, home_url: str, aliases_domains: set[str], forbidden_paths: set[str]):
     results = set()
 
     for link in element:
@@ -71,6 +71,10 @@ def get_links(element: el, home_url: str, aliases_domains: set[str]):
 
             # We ignore parent links, ex: https://site.com if home_url is https://site.com/some_path
             if not is_child_link(url_parsed, home_url):
+                continue
+
+            # We ignore links that are in forbidden paths
+            if url_parsed.path in forbidden_paths:
                 continue
 
             full_url = get_clean_full_url(full_url)  # we use standardized url to ensure unicity
@@ -98,9 +102,10 @@ def get_links(element: el, home_url: str, aliases_domains: set[str]):
     return results
 
 
-def parse_content_links(content, home_url: str, aliases_domains: set[str]):
+def parse_content_links(content, home_url: str, aliases_domains: set[str],
+                        forbidden_paths: set[str]):
     element = BeautifulSoup(content, 'html.parser', parse_only=SoupStrainer('a'))
-    links = get_links(element, home_url, aliases_domains)
+    links = get_links(element, home_url, aliases_domains, forbidden_paths)
 
     return links
 

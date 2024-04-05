@@ -7,6 +7,12 @@ def get_domain(url):
     return url_parsed.netloc
 
 
+def get_path(url):
+    url_parsed = urlparse(url)
+
+    return url_parsed.path
+
+
 def replace_scheme_and_hostname(url_parsed: ParseResult, new_url: str) -> str:
     new_url_parsed = urlparse(new_url)
 
