@@ -7,13 +7,14 @@ from scraping.utils.extract_links import parse_content_links, remove_http_https_
 MAX_VISITED_LINKS = 50
 
 
-def search_for_confession_pages(home_url) -> Tuple[Dict[str, str], int, list[str], Optional[str]]:
+def search_for_confession_pages(home_url) -> Tuple[Dict[str, str], int,
+                                                   list[tuple[str, str]], Optional[str]]:
     home_url_aliases, error_message = get_url_aliases(home_url)
     if not home_url_aliases:
         return {}, 0, home_url_aliases, f'error in get_url_aliases: {error_message}'
 
     visited_links = set()
-    links_to_visit = {home_url_aliases[-1]}
+    links_to_visit = {home_url_aliases[-1][0]}
     confession_parts_seen = set()
 
     error_detail = None
@@ -35,7 +36,8 @@ def search_for_confession_pages(home_url) -> Tuple[Dict[str, str], int, list[str
             confession_parts_seen.add(confession_part)
 
         # Looking for new links to visit
-        new_links = parse_content_links(html_content, home_url, home_url_aliases)
+        aliases_domains = [alias[1] for alias in home_url_aliases]
+        new_links = parse_content_links(html_content, home_url, aliases_domains)
         for new_link in new_links:
             if new_link not in visited_links:
                 links_to_visit.add(new_link)

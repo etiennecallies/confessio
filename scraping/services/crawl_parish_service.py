@@ -52,7 +52,7 @@ def crawl_parish(parish: Parish) -> Tuple[bool, bool, Optional[str]]:
 
     # Updating parish home_url
     if len(home_url_aliases) > 1:
-        new_url = home_url_aliases[-1]
+        new_url = home_url_aliases[-1][0]
         # Check that there is not already a Parish with this home_url
         try:
             parish_with_url = Parish.objects.get(home_url=new_url)

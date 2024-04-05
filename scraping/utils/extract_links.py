@@ -48,7 +48,7 @@ def clean_url_query(url_parsed: ParseResult):
     return url_parsed.geturl()
 
 
-def get_links(element: el, home_url: str, home_url_aliases: list[str]):
+def get_links(element: el, home_url: str, aliases_domains: list[str]):
     results = set()
 
     for link in element:
@@ -62,7 +62,7 @@ def get_links(element: el, home_url: str, home_url_aliases: list[str]):
                 url_parsed = urlparse(full_url)
 
             # We ignore external links (ex: facebook page...)
-            if not is_internal_link(full_url, url_parsed, home_url_aliases):
+            if not is_internal_link(full_url, url_parsed, aliases_domains):
                 continue
 
             full_url = get_clean_full_url(full_url)  # we use standardized url to ensure unicity
@@ -90,9 +90,9 @@ def get_links(element: el, home_url: str, home_url_aliases: list[str]):
     return results
 
 
-def parse_content_links(content, home_url: str, home_url_aliases: list[str]):
+def parse_content_links(content, home_url: str, aliases_domains: list[str]):
     element = BeautifulSoup(content, 'html.parser', parse_only=SoupStrainer('a'))
-    links = get_links(element, home_url, home_url_aliases)
+    links = get_links(element, home_url, aliases_domains)
 
     return links
 

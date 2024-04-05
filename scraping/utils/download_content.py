@@ -36,7 +36,7 @@ def get_content_from_url(url):
     return r.text
 
 
-def get_url_aliases(url) -> tuple[list[str], Optional[str]]:
+def get_url_aliases(url) -> tuple[list[tuple[str, str]], Optional[str]]:
     print(f'getting url aliases for {url}')
 
     headers = get_headers()
@@ -45,11 +45,11 @@ def get_url_aliases(url) -> tuple[list[str], Optional[str]]:
     except RequestException as e:
         return [], str(e)
 
-    aliases = [get_domain(url)]
+    aliases = [(url, get_domain(url))]
     if r.status_code in [301, 302] and 'location' in r.headers:
         location = r.headers['location']
         url_aliases, error_message = get_url_aliases(location)
-        if url_aliases is None:
+        if not url_aliases:
             print(f'tried to follow redirect location {location} but got error {error_message}')
         else:
             aliases.extend(url_aliases)

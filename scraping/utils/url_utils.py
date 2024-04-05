@@ -38,7 +38,7 @@ def clean_parsed_url(url_parsed: ParseResult) -> ParseResult:
     return url_parsed
 
 
-def is_internal_link(url: str, url_parsed: ParseResult, home_url_aliases: list[str]):
+def is_internal_link(url: str, url_parsed: ParseResult, aliases_domains: list[str]):
     if url_parsed.scheme not in ['http', 'https']:
         return False
 
@@ -46,7 +46,7 @@ def is_internal_link(url: str, url_parsed: ParseResult, home_url_aliases: list[s
         # link on same page
         return False
 
-    if url_parsed.netloc not in home_url_aliases:
+    if url_parsed.netloc not in aliases_domains:
         # external link
         return False
 
