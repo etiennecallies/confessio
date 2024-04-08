@@ -105,6 +105,8 @@ def moderate_scraping(request, category, is_bug, moderation_uuid=None):
 
 
 def render_scraping_moderation(request, moderation: ScrapingModeration, next_url):
+    assert moderation.scraping is not None
+
     return render(request, f'pages/moderate_scraping.html', {
         'scraping_moderation': moderation,
         'scraping': moderation.scraping,

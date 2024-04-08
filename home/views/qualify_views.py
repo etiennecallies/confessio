@@ -12,7 +12,7 @@ from scraping.utils.hash_utils import hash_string_to_hex
 @permission_required("home.change_sentence")
 def qualify_page(request, page_uuid):
     try:
-        page = Page.objects.get(uuid=page_uuid, deleted_at__isnull=True)
+        page = Page.objects.get(uuid=page_uuid)
     except Page.DoesNotExist:
         return HttpResponseNotFound("Page not found")
 

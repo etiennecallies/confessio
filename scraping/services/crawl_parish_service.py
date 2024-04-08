@@ -94,12 +94,11 @@ def crawl_parish(parish: Parish) -> Tuple[bool, bool, Optional[str]]:
     existing_urls = list(map(lambda p: p.url, existing_pages))
     for page in existing_pages:
         if page.url not in confession_parts_by_url:
-            # Page did exist but not anymore
-            page.deleted_at = Now()
-            page.save()
-
             # We remove all pending scraping moderations related to this page
             remove_not_validated_moderation_for_page(page)
+
+            # Page did exist but not anymore, we remove it
+            page.delete()
         else:
             # Page still exists, we update scraping
             confession_part = confession_parts_by_url[page.url]

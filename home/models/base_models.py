@@ -46,7 +46,7 @@ class Parish(TimeStampMixin):
 
     def get_pages(self) -> List['Page']:
         if self._pages is None:
-            self._pages = self.pages.filter(deleted_at__isnull=True)
+            self._pages = self.pages
 
         return self._pages
 
