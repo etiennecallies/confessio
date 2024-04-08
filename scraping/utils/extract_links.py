@@ -53,8 +53,7 @@ def is_child_link(url_parsed, home_url):
     return url_parsed.path.startswith(urlparse(home_url).path)
 
 
-def get_links(element: el, home_url: str, aliases_domains: set[str], not_aliases_domains: set[str],
-              forbidden_paths: set[str]):
+def get_links(element: el, home_url: str, aliases_domains: set[str], forbidden_paths: set[str]):
     results = set()
 
     for link in element:
@@ -66,17 +65,6 @@ def get_links(element: el, home_url: str, aliases_domains: set[str], not_aliases
             if not url_parsed.netloc:
                 full_url = replace_scheme_and_hostname(url_parsed, new_url=home_url)
                 url_parsed = urlparse(full_url)
-
-            # Update aliases_domains and not_aliases_domains
-            url_domain = url_parsed.netloc
-            if url_domain not in aliases_domains and url_domain not in not_aliases_domains:
-                url_aliases, _ = get_url_aliases(full_url)
-                if any([alias_domain in aliases_domains for (_, alias_domain) in url_aliases]):
-                    print(f'Adding {url_domain} to aliases_domains')
-                    aliases_domains.add(url_domain)
-                else:
-                    print(f'Adding {url_domain} to not_aliases_domains')
-                    not_aliases_domains.add(url_domain)
 
             # We ignore external links (ex: facebook page...)
             if not is_internal_link(full_url, url_parsed, aliases_domains):
@@ -116,9 +104,9 @@ def get_links(element: el, home_url: str, aliases_domains: set[str], not_aliases
 
 
 def parse_content_links(content, home_url: str, aliases_domains: set[str],
-                        not_aliases_domains: set[str], forbidden_paths: set[str]):
+                        forbidden_paths: set[str]):
     element = BeautifulSoup(content, 'html.parser', parse_only=SoupStrainer('a'))
-    links = get_links(element, home_url, aliases_domains, not_aliases_domains, forbidden_paths)
+    links = get_links(element, home_url, aliases_domains, forbidden_paths)
 
     return links
 
