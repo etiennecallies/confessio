@@ -46,7 +46,7 @@ class Parish(TimeStampMixin):
 
     def get_pages(self) -> List['Page']:
         if self._pages is None:
-            self._pages = self.pages
+            self._pages = self.pages.all()
 
         return self._pages
 
@@ -84,7 +84,6 @@ class Church(TimeStampMixin):
 
 class Page(TimeStampMixin):
     url = models.URLField()
-    deleted_at = models.DateTimeField(null=True)
     parish = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='pages')
 
     _latest_scraping = None
