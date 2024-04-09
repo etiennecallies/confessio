@@ -68,7 +68,7 @@ class ParishSource(TimeStampMixin):
     messesinfo_network_id = models.CharField(max_length=100, null=True)
     messesinfo_community_id = models.CharField(max_length=100, null=True, unique=True)
     parish = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='sources',
-                               null=True)
+                               null=True, blank=True)
 
 
 class Church(TimeStampMixin):
