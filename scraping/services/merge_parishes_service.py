@@ -43,20 +43,20 @@ def update_parish_name(parish: Parish, other_name):
     add_moderation(parish, moderation_category, parish.home_url)
 
 
-def merge_parishes(parish: Parish, other_parish: Parish):
-    # We update parish name (website title or concatenated names)
-    update_parish_name(parish, other_parish.name)
+def merge_parishes(parish: Parish, primary_parish: Parish):
+    # We update primary_parish name (website title or concatenated names)
+    update_parish_name(primary_parish, parish.name)
 
     # We assign other sources to parish
-    for source in other_parish.sources.all():
-        source.parish = parish
+    for source in parish.sources.all():
+        source.parish = primary_parish
         source.save()
 
     # We assign other churches to parish
-    for church in other_parish.churches.all():
-        church.parish = parish
+    for church in parish.churches.all():
+        church.parish = primary_parish
         church.save()
 
     # Finally we delete other parish
-    other_parish.delete()
+    parish.delete()
 

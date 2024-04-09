@@ -127,6 +127,7 @@ def moderate_merge_parishes(request, parish_moderation_uuid=None):
     if parish_moderation.other_parish is None:
         return HttpResponseBadRequest(f'parish moderation does not have other parish')
 
+    # other_parish is the primary parish
     merge_parishes(parish_moderation.parish, parish_moderation.other_parish)
 
     return redirect_to_moderation(parish_moderation, parish_moderation.category, 'parish',
