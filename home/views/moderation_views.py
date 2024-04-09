@@ -1,10 +1,11 @@
 from django.contrib.auth.decorators import login_required, permission_required
-from django.http import HttpResponseBadRequest
+from django.http import HttpResponseBadRequest, HttpResponseNotFound
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
 from home.models import ParishModeration, ChurchModeration, ScrapingModeration, ModerationMixin, \
     BUG_DESCRIPTION_MAX_LENGTH
+from scraping.services.merge_parishes_service import merge_parishes
 from scraping.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 
 
@@ -113,3 +114,20 @@ def render_scraping_moderation(request, moderation: ScrapingModeration, next_url
         'next_url': next_url,
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
     })
+
+
+@login_required
+@permission_required("home.change_sentence")
+def moderate_merge_parishes(request, parish_moderation_uuid=None):
+    try:
+        parish_moderation = ParishModeration.objects.get(uuid=parish_moderation_uuid)
+    except ParishModeration.DoesNotExist:
+        return HttpResponseNotFound(f'parish moderation not found with uuid {parish_moderation_uuid}')
+
+    if parish_moderation.other_parish is None:
+        return HttpResponseBadRequest(f'parish moderation does not have other parish')
+
+    merge_parishes(parish_moderation.parish, parish_moderation.other_parish)
+
+    return redirect_to_moderation(parish_moderation, parish_moderation.category, 'parish',
+                                  parish_moderation.marked_as_bug_at is not None)

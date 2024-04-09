@@ -4,8 +4,8 @@ from typing import Optional
 import requests
 from django.contrib.gis.geos import Point
 
-from home.models import Church, Parish, ParishSource, ParishModeration, ChurchModeration, Diocese
-from scraping.utils.extract_title import get_page_title
+from home.models import Church, Parish, ParishSource, ChurchModeration, Diocese
+from scraping.services.merge_parishes_service import update_parish_name
 from scraping.utils.geocode_address import geocode
 from scraping.utils.url_utils import get_clean_full_url
 
@@ -25,48 +25,12 @@ def post_messesinfo_request(messesinfo_request):
     return r.json()
 
 
-def add_moderation(parish: Parish, category: ParishModeration.Category, home_url):
-    try:
-        # we need to delete existing moderation first
-        existing_category = ParishModeration.objects.get(parish=parish, category=category)
-        existing_category.delete()
-    except ParishModeration.DoesNotExist:
-        pass
-
-    parish_moderation = ParishModeration(
-        parish=parish,
-        category=category,
-        name=parish.name,
-        home_url=home_url,
-    )
-    parish_moderation.save()
-
-
 def get_parish(home_url, name, diocese: Diocese) -> Parish:
     try:
         parish = Parish.objects.get(home_url=home_url)
-        page_title = get_page_title(home_url)
 
-        if page_title:
-            # If home_url's title exists we replace parish name by it
-            parish.name = page_title
-            moderation_category = ParishModeration.Category.NAME_WEBSITE_TITLE
-        else:
-            # If there is a problem with home_url, new name is concatenation of all names
-            previous_sources = parish.sources.all()
-            all_names = list(map(lambda s: s.name, previous_sources)) + [name]
-            concatenated_name = ' - '.join(all_names)
-            print(f'got new name {concatenated_name}')
-
-            parish.name = concatenated_name
-            moderation_category = ParishModeration.Category.NAME_CONCATENATED
-
-        # We update parish
-        parish.save()
-
-        # We will need to moderate generated parish name
-        add_moderation(parish, moderation_category, home_url)
-
+        # We update parish name (website title or concatenated names)
+        update_parish_name(parish, name)
     except Parish.DoesNotExist:
         parish = Parish(
             name=name,

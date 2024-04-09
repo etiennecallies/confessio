@@ -65,6 +65,15 @@
         {% endfor %}
     {% endif %}
 
+    {% if parish_moderation.other_parish %}
+        <div>
+            <form action="{% url 'moderate_merge_parishes' parish_moderation.uuid %}" method="post">
+                {% csrf_token %}
+            <button type="submit" class="btn btn-warning">Merge parishes</button>
+            </form>
+        </div>
+    {% endif %}
+
     <div>
         <div class="d-inline-block">
             <form method="post">

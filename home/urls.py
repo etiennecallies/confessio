@@ -25,6 +25,8 @@ urlpatterns = [
          views.moderate_scraping, name='moderate_next_scraping'),
     path('moderate/scraping/<category>/<str:is_bug>/<uuid:moderation_uuid>',
          views.moderate_scraping, name='moderate_one_scraping'),
+    path('moderate/merge_parishes/<uuid:parish_moderation_uuid>',
+         views.moderate_merge_parishes, name='moderate_merge_parishes'),
 
     # contact
     path('contact', views.contact, name='contact'),

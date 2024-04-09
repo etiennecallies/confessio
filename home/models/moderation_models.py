@@ -127,6 +127,11 @@ class ParishModeration(ModerationMixin):
                 and self.home_url != self.parish.home_url:
             return True
 
+        # If other_parish has been merged, we can delete this moderation
+        if self.category == self.Category.HOME_URL_CONFLICT\
+                and self.other_parish is None:
+            return True
+
         # for other categories we don't need to delete, we could though
         return False
 
