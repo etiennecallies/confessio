@@ -1,5 +1,5 @@
 from home.management.abstract_command import AbstractCommand
-from home.models import Parish, ParishModeration
+from home.models import Parish, ParishModeration, Page
 from scraping.services.crawl_parish_service import crawl_parish
 
 
@@ -12,6 +12,13 @@ class Command(AbstractCommand):
                             help='only parishes with not validated home url moderation')
 
     def handle(self, *args, **options):
+        self.info(f'Starting removing pages of inactive parishes')
+        delete_count = 0
+        for page in Page.objects.filter(parish__is_active=False):
+            page.delete()
+            delete_count += 1
+        self.success(f'Successfully deleted {delete_count} pages')
+
         if options['name']:
             parishes = Parish.objects.filter(is_active=True, name__contains=options['name']).all()
         elif options['in_error']:
