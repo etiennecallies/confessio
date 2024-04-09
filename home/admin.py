@@ -3,7 +3,7 @@ from django.contrib.admin import ModelAdmin
 from django.forms import ModelChoiceField
 from leaflet.admin import LeafletGeoAdmin
 
-from .models import Church, Parish, Page, Diocese
+from .models import Church, Parish, Page, Diocese, ParishSource
 
 
 @admin.register(Diocese)
@@ -19,6 +19,11 @@ class ParishAdmin(ModelAdmin):
         if db_field.name == 'diocese':
             return DioceseChoiceField(queryset=Diocese.objects.all())
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+
+@admin.register(ParishSource)
+class ParishSourceAdmin(ModelAdmin):
+    list_display = ["name"]
 
 
 @admin.register(Church)

@@ -55,13 +55,21 @@
     <h3>Parish sources</h3>
     {% for source in parish.sources.all %}
         <h5>{{ source.name }}</h5>
-        <p>{{ source.messesinfo_community_id }}</p>
+        <p>{{ source.messesinfo_community_id }}
+            <a class="btn btn-primary" href="{% url 'admin:home_parishsource_change' source.uuid %}" target="_blank" role="button">
+                Open admin <i class="fas fa-up-right-from-square"></i>
+            </a>
+        </p>
     {% endfor %}
     {% if parish_moderation.other_parish %}
         <h3>Parish sources of {{ parish_moderation.other_parish.name }}</h3>
         {% for source in parish_moderation.other_parish.sources.all %}
             <h5>{{ source.name }}</h5>
-            <p>{{ source.messesinfo_community_id }}</p>
+            <p>{{ source.messesinfo_community_id }}
+                <a class="btn btn-primary" href="{% url 'admin:home_parishsource_change' source.uuid %}" target="_blank" role="button">
+                    Open admin <i class="fas fa-up-right-from-square"></i>
+                </a>
+            </p>
         {% endfor %}
     {% endif %}
 
