@@ -79,8 +79,8 @@ class Church(TimeStampMixin):
     city = models.CharField(max_length=50, null=True)
     messesinfo_id = models.CharField(max_length=100, null=True, unique=True, blank=True)
     parish = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='churches')
-    parish_source = models.ForeignKey('ParishSource', on_delete=models.SET_NULL,
-                                      blank=True, null=True, related_name='churches')
+    parish_source = models.ForeignKey('ParishSource', on_delete=models.CASCADE,
+                                      related_name='churches')
 
 
 class Page(TimeStampMixin):
