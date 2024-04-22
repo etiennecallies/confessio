@@ -131,7 +131,6 @@ def get_churches_on_page(messesinfo_network_id: str, page):
                 zipcode=church_data['zipcode'],
                 city=church_data['city'],
                 messesinfo_id=church_messesinfo_id,
-                parish=parish_source.parish,
                 parish_source=parish_source,
             )
             church.save()
