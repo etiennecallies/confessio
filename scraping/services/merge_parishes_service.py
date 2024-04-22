@@ -52,11 +52,6 @@ def merge_parishes(parish: Parish, primary_parish: Parish):
         source.parish = primary_parish
         source.save()
 
-    # We assign other churches to parish
-    for church in parish.churches.all():
-        church.parish = primary_parish
-        church.save()
-
     # Finally we delete other parish
     parish.delete()
 

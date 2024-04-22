@@ -30,11 +30,12 @@ class AutocompleteResult:
 
         cities = set()
         zipcodes = set()
-        for church in parish.churches.all():
-            if church.city:
-                cities.add(church.city)
-            if church.zipcode:
-                zipcodes.add(church.zipcode)
+        for parish_source in parish.sources.all():
+            for church in parish_source.churches.all():
+                if church.city:
+                    cities.add(church.city)
+                if church.zipcode:
+                    zipcodes.add(church.zipcode)
         if len(zipcodes) == 0:
             context = None
         elif len(cities) == 1 and len(zipcodes) == 1:

@@ -31,24 +31,30 @@
         <p>Nb success links : {{ latest_crawling.nb_success_links }}</p>
         <p>Error detail : {{ latest_crawling.error_detail }}</p>
     {% endif %}
-    <h3>Churches</h3>
-    {% for church in parish.churches.all %}
-        <h5>{{ church.name }} ({{ church.messesinfo_id }})</h5>
-        <p>City : {{ church.city }}
-            <a class="btn btn-primary" href="{% url 'admin:home_church_change' church.uuid %}" target="_blank" role="button">
-                Open admin <i class="fas fa-up-right-from-square"></i>
-            </a>
-        </p>
-    {% endfor %}
-    {% if parish_moderation.other_parish %}
-        <h3>Churches of {{ parish_moderation.other_parish.name }}</h3>
-        {% for church in parish_moderation.other_parish.churches.all %}
+    <h3>Sources & Churches</h3>
+    {% for parish_source in parish.sources.all %}
+        <h4>{{ parish_source.name }} ({{ parish_source.messesinfo_community_id }})</h4>
+        {% for church in parish_source.churches.all %}
             <h5>{{ church.name }} ({{ church.messesinfo_id }})</h5>
             <p>City : {{ church.city }}
                 <a class="btn btn-primary" href="{% url 'admin:home_church_change' church.uuid %}" target="_blank" role="button">
                     Open admin <i class="fas fa-up-right-from-square"></i>
                 </a>
             </p>
+        {% endfor %}
+    {% endfor %}
+    {% if parish_moderation.other_parish %}
+        <h3>Sources & Churches of {{ parish_moderation.other_parish.name }}</h3>
+        {% for parish_source in parish_moderation.other_parish.sources.all %}
+            <h4>{{ parish_source.name }} ({{ parish_source.messesinfo_community_id }})</h4>
+            {% for church in parish_source.churches.all %}
+                <h5>{{ church.name }} ({{ church.messesinfo_id }})</h5>
+                <p>City : {{ church.city }}
+                    <a class="btn btn-primary" href="{% url 'admin:home_church_change' church.uuid %}" target="_blank" role="button">
+                        Open admin <i class="fas fa-up-right-from-square"></i>
+                    </a>
+                </p>
+            {% endfor %}
         {% endfor %}
     {% endif %}
 
