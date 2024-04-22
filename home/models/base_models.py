@@ -78,7 +78,6 @@ class Church(TimeStampMixin):
     zipcode = models.CharField(max_length=5, null=True)
     city = models.CharField(max_length=50, null=True)
     messesinfo_id = models.CharField(max_length=100, null=True, unique=True, blank=True)
-    parish = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='churches')
     parish_source = models.ForeignKey('ParishSource', on_delete=models.CASCADE,
                                       related_name='churches')
 
