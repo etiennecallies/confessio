@@ -23,6 +23,8 @@ class ParishSourceAdmin(ModelAdmin):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'diocese':
             return DioceseChoiceField(queryset=Diocese.objects.all())
+        if db_field.name == 'parish':
+            return ParishChoiceField(queryset=Parish.objects.all())
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
@@ -32,8 +34,8 @@ class ChurchAdmin(LeafletGeoAdmin):
     display_raw = True
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == 'parish':
-            return ParishChoiceField(queryset=Parish.objects.all())
+        if db_field.name == 'parish_source':
+            return ParishSourceChoiceField(queryset=ParishSource.objects.all())
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
@@ -55,6 +57,11 @@ class PageAdmin(ModelAdmin):
 class ParishChoiceField(ModelChoiceField):
     def label_from_instance(self, obj):
         return "Parish: {}".format(obj.name)
+
+
+class ParishSourceChoiceField(ModelChoiceField):
+    def label_from_instance(self, obj):
+        return "ParishSource: {}".format(obj.name)
 
 
 class DioceseChoiceField(ModelChoiceField):
