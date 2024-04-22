@@ -46,7 +46,7 @@ def get_churches_in_box(min_lat, max_lat, min_long, max_long) -> List[Church]:
 def get_churches_by_parish(parish: Parish) -> List[Church]:
     # TODO load parish and latest scraping at the same time
     churches = Church.objects\
-        .filter(parish=parish,
+        .filter(parish_source__parish=parish,
                 parish_source__parish__is_active=True).all()[:MAX_CHURCHES_IN_RESULTS]
 
     return churches
