@@ -5,7 +5,7 @@ import requests
 from bs4 import BeautifulSoup
 from fructose import Fructose
 
-from home.models import Diocese, Parish, Church
+from home.models import Diocese, Parish, Church, ParishSource
 from scraping.services.crawl_messesinfos_service import compute_church_coordinates
 
 ai = Fructose(model="gpt-3.5-turbo")
@@ -111,10 +111,17 @@ def get_churches_on_lehavre(page: int):
         parish = Parish(
             name=parish_data.name,
             home_url=url,
-            diocese=diocese
         )
         parish.save()
         nb_parishes += 1
+
+        parish_source = ParishSource(
+            name=parish_data.name,
+            messesinfo_network_id=None,
+            messesinfo_community_id=None,
+            parish=parish,
+            diocese=diocese
+        )
 
         for church_data in parish_data.churches:
             church = Church(
@@ -123,7 +130,7 @@ def get_churches_on_lehavre(page: int):
                 zipcode=church_data.zipcode,
                 city=church_data.city,
                 location=None,  # will be updated later
-                parish=parish
+                parish_source=parish_source,
             )
             church.save()
 

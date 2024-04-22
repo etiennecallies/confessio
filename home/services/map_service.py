@@ -52,7 +52,8 @@ def get_churches_by_parish(parish: Parish) -> List[Church]:
 def get_churches_by_diocese(diocese: Diocese) -> List[Church]:
     # TODO load parish and latest scraping at the same time
     churches = Church.objects\
-        .filter(parish__diocese=diocese, parish__is_active=True).all()[:MAX_CHURCHES_IN_RESULTS]
+        .filter(parish_source__diocese=diocese, parish__is_active=True)\
+        .all()[:MAX_CHURCHES_IN_RESULTS]
 
     return churches
 

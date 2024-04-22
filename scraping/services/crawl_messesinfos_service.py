@@ -25,7 +25,7 @@ def post_messesinfo_request(messesinfo_request):
     return r.json()
 
 
-def get_parish(home_url, name, diocese: Diocese) -> Parish:
+def get_parish(home_url, name) -> Parish:
     try:
         parish = Parish.objects.get(home_url=home_url)
 
@@ -35,7 +35,6 @@ def get_parish(home_url, name, diocese: Diocese) -> Parish:
         parish = Parish(
             name=name,
             home_url=home_url,
-            diocese=diocese,
         )
 
         # We save parish
@@ -64,13 +63,15 @@ def fetch_parish_source(messesinfo_community_id, diocese: Diocese) -> Optional[P
         home_url = get_clean_full_url(url)  # we use standardized url to ensure unicity
         name = parish_data['name']
 
-        parish = get_parish(home_url, name, diocese)
+        parish = get_parish(home_url, name)
 
         parish_source = ParishSource(
             name=name,
             messesinfo_network_id=parish_data['networkId'],
             messesinfo_community_id=parish_data['id'],
-            parish=parish)
+            parish=parish,
+            diocese=diocese,
+        )
 
         return parish_source
     except (KeyError, TypeError) as e:

@@ -15,15 +15,15 @@ class DioceseAdmin(ModelAdmin):
 class ParishAdmin(ModelAdmin):
     list_display = ["name"]
 
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == 'diocese':
-            return DioceseChoiceField(queryset=Diocese.objects.all())
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
-
 
 @admin.register(ParishSource)
 class ParishSourceAdmin(ModelAdmin):
     list_display = ["name"]
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'diocese':
+            return DioceseChoiceField(queryset=Diocese.objects.all())
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 @admin.register(Church)
