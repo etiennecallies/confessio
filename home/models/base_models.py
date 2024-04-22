@@ -69,6 +69,8 @@ class ParishSource(TimeStampMixin):
     messesinfo_community_id = models.CharField(max_length=100, null=True, unique=True)
     parish = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='sources',
                                null=True, blank=True)
+    diocese = models.ForeignKey('Diocese', on_delete=models.CASCADE, related_name='sources',
+                                null=True)  # TODO remove null=True
 
 
 class Church(TimeStampMixin):
