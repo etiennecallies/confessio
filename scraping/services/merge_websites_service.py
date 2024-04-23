@@ -1,22 +1,22 @@
-from home.models import Website, ParishModeration
+from home.models import Website, WebsiteModeration
 from scraping.utils.extract_title import get_page_title
 
 
-def add_moderation(website: Website, category: ParishModeration.Category, home_url):
+def add_moderation(website: Website, category: WebsiteModeration.Category, home_url):
     try:
         # we need to delete existing moderation first
-        existing_category = ParishModeration.objects.get(parish=website, category=category)
+        existing_category = WebsiteModeration.objects.get(parish=website, category=category)
         existing_category.delete()
-    except ParishModeration.DoesNotExist:
+    except WebsiteModeration.DoesNotExist:
         pass
 
-    parish_moderation = ParishModeration(
+    website_moderation = WebsiteModeration(
         parish=website,
         category=category,
         name=website.name,
         home_url=home_url,
     )
-    parish_moderation.save()
+    website_moderation.save()
 
 
 def update_website_name(website: Website, other_name):
@@ -25,7 +25,7 @@ def update_website_name(website: Website, other_name):
     if page_title:
         # If home_url's title exists we replace website name by it
         website.name = page_title
-        moderation_category = ParishModeration.Category.NAME_WEBSITE_TITLE
+        moderation_category = WebsiteModeration.Category.NAME_WEBSITE_TITLE
     else:
         # If there is a problem with home_url, new name is concatenation of all names
         previous_sources = website.sources.all()
@@ -34,7 +34,7 @@ def update_website_name(website: Website, other_name):
         print(f'got new name {concatenated_name}')
 
         website.name = concatenated_name
-        moderation_category = ParishModeration.Category.NAME_CONCATENATED
+        moderation_category = WebsiteModeration.Category.NAME_CONCATENATED
 
     # We update website
     website.save()

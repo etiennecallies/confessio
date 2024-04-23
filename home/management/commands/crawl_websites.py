@@ -1,5 +1,5 @@
 from home.management.abstract_command import AbstractCommand
-from home.models import Website, ParishModeration, Page
+from home.models import Website, WebsiteModeration, Page
 from scraping.services.crawl_website_service import crawl_website
 
 
@@ -23,8 +23,8 @@ class Command(AbstractCommand):
             websites = Website.objects.filter(is_active=True, name__contains=options['name']).all()
         elif options['in_error']:
             websites = Website.objects.filter(is_active=True).filter(
-                moderations__category__in=[ParishModeration.Category.HOME_URL_NO_RESPONSE,
-                                           ParishModeration.Category.HOME_URL_NO_CONFESSION],
+                moderations__category__in=[WebsiteModeration.Category.HOME_URL_NO_RESPONSE,
+                                           WebsiteModeration.Category.HOME_URL_NO_CONFESSION],
                 moderations__validated_at__isnull=True).all()
         else:
             websites = Website.objects.filter(is_active=True).all()

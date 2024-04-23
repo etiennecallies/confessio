@@ -1,18 +1,18 @@
 from typing import Tuple, Optional
 
-from home.models import Website, Crawling, Page, ParishModeration, ScrapingModeration
+from home.models import Website, Crawling, Page, WebsiteModeration, ScrapingModeration
 from scraping.services.scrape_page_service import upsert_scraping
 from scraping.utils.download_and_search_urls import search_for_confession_pages
 from scraping.utils.download_content import get_url_aliases
 from scraping.utils.url_utils import get_clean_full_url, get_path, get_domain
 
 
-def remove_not_validated_moderation(website: Website, category: ParishModeration.Category):
+def remove_not_validated_moderation(website: Website, category: WebsiteModeration.Category):
     try:
-        moderation = ParishModeration.objects.get(parish=website, category=category,
-                                                  validated_at__isnull=True)
+        moderation = WebsiteModeration.objects.get(parish=website, category=category,
+                                                   validated_at__isnull=True)
         moderation.delete()
-    except ParishModeration.DoesNotExist:
+    except WebsiteModeration.DoesNotExist:
         pass
 
 
@@ -23,12 +23,12 @@ def remove_not_validated_moderation_for_page(page: Page):
         moderation.delete()
 
 
-def add_moderation(website: Website, category: ParishModeration.Category,
+def add_moderation(website: Website, category: WebsiteModeration.Category,
                    other_website: Optional[Website] = None):
     try:
-        ParishModeration.objects.get(parish=website, category=category)
-    except ParishModeration.DoesNotExist:
-        moderation = ParishModeration(
+        WebsiteModeration.objects.get(parish=website, category=category)
+    except WebsiteModeration.DoesNotExist:
+        moderation = WebsiteModeration(
             parish=website, category=category,
             name=website.name, home_url=website.home_url,
             other_parish=other_website,
@@ -52,13 +52,13 @@ def do_crawl_website(website: Website) -> tuple[dict[str, str], int, Optional[st
             print(f'conflict between website {website.name} ({website.uuid}) '
                   f'and {website_with_url.name} ({website_with_url.uuid}) '
                   f'about url {new_home_url} Adding moderation.')
-            add_moderation(website, ParishModeration.Category.HOME_URL_CONFLICT, website_with_url)
+            add_moderation(website, WebsiteModeration.Category.HOME_URL_CONFLICT, website_with_url)
         except Website.DoesNotExist:
             print(f'replacing home_url from {website.home_url} to {new_home_url} '
                   f'for website {website.name}')
             website.home_url = new_home_url
             website.save()
-            remove_not_validated_moderation(website, ParishModeration.Category.HOME_URL_CONFLICT)
+            remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_CONFLICT)
 
     aliases_domains = set([alias[1] for alias in home_url_aliases])
 
@@ -118,18 +118,18 @@ def crawl_website(website: Website) -> Tuple[bool, bool, Optional[str]]:
                 confession_part = confession_parts_by_url[url]
                 upsert_scraping(new_page, confession_part)
 
-        remove_not_validated_moderation(website, ParishModeration.Category.HOME_URL_NO_RESPONSE)
-        remove_not_validated_moderation(website, ParishModeration.Category.HOME_URL_NO_CONFESSION)
+        remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_NO_RESPONSE)
+        remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_NO_CONFESSION)
 
         return True, True, None
     elif nb_visited_links > 0:
-        remove_not_validated_moderation(website, ParishModeration.Category.HOME_URL_NO_RESPONSE)
-        add_moderation(website, ParishModeration.Category.HOME_URL_NO_CONFESSION)
+        remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_NO_RESPONSE)
+        add_moderation(website, WebsiteModeration.Category.HOME_URL_NO_CONFESSION)
 
         return False, True, None
     else:
-        add_moderation(website, ParishModeration.Category.HOME_URL_NO_RESPONSE)
-        remove_not_validated_moderation(website, ParishModeration.Category.HOME_URL_NO_CONFESSION)
+        add_moderation(website, WebsiteModeration.Category.HOME_URL_NO_RESPONSE)
+        remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_NO_CONFESSION)
 
         return False, False, error_detail
 

@@ -2,25 +2,25 @@
 
 {% block card %}
     <h2 class="mb-3">
-        Parish: {{ parish_moderation.get_category_display }}
+        Website: {{ website_moderation.get_category_display }}
     </h2>
-    {% if parish_moderation.bug_description %}
-        <p>Bug description : {{ parish_moderation.bug_description }}</p>
+    {% if website_moderation.bug_description %}
+        <p>Bug description : {{ website_moderation.bug_description }}</p>
     {% endif %}
-    <p><a class="btn btn-primary" href="{% url 'admin:home_website_change' parish.uuid %}" target="_blank" role="button">
+    <p><a class="btn btn-primary" href="{% url 'admin:home_website_change' website.uuid %}" target="_blank" role="button">
         Open admin <i class="fas fa-up-right-from-square"></i>
     </a></p>
-    <p>Name : {{ parish_moderation.name }}</p>
-    {% if parish.name != parish_moderation.name %}
-        <p>New name : {{ parish.name }}</p>
+    <p>Name : {{ website_moderation.name }}</p>
+    {% if website.name != website_moderation.name %}
+        <p>New name : {{ website.name }}</p>
     {% endif %}
-    <p>Home url : <a href="{{ parish_moderation.home_url }}" target="_blank">{{ parish_moderation.home_url }}</a></p>
-    {% if parish.home_url != parish_moderation.home_url %}
-        <p>New home url : <a href="{{ parish.home_url }}" target="_blank">{{ parish.home_url }}</a></p>
+    <p>Home url : <a href="{{ website_moderation.home_url }}" target="_blank">{{ website_moderation.home_url }}</a></p>
+    {% if website.home_url != website_moderation.home_url %}
+        <p>New home url : <a href="{{ website.home_url }}" target="_blank">{{ website.home_url }}</a></p>
     {% endif %}
-    {% if parish_moderation.other_parish %}
-        <p>Conflicting with parish {{ parish_moderation.other_parish.name }}
-            <a class="btn btn-primary" href="{% url 'admin:home_website_change' parish_moderation.other_parish.uuid %}" target="_blank" role="button">
+    {% if website_moderation.other_parish %}
+        <p>Conflicting with website {{ website_moderation.other_parish.name }}
+            <a class="btn btn-primary" href="{% url 'admin:home_website_change' website_moderation.other_parish.uuid %}" target="_blank" role="button">
         Open admin <i class="fas fa-up-right-from-square"></i>
     </a></p>
     {% endif %}
@@ -32,7 +32,7 @@
         <p>Error detail : {{ latest_crawling.error_detail }}</p>
     {% endif %}
     <h3>Sources & Churches</h3>
-    {% for parish_source in parish.sources.all %}
+    {% for parish_source in website.sources.all %}
         <h4>{{ parish_source.name }} ({{ parish_source.messesinfo_community_id }})</h4>
         {% for church in parish_source.churches.all %}
             <h5>{{ church.name }} ({{ church.messesinfo_id }})</h5>
@@ -43,9 +43,9 @@
             </p>
         {% endfor %}
     {% endfor %}
-    {% if parish_moderation.other_parish %}
-        <h3>Sources & Churches of {{ parish_moderation.other_parish.name }}</h3>
-        {% for parish_source in parish_moderation.other_parish.sources.all %}
+    {% if website_moderation.other_parish %}
+        <h3>Sources & Churches of {{ website_moderation.other_parish.name }}</h3>
+        {% for parish_source in website_moderation.other_parish.sources.all %}
             <h4>{{ parish_source.name }} ({{ parish_source.messesinfo_community_id }})</h4>
             {% for church in parish_source.churches.all %}
                 <h5>{{ church.name }} ({{ church.messesinfo_id }})</h5>
@@ -59,7 +59,7 @@
     {% endif %}
 
     <h3>Parish sources</h3>
-    {% for source in parish.sources.all %}
+    {% for source in website.sources.all %}
         <h5>{{ source.name }}</h5>
         <p>{{ source.messesinfo_community_id }}
             <a class="btn btn-primary" href="{% url 'admin:home_parishsource_change' source.uuid %}" target="_blank" role="button">
@@ -67,9 +67,9 @@
             </a>
         </p>
     {% endfor %}
-    {% if parish_moderation.other_parish %}
-        <h3>Parish sources of {{ parish_moderation.other_parish.name }}</h3>
-        {% for source in parish_moderation.other_parish.sources.all %}
+    {% if website_moderation.other_parish %}
+        <h3>Parish sources of {{ website_moderation.other_parish.name }}</h3>
+        {% for source in website_moderation.other_parish.sources.all %}
             <h5>{{ source.name }}</h5>
             <p>{{ source.messesinfo_community_id }}
                 <a class="btn btn-primary" href="{% url 'admin:home_parishsource_change' source.uuid %}" target="_blank" role="button">
@@ -79,11 +79,11 @@
         {% endfor %}
     {% endif %}
 
-    {% if parish_moderation.other_parish %}
+    {% if website_moderation.other_parish %}
         <div>
-            <form action="{% url 'moderate_merge_websites' parish_moderation.uuid %}" method="post">
+            <form action="{% url 'moderate_merge_websites' website_moderation.uuid %}" method="post">
                 {% csrf_token %}
-            <button type="submit" class="btn btn-warning">Merge parishes</button>
+            <button type="submit" class="btn btn-warning">Merge Websites</button>
             </form>
         </div>
     {% endif %}
@@ -99,7 +99,7 @@
             <a class="btn btn-info" role="button" href="{{ next_url }}">Next</a>
         </div>
     </div>
-    {% if not parish_moderation.marked_as_bug_at %}
+    {% if not website_moderation.marked_as_bug_at %}
         <div>
             <form method="post">
                 <label>

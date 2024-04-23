@@ -96,7 +96,7 @@ class ModerationMixin(TimeStampMixin):
         self.save()
 
 
-class ParishModeration(ModerationMixin):
+class WebsiteModeration(ModerationMixin):
     class Category(models.TextChoices):
         NAME_CONCATENATED = "name_concat"
         NAME_WEBSITE_TITLE = "name_websit"
