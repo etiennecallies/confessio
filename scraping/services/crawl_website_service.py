@@ -9,7 +9,7 @@ from scraping.utils.url_utils import get_clean_full_url, get_path, get_domain
 
 def remove_not_validated_moderation(website: Website, category: WebsiteModeration.Category):
     try:
-        moderation = WebsiteModeration.objects.get(parish=website, category=category,
+        moderation = WebsiteModeration.objects.get(website=website, category=category,
                                                    validated_at__isnull=True)
         moderation.delete()
     except WebsiteModeration.DoesNotExist:
@@ -26,12 +26,12 @@ def remove_not_validated_moderation_for_page(page: Page):
 def add_moderation(website: Website, category: WebsiteModeration.Category,
                    other_website: Optional[Website] = None):
     try:
-        WebsiteModeration.objects.get(parish=website, category=category)
+        WebsiteModeration.objects.get(website=website, category=category)
     except WebsiteModeration.DoesNotExist:
         moderation = WebsiteModeration(
-            parish=website, category=category,
+            website=website, category=category,
             name=website.name, home_url=website.home_url,
-            other_parish=other_website,
+            other_website=other_website,
         )
         moderation.save()
 

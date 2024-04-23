@@ -18,9 +18,9 @@
     {% if website.home_url != website_moderation.home_url %}
         <p>New home url : <a href="{{ website.home_url }}" target="_blank">{{ website.home_url }}</a></p>
     {% endif %}
-    {% if website_moderation.other_parish %}
-        <p>Conflicting with website {{ website_moderation.other_parish.name }}
-            <a class="btn btn-primary" href="{% url 'admin:home_website_change' website_moderation.other_parish.uuid %}" target="_blank" role="button">
+    {% if website_moderation.other_website %}
+        <p>Conflicting with website {{ website_moderation.other_website.name }}
+            <a class="btn btn-primary" href="{% url 'admin:home_website_change' website_moderation.other_website.uuid %}" target="_blank" role="button">
         Open admin <i class="fas fa-up-right-from-square"></i>
     </a></p>
     {% endif %}
@@ -43,9 +43,9 @@
             </p>
         {% endfor %}
     {% endfor %}
-    {% if website_moderation.other_parish %}
-        <h3>Sources & Churches of {{ website_moderation.other_parish.name }}</h3>
-        {% for parish_source in website_moderation.other_parish.sources.all %}
+    {% if website_moderation.other_website %}
+        <h3>Sources & Churches of {{ website_moderation.other_website.name }}</h3>
+        {% for parish_source in website_moderation.other_website.sources.all %}
             <h4>{{ parish_source.name }} ({{ parish_source.messesinfo_community_id }})</h4>
             {% for church in parish_source.churches.all %}
                 <h5>{{ church.name }} ({{ church.messesinfo_id }})</h5>
@@ -58,7 +58,7 @@
         {% endfor %}
     {% endif %}
 
-    <h3>Parish sources</h3>
+    <h3>Parishes</h3>
     {% for source in website.sources.all %}
         <h5>{{ source.name }}</h5>
         <p>{{ source.messesinfo_community_id }}
@@ -67,9 +67,9 @@
             </a>
         </p>
     {% endfor %}
-    {% if website_moderation.other_parish %}
-        <h3>Parish sources of {{ website_moderation.other_parish.name }}</h3>
-        {% for source in website_moderation.other_parish.sources.all %}
+    {% if website_moderation.other_website %}
+        <h3>Parishes of {{ website_moderation.other_website.name }}</h3>
+        {% for source in website_moderation.other_website.sources.all %}
             <h5>{{ source.name }}</h5>
             <p>{{ source.messesinfo_community_id }}
                 <a class="btn btn-primary" href="{% url 'admin:home_parishsource_change' source.uuid %}" target="_blank" role="button">
@@ -79,7 +79,7 @@
         {% endfor %}
     {% endif %}
 
-    {% if website_moderation.other_parish %}
+    {% if website_moderation.other_website %}
         <div>
             <form action="{% url 'moderate_merge_websites' website_moderation.uuid %}" method="post">
                 {% csrf_token %}

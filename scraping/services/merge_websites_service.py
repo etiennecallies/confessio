@@ -5,13 +5,13 @@ from scraping.utils.extract_title import get_page_title
 def add_moderation(website: Website, category: WebsiteModeration.Category, home_url):
     try:
         # we need to delete existing moderation first
-        existing_category = WebsiteModeration.objects.get(parish=website, category=category)
+        existing_category = WebsiteModeration.objects.get(website=website, category=category)
         existing_category.delete()
     except WebsiteModeration.DoesNotExist:
         pass
 
     website_moderation = WebsiteModeration(
-        parish=website,
+        website=website,
         category=category,
         name=website.name,
         home_url=home_url,

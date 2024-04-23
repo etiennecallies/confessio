@@ -75,8 +75,8 @@ def moderate_website(request, category, is_bug, moderation_uuid=None):
 def render_website_moderation(request, moderation: WebsiteModeration, next_url):
     return render(request, f'pages/moderate_website.html', {
         'website_moderation': moderation,
-        'website': moderation.parish,
-        'latest_crawling': moderation.parish.get_latest_crawling(),
+        'website': moderation.website,
+        'latest_crawling': moderation.website.get_latest_crawling(),
         'next_url': next_url,
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
     })
@@ -124,11 +124,11 @@ def moderate_merge_websites(request, website_moderation_uuid=None):
     except WebsiteModeration.DoesNotExist:
         return HttpResponseNotFound(f'website moderation not found with uuid {website_moderation_uuid}')
 
-    if website_moderation.other_parish is None:
+    if website_moderation.other_website is None:
         return HttpResponseBadRequest(f'website moderation does not have other website')
 
     # other_website is the primary website
-    merge_websites(website_moderation.website, website_moderation.other_parish)
+    merge_websites(website_moderation.website, website_moderation.other_website)
 
     return redirect_to_moderation(website_moderation, website_moderation.category, 'website',
                                   website_moderation.marked_as_bug_at is not None)

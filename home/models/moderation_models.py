@@ -109,27 +109,27 @@ class WebsiteModeration(ModerationMixin):
                                      on_delete=models.SET_NULL, null=True)
     marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
                                          on_delete=models.SET_NULL, null=True)
-    parish = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='moderations')
+    website = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=11, choices=Category)
 
     name = models.CharField(max_length=300)
     home_url = models.URLField()
-    other_parish = models.ForeignKey('Website', on_delete=models.SET_NULL,
-                                     related_name='other_moderations', null=True)
+    other_website = models.ForeignKey('Website', on_delete=models.SET_NULL,
+                                      related_name='other_moderations', null=True)
 
     class Meta:
-        unique_together = ('parish', 'category')
+        unique_together = ('website', 'category')
 
     def delete_on_validate(self) -> bool:
-        # If parish home_url has been changed, those moderation objects are not relevant any more
+        # If website home_url has been changed, those moderation objects are not relevant any more
         if self.category in [self.Category.HOME_URL_NO_RESPONSE,
                              self.Category.HOME_URL_NO_CONFESSION]\
-                and self.home_url != self.parish.home_url:
+                and self.home_url != self.website.home_url:
             return True
 
-        # If other_parish has been merged, we can delete this moderation
+        # If other_website has been merged, we can delete this moderation
         if self.category == self.Category.HOME_URL_CONFLICT\
-                and self.other_parish is None:
+                and self.other_website is None:
             return True
 
         # for other categories we don't need to delete, we could though
