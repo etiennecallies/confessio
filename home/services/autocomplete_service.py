@@ -1,4 +1,3 @@
-import json
 from dataclasses import dataclass
 from difflib import SequenceMatcher
 from typing import Optional
@@ -8,7 +7,7 @@ from django.contrib.postgres.lookups import Unaccent
 from django.db.models import Value
 from django.db.models.functions import Replace, Lower
 
-from home.models import Parish
+from home.models import Website
 from scraping.utils.department_utils import get_departments_context
 from scraping.utils.string_search import unhyphen_content, normalize_content
 
@@ -22,15 +21,15 @@ class AutocompleteResult:
     context: str
     latitude: Optional[float] = None
     longitude: Optional[float] = None
-    parish_uuid: Optional[str] = None
+    website_uuid: Optional[str] = None
 
     @classmethod
-    def from_parish(cls, parish: Parish) -> 'AutocompleteResult':
-        # TODO save context in parish, and create a command to fill it
+    def from_website(cls, website: Website) -> 'AutocompleteResult':
+        # TODO save context in website, and create a command to fill it
 
         cities = set()
         zipcodes = set()
-        for parish_source in parish.sources.all():
+        for parish_source in website.sources.all():
             for church in parish_source.churches.all():
                 if church.city:
                     cities.add(church.city)
@@ -45,9 +44,9 @@ class AutocompleteResult:
 
         return AutocompleteResult(
             type='parish',
-            name=parish.name,
+            name=website.name,
             context=context,
-            parish_uuid=parish.uuid,
+            website_uuid=website.uuid,
         )
 
 
@@ -76,13 +75,13 @@ def get_data_gouv_response(query) -> list[AutocompleteResult]:
     return results
 
 
-def get_parish_by_name_response(query) -> list[AutocompleteResult]:
+def get_website_by_name_response(query) -> list[AutocompleteResult]:
     query_term = unhyphen_content(normalize_content(query))
-    parishes = Parish.objects.annotate(
+    websites = Website.objects.annotate(
         search_name=Replace(Unaccent(Lower('name')), Value('-'), Value(' '))
     ).filter(is_active=True, search_name__contains=query_term)[:MAX_AUTOCOMPLETE_RESULTS]
 
-    return list(map(AutocompleteResult.from_parish, parishes))
+    return list(map(AutocompleteResult.from_website, websites))
 
 
 def get_distance(query, result: AutocompleteResult) -> float:
@@ -100,11 +99,11 @@ def sort_results(query, results: list[AutocompleteResult]) -> list[AutocompleteR
     return sorted_values
 
 
-def get_aggreagated_response(query) -> list[AutocompleteResult]:
+def get_aggregated_response(query) -> list[AutocompleteResult]:
     # TODO async call
     data_gouv_results = get_data_gouv_response(query)
-    parish_by_name_results = get_parish_by_name_response(query)
+    website_by_name_results = get_website_by_name_response(query)
 
-    sorted_results = sort_results(query, data_gouv_results + parish_by_name_results)
+    sorted_results = sort_results(query, data_gouv_results + website_by_name_results)
 
     return sorted_results[:MAX_AUTOCOMPLETE_RESULTS]

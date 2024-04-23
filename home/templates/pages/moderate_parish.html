@@ -7,7 +7,7 @@
     {% if parish_moderation.bug_description %}
         <p>Bug description : {{ parish_moderation.bug_description }}</p>
     {% endif %}
-    <p><a class="btn btn-primary" href="{% url 'admin:home_parish_change' parish.uuid %}" target="_blank" role="button">
+    <p><a class="btn btn-primary" href="{% url 'admin:home_website_change' parish.uuid %}" target="_blank" role="button">
         Open admin <i class="fas fa-up-right-from-square"></i>
     </a></p>
     <p>Name : {{ parish_moderation.name }}</p>
@@ -20,7 +20,7 @@
     {% endif %}
     {% if parish_moderation.other_parish %}
         <p>Conflicting with parish {{ parish_moderation.other_parish.name }}
-            <a class="btn btn-primary" href="{% url 'admin:home_parish_change' parish_moderation.other_parish.uuid %}" target="_blank" role="button">
+            <a class="btn btn-primary" href="{% url 'admin:home_website_change' parish_moderation.other_parish.uuid %}" target="_blank" role="button">
         Open admin <i class="fas fa-up-right-from-square"></i>
     </a></p>
     {% endif %}
@@ -81,7 +81,7 @@
 
     {% if parish_moderation.other_parish %}
         <div>
-            <form action="{% url 'moderate_merge_parishes' parish_moderation.uuid %}" method="post">
+            <form action="{% url 'moderate_merge_websites' parish_moderation.uuid %}" method="post">
                 {% csrf_token %}
             <button type="submit" class="btn btn-warning">Merge parishes</button>
             </form>

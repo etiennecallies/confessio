@@ -1,21 +1,21 @@
 ##
 # Install crons commands
 ##
-- name: Add cron for crawling parishes
+- name: Add cron for crawling websites
   cron:
-    name: daily_crawl_parishes
+    name: daily_crawl_websites
     hour: 1
     minute: 0
-    job: "(tmux has-session -t crawl_parishes || tmux new-session -d -s crawl_parishes) && tmux send-keys -t crawl_parishes '. {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py crawl_parishes' C-m"
+    job: "(tmux has-session -t crawl_websites || tmux new-session -d -s crawl_websites) && tmux send-keys -t crawl_websites '. {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py crawl_websites' C-m"
 
 - name: Add cron for scraping pages
   cron:
-    name: hourly_scrape_parishes
+    name: hourly_scrape_pages
     special_time: hourly
-    job: "(tmux has-session -t scrape_parishes || tmux new-session -d -s scrape_parishes) && tmux send-keys -t scrape_parishes '. {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py scrape_parishes' C-m"
+    job: "(tmux has-session -t scrape_pages || tmux new-session -d -s scrape_pages) && tmux send-keys -t scrape_pages '. {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py scrape_pages' C-m"
 
-- name: Add cron for crawling parishes with error
+- name: Add cron for crawling websites with error
   cron:
-    name: hourly_crawl_parishes_in_error
+    name: hourly_crawl_websites_in_error
     special_time: hourly
-    job: "(tmux has-session -t crawl_parishes_in_error || tmux new-session -d -s crawl_parishes_in_error) && tmux send-keys -t crawl_parishes_in_error '. {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py crawl_parishes --in-error' C-m"
+    job: "(tmux has-session -t crawl_websites_in_error || tmux new-session -d -s crawl_websites_in_error) && tmux send-keys -t crawl_websites_in_error '. {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py crawl_websites --in-error' C-m"

@@ -4,8 +4,8 @@ from typing import Optional
 import requests
 from django.contrib.gis.geos import Point
 
-from home.models import Church, Parish, ParishSource, ChurchModeration, Diocese
-from scraping.services.merge_parishes_service import update_parish_name
+from home.models import Church, Website, ParishSource, ChurchModeration, Diocese
+from scraping.services.merge_websites_service import update_website_name
 from scraping.utils.geocode_address import geocode
 from scraping.utils.url_utils import get_clean_full_url
 
@@ -25,14 +25,14 @@ def post_messesinfo_request(messesinfo_request):
     return r.json()
 
 
-def get_website(home_url, name) -> Parish:
+def get_website(home_url, name) -> Website:
     try:
-        parish = Parish.objects.get(home_url=home_url)
+        parish = Website.objects.get(home_url=home_url)
 
         # We update parish name (website title or concatenated names)
-        update_parish_name(parish, name)
-    except Parish.DoesNotExist:
-        parish = Parish(
+        update_website_name(parish, name)
+    except Website.DoesNotExist:
+        parish = Website(
             name=name,
             home_url=home_url,
         )

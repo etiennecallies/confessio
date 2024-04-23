@@ -47,7 +47,7 @@ $( function() {
         $("#latitude-input").val(ui.item.latitude);
         $("#longitude-input").val(ui.item.longitude);
         $("#search-input").val(ui.item.name);
-        $("#parish-uuid-input").val(ui.item.parish_uuid);
+        $("#website-uuid-input").val(ui.item.website_uuid);
 
         $("#search-form").submit();
       }

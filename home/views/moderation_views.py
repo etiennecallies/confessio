@@ -5,7 +5,7 @@ from django.urls import reverse
 
 from home.models import ParishModeration, ChurchModeration, ScrapingModeration, ModerationMixin, \
     BUG_DESCRIPTION_MAX_LENGTH
-from scraping.services.merge_parishes_service import merge_parishes
+from scraping.services.merge_websites_service import merge_websites
 from scraping.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 
 
@@ -67,8 +67,8 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
 
 @login_required
 @permission_required("home.change_sentence")
-def moderate_parish(request, category, is_bug, moderation_uuid=None):
-    return get_moderate_response(request, category, 'parish', is_bug, ParishModeration,
+def moderate_website(request, category, is_bug, moderation_uuid=None):
+    return get_moderate_response(request, category, 'website', is_bug, ParishModeration,
                                  moderation_uuid, render_parish_moderation)
 
 
@@ -118,7 +118,7 @@ def render_scraping_moderation(request, moderation: ScrapingModeration, next_url
 
 @login_required
 @permission_required("home.change_sentence")
-def moderate_merge_parishes(request, parish_moderation_uuid=None):
+def moderate_merge_websites(request, parish_moderation_uuid=None):
     try:
         parish_moderation = ParishModeration.objects.get(uuid=parish_moderation_uuid)
     except ParishModeration.DoesNotExist:
@@ -128,7 +128,7 @@ def moderate_merge_parishes(request, parish_moderation_uuid=None):
         return HttpResponseBadRequest(f'parish moderation does not have other parish')
 
     # other_parish is the primary parish
-    merge_parishes(parish_moderation.website, parish_moderation.other_parish)
+    merge_websites(parish_moderation.website, parish_moderation.other_parish)
 
-    return redirect_to_moderation(parish_moderation, parish_moderation.category, 'parish',
+    return redirect_to_moderation(parish_moderation, parish_moderation.category, 'website',
                                   parish_moderation.marked_as_bug_at is not None)

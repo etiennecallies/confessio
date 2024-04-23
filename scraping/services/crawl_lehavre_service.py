@@ -5,7 +5,7 @@ import requests
 from bs4 import BeautifulSoup
 from fructose import Fructose
 
-from home.models import Diocese, Parish, Church, ParishSource
+from home.models import Diocese, Website, Church, ParishSource
 from scraping.services.crawl_messesinfos_service import compute_church_coordinates
 
 ai = Fructose(model="gpt-3.5-turbo")
@@ -83,10 +83,10 @@ def get_churches_on_lehavre(page: int):
     nb_churches = 0
     for url in parish_urls:
         try:
-            Parish.objects.get(home_url=url)
+            Website.objects.get(home_url=url)
             print('ignoring already saved parish', url)
             continue
-        except Parish.DoesNotExist:
+        except Website.DoesNotExist:
             pass
 
         r = execute_with_retry(url)
@@ -108,7 +108,7 @@ def get_churches_on_lehavre(page: int):
         parish_data = extract_parish_and_churches(html_no_space)
         print(parish_data)
 
-        website = Parish(
+        website = Website(
             name=parish_data.name,
             home_url=url,
         )

@@ -4,10 +4,10 @@ from django.core.exceptions import ValidationError
 from django.http import HttpResponseNotFound, JsonResponse
 from django.shortcuts import render
 
-from home.models import Parish, Diocese
-from home.services.autocomplete_service import get_aggreagated_response
+from home.models import Website, Diocese
+from home.services.autocomplete_service import get_aggregated_response
 from home.services.map_service import get_churches_in_box, get_churches_around, prepare_map, \
-    get_churches_by_parish, get_center, get_churches_by_diocese
+    get_churches_by_website, get_center, get_churches_by_diocese
 from home.services.page_url_service import get_page_url_with_pointer
 
 
@@ -30,26 +30,26 @@ def render_map(request, center, churches, bounds, location):
         '<div class="map-container">'
     )
 
-    # We get all parishes and their churches
-    parishes_by_uuid = {}
-    parish_churches = {}
+    # We get all websites and their churches
+    websites_by_uuid = {}
+    website_churches = {}
     for church in churches:
-        parishes_by_uuid[church.parish_source.website.uuid] = church.parish_source.website
-        parish_churches.setdefault(church.parish_source.website.uuid, []).append(church)
-    parishes = parishes_by_uuid.values()
+        websites_by_uuid[church.parish_source.website.uuid] = church.parish_source.website
+        website_churches.setdefault(church.parish_source.website.uuid, []).append(church)
+    websites = websites_by_uuid.values()
 
     # Page url with #:~:text=
     page_urls = {}
-    for parish in parishes:
-        for page in parish.get_pages():
+    for website in websites:
+        for page in website.get_pages():
             page_urls[page.uuid] = get_page_url_with_pointer(page)
 
     context = {
         'location': location,
         'map_html': map_html,
         'church_marker_names': church_marker_names,
-        'parishes': parishes,
-        'parish_churches': parish_churches,
+        'websites': websites,
+        'website_churches': website_churches,
         'page_urls': page_urls,
     }
 
@@ -66,7 +66,7 @@ def index(request, diocese_slug=None):
     max_lat = request.GET.get('maxLat', '')
     max_lng = request.GET.get('maxLng', '')
 
-    parish_uuid = request.GET.get('parishUuid', '')
+    website_uuid = request.GET.get('websiteUuid', '')
 
     if min_lat and min_lng and max_lat and max_lng:
         min_lat, max_lat, min_lng, max_lng = \
@@ -74,15 +74,15 @@ def index(request, diocese_slug=None):
         bounds = (min_lat, max_lat, min_lng, max_lng)
         center = [min_lat + max_lat / 2, min_lng + max_lng / 2]
         churches = get_churches_in_box(min_lat, max_lat, min_lng, max_lng)
-    elif parish_uuid:
+    elif website_uuid:
         try:
-            parish = Parish.objects.get(uuid=parish_uuid, is_active=True)
-        except (ValidationError, Parish.DoesNotExist):
-            return HttpResponseNotFound("Parish dos not exist with this uuid")
+            website = Website.objects.get(uuid=website_uuid, is_active=True)
+        except (ValidationError, Website.DoesNotExist):
+            return HttpResponseNotFound("Website does not exist with this uuid")
 
-        churches = get_churches_by_parish(parish)
+        churches = get_churches_by_website(website)
         if len(churches) == 0:
-            return HttpResponseNotFound("No church found for this parish")
+            return HttpResponseNotFound("No church found for this website")
 
         center = get_center(churches)
         bounds = None
@@ -113,7 +113,7 @@ def index(request, diocese_slug=None):
 
 def autocomplete(request):
     query = request.GET.get('query', '')
-    results = get_aggreagated_response(query)
+    results = get_aggregated_response(query)
     response = list(map(dataclasses.asdict, results))
 
     return JsonResponse(response, safe=False)

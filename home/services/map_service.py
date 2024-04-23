@@ -7,7 +7,7 @@ from django.contrib.gis.geos import Point, Polygon
 from django.contrib.gis.measure import D
 from django.utils.translation import gettext as _
 
-from home.models import Church, Parish, Diocese
+from home.models import Church, Website, Diocese
 from folium import Map, Icon, Popup, Marker
 
 
@@ -43,8 +43,8 @@ def get_churches_in_box(min_lat, max_lat, min_long, max_long) -> List[Church]:
     return churches
 
 
-def get_churches_by_parish(website: Parish) -> List[Church]:
-    # TODO load parish and latest scraping at the same time
+def get_churches_by_website(website: Website) -> List[Church]:
+    # TODO load website and latest scraping at the same time
     churches = Church.objects\
         .filter(parish_source__website=website,
                 parish_source__website__is_active=True).all()[:MAX_CHURCHES_IN_RESULTS]

@@ -14,9 +14,9 @@ urlpatterns = [
 
     # moderation
     path('moderate/parish/<category>/<str:is_bug>',
-         views.moderate_parish, name='moderate_next_parish'),
+         views.moderate_website, name='moderate_next_parish'),
     path('moderate/parish/<category>/<str:is_bug>/<uuid:moderation_uuid>',
-         views.moderate_parish, name='moderate_one_parish'),
+         views.moderate_website, name='moderate_one_parish'),
     path('moderate/church/<category>/<str:is_bug>',
          views.moderate_church, name='moderate_next_church'),
     path('moderate/church/<category>/<str:is_bug>/<uuid:moderation_uuid>',
@@ -25,8 +25,8 @@ urlpatterns = [
          views.moderate_scraping, name='moderate_next_scraping'),
     path('moderate/scraping/<category>/<str:is_bug>/<uuid:moderation_uuid>',
          views.moderate_scraping, name='moderate_one_scraping'),
-    path('moderate/merge_parishes/<uuid:parish_moderation_uuid>',
-         views.moderate_merge_parishes, name='moderate_merge_parishes'),
+    path('moderate/merge_websites/<uuid:parish_moderation_uuid>',
+         views.moderate_merge_websites, name='moderate_merge_websites'),
 
     # contact
     path('contact', views.contact, name='contact'),

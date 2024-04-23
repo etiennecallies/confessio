@@ -104,17 +104,17 @@ class ParishModeration(ModerationMixin):
         HOME_URL_NO_CONFESSION = "hu_no_conf"
         HOME_URL_CONFLICT = "hu_conflict"
 
-    resource = 'parish'
+    resource = 'website'
     validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
                                      on_delete=models.SET_NULL, null=True)
     marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
                                          on_delete=models.SET_NULL, null=True)
-    parish = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='moderations')
+    parish = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=11, choices=Category)
 
     name = models.CharField(max_length=300)
     home_url = models.URLField()
-    other_parish = models.ForeignKey('Parish', on_delete=models.SET_NULL,
+    other_parish = models.ForeignKey('Website', on_delete=models.SET_NULL,
                                      related_name='other_moderations', null=True)
 
     class Meta:

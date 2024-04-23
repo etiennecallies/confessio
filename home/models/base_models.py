@@ -21,7 +21,7 @@ class Diocese(TimeStampMixin):
     messesinfo_network_id = models.CharField(max_length=100, unique=True)
 
 
-class Parish(TimeStampMixin):
+class Website(TimeStampMixin):
     name = models.CharField(max_length=300)
     home_url = models.URLField(unique=True)
     is_active = models.BooleanField(default=True)
@@ -66,7 +66,7 @@ class ParishSource(TimeStampMixin):
     name = models.CharField(max_length=100)
     messesinfo_network_id = models.CharField(max_length=100, null=True)
     messesinfo_community_id = models.CharField(max_length=100, null=True, unique=True)
-    website = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='sources',
+    website = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='sources',
                                 null=True, blank=True)
     diocese = models.ForeignKey('Diocese', on_delete=models.CASCADE, related_name='sources')
 
@@ -84,7 +84,7 @@ class Church(TimeStampMixin):
 
 class Page(TimeStampMixin):
     url = models.URLField(unique=True)
-    website = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='pages')
+    website = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='pages')
 
     _latest_scraping = None
     _has_search_latest_scraping = False
@@ -115,7 +115,7 @@ class Crawling(TimeStampMixin):
     error_detail = models.TextField(null=True)
     nb_visited_links = models.PositiveSmallIntegerField()
     nb_success_links = models.PositiveSmallIntegerField()
-    website = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='crawlings')
+    website = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='crawlings')
 
 
 class Scraping(TimeStampMixin):
