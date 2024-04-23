@@ -65,7 +65,7 @@ django-admin compilemessages
 ## Scraping
 
 ```shell
-python manage.py scrape_parishes
+python manage.py scrape_pages
 ```
 
 ---
@@ -93,9 +93,9 @@ aws s3 ls confessio-dbbackup-daily --profile confessio
 ## Check data integrity
 ```postgresql
 -- Check that no home_url ends with slash
-select name, home_url from home_parish hp where home_url like '%/';
+select name, home_url from home_website hp where home_url like '%/';
 -- Check that no home_url ends with space
-select name, home_url from home_parish hp where home_url like '% ';
+select name, home_url from home_website hp where home_url like '% ';
 ```
 ---
 

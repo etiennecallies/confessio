@@ -54,7 +54,7 @@ $( function() {
     }).autocomplete( "instance" )._renderItem = function( ul, item ) {
       let badge =
           item.type === 'municipality' ? '<span class="badge badge-primary">Ville</span>' :
-              (item.type === 'parish' ? '<span class="badge badge-success">Paroisse</span>' : '');
+              (item.type === 'webiste' ? '<span class="badge badge-success">Paroisse</span>' : '');
       return $( "<li>" )
         .append( "<div class='row'><div class='col-md autocomplete-name'>" + item.name + " " + badge + "</div>" +
             "<div class='col-md text-end' style='font-style: italic'>" + item.context + "</div></div>" )

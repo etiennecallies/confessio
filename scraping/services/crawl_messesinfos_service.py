@@ -27,20 +27,20 @@ def post_messesinfo_request(messesinfo_request):
 
 def get_website(home_url, name) -> Website:
     try:
-        parish = Website.objects.get(home_url=home_url)
+        website = Website.objects.get(home_url=home_url)
 
-        # We update parish name (website title or concatenated names)
-        update_website_name(parish, name)
+        # We update website name (website title or concatenated names)
+        update_website_name(website, name)
     except Website.DoesNotExist:
-        parish = Website(
+        website = Website(
             name=name,
             home_url=home_url,
         )
 
-        # We save parish
-        parish.save()
+        # We save website
+        website.save()
 
-    return parish
+    return website
 
 
 def fetch_parish_source(messesinfo_community_id, diocese: Diocese) -> Optional[ParishSource]:

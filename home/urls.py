@@ -13,9 +13,9 @@ urlpatterns = [
     path('qualify/page/<uuid:page_uuid>', views.qualify_page, name='qualify_page'),
 
     # moderation
-    path('moderate/parish/<category>/<str:is_bug>',
+    path('moderate/website/<category>/<str:is_bug>',
          views.moderate_website, name='moderate_next_website'),
-    path('moderate/parish/<category>/<str:is_bug>/<uuid:moderation_uuid>',
+    path('moderate/website/<category>/<str:is_bug>/<uuid:moderation_uuid>',
          views.moderate_website, name='moderate_one_website'),
     path('moderate/church/<category>/<str:is_bug>',
          views.moderate_church, name='moderate_next_church'),

@@ -43,7 +43,7 @@ class AutocompleteResult:
             context = get_departments_context(zipcodes)
 
         return AutocompleteResult(
-            type='parish',
+            type='website',
             name=website.name,
             context=context,
             website_uuid=website.uuid,
