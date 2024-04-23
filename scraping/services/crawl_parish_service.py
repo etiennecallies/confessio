@@ -77,20 +77,20 @@ def do_crawl_parish(parish: Parish) -> tuple[dict[str, str], int, Optional[str]]
     return search_for_confession_pages(new_home_url, aliases_domains, forbidden_paths)
 
 
-def crawl_parish(parish: Parish) -> Tuple[bool, bool, Optional[str]]:
-    confession_parts_by_url, nb_visited_links, error_detail = do_crawl_parish(parish)
+def crawl_parish(website: Parish) -> Tuple[bool, bool, Optional[str]]:
+    confession_parts_by_url, nb_visited_links, error_detail = do_crawl_parish(website)
 
     # Inserting global statistics
     crawling = Crawling(
         nb_visited_links=nb_visited_links,
         nb_success_links=len(confession_parts_by_url),
         error_detail=error_detail,
-        parish=parish,
+        parish=website,
     )
     crawling.save()
 
     # Removing old pages
-    existing_pages = parish.get_pages()
+    existing_pages = website.get_pages()
     existing_urls = list(map(lambda p: p.url, existing_pages))
     for page in existing_pages:
         if page.url not in confession_parts_by_url:
@@ -112,7 +112,7 @@ def crawl_parish(parish: Parish) -> Tuple[bool, bool, Optional[str]]:
 
                 new_page = Page(
                     url=url,
-                    parish=parish
+                    website=website
                 )
                 new_page.save()
 
@@ -120,18 +120,18 @@ def crawl_parish(parish: Parish) -> Tuple[bool, bool, Optional[str]]:
                 confession_part = confession_parts_by_url[url]
                 upsert_scraping(new_page, confession_part)
 
-        remove_not_validated_moderation(parish, ParishModeration.Category.HOME_URL_NO_RESPONSE)
-        remove_not_validated_moderation(parish, ParishModeration.Category.HOME_URL_NO_CONFESSION)
+        remove_not_validated_moderation(website, ParishModeration.Category.HOME_URL_NO_RESPONSE)
+        remove_not_validated_moderation(website, ParishModeration.Category.HOME_URL_NO_CONFESSION)
 
         return True, True, None
     elif nb_visited_links > 0:
-        remove_not_validated_moderation(parish, ParishModeration.Category.HOME_URL_NO_RESPONSE)
-        add_moderation(parish, ParishModeration.Category.HOME_URL_NO_CONFESSION)
+        remove_not_validated_moderation(website, ParishModeration.Category.HOME_URL_NO_RESPONSE)
+        add_moderation(website, ParishModeration.Category.HOME_URL_NO_CONFESSION)
 
         return False, True, None
     else:
-        add_moderation(parish, ParishModeration.Category.HOME_URL_NO_RESPONSE)
-        remove_not_validated_moderation(parish, ParishModeration.Category.HOME_URL_NO_CONFESSION)
+        add_moderation(website, ParishModeration.Category.HOME_URL_NO_RESPONSE)
+        remove_not_validated_moderation(website, ParishModeration.Category.HOME_URL_NO_CONFESSION)
 
         return False, False, error_detail
 

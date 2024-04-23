@@ -49,7 +49,7 @@ def merge_parishes(parish: Parish, primary_parish: Parish):
 
     # We assign other sources to parish
     for source in parish.sources.all():
-        source.parish = primary_parish
+        source.website = primary_parish
         source.save()
 
     # Finally we delete other parish

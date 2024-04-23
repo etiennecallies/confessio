@@ -49,7 +49,7 @@ def qualify_page(request, page_uuid):
 
     context = {
         'page': page,
-        'parish': page.parish,
+        'parish': page.website,
         'confession_html_hash': confession_html_hash,
         'colored_pieces': colored_pieces,
     }

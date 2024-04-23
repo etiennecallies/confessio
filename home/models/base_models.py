@@ -66,8 +66,8 @@ class ParishSource(TimeStampMixin):
     name = models.CharField(max_length=100)
     messesinfo_network_id = models.CharField(max_length=100, null=True)
     messesinfo_community_id = models.CharField(max_length=100, null=True, unique=True)
-    parish = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='sources',
-                               null=True, blank=True)
+    website = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='sources',
+                                null=True, blank=True)
     diocese = models.ForeignKey('Diocese', on_delete=models.CASCADE, related_name='sources')
 
 
@@ -84,7 +84,7 @@ class Church(TimeStampMixin):
 
 class Page(TimeStampMixin):
     url = models.URLField(unique=True)
-    parish = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='pages')
+    website = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='pages')
 
     _latest_scraping = None
     _has_search_latest_scraping = False

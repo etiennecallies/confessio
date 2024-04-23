@@ -119,7 +119,7 @@ def get_churches_on_lehavre(page: int):
             name=parish_data.name,
             messesinfo_network_id=None,
             messesinfo_community_id=None,
-            parish=parish,
+            website=parish,
             diocese=diocese
         )
 

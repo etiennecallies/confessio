@@ -14,13 +14,13 @@ class Command(AbstractCommand):
 
     def handle(self, *args, **options):
         if options['scraping_uuid']:
-            scrapings = Scraping.objects.filter(page__parish__is_active=True,
+            scrapings = Scraping.objects.filter(page__website__is_active=True,
                                                 uuid__in=options['scraping_uuid']).all()
         elif options['only_not_pruned']:
-            scrapings = Scraping.objects.filter(page__parish__is_active=True,
+            scrapings = Scraping.objects.filter(page__website__is_active=True,
                                                 pruned_at__isnull=True).all()
         else:
-            scrapings = Scraping.objects.filter(page__parish__is_active=True).all()
+            scrapings = Scraping.objects.filter(page__website__is_active=True).all()
 
         counter = 0
         for scraping in scrapings:

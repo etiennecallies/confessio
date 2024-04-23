@@ -14,7 +14,7 @@ class Command(AbstractCommand):
     def handle(self, *args, **options):
         self.info(f'Starting removing pages of inactive parishes')
         delete_count = 0
-        for page in Page.objects.filter(parish__is_active=False):
+        for page in Page.objects.filter(website__is_active=False):
             page.delete()
             delete_count += 1
         self.success(f'Successfully deleted {delete_count} pages')

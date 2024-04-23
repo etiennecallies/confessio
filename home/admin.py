@@ -43,9 +43,9 @@ class ChurchAdmin(LeafletGeoAdmin):
 class PageAdmin(ModelAdmin):
     list_display = ["url", "get_parish_name"]
 
-    @admin.display(ordering='parish__name', description='Parish')
+    @admin.display(ordering='website__name', description='Website')
     def get_parish_name(self, obj):
-        return obj.parish.name
+        return obj.website.name
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'parish':
