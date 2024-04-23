@@ -108,18 +108,18 @@ def get_churches_on_lehavre(page: int):
         parish_data = extract_parish_and_churches(html_no_space)
         print(parish_data)
 
-        parish = Parish(
+        website = Parish(
             name=parish_data.name,
             home_url=url,
         )
-        parish.save()
+        website.save()
         nb_parishes += 1
 
         parish_source = ParishSource(
             name=parish_data.name,
             messesinfo_network_id=None,
             messesinfo_community_id=None,
-            website=parish,
+            website=website,
             diocese=diocese
         )
 

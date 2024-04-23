@@ -85,7 +85,7 @@ def crawl_parish(website: Parish) -> Tuple[bool, bool, Optional[str]]:
         nb_visited_links=nb_visited_links,
         nb_success_links=len(confession_parts_by_url),
         error_detail=error_detail,
-        parish=website,
+        website=website,
     )
     crawling.save()
 
