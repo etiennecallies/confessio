@@ -19,7 +19,7 @@ def add_moderation(website: Website, category: WebsiteModeration.Category, home_
     website_moderation.save()
 
 
-def update_website_name(website: Website, other_name):
+def update_website_name(website: Website, other_parishes_names: list[str]):
     page_title = get_page_title(website.home_url)
 
     if page_title:
@@ -28,8 +28,7 @@ def update_website_name(website: Website, other_name):
         moderation_category = WebsiteModeration.Category.NAME_WEBSITE_TITLE
     else:
         # If there is a problem with home_url, new name is concatenation of all parish names
-        previous_parishes = website.parishes.all()
-        all_names = list(map(lambda s: s.name, previous_parishes)) + [other_name]
+        all_names = [p.name for p in website.parishes.all()] + other_parishes_names
         concatenated_name = ' - '.join(all_names)
         print(f'got new name {concatenated_name}')
 
@@ -45,7 +44,7 @@ def update_website_name(website: Website, other_name):
 
 def merge_websites(website: Website, primary_website: Website):
     # We update primary_website name (website title or concatenated names)
-    update_website_name(primary_website, website.name)
+    update_website_name(primary_website, [p.name for p in website.parishes.all()])
 
     # We assign other parishes to website
     for parish in website.parishes.all():

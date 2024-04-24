@@ -30,7 +30,7 @@ def get_website(home_url, name) -> Website:
         website = Website.objects.get(home_url=home_url)
 
         # We update website name (website title or concatenated names)
-        update_website_name(website, name)
+        update_website_name(website, [name])
     except Website.DoesNotExist:
         website = Website(
             name=name,
