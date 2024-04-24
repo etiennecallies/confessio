@@ -81,7 +81,7 @@ def similar_scraping_exists(confession_html_pruned) -> bool:
 def add_necessary_moderation(scraping: Scraping):
     category = ScrapingModeration.Category.CONFESSION_HTML_PRUNED_NEW
 
-    # first, we delete every previous unvalidated moderation
+    # first, we delete every previous unvalidated moderation of this page
     moderations_to_delete = ScrapingModeration.objects\
         .filter(scraping__page__exact=scraping.page,
                 category=category,
@@ -107,6 +107,10 @@ def add_necessary_moderation(scraping: Scraping):
     if current_moderation is not None:
         if current_moderation.confession_html_pruned == scraping.confession_html_pruned:
             # confession_html_pruned has not changed, we do nothing
+            return
+
+        if similar_scraping_exists(scraping.confession_html_pruned):
+            # confession_html_pruned has changed, but a moderation already exists, we do nothing.
             return
 
         if current_moderation.validated_at is None:
