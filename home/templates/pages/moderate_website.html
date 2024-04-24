@@ -31,10 +31,10 @@
         <p>Nb success links : {{ latest_crawling.nb_success_links }}</p>
         <p>Error detail : {{ latest_crawling.error_detail }}</p>
     {% endif %}
-    <h3>Sources & Churches</h3>
-    {% for parish_source in website.sources.all %}
-        <h4>{{ parish_source.name }} ({{ parish_source.messesinfo_community_id }})</h4>
-        {% for church in parish_source.churches.all %}
+    <h3>Parishes & Churches</h3>
+    {% for parish in website.parishes.all %}
+        <h4>{{ parish.name }} ({{ parish.messesinfo_community_id }})</h4>
+        {% for church in parish.churches.all %}
             <h5>{{ church.name }} ({{ church.messesinfo_id }})</h5>
             <p>City : {{ church.city }}
                 <a class="btn btn-primary" href="{% url 'admin:home_church_change' church.uuid %}" target="_blank" role="button">
@@ -44,10 +44,10 @@
         {% endfor %}
     {% endfor %}
     {% if website_moderation.other_website %}
-        <h3>Sources & Churches of {{ website_moderation.other_website.name }}</h3>
-        {% for parish_source in website_moderation.other_website.sources.all %}
-            <h4>{{ parish_source.name }} ({{ parish_source.messesinfo_community_id }})</h4>
-            {% for church in parish_source.churches.all %}
+        <h3>Parishes & Churches of {{ website_moderation.other_website.name }}</h3>
+        {% for parish in website_moderation.other_website.parishes.all %}
+            <h4>{{ parish.name }} ({{ parish.messesinfo_community_id }})</h4>
+            {% for church in parish.churches.all %}
                 <h5>{{ church.name }} ({{ church.messesinfo_id }})</h5>
                 <p>City : {{ church.city }}
                     <a class="btn btn-primary" href="{% url 'admin:home_church_change' church.uuid %}" target="_blank" role="button">
@@ -59,20 +59,20 @@
     {% endif %}
 
     <h3>Parishes</h3>
-    {% for source in website.sources.all %}
-        <h5>{{ source.name }}</h5>
-        <p>{{ source.messesinfo_community_id }}
-            <a class="btn btn-primary" href="{% url 'admin:home_parishsource_change' source.uuid %}" target="_blank" role="button">
+    {% for parish in website.parishes.all %}
+        <h5>{{ parish.name }}</h5>
+        <p>{{ parish.messesinfo_community_id }}
+            <a class="btn btn-primary" href="{% url 'admin:home_parish_change' parish.uuid %}" target="_blank" role="button">
                 Open admin <i class="fas fa-up-right-from-square"></i>
             </a>
         </p>
     {% endfor %}
     {% if website_moderation.other_website %}
         <h3>Parishes of {{ website_moderation.other_website.name }}</h3>
-        {% for source in website_moderation.other_website.sources.all %}
-            <h5>{{ source.name }}</h5>
-            <p>{{ source.messesinfo_community_id }}
-                <a class="btn btn-primary" href="{% url 'admin:home_parishsource_change' source.uuid %}" target="_blank" role="button">
+        {% for parish in website_moderation.other_website.parishes.all %}
+            <h5>{{ parish.name }}</h5>
+            <p>{{ parish.messesinfo_community_id }}
+                <a class="btn btn-primary" href="{% url 'admin:home_parish_change' parish.uuid %}" target="_blank" role="button">
                     Open admin <i class="fas fa-up-right-from-square"></i>
                 </a>
             </p>

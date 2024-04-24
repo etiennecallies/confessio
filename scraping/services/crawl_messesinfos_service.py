@@ -4,7 +4,7 @@ from typing import Optional
 import requests
 from django.contrib.gis.geos import Point
 
-from home.models import Church, Website, ParishSource, ChurchModeration, Diocese
+from home.models import Church, Website, Parish, ChurchModeration, Diocese
 from scraping.services.merge_websites_service import update_website_name
 from scraping.utils.geocode_address import geocode
 from scraping.utils.url_utils import get_clean_full_url
@@ -43,7 +43,7 @@ def get_website(home_url, name) -> Website:
     return website
 
 
-def fetch_parish_source(messesinfo_community_id, diocese: Diocese) -> Optional[ParishSource]:
+def fetch_parish(messesinfo_community_id, diocese: Diocese) -> Optional[Parish]:
     messesinfo_request = f'{{"F":"cef.kephas.shared.request.AppRequestFactory",' \
                          f'"I":[{{"O":"cAFxqYS1T1aS3fEnag2PwGf6i9w=",' \
                          f'"P":["{messesinfo_community_id}"],"R":[]}}]}}'
@@ -65,7 +65,7 @@ def fetch_parish_source(messesinfo_community_id, diocese: Diocese) -> Optional[P
 
         website = get_website(home_url, name)
 
-        parish_source = ParishSource(
+        parish = Parish(
             name=name,
             messesinfo_network_id=parish_data['networkId'],
             messesinfo_community_id=parish_data['id'],
@@ -73,7 +73,7 @@ def fetch_parish_source(messesinfo_community_id, diocese: Diocese) -> Optional[P
             diocese=diocese,
         )
 
-        return parish_source
+        return parish
     except (KeyError, TypeError) as e:
         print(e)
         print(json.dumps(parish_raw))
@@ -115,14 +115,14 @@ def get_churches_on_page(messesinfo_network_id: str, page):
 
             messesinfo_community_id = church_data['communityId']
             try:
-                parish_source = ParishSource.objects.get(
+                parish = Parish.objects.get(
                     messesinfo_community_id=messesinfo_community_id)
-            except ParishSource.DoesNotExist:
-                parish_source = fetch_parish_source(messesinfo_community_id, diocese)
-                if parish_source is None:
+            except Parish.DoesNotExist:
+                parish = fetch_parish(messesinfo_community_id, diocese)
+                if parish is None:
                     print(f'no valid parish for church {church_messesinfo_id} ignoring this church')
                     continue
-                parish_source.save()
+                parish.save()
 
             church = Church(
                 name=church_data['name'],
@@ -131,7 +131,7 @@ def get_churches_on_page(messesinfo_network_id: str, page):
                 zipcode=church_data['zipcode'],
                 city=church_data['city'],
                 messesinfo_id=church_messesinfo_id,
-                parish_source=parish_source,
+                parish=parish,
             )
             church.save()
             nb_churches_saved += 1

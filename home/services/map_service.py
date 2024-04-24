@@ -25,7 +25,7 @@ def get_churches_around(center) -> List[Church]:
     # TODO load parish and latest scraping at the same time
     churches = Church.objects\
         .filter(location__dwithin=(center_as_point, D(km=5)),
-                parish_source__website__is_active=True) \
+                parish__website__is_active=True) \
         .annotate(distance=Distance('location', center_as_point)) \
         .order_by('distance')[:MAX_CHURCHES_IN_RESULTS]
 
@@ -38,7 +38,7 @@ def get_churches_in_box(min_lat, max_lat, min_long, max_long) -> List[Church]:
     # TODO load parish and latest scraping at the same time
     churches = Church.objects\
         .filter(location__within=polygon,
-                parish_source__website__is_active=True).all()[:MAX_CHURCHES_IN_RESULTS]
+                parish__website__is_active=True).all()[:MAX_CHURCHES_IN_RESULTS]
 
     return churches
 
@@ -46,8 +46,8 @@ def get_churches_in_box(min_lat, max_lat, min_long, max_long) -> List[Church]:
 def get_churches_by_website(website: Website) -> List[Church]:
     # TODO load website and latest scraping at the same time
     churches = Church.objects\
-        .filter(parish_source__website=website,
-                parish_source__website__is_active=True).all()[:MAX_CHURCHES_IN_RESULTS]
+        .filter(parish__website=website,
+                parish__website__is_active=True).all()[:MAX_CHURCHES_IN_RESULTS]
 
     return churches
 
@@ -55,8 +55,8 @@ def get_churches_by_website(website: Website) -> List[Church]:
 def get_churches_by_diocese(diocese: Diocese) -> List[Church]:
     # TODO load parish and latest scraping at the same time
     churches = Church.objects\
-        .filter(parish_source__diocese=diocese,
-                parish_source__website__is_active=True)\
+        .filter(parish__diocese=diocese,
+                parish__website__is_active=True)\
         .all()[:MAX_CHURCHES_IN_RESULTS]
 
     return churches
@@ -78,12 +78,12 @@ def get_latitude_longitude(point):
 
 
 def get_popup_and_color(church: Church):
-    if church.parish_source.website.one_page_has_confessions():
+    if church.parish.website.one_page_has_confessions():
         wording = _("ConfessionsExist")
         color = 'blue'
-    elif not church.parish_source.website.has_been_crawled() \
-            or not church.parish_source.website.all_pages_scraped() \
-            or not church.parish_source.website.all_pages_pruned():
+    elif not church.parish.website.has_been_crawled() \
+            or not church.parish.website.all_pages_scraped() \
+            or not church.parish.website.all_pages_pruned():
         wording = _("NotCrawledYet")
         color = 'beige'
     else:
@@ -94,7 +94,7 @@ def get_popup_and_color(church: Church):
     popup_html = f"""
         <b>{church.name}</b><br>
         {wording}<br>
-        <a href="#{church.parish_source.website.uuid}" target="_parent">{link_wording}</a>
+        <a href="#{church.parish.website.uuid}" target="_parent">{link_wording}</a>
     """
 
     return popup_html, color

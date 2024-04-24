@@ -34,8 +34,8 @@ def render_map(request, center, churches, bounds, location):
     websites_by_uuid = {}
     website_churches = {}
     for church in churches:
-        websites_by_uuid[church.parish_source.website.uuid] = church.parish_source.website
-        website_churches.setdefault(church.parish_source.website.uuid, []).append(church)
+        websites_by_uuid[church.parish.website.uuid] = church.parish.website
+        website_churches.setdefault(church.parish.website.uuid, []).append(church)
     websites = websites_by_uuid.values()
 
     # Page url with #:~:text=

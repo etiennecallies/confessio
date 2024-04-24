@@ -29,8 +29,8 @@ class AutocompleteResult:
 
         cities = set()
         zipcodes = set()
-        for parish_source in website.sources.all():
-            for church in parish_source.churches.all():
+        for parish in website.parishes.all():
+            for church in parish.churches.all():
                 if church.city:
                     cities.add(church.city)
                 if church.zipcode:

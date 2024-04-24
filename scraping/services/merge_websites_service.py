@@ -27,9 +27,9 @@ def update_website_name(website: Website, other_name):
         website.name = page_title
         moderation_category = WebsiteModeration.Category.NAME_WEBSITE_TITLE
     else:
-        # If there is a problem with home_url, new name is concatenation of all names
-        previous_sources = website.sources.all()
-        all_names = list(map(lambda s: s.name, previous_sources)) + [other_name]
+        # If there is a problem with home_url, new name is concatenation of all parish names
+        previous_parishes = website.parishes.all()
+        all_names = list(map(lambda s: s.name, previous_parishes)) + [other_name]
         concatenated_name = ' - '.join(all_names)
         print(f'got new name {concatenated_name}')
 
@@ -47,10 +47,10 @@ def merge_websites(website: Website, primary_website: Website):
     # We update primary_website name (website title or concatenated names)
     update_website_name(primary_website, website.name)
 
-    # We assign other sources to website
-    for source in website.sources.all():
-        source.website = primary_website
-        source.save()
+    # We assign other parishes to website
+    for parish in website.parishes.all():
+        parish.website = primary_website
+        parish.save()
 
     # Finally we delete other website
     website.delete()
