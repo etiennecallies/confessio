@@ -25,25 +25,32 @@ def post_messesinfo_request(messesinfo_request):
     return r.json()
 
 
-def get_website(home_url, name) -> Website:
-    try:
-        website = Website.objects.get(home_url=home_url)
+def get_website(home_url, name, preserve_unicity=True) -> Website:
+    if preserve_unicity:
+        try:
+            website = Website.objects.get(home_url=home_url)
 
-        # We update website name (website title or concatenated names)
-        update_website_name(website, name)
-    except Website.DoesNotExist:
-        website = Website(
-            name=name,
-            home_url=home_url,
-        )
+            # We update website name (website title or concatenated names)
+            update_website_name(website, name)
 
+            return website
+        except Website.DoesNotExist:
+            pass
+
+    website = Website(
+        name=name,
+        home_url=home_url,
+    )
+
+    if preserve_unicity:
         # We save website
         website.save()
 
     return website
 
 
-def fetch_parish(messesinfo_community_id, diocese: Diocese) -> Optional[Parish]:
+def fetch_parish(messesinfo_community_id, diocese: Diocese,
+                 preserve_website_unicity=True) -> Optional[Parish]:
     messesinfo_request = f'{{"F":"cef.kephas.shared.request.AppRequestFactory",' \
                          f'"I":[{{"O":"cAFxqYS1T1aS3fEnag2PwGf6i9w=",' \
                          f'"P":["{messesinfo_community_id}"],"R":[]}}]}}'
@@ -63,7 +70,7 @@ def fetch_parish(messesinfo_community_id, diocese: Diocese) -> Optional[Parish]:
         home_url = get_clean_full_url(url)  # we use standardized url to ensure unicity
         name = parish_data['name']
 
-        website = get_website(home_url, name)
+        website = get_website(home_url, name, preserve_website_unicity)
 
         parish = Parish(
             name=name,
@@ -82,13 +89,7 @@ def fetch_parish(messesinfo_community_id, diocese: Diocese) -> Optional[Parish]:
         return None
 
 
-def get_churches_on_page(messesinfo_network_id: str, page):
-    try:
-        diocese = Diocese.objects.get(messesinfo_network_id=messesinfo_network_id)
-    except Diocese.DoesNotExist:
-        print(f'no diocese for network_id {messesinfo_network_id}')
-        return None
-
+def get_churches_on_page(messesinfo_network_id: str, page, diocese: Diocese):
     messesinfo_request = f'{{"F":"cef.kephas.shared.request.AppRequestFactory",' \
                          f'"I":[{{"O":"$i2wVYlJYdDXj9pOVHx42kKyAu8=",' \
                          f'"P":["DIOCESE:{messesinfo_network_id.upper()}",{page},' \
@@ -172,3 +173,54 @@ def compute_church_coordinates(church: Church):
         location=church.location
     )
     church_moderation.save()
+
+
+def get_parishes_and_churches(messesinfo_network_id: str,
+                              diocese: Diocese) -> tuple[list[Parish], list[Church]]:
+    page = 0
+    churches = []
+    parish_by_community_id = {}
+    while True:
+        churches_request = f'{{"F":"cef.kephas.shared.request.AppRequestFactory",' \
+                             f'"I":[{{"O":"$i2wVYlJYdDXj9pOVHx42kKyAu8=",' \
+                             f'"P":["DIOCESE:{messesinfo_network_id.upper()}",{page},' \
+                             f'25,"48.856614:2.352222",null]}}]}}'
+
+        print(f'fetching churches in {messesinfo_network_id} on page {page}')
+        data = post_messesinfo_request(churches_request)
+
+        if data == {"S": [True], "I": [[]]}:
+            print('no result')
+            break
+
+        for church_raw in data['O']:
+            church_data = church_raw['P']
+            church_messesinfo_id = church_data['id']
+
+            messesinfo_community_id = church_data['communityId']
+            parish = parish_by_community_id.get(messesinfo_community_id, None)
+            if not parish:
+                parish = fetch_parish(messesinfo_community_id, diocese,
+                                      preserve_website_unicity=False)
+                if parish is None:
+                    print(
+                        f'no valid parish for church {church_messesinfo_id} ignoring this church')
+                    continue
+                parish_by_community_id[messesinfo_community_id] = parish
+
+            church = Church(
+                name=church_data['name'],
+                location=Point(church_data['longitude'], church_data['latitude']),
+                address=church_data['address'],
+                zipcode=church_data['zipcode'],
+                city=church_data['city'],
+                messesinfo_id=church_messesinfo_id,
+                parish=parish,
+            )
+            churches.append(church)
+
+        print(f'{len(churches)} churches saved')
+
+        page += 1
+
+    return list(parish_by_community_id.values()), churches
