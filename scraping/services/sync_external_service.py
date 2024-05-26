@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 
-from home.models import Parish, Diocese, Church
+from home.models import Parish, Diocese, Church, ParishModeration, Website
 from home.services.autocomplete_service import get_string_distance
 from scraping.services.crawl_messesinfos_service import compute_church_coordinates
 
@@ -11,12 +11,19 @@ from scraping.services.crawl_messesinfos_service import compute_church_coordinat
 ####################
 
 class ParishRetriever(ABC):
+    @property
+    @abstractmethod
+    def source(self):
+        pass
+
     @abstractmethod
     def retrieve_parish(self, external_parish: Parish) -> Optional[Parish]:
         pass
 
 
 class MessesinfoParishRetriever(ParishRetriever):
+    source = 'messesinfo'
+
     def retrieve_parish(self, external_parish: Parish) -> Optional[Parish]:
         try:
             return Parish.objects.get(
@@ -29,22 +36,39 @@ class MessesinfoParishRetriever(ParishRetriever):
 # PARISH SYNC #
 ###############
 
-def update_parish(parish: Parish, external_parish: Parish):
+def add_moderation_if_not_exists(parish_moderation: ParishModeration):
+    if not ParishModeration.objects.filter(
+            parish=parish_moderation.parish,
+            category=parish_moderation.category,
+            source=parish_moderation.source
+    ).exists():
+        parish_moderation.save()
+
+
+def update_parish(parish: Parish,
+                  external_parish: Parish,
+                  parish_retriever: ParishRetriever):
     # Check name
     if parish.name != external_parish.name:
-        # TODO : add ParishModeration to handle this case only if not already existing
-        pass
+        add_moderation_if_not_exists(ParishModeration(
+            parish=parish, category=ParishModeration.Category.NAME_DIFFERS,
+            source=parish_retriever.source, name=external_parish.name))
 
     # Check website
     if external_parish.website:
         if not parish.website:
-            # TODO : add ParishModeration to handle this case only if not already existing
-            pass
+            try:
+                website = Website.objects.get(home_url=external_parish.website.home_url)
+            except Website.DoesNotExist:
+                website = external_parish.website
+                website.save()
 
+            parish.website = website
+            parish.save()
         elif parish.website.home_url != external_parish.website.home_url:
-            if parish.website.one_page_has_confessions():
-                # TODO : add ParishModeration to handle this case only if not already existing
-                pass
+            add_moderation_if_not_exists(ParishModeration(
+                parish=parish, category=ParishModeration.Category.WEBSITE_DIFFERS,
+                source=parish_retriever.source, home_url=external_parish.website.home_url))
 
 
 def look_for_similar_parishes_by_name(external_parish: Parish,
@@ -85,7 +109,7 @@ def sync_parishes(external_parishes: list[Parish],
         confessio_parish = parish_retriever.retrieve_parish(external_parish)
         if confessio_parish:
             # Parish already exists, we update it
-            update_parish(confessio_parish, external_parish)
+            update_parish(confessio_parish, external_parish, parish_retriever)
         else:
             # Parish does not exist, finding similar parishes or create it
 

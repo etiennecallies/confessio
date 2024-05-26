@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 
 from home.models import WebsiteModeration, ChurchModeration, ScrapingModeration, ModerationMixin, \
-    BUG_DESCRIPTION_MAX_LENGTH
+    BUG_DESCRIPTION_MAX_LENGTH, ParishModeration
 from scraping.services.merge_websites_service import merge_websites
 from scraping.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 
@@ -77,6 +77,22 @@ def render_website_moderation(request, moderation: WebsiteModeration, next_url):
         'website_moderation': moderation,
         'website': moderation.website,
         'latest_crawling': moderation.website.get_latest_crawling(),
+        'next_url': next_url,
+        'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
+    })
+
+
+@login_required
+@permission_required("home.change_sentence")
+def moderate_parish(request, category, is_bug, moderation_uuid=None):
+    return get_moderate_response(request, category, 'parish', is_bug, ParishModeration,
+                                 moderation_uuid, render_parish_moderation)
+
+
+def render_parish_moderation(request, moderation: ParishModeration, next_url):
+    return render(request, f'pages/moderate_parish.html', {
+        'parish_moderation': moderation,
+        'parish': moderation.parish,
         'next_url': next_url,
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
     })

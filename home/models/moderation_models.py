@@ -136,6 +136,34 @@ class WebsiteModeration(ModerationMixin):
         return False
 
 
+class ParishModeration(ModerationMixin):
+    class Category(models.TextChoices):
+        NAME_DIFFERS = "name_differs"
+        WEBSITE_DIFFERS = "website_differs"
+
+    class Source(models.TextChoices):
+        MESSESINFO = "messesinfo"
+
+    resource = 'parish'
+    validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
+                                     on_delete=models.SET_NULL, null=True)
+    marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
+                                         on_delete=models.SET_NULL, null=True)
+    parish = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='moderations')
+    category = models.CharField(max_length=16, choices=Category)
+    source = models.CharField(max_length=10, choices=Source)
+
+    name = models.CharField(max_length=100)
+    home_url = models.URLField(unique=True)
+
+    class Meta:
+        unique_together = ('parish', 'category', 'source')
+
+    def delete_on_validate(self) -> bool:
+        # we must not delete on validate
+        return False
+
+
 class ChurchModeration(ModerationMixin):
     class Category(models.TextChoices):
         LOCATION_NULL = "loc_null"
