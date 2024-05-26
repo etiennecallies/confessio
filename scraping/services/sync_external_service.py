@@ -37,11 +37,17 @@ class MessesinfoParishRetriever(ParishRetriever):
 ###############
 
 def add_moderation_if_not_exists(parish_moderation: ParishModeration):
-    if not ParishModeration.objects.filter(
+    try:
+        existing_moderation = ParishModeration.objects.get(
             parish=parish_moderation.parish,
             category=parish_moderation.category,
             source=parish_moderation.source
-    ).exists():
+        )
+        if existing_moderation.name != parish_moderation.name \
+                or existing_moderation.home_url != parish_moderation.home_url:
+            existing_moderation.delete()
+            parish_moderation.save()
+    except ParishModeration.DoesNotExist:
         parish_moderation.save()
 
 
