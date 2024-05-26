@@ -84,15 +84,15 @@ def get_website_by_name_response(query) -> list[AutocompleteResult]:
     return list(map(AutocompleteResult.from_website, websites))
 
 
-def get_string_distance(query, result: AutocompleteResult) -> float:
-    return SequenceMatcher(None, query, result.name).ratio()
+def get_string_distance(query, name: str) -> float:
+    return SequenceMatcher(None, query, name).ratio()
 
 
 def sort_results(query, results: list[AutocompleteResult]) -> list[AutocompleteResult]:
     if not results:
         return []
 
-    tuples = zip(map(lambda r: get_string_distance(query, r), results), results)
+    tuples = zip(map(lambda r: get_string_distance(query, r.name), results), results)
     sorted_tuples = sorted(tuples, key=lambda t: t[0], reverse=True)
     _, sorted_values = zip(*sorted_tuples)
 
