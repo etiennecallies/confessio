@@ -140,6 +140,7 @@ class ParishModeration(ModerationMixin):
     class Category(models.TextChoices):
         NAME_DIFFERS = "name_differs"
         WEBSITE_DIFFERS = "website_differs"
+        MISSING_PARISH = "missing_parish"
 
     class Source(models.TextChoices):
         MESSESINFO = "messesinfo"
@@ -154,7 +155,8 @@ class ParishModeration(ModerationMixin):
     source = models.CharField(max_length=10, choices=Source)
 
     name = models.CharField(max_length=100)
-    home_url = models.URLField(unique=True)
+    home_url = models.URLField()
+    similar_parishes = models.ManyToManyField('Parish', related_name='similar_moderations')
 
     class Meta:
         unique_together = ('parish', 'category', 'source')

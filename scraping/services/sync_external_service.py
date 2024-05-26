@@ -44,7 +44,8 @@ def add_moderation_if_not_exists(parish_moderation: ParishModeration):
             source=parish_moderation.source
         )
         if existing_moderation.name != parish_moderation.name \
-                or existing_moderation.home_url != parish_moderation.home_url:
+                or existing_moderation.home_url != parish_moderation.home_url\
+                or existing_moderation.similar_parishes != parish_moderation.similar_parishes:
             existing_moderation.delete()
             parish_moderation.save()
     except ParishModeration.DoesNotExist:
@@ -125,20 +126,31 @@ def sync_parishes(external_parishes: list[Parish],
 
             similar_parishes = look_for_similar_parishes(external_parish, diocese)
 
-            if not similar_parishes:
-                save_parish(external_parish)
-            else:
-                # TODO add ExternalParishModeration to handle this case only if not already existing
-                pass
+            save_parish(external_parish)
+
+            add_moderation_if_not_exists(ParishModeration(
+                parish=external_parish,
+                category=ParishModeration.Category.MISSING_PARISH,
+                source=parish_retriever.source,
+                similar_parishes=similar_parishes,
+            ))
 
 
 ###############
 # PARISH SAVE #
 ###############
 
+def save_website(website: Website):
+    try:
+        return Website.objects.get(home_url=website.home_url)
+    except Website.DoesNotExist:
+        website.save()
+        return website
+
+
 def save_parish(parish: Parish):
-    print(f'Would have saved parish {parish.name}')
-    # parish.save()  # TODO uncomment this line
+    parish.website = save_website(parish.website)
+    parish.save()
 
 
 ####################
