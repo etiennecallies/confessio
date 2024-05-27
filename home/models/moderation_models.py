@@ -136,14 +136,16 @@ class WebsiteModeration(ModerationMixin):
         return False
 
 
+class ExternalSource(models.TextChoices):
+    MESSESINFO = "messesinfo"
+    LEHAVRE = "lehavre"
+
+
 class ParishModeration(ModerationMixin):
     class Category(models.TextChoices):
         NAME_DIFFERS = "name_differs"
         WEBSITE_DIFFERS = "website_differs"
         MISSING_PARISH = "missing_parish"
-
-    class Source(models.TextChoices):
-        MESSESINFO = "messesinfo"
 
     resource = 'parish'
     validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
@@ -152,7 +154,7 @@ class ParishModeration(ModerationMixin):
                                          on_delete=models.SET_NULL, null=True)
     parish = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=16, choices=Category)
-    source = models.CharField(max_length=10, choices=Source)
+    source = models.CharField(max_length=10, choices=ExternalSource)
 
     name = models.CharField(max_length=100)
     home_url = models.URLField()
@@ -178,11 +180,12 @@ class ChurchModeration(ModerationMixin):
                                          on_delete=models.SET_NULL, null=True)
     church = models.ForeignKey('Church', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=8, choices=Category)
+    source = models.CharField(max_length=10, choices=ExternalSource, null=True)
 
     location = gis_models.PointField(geography=True)
 
     class Meta:
-        unique_together = ('church', 'category')
+        unique_together = ('church', 'category', 'source')
 
     def delete_on_validate(self) -> bool:
         # we do not need to delete ChurchModeration, we could though

@@ -4,9 +4,9 @@ from typing import Optional
 import requests
 from django.contrib.gis.geos import Point
 
-from home.models import Church, Website, Parish, ChurchModeration, Diocese
+from home.models import Church, Website, Parish, Diocese, ExternalSource
+from scraping.services.chuch_location_service import compute_church_coordinates
 from scraping.services.merge_websites_service import update_website_name
-from scraping.utils.geocode_address import geocode
 from scraping.utils.url_utils import get_clean_full_url
 
 
@@ -138,7 +138,7 @@ def get_churches_on_page(messesinfo_network_id: str, page, diocese: Diocese):
             nb_churches_saved += 1
 
             if not church.location.x or not church.location.y:
-                compute_church_coordinates(church)
+                compute_church_coordinates(church, ExternalSource.MESSESINFO)
 
         print(f'{nb_churches_saved} churches saved')
 
@@ -149,30 +149,6 @@ def get_churches_on_page(messesinfo_network_id: str, page, diocese: Diocese):
         print(json.dumps(data))
 
         return None
-
-
-def compute_church_coordinates(church: Church):
-    result = geocode(church.name, church.address, church.city, church.zipcode)
-    if not result or not result.get('coordinates', None):
-        category = ChurchModeration.Category.LOCATION_NULL
-    else:
-        longitude, latitude = result.get('coordinates')
-        church.location = Point(longitude, latitude)
-        if not church.address:
-            church.address = result.get('address', None)
-        if not church.zipcode:
-            church.zipcode = result.get('zipcode', None)
-        if not church.city:
-            church.city = result.get('city', None)
-        church.save()
-        category = ChurchModeration.Category.LOCATION_FROM_API
-
-    church_moderation = ChurchModeration(
-        church=church,
-        category=category,
-        location=church.location
-    )
-    church_moderation.save()
 
 
 def get_parishes_and_churches(messesinfo_network_id: str,

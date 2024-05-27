@@ -1,9 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 
-from home.models import Parish, Diocese, Church, ParishModeration, Website
+from home.models import Parish, Diocese, Church, ParishModeration, Website, ExternalSource
 from home.services.autocomplete_service import get_string_distance
-from scraping.services.crawl_messesinfos_service import compute_church_coordinates
 
 
 ####################
@@ -13,7 +12,7 @@ from scraping.services.crawl_messesinfos_service import compute_church_coordinat
 class ParishRetriever(ABC):
     @property
     @abstractmethod
-    def source(self):
+    def source(self) -> ExternalSource:
         pass
 
     @abstractmethod
@@ -22,7 +21,7 @@ class ParishRetriever(ABC):
 
 
 class MessesinfoParishRetriever(ParishRetriever):
-    source = 'messesinfo'
+    source = ExternalSource.MESSESINFO
 
     def retrieve_parish(self, external_parish: Parish) -> Optional[Parish]:
         try:

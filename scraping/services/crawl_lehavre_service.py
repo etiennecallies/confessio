@@ -5,8 +5,8 @@ import requests
 from bs4 import BeautifulSoup
 from fructose import Fructose
 
-from home.models import Diocese, Website, Church, Parish
-from scraping.services.crawl_messesinfos_service import compute_church_coordinates
+from home.models import Diocese, Website, Church, Parish, ExternalSource
+from scraping.services.chuch_location_service import compute_church_coordinates
 
 ai = Fructose(model="gpt-3.5-turbo")
 
@@ -134,7 +134,7 @@ def get_churches_on_lehavre(page: int):
             )
             church.save()
 
-            compute_church_coordinates(church)
+            compute_church_coordinates(church, ExternalSource.LEHAVRE)
             nb_churches += 1
 
     return nb_parishes, nb_churches
