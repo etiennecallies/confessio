@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 
-from home.models import Parish, Diocese, Church, ParishModeration, Website, ExternalSource
+from home.models import Parish, Diocese, Church, ParishModeration, Website, ExternalSource, \
+    ChurchModeration
 from home.services.autocomplete_service import get_string_distance
 
 
@@ -35,7 +36,7 @@ class MessesinfoParishRetriever(ParishRetriever):
 # PARISH SYNC #
 ###############
 
-def add_moderation_if_not_exists(parish_moderation: ParishModeration):
+def add_parish_moderation_if_not_exists(parish_moderation: ParishModeration):
     try:
         existing_moderation = ParishModeration.objects.get(
             parish=parish_moderation.parish,
@@ -43,7 +44,7 @@ def add_moderation_if_not_exists(parish_moderation: ParishModeration):
             source=parish_moderation.source
         )
         if existing_moderation.name != parish_moderation.name \
-                or existing_moderation.home_url != parish_moderation.home_url\
+                or existing_moderation.website != parish_moderation.website \
                 or existing_moderation.similar_parishes != parish_moderation.similar_parishes:
             existing_moderation.delete()
             parish_moderation.save()
@@ -56,25 +57,28 @@ def update_parish(parish: Parish,
                   parish_retriever: ParishRetriever):
     # Check name
     if parish.name != external_parish.name:
-        add_moderation_if_not_exists(ParishModeration(
+        add_parish_moderation_if_not_exists(ParishModeration(
             parish=parish, category=ParishModeration.Category.NAME_DIFFERS,
             source=parish_retriever.source, name=external_parish.name))
 
     # Check website
     if external_parish.website:
-        if not parish.website:
-            try:
-                website = Website.objects.get(home_url=external_parish.website.home_url)
-            except Website.DoesNotExist:
-                website = external_parish.website
-                website.save()
+        if parish.website and parish.website.home_url == external_parish.website.home_url:
+            return
 
+        try:
+            website = Website.objects.get(home_url=external_parish.website.home_url)
+        except Website.DoesNotExist:
+            website = external_parish.website
+            website.save()
+
+        if not parish.website:
             parish.website = website
             parish.save()
-        elif parish.website.home_url != external_parish.website.home_url:
-            add_moderation_if_not_exists(ParishModeration(
+        else:
+            add_parish_moderation_if_not_exists(ParishModeration(
                 parish=parish, category=ParishModeration.Category.WEBSITE_DIFFERS,
-                source=parish_retriever.source, home_url=external_parish.website.home_url))
+                source=parish_retriever.source, website=website))
 
 
 def look_for_similar_parishes_by_name(external_parish: Parish,
@@ -127,7 +131,7 @@ def sync_parishes(external_parishes: list[Parish],
 
             save_parish(external_parish)
 
-            add_moderation_if_not_exists(ParishModeration(
+            add_parish_moderation_if_not_exists(ParishModeration(
                 parish=external_parish,
                 category=ParishModeration.Category.MISSING_PARISH,
                 source=parish_retriever.source,
@@ -157,6 +161,11 @@ def save_parish(parish: Parish):
 ####################
 
 class ChurchRetriever(ABC):
+    @property
+    @abstractmethod
+    def source(self) -> ExternalSource:
+        pass
+
     @abstractmethod
     def retrieve_church(self, external_church: Church) -> Optional[Church]:
         pass
@@ -171,6 +180,8 @@ class ChurchRetriever(ABC):
 
 
 class MessesinfoChurchRetriever(ChurchRetriever):
+    source = ExternalSource.MESSESINFO
+
     def retrieve_church(self, external_church: Church) -> Optional[Church]:
         try:
             return Church.objects.get(messesinfo_id=external_church.messesinfo_id)
@@ -190,16 +201,33 @@ class MessesinfoChurchRetriever(ChurchRetriever):
 # CHURCH SYNC #
 ###############
 
+def add_church_moderation_if_not_exists(church_moderation: ChurchModeration):
+    try:
+        existing_moderation = ChurchModeration.objects.get(
+            church=church_moderation.church,
+            category=church_moderation.category,
+            source=church_moderation.source
+        )
+        if existing_moderation.name != church_moderation.name \
+                or existing_moderation.parish != church_moderation.parish:
+            existing_moderation.delete()
+            church_moderation.save()
+    except ChurchModeration.DoesNotExist:
+        church_moderation.save()
+
+
 def update_church(church: Church, external_church: Church, church_retriever: ChurchRetriever):
     # Check name
     if church.name != external_church.name:
-        # TODO : add ChurchModeration to handle this case only if not already existing
-        pass
+        add_church_moderation_if_not_exists(ChurchModeration(
+            church=church, category=ChurchModeration.Category.NAME_DIFFERS,
+            source=church_retriever.source, name=external_church.name))
 
     # Check parish
     if not church_retriever.has_same_parish(church, external_church):
-        # TODO : add ChurchModeration to handle this case only if not already existing
-        pass
+        add_church_moderation_if_not_exists(ChurchModeration(
+            church=church, category=ChurchModeration.Category.PARISH_DIFFERS,
+            source=church_retriever.source, parish=external_church.parish))
 
     # TODO check location, etc...
 

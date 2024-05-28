@@ -13,7 +13,9 @@
     {% if parish.website %}
         <p>Website : {{ parish.website.home_url }}</p>
     {% endif %}
-    <p>Other website : {{ parish_moderation.home_url }}</p>
+    {% if parish_moderation.website %}
+        <p>Other website : {{ parish_moderation.website.home_url }}</p>
+    {% endif %}
     <p><a class="btn btn-primary" href="{% url 'admin:home_parish_change' parish.uuid %}" target="_blank" role="button">
         Open admin <i class="fas fa-up-right-from-square"></i>
     </a></p>

@@ -157,7 +157,8 @@ class ParishModeration(ModerationMixin):
     source = models.CharField(max_length=10, choices=ExternalSource)
 
     name = models.CharField(max_length=100)
-    home_url = models.URLField()
+    website = models.ForeignKey('Website', on_delete=models.CASCADE,
+                                related_name='parish_moderations', null=True)
     similar_parishes = models.ManyToManyField('Parish', related_name='similar_moderations')
 
     class Meta:
@@ -172,6 +173,8 @@ class ChurchModeration(ModerationMixin):
     class Category(models.TextChoices):
         LOCATION_NULL = "loc_null"
         LOCATION_FROM_API = "loc_api"
+        NAME_DIFFERS = "name_differs"
+        PARISH_DIFFERS = "parish_differs"
 
     resource = 'church'
     validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
@@ -179,10 +182,13 @@ class ChurchModeration(ModerationMixin):
     marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
                                          on_delete=models.SET_NULL, null=True)
     church = models.ForeignKey('Church', on_delete=models.CASCADE, related_name='moderations')
-    category = models.CharField(max_length=8, choices=Category)
+    category = models.CharField(max_length=16, choices=Category)
     source = models.CharField(max_length=10, choices=ExternalSource)
 
-    location = gis_models.PointField(geography=True)
+    name = models.CharField(max_length=100, null=True)
+    location = gis_models.PointField(geography=True, null=True)
+    parish = models.ForeignKey('Parish', on_delete=models.CASCADE,
+                               related_name='church_moderations', null=True)
 
     class Meta:
         unique_together = ('church', 'category', 'source')
