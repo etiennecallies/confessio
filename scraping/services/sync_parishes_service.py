@@ -48,7 +48,8 @@ class MessesinfoParishRetriever(ParishRetriever):
 # PARISH SYNC #
 ###############
 
-def add_parish_moderation_if_not_exists(parish_moderation: ParishModeration):
+def add_parish_moderation_if_not_exists(parish_moderation: ParishModeration,
+                                        similar_parishes: set[Parish] = None):
     try:
         existing_moderation = ParishModeration.objects.get(
             parish=parish_moderation.parish,
@@ -57,11 +58,15 @@ def add_parish_moderation_if_not_exists(parish_moderation: ParishModeration):
         )
         if existing_moderation.name != parish_moderation.name \
                 or existing_moderation.website != parish_moderation.website \
-                or existing_moderation.similar_parishes != parish_moderation.similar_parishes:
+                or set(existing_moderation.similar_parishes.all()) != similar_parishes:
             existing_moderation.delete()
             parish_moderation.save()
+            if similar_parishes:
+                parish_moderation.similar_parishes.set(similar_parishes)
     except ParishModeration.DoesNotExist:
         parish_moderation.save()
+        if similar_parishes:
+            parish_moderation.similar_parishes.set(similar_parishes)
 
 
 def update_parish(parish: Parish,
@@ -149,8 +154,7 @@ def sync_parishes(external_parishes: list[Parish],
                 parish=external_parish,
                 category=ParishModeration.Category.ADDED_PARISH,
                 source=parish_retriever.source,
-                similar_parishes=similar_parishes,
-            ))
+            ), similar_parishes=similar_parishes)
 
     print('looping on diocese parishes')
     for parish in diocese_parishes:

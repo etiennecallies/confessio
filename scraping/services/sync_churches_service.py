@@ -34,6 +34,10 @@ class ChurchRetriever(ABC):
     def get_churches_of_same_parish(self, external_church: Church) -> set[Church]:
         pass
 
+    @abstractmethod
+    def retrieve_parish(self, external_parish: Parish) -> Parish:
+        pass
+
 
 class MessesinfoChurchRetriever(ChurchRetriever):
     source = ExternalSource.MESSESINFO
@@ -58,12 +62,16 @@ class MessesinfoChurchRetriever(ChurchRetriever):
         return set(Church.objects.filter(
             parish__messesinfo_community_id=external_church.parish.messesinfo_community_id).all())
 
+    def retrieve_parish(self, external_parish: Parish) -> Parish:
+        return Parish.objects.get(messesinfo_community_id=external_parish.messesinfo_community_id)
+
 
 ###############
 # CHURCH SYNC #
 ###############
 
-def add_church_moderation_if_not_exists(church_moderation: ChurchModeration):
+def add_church_moderation_if_not_exists(church_moderation: ChurchModeration,
+                                        similar_churches: Optional[set[Church]] = None):
     try:
         existing_moderation = ChurchModeration.objects.get(
             church=church_moderation.church,
@@ -71,11 +79,16 @@ def add_church_moderation_if_not_exists(church_moderation: ChurchModeration):
             source=church_moderation.source
         )
         if existing_moderation.name != church_moderation.name \
-                or existing_moderation.parish != church_moderation.parish:
+                or existing_moderation.parish != church_moderation.parish \
+                or set(existing_moderation.similar_churches.all()) != similar_churches:
             existing_moderation.delete()
             church_moderation.save()
+            if similar_churches:
+                church_moderation.similar_churches.set(similar_churches)
     except ChurchModeration.DoesNotExist:
         church_moderation.save()
+        if similar_churches:
+            church_moderation.similar_churches.set(similar_churches)
 
 
 def update_church(church: Church, external_church: Church, church_retriever: ChurchRetriever):
@@ -113,7 +126,7 @@ def look_for_similar_churches_by_name(external_church: Church,
 
 
 def look_for_similar_churches(external_church: Church, diocese_churches: list[Church],
-                              church_retriever: ChurchRetriever) -> set[Parish]:
+                              church_retriever: ChurchRetriever) -> set[Church]:
     similar_churches = set()
 
     # 1. Check if there is a church with the same parish
@@ -155,8 +168,7 @@ def sync_churches(external_churches: list[Church],
                 church=external_church,
                 category=ChurchModeration.Category.ADDED_CHURCH,
                 source=church_retriever.source,
-                similar_churches=similar_churches,
-            ))
+            ), similar_churches=similar_churches)
 
     print('looping through diocese churches')
     for church in diocese_churches:
@@ -168,12 +180,12 @@ def sync_churches(external_churches: list[Church],
             ))
 
 
-
 ###############
 # CHURCH SAVE #
 ###############
 
 def save_church(church: Church, church_retriever: ChurchRetriever):
+    church.parish = church_retriever.retrieve_parish(church.parish)
     church.save()
     if not church.location.x or not church.location.y:
         compute_church_coordinates(church, church_retriever.source)
