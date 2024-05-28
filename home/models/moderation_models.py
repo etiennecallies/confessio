@@ -180,7 +180,7 @@ class ChurchModeration(ModerationMixin):
                                          on_delete=models.SET_NULL, null=True)
     church = models.ForeignKey('Church', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=8, choices=Category)
-    source = models.CharField(max_length=10, choices=ExternalSource, null=True)
+    source = models.CharField(max_length=10, choices=ExternalSource)
 
     location = gis_models.PointField(geography=True)
 
