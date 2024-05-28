@@ -175,6 +175,8 @@ class ChurchModeration(ModerationMixin):
         LOCATION_FROM_API = "loc_api"
         NAME_DIFFERS = "name_differs"
         PARISH_DIFFERS = "parish_differs"
+        LOCATION_DIFFERS = "location_differs"
+        MISSING_CHURCH = "missing_church"
 
     resource = 'church'
     validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
@@ -187,8 +189,13 @@ class ChurchModeration(ModerationMixin):
 
     name = models.CharField(max_length=100, null=True)
     location = gis_models.PointField(geography=True, null=True)
+    address = models.CharField(max_length=100, null=True)
+    zipcode = models.CharField(max_length=5, null=True)
+    city = models.CharField(max_length=50, null=True)
     parish = models.ForeignKey('Parish', on_delete=models.CASCADE,
                                related_name='church_moderations', null=True)
+
+    similar_churches = models.ManyToManyField('Church', related_name='similar_moderations')
 
     class Meta:
         unique_together = ('church', 'category', 'source')

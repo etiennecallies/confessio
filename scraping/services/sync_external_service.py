@@ -229,7 +229,14 @@ def update_church(church: Church, external_church: Church, church_retriever: Chu
             church=church, category=ChurchModeration.Category.PARISH_DIFFERS,
             source=church_retriever.source, parish=external_church.parish))
 
-    # TODO check location, etc...
+    # Location
+    if church.location != external_church.location or church.address != external_church.address \
+            or church.zipcode != external_church.zipcode or church.city != external_church.city:
+        add_church_moderation_if_not_exists(ChurchModeration(
+            church=church, category=ChurchModeration.Category.LOCATION_DIFFERS,
+            source=church_retriever.source, location=external_church.location,
+            address=external_church.address, zipcode=external_church.zipcode,
+            city=external_church.city))
 
 
 def look_for_similar_churches_by_name(external_church: Church,
@@ -271,14 +278,21 @@ def sync_churches(external_churches: list[Church],
             # Church already exists, we update it
             update_church(confessio_church, external_church, church_retriever)
         else:
+            if not external_church.parish.website:
+                # We don't really care if there is a new church whose parish does not have a website
+                continue
+
             # Church does not exist, finding similar churches or create it
             similar_churches = look_for_similar_churches(external_church, diocese, church_retriever)
 
-            if not similar_churches:
-                save_church(external_church)
-            else:
-                # TODO add ExternalChurchModeration to handle this case only if not already existing
-                pass
+            save_church(external_church)
+
+            add_church_moderation_if_not_exists(ChurchModeration(
+                church=external_church,
+                category=ChurchModeration.Category.MISSING_CHURCH,
+                source=church_retriever.source,
+                similar_churches=similar_churches,
+            ))
 
 
 ###############
