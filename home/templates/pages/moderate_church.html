@@ -7,7 +7,8 @@
     {% if church_moderation.bug_description %}
         <p>Bug description : {{ church_moderation.bug_description }}</p>
     {% endif %}
-    <p>Name : {{ church.name }}</p>
+    <p>Existing name : {{ church.name }}</p>
+    <p>New name : {{ church_moderation.name }}</p>
     <p>Address : {{ church.address }}</p>
     <p>City : {{ church.city }}</p>
     <p><a class="btn btn-primary" href="{% url 'admin:home_church_change' church.uuid %}" target="_blank" role="button">
