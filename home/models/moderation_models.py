@@ -145,7 +145,8 @@ class ParishModeration(ModerationMixin):
     class Category(models.TextChoices):
         NAME_DIFFERS = "name_differs"
         WEBSITE_DIFFERS = "website_differs"
-        MISSING_PARISH = "missing_parish"
+        ADDED_PARISH = "added_parish"
+        DELETED_PARISH = "deleted_parish"
 
     resource = 'parish'
     validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
@@ -156,7 +157,7 @@ class ParishModeration(ModerationMixin):
     category = models.CharField(max_length=16, choices=Category)
     source = models.CharField(max_length=10, choices=ExternalSource)
 
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, null=True)
     website = models.ForeignKey('Website', on_delete=models.CASCADE,
                                 related_name='parish_moderations', null=True)
     similar_parishes = models.ManyToManyField('Parish', related_name='similar_moderations')
@@ -176,7 +177,8 @@ class ChurchModeration(ModerationMixin):
         NAME_DIFFERS = "name_differs"
         PARISH_DIFFERS = "parish_differs"
         LOCATION_DIFFERS = "location_differs"
-        MISSING_CHURCH = "missing_church"
+        ADDED_CHURCH = "added_church"
+        DELETED_CHURCH = "deleted_church"
 
     resource = 'church'
     validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',

@@ -19,6 +19,11 @@ class ParishRetriever(ABC):
     def retrieve_parish(self, external_parish: Parish) -> Optional[Parish]:
         pass
 
+    @abstractmethod
+    def parish_exists_in_list(self, parish: Parish,
+                              external_parishes: list[Parish]) -> bool:
+        pass
+
 
 class MessesinfoParishRetriever(ParishRetriever):
     source = ExternalSource.MESSESINFO
@@ -29,6 +34,14 @@ class MessesinfoParishRetriever(ParishRetriever):
                 messesinfo_community_id=external_parish.messesinfo_community_id)
         except Parish.DoesNotExist:
             return None
+
+    def parish_exists_in_list(self, parish: Parish,
+                              external_parishes: list[Parish]) -> bool:
+        for external_parish in external_parishes:
+            if external_parish.messesinfo_community_id == parish.messesinfo_community_id:
+                return True
+
+        return False
 
 
 ###############
@@ -92,16 +105,14 @@ def look_for_similar_parishes_by_name(external_parish: Parish,
     return set(similar_parishes)
 
 
-def look_for_similar_parishes(external_parish: Parish, diocese: Diocese) -> set[Parish]:
+def look_for_similar_parishes(external_parish: Parish,
+                              diocese_parishes: list[Parish]) -> set[Parish]:
     similar_parishes = set()
 
     # 1. Check if there is a parish with the same website
     assert external_parish.website
     similar_parishes |= set(Parish.objects.filter(
         website__home_url=external_parish.website.home_url).all())
-
-    # get all parishes in the diocese
-    diocese_parishes = diocese.parishes.all()
 
     # 2. Check if there is a parish with the same name
     similar_parishes |= look_for_similar_parishes_by_name(external_parish, diocese_parishes)
@@ -114,6 +125,10 @@ def look_for_similar_parishes(external_parish: Parish, diocese: Diocese) -> set[
 def sync_parishes(external_parishes: list[Parish],
                   diocese: Diocese,
                   parish_retriever: ParishRetriever):
+    # get all parishes in the diocese
+    diocese_parishes = diocese.parishes.all()
+
+    print('looping through external parishes')
     for external_parish in external_parishes:
         confessio_parish = parish_retriever.retrieve_parish(external_parish)
         if confessio_parish:
@@ -126,15 +141,24 @@ def sync_parishes(external_parishes: list[Parish],
                 # We don't really care if there is a new parish without a website
                 continue
 
-            similar_parishes = look_for_similar_parishes(external_parish, diocese)
+            similar_parishes = look_for_similar_parishes(external_parish, diocese_parishes)
 
             save_parish(external_parish)
 
             add_parish_moderation_if_not_exists(ParishModeration(
                 parish=external_parish,
-                category=ParishModeration.Category.MISSING_PARISH,
+                category=ParishModeration.Category.ADDED_PARISH,
                 source=parish_retriever.source,
                 similar_parishes=similar_parishes,
+            ))
+
+    print('looping on diocese parishes')
+    for parish in diocese_parishes:
+        if not parish_retriever.parish_exists_in_list(parish, external_parishes):
+            add_parish_moderation_if_not_exists(ParishModeration(
+                parish=parish,
+                category=ParishModeration.Category.DELETED_PARISH,
+                source=parish_retriever.source,
             ))
 
 

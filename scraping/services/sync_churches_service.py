@@ -22,6 +22,11 @@ class ChurchRetriever(ABC):
         pass
 
     @abstractmethod
+    def church_exists_in_list(self, church: Church,
+                              external_churches: list[Church]) -> bool:
+        pass
+
+    @abstractmethod
     def has_same_parish(self, church: Church, external_church: Church) -> bool:
         pass
 
@@ -38,6 +43,12 @@ class MessesinfoChurchRetriever(ChurchRetriever):
             return Church.objects.get(messesinfo_id=external_church.messesinfo_id)
         except Church.DoesNotExist:
             return None
+
+    def church_exists_in_list(self, church: Church, external_churches: list[Church]) -> bool:
+        for external_church in external_churches:
+            if external_church.messesinfo_id == church.messesinfo_id:
+                return True
+        return False
 
     def has_same_parish(self, church: Church, external_church: Church) -> bool:
         return church.parish.messesinfo_community_id == \
@@ -101,16 +112,13 @@ def look_for_similar_churches_by_name(external_church: Church,
     return set(similar_churches)
 
 
-def look_for_similar_churches(external_church: Church, diocese: Diocese,
+def look_for_similar_churches(external_church: Church, diocese_churches: list[Church],
                               church_retriever: ChurchRetriever) -> set[Parish]:
     similar_churches = set()
 
     # 1. Check if there is a church with the same parish
     assert external_church.parish
     similar_churches |= church_retriever.get_churches_of_same_parish(external_church)
-
-    # get all churches in the diocese
-    diocese_churches = Church.objects.filter(parish__diocese=diocese).all()
 
     # 2. Check if there is a parish with the same name
     similar_churches |= look_for_similar_churches_by_name(external_church, diocese_churches)
@@ -123,6 +131,10 @@ def look_for_similar_churches(external_church: Church, diocese: Diocese,
 def sync_churches(external_churches: list[Church],
                   diocese: Diocese,
                   church_retriever: ChurchRetriever):
+    # get all churches in the diocese
+    diocese_churches = Church.objects.filter(parish__diocese=diocese).all()
+
+    print('looping through external churches')
     for external_church in external_churches:
         confessio_church = church_retriever.retrieve_church(external_church)
         if confessio_church:
@@ -134,16 +146,27 @@ def sync_churches(external_churches: list[Church],
                 continue
 
             # Church does not exist, finding similar churches or create it
-            similar_churches = look_for_similar_churches(external_church, diocese, church_retriever)
+            similar_churches = look_for_similar_churches(external_church, diocese_churches,
+                                                         church_retriever)
 
             save_church(external_church, church_retriever)
 
             add_church_moderation_if_not_exists(ChurchModeration(
                 church=external_church,
-                category=ChurchModeration.Category.MISSING_CHURCH,
+                category=ChurchModeration.Category.ADDED_CHURCH,
                 source=church_retriever.source,
                 similar_churches=similar_churches,
             ))
+
+    print('looping through diocese churches')
+    for church in diocese_churches:
+        if not church_retriever.church_exists_in_list(church, external_churches):
+            add_church_moderation_if_not_exists(ChurchModeration(
+                church=church,
+                category=ChurchModeration.Category.DELETED_CHURCH,
+                source=church_retriever.source,
+            ))
+
 
 
 ###############
