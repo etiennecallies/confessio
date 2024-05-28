@@ -188,7 +188,11 @@ class ChurchModeration(ModerationMixin):
         unique_together = ('church', 'category', 'source')
 
     def delete_on_validate(self) -> bool:
-        # we do not need to delete ChurchModeration, we could though
+        # ephemeral moderations: we can safely delete
+        if self.category in [self.Category.LOCATION_NULL, self.Category.LOCATION_FROM_API]:
+            return True
+
+        # we need to keep moderations referring to external source diff
         return False
 
 
