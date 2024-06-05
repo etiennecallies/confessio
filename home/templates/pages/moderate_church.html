@@ -1,5 +1,7 @@
 {% extends 'layouts/single_card.html' %}
 
+{% load display_tags %}
+
 {% block card %}
     <h2 class="mb-3">
         Church: {{ church_moderation.get_category_display }}
@@ -7,16 +9,14 @@
     {% if church_moderation.bug_description %}
         <p>Bug description : {{ church_moderation.bug_description }}</p>
     {% endif %}
-    <p>Existing name : {{ church.name }}</p>
-    <p>New name : {{ church_moderation.name }}</p>
-    <p>Address : {{ church.address }}</p>
-    <p>City : {{ church.city }}</p>
-    <p><a class="btn btn-primary" href="{% url 'admin:home_church_change' church.uuid %}" target="_blank" role="button">
-        Open admin <i class="fas fa-up-right-from-square"></i>
-    </a></p>
-    <p>Location : {{ church_moderation.location }}</p>
-    {% if church.location != church_moderation.location %}
-        <p>New location : {{ church.location }}</p>
+
+    {% display_church church %}
+
+    {% if church_moderation.name and church.name != church_moderation.name %}
+        <p>Other name : {{ church_moderation.name }}</p>
+    {% endif %}
+    {% if church_moderation.location and church.location != church_moderation.location %}
+        <p>Other location : {{ church_moderation.location }}</p>
     {% endif %}
 
     <div>

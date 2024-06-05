@@ -1,5 +1,7 @@
 {% extends 'layouts/single_card.html' %}
 
+{% load display_tags %}
+
 {% block card %}
     <h2 class="mb-3">
         Website: {{ website_moderation.get_category_display }}
@@ -7,85 +9,52 @@
     {% if website_moderation.bug_description %}
         <p>Bug description : {{ website_moderation.bug_description }}</p>
     {% endif %}
-    <p><a class="btn btn-primary" href="{% url 'admin:home_website_change' website.uuid %}" target="_blank" role="button">
-        Open admin <i class="fas fa-up-right-from-square"></i>
-    </a></p>
-    <p>Name : {{ website_moderation.name }}</p>
+
+    {% display_website website %}
+
     {% if website.name != website_moderation.name %}
-        <p>New name : {{ website.name }}</p>
+        <p>Other name : {{ website_moderation.name }}</p>
     {% endif %}
-    <p>Home url : <a href="{{ website_moderation.home_url }}" target="_blank">{{ website_moderation.home_url }}</a></p>
     {% if website.home_url != website_moderation.home_url %}
-        <p>New home url : <a href="{{ website.home_url }}" target="_blank">{{ website.home_url }}</a></p>
+        <p>Home url : <a href="{{ website_moderation.home_url }}" target="_blank">{{ website_moderation.home_url }}</a></p>
     {% endif %}
-    {% if website_moderation.other_website %}
-        <p>Conflicting with website {{ website_moderation.other_website.name }}
-            <a class="btn btn-primary" href="{% url 'admin:home_website_change' website_moderation.other_website.uuid %}" target="_blank" role="button">
-        Open admin <i class="fas fa-up-right-from-square"></i>
-    </a></p>
-    {% endif %}
-    {% if latest_crawling %}
-        <h3>Latest crawling</h3>
-        <p>Date : {{ latest_crawling.created_at }}</p>
-        <p>Nb visited links : {{ latest_crawling.nb_visited_links }}</p>
-        <p>Nb success links : {{ latest_crawling.nb_success_links }}</p>
-        <p>Error detail : {{ latest_crawling.error_detail }}</p>
-    {% endif %}
-    <h3>Parishes & Churches</h3>
+
+    <h4>Parishes & Churches</h4>
     {% for parish in website.parishes.all %}
-        <h4>{{ parish.name }} ({{ parish.messesinfo_community_id }})</h4>
+        {% display_parish parish %}
         {% for church in parish.churches.all %}
-            <h5>{{ church.name }} ({{ church.messesinfo_id }})</h5>
-            <p>City : {{ church.city }}
-                <a class="btn btn-primary" href="{% url 'admin:home_church_change' church.uuid %}" target="_blank" role="button">
-                    Open admin <i class="fas fa-up-right-from-square"></i>
-                </a>
-            </p>
+            {% display_church church %}
         {% endfor %}
     {% endfor %}
+
     {% if website_moderation.other_website %}
-        <h3>Parishes & Churches of {{ website_moderation.other_website.name }}</h3>
+        <h3>Conflicting with other website</h3>
+        {% display_website website_moderation.other_website %}
+
+        <h4>Parishes & Churches of this website</h4>
         {% for parish in website_moderation.other_website.parishes.all %}
-            <h4>{{ parish.name }} ({{ parish.messesinfo_community_id }})</h4>
+            {% display_parish parish %}
             {% for church in parish.churches.all %}
-                <h5>{{ church.name }} ({{ church.messesinfo_id }})</h5>
-                <p>City : {{ church.city }}
-                    <a class="btn btn-primary" href="{% url 'admin:home_church_change' church.uuid %}" target="_blank" role="button">
-                        Open admin <i class="fas fa-up-right-from-square"></i>
-                    </a>
-                </p>
+                {% display_church church %}
             {% endfor %}
         {% endfor %}
-    {% endif %}
 
-    <h3>Parishes</h3>
-    {% for parish in website.parishes.all %}
-        <h5>{{ parish.name }}</h5>
-        <p>{{ parish.messesinfo_community_id }}
-            <a class="btn btn-primary" href="{% url 'admin:home_parish_change' parish.uuid %}" target="_blank" role="button">
-                Open admin <i class="fas fa-up-right-from-square"></i>
-            </a>
-        </p>
-    {% endfor %}
-    {% if website_moderation.other_website %}
-        <h3>Parishes of {{ website_moderation.other_website.name }}</h3>
-        {% for parish in website_moderation.other_website.parishes.all %}
-            <h5>{{ parish.name }}</h5>
-            <p>{{ parish.messesinfo_community_id }}
-                <a class="btn btn-primary" href="{% url 'admin:home_parish_change' parish.uuid %}" target="_blank" role="button">
-                    Open admin <i class="fas fa-up-right-from-square"></i>
-                </a>
-            </p>
-        {% endfor %}
-    {% endif %}
-
-    {% if website_moderation.other_website %}
         <div>
             <form action="{% url 'moderate_merge_websites' website_moderation.uuid %}" method="post">
                 {% csrf_token %}
             <button type="submit" class="btn btn-warning">Merge Websites</button>
             </form>
         </div>
+    {% endif %}
+
+    {% if latest_crawling %}
+        <h3>Latest crawling</h3>
+        <p>Date : {{ latest_crawling.created_at }}</p>
+        <p>Nb visited links : {{ latest_crawling.nb_visited_links }}</p>
+        <p>Nb success links : {{ latest_crawling.nb_success_links }}</p>
+        <p>Error detail : {{ latest_crawling.error_detail }}</p>
+    {% else %}
+        <h3>No crawling yet</h3>
     {% endif %}
 
     <div>

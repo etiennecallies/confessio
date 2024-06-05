@@ -1,5 +1,7 @@
 {% extends 'layouts/single_card.html' %}
 
+{% load display_tags %}
+
 {% block card %}
     <h2 class="mb-3">
         Parish: {{ parish_moderation.get_category_display }}
@@ -7,18 +9,21 @@
     {% if parish_moderation.bug_description %}
         <p>Bug description : {{ parish_moderation.bug_description }}</p>
     {% endif %}
-    <p>Source : {{ parish_moderation.source }}</p>
-    <p>Name : {{ parish.name }}</p>
-    <p>Other name : {{ parish_moderation.name }}</p>
+
+    {% display_parish parish %}
     {% if parish.website %}
-        <p>Website : {{ parish.website.home_url }}</p>
+        {% display_website parish.website %}
+    {% else %}
+        <p>No website</p>
+    {% endif %}
+
+    <p>Source : {{ parish_moderation.source }}</p>
+    {% if parish_moderation.name and parish.name != parish_moderation.name %}
+        <p>Other name : {{ parish_moderation.name }}</p>
     {% endif %}
     {% if parish_moderation.website %}
-        <p>Other website : {{ parish_moderation.website.home_url }}</p>
+        <p>Other website : <a href="{{ parish_moderation.website.home_url }}" target="_blank">{{ parish_moderation.website.home_url }}</a></p>
     {% endif %}
-    <p><a class="btn btn-primary" href="{% url 'admin:home_parish_change' parish.uuid %}" target="_blank" role="button">
-        Open admin <i class="fas fa-up-right-from-square"></i>
-    </a></p>
 
     <div>
         <div class="d-inline-block">
