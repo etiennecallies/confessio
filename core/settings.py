@@ -185,6 +185,11 @@ DBBACKUP_STORAGE_OPTIONS = {
     'bucket_name': os.environ.get('DBBACKUP_BUCKET') or 'confessio-dbbackup-daily',
     'default_acl': 'private',
 }
+DBBACKUP_CONNECTORS = {
+    'default': {
+        'DROP': False,
+    }
+}
 
 # Request (statistics)
 REQUEST_LOG_IP = False
