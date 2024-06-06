@@ -116,10 +116,14 @@ def update_church(church: Church, external_church: Church, church_retriever: Chu
 
 def look_for_similar_churches_by_name(external_church: Church,
                                       diocese_churches: list[Church]) -> set[Church]:
-    tuples = zip(map(lambda p: get_string_distance(external_church.name, p.name), diocese_churches),
-                 diocese_churches)
+    distance_tuples = zip(map(lambda p: get_string_distance(external_church.name, p.name),
+                              diocese_churches), diocese_churches)
+
     # keep only the three closest churches
-    closest_churches = sorted(tuples, key=lambda t: t[0])[:3]
+    closest_churches = sorted(distance_tuples, key=lambda t: t[0], reverse=True)[:3]
+    if not closest_churches:
+        return set()
+
     _, similar_churches = zip(*closest_churches)
 
     return set(similar_churches)

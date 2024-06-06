@@ -101,10 +101,13 @@ def update_parish(parish: Parish,
 def look_for_similar_parishes_by_name(external_parish: Parish,
                                       diocese_parishes: list[Parish]) -> set[Parish]:
     # get the distance between the external parish and all the parishes in the diocese
-    tuples = zip(map(lambda p: get_string_distance(external_parish.name, p.name), diocese_parishes),
-                 diocese_parishes)
+    distance_tuples = zip(map(lambda p: get_string_distance(external_parish.name, p.name),
+                              diocese_parishes), diocese_parishes)
     # keep only the three closest parishes
-    closest_parishes = sorted(tuples, key=lambda t: t[0])[:3]
+    closest_parishes = sorted(distance_tuples, key=lambda t: t[0], reverse=True)[:3]
+    if not closest_parishes:
+        return set()
+
     _, similar_parishes = zip(*closest_parishes)
 
     return set(similar_parishes)
