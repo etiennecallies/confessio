@@ -128,3 +128,15 @@ def prepare_map(center, churches: List[Church], bounds) -> Tuple[Map, Dict[UUID,
                                [max(latitudes), max(longitudes)]])
 
     return folium_map, church_marker_names
+
+
+def get_map_with_single_location(location: Point) -> Map:
+    folium_map = Map(
+        location=get_latitude_longitude(location),
+        zoom_start=16,
+    )
+    marker = Marker(get_latitude_longitude(location),
+                    icon=Icon(icon='cross', prefix='fa', color='blue'))
+    marker.add_to(folium_map)
+
+    return folium_map

@@ -60,6 +60,8 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
         else:
             if 'replace_name' in request.POST:
                 moderation.replace_name()
+            if 'replace_location' in request.POST:
+                moderation.replace_location()
             moderation.validate(request.user)
 
         return redirect(next_url)

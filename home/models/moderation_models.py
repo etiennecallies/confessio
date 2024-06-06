@@ -217,6 +217,10 @@ class ChurchModeration(ModerationMixin):
         self.church.name = self.name
         self.church.save()
 
+    def replace_location(self):
+        self.church.location = self.location
+        self.church.save()
+
 
 class ScrapingModeration(ModerationMixin):
     class Category(models.TextChoices):

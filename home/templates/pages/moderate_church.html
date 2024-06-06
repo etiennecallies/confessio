@@ -22,7 +22,13 @@
         </div>
     {% endif %}
     {% if church_moderation.location and church.location != church_moderation.location %}
-        <p>Other location : {{ church_moderation.location }}</p>
+        <div>Other location : {% display_location church_moderation.location %}
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="replace_location" />
+                <button type="submit" class="btn btn-warning">Replace location</button>
+            </form>
+        </div>
     {% endif %}
 
     <div>

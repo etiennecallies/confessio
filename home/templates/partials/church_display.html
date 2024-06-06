@@ -1,8 +1,10 @@
+{% load display_tags %}
+
 <div style="color: lightseagreen">
     <p>Name : {{ church.name }} (messesinfo_id={{ church.messesinfo_id }})</p>
     <p>Address : {{ church.address }}</p>
     <p>City : {{ church.city }}</p>
-    <p>Location : {{ church.location }}</p>
+    {% display_location church.location %}
     <p>
         <a class="btn btn-tertiary"
            style="background-color: lightseagreen; border-color: lightseagreen;"
