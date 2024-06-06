@@ -3,8 +3,9 @@ from typing import Optional
 
 from home.models import Parish, Diocese, Church, ExternalSource, \
     ChurchModeration
-from home.services.autocomplete_service import get_string_distance
+from home.services.autocomplete_service import get_string_similarity
 from scraping.services.chuch_location_service import compute_church_coordinates
+from scraping.utils.geo_utils import get_geo_distance
 
 
 ####################
@@ -135,11 +136,33 @@ def update_church(church: Church, external_church: Church, church_retriever: Chu
 
 def look_for_similar_churches_by_name(external_church: Church,
                                       diocese_churches: list[Church]) -> set[Church]:
-    distance_tuples = zip(map(lambda p: get_string_distance(external_church.name, p.name),
-                              diocese_churches), diocese_churches)
+    similarity_tuples = zip(map(lambda p: get_string_similarity(external_church.name, p.name),
+                                diocese_churches), diocese_churches)
+
+    # keep only the most three similar churches
+    closest_churches = sorted(similarity_tuples, key=lambda t: t[0], reverse=True)[:3]
+    if not closest_churches:
+        return set()
+
+    _, similar_churches = zip(*closest_churches)
+
+    return set(similar_churches)
+
+
+def look_for_similar_churches_by_distance(external_church, diocese_churches) -> set[Church]:
+    if external_church.location is None:
+        return set()
+
+    distance_tuples = []
+    for church in diocese_churches:
+        if church.location is None:
+            continue
+
+        distance_tuples.append((get_geo_distance(external_church.location, church.location),
+                                church))
 
     # keep only the three closest churches
-    closest_churches = sorted(distance_tuples, key=lambda t: t[0], reverse=True)[:3]
+    closest_churches = sorted(distance_tuples, key=lambda t: t[0], reverse=False)[:3]
     if not closest_churches:
         return set()
 
@@ -159,7 +182,8 @@ def look_for_similar_churches(external_church: Church, diocese_churches: list[Ch
     # 2. Check if there is a parish with the same name
     similar_churches |= look_for_similar_churches_by_name(external_church, diocese_churches)
 
-    # TODO look for the closest church in the diocese by geographical distance
+    # 3. Check for the closest churches
+    similar_churches |= look_for_similar_churches_by_distance(external_church, diocese_churches)
 
     return similar_churches
 

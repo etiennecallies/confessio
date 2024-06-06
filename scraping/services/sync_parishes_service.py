@@ -1,8 +1,12 @@
 from abc import ABC, abstractmethod
+from statistics import mean
 from typing import Optional
 
+from django.contrib.gis.geos import Point
+
 from home.models import Parish, Diocese, ParishModeration, Website, ExternalSource
-from home.services.autocomplete_service import get_string_distance
+from home.services.autocomplete_service import get_string_similarity
+from scraping.utils.geo_utils import get_geo_distance
 
 
 ####################
@@ -113,10 +117,10 @@ def update_parish(parish: Parish,
 def look_for_similar_parishes_by_name(external_parish: Parish,
                                       diocese_parishes: list[Parish]) -> set[Parish]:
     # get the distance between the external parish and all the parishes in the diocese
-    distance_tuples = zip(map(lambda p: get_string_distance(external_parish.name, p.name),
+    similarity_tuples = zip(map(lambda p: get_string_similarity(external_parish.name, p.name),
                               diocese_parishes), diocese_parishes)
-    # keep only the three closest parishes
-    closest_parishes = sorted(distance_tuples, key=lambda t: t[0], reverse=True)[:3]
+    # keep only the three most similar parishes
+    closest_parishes = sorted(similarity_tuples, key=lambda t: t[0], reverse=True)[:3]
     if not closest_parishes:
         return set()
 
@@ -125,8 +129,59 @@ def look_for_similar_parishes_by_name(external_parish: Parish,
     return set(similar_parishes)
 
 
+def look_for_similar_parishes_by_distance(
+        external_parish: Parish,
+        diocese_parishes: list[Parish],
+        parish_barycentre_by_uuid: dict[str, Point]) -> set[Parish]:
+    external_parish_barycentre = get_parish_barycentre(external_parish)
+    if not external_parish_barycentre:
+        return set()
+
+    # get the distance between the external parish and all the parishes in the diocese
+    distance_tuples = []
+    for parish in diocese_parishes:
+        if parish.uuid not in parish_barycentre_by_uuid:
+            continue
+
+        parish_barycentre = parish_barycentre_by_uuid[parish.uuid]
+        geo_distance = get_geo_distance(external_parish_barycentre, parish_barycentre)
+
+        distance_tuples.append((geo_distance, parish))
+
+    # keep only the three closest parishes
+    closest_parishes = sorted(distance_tuples, key=lambda t: t[0], reverse=False)[:3]
+    if not closest_parishes:
+        return set()
+
+    _, similar_parishes = zip(*closest_parishes)
+
+    return set(similar_parishes)
+
+
+def get_parish_barycentre(parish: Parish) -> Optional[Point]:
+    churches_points = [c.location for c in parish.churches.all() if c.location]
+    if not churches_points:
+        return None
+
+    return Point(mean(map(lambda p: p.x, churches_points)),
+                 mean(map(lambda p: p.y, churches_points)))
+
+
+def get_parish_barycentre_by_uuid(diocese_parishes: list[Parish]) -> dict[str, Point]:
+    parish_barycentre_by_uuid = {}
+    for parish in diocese_parishes:
+        parish_barycentre = get_parish_barycentre(parish)
+        if not parish_barycentre:
+            continue
+
+        parish_barycentre_by_uuid[parish.uuid] = parish_barycentre
+
+    return parish_barycentre_by_uuid
+
+
 def look_for_similar_parishes(external_parish: Parish,
-                              diocese_parishes: list[Parish]) -> set[Parish]:
+                              diocese_parishes: list[Parish],
+                              parish_barycentre_by_uuid: dict[str, Point]) -> set[Parish]:
     similar_parishes = set()
 
     # 1. Check if there is a parish with the same website
@@ -137,7 +192,9 @@ def look_for_similar_parishes(external_parish: Parish,
     # 2. Check if there is a parish with the same name
     similar_parishes |= look_for_similar_parishes_by_name(external_parish, diocese_parishes)
 
-    # TODO look for the closest parish in the diocese by geographical distance
+    # 3. Check for the closest parishes
+    similar_parishes |= look_for_similar_parishes_by_distance(external_parish, diocese_parishes,
+                                                              parish_barycentre_by_uuid)
 
     return similar_parishes
 
@@ -147,6 +204,9 @@ def sync_parishes(external_parishes: list[Parish],
                   parish_retriever: ParishRetriever):
     # get all parishes in the diocese
     diocese_parishes = diocese.parishes.all()
+
+    # get parish barycentre
+    parish_barycentre_by_uuid = get_parish_barycentre_by_uuid(diocese_parishes)
 
     print('looping through external parishes')
     for external_parish in external_parishes:
@@ -161,7 +221,9 @@ def sync_parishes(external_parishes: list[Parish],
                 # We don't really care if there is a new parish without a website
                 continue
 
-            similar_parishes = look_for_similar_parishes(external_parish, diocese_parishes)
+            similar_parishes = look_for_similar_parishes(external_parish,
+                                                         diocese_parishes,
+                                                         parish_barycentre_by_uuid)
 
             save_parish(external_parish)
 

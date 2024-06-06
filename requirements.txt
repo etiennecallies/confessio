@@ -19,6 +19,7 @@ Unidecode==1.3.4
 requests==2.32.0
 beautifulsoup4==4.9.3
 fructose==0.0.11
+haversine==2.8.1
 
 # Used in production
 django-dbbackup==4.0.2
