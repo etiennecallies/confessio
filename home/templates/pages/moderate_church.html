@@ -34,7 +34,8 @@
 
     {% for similar_church in church_moderation.similar_churches.all %}
         <div>
-            Similar church : {% display_church similar_church %}
+            Similar church {{ forloop.counter }} : {% display_church similar_church %}
+            {% display_parish similar_church.parish %}
             <form method="post">
                 {% csrf_token %}
                     <input type="hidden" name="assign_external_id" value="{{ similar_church.uuid }}" />
