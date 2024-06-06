@@ -22,7 +22,14 @@
         <p>Other name : {{ parish_moderation.name }}</p>
     {% endif %}
     {% if parish_moderation.website %}
-        <p>Other website : <a href="{{ parish_moderation.website.home_url }}" target="_blank">{{ parish_moderation.website.home_url }}</a></p>
+        <div>Other website :
+            <a href="{{ parish_moderation.website.home_url }}" target="_blank">{{ parish_moderation.website.home_url }}</a>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="replace_website" />
+                <button type="submit" class="btn btn-warning">Replace website</button>
+            </form>
+        </div>
     {% endif %}
 
     <div>

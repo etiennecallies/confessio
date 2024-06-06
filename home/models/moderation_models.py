@@ -170,8 +170,21 @@ class ParishModeration(ModerationMixin):
         unique_together = ('parish', 'category', 'source')
 
     def delete_on_validate(self) -> bool:
-        # we must not delete on validate
+        if self.category == self.Category.NAME_DIFFERS and self.parish.name == self.name:
+            # Name has been replaced, we can delete
+            return True
+
+        if self.category == self.Category.WEBSITE_DIFFERS \
+                and self.parish.website.home_url == self.website.home_url:
+            # Website has been replaced, we can delete
+            return True
+
+        # we need to keep moderations referring to external source diff
         return False
+
+    def replace_website(self):
+        self.parish.website = self.website
+        self.parish.save()
 
 
 class ChurchModeration(ModerationMixin):
@@ -229,6 +242,10 @@ class ChurchModeration(ModerationMixin):
 
     def replace_name(self):
         self.church.name = self.name
+        self.church.save()
+
+    def replace_location(self):
+        self.church.location = self.location
         self.church.save()
 
     def assign_external_id(self, similar_church_uuid):
