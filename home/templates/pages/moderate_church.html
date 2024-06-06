@@ -31,6 +31,15 @@
             </form>
         </div>
     {% endif %}
+    {% if church_moderation.parish %}
+        <div>Other parish : {% display_parish church_moderation.parish %}
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="replace_parish" />
+                <button type="submit" class="btn btn-warning">Replace parish</button>
+            </form>
+        </div>
+    {% endif %}
 
     {% for similar_church in church_moderation.similar_churches.all %}
         <div>

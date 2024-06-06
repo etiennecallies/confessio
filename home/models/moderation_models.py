@@ -228,6 +228,10 @@ class ChurchModeration(ModerationMixin):
             # Name has been replaced, we can delete
             return True
 
+        if self.category == self.Category.PARISH_DIFFERS and self.church.parish == self.parish:
+            # Parish has been replaced, we can delete
+            return True
+
         if self.category == self.Category.LOCATION_DIFFERS \
                 and self.church.location == self.location:
             # Location has been replaced, we can delete
@@ -246,6 +250,10 @@ class ChurchModeration(ModerationMixin):
 
     def replace_location(self):
         self.church.location = self.location
+        self.church.save()
+
+    def replace_parish(self):
+        self.church.parish = self.parish
         self.church.save()
 
     def assign_external_id(self, similar_church_uuid):

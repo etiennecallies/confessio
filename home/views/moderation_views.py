@@ -64,6 +64,8 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
                 moderation.replace_location()
             if 'replace_website' in request.POST:
                 moderation.replace_website()
+            if 'replace_parish' in request.POST:
+                moderation.replace_parish()
             if 'assign_external_id' in request.POST:
                 similar_uuid = request.POST.get('assign_external_id')
                 try:
