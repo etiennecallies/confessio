@@ -11,6 +11,7 @@
     {% endif %}
 
     {% display_church church %}
+    {% display_parish church.parish %}
 
     {% if church_moderation.name and church.name != church_moderation.name %}
         <div>Other name : {{ church_moderation.name }}
@@ -30,6 +31,17 @@
             </form>
         </div>
     {% endif %}
+
+    {% for similar_church in church_moderation.similar_churches.all %}
+        <div>
+            Similar church : {% display_church similar_church %}
+            <form method="post">
+                {% csrf_token %}
+                    <input type="hidden" name="assign_external_id" value="{{ similar_church.uuid }}" />
+                <button type="submit" class="btn btn-warning">Assign external id</button>
+            </form>
+        </div>
+    {% endfor %}
 
     <div>
         <div class="d-inline-block">

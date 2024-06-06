@@ -8,7 +8,7 @@ from django.db.models import Count
 from django.db.models.functions import Now
 from django.urls import reverse
 
-from home.models.base_models import TimeStampMixin
+from home.models.base_models import TimeStampMixin, Church
 
 BUG_DESCRIPTION_MAX_LENGTH = 200
 
@@ -94,6 +94,10 @@ class ModerationMixin(TimeStampMixin):
         self.marked_as_bug_by = user
         self.bug_description = bug_description
         self.save()
+
+
+class ResourceDoesNotExist(Exception):
+    pass
 
 
 class WebsiteModeration(ModerationMixin):
@@ -208,6 +212,16 @@ class ChurchModeration(ModerationMixin):
             return True
 
         if self.category == self.Category.NAME_DIFFERS and self.church.name == self.name:
+            # Name has been replaced, we can delete
+            return True
+
+        if self.category == self.Category.LOCATION_DIFFERS \
+                and self.church.location == self.location:
+            # Location has been replaced, we can delete
+            return True
+
+        if self.category == self.Category.ADDED_CHURCH:
+            # In any case, we want to delete the moderation at validation
             return True
 
         # we need to keep moderations referring to external source diff
@@ -217,9 +231,19 @@ class ChurchModeration(ModerationMixin):
         self.church.name = self.name
         self.church.save()
 
-    def replace_location(self):
-        self.church.location = self.location
-        self.church.save()
+    def assign_external_id(self, similar_church_uuid):
+        try:
+            similar_church = Church.objects.get(uuid=similar_church_uuid)
+        except Church.DoesNotExist:
+            raise ResourceDoesNotExist
+
+        if self.source == ExternalSource.MESSESINFO:
+            similar_church.messesinfo_id = self.church.messesinfo_id
+        else:
+            raise NotImplementedError
+
+        self.church.delete()
+        similar_church.save()
 
 
 class ScrapingModeration(ModerationMixin):

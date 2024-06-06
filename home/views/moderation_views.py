@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 
 from home.models import WebsiteModeration, ChurchModeration, ScrapingModeration, ModerationMixin, \
-    BUG_DESCRIPTION_MAX_LENGTH, ParishModeration
+    BUG_DESCRIPTION_MAX_LENGTH, ParishModeration, ResourceDoesNotExist
 from scraping.services.merge_websites_service import merge_websites
 from scraping.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 
@@ -62,6 +62,14 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
                 moderation.replace_name()
             if 'replace_location' in request.POST:
                 moderation.replace_location()
+            if 'assign_external_id' in request.POST:
+                similar_uuid = request.POST.get('assign_external_id')
+                try:
+                    moderation.assign_external_id(similar_uuid)
+                except ResourceDoesNotExist:
+                    return HttpResponseNotFound(
+                        f"resource {resource} not found with uuid {similar_uuid}")
+
             moderation.validate(request.user)
 
         return redirect(next_url)
