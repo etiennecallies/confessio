@@ -13,7 +13,13 @@
     {% display_church church %}
 
     {% if church_moderation.name and church.name != church_moderation.name %}
-        <p>Other name : {{ church_moderation.name }}</p>
+        <div>Other name : {{ church_moderation.name }}
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="replace_name" />
+                <button type="submit" class="btn btn-warning">Replace name</button>
+            </form>
+        </div>
     {% endif %}
     {% if church_moderation.location and church.location != church_moderation.location %}
         <p>Other location : {{ church_moderation.location }}</p>

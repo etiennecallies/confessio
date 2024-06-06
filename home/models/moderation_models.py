@@ -207,8 +207,15 @@ class ChurchModeration(ModerationMixin):
         if self.category in [self.Category.LOCATION_NULL, self.Category.LOCATION_FROM_API]:
             return True
 
+        if self.category == self.Category.NAME_DIFFERS and self.church.name == self.name:
+            return True
+
         # we need to keep moderations referring to external source diff
         return False
+
+    def replace_name(self):
+        self.church.name = self.name
+        self.church.save()
 
 
 class ScrapingModeration(ModerationMixin):

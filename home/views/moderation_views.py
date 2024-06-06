@@ -58,6 +58,8 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
                                               f"max size is {BUG_DESCRIPTION_MAX_LENGTH}")
             moderation.mark_as_bug(request.user, bug_description)
         else:
+            if 'replace_name' in request.POST:
+                moderation.replace_name()
             moderation.validate(request.user)
 
         return redirect(next_url)
