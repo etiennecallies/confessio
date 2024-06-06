@@ -24,6 +24,11 @@ class ParishRetriever(ABC):
                               external_parishes: list[Parish]) -> bool:
         pass
 
+    @abstractmethod
+    def is_same_parish_set(self, parish_set1: Optional[set[Parish]],
+                           parish_set2: Optional[set[Parish]]) -> bool:
+        pass
+
 
 class MessesinfoParishRetriever(ParishRetriever):
     source = ExternalSource.MESSESINFO
@@ -43,12 +48,18 @@ class MessesinfoParishRetriever(ParishRetriever):
 
         return False
 
+    def is_same_parish_set(self, parish_set1: Optional[set[Parish]],
+                           parish_set2: Optional[set[Parish]]) -> bool:
+        return set([p.messesinfo_community_id for p in (parish_set1 or set())]) \
+            == set([p.messesinfo_community_id for p in (parish_set2 or set())])
+
 
 ###############
 # PARISH SYNC #
 ###############
 
 def add_parish_moderation_if_not_exists(parish_moderation: ParishModeration,
+                                        parish_retriever: ParishRetriever,
                                         similar_parishes: set[Parish] = None):
     try:
         existing_moderation = ParishModeration.objects.get(
@@ -57,8 +68,9 @@ def add_parish_moderation_if_not_exists(parish_moderation: ParishModeration,
             source=parish_moderation.source
         )
         if existing_moderation.name != parish_moderation.name \
-                or existing_moderation.website != parish_moderation.website \
-                or set(existing_moderation.similar_parishes.all()) != similar_parishes:
+                or not is_same_website(existing_moderation.website, parish_moderation.website) \
+                or not parish_retriever.is_same_parish_set(
+                    set(existing_moderation.similar_parishes.all()), similar_parishes):
             existing_moderation.delete()
             parish_moderation.save()
             if similar_parishes:
@@ -76,7 +88,7 @@ def update_parish(parish: Parish,
     if parish.name != external_parish.name:
         add_parish_moderation_if_not_exists(ParishModeration(
             parish=parish, category=ParishModeration.Category.NAME_DIFFERS,
-            source=parish_retriever.source, name=external_parish.name))
+            source=parish_retriever.source, name=external_parish.name), parish_retriever)
 
     # Check website
     if external_parish.website:
@@ -95,7 +107,7 @@ def update_parish(parish: Parish,
         else:
             add_parish_moderation_if_not_exists(ParishModeration(
                 parish=parish, category=ParishModeration.Category.WEBSITE_DIFFERS,
-                source=parish_retriever.source, website=website))
+                source=parish_retriever.source, website=website), parish_retriever)
 
 
 def look_for_similar_parishes_by_name(external_parish: Parish,
@@ -157,7 +169,7 @@ def sync_parishes(external_parishes: list[Parish],
                 parish=external_parish,
                 category=ParishModeration.Category.ADDED_PARISH,
                 source=parish_retriever.source,
-            ), similar_parishes=similar_parishes)
+            ), parish_retriever, similar_parishes=similar_parishes)
 
     print('looping on diocese parishes')
     for parish in diocese_parishes:
@@ -166,12 +178,22 @@ def sync_parishes(external_parishes: list[Parish],
                 parish=parish,
                 category=ParishModeration.Category.DELETED_PARISH,
                 source=parish_retriever.source,
-            ))
+            ), parish_retriever)
 
 
 ###############
 # PARISH SAVE #
 ###############
+
+def is_same_website(website1: Optional[Website], website2: Optional[Website]):
+    if website1 is None and website2 is None:
+        return True
+
+    if website1 is None or website2 is None:
+        return False
+
+    return website1.home_url == website2.home_url
+
 
 def save_website(website: Website):
     try:
