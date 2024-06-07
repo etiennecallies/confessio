@@ -244,12 +244,30 @@ class ChurchModeration(ModerationMixin):
         # we need to keep moderations referring to external source diff
         return False
 
+    def location_desc_differs(self):
+        return (self.location is not None and self.church.location != self.location) \
+            or (self.address is not None and self.church.address != self.address) \
+            or (self.zipcode is not None and self.church.zipcode != self.zipcode) \
+            or (self.city is not None and self.church.city != self.city)
+
     def replace_name(self):
         self.church.name = self.name
         self.church.save()
 
     def replace_location(self):
         self.church.location = self.location
+        self.church.save()
+
+    def replace_address(self):
+        self.church.address = self.address
+        self.church.save()
+
+    def replace_zipcode(self):
+        self.church.zipcode = self.zipcode
+        self.church.save()
+
+    def replace_city(self):
+        self.church.city = self.city
         self.church.save()
 
     def replace_parish(self):

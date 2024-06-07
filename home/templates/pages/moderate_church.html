@@ -22,12 +22,51 @@
             </form>
         </div>
     {% endif %}
-    {% if church_moderation.location and church.location != church_moderation.location %}
-        <div>Other location : {% display_location church_moderation.location %}
+    {% if church_moderation.location_desc_differs %}
+        <div>Other location desc:
             <form method="post">
                 {% csrf_token %}
-                <input type="hidden" name="replace_location" />
-                <button type="submit" class="btn btn-warning">Replace location</button>
+                <div>
+                    {% if church_moderation.location != church.location %}
+                        <label>
+                            <input type="checkbox" name="replace_location">
+                            Location : {% display_location church_moderation.location %}
+                        </label>
+                    {% else %}
+                        Same location
+                    {% endif %}
+                </div>
+                <div>
+                    {% if church_moderation.address != church.address %}
+                        <label>
+                            <input type="checkbox" name="replace_address">
+                            Address : {{ church_moderation.address }}
+                        </label>
+                    {% else %}
+                        Same address
+                    {% endif %}
+                </div>
+                <div>
+                    {% if church_moderation.zipcode != church.zipcode %}
+                        <label>
+                            <input type="checkbox" name="replace_zipcode">
+                            Zipcode : {{ church_moderation.zipcode }}
+                        </label>
+                    {% else %}
+                        Same zipcode
+                    {% endif %}
+                </div>
+                <div>
+                    {% if church_moderation.city != church.city %}
+                        <label>
+                            <input type="checkbox" name="replace_city">
+                            City : {{ church_moderation.city }}
+                        </label>
+                    {% else %}
+                        Same city
+                    {% endif %}
+                </div>
+                <button type="submit" class="btn btn-warning">Replace selected items</button>
             </form>
         </div>
     {% endif %}
