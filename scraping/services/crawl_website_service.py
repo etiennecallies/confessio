@@ -30,7 +30,6 @@ def add_moderation(website: Website, category: WebsiteModeration.Category,
     except WebsiteModeration.DoesNotExist:
         moderation = WebsiteModeration(
             website=website, category=category,
-            name=website.name, home_url=website.home_url,
             other_website=other_website,
         )
         moderation.save()

@@ -2,7 +2,7 @@ from home.models import Website, WebsiteModeration
 from scraping.utils.extract_title import get_page_title
 
 
-def add_moderation(website: Website, category: WebsiteModeration.Category, home_url):
+def add_moderation(website: Website, category: WebsiteModeration.Category):
     try:
         # we need to delete existing moderation first
         existing_category = WebsiteModeration.objects.get(website=website, category=category)
@@ -13,8 +13,6 @@ def add_moderation(website: Website, category: WebsiteModeration.Category, home_
     website_moderation = WebsiteModeration(
         website=website,
         category=category,
-        name=website.name,
-        home_url=home_url,
     )
     website_moderation.save()
 
@@ -39,7 +37,7 @@ def update_website_name(website: Website, other_website_name: str):
     website.save()
 
     # We will need to moderate generated website name
-    add_moderation(website, moderation_category, website.home_url)
+    add_moderation(website, moderation_category)
 
 
 def merge_websites(website: Website, primary_website: Website):

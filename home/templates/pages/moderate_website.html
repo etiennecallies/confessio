@@ -12,13 +12,6 @@
 
     {% display_website website %}
 
-    {% if website.name != website_moderation.name %}
-        <p>Other name : {{ website_moderation.name }}</p>
-    {% endif %}
-    {% if website.home_url != website_moderation.home_url %}
-        <p>Other home url : <a href="{{ website_moderation.home_url }}" target="_blank">{{ website_moderation.home_url }}</a></p>
-    {% endif %}
-
     <h4>Parishes & Churches</h4>
     {% for parish in website.parishes.all %}
         {% display_parish parish %}

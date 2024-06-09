@@ -116,8 +116,6 @@ class WebsiteModeration(ModerationMixin):
     website = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=11, choices=Category)
 
-    name = models.CharField(max_length=300)
-    home_url = models.URLField()
     other_website = models.ForeignKey('Website', on_delete=models.SET_NULL,
                                       related_name='other_moderations', null=True)
 
