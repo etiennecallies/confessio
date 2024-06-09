@@ -32,6 +32,17 @@
         </div>
     {% endif %}
 
+    {% for similar_parish in parish_moderation.similar_parishes.all %}
+        <div>
+            Similar parish {{ forloop.counter }} : {% display_parish similar_parish %}
+            <form method="post">
+                {% csrf_token %}
+                    <input type="hidden" name="assign_external_id" value="{{ similar_parish.uuid }}" />
+                <button type="submit" class="btn btn-warning">Assign external id</button>
+            </form>
+        </div>
+    {% endfor %}
+
     <div>
         <div class="d-inline-block">
             <form method="post">

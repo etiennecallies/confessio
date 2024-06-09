@@ -8,7 +8,7 @@ from django.db.models import Count
 from django.db.models.functions import Now
 from django.urls import reverse
 
-from home.models.base_models import TimeStampMixin, Church
+from home.models.base_models import TimeStampMixin, Church, Parish
 
 BUG_DESCRIPTION_MAX_LENGTH = 200
 
@@ -192,6 +192,24 @@ class ParishModeration(ModerationMixin):
         self.parish.website = self.website
         self.parish.save()
 
+    def assign_external_id(self, similar_parish_uuid):
+        try:
+            similar_parish = Parish.objects.get(uuid=similar_parish_uuid)
+        except Parish.DoesNotExist:
+            raise ResourceDoesNotExist
+
+        if self.source == ExternalSource.MESSESINFO:
+            similar_parish.messesinfo_community_id = self.parish.messesinfo_community_id
+        else:
+            raise NotImplementedError
+
+        self.parish.delete()
+        similar_parish.save()
+        # remove moderation PARISH_DELETED if exists
+        ParishModeration.objects.filter(parish=similar_parish,
+                                        category=self.Category.DELETED_PARISH,
+                                        source=self.source).delete()
+
 
 class ChurchModeration(ModerationMixin):
     class Category(models.TextChoices):
@@ -293,6 +311,11 @@ class ChurchModeration(ModerationMixin):
 
         self.church.delete()
         similar_church.save()
+
+        # remove moderation CHURCH_DELETED if exists
+        ChurchModeration.objects.filter(parish=similar_church,
+                                        category=self.Category.DELETED_CHURCH,
+                                        source=self.source).delete()
 
 
 class ScrapingModeration(ModerationMixin):

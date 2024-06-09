@@ -185,9 +185,9 @@ def look_for_similar_parishes(external_parish: Parish,
     similar_parishes = set()
 
     # 1. Check if there is a parish with the same website
-    assert external_parish.website
-    similar_parishes |= set(Parish.objects.filter(
-        website__home_url=external_parish.website.home_url).all())
+    if external_parish.website:
+        similar_parishes |= set(Parish.objects.filter(
+            website__home_url=external_parish.website.home_url).all())
 
     # 2. Check if there is a parish with the same name
     similar_parishes |= look_for_similar_parishes_by_name(external_parish, diocese_parishes)
@@ -201,7 +201,8 @@ def look_for_similar_parishes(external_parish: Parish,
 
 def sync_parishes(external_parishes: list[Parish],
                   diocese: Diocese,
-                  parish_retriever: ParishRetriever):
+                  parish_retriever: ParishRetriever,
+                  allow_no_url: bool = False):
     # get all parishes in the diocese
     diocese_parishes = diocese.parishes.all()
 
@@ -217,7 +218,7 @@ def sync_parishes(external_parishes: list[Parish],
         else:
             # Parish does not exist, finding similar parishes or create it
 
-            if not external_parish.website:
+            if not allow_no_url and not external_parish.website:
                 # We don't really care if there is a new parish without a website
                 continue
 
@@ -266,5 +267,6 @@ def save_website(website: Website):
 
 
 def save_parish(parish: Parish):
-    parish.website = save_website(parish.website)
+    if parish.website:
+        parish.website = save_website(parish.website)
     parish.save()

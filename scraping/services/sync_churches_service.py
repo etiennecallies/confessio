@@ -190,7 +190,8 @@ def look_for_similar_churches(external_church: Church, diocese_churches: list[Ch
 
 def sync_churches(external_churches: list[Church],
                   diocese: Diocese,
-                  church_retriever: ChurchRetriever):
+                  church_retriever: ChurchRetriever,
+                  allow_no_url: bool = False):
     # get all churches in the diocese
     diocese_churches = Church.objects.filter(parish__diocese=diocese).all()
 
@@ -201,7 +202,7 @@ def sync_churches(external_churches: list[Church],
             # Church already exists, we update it
             update_church(confessio_church, external_church, church_retriever)
         else:
-            if not external_church.parish.website:
+            if not allow_no_url and not external_church.parish.website:
                 # We don't really care if there is a new church whose parish does not have a website
                 continue
 

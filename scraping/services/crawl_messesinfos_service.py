@@ -61,16 +61,14 @@ def fetch_parish(messesinfo_community_id, diocese: Diocese,
 
     try:
         parish_data = parish_raw['O'][0]['P']
-
-        if 'url' not in parish_data:
-            print(f'no url for {messesinfo_community_id}, ignoring this parish')
-            return None
-
-        url = parish_data['url']
-        home_url = get_clean_full_url(url)  # we use standardized url to ensure unicity
         name = parish_data['name']
 
-        website = get_website(home_url, name, preserve_website_unicity)
+        if 'url' in parish_data:
+            url = parish_data['url']
+            home_url = get_clean_full_url(url)  # we use standardized url to ensure unicity
+            website = get_website(home_url, name, preserve_website_unicity)
+        else:
+            website = None
 
         parish = Parish(
             name=name,

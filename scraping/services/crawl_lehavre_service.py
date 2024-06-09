@@ -67,6 +67,20 @@ def get_parish_urls(page):
     return set(urls_starting_with_paroisse)
 
 
+def get_parish(parish_data, website, diocese):
+    try:
+        return Parish.objects.get(name=parish_data.name,
+                                  diocese=diocese)
+    except Parish.DoesNotExist:
+        return Parish(
+            name=parish_data.name,
+            messesinfo_network_id=None,
+            messesinfo_community_id=None,
+            website=website,
+            diocese=diocese
+        )
+
+
 def get_churches_on_lehavre(page: int):
     messesinfo_network_id = 'lh'
     try:
@@ -115,13 +129,7 @@ def get_churches_on_lehavre(page: int):
         website.save()
         nb_parishes += 1
 
-        parish = Parish(
-            name=parish_data.name,
-            messesinfo_network_id=None,
-            messesinfo_community_id=None,
-            website=website,
-            diocese=diocese
-        )
+        parish = get_parish(parish_data, website, diocese)
 
         for church_data in parish_data.churches:
             church = Church(

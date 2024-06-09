@@ -14,6 +14,8 @@ class Command(AbstractCommand):
                             help='Two letters code of messesinfo network_id (diocese)')
         parser.add_argument('--sync', action="store_true",
                             help='sync parishes and churches')
+        parser.add_argument('--allow-no-url', action="store_true",
+                            help='do not ignore parishes without url')
 
     def handle(self, *args, **options):
         messesinfo_network_id = options['messesinfo_network_id']
@@ -29,10 +31,10 @@ class Command(AbstractCommand):
             parishes, churches = get_parishes_and_churches(messesinfo_network_id, diocese)
             self.info(f'Successfully crawled {len(parishes)} parishes and {len(churches)} churches')
             self.info(f'Starting synchronization of parishes')
-            sync_parishes(parishes, diocese, MessesinfoParishRetriever())
+            sync_parishes(parishes, diocese, MessesinfoParishRetriever(), allow_no_url=options['allow_no_url'])
             self.success(f'Parish synchronization done!')
             self.info(f'Starting synchronization of churches')
-            sync_churches(churches, diocese, MessesinfoChurchRetriever())
+            sync_churches(churches, diocese, MessesinfoChurchRetriever(), allow_no_url=options['allow_no_url'])
             self.success(f'Church synchronization done!')
             return
 
