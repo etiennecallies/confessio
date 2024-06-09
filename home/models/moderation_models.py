@@ -136,7 +136,11 @@ class WebsiteModeration(ModerationMixin):
                 and self.other_website is None:
             return True
 
-        # for other categories we don't need to delete, we could though
+        if self.category in [self.Category.NAME_CONCATENATED, self.Category.NAME_WEBSITE_TITLE]:
+            # There is no reasons to keep those
+            return True
+
+        # in other cases we keep this moderation
         return False
 
 
@@ -177,6 +181,10 @@ class ParishModeration(ModerationMixin):
         if self.category == self.Category.WEBSITE_DIFFERS \
                 and self.parish.website.home_url == self.website.home_url:
             # Website has been replaced, we can delete
+            return True
+
+        if self.category == self.Category.ADDED_PARISH:
+            # In any case, we want to delete the moderation at validation
             return True
 
         # we need to keep moderations referring to external source diff
@@ -233,7 +241,7 @@ class ChurchModeration(ModerationMixin):
             return True
 
         if self.category == self.Category.LOCATION_DIFFERS \
-                and self.church.location == self.location:
+                and not self.location_desc_differs():
             # Location has been replaced, we can delete
             return True
 
