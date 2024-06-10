@@ -75,6 +75,11 @@ def do_crawl_website(website: Website) -> tuple[dict[str, str], int, Optional[st
 
 
 def crawl_website(website: Website) -> Tuple[bool, bool, Optional[str]]:
+    # check if website has parish
+    if not website.parishes.exists():
+        website.delete()
+        return False, False, 'website has no parish'
+
     confession_parts_by_url, nb_visited_links, error_detail = do_crawl_website(website)
 
     # Inserting global statistics
