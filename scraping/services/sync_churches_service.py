@@ -241,6 +241,9 @@ def save_parish(parish: Parish, church_retriever: ChurchRetriever) -> Parish:
 
 
 def save_church(church: Church, church_retriever: ChurchRetriever):
+    if church_retriever.retrieve_church(church):
+        return
+
     church.parish = save_parish(church.parish, church_retriever)
     church.save()
     if not church.location.x or not church.location.y:
