@@ -116,6 +116,7 @@ class WebsiteModeration(ModerationMixin):
     website = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=11, choices=Category)
 
+    home_url = models.URLField(null=True)
     other_website = models.ForeignKey('Website', on_delete=models.SET_NULL,
                                       related_name='other_moderations', null=True)
 
@@ -189,8 +190,12 @@ class ParishModeration(ModerationMixin):
         return False
 
     def replace_website(self):
+        previous_website = self.parish.website
+        self.website.is_active = True
+        self.website.save()
         self.parish.website = self.website
         self.parish.save()
+        previous_website.delete_if_no_parish()
 
     def assign_external_id(self, similar_parish_uuid):
         try:
@@ -203,7 +208,10 @@ class ParishModeration(ModerationMixin):
         else:
             raise NotImplementedError
 
+        parish_website = self.parish.website
         self.parish.delete()
+        if parish_website:
+            parish_website.delete_if_no_parish()
         similar_parish.save()
         # remove moderation PARISH_DELETED if exists
         ParishModeration.objects.filter(parish=similar_parish,

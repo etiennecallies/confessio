@@ -61,6 +61,10 @@ class Website(TimeStampMixin):
     def one_page_has_confessions(self) -> bool:
         return any(map(Page.has_confessions, self.get_pages()))
 
+    def delete_if_no_parish(self):
+        if not self.parishes.exists():
+            self.delete()
+
 
 class Parish(TimeStampMixin):
     name = models.CharField(max_length=100)

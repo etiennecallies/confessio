@@ -103,9 +103,12 @@ def update_parish(parish: Parish,
             website = Website.objects.get(home_url=external_parish.website.home_url)
         except Website.DoesNotExist:
             website = external_parish.website
+            website.is_active = False
             website.save()
 
         if not parish.website:
+            website.is_active = True
+            website.save()
             parish.website = website
             parish.save()
         else:
