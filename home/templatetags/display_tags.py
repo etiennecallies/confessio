@@ -1,10 +1,10 @@
 from django.template.defaulttags import register
 from django.template.loader import render_to_string
 
-from home.models import Parish, Church, Website
+from home.models import Parish, Church, Website, ChurchModeration
 from django.contrib.gis.geos import Point
 
-from home.services.map_service import get_map_with_single_location
+from home.services.map_service import get_map_with_single_location, get_map_with_multiple_locations
 
 
 @register.simple_tag
@@ -18,13 +18,25 @@ def display_parish(parish: Parish):
 
 
 @register.simple_tag
-def display_church(church: Church):
-    return render_to_string('partials/church_display.html', {'church': church})
+def display_church(church: Church, with_map=True):
+    return render_to_string('partials/church_display.html', {
+        'church': church,
+        'with_map': with_map,
+    })
 
 
 @register.simple_tag
 def display_location(location: Point):
     folimum_map = get_map_with_single_location(location)
+    map_html = folimum_map._repr_html_()
+
+    return render_to_string('partials/location_display.html', {'map_html': map_html})
+
+
+@register.simple_tag
+def display_similar_churches_location(church_moderation: ChurchModeration):
+    folimum_map = get_map_with_multiple_locations(church_moderation.church,
+                                                  set(church_moderation.similar_churches.all()))
     map_html = folimum_map._repr_html_()
 
     return render_to_string('partials/location_display.html', {'map_html': map_html})

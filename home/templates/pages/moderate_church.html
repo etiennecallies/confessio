@@ -80,17 +80,20 @@
         </div>
     {% endif %}
 
-    {% for similar_church in church_moderation.similar_churches.all %}
-        <div>
-            Similar church {{ forloop.counter }} : {% display_church similar_church %}
-            {% display_parish similar_church.parish %}
-            <form method="post">
-                {% csrf_token %}
-                    <input type="hidden" name="assign_external_id" value="{{ similar_church.uuid }}" />
-                <button type="submit" class="btn btn-warning">Assign external id</button>
-            </form>
-        </div>
-    {% endfor %}
+    {% if church_moderation.similar_churches.all %}
+        {% display_similar_churches_location church_moderation %}
+        {% for similar_church in church_moderation.similar_churches.all %}
+            <div>
+                Similar church {{ forloop.counter }} : {% display_church similar_church False %}
+                {% display_parish similar_church.parish %}
+                <form method="post">
+                    {% csrf_token %}
+                        <input type="hidden" name="assign_external_id" value="{{ similar_church.uuid }}" />
+                    <button type="submit" class="btn btn-warning">Assign external id</button>
+                </form>
+            </div>
+        {% endfor %}
+    {% endif %}
 
     <div>
         <div class="d-inline-block">
