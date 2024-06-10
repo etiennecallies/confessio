@@ -11,9 +11,16 @@ class DioceseAdmin(ModelAdmin):
     list_display = ["name", "slug", "messesinfo_network_id"]
 
 
+class ParishInline(admin.StackedInline):
+    model = Parish
+
+
 @admin.register(Website)
 class WebsiteAdmin(ModelAdmin):
     list_display = ["name"]
+    inlines = [
+        ParishInline,
+    ]
 
 
 @admin.register(Parish)
