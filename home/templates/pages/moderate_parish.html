@@ -19,7 +19,13 @@
 
     <p>Source : {{ parish_moderation.source }}</p>
     {% if parish_moderation.name and parish.name != parish_moderation.name %}
-        <p>Other name : {{ parish_moderation.name }}</p>
+        <div>Other name : {{ parish_moderation.name }}
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="replace_name" />
+                <button type="submit" class="btn btn-warning">Replace name</button>
+            </form>
+        </div>
     {% endif %}
     {% if parish_moderation.website %}
         <div>Other website :

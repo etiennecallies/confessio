@@ -189,6 +189,10 @@ class ParishModeration(ModerationMixin):
         # we need to keep moderations referring to external source diff
         return False
 
+    def replace_name(self):
+        self.parish.name = self.name
+        self.parish.save()
+
     def replace_website(self):
         previous_website = self.parish.website
         self.website.is_active = True
