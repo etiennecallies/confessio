@@ -313,7 +313,7 @@ class ChurchModeration(ModerationMixin):
         similar_church.save()
 
         # remove moderation CHURCH_DELETED if exists
-        ChurchModeration.objects.filter(parish=similar_church,
+        ChurchModeration.objects.filter(church=similar_church,
                                         category=self.Category.DELETED_CHURCH,
                                         source=self.source).delete()
 
