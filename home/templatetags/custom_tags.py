@@ -8,6 +8,11 @@ def get_item(dictionary, key):
     return dictionary.get(key)
 
 
+@register.filter
+def negate(value):
+    return not value
+
+
 @register.simple_tag
 def get_moderation_stats():
     return sum([

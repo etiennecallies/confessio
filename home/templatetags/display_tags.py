@@ -34,9 +34,8 @@ def display_location(location: Point):
 
 
 @register.simple_tag
-def display_similar_churches_location(church_moderation: ChurchModeration):
-    folimum_map = get_map_with_multiple_locations(church_moderation.church,
-                                                  set(church_moderation.similar_churches.all()))
+def display_similar_churches_location(church: Church, sorted_similar_churches: list[Church]):
+    folimum_map = get_map_with_multiple_locations(church, sorted_similar_churches)
     map_html = folimum_map._repr_html_()
 
     return render_to_string('partials/location_display.html', {'map_html': map_html})

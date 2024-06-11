@@ -146,7 +146,7 @@ def get_map_with_single_location(location: Point) -> Map:
     return folium_map
 
 
-def get_map_with_multiple_locations(church: Church, similar_churches: set[Church]) -> Map:
+def get_map_with_multiple_locations(church: Church, similar_churches: list[Church]) -> Map:
     folium_map = Map(
         location=get_latitude_longitude(church.location),
         zoom_start=16,
@@ -155,10 +155,10 @@ def get_map_with_multiple_locations(church: Church, similar_churches: set[Church
                     tooltip=church.name,
                     icon=Icon(icon='cross', prefix='fa', color='blue'))
     marker.add_to(folium_map)
-    for similar_church in similar_churches:
+    for i, similar_church in enumerate(similar_churches):
         marker = Marker(get_latitude_longitude(similar_church.location),
-                        tooltip=similar_church.name,
-                        icon=Icon(icon='cross', prefix='fa', color='orange'))
+                        tooltip=f'{similar_church.name}',
+                        icon=Icon(icon=f'{i+1}', prefix='fa', color='orange'))
         marker.add_to(folium_map)
 
     return folium_map

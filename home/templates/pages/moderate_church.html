@@ -1,5 +1,6 @@
 {% extends 'layouts/single_card.html' %}
 
+{% load custom_tags %}
 {% load display_tags %}
 
 {% block card %}
@@ -10,7 +11,7 @@
         <p>Bug description : {{ church_moderation.bug_description }}</p>
     {% endif %}
 
-    {% display_church church %}
+    {% display_church church similar_churches|negate %}
     {% display_parish church.parish %}
 
     {% if church_moderation.name and church.name != church_moderation.name %}
@@ -80,9 +81,9 @@
         </div>
     {% endif %}
 
-    {% if church_moderation.similar_churches.all %}
-        {% display_similar_churches_location church_moderation %}
-        {% for similar_church in church_moderation.similar_churches.all %}
+    {% if similar_churches %}
+        {% display_similar_churches_location church similar_churches %}
+        {% for similar_church in similar_churches %}
             <div>
                 Similar church {{ forloop.counter }} : {% display_church similar_church False %}
                 {% display_parish similar_church.parish %}

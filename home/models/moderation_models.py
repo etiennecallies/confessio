@@ -9,6 +9,7 @@ from django.db.models.functions import Now
 from django.urls import reverse
 
 from home.models.base_models import TimeStampMixin, Church, Parish
+from scraping.services.church_name_service import sort_by_name_similarity
 
 BUG_DESCRIPTION_MAX_LENGTH = 200
 
@@ -254,6 +255,9 @@ class ChurchModeration(ModerationMixin):
 
     class Meta:
         unique_together = ('church', 'category', 'source')
+
+    def get_similar_churches_sorted_by_name(self) -> list[Church]:
+        return sort_by_name_similarity(self.church, self.similar_churches.all())
 
     def delete_on_validate(self) -> bool:
         # ephemeral moderations: we can safely delete

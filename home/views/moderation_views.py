@@ -131,6 +131,7 @@ def render_church_moderation(request, moderation: ChurchModeration, next_url):
     return render(request, f'pages/moderate_church.html', {
         'church_moderation': moderation,
         'church': moderation.church,
+        'similar_churches': moderation.get_similar_churches_sorted_by_name(),
         'next_url': next_url,
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
     })
