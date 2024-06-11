@@ -23,9 +23,16 @@ class WebsiteAdmin(ModelAdmin):
     ]
 
 
+class ChurchInline(admin.StackedInline):
+    model = Church
+
+
 @admin.register(Parish)
 class ParishAdmin(ModelAdmin):
     list_display = ["name"]
+    inlines = [
+        ChurchInline,
+    ]
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'diocese':
