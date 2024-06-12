@@ -3,7 +3,6 @@ from typing import Optional
 
 from home.models import Parish, Diocese, Church, ExternalSource, \
     ChurchModeration
-from home.services.autocomplete_service import get_string_similarity
 from scraping.services.chuch_location_service import compute_church_coordinates
 from scraping.services.church_name_service import sort_by_name_similarity
 from scraping.utils.geo_utils import get_geo_distance
@@ -199,6 +198,21 @@ def sync_churches(external_churches: list[Church],
                 # We don't really care if there is a new church whose parish does not have a website
                 continue
 
+            if external_church.location is not None:
+                church_with_same_location = get_church_with_same_location(external_church)
+                if church_with_same_location:
+                    add_church_moderation_if_not_exists(ChurchModeration(
+                        church=church_with_same_location,
+                        category=ChurchModeration.Category.LOCATION_CONFLICT,
+                        source=church_retriever.source,
+                        name=external_church.name,
+                        address=external_church.address,
+                        zipcode=external_church.zipcode,
+                        city=external_church.city,
+                        messesinfo_id=external_church.messesinfo_id,
+                    ), church_retriever)
+                    continue
+
             # Church does not exist, finding similar churches or create it
             similar_churches = look_for_similar_churches(external_church, diocese_churches,
                                                          church_retriever)
@@ -241,3 +255,10 @@ def save_church(church: Church, church_retriever: ChurchRetriever):
     church.save()
     if not church.location.x or not church.location.y:
         compute_church_coordinates(church, church_retriever.source)
+
+
+def get_church_with_same_location(church: Church) -> Optional[Church]:
+    try:
+        return Church.objects.get(location=church.location)
+    except Church.DoesNotExist:
+        return None

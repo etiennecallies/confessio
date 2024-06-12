@@ -233,6 +233,7 @@ class ChurchModeration(ModerationMixin):
         LOCATION_DIFFERS = "location_differs"
         ADDED_CHURCH = "added_church"
         DELETED_CHURCH = "deleted_church"
+        LOCATION_CONFLICT = "location_conflict"
 
     resource = 'church'
     validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
@@ -240,7 +241,7 @@ class ChurchModeration(ModerationMixin):
     marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
                                          on_delete=models.SET_NULL, null=True)
     church = models.ForeignKey('Church', on_delete=models.CASCADE, related_name='moderations')
-    category = models.CharField(max_length=16, choices=Category)
+    category = models.CharField(max_length=17, choices=Category)
     source = models.CharField(max_length=10, choices=ExternalSource)
 
     name = models.CharField(max_length=100, null=True)
@@ -248,6 +249,7 @@ class ChurchModeration(ModerationMixin):
     address = models.CharField(max_length=100, null=True)
     zipcode = models.CharField(max_length=5, null=True)
     city = models.CharField(max_length=50, null=True)
+    messesinfo_id = models.CharField(max_length=100, null=True)
     parish = models.ForeignKey('Parish', on_delete=models.CASCADE,
                                related_name='church_moderations', null=True)
 

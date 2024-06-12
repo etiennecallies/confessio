@@ -40,7 +40,7 @@
             <form method="post">
                 {% csrf_token %}
                 <div>
-                    {% if church_moderation.location != church.location %}
+                    {% if church_moderation.location and church_moderation.location != church.location %}
                         <label>
                             <input type="checkbox" name="replace_location">
                             Location : {% display_location church_moderation.location %}
