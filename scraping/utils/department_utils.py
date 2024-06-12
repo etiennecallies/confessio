@@ -106,7 +106,10 @@ ALL_FRENCH_DEPARTMENTS = {
 def get_departments(zipcodes: set[str]):
     departments = set()
     for zipcode in zipcodes:
-        department = zipcode[:2]
+        if zipcode.startswith('97'):
+            department = zipcode[:3]
+        else:
+            department = zipcode[:2]
         departments.add(department)
 
     return departments
