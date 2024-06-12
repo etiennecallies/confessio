@@ -182,10 +182,24 @@ def get_map_with_alternative_locations(church: Church, similar_churches: list[Ch
                     tooltip=church.name,
                     icon=Icon(icon='cross', prefix='fa', color='blue'))
     marker.add_to(folium_map)
+
+    min_distance = None
+    min_church = None
     for i, similar_church in enumerate(similar_churches):
+        color = 'green' if similar_church.messesinfo_id is None else 'orange'
         marker = Marker(get_latitude_longitude(similar_church.location),
                         tooltip=f'{similar_church.name}',
-                        icon=Icon(icon=f'{i+1}', prefix='fa', color='orange'))
+                        icon=Icon(icon=f'{i+1}', prefix='fa', color=color))
         marker.add_to(folium_map)
+        distance_to_church = church.location.distance(similar_church.location)
+        if min_distance is None or distance_to_church < min_distance:
+            min_distance = distance_to_church
+            min_church = similar_church
+
+    if min_church:
+        folium_map.fit_bounds([
+            get_latitude_longitude(church.location),
+            get_latitude_longitude(min_church.location)
+        ])
 
     return folium_map

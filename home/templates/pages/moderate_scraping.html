@@ -7,14 +7,6 @@
     {% if scraping_moderation.bug_description %}
         <p>Bug description : {{ scraping_moderation.bug_description }}</p>
     {% endif %}
-    <p><a class="btn btn-gray-500" href="{% url 'qualify_page' scraping.page.uuid %}" target="_blank" role="button">
-        Qualify page <i class="fas fa-up-right-from-square"></i>
-    </a></p>
-    <p>Confession HTML pruned :<br> {{ scraping_moderation.confession_html_pruned|safe }}</p>
-    {% if scraping.confession_html_pruned != scraping_moderation.confession_html_pruned %}
-        <p>New confession HTML pruned : {{ scraping.confession_html_pruned|safe }}</p>
-    {% endif %}
-
     <div>
         <div class="d-inline-block">
             <form method="post">
@@ -26,6 +18,14 @@
             <a class="btn btn-info" role="button" href="{{ next_url }}">Next</a>
         </div>
     </div>
+    <p><a class="btn btn-gray-500" href="{% url 'qualify_page' scraping.page.uuid %}" target="_blank" role="button">
+        Qualify page <i class="fas fa-up-right-from-square"></i>
+    </a></p>
+    <p>Confession HTML pruned :<br> {{ scraping_moderation.confession_html_pruned|safe }}</p>
+    {% if scraping.confession_html_pruned != scraping_moderation.confession_html_pruned %}
+        <p>New confession HTML pruned : {{ scraping.confession_html_pruned|safe }}</p>
+    {% endif %}
+
     {% if not scraping_moderation.marked_as_bug_at %}
         <div>
             <form method="post">

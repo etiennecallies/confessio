@@ -9,6 +9,17 @@
     {% if parish_moderation.bug_description %}
         <p>Bug description : {{ parish_moderation.bug_description }}</p>
     {% endif %}
+    <div>
+        <div class="d-inline-block">
+            <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Validate & next</button>
+            </form>
+        </div>
+        <div class="d-inline-block">
+            <a class="btn btn-info" role="button" href="{{ next_url }}">Next</a>
+        </div>
+    </div>
 
     {% display_parish parish %}
     {% if parish.website %}
@@ -49,17 +60,6 @@
         </div>
     {% endfor %}
 
-    <div>
-        <div class="d-inline-block">
-            <form method="post">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-primary">Validate & next</button>
-            </form>
-        </div>
-        <div class="d-inline-block">
-            <a class="btn btn-info" role="button" href="{{ next_url }}">Next</a>
-        </div>
-    </div>
     {% if not parish_moderation.marked_as_bug_at %}
         <div>
             <form method="post">

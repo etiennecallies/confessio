@@ -9,6 +9,17 @@
     {% if website_moderation.bug_description %}
         <p>Bug description : {{ website_moderation.bug_description }}</p>
     {% endif %}
+    <div>
+        <div class="d-inline-block">
+            <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Validate & next</button>
+            </form>
+        </div>
+        <div class="d-inline-block">
+            <a class="btn btn-info" role="button" href="{{ next_url }}">Next</a>
+        </div>
+    </div>
 
     {% display_website website %}
 
@@ -52,17 +63,6 @@
         <h3>No crawling yet</h3>
     {% endif %}
 
-    <div>
-        <div class="d-inline-block">
-            <form method="post">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-primary">Validate & next</button>
-            </form>
-        </div>
-        <div class="d-inline-block">
-            <a class="btn btn-info" role="button" href="{{ next_url }}">Next</a>
-        </div>
-    </div>
     {% if not website_moderation.marked_as_bug_at %}
         <div>
             <form method="post">
