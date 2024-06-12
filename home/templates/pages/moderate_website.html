@@ -16,8 +16,9 @@
     {% for parish in website.parishes.all %}
         {% display_parish parish %}
         {% for church in parish.churches.all %}
-            {% display_church church %}
+            {% display_church church False %}
         {% endfor %}
+        {% display_churches_location parish.churches.all %}
     {% endfor %}
 
     {% if website_moderation.other_website %}
@@ -28,8 +29,9 @@
         {% for parish in website_moderation.other_website.parishes.all %}
             {% display_parish parish %}
             {% for church in parish.churches.all %}
-                {% display_church church %}
+                {% display_church church false %}
             {% endfor %}
+            {% display_churches_location parish.churches.all %}
         {% endfor %}
 
         <div>

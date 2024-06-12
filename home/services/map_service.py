@@ -1,5 +1,5 @@
 from statistics import mean
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Optional
 from uuid import UUID
 
 from django.contrib.gis.db.models.functions import Distance
@@ -77,6 +77,13 @@ def get_center(churches: List[Church]) -> List[float]:
     return [latitude, longitude]
 
 
+def get_bounds(churches: List[Church]) -> Tuple[float, float, float, float]:
+    latitudes = list(map(lambda c: c.location.y, churches))
+    longitudes = list(map(lambda c: c.location.x, churches))
+
+    return min(latitudes), max(latitudes), min(longitudes), max(longitudes)
+
+
 def get_latitude_longitude(point):
     return [point.coords[1], point.coords[0]]
 
@@ -121,15 +128,13 @@ def prepare_map(center, churches: List[Church], bounds) -> Tuple[Map, Dict[UUID,
         church_marker_names[church.uuid] = marker.get_name()
         marker.add_to(folium_map)
 
-    if bounds:
-        min_lat, max_lat, min_long, max_long = bounds
+    if bounds or len(churches) > 0:
+        if bounds:
+            min_lat, max_lat, min_long, max_long = bounds
+        else:
+            min_lat, max_lat, min_long, max_long = get_bounds(churches)
         folium_map.fit_bounds([[min_lat, min_long],
                                [max_lat, max_long]])
-    elif len(churches) > 0:
-        latitudes = list(map(lambda c: c.location.y, churches))
-        longitudes = list(map(lambda c: c.location.x, churches))
-        folium_map.fit_bounds([[min(latitudes), min(longitudes)],
-                               [max(latitudes), max(longitudes)]])
 
     return folium_map, church_marker_names
 
@@ -146,7 +151,29 @@ def get_map_with_single_location(location: Point) -> Map:
     return folium_map
 
 
-def get_map_with_multiple_locations(church: Church, similar_churches: list[Church]) -> Map:
+def get_map_with_multiple_locations(churches: list[Church]) -> Optional[Map]:
+    if not churches:
+        return None
+
+    folium_map = Map(
+        location=get_center(churches),
+        zoom_start=16,
+    )
+
+    for church in churches:
+        marker = Marker(get_latitude_longitude(church.location),
+                        tooltip=f'{church.name}',
+                        icon=Icon(icon='cross', prefix='fa', color='blue'))
+        marker.add_to(folium_map)
+
+    min_lat, max_lat, min_long, max_long = get_bounds(churches)
+    folium_map.fit_bounds([[min_lat, min_long],
+                           [max_lat, max_long]])
+
+    return folium_map
+
+
+def get_map_with_alternative_locations(church: Church, similar_churches: list[Church]) -> Map:
     folium_map = Map(
         location=get_latitude_longitude(church.location),
         zoom_start=16,
