@@ -57,6 +57,8 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
                 return HttpResponseBadRequest(f"bug_description is len {len(bug_description)} but "
                                               f"max size is {BUG_DESCRIPTION_MAX_LENGTH}")
             moderation.mark_as_bug(request.user, bug_description)
+        elif 'delete_moderation' in request.POST:
+            moderation.delete()
         else:
             if 'replace_name' in request.POST:
                 moderation.replace_name()
