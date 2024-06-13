@@ -57,3 +57,39 @@ def is_internal_link(url: str, url_parsed: ParseResult, aliases_domains: set[str
         return False
 
     return True
+
+
+def are_similar_domain(url1: str, url2: str):
+    url1_parsed = urlparse(url1)
+    url2_parsed = urlparse(url2)
+
+    domain1 = url1_parsed.netloc.replace('www.', '').split('.')[:-1]
+    domain2 = url2_parsed.netloc.replace('www.', '').split('.')[:-1]
+
+    return domain1 == domain2
+
+
+def are_similar_path(url1: str, url2: str):
+    url1_parsed = urlparse(url1)
+    url2_parsed = urlparse(url2)
+
+    path1 = url1_parsed.path
+    if path1.endswith('/'):
+        path1 = path1[:-1]
+
+    path2 = url2_parsed.path
+    if path2.endswith('/'):
+        path2 = path2[:-1]
+
+    return path1 == path2
+
+
+def are_similar_urls(url1: str, url2: str):
+    # if urls are the same, they are similar
+    if url1 == url2:
+        return True
+
+    if are_similar_domain(url1, url2) and are_similar_path(url1, url2):
+        return True
+
+    return False

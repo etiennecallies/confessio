@@ -7,6 +7,7 @@ from django.contrib.gis.geos import Point
 from home.models import Parish, Diocese, ParishModeration, Website, ExternalSource
 from home.services.autocomplete_service import get_string_similarity
 from scraping.utils.geo_utils import get_geo_distance
+from scraping.utils.url_utils import are_similar_urls
 
 
 ####################
@@ -96,7 +97,8 @@ def update_parish(parish: Parish,
 
     # Check website
     if external_parish.website:
-        if parish.website and parish.website.home_url == external_parish.website.home_url:
+        if parish.website \
+                and are_similar_urls(parish.website.home_url, external_parish.website.home_url):
             return
 
         try:
