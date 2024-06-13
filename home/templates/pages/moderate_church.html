@@ -92,6 +92,15 @@
             </form>
         </div>
     {% endif %}
+    {% if church_moderation.messesinfo_id and church.messesinfo_id != church_moderation.messesinfo_id %}
+        <div>Other messesinfo_id : {{ church_moderation.messesinfo_id }}
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="replace_messesinfo_id" />
+                <button type="submit" class="btn btn-warning">Replace messesinfo id</button>
+            </form>
+        </div>
+    {% endif %}
 
     {% if similar_churches %}
         {% display_similar_churches_location church similar_churches %}

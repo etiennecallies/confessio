@@ -74,6 +74,8 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
                 moderation.replace_zipcode()
             if 'replace_city' in request.POST:
                 moderation.replace_city()
+            if 'replace_messesinfo_id' in request.POST:
+                moderation.replace_messesinfo_id()
             if 'assign_external_id' in request.POST:
                 similar_uuid = request.POST.get('assign_external_id')
                 try:

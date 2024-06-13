@@ -312,6 +312,10 @@ class ChurchModeration(ModerationMixin):
         self.church.city = self.city
         self.church.save()
 
+    def replace_messesinfo_id(self):
+        self.church.messesinfo_id = self.messesinfo_id
+        self.church.save()
+
     def replace_parish(self):
         self.church.parish = self.parish
         self.church.save()
