@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-21 08:43+0100\n"
+"POT-Creation-Date: 2024-06-14 17:56+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,19 +18,19 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: services/map_service.py:77
+#: services/map_service.py:97
 msgid "ConfessionsExist"
 msgstr "Des confessions existent"
 
-#: services/map_service.py:82 templates/pages/index.html:124
+#: services/map_service.py:102 templates/pages/index.html:135
 msgid "NotCrawledYet"
 msgstr "Traitement en cours pour cette paroisse"
 
-#: services/map_service.py:85 templates/pages/index.html:126
+#: services/map_service.py:105 templates/pages/index.html:137
 msgid "NoConfessionFound"
 msgstr "Pas de confessions trouvées"
 
-#: services/map_service.py:88
+#: services/map_service.py:108
 msgid "JumpBelow"
 msgstr "Voir ci-dessous"
 
@@ -121,27 +121,36 @@ msgstr "Confessio"
 #: templates/pages/index.html:27
 msgid "searchPlaceHolder"
 msgstr ""
-"Chercher une ville, une paroisse... (uniquement dans le diocèse de Lyon pour l'instant)"
+"Chercher une ville, une paroisse... (uniquement dans le diocèse de Lyon pour "
+"l'instant)"
 
 #: templates/pages/index.html:48
 msgid "searchInThisArea"
 msgstr "Rechercher dans cette zone"
 
-#: templates/pages/index.html:76
+#: templates/pages/index.html:55
+msgid "tooManyResultsStrong"
+msgstr "Oups..."
+
+#: templates/pages/index.html:55
+msgid "tooManyResults"
+msgstr "Il y a beaucoup d'églises dans cette région. Zoomez et relancez la recherche."
+
+#: templates/pages/index.html:88
 msgid "goToParishSite"
 msgstr "Aller sur le site"
 
-#: templates/pages/index.html:91
+#: templates/pages/index.html:110
 msgid "locateOnMap"
 msgstr "Situer sur la carte"
 
-#: templates/pages/index.html:102 templates/pages/qualify_page.html:16
+#: templates/pages/index.html:121 templates/pages/qualify_page.html:16
 #, python-format
 msgid "BeforeConfessionHTML %(url)s"
 msgstr ""
 "Voici l'extrait de leur <a href=\"%(url)s\" class=\"link-info\">page</a> "
 "concernant les confessions :"
 
-#: templates/pages/index.html:106
+#: templates/pages/index.html:125
 msgid "QualifyPage"
 msgstr "Qualifier"

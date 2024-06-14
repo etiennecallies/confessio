@@ -41,7 +41,11 @@ def get_churches_in_box(min_lat, max_lat, min_long, max_long) -> List[Church]:
     churches = Church.objects\
         .filter(location__within=polygon,
                 is_active=True,
-                parish__website__is_active=True).all()[:MAX_CHURCHES_IN_RESULTS]
+                parish__website__is_active=True) \
+        .annotate(nb_page_with_confessions=Count(
+            'parish__website__pages__scrapings',
+            filter=Q(parish__website__pages__scrapings__confession_html_pruned__isnull=False)), ) \
+        .order_by('-nb_page_with_confessions').all()[:MAX_CHURCHES_IN_RESULTS]
 
     return churches
 

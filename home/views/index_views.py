@@ -7,7 +7,7 @@ from django.shortcuts import render
 from home.models import Website, Diocese
 from home.services.autocomplete_service import get_aggregated_response
 from home.services.map_service import get_churches_in_box, get_churches_around, prepare_map, \
-    get_churches_by_website, get_center, get_churches_by_diocese
+    get_churches_by_website, get_center, get_churches_by_diocese, MAX_CHURCHES_IN_RESULTS
 from home.services.page_url_service import get_page_url_with_pointer
 
 
@@ -51,6 +51,7 @@ def render_map(request, center, churches, bounds, location):
         'websites': websites,
         'website_churches': website_churches,
         'page_urls': page_urls,
+        'too_many_results': len(churches) >= MAX_CHURCHES_IN_RESULTS,
     }
 
     return render(request, 'pages/index.html', context)
