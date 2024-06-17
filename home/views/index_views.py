@@ -11,7 +11,7 @@ from home.services.map_service import get_churches_in_box, get_churches_around, 
 from home.services.page_url_service import get_page_url_with_pointer
 
 
-def render_map(request, center, churches, bounds, location):
+def render_map(request, center, churches, bounds, location, too_many_results: bool):
     folium_map, church_marker_names = prepare_map(center, churches, bounds)
 
     # Get HTML Representation of Map Object
@@ -51,7 +51,7 @@ def render_map(request, center, churches, bounds, location):
         'websites': websites,
         'website_churches': website_churches,
         'page_urls': page_urls,
-        'too_many_results': len(churches) >= MAX_CHURCHES_IN_RESULTS,
+        'too_many_results': too_many_results,
     }
 
     return render(request, 'pages/index.html', context)
@@ -74,14 +74,14 @@ def index(request, diocese_slug=None):
             float(min_lat), float(max_lat), float(min_lng), float(max_lng)
         bounds = (min_lat, max_lat, min_lng, max_lng)
         center = [min_lat + max_lat / 2, min_lng + max_lng / 2]
-        churches = get_churches_in_box(min_lat, max_lat, min_lng, max_lng)
+        churches, too_many_results = get_churches_in_box(min_lat, max_lat, min_lng, max_lng)
     elif website_uuid:
         try:
             website = Website.objects.get(uuid=website_uuid, is_active=True)
         except (ValidationError, Website.DoesNotExist):
             return HttpResponseNotFound("Website does not exist with this uuid")
 
-        churches = get_churches_by_website(website)
+        churches, too_many_results = get_churches_by_website(website)
         if len(churches) == 0:
             return HttpResponseNotFound("No church found for this website")
 
@@ -89,7 +89,7 @@ def index(request, diocese_slug=None):
         bounds = None
     elif latitude and longitude:
         center = [float(latitude), float(longitude)]
-        churches = get_churches_around(center)
+        churches, too_many_results = get_churches_around(center)
         bounds = None
     elif diocese_slug:
         try:
@@ -97,7 +97,7 @@ def index(request, diocese_slug=None):
         except Diocese.DoesNotExist:
             return HttpResponseNotFound("Diocese not found")
 
-        churches = get_churches_by_diocese(diocese)
+        churches, too_many_results = get_churches_by_diocese(diocese)
         if len(churches) == 0:
             return HttpResponseNotFound("No church found for this diocese")
         center = get_center(churches)
@@ -106,10 +106,10 @@ def index(request, diocese_slug=None):
         # Default coordinates
         # center = [48.859, 2.342]  # Paris
         center = [45.758, 4.832]  # Lyon - Bellecour
-        churches = get_churches_around(center)
+        churches, too_many_results = get_churches_around(center)
         bounds = None
 
-    return render_map(request, center, churches, bounds, location)
+    return render_map(request, center, churches, bounds, location, too_many_results)
 
 
 def autocomplete(request):

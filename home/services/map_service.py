@@ -19,7 +19,7 @@ MAX_CHURCHES_IN_RESULTS = 50
 # SEARCH #
 ##########
 
-def get_churches_around(center) -> List[Church]:
+def get_churches_around(center) -> tuple[list[Church], bool]:
     latitude, longitude = center
     center_as_point = Point(x=longitude, y=latitude)
 
@@ -31,10 +31,10 @@ def get_churches_around(center) -> List[Church]:
         .annotate(distance=Distance('location', center_as_point)) \
         .order_by('distance')[:MAX_CHURCHES_IN_RESULTS]
 
-    return churches
+    return churches, False
 
 
-def get_churches_in_box(min_lat, max_lat, min_long, max_long) -> List[Church]:
+def get_churches_in_box(min_lat, max_lat, min_long, max_long) -> tuple[list[Church], bool]:
     polygon = Polygon.from_bbox((min_long, min_lat, max_long, max_lat))
 
     # TODO load parish and latest scraping at the same time
@@ -47,20 +47,20 @@ def get_churches_in_box(min_lat, max_lat, min_long, max_long) -> List[Church]:
             filter=Q(parish__website__pages__scrapings__confession_html_pruned__isnull=False)), ) \
         .order_by('-nb_page_with_confessions').all()[:MAX_CHURCHES_IN_RESULTS]
 
-    return churches
+    return churches, len(churches) >= MAX_CHURCHES_IN_RESULTS
 
 
-def get_churches_by_website(website: Website) -> List[Church]:
+def get_churches_by_website(website: Website) -> tuple[list[Church], bool]:
     # TODO load website and latest scraping at the same time
     churches = Church.objects\
         .filter(parish__website=website,
                 is_active=True,
                 parish__website__is_active=True).all()[:MAX_CHURCHES_IN_RESULTS]
 
-    return churches
+    return churches, len(churches) >= MAX_CHURCHES_IN_RESULTS
 
 
-def get_churches_by_diocese(diocese: Diocese) -> List[Church]:
+def get_churches_by_diocese(diocese: Diocese) -> tuple[list[Church], bool]:
     # TODO load parish and latest scraping at the same time
     churches = Church.objects\
         .filter(parish__diocese=diocese,
@@ -71,7 +71,7 @@ def get_churches_by_diocese(diocese: Diocese) -> List[Church]:
             filter=Q(parish__website__pages__scrapings__confession_html_pruned__isnull=False)), ) \
         .order_by('-nb_page_with_confessions').all()[:MAX_CHURCHES_IN_RESULTS]
 
-    return churches
+    return churches, len(churches) >= MAX_CHURCHES_IN_RESULTS
 
 
 ###########
