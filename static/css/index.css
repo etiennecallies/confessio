@@ -199,6 +199,10 @@ https://themesberg.com/docs/pixel-bootstrap/components/badges/
     color: #fff;
     background-color: #1c2540
 }
+.badge-light-blue {
+    color: #fff;
+    background-color: #38aadd
+}
 .badge-success {
     color: #fff;
     background-color: #3aaf85

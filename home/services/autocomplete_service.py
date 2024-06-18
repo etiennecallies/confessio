@@ -7,7 +7,7 @@ from django.contrib.postgres.lookups import Unaccent
 from django.db.models import Value
 from django.db.models.functions import Replace, Lower
 
-from home.models import Website
+from home.models import Website, Parish, Church
 from scraping.utils.department_utils import get_departments_context
 from scraping.utils.string_search import unhyphen_content, normalize_content
 
@@ -24,17 +24,16 @@ class AutocompleteResult:
     website_uuid: Optional[str] = None
 
     @classmethod
-    def from_website(cls, website: Website) -> 'AutocompleteResult':
-        # TODO save context in website, and create a command to fill it
+    def from_parish(cls, parish: Parish) -> 'AutocompleteResult':
+        # TODO save context in parish, and create a command to fill it
 
         cities = set()
         zipcodes = set()
-        for parish in website.parishes.all():
-            for church in parish.churches.all():
-                if church.city:
-                    cities.add(church.city)
-                if church.zipcode:
-                    zipcodes.add(church.zipcode)
+        for church in parish.churches.all():
+            if church.city:
+                cities.add(church.city)
+            if church.zipcode:
+                zipcodes.add(church.zipcode)
         if len(zipcodes) == 0:
             context = None
         elif len(cities) == 1 and len(zipcodes) == 1:
@@ -43,10 +42,26 @@ class AutocompleteResult:
             context = get_departments_context(zipcodes)
 
         return AutocompleteResult(
-            type='website',
-            name=website.name,
+            type='parish',
+            name=parish.name,
             context=context,
-            website_uuid=website.uuid,
+            website_uuid=parish.website.uuid,
+        )
+
+    @classmethod
+    def from_church(cls, church: Church) -> 'AutocompleteResult':
+        if not church.zipcode:
+            context = None
+        elif church.city and church.zipcode:
+            context = f'{church.zipcode} {church.city}'
+        else:
+            context = get_departments_context({church.zipcode})
+
+        return AutocompleteResult(
+            type='church',
+            name=church.name,
+            context=context,
+            website_uuid=church.parish.website.uuid,
         )
 
 
@@ -75,13 +90,23 @@ def get_data_gouv_response(query) -> list[AutocompleteResult]:
     return results
 
 
-def get_website_by_name_response(query) -> list[AutocompleteResult]:
+def get_parish_by_name_response(query) -> list[AutocompleteResult]:
     query_term = unhyphen_content(normalize_content(query))
-    websites = Website.objects.annotate(
+    parishes = Parish.objects.annotate(
         search_name=Replace(Unaccent(Lower('name')), Value('-'), Value(' '))
-    ).filter(is_active=True, search_name__contains=query_term)[:MAX_AUTOCOMPLETE_RESULTS]
+    ).filter(website__is_active=True, search_name__contains=query_term)[:MAX_AUTOCOMPLETE_RESULTS]
 
-    return list(map(AutocompleteResult.from_website, websites))
+    return list(map(AutocompleteResult.from_parish, parishes))
+
+
+def get_church_by_name_response(query) -> list[AutocompleteResult]:
+    query_term = unhyphen_content(normalize_content(query))
+    churches = Church.objects.annotate(
+        search_name=Replace(Unaccent(Lower('name')), Value('-'), Value(' '))
+    ).filter(is_active=True, parish__website__is_active=True,
+             search_name__contains=query_term)[:MAX_AUTOCOMPLETE_RESULTS]
+
+    return list(map(AutocompleteResult.from_church, churches))
 
 
 def get_string_similarity(query, name: str) -> float:
@@ -102,8 +127,10 @@ def sort_results(query, results: list[AutocompleteResult]) -> list[AutocompleteR
 def get_aggregated_response(query) -> list[AutocompleteResult]:
     # TODO async call
     data_gouv_results = get_data_gouv_response(query)
-    website_by_name_results = get_website_by_name_response(query)
+    parish_by_name_results = get_parish_by_name_response(query)
+    church_by_name_results = get_church_by_name_response(query)
 
-    sorted_results = sort_results(query, data_gouv_results + website_by_name_results)
+    sorted_results = sort_results(
+        query, data_gouv_results + parish_by_name_results + church_by_name_results)
 
     return sorted_results[:MAX_AUTOCOMPLETE_RESULTS]
