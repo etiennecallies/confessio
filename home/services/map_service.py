@@ -107,7 +107,7 @@ def get_popup_and_color(church: Church):
         color = 'beige'
     else:
         wording = _("NoConfessionFound")
-        color = 'black'
+        color = 'lightgray'
 
     link_wording = _("JumpBelow")
     popup_html = f"""

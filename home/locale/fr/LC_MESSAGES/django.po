@@ -121,8 +121,7 @@ msgstr "Confessio"
 #: templates/pages/index.html:27
 msgid "searchPlaceHolder"
 msgstr ""
-"Chercher une ville, une paroisse... (uniquement dans le diocèse de Lyon pour "
-"l'instant)"
+"Chercher une ville, une paroisse..."
 
 #: templates/pages/index.html:48
 msgid "searchInThisArea"
@@ -130,11 +129,19 @@ msgstr "Rechercher dans cette zone"
 
 #: templates/pages/index.html:55
 msgid "tooManyResultsStrong"
-msgstr "Oups..."
+msgstr "Beaucoup d'églises dans cette région !"
 
 #: templates/pages/index.html:55
 msgid "tooManyResults"
-msgstr "Il y a beaucoup d'églises dans cette région. Zoomez et relancez la recherche."
+msgstr "Veuillez zoomer et cliquer sur 'Rechercher dans cette zone'."
+
+#: templates/pages/index.html:55
+msgid "noResultsStrong"
+msgstr "Pas de résultats..."
+
+#: templates/pages/index.html:55
+msgid "noResults"
+msgstr "Confessio est en lancement et n'opère que dans les diocèses de Lyon et du Havre pour le moment."
 
 #: templates/pages/index.html:88
 msgid "goToParishSite"
