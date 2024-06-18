@@ -121,7 +121,7 @@ msgstr "Confessio"
 #: templates/pages/index.html:27
 msgid "searchPlaceHolder"
 msgstr ""
-"Chercher une ville, une paroisse..."
+"Chercher une ville, une paroisse, une église ..."
 
 #: templates/pages/index.html:48
 msgid "searchInThisArea"
