@@ -65,8 +65,9 @@ def do_crawl_website(website: Website) -> tuple[dict[str, str], int, Optional[st
     # Get any other website starting with the same home_url
     forbidden_paths = set()
     for alias_domain in aliases_domains:
-        same_domain_websites = Website.objects.filter(home_url__contains=alias_domain).exclude(
-            uuid=website.uuid).all()
+        same_domain_websites = Website.objects\
+            .filter(home_url__contains=alias_domain, is_active=True)\
+            .exclude(uuid=website.uuid).all()
         for other_website in same_domain_websites:
             if get_domain(other_website.home_url) in aliases_domains:
                 forbidden_paths.add(get_path(other_website.home_url))

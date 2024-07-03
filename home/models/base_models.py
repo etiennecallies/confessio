@@ -88,7 +88,7 @@ class Church(TimeStampMixin):
 
 
 class Page(TimeStampMixin):
-    url = models.URLField(unique=True)
+    url = models.URLField(unique=False)
     website = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='pages')
 
     _latest_scraping = None

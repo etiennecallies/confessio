@@ -49,8 +49,12 @@ def clean_url_query(url_parsed: ParseResult):
     return url_parsed.geturl()
 
 
-def is_child_link(url_parsed, home_url):
-    return url_parsed.path.startswith(urlparse(home_url).path)
+def is_forbidden(url_parsed, forbidden_paths: set[str]):
+    for path in forbidden_paths:
+        if url_parsed.path.startswith(path):
+            return True
+
+    return False
 
 
 def get_links(element: el, home_url: str, aliases_domains: set[str], forbidden_paths: set[str]):
@@ -70,12 +74,8 @@ def get_links(element: el, home_url: str, aliases_domains: set[str], forbidden_p
             if not is_internal_link(full_url, url_parsed, aliases_domains):
                 continue
 
-            # We ignore parent links, ex: https://site.com if home_url is https://site.com/some_path
-            if not is_child_link(url_parsed, home_url):
-                continue
-
-            # We ignore links that are in forbidden paths
-            if url_parsed.path in forbidden_paths:
+            # We ignore forbidden paths and their children
+            if is_forbidden(url_parsed, forbidden_paths):
                 continue
 
             full_url = get_clean_full_url(full_url)  # we use standardized url to ensure unicity
