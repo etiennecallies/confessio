@@ -4,6 +4,9 @@
 - name: Migrate database
   shell: ". {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py migrate"
 
+- name: Populate history
+  shell: ". {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py populate_history --auto"
+
 - name: Make www-data as owner of static files directory
   file:
     dest: "{{ static_root }}"

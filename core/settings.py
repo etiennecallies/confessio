@@ -50,7 +50,8 @@ INSTALLED_APPS = [
 
     'leaflet',  # used in admin
     'request',  # statistics
-    'dbbackup',
+    'dbbackup',  # nightly backups
+    'simple_history',  # object versioning
     'theme_pixel',
     "home",
 ]
@@ -65,6 +66,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "request.middleware.RequestMiddleware",
+    'simple_history.middleware.HistoryRequestMiddleware',
 ]
 
 ROOT_URLCONF = "core.urls"

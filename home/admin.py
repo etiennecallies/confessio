@@ -2,12 +2,13 @@ from django.contrib import admin
 from django.contrib.admin import ModelAdmin
 from django.forms import ModelChoiceField
 from leaflet.admin import LeafletGeoAdmin
+from simple_history.admin import SimpleHistoryAdmin
 
 from .models import Church, Website, Page, Diocese, Parish
 
 
 @admin.register(Diocese)
-class DioceseAdmin(ModelAdmin):
+class DioceseAdmin(SimpleHistoryAdmin):
     list_display = ["name", "slug", "messesinfo_network_id"]
 
 
@@ -16,7 +17,7 @@ class ParishInline(admin.StackedInline):
 
 
 @admin.register(Website)
-class WebsiteAdmin(ModelAdmin):
+class WebsiteAdmin(SimpleHistoryAdmin):
     list_display = ["name"]
     inlines = [
         ParishInline,
@@ -28,7 +29,7 @@ class ChurchInline(admin.StackedInline):
 
 
 @admin.register(Parish)
-class ParishAdmin(ModelAdmin):
+class ParishAdmin(SimpleHistoryAdmin):
     list_display = ["name"]
     inlines = [
         ChurchInline,
@@ -43,7 +44,7 @@ class ParishAdmin(ModelAdmin):
 
 
 @admin.register(Church)
-class ChurchAdmin(LeafletGeoAdmin):
+class ChurchAdmin(LeafletGeoAdmin, SimpleHistoryAdmin):
     list_display = ["name"]
     display_raw = True
 

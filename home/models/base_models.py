@@ -3,6 +3,7 @@ from typing import List, Optional
 
 from django.contrib.gis.db import models as gis_models
 from django.db import models
+from simple_history.models import HistoricalRecords
 
 
 class TimeStampMixin(models.Model):
@@ -19,12 +20,14 @@ class Diocese(TimeStampMixin):
     name = models.CharField(max_length=100, unique=True)
     slug = models.CharField(max_length=100, unique=True)
     messesinfo_network_id = models.CharField(max_length=100, unique=True)
+    history = HistoricalRecords()
 
 
 class Website(TimeStampMixin):
     name = models.CharField(max_length=300)
     home_url = models.URLField(unique=True)
     is_active = models.BooleanField(default=True)
+    history = HistoricalRecords()
 
     _pages = None
     _latest_crawling = None
@@ -73,6 +76,7 @@ class Parish(TimeStampMixin):
     website = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='parishes',
                                 null=True, blank=True)
     diocese = models.ForeignKey('Diocese', on_delete=models.CASCADE, related_name='parishes')
+    history = HistoricalRecords()
 
 
 class Church(TimeStampMixin):
@@ -85,6 +89,7 @@ class Church(TimeStampMixin):
     parish = models.ForeignKey('Parish', on_delete=models.CASCADE,
                                related_name='churches')
     is_active = models.BooleanField(default=True)
+    history = HistoricalRecords()
 
 
 class Page(TimeStampMixin):
