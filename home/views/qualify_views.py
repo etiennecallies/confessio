@@ -35,7 +35,7 @@ def qualify_page(request, page_uuid):
         # We get previous color
         colored_pieces = get_colored_pieces(confession_html)
         for piece in colored_pieces:
-            action = Action(request.POST.get(f"action-{piece['id']}")[0])
+            action = Action(request.POST.get(f"action-{piece['id']}"))
             save_sentence(piece['text_without_link'], latest_scraping, request.user, action)
 
         prune_scraping_and_save(latest_scraping)
