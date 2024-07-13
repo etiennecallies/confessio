@@ -7,6 +7,7 @@ from django.db import models
 from django.db.models import Count
 from django.db.models.functions import Now
 from django.urls import reverse
+from simple_history.models import HistoricalRecords
 
 from home.models.base_models import TimeStampMixin, Church, Parish
 from scraping.services.church_name_service import sort_by_name_similarity
@@ -114,6 +115,7 @@ class WebsiteModeration(ModerationMixin):
                                      on_delete=models.SET_NULL, null=True)
     marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
                                          on_delete=models.SET_NULL, null=True)
+    history = HistoricalRecords()
     website = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=11, choices=Category)
 
@@ -125,7 +127,7 @@ class WebsiteModeration(ModerationMixin):
         unique_together = ('website', 'category')
 
     def delete_on_validate(self) -> bool:
-        # If website home_url has been changed, those moderation objects are not relevant any more
+        # If website home_url has been changed, those moderation objects are not relevant anymore
         if self.category in [self.Category.HOME_URL_NO_RESPONSE,
                              self.Category.HOME_URL_NO_CONFESSION]\
                 and self.home_url != self.website.home_url:
@@ -161,6 +163,7 @@ class ParishModeration(ModerationMixin):
                                      on_delete=models.SET_NULL, null=True)
     marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
                                          on_delete=models.SET_NULL, null=True)
+    history = HistoricalRecords()
     parish = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=16, choices=Category)
     source = models.CharField(max_length=10, choices=ExternalSource)
@@ -240,6 +243,7 @@ class ChurchModeration(ModerationMixin):
                                      on_delete=models.SET_NULL, null=True)
     marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
                                          on_delete=models.SET_NULL, null=True)
+    history = HistoricalRecords()
     church = models.ForeignKey('Church', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=17, choices=Category)
     source = models.CharField(max_length=10, choices=ExternalSource)
