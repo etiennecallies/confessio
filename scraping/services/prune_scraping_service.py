@@ -1,4 +1,4 @@
-from typing import Set, Optional
+from typing import Optional
 
 from django.db.models.functions import Now
 
@@ -6,7 +6,7 @@ from home.models import Scraping, ScrapingModeration
 from home.models import Sentence
 from scraping.utils.extract_content import BaseTagInterface
 from scraping.utils.extract_content import extract_content
-from scraping.utils.tag_line import Tag, get_tags_with_regex
+from scraping.utils.tag_line import Action
 
 
 ###################
@@ -14,39 +14,17 @@ from scraping.utils.tag_line import Tag, get_tags_with_regex
 ###################
 
 class SentenceFromDbTagInterface(BaseTagInterface):
-    def get_tags(self, line_without_link: str) -> Set[Tag]:
+    def get_action(self, line_without_link: str) -> Action:
         try:
-            return tags_from_sentence(Sentence.objects.get(line=line_without_link))
+            db_action = Sentence.objects.get(line=line_without_link).action
+
+            return {
+                Sentence.Action.SHOW: Action.SHOW,
+                Sentence.Action.HIDE: Action.HIDE,
+                Sentence.Action.STOP: Action.STOP,
+            }[db_action]
         except Sentence.DoesNotExist:
-            pass
-
-        return get_tags_with_regex(line_without_link)
-
-
-def tags_from_sentence(sentence: Sentence) -> Set[Tag]:
-    tags = set()
-    if sentence.is_confession:
-        tags.add(Tag.CONFESSION)
-
-    if sentence.is_schedule:
-        tags.add(Tag.SCHEDULE)
-
-    if sentence.is_date:
-        tags.add(Tag.DATE)
-
-    if sentence.is_period:
-        tags.add(Tag.PERIOD)
-
-    if sentence.is_place:
-        tags.add(Tag.PLACE)
-
-    if sentence.is_spiritual:
-        tags.add(Tag.SPIRITUAL)
-
-    if sentence.is_other:
-        tags.add(Tag.OTHER)
-
-    return tags
+            return Action.SHOW
 
 
 ##############

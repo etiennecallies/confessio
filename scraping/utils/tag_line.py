@@ -125,9 +125,12 @@ class Tag(str, Enum):
     SCHEDULE = 'schedule'
     DATE = 'date'
     PERIOD = 'period'
-    PLACE = 'place'
-    SPIRITUAL = 'spiritual'
-    OTHER = 'other'
+
+
+class Action(str, Enum):
+    SHOW = "show"
+    HIDE = "hide"
+    STOP = "stop"
 
 
 ########

@@ -195,6 +195,10 @@ https://themesberg.com/docs/pixel-bootstrap/components/badges/
     color: #fff;
     background-color: #A91E2C
 }
+.badge-warning {
+    color: #fff;
+    background-color: #F0B301
+}
 .badge-primary {
     color: #fff;
     background-color: #1c2540

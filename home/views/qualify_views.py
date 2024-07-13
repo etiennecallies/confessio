@@ -6,6 +6,7 @@ from home.models import Page
 from home.services.qualify_service import get_colored_pieces, save_sentence
 from scraping.services.prune_scraping_service import prune_scraping_and_save
 from scraping.utils.hash_utils import hash_string_to_hex
+from scraping.utils.tag_line import Action
 
 
 @login_required
@@ -34,24 +35,26 @@ def qualify_page(request, page_uuid):
         # We get previous color
         colored_pieces = get_colored_pieces(confession_html)
         for piece in colored_pieces:
-            line_without_link = piece['text_without_link']
-
-            checked_per_tag = {}
-            for tag_name, tag in piece['tags'].items():
-                checked_per_tag[tag_name] = request.POST.get(tag['id']) == 'on'
-
-            save_sentence(line_without_link, latest_scraping, request.user, checked_per_tag)
+            action = Action(request.POST.get(f"action-{piece['id']}")[0])
+            save_sentence(piece['text_without_link'], latest_scraping, request.user, action)
 
         prune_scraping_and_save(latest_scraping)
 
     # We get piece with fresh color
     colored_pieces = get_colored_pieces(confession_html)
 
+    action_colors = {
+        Action.SHOW: 'success',
+        Action.HIDE: 'black',
+        Action.STOP: 'danger',
+    }
+
     context = {
         'page': page,
         'website': page.website,
         'confession_html_hash': confession_html_hash,
         'colored_pieces': colored_pieces,
+        'action_colors': action_colors,
     }
 
     return render(request, 'pages/qualify_page.html', context)

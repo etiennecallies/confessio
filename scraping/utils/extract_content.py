@@ -1,9 +1,9 @@
 from abc import abstractmethod
-from typing import List, Tuple, Set
+from typing import List, Tuple
 
 from scraping.utils.prune_lines import get_pruned_lines_indices
 from scraping.utils.refine_content import refine_confession_content, remove_link_from_html
-from scraping.utils.tag_line import Tag, get_tags_with_regex
+from scraping.utils.tag_line import Tag, get_tags_with_regex, Action
 
 
 #############
@@ -12,13 +12,13 @@ from scraping.utils.tag_line import Tag, get_tags_with_regex
 
 class BaseTagInterface:
     @abstractmethod
-    def get_tags(self, line_without_link: str) -> Set[Tag]:
+    def get_action(self, line_without_link: str) -> Action:
         pass
 
 
 class RegexOnlyTagInterface(BaseTagInterface):
-    def get_tags(self, line_without_link: str) -> Set[Tag]:
-        return get_tags_with_regex(line_without_link)
+    def get_action(self, line_without_link: str) -> Action:
+        return Action.SHOW
 
 
 ######################
@@ -26,15 +26,16 @@ class RegexOnlyTagInterface(BaseTagInterface):
 ######################
 
 def split_and_tag(refined_content: str, tag_interface: BaseTagInterface
-                  ) -> List[Tuple[str, str, Set[Tag]]]:
+                  ) -> List[Tuple[str, str, set[Tag], Action]]:
     results = []
 
     # Split into lines (or <table>)
     for line in refined_content.split('<br>\n'):
         line_without_link = remove_link_from_html(line)
 
-        tags = tag_interface.get_tags(line_without_link)
-        results.append((line, line_without_link, tags))
+        tags = get_tags_with_regex(line_without_link)
+        action = tag_interface.get_action(line_without_link)
+        results.append((line, line_without_link, tags, action))
 
     return results
 
@@ -46,7 +47,7 @@ def extract_content(refined_content: str, tag_interface: BaseTagInterface):
     if not confession_pieces:
         return []
 
-    lines, _lines_without_link, _tags = zip(*confession_pieces)
+    lines, _lines_without_link, _tags, _action = zip(*confession_pieces)
 
     return lines
 

@@ -19,11 +19,22 @@
             {% csrf_token %}
             {% for colored_piece in colored_pieces %}
                 <div class="row mb-2">
-                    <div class="col-md-7 {{ colored_piece.color }}">{{ colored_piece.text|safe }}</div>
+                    <div class="col-md-7 {{ colored_piece.color }}">
+                        {{ colored_piece.text|safe }}
+                        {% for tag in colored_piece.tags %}
+                            <span class="badge bg-{{ tag.color }}">{{ tag.name }}</span>
+                        {% endfor %}
+                    </div>
                     <div class="col-md-5 text-end">
-                        {% for tag_name, tag in colored_piece.tags.items %}
-                            <input type="checkbox" class="btn-check" id="{{ tag.id }}" name="{{ tag.id }}" {{ tag.checked|yesno:"checked," }} autocomplete="off">
-                            <label class="btn btn-fixed-outline-{{ tag.color }}" for="{{ tag.id }}">{{ tag_name.value }}</label>
+                        {% for action, action_color in action_colors.items %}
+                            <input type="radio" class="btn-check"
+                                   id="{{ action.value }}-{{ colored_piece.id }}"
+                                   name="action-{{ colored_piece.id }}"
+                                   value="{{ action.value }}"
+                                {% if colored_piece.action == action %}checked{% endif %}
+                                autocomplete="off">
+                            <label class="btn btn-fixed-outline-{{ action_color }}"
+                                   for="{{ action.value }}-{{ colored_piece.id }}">{{ action.value }}</label>
                         {% endfor %}
                     </div>
                 </div>
