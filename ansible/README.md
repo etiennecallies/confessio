@@ -77,11 +77,11 @@ This is mainly inspired by https://realpython.com/automating-django-deployments-
 
 ### Restore DB backup
 ```shell
-# SSH to server then grant ubuntu postgresql superuser privilege
+# SSH to server then grant confessio postgresql superuser privilege
 # This is required because backup will drop/create postgis extension
-sudo -u postgres psql -c "ALTER ROLE ubuntu SUPERUSER;"
+sudo -u postgres psql -c "ALTER ROLE confessio SUPERUSER;"
 # This will restore last backup
 . /home/ubuntu/confessio/.env; /home/ubuntu/envs/confessio/bin/python3.11 /home/ubuntu/confessio/manage.py dbrestore --uncompress
 # Revoke superuser access
-sudo -u postgres psql -c "ALTER ROLE ubuntu NOSUPERUSER;"
+sudo -u postgres psql -c "ALTER ROLE confessio NOSUPERUSER;"
 ```

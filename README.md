@@ -2,20 +2,36 @@
 A search engine for confession hours by scraping parish websites.
 
 # Dev environment
-### Local env with pyenv
+## Local env with pyenv
 ```shell
 pyenv virtualenv 3.11.4 confessio
 pyenv activate confessio
 pip install -r requirements.txt
 ```
 
-### Install GIS dependencies
+## Install GIS dependencies
 For MacOS, follow instructions [here](https://mits003.github.io/studio_null/2021/07/install-gdal-on-macos/)
 
 Also, you can configure GDAL_LIBRARY_PATH and GEOS_LIBRARY_PATH env var in .env.
 
-### Postgresql database
+## Postgresql database
 Works currently on postgresql 15.4, and requires postgis extension.
+
+### Create the database
+```shell
+psql postgres
+CREATE DATABASE confessio;
+```
+Create user and grant privileges:
+```shell
+CREATE USER confessio
+GRANT ALL PRIVILEGES ON DATABASE confessio TO confessio;
+```
+
+### Init database from scratch
+```shell
+CREATE EXTENSION postgis;
+```
 
 To apply existing migrations:
 ```shell
@@ -27,8 +43,7 @@ To detect new migrations:
 $ python manage.py makemigrations
 ```
 
-### Create the Superuser
-
+Create the Superuser
 ```bash
 $ python manage.py createsuperuser
 ```

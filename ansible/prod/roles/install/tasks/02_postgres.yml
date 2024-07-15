@@ -29,7 +29,7 @@
 
 - name: Create database
   postgresql_db:
-    name: "{{ app_name }}"
+    name: "{{ db_name }}"
     owner: "{{ db_user }}"
   become_user: postgres
   become: true
@@ -37,7 +37,7 @@
 - name: install postgis extension
   postgresql_ext:
     name: postgis
-    db: "{{ app_name }}"
+    db: "{{ db_name }}"
   become: true
   become_user: postgres
 

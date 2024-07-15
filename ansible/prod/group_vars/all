@@ -15,7 +15,7 @@ static_root: /var/www/{{app_name}}
 # DB Configuration
 db_password: "{{ lookup('ansible.builtin.env', 'PROD_DB_PASSWORD') }}"
 db_name: "{{ app_name }}"
-db_user: "{{ deployer_user }}"
+db_user: "{{ app_name }}"
 
 # Django secret
 secret_key: "{{ lookup('ansible.builtin.env', 'PROD_SECRET_KEY') }}"
