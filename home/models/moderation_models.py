@@ -10,7 +10,7 @@ from django.urls import reverse
 from simple_history.models import HistoricalRecords
 
 from home.models.base_models import TimeStampMixin, Church, Parish
-from scraping.services.church_name_service import sort_by_name_similarity
+from sourcing.services.church_name_service import sort_by_name_similarity
 
 BUG_DESCRIPTION_MAX_LENGTH = 200
 

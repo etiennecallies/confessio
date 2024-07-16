@@ -1,5 +1,5 @@
 from home.models import Website, WebsiteModeration
-from scraping.utils.extract_title import get_page_title
+from sourcing.utils.extract_title import get_page_title
 
 
 def add_moderation(website: Website, category: WebsiteModeration.Category):

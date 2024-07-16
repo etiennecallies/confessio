@@ -5,8 +5,8 @@ from django.urls import reverse
 
 from home.models import WebsiteModeration, ChurchModeration, ScrapingModeration, ModerationMixin, \
     BUG_DESCRIPTION_MAX_LENGTH, ParishModeration, ResourceDoesNotExist
-from scraping.services.merge_websites_service import merge_websites
-from scraping.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
+from sourcing.services.merge_websites_service import merge_websites
+from home.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 
 
 def redirect_to_moderation(moderation: ModerationMixin, category: str, resource: str, is_bug: bool):

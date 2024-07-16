@@ -1,5 +1,5 @@
 from home.models import Church
-from home.services.autocomplete_service import get_string_similarity
+from sourcing.utils.string_utils import get_string_similarity
 
 
 def sort_by_name_similarity(church: Church, churches: list[Church]) -> list[Church]:

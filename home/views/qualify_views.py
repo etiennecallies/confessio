@@ -5,7 +5,7 @@ from django.shortcuts import render
 from home.models import Page
 from home.services.qualify_service import get_colored_pieces, save_sentence
 from scraping.services.prune_scraping_service import prune_scraping_and_save
-from scraping.utils.hash_utils import hash_string_to_hex
+from home.utils.hash_utils import hash_string_to_hex
 from scraping.utils.tag_line import Action
 
 

@@ -3,9 +3,9 @@ from typing import Optional
 
 from home.models import Parish, Diocese, Church, ExternalSource, \
     ChurchModeration
-from scraping.services.chuch_location_service import compute_church_coordinates
-from scraping.services.church_name_service import sort_by_name_similarity
-from scraping.utils.geo_utils import get_geo_distance
+from sourcing.services.chuch_location_service import compute_church_coordinates
+from sourcing.services.church_name_service import sort_by_name_similarity
+from sourcing.utils.geo_utils import get_geo_distance
 
 
 ####################

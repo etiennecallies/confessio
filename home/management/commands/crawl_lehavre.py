@@ -1,5 +1,5 @@
 from home.management.abstract_command import AbstractCommand
-from scraping.services.crawl_lehavre_service import get_churches_on_lehavre
+from sourcing.services.crawl_lehavre_service import get_churches_on_lehavre
 
 
 class Command(AbstractCommand):

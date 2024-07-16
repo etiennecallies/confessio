@@ -1,5 +1,5 @@
 from home.models import ChurchModeration, Church, ExternalSource
-from scraping.utils.geocode_address import geocode
+from sourcing.utils.geocode_address import geocode
 from django.contrib.gis.geos import Point
 
 

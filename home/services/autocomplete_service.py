@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from difflib import SequenceMatcher
 from typing import Optional
 
 import requests
@@ -7,9 +6,10 @@ from django.contrib.postgres.lookups import Unaccent
 from django.db.models import Value
 from django.db.models.functions import Replace, Lower
 
-from home.models import Website, Parish, Church
-from scraping.utils.department_utils import get_departments_context
+from home.models import Parish, Church
+from home.utils.department_utils import get_departments_context
 from scraping.utils.string_search import unhyphen_content, normalize_content
+from sourcing.utils.string_utils import get_string_similarity
 
 MAX_AUTOCOMPLETE_RESULTS = 15
 
@@ -107,10 +107,6 @@ def get_church_by_name_response(query) -> list[AutocompleteResult]:
              search_name__contains=query_term)[:MAX_AUTOCOMPLETE_RESULTS]
 
     return list(map(AutocompleteResult.from_church, churches))
-
-
-def get_string_similarity(query, name: str) -> float:
-    return SequenceMatcher(None, query, name).ratio()
 
 
 def sort_results(query, results: list[AutocompleteResult]) -> list[AutocompleteResult]:
