@@ -1,7 +1,8 @@
 from abc import abstractmethod
 from typing import List, Tuple
 
-from scraping.prune.prune_lines import get_pruned_lines_indices, Action
+from scraping.prune.models import Action
+from scraping.prune.prune_lines import get_pruned_lines_indices
 from scraping.refine.refine_content import remove_link_from_html
 from scraping.extract.tag_line import Tag, get_tags_with_regex
 

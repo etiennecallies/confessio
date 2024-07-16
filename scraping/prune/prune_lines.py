@@ -1,16 +1,10 @@
 from dataclasses import dataclass
-from enum import Enum
 from typing import Optional, List, Tuple, Set
 
 from scraping.extract.tag_line import Tag
+from scraping.prune.models import Action
 
 MAX_BUFFERING_ATTEMPTS = 2
-
-
-class Action(str, Enum):
-    SHOW = "show"
-    HIDE = "hide"
-    STOP = "stop"
 
 
 @dataclass
