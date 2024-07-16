@@ -2,8 +2,8 @@ from typing import Tuple, Optional
 
 from home.models import Website, Crawling, Page, WebsiteModeration, ScrapingModeration
 from scraping.services.scrape_page_service import upsert_scraping
-from scraping.utils.download_and_search_urls import search_for_confession_pages
-from scraping.utils.download_content import get_url_aliases
+from scraping.crawl.download_and_search_urls import search_for_confession_pages
+from scraping.download.download_content import get_url_aliases
 from scraping.utils.url_utils import get_clean_full_url, get_path, get_domain
 
 

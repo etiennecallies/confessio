@@ -1,7 +1,7 @@
 from home.management.abstract_command import AbstractCommand
 from home.models import Website
 from scraping.services.scrape_page_service import upsert_scraping
-from scraping.utils.download_and_extract import get_fresh_confessions_part
+from scraping.scrape.download_refine_and_extract import get_fresh_confessions_part
 
 
 class Command(AbstractCommand):

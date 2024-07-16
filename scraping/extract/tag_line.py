@@ -127,12 +127,6 @@ class Tag(str, Enum):
     PERIOD = 'period'
 
 
-class Action(str, Enum):
-    SHOW = "show"
-    HIDE = "hide"
-    STOP = "stop"
-
-
 ########
 # MAIN #
 ########

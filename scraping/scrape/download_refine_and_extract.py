@@ -1,5 +1,18 @@
-from scraping.utils.download_content import get_content_from_url
-from scraping.utils.extract_content import extract_confession_part_from_content
+from scraping.download.download_content import get_content_from_url
+from scraping.refine.refine_content import refine_confession_content
+from scraping.extract.extract_content import extract_content, RegexOnlyTagInterface
+
+
+def extract_confession_part_from_content(html_content):
+    refined_content = refine_confession_content(html_content)
+    if refined_content is None:
+        return None
+
+    paragraphs = extract_content(refined_content, RegexOnlyTagInterface())
+    if not paragraphs:
+        return None
+
+    return '<br>\n'.join(paragraphs)
 
 
 def get_fresh_confessions_part(url):

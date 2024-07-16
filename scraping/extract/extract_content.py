@@ -1,9 +1,9 @@
 from abc import abstractmethod
 from typing import List, Tuple
 
-from scraping.utils.prune_lines import get_pruned_lines_indices
-from scraping.utils.refine_content import refine_confession_content, remove_link_from_html
-from scraping.utils.tag_line import Tag, get_tags_with_regex, Action
+from scraping.prune.prune_lines import get_pruned_lines_indices, Action
+from scraping.refine.refine_content import remove_link_from_html
+from scraping.extract.tag_line import Tag, get_tags_with_regex
 
 
 #############
@@ -50,19 +50,3 @@ def extract_content(refined_content: str, tag_interface: BaseTagInterface):
     lines, _lines_without_link, _tags, _action = zip(*confession_pieces)
 
     return lines
-
-
-########
-# MAIN #
-########
-
-def extract_confession_part_from_content(html_content):
-    refined_content = refine_confession_content(html_content)
-    if refined_content is None:
-        return None
-
-    paragraphs = extract_content(refined_content, RegexOnlyTagInterface())
-    if not paragraphs:
-        return None
-
-    return '<br>\n'.join(paragraphs)

@@ -2,8 +2,8 @@ import json
 import os
 import unittest
 
-from scraping.utils.download_content import get_domain
-from scraping.utils.extract_links import parse_content_links
+from scraping.download.download_content import get_domain
+from scraping.crawl.extract_links import parse_content_links
 
 
 class TestExtractLinks(unittest.TestCase):

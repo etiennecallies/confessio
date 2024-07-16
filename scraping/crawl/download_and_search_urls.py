@@ -1,8 +1,8 @@
 from typing import Optional
 
-from scraping.utils.download_content import get_content_from_url
-from scraping.utils.extract_content import extract_confession_part_from_content
-from scraping.utils.extract_links import parse_content_links, remove_http_https_duplicate
+from scraping.download.download_content import get_content_from_url
+from scraping.crawl.extract_links import parse_content_links, remove_http_https_duplicate
+from scraping.scrape.download_refine_and_extract import extract_confession_part_from_content
 
 MAX_VISITED_LINKS = 50
 

@@ -4,7 +4,6 @@ from urllib.parse import urlparse, ParseResult, parse_qs, urlencode
 from bs4 import BeautifulSoup, SoupStrainer, Comment
 from bs4 import element as el
 
-from scraping.utils.download_content import get_url_aliases
 from scraping.utils.string_search import has_any_of_words
 from scraping.utils.url_utils import is_internal_link, get_clean_full_url, \
     replace_scheme_and_hostname

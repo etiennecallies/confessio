@@ -1,5 +1,5 @@
 from home.models import Page
-from scraping.utils.refine_content import get_text_if_not_table
+from scraping.refine.refine_content import get_text_if_not_table
 
 
 def get_page_url_with_pointer(page: Page):

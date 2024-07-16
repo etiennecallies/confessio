@@ -2,7 +2,7 @@ import json
 import os
 import unittest
 
-from scraping.utils.prune_lines import get_pruned_lines_indices
+from scraping.prune.prune_lines import get_pruned_lines_indices
 
 
 class TestPruneLines(unittest.TestCase):

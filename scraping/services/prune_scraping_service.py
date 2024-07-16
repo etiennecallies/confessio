@@ -4,9 +4,9 @@ from django.db.models.functions import Now
 
 from home.models import Scraping, ScrapingModeration
 from home.models import Sentence
-from scraping.utils.extract_content import BaseTagInterface
-from scraping.utils.extract_content import extract_content
-from scraping.utils.tag_line import Action
+from scraping.extract.extract_content import BaseTagInterface
+from scraping.extract.extract_content import extract_content
+from scraping.prune.prune_lines import Action
 
 
 ###################

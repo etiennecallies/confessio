@@ -2,9 +2,9 @@ from django.contrib.auth.models import User
 
 from home.models import Sentence, Scraping
 from scraping.services.prune_scraping_service import SentenceFromDbTagInterface
-from scraping.utils.extract_content import split_and_tag
-from scraping.utils.prune_lines import get_pruned_lines_indices
-from scraping.utils.tag_line import Tag, Action
+from scraping.extract.extract_content import split_and_tag
+from scraping.prune.prune_lines import get_pruned_lines_indices, Action
+from scraping.extract.tag_line import Tag
 
 
 ############################
