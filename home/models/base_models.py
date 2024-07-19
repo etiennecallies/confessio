@@ -3,6 +3,7 @@ from typing import List, Optional
 
 from django.contrib.gis.db import models as gis_models
 from django.db import models
+from pgvector.django import VectorField
 from simple_history.models import HistoricalRecords
 
 
@@ -145,7 +146,27 @@ class Sentence(TimeStampMixin):
         HIDE = "hide"
         STOP = "stop"
 
+    class Source(models.TextChoices):
+        HUMAN = "human"
+        ML = 'ml'
+
     line = models.TextField(null=False, unique=True)
     updated_by = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
     scraping = models.ForeignKey('Scraping', on_delete=models.SET_NULL, null=True)
     action = models.CharField(max_length=4, choices=Action)
+    source = models.CharField(max_length=5, choices=Source, default=Source.HUMAN)  # TODO remove default
+    classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,
+                                   related_name='sentences', null=True)
+    transformer_name = models.CharField(max_length=100, null=True)  # TODO set as not nullable
+    embedding = VectorField(dimensions=768, null=True)  # TODO set embedding as not nullable
+
+
+class Classifier(TimeStampMixin):
+    class Status(models.TextChoices):
+        DRAFT = "draft"
+        PROD = "prod"
+
+    transformer_name = models.CharField(max_length=100)
+    status = models.CharField(max_length=5, choices=Status)
+    pickle = models.CharField()
+    accuracy = models.FloatField()

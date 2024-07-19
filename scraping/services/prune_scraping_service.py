@@ -7,6 +7,7 @@ from home.models import Sentence
 from scraping.extract.extract_content import BaseTagInterface
 from scraping.extract.extract_content import extract_content
 from scraping.prune.models import Action
+from scraping.services.classify_sentence_service import classify_sentence, get_sentence_action
 
 
 ###################
@@ -14,17 +15,18 @@ from scraping.prune.models import Action
 ###################
 
 class SentenceFromDbTagInterface(BaseTagInterface):
+    def __init__(self, scraping: Optional[Scraping]):
+        self.scraping = scraping
+
     def get_action(self, line_without_link: str) -> Action:
         try:
-            db_action = Sentence.objects.get(line=line_without_link).action
-
-            return {
-                Sentence.Action.SHOW: Action.SHOW,
-                Sentence.Action.HIDE: Action.HIDE,
-                Sentence.Action.STOP: Action.STOP,
-            }[db_action]
+            sentence = Sentence.objects.get(line=line_without_link)
         except Sentence.DoesNotExist:
             return Action.SHOW
+            # TODO uncomment this line
+            # sentence = classify_sentence(line_without_link, self.scraping)
+
+        return get_sentence_action(sentence)
 
 
 ##############
@@ -111,11 +113,12 @@ def add_necessary_moderation(scraping: Scraping):
 # MAIN #
 ########
 
-def prune_content(refined_html):
-    if not refined_html:
+def prune_content(scraping: Scraping) -> Optional[str]:
+    if not scraping.confession_html:
         return None
 
-    paragraphs = extract_content(refined_html, SentenceFromDbTagInterface())
+    paragraphs = extract_content(scraping.confession_html,
+                                 SentenceFromDbTagInterface(scraping))
     if not paragraphs:
         return None
 
@@ -123,7 +126,7 @@ def prune_content(refined_html):
 
 
 def prune_scraping_and_save(scraping: Scraping):
-    scraping.confession_html_pruned = prune_content(scraping.confession_html)
+    scraping.confession_html_pruned = prune_content(scraping)
     scraping.pruned_at = Now()
     scraping.save()
 

@@ -17,9 +17,17 @@ class BaseTagInterface:
         pass
 
 
-class RegexOnlyTagInterface(BaseTagInterface):
+class DummyTagInterface(BaseTagInterface):
     def get_action(self, line_without_link: str) -> Action:
         return Action.SHOW
+
+
+class KeyValueInterface(BaseTagInterface):
+    def __init__(self, action_per_line_without_link: dict[str, Action]):
+        self.action_per_line_without_link = action_per_line_without_link
+
+    def get_action(self, line_without_link: str) -> Action:
+        return self.action_per_line_without_link[line_without_link]
 
 
 ######################

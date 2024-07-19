@@ -4,8 +4,10 @@ from django.shortcuts import render
 
 from home.models import Page
 from home.services.qualify_service import get_colored_pieces, save_sentence
+from scraping.extract.extract_content import KeyValueInterface, DummyTagInterface
 from scraping.prune.models import Action
-from scraping.services.prune_scraping_service import prune_scraping_and_save
+from scraping.services.prune_scraping_service import prune_scraping_and_save, \
+    SentenceFromDbTagInterface
 from home.utils.hash_utils import hash_string_to_hex
 
 
@@ -32,16 +34,29 @@ def qualify_page(request, page_uuid):
         if not confession_html_hash_post or confession_html_hash != confession_html_hash_post:
             return HttpResponseBadRequest("confession_html has changed in the mean time")
 
-        # We get previous color
-        colored_pieces = get_colored_pieces(confession_html)
+        # We extract action per line from POST
+        action_per_line_without_link = {}
+        colored_pieces = get_colored_pieces(confession_html,
+                                            DummyTagInterface())
         for piece in colored_pieces:
             action = Action(request.POST.get(f"action-{piece['id']}"))
-            save_sentence(piece['text_without_link'], latest_scraping, request.user, action)
+            action_per_line_without_link[piece['text_without_link']] = action
+
+        # We compute new color based on these given POST actions
+        colored_pieces = get_colored_pieces(confession_html,
+                                            KeyValueInterface(action_per_line_without_link))
+        for piece in colored_pieces:
+            line_without_link = piece['text_without_link']
+            action = action_per_line_without_link[line_without_link]
+            if piece['do_show'] or action != Action.SHOW:
+                # We only save the SHOW lines that are shown
+                save_sentence(line_without_link, latest_scraping, request.user, action)
 
         prune_scraping_and_save(latest_scraping)
 
-    # We get piece with fresh color
-    colored_pieces = get_colored_pieces(confession_html)
+    else:
+        colored_pieces = get_colored_pieces(confession_html,
+                                            SentenceFromDbTagInterface(latest_scraping))
 
     action_colors = {
         Action.SHOW: 'success',

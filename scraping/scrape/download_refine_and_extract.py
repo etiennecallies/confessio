@@ -1,6 +1,6 @@
 from scraping.download.download_content import get_content_from_url
 from scraping.refine.refine_content import refine_confession_content
-from scraping.extract.extract_content import extract_content, RegexOnlyTagInterface
+from scraping.extract.extract_content import extract_content, DummyTagInterface
 
 
 def extract_confession_part_from_content(html_content):
@@ -8,7 +8,7 @@ def extract_confession_part_from_content(html_content):
     if refined_content is None:
         return None
 
-    paragraphs = extract_content(refined_content, RegexOnlyTagInterface())
+    paragraphs = extract_content(refined_content, DummyTagInterface())
     if not paragraphs:
         return None
 
