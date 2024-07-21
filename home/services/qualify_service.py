@@ -67,12 +67,6 @@ def save_sentence(line_without_link: str, scraping: Scraping, user: User, action
         sentence.updated_by = user
         sentence.scraping = scraping
         sentence.source = Sentence.Source.HUMAN
-
-        # TODO remove this when embedding is not nullable
-        transformer = get_transformer()
-        embedding = transformer.transform(line_without_link)
-        sentence.embedding = embedding
-        sentence.transformer_name = transformer.get_name()
     except Sentence.DoesNotExist:
         # TODO this should never happen eventually
 
