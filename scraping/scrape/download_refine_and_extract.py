@@ -8,7 +8,7 @@ def extract_confession_part_from_content(html_content):
     if refined_content is None:
         return None
 
-    paragraphs = extract_content(refined_content, DummyTagInterface())
+    paragraphs, indices_ = extract_content(refined_content, DummyTagInterface())
     if not paragraphs:
         return None
 

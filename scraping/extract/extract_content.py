@@ -1,10 +1,10 @@
 from abc import abstractmethod
 from typing import List, Tuple
 
+from scraping.extract.tag_line import Tag, get_tags_with_regex
 from scraping.prune.models import Action
 from scraping.prune.prune_lines import get_pruned_lines_indices
 from scraping.refine.refine_content import remove_link_from_html
-from scraping.extract.tag_line import Tag, get_tags_with_regex
 
 
 #############
@@ -49,13 +49,14 @@ def split_and_tag(refined_content: str, tag_interface: BaseTagInterface
     return results
 
 
-def extract_content(refined_content: str, tag_interface: BaseTagInterface):
+def extract_content(refined_content: str, tag_interface: BaseTagInterface
+                    ) -> tuple[list[str], list[int]]:
     lines_and_tags = split_and_tag(refined_content, tag_interface)
     indices = get_pruned_lines_indices(lines_and_tags)
     confession_pieces = list(map(lines_and_tags.__getitem__, indices))
     if not confession_pieces:
-        return []
+        return [], []
 
     lines, _lines_without_link, _tags, _action = zip(*confession_pieces)
 
-    return lines
+    return lines, indices

@@ -3,6 +3,7 @@ from typing import Optional
 
 from django.contrib.auth.models import User
 from django.contrib.gis.db import models as gis_models
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.db.models import Count
 from django.db.models.functions import Now
@@ -356,7 +357,9 @@ class ScrapingModeration(ModerationMixin):
     scraping = models.ForeignKey('Scraping', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=7, choices=Category)
 
-    confession_html_pruned = models.TextField(null=False)
+    confession_html_pruned = models.TextField(null=False)  # TODO remove obsolete
+    confession_html = models.TextField(null=True)  # TODO set it as not null
+    indices = ArrayField(models.PositiveSmallIntegerField(), null=True)  # TODO set it as not null
 
     class Meta:
         unique_together = ('scraping', 'category')

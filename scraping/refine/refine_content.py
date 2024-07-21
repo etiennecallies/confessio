@@ -6,6 +6,8 @@ from typing import Optional
 from bs4 import BeautifulSoup, NavigableString, Comment, ProcessingInstruction, \
     MarkupResemblesLocatorWarning
 
+from scraping.utils.string_utils import is_below_byte_limit
+
 
 ##############
 # REMOVE IMG #
@@ -43,6 +45,11 @@ def is_table(element):
             # mailpoet is a newsletter framework that uses <table> for its structure
             # https://www.paroissesferreoletozanam.fr/?mailpoet_router=&endpoint=view_in_browser&action=view&data=WzExMSwiMmZkYjYyM2UzZTUwIiwwLDAsMTY3LDFd
             return False
+
+        if not is_below_byte_limit(clean_text(element.text)):
+            # Table content is too long, we split it
+            return False
+
         return True
 
     return False
@@ -148,6 +155,7 @@ def build_text(soup: BeautifulSoup):
 
 def clean_text(text: str):
     text = text.replace('\u200b', '')
+    text = text.replace('\u00A0', ' ')  # replace non-breaking space by space
     text = re.sub(r'^\s*', '', text)
     text = re.sub(r'( )+', r' ', text)
     text = re.sub(r'\n ', r'\n', text)
@@ -195,7 +203,7 @@ def remove_link_from_html(html: str) -> str:
     # https://stackoverflow.com/a/41496131
     warnings.filterwarnings("ignore", category=MarkupResemblesLocatorWarning, module='bs4')
 
-    return BeautifulSoup(html, 'html.parser').text
+    return clean_text(BeautifulSoup(html, 'html.parser').text)
 
 
 def get_text_if_not_table(html: str) -> Optional[str]:

@@ -21,10 +21,10 @@
     <p><a class="btn btn-gray-500" href="{% url 'qualify_page' scraping.page.uuid %}" target="_blank" role="button">
         Qualify page <i class="fas fa-up-right-from-square"></i>
     </a></p>
-    <p>Confession HTML pruned :<br> {{ scraping_moderation.confession_html_pruned|safe }}</p>
-    {% if scraping.confession_html_pruned != scraping_moderation.confession_html_pruned %}
-        <p>New confession HTML pruned : {{ scraping.confession_html_pruned|safe }}</p>
-    {% endif %}
+    <p>Scraping page: <a href="{{ scraping.page.url }}" target="_blank">{{ scraping.page.url }}</a></p>
+    {% for line, color in lines_and_colors %}
+        <p class="{{ color }}">{{ line|safe }}</p>
+    {% endfor %}
 
     {% if not scraping_moderation.marked_as_bug_at %}
         <div>

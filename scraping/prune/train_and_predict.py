@@ -85,9 +85,7 @@ class TensorFlowModel(MachineLearningInterface):
                        verbose=False)
 
     def predict(self, vectors) -> list:
-        print('import pandas')
         import pandas as pd
-        print('starting predict')
         predictions = self.model.predict(pd.DataFrame(vectors),
                                          verbose=False)
 

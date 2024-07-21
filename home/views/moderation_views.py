@@ -151,11 +151,17 @@ def moderate_scraping(request, category, is_bug, moderation_uuid=None):
 def render_scraping_moderation(request, moderation: ScrapingModeration, next_url):
     assert moderation.scraping is not None
 
+    lines_and_colors = []
+    for i, line in enumerate(moderation.scraping.confession_html.split('<br>\n')):
+        color = '' if i in moderation.indices else 'text-warning'
+        lines_and_colors.append((line, color))
+
     return render(request, f'pages/moderate_scraping.html', {
         'scraping_moderation': moderation,
         'scraping': moderation.scraping,
         'next_url': next_url,
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
+        'lines_and_colors': lines_and_colors,
     })
 
 

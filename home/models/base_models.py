@@ -2,6 +2,7 @@ import uuid
 from typing import List, Optional
 
 from django.contrib.gis.db import models as gis_models
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from pgvector.django import VectorField
 from simple_history.models import HistoricalRecords
@@ -132,6 +133,7 @@ class Crawling(TimeStampMixin):
 class Scraping(TimeStampMixin):
     confession_html = models.TextField(null=True)
     confession_html_pruned = models.TextField(null=True)
+    indices = ArrayField(models.PositiveSmallIntegerField(), null=True)
     pruned_at = models.DateTimeField(null=True)
     nb_iterations = models.PositiveSmallIntegerField()
     page = models.ForeignKey('Page', on_delete=models.CASCADE, related_name='scrapings')

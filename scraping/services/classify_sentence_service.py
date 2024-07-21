@@ -4,6 +4,34 @@ from scraping.prune.train_and_predict import TensorFlowModel
 from scraping.prune.transform_sentence import get_transformer, TransformerInterface
 from scraping.services.sentence_action_service import action_to_db_action
 
+_classifier = None
+_model = None
+
+
+def get_classifier(transformer: TransformerInterface) -> Classifier:
+    global _classifier
+    if _classifier is None:
+        try:
+            _classifier = Classifier.objects \
+                .filter(status=Classifier.Status.PROD) \
+                .latest('updated_at')
+        except Classifier.DoesNotExist:
+            raise ValueError("No classifier in production")
+
+        assert _classifier.transformer_name == transformer.get_name(), \
+            "Classifier and transformer are not compatible"
+
+    return _classifier
+
+
+def get_model(classifier: Classifier) -> TensorFlowModel:
+    global _model
+    if _model is None:
+        _model = TensorFlowModel()
+        _model.from_pickle(classifier.pickle)
+
+    return _model
+
 
 def classify_line(line_without_link: str
                   ) -> tuple[Action, Classifier, list, TransformerInterface]:
@@ -12,18 +40,8 @@ def classify_line(line_without_link: str
     embedding = transformer.transform(line_without_link)
 
     # 2. Get classifier
-    try:
-        classifier = Classifier.objects \
-            .filter(status=Classifier.Status.PROD) \
-            .latest('updated_at')
-    except Classifier.DoesNotExist:
-        raise ValueError("No classifier in production")
-
-    assert classifier.transformer_name == transformer.get_name(), \
-        "Classifier and transformer are not compatible"
-
-    model = TensorFlowModel()
-    model.from_pickle(classifier.pickle)
+    classifier = get_classifier(transformer)
+    model = get_model(classifier)
 
     # 3. Predict action
     action = model.predict([embedding])[0]
