@@ -34,8 +34,8 @@ def evaluate(model: MachineLearningInterface, vectors_test, labels_test):
     labels_pred = model.predict(vectors_test)
 
     for action in Action:
-        print(f'{action}: {len([l for l in labels_test if l == action])} vs predicted '
-              f'{len([l for l in labels_pred if l == action])}')
+        print(f'{action}: predicted {len([l for l in labels_pred if l == action])} vs '
+              f'{len([l for l in labels_test if l == action])} in dataset')
 
     return accuracy_score(list(map(str, labels_test)), list(map(str, labels_pred)))
 
@@ -65,8 +65,8 @@ class TensorFlowModel(MachineLearningInterface):
         vector_length = len(embeddings[0])
         nb_neurones = min(vector_length, self.max_neurones)
         self.model = keras.Sequential([
+            keras.layers.Input(shape=(vector_length,)),
             keras.layers.Dense(nb_neurones,
-                               input_shape=(vector_length,),
                                activation='relu'),
             keras.layers.Dense(nb_neurones,
                                activation='relu'),
