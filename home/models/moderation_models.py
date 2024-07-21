@@ -353,8 +353,7 @@ class ScrapingModeration(ModerationMixin):
                                      on_delete=models.SET_NULL, null=True)
     marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
                                          on_delete=models.SET_NULL, null=True)
-    scraping = models.ForeignKey('Scraping', on_delete=models.CASCADE, null=True,
-                                 related_name='moderations')
+    scraping = models.ForeignKey('Scraping', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=7, choices=Category)
 
     confession_html_pruned = models.TextField(null=False)

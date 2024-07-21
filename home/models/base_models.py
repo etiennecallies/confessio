@@ -154,11 +154,11 @@ class Sentence(TimeStampMixin):
     updated_by = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
     scraping = models.ForeignKey('Scraping', on_delete=models.SET_NULL, null=True)
     action = models.CharField(max_length=4, choices=Action)
-    source = models.CharField(max_length=5, choices=Source, default=Source.HUMAN)  # TODO remove default
+    source = models.CharField(max_length=5, choices=Source)
     classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,
                                    related_name='sentences', null=True)
-    transformer_name = models.CharField(max_length=100, null=True)  # TODO set as not nullable
-    embedding = VectorField(dimensions=768, null=True)  # TODO set embedding as not nullable
+    transformer_name = models.CharField(max_length=100)
+    embedding = VectorField(dimensions=768)
 
 
 class Classifier(TimeStampMixin):
