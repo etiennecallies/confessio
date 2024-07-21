@@ -9,6 +9,7 @@ from scraping.prune.models import Action
 from scraping.prune.prune_lines import get_pruned_lines_indices
 from scraping.prune.transform_sentence import get_transformer
 from scraping.services.classify_sentence_service import action_to_db_action
+from scraping.services.prune_scraping_service import reprune_affected_scrapings
 
 
 ############################
@@ -69,7 +70,7 @@ def save_sentence(line_without_link: str, scraping: Optional[Scraping], user: Us
         sentence.scraping = scraping
         sentence.source = Sentence.Source.HUMAN
 
-        # TODO remove this
+        # TODO remove this when embedding is not nullable
         transformer = get_transformer()
         embedding = transformer.transform(line_without_link)
         sentence.embedding = embedding
@@ -91,3 +92,6 @@ def save_sentence(line_without_link: str, scraping: Optional[Scraping], user: Us
         )
 
     sentence.save()
+
+    # With this new sentence, some scrapings might need to be re-pruned
+    reprune_affected_scrapings(sentence, scraping)

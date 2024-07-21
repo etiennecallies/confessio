@@ -29,6 +29,17 @@ class SentenceFromDbTagInterface(BaseTagInterface):
         return get_sentence_action(sentence)
 
 
+##############################
+# REPRUNE AFFECTED SCRAPINGS #
+##############################
+
+def reprune_affected_scrapings(sentence: Sentence, original_scraping: Scraping):
+    affected_scrapings = Scraping.objects.filter(confession_html__contains=sentence.line)\
+        .exclude(uuid=original_scraping.uuid).all()
+    for scraping in affected_scrapings:
+        prune_scraping_and_save(scraping)
+
+
 ##############
 # MODERATION #
 ##############
@@ -90,7 +101,9 @@ def add_necessary_moderation(scraping: Scraping):
             return
 
         if similar_scraping_exists(scraping.confession_html_pruned):
-            # confession_html_pruned has changed, but a moderation already exists, we do nothing.
+            # confession_html_pruned has changed, but a moderation already exists,
+            # we only delete obsolete moderation.
+            current_moderation.delete()
             return
 
         if current_moderation.validated_at is None:
@@ -126,7 +139,12 @@ def prune_content(scraping: Scraping) -> Optional[str]:
 
 
 def prune_scraping_and_save(scraping: Scraping):
-    scraping.confession_html_pruned = prune_content(scraping)
+    confession_html_pruned = prune_content(scraping)
+    if scraping.confession_html_pruned \
+            and scraping.confession_html_pruned == confession_html_pruned:
+        return
+
+    scraping.confession_html_pruned = confession_html_pruned
     scraping.pruned_at = Now()
     scraping.save()
 
