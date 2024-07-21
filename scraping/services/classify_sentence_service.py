@@ -1,27 +1,9 @@
 from typing import Optional
 
 from home.models import Sentence, Classifier, Scraping
-from scraping.prune.models import Action
 from scraping.prune.train_and_predict import TensorFlowModel
 from scraping.prune.transform_sentence import get_transformer
-
-
-def action_to_db_action(action: Action) -> Sentence.Action:
-    return {
-        Action.SHOW: Sentence.Action.SHOW,
-        Action.HIDE: Sentence.Action.HIDE,
-        Action.STOP: Sentence.Action.STOP,
-    }[action]
-
-
-def get_sentence_action(sentence: Sentence) -> Action:
-    db_action = sentence.action
-
-    return {
-        Sentence.Action.SHOW.value: Action.SHOW,
-        Sentence.Action.HIDE.value: Action.HIDE,
-        Sentence.Action.STOP.value: Action.STOP,
-    }[db_action]
+from scraping.services.sentence_action_service import action_to_db_action
 
 
 def classify_sentence(line_without_link: str,

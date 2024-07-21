@@ -1,6 +1,5 @@
 from home.management.abstract_command import AbstractCommand
-from scraping.services.build_sentence_dataset_service import build_sentence_dataset
-from scraping.services.train_classifier_service import train_classifier
+from scraping.services.train_classifier_service import train_classifier, build_sentence_dataset
 
 
 class Command(AbstractCommand):

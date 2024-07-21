@@ -2,7 +2,11 @@ from sklearn.model_selection import train_test_split
 
 from home.models import Sentence, Classifier
 from scraping.prune.train_and_predict import TensorFlowModel, evaluate
-from scraping.services.classify_sentence_service import get_sentence_action
+from scraping.services.sentence_action_service import get_sentence_action
+
+
+def build_sentence_dataset() -> list[Sentence]:
+    return Sentence.objects.filter(source=Sentence.Source.HUMAN).all()
 
 
 def train_classifier(sentence_dataset: list[Sentence]) -> Classifier:

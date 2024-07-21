@@ -7,7 +7,7 @@ from home.models import Sentence
 from scraping.extract.extract_content import BaseTagInterface
 from scraping.extract.extract_content import extract_content
 from scraping.prune.models import Action
-from scraping.services.classify_sentence_service import classify_sentence, get_sentence_action
+from scraping.services.sentence_action_service import get_sentence_action
 
 
 ###################
