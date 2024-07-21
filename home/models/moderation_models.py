@@ -354,12 +354,12 @@ class ScrapingModeration(ModerationMixin):
                                      on_delete=models.SET_NULL, null=True)
     marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
                                          on_delete=models.SET_NULL, null=True)
+    history = HistoricalRecords()
     scraping = models.ForeignKey('Scraping', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=7, choices=Category)
 
-    confession_html_pruned = models.TextField(null=False)  # TODO remove obsolete
-    confession_html = models.TextField(null=True)  # TODO set it as not null
-    indices = ArrayField(models.PositiveSmallIntegerField(), null=True)  # TODO set it as not null
+    confession_html = models.TextField()
+    indices = ArrayField(models.PositiveSmallIntegerField())
 
     class Meta:
         unique_together = ('scraping', 'category')
