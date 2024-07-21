@@ -7,6 +7,7 @@ from home.models import Sentence
 from scraping.extract.extract_content import BaseTagInterface
 from scraping.extract.extract_content import extract_content
 from scraping.prune.models import Action
+from scraping.services.classify_sentence_service import classify_sentence
 from scraping.services.sentence_action_service import get_sentence_action
 
 
@@ -22,9 +23,7 @@ class SentenceFromDbTagInterface(BaseTagInterface):
         try:
             sentence = Sentence.objects.get(line=line_without_link)
         except Sentence.DoesNotExist:
-            return Action.SHOW
-            # TODO uncomment this line
-            # sentence = classify_sentence(line_without_link, self.scraping)
+            sentence = classify_sentence(line_without_link, self.scraping)
 
         return get_sentence_action(sentence)
 
