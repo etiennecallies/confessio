@@ -2,11 +2,6 @@ import base64
 import pickle
 from abc import abstractmethod
 
-import tensorflow as tf
-import keras
-from keras.src.models.model import model_from_json
-from sklearn.metrics import accuracy_score
-import pandas as pd
 import numpy as np
 
 from scraping.prune.models import Action
@@ -33,6 +28,9 @@ class MachineLearningInterface:
 
 
 def evaluate(model: MachineLearningInterface, vectors_test, labels_test):
+    print('import sklearn.metrics.accuracy_score')
+    from sklearn.metrics import accuracy_score
+    print('starting evaluation')
     labels_pred = model.predict(vectors_test)
 
     return accuracy_score(labels_test, labels_pred)
@@ -40,7 +38,7 @@ def evaluate(model: MachineLearningInterface, vectors_test, labels_test):
 
 class TensorFlowModel(MachineLearningInterface):
     def __init__(self, epochs=90, max_neurones=240, optimizer='adam',
-                 loss='sparse_categorical_crossentropy', metric='accuracy'):
+                 loss='sparse_categorical_crossentropy'):
         self.model = None
         self.different_labels = [
             Action.SHOW,
@@ -51,38 +49,15 @@ class TensorFlowModel(MachineLearningInterface):
         self.max_neurones = max_neurones
         self.optimizer = optimizer
         self.loss = loss
-        self.metric = metric
-
-    def get_metric(self):
-        if self.metric == 'accuracy':
-            return keras.metrics.Accuracy()
-        if self.metric == 'binary_accuracy':
-            return keras.metrics.BinaryAccuracy()
-        if self.metric == 'binary_crossentropy':
-            return keras.metrics.BinaryCrossentropy()
-        if self.metric == 'categorical_accuracy':
-            return keras.metrics.CategoricalAccuracy()
-        if self.metric == 'categorical_xentropy':
-            return keras.metrics.CategoricalCrossentropy()
-        if self.metric == 'false_positives':
-            return keras.metrics.FalsePositives()
-        if self.metric == 'false_negatives':
-            return keras.metrics.FalseNegatives()
-        if self.metric == 'true_positives':
-            return keras.metrics.TruePositives()
-        if self.metric == 'true_negatives':
-            return keras.metrics.TrueNegatives()
-        if self.metric == 'mean_squared_error':
-            return keras.metrics.MeanSquaredError()
-        if self.metric == 'precision':
-            return keras.metrics.Precision()
-        if self.metric == 'recall':
-            return keras.metrics.Recall()
-        if self.metric == 'auc':
-            return keras.metrics.AUC()
-        raise ValueError(f'unrecognized metric {self.metric}')
 
     def fit(self, embeddings, actions: list[Action]):
+        print('import tensorflow')
+        import tensorflow as tf
+        print('import keras')
+        import keras
+        print('import pandas')
+        import pandas as pd
+        print('starting fit')
         vector_length = len(embeddings[0])
         nb_neurones = min(vector_length, self.max_neurones)
         self.model = keras.Sequential([
@@ -97,7 +72,7 @@ class TensorFlowModel(MachineLearningInterface):
         self.model.compile(
             optimizer=self.optimizer,
             loss=self.loss,
-            metrics=[self.get_metric()]
+            metrics=[keras.metrics.Accuracy()]
         )
         actions_indices = list(map(self.different_labels.index, actions))
         self.model.fit(tf.convert_to_tensor(pd.DataFrame(embeddings)),
@@ -106,6 +81,9 @@ class TensorFlowModel(MachineLearningInterface):
                        verbose=False)
 
     def predict(self, vectors) -> list:
+        print('import pandas')
+        import pandas as pd
+        print('starting predict')
         predictions = self.model.predict(pd.DataFrame(vectors),
                                          verbose=False)
 
@@ -130,6 +108,9 @@ class TensorFlowModel(MachineLearningInterface):
         return encoded_string
 
     def from_pickle(self, pickle_as_str: str):
+        print('import keras.src.models.model')
+        from keras.src.models.model import model_from_json
+        print('loading model')
         byte_string = base64.b64decode(pickle_as_str)
         model_data = pickle.loads(byte_string)
 

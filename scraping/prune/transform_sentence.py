@@ -1,7 +1,5 @@
 from abc import abstractmethod
 
-from sentence_transformers import SentenceTransformer
-
 
 class TransformerInterface:
     @abstractmethod
@@ -17,6 +15,8 @@ class TransformerInterface:
 
 class CamembertTransformer(TransformerInterface):
     def __init__(self):
+        print('loading SentenceTransformer')
+        from sentence_transformers import SentenceTransformer
         print('loading camembert transformer...')
         self.name = "dangvantuan/sentence-camembert-base"
         self.model = SentenceTransformer(self.name)
