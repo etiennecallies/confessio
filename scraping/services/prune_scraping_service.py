@@ -15,7 +15,7 @@ from scraping.services.sentence_action_service import get_sentence_action
 ###################
 
 class SentenceFromDbTagInterface(BaseTagInterface):
-    def __init__(self, scraping: Optional[Scraping]):
+    def __init__(self, scraping: Scraping):
         self.scraping = scraping
 
     def get_action(self, line_without_link: str) -> Action:

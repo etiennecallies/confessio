@@ -1,5 +1,3 @@
-from typing import Optional
-
 from django.contrib.auth.models import User
 
 from home.models import Sentence, Scraping
@@ -56,7 +54,7 @@ def get_colored_pieces(confession_html: str, tag_interface: BaseTagInterface):
 # SAVE SENTENCE #
 #################
 
-def save_sentence(line_without_link: str, scraping: Optional[Scraping], user: User, action: Action):
+def save_sentence(line_without_link: str, scraping: Scraping, user: User, action: Action):
     db_action = action_to_db_action(action)
 
     try:

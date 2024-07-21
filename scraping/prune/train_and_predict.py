@@ -33,7 +33,11 @@ def evaluate(model: MachineLearningInterface, vectors_test, labels_test):
     print('starting evaluation')
     labels_pred = model.predict(vectors_test)
 
-    return accuracy_score(labels_test, labels_pred)
+    for action in Action:
+        print(f'{action}: {len([l for l in labels_test if l == action])} vs predicted '
+              f'{len([l for l in labels_pred if l == action])}')
+
+    return accuracy_score(list(map(str, labels_test)), list(map(str, labels_pred)))
 
 
 class TensorFlowModel(MachineLearningInterface):

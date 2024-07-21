@@ -4,7 +4,7 @@ from django.forms import ModelChoiceField
 from leaflet.admin import LeafletGeoAdmin
 from simple_history.admin import SimpleHistoryAdmin
 
-from .models import Church, Website, Page, Diocese, Parish
+from .models import Church, Website, Page, Diocese, Parish, Classifier
 
 
 @admin.register(Diocese)
@@ -82,3 +82,8 @@ class ParishChoiceField(ModelChoiceField):
 class DioceseChoiceField(ModelChoiceField):
     def label_from_instance(self, obj):
         return "Diocese: {}".format(obj.name)
+
+
+@admin.register(Classifier)
+class ClassifierAdmin(ModelAdmin):
+    list_display = ["uuid", "status", "created_at", "accuracy", 'transformer_name']
