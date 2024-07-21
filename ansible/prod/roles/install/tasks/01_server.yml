@@ -23,6 +23,7 @@
       - postgresql
       - postgresql-contrib
       - postgresql-postgis
+      - postgresql-15-pgvector
       - nginx
     state: latest
   become: true
