@@ -1,0 +1,114 @@
+[
+    [
+        "CONFESSION",
+        "CONFESSION",
+        [
+            "confession"
+        ],
+        "show"
+    ],
+    [
+        "18h-18h45 : mercredi",
+        "18h-18h45 : mercredi",
+        [
+            "date",
+            "schedule"
+        ],
+        "show"
+    ],
+    [
+        "à l’église de la Nativité",
+        "à l’église de la Nativité",
+        [],
+        "show"
+    ],
+    [
+        "Messe pour les jeunes jeudi 19h au Cœur de Marie",
+        "Messe pour les jeunes jeudi 19h au Cœur de Marie",
+        [
+            "date",
+            "schedule"
+        ],
+        "hide"
+    ],
+    [
+        "Cde ADORATION",
+        "Cde ADORATION",
+        [],
+        "stop"
+    ],
+    [
+        "à l’église de la Nativité",
+        "à l’église de la Nativité",
+        [],
+        "show"
+    ],
+    [
+        "18h-18h45 : mercredi",
+        "18h-18h45 : mercredi",
+        [
+            "date",
+            "schedule"
+        ],
+        "show"
+    ],
+    [
+        "à l’église Ste-Thérèse",
+        "à l’église Ste-Thérèse",
+        [],
+        "hide"
+    ],
+    [
+        "15h30-16h30 tous les 1ers samedis du mois",
+        "15h30-16h30 tous les 1ers samedis du mois",
+        [
+            "date",
+            "schedule"
+        ],
+        "show"
+    ],
+    [
+        "Prière pour les FAMILLES",
+        "Prière pour les FAMILLES",
+        [],
+        "stop"
+    ],
+    [
+        "les 1ers vendredis du mois",
+        "les 1ers vendredis du mois",
+        [
+            "date"
+        ],
+        "show"
+    ],
+    [
+        "20h-21h au Cœur de Marie",
+        "20h-21h au Cœur de Marie",
+        [
+            "schedule"
+        ],
+        "hide"
+    ],
+    [
+        "Prière animée par les groupes de la paroisse",
+        "Prière animée par les groupes de la paroisse",
+        [],
+        "stop"
+    ],
+    [
+        "les 3èmes vendredis du mois",
+        "les 3èmes vendredis du mois",
+        [
+            "date"
+        ],
+        "show"
+    ],
+    [
+        "20h-21h au Cœur de Marie",
+        "20h-21h au Cœur de Marie",
+        [
+            "schedule"
+        ],
+        "hide"
+    ]
+]

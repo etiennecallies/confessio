@@ -10,6 +10,7 @@ class TestPruneLines(unittest.TestCase):
     def prune_lines_fixtures():
         return [
             'bron',
+            'villeurbanne',
         ]
 
     def test_prune_lines(self):
