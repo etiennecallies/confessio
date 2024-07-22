@@ -10,30 +10,30 @@ class MyTestCase(unittest.TestCase):
     @staticmethod
     def get_paragraphs_fixtures():
         return [
-            ('chaville', 'html_page'),
-            ('mock1', 'html_page'),
-            ('mock2', 'html_page'),
-            ('maisons-laffitte', 'html_page'),
-            ('ste-jeanne-darc', 'html_page'),
-            ('st-jacques-du-haut-pas', 'html_page'),
-            ('st-bruno-des-chartreux', 'html_page'),
-            ('st-bruno-des-chartreux2', 'html_page'),
-            ('amplepuis', 'html_page'),
-            ('ntre-dame-de-lassomption', 'html_page'),
-            ('ntre-dame-des-lumieres', 'html_page'),
-            ('ntre-dame-des-lumieres2', 'html_page'),
-            ('st-bonaventure', 'html_page'),
-            ('st-nomdejesus', 'html_page'),
-            ('fourviere', 'html_page'),
-            ('cdde', 'html_page'),
-            ('vaise', 'html_page'),
-            ('ferreol', 'html_page'),
-            ('smdv', 'html_page'),
+            'chaville',
+            'mock1',
+            'mock2',
+            'maisons-laffitte',
+            'ste-jeanne-darc',
+            'st-jacques-du-haut-pas',
+            'st-bruno-des-chartreux',
+            'st-bruno-des-chartreux2',
+            'amplepuis',
+            'ntre-dame-de-lassomption',
+            'ntre-dame-des-lumieres',
+            'ntre-dame-des-lumieres2',
+            'st-bonaventure',
+            'st-nomdejesus',
+            'fourviere',
+            'cdde',
+            'vaise',
+            'ferreol',
+            'smdv',
         ]
 
     def test_extract(self):
         tests_dir = os.path.dirname(os.path.realpath(__file__))
-        for file_name, page_type in self.get_paragraphs_fixtures():
+        for file_name in self.get_paragraphs_fixtures():
             with self.subTest():
                 with open(f'{tests_dir}/fixtures/extract/{file_name}.html') as f:
                     lines = f.readlines()
