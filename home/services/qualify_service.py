@@ -1,3 +1,5 @@
+from typing import Optional
+
 from django.contrib.auth.models import User
 
 from home.models import Sentence, Scraping
@@ -54,20 +56,25 @@ def get_colored_pieces(confession_html: str, tag_interface: BaseTagInterface):
 # SAVE SENTENCE #
 #################
 
-def save_sentence(line_without_link: str, scraping: Scraping, user: User, action: Action):
+def save_sentence(line_without_link: str, scraping: Scraping, user: User, action: Action
+                  ) -> Optional[Sentence]:
+    """
+    :return: Sentence if a new sentence was created or modified, None if nothing was done
+    """
     db_action = action_to_db_action(action)
 
     try:
         sentence = Sentence.objects.get(line=line_without_link)
-        if sentence.action == db_action and sentence.source == Sentence.Source.HUMAN:
-            # We do nothing if action is the same
-            return
-
-        sentence.action = db_action
-        sentence.updated_by = user
-        sentence.scraping = scraping
-        sentence.source = Sentence.Source.HUMAN
+        if sentence.action != db_action \
+                or (sentence.source != Sentence.Source.HUMAN and action == Action.SHOW):
+            sentence.action = db_action
+            sentence.updated_by = user
+            sentence.scraping = scraping
+            sentence.source = Sentence.Source.HUMAN
+        else:
+            return None
     except Sentence.DoesNotExist:
+        print(f"Sentence '{line_without_link}' not found in database. Creating it.")
         # TODO this should never happen eventually
 
         transformer = get_transformer()
@@ -85,5 +92,4 @@ def save_sentence(line_without_link: str, scraping: Scraping, user: User, action
 
     sentence.save()
 
-    # With this new sentence, some scrapings might need to be re-pruned
-    reprune_affected_scrapings(sentence, scraping)
+    return sentence

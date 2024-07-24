@@ -23,7 +23,7 @@
     </a></p>
     <p>Scraping page: <a href="{{ scraping.page.url }}" target="_blank">{{ scraping.page.url }}</a></p>
     {% for line, color in lines_and_colors %}
-        <p class="{{ color }}">{{ line|safe }}</p>
+        <div class="{{ color }}">{{ line|safe }}</div>
     {% endfor %}
 
     {% if not scraping_moderation.marked_as_bug_at %}

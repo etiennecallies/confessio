@@ -1,5 +1,6 @@
 from typing import Optional
 
+from django.db.models import Q
 from django.db.models.functions import Now
 
 from home.models import Scraping, ScrapingModeration
@@ -32,10 +33,14 @@ class SentenceFromDbTagInterface(BaseTagInterface):
 # REPRUNE AFFECTED SCRAPINGS #
 ##############################
 
-def reprune_affected_scrapings(sentence: Sentence, original_scraping: Scraping):
-    affected_scrapings = Scraping.objects.filter(confession_html__contains=sentence.line)\
+def reprune_affected_scrapings(sentences: list[Sentence], original_scraping: Scraping):
+    query = Q()
+    for sentence in sentences:
+        query |= Q(confession_html__contains=sentence.line)
+    affected_scrapings = Scraping.objects.filter(query)\
         .exclude(uuid=original_scraping.uuid).all()
     for scraping in affected_scrapings:
+        print(f'repruning affected scraping {scraping}')
         prune_scraping_and_save(scraping)
 
 

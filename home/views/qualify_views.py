@@ -7,7 +7,7 @@ from home.services.qualify_service import get_colored_pieces, save_sentence
 from scraping.extract.extract_content import KeyValueInterface, DummyTagInterface
 from scraping.prune.models import Action
 from scraping.services.prune_scraping_service import prune_scraping_and_save, \
-    SentenceFromDbTagInterface
+    SentenceFromDbTagInterface, reprune_affected_scrapings
 from home.utils.hash_utils import hash_string_to_hex
 
 
@@ -45,14 +45,18 @@ def qualify_page(request, page_uuid):
         # We compute new color based on these given POST actions
         colored_pieces = get_colored_pieces(confession_html,
                                             KeyValueInterface(action_per_line_without_link))
+        modified_sentences = []
         for piece in colored_pieces:
             line_without_link = piece['text_without_link']
             action = action_per_line_without_link[line_without_link]
             if piece['do_show'] or action != Action.SHOW:
-                # We only save the SHOW lines that are shown
-                save_sentence(line_without_link, latest_scraping, request.user, action)
+                # We only save the SHOW lines that are shown, and all other lines
+                sentence = save_sentence(line_without_link, latest_scraping, request.user, action)
+                if sentence is not None:
+                    modified_sentences.append(sentence)
 
         prune_scraping_and_save(latest_scraping)
+        reprune_affected_scrapings(modified_sentences, latest_scraping)
 
     else:
         colored_pieces = get_colored_pieces(confession_html,
