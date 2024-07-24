@@ -1,2 +1,5 @@
 # Used to deploy
 ansible==8.7.0
+
+# Differs from production
+tensorflow==2.17.0

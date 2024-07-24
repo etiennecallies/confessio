@@ -4,7 +4,12 @@
 - name: Create a virtualenv directory
   file: path={{ venv_dir }} state=directory
 
-- name: Install dependencies
+- name: Install common dependencies
   pip:    requirements={{ app_dir }}/requirements.txt
+          virtualenv={{ venv_dir }}
+          virtualenv_command='python3 -m venv'
+
+- name: Install prod-specific dependencies
+  pip:    requirements={{ app_dir }}/prod_requirements.txt
           virtualenv={{ venv_dir }}
           virtualenv_command='python3 -m venv'

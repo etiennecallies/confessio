@@ -23,7 +23,6 @@ fructose==0.0.11
 haversine==2.8.1
 scikit-learn==1.5.1
 pandas==1.5.1
-tensorflow==2.17.0
 keras==3.4.1
 numpy==1.26.3
 tqdm==4.66.3
