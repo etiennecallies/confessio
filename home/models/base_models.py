@@ -137,9 +137,17 @@ class Scraping(TimeStampMixin):
     pruned_at = models.DateTimeField(null=True)
     nb_iterations = models.PositiveSmallIntegerField()
     page = models.ForeignKey('Page', on_delete=models.CASCADE, related_name='scrapings')
+    pruning = models.ForeignKey('Pruning', on_delete=models.DO_NOTHING, related_name='scrapings',
+                                null=True)
 
     def has_been_pruned(self) -> bool:
         return self.pruned_at is not None
+
+
+class Pruning(TimeStampMixin):
+    extracted_html = models.TextField(unique=True)
+    pruned_indices = ArrayField(models.PositiveSmallIntegerField())
+    pruned_html = models.TextField()
 
 
 class Sentence(TimeStampMixin):
