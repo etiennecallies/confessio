@@ -8,7 +8,6 @@ from scraping.extract.tag_line import Tag
 from scraping.prune.models import Action
 from scraping.prune.prune_lines import get_pruned_lines_indices
 from scraping.prune.transform_sentence import get_transformer
-from scraping.services.prune_scraping_service import reprune_affected_scrapings
 from scraping.services.sentence_action_service import action_to_db_action
 
 
