@@ -18,7 +18,7 @@ class Command(AbstractCommand):
                                                 uuid__in=options['scraping_uuid']).all()
         elif options['only_not_pruned']:
             scrapings = Scraping.objects.filter(page__website__is_active=True,
-                                                pruned_at__isnull=True).all()
+                                                pruning__isnull=True).all()
         else:
             scrapings = Scraping.objects.filter(page__website__is_active=True).all()
 

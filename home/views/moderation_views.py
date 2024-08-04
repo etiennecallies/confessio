@@ -3,8 +3,8 @@ from django.http import HttpResponseBadRequest, HttpResponseNotFound
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
-from home.models import WebsiteModeration, ChurchModeration, ScrapingModeration, ModerationMixin, \
-    BUG_DESCRIPTION_MAX_LENGTH, ParishModeration, ResourceDoesNotExist
+from home.models import WebsiteModeration, ChurchModeration, ModerationMixin, \
+    BUG_DESCRIPTION_MAX_LENGTH, ParishModeration, ResourceDoesNotExist, PruningModeration
 from sourcing.services.merge_websites_service import merge_websites
 from home.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 
@@ -143,22 +143,22 @@ def render_church_moderation(request, moderation: ChurchModeration, next_url):
 
 @login_required
 @permission_required("home.change_sentence")
-def moderate_scraping(request, category, is_bug, moderation_uuid=None):
-    return get_moderate_response(request, category, 'scraping', is_bug, ScrapingModeration,
-                                 moderation_uuid, render_scraping_moderation)
+def moderate_pruning(request, category, is_bug, moderation_uuid=None):
+    return get_moderate_response(request, category, 'pruning', is_bug, PruningModeration,
+                                 moderation_uuid, render_pruning_moderation)
 
 
-def render_scraping_moderation(request, moderation: ScrapingModeration, next_url):
-    assert moderation.scraping is not None
+def render_pruning_moderation(request, moderation: PruningModeration, next_url):
+    assert moderation.pruning is not None
 
     lines_and_colors = []
-    for i, line in enumerate(moderation.scraping.confession_html.split('<br>\n')):
-        color = '' if i in moderation.indices else 'text-warning'
+    for i, line in enumerate(moderation.pruning.extracted_html.split('<br>\n')):
+        color = '' if i in moderation.pruned_indices else 'text-warning'
         lines_and_colors.append((line, color))
 
-    return render(request, f'pages/moderate_scraping.html', {
+    return render(request, f'pages/moderate_pruning.html', {
         'scraping_moderation': moderation,
-        'scraping': moderation.scraping,
+        'pruning': moderation.pruning,
         'next_url': next_url,
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
         'lines_and_colors': lines_and_colors,

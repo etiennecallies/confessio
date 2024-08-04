@@ -120,7 +120,8 @@ class Page(TimeStampMixin):
 
     def has_confessions(self) -> bool:
         return self.get_latest_scraping() is not None\
-            and self.get_latest_scraping().confession_html_pruned
+            and self.get_latest_scraping().pruning is not None\
+            and self.get_latest_scraping().pruning.pruned_html is not None
 
 
 class Crawling(TimeStampMixin):
@@ -131,23 +132,20 @@ class Crawling(TimeStampMixin):
 
 
 class Scraping(TimeStampMixin):
-    confession_html = models.TextField(null=True)
-    confession_html_pruned = models.TextField(null=True)
-    indices = ArrayField(models.PositiveSmallIntegerField(), null=True)
-    pruned_at = models.DateTimeField(null=True)
+    confession_html = models.TextField(null=True, editable=False)
     nb_iterations = models.PositiveSmallIntegerField()
     page = models.ForeignKey('Page', on_delete=models.CASCADE, related_name='scrapings')
     pruning = models.ForeignKey('Pruning', on_delete=models.DO_NOTHING, related_name='scrapings',
                                 null=True)
 
     def has_been_pruned(self) -> bool:
-        return self.pruned_at is not None
+        return not self.confession_html or self.pruning is not None
 
 
 class Pruning(TimeStampMixin):
-    extracted_html = models.TextField(unique=True)
-    pruned_indices = ArrayField(models.PositiveSmallIntegerField())
-    pruned_html = models.TextField()
+    extracted_html = models.TextField(unique=True, editable=False)
+    pruned_indices = ArrayField(models.PositiveSmallIntegerField(), null=True)
+    pruned_html = models.TextField(null=True)
 
 
 class Sentence(TimeStampMixin):
@@ -162,7 +160,7 @@ class Sentence(TimeStampMixin):
 
     line = models.TextField(null=False, unique=True)
     updated_by = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
-    scraping = models.ForeignKey('Scraping', on_delete=models.SET_NULL, null=True)
+    pruning = models.ForeignKey('Pruning', on_delete=models.SET_NULL, null=True)
     action = models.CharField(max_length=4, choices=Action)
     source = models.CharField(max_length=5, choices=Source)
     classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,

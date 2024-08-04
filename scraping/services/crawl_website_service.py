@@ -1,6 +1,6 @@
 from typing import Tuple, Optional
 
-from home.models import Website, Crawling, Page, WebsiteModeration, ScrapingModeration
+from home.models import Website, Crawling, Page, WebsiteModeration
 from scraping.services.scrape_page_service import upsert_scraping
 from scraping.crawl.download_and_search_urls import search_for_confession_pages
 from scraping.download.download_content import get_url_aliases
@@ -14,13 +14,6 @@ def remove_not_validated_moderation(website: Website, category: WebsiteModeratio
         moderation.delete()
     except WebsiteModeration.DoesNotExist:
         pass
-
-
-def remove_not_validated_moderation_for_page(page: Page):
-    moderations = ScrapingModeration.objects.filter(scraping__page__exact=page,
-                                                    validated_at__isnull=True)
-    for moderation in moderations:
-        moderation.delete()
 
 
 def add_moderation(website: Website, category: WebsiteModeration.Category,
@@ -98,9 +91,6 @@ def crawl_website(website: Website) -> Tuple[bool, bool, Optional[str]]:
     existing_urls = list(map(lambda p: p.url, existing_pages))
     for page in existing_pages:
         if page.url not in confession_parts_by_url:
-            # We remove all pending scraping moderations related to this page
-            remove_not_validated_moderation_for_page(page)
-
             # Page did exist but not anymore, we remove it
             page.delete()
         else:

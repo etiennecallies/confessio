@@ -1,6 +1,7 @@
 from django.template.defaulttags import register
 
-from home.models import WebsiteModeration, ChurchModeration, ScrapingModeration, ParishModeration
+from home.models import WebsiteModeration, ChurchModeration, ParishModeration, \
+    PruningModeration
 
 
 @register.filter
@@ -17,7 +18,7 @@ def negate(value):
 def get_moderation_stats():
     return sum([
         WebsiteModeration.get_stats_by_category(),
-        ChurchModeration.get_stats_by_category(),
-        ScrapingModeration.get_stats_by_category(),
         ParishModeration.get_stats_by_category(),
+        ChurchModeration.get_stats_by_category(),
+        PruningModeration.get_stats_by_category(),
     ], [])

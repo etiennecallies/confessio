@@ -60,7 +60,7 @@ def qualify_page(request, page_uuid):
 
     else:
         colored_pieces = get_colored_pieces(confession_html,
-                                            SentenceFromDbTagInterface(latest_scraping))
+                                            SentenceFromDbTagInterface(latest_scraping.pruning))
 
     action_colors = {
         Action.SHOW: 'success',

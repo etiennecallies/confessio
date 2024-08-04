@@ -345,26 +345,26 @@ class ChurchModeration(ModerationMixin):
                                         source=self.source).delete()
 
 
-class ScrapingModeration(ModerationMixin):
+class PruningModeration(ModerationMixin):
     class Category(models.TextChoices):
-        CONFESSION_HTML_PRUNED_NEW = "chp_new"
+        NEW_PRUNED_HTML = "new_pruned_html"
 
-    resource = 'scraping'
+    resource = 'pruning'
     validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
                                      on_delete=models.SET_NULL, null=True)
     marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
                                          on_delete=models.SET_NULL, null=True)
     history = HistoricalRecords()
-    scraping = models.ForeignKey('Scraping', on_delete=models.CASCADE, related_name='moderations')
-    category = models.CharField(max_length=7, choices=Category)
+    pruning = models.ForeignKey('Pruning', on_delete=models.CASCADE, related_name='moderations')
+    category = models.CharField(max_length=16, choices=Category)
 
-    confession_html = models.TextField()
-    indices = ArrayField(models.PositiveSmallIntegerField())
+    pruned_html = models.TextField(null=True)
+    pruned_indices = ArrayField(models.PositiveSmallIntegerField(), null=True)
 
     class Meta:
-        unique_together = ('scraping', 'category')
+        unique_together = ('pruning', 'category')
 
     def delete_on_validate(self) -> bool:
-        # we keep ScrapingModeration even if confession_html_pruned has changed
+        # we keep PruningModeration even if confession_html_pruned has changed
         # in order to keep track of which confession_html_pruned has been moderated
         return False

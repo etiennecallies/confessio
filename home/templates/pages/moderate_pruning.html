@@ -2,10 +2,10 @@
 
 {% block card %}
     <h2 class="mb-3">
-        Scraping: {{ scraping_moderation.get_category_display }}
+        Pruning: {{ pruning_moderation.get_category_display }}
     </h2>
-    {% if scraping_moderation.bug_description %}
-        <p>Bug description : {{ scraping_moderation.bug_description }}</p>
+    {% if pruning_moderation.bug_description %}
+        <p>Bug description : {{ pruning_moderation.bug_description }}</p>
     {% endif %}
     <div>
         <div class="d-inline-block">
@@ -18,15 +18,17 @@
             <a class="btn btn-info" role="button" href="{{ next_url }}">Next</a>
         </div>
     </div>
-    <p><a class="btn btn-gray-500" href="{% url 'qualify_page' scraping.page.uuid %}" target="_blank" role="button">
-        Qualify page <i class="fas fa-up-right-from-square"></i>
-    </a></p>
-    <p>Scraping page: <a href="{{ scraping.page.url }}" target="_blank">{{ scraping.page.url }}</a></p>
+    {% for scraping in pruning.scrapings.all %}
+        <p><a class="btn btn-gray-500" href="{% url 'qualify_page' scraping.page.uuid %}" target="_blank" role="button">
+            Qualify page <i class="fas fa-up-right-from-square"></i>
+        </a></p>
+        <p>Scraping page: <a href="{{ scraping.page.url }}" target="_blank">{{ scraping.page.url }}</a></p>
+    {% endfor %}
     {% for line, color in lines_and_colors %}
         <div class="{{ color }}">{{ line|safe }}</div>
     {% endfor %}
 
-    {% if not scraping_moderation.marked_as_bug_at %}
+    {% if not pruning_moderation.marked_as_bug_at %}
         <div>
             <form method="post">
                 <label>

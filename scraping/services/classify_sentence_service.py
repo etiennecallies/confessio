@@ -1,4 +1,4 @@
-from home.models import Sentence, Classifier, Scraping
+from home.models import Sentence, Classifier, Scraping, Pruning
 from scraping.prune.models import Action
 from scraping.prune.train_and_predict import TensorFlowModel
 from scraping.prune.transform_sentence import get_transformer, TransformerInterface
@@ -50,7 +50,7 @@ def classify_line(line_without_link: str
 
 
 def classify_sentence(line_without_link: str,
-                      scraping: Scraping) -> Sentence:
+                      pruning: Pruning) -> Sentence:
     # Classify line
     action, classifier, embedding, transformer = classify_line(line_without_link)
 
@@ -61,7 +61,7 @@ def classify_sentence(line_without_link: str,
         line=line_without_link,
         action=db_action,
         source=Sentence.Source.ML,
-        scraping=scraping,
+        pruning=pruning,
         updated_by=None,
         classifier=classifier,
         embedding=embedding,

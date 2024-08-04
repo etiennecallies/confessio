@@ -1,9 +1,8 @@
 from typing import Optional
 
 from django.db.models import Q
-from django.db.models.functions import Now
 
-from home.models import Scraping, ScrapingModeration
+from home.models import Scraping, Pruning, PruningModeration
 from home.models import Sentence
 from scraping.extract.extract_content import BaseTagInterface
 from scraping.extract.extract_content import extract_content
@@ -17,14 +16,14 @@ from scraping.services.sentence_action_service import get_sentence_action
 ###################
 
 class SentenceFromDbTagInterface(BaseTagInterface):
-    def __init__(self, scraping: Scraping):
-        self.scraping = scraping
+    def __init__(self, pruning: Pruning):
+        self.pruning = pruning
 
     def get_action(self, line_without_link: str) -> Action:
         try:
             sentence = Sentence.objects.get(line=line_without_link)
         except Sentence.DoesNotExist:
-            sentence = classify_sentence(line_without_link, self.scraping)
+            sentence = classify_sentence(line_without_link, self.pruning)
 
         return get_sentence_action(sentence)
 
@@ -48,113 +47,81 @@ def reprune_affected_scrapings(sentences: list[Sentence], original_scraping: Scr
 # MODERATION #
 ##############
 
-def get_current_moderation(scraping: Scraping,
-                           category) -> Optional[ScrapingModeration]:
+def get_current_moderation(pruning: Pruning,
+                           category) -> Optional[PruningModeration]:
     try:
-        return ScrapingModeration.objects.get(scraping=scraping, category=category)
-    except ScrapingModeration.DoesNotExist:
+        return PruningModeration.objects.get(pruning=pruning, category=category)
+    except PruningModeration.DoesNotExist:
         return None
 
 
-def add_new_moderation(scraping: Scraping, category):
-    moderation = ScrapingModeration(
-        scraping=scraping,
+def add_new_moderation(pruning: Pruning, category):
+    moderation = PruningModeration(
+        pruning=pruning,
         category=category,
-        confession_html=scraping.confession_html,
-        indices=scraping.indices,
+        pruned_html=pruning.pruned_html,
+        pruned_indices=pruning.pruned_indices,
     )
     moderation.save()
 
 
-def similar_scraping_exists(confession_html, indices) -> bool:
-    try:
-        ScrapingModeration.objects.get(confession_html=confession_html, indices=indices)
-        return True
-    except ScrapingModeration.DoesNotExist:
-        return False
+def add_necessary_moderation(pruning: Pruning):
+    category = PruningModeration.Category.NEW_PRUNED_HTML
 
-
-def add_necessary_moderation(scraping: Scraping):
-    category = ScrapingModeration.Category.CONFESSION_HTML_PRUNED_NEW
-
-    # first, we delete every previous unvalidated moderation of this page
-    moderations_to_delete = ScrapingModeration.objects\
-        .filter(scraping__page__exact=scraping.page,
-                category=category,
-                validated_at__isnull=True)\
-        .exclude(scraping=scraping)
-
-    for moderation_to_delete in moderations_to_delete:
-        moderation_to_delete.delete()
-
-    # 1. If confession_html is empty. We just remove moderation if exists.
-    if scraping.confession_html is None:
-        try:
-            moderation = ScrapingModeration.objects.get(scraping=scraping, category=category)
-            moderation.delete()
-        except ScrapingModeration.DoesNotExist:
-            pass
-
-        return
-
-    # 2. If scraping has already moderation
-    current_moderation = get_current_moderation(scraping, category)
+    # 1. If pruning has already moderation
+    current_moderation = get_current_moderation(pruning, category)
     if current_moderation is not None:
-        if current_moderation.confession_html == scraping.confession_html\
-                and current_moderation.indices == scraping.indices:
-            # confession_html_pruned has not changed, we do nothing
-            return
-
-        if similar_scraping_exists(scraping.confession_html, scraping.indices):
-            # confession_html_pruned has changed, but a moderation already exists,
-            # we only delete obsolete moderation.
-            current_moderation.delete()
+        if current_moderation.pruned_html == pruning.pruned_html\
+                and current_moderation.pruned_indices == pruning.pruned_indices:
+            # pruned_html has not changed, we do nothing
             return
 
         if current_moderation.validated_at is None:
             # confession_html_pruned has changed, but not validated yet, we just update it
-            current_moderation.confession_html = scraping.confession_html
-            current_moderation.indices = scraping.indices
+            current_moderation.pruned_html = pruning.pruned_html
+            current_moderation.pruned_indices = pruning.pruned_indices
             current_moderation.save()
             return
 
         # confession_html_pruned has changed and was validated, we remove it and add a new one
         current_moderation.delete()
-        add_new_moderation(scraping, category)
+        add_new_moderation(pruning, category)
         return
 
-    # 3. No moderation for this scraping yet. We add new moderation, only if not already exists
-    if not similar_scraping_exists(scraping.confession_html, scraping.indices):
-        add_new_moderation(scraping, category)
+    # 2. No moderation for this scraping yet. We add new moderation, only if not already exists
+    add_new_moderation(pruning, category)
 
 
 ########
 # MAIN #
 ########
 
-def prune_content(scraping: Scraping
-                  ) -> tuple[Optional[str], Optional[list[int]]]:
-    if not scraping.confession_html:
-        return None, None
+def prune_pruning(pruning: Pruning) -> ():
+    assert pruning.extracted_html, 'Pruning must have not empty extracted_html'
 
-    paragraphs, indices = extract_content(scraping.confession_html,
-                                          SentenceFromDbTagInterface(scraping))
-    if not paragraphs:
-        return None, indices
+    paragraphs, indices = extract_content(pruning.extracted_html,
+                                          SentenceFromDbTagInterface(pruning))
+    pruned_html = '<br>\n'.join(paragraphs) if paragraphs else None
+    pruning.pruned_html = pruned_html
+    pruning.pruned_indices = indices
+    pruning.save()
 
-    return '<br>\n'.join(paragraphs), indices
+    add_necessary_moderation(pruning)
 
 
 def prune_scraping_and_save(scraping: Scraping):
-    confession_html_pruned, indices = prune_content(scraping)
-    if scraping.confession_html_pruned \
-            and scraping.confession_html_pruned == confession_html_pruned\
-            and scraping.indices == indices:
+    extracted_html = scraping.confession_html
+    if not extracted_html:
         return
 
-    scraping.confession_html_pruned = confession_html_pruned
-    scraping.indices = indices
-    scraping.pruned_at = Now()
-    scraping.save()
+    try:
+        pruning = Pruning.objects.get(extracted_html=extracted_html)
+    except Pruning.DoesNotExist:
+        pruning = Pruning(
+            extracted_html=extracted_html,
+        )
+        pruning.save()
 
-    add_necessary_moderation(scraping)
+    prune_pruning(pruning)
+    scraping.pruning = pruning
+    scraping.save()
