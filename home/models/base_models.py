@@ -7,6 +7,8 @@ from django.db import models
 from pgvector.django import VectorField
 from simple_history.models import HistoricalRecords
 
+from home.utils.hash_utils import hash_string_to_hex
+
 
 class TimeStampMixin(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -143,9 +145,14 @@ class Scraping(TimeStampMixin):
 
 
 class Pruning(TimeStampMixin):
-    extracted_html = models.TextField(unique=True, editable=False)
+    extracted_html = models.TextField(editable=False)  # We can not set unique=True because size can exceed index limits
+    extracted_html_hash = models.CharField(max_length=32, unique=True, editable=False)
     pruned_indices = ArrayField(models.PositiveSmallIntegerField(), null=True)
     pruned_html = models.TextField(null=True)
+
+    def save(self, *args, **kwargs):
+        self.extracted_html_hash = hash_string_to_hex(self.extracted_html)
+        super().save(*args, **kwargs)
 
 
 class Sentence(TimeStampMixin):
