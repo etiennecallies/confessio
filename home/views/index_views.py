@@ -1,7 +1,7 @@
 import dataclasses
 
 from django.core.exceptions import ValidationError
-from django.http import HttpResponseNotFound, JsonResponse
+from django.http import HttpResponseNotFound, JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render
 
 from home.models import Website, Diocese
@@ -67,11 +67,16 @@ def index(request, diocese_slug=None):
     max_lat = request.GET.get('maxLat', '')
     max_lng = request.GET.get('maxLng', '')
 
+    if min_lat and min_lng and max_lat and max_lng:
+        try:
+            min_lat, max_lat, min_lng, max_lng = \
+                float(min_lat), float(max_lat), float(min_lng), float(max_lng)
+        except ValueError:
+            return HttpResponseBadRequest("Invalid coordinates")
+
     website_uuid = request.GET.get('websiteUuid', '')
 
     if min_lat and min_lng and max_lat and max_lng:
-        min_lat, max_lat, min_lng, max_lng = \
-            float(min_lat), float(max_lat), float(min_lng), float(max_lng)
         bounds = (min_lat, max_lat, min_lng, max_lng)
         center = [min_lat + max_lat / 2, min_lng + max_lng / 2]
         churches, too_many_results = get_churches_in_box(min_lat, max_lat, min_lng, max_lng)
