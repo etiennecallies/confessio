@@ -43,8 +43,8 @@ def get_churches_in_box(min_lat, max_lat, min_long, max_long) -> tuple[list[Chur
                 is_active=True,
                 parish__website__is_active=True) \
         .annotate(nb_page_with_confessions=Count(
-            'parish__website__pages__scrapings',
-            filter=Q(parish__website__pages__scrapings__pruning__pruned_html__isnull=False)), ) \
+            'parish__website__pages__scraping',
+            filter=Q(parish__website__pages__scraping__pruning__pruned_html__isnull=False)), ) \
         .order_by('-nb_page_with_confessions').all()[:MAX_CHURCHES_IN_RESULTS]
 
     return churches, len(churches) >= MAX_CHURCHES_IN_RESULTS
@@ -67,8 +67,8 @@ def get_churches_by_diocese(diocese: Diocese) -> tuple[list[Church], bool]:
                 is_active=True,
                 parish__website__is_active=True) \
         .annotate(nb_page_with_confessions=Count(
-            'parish__website__pages__scrapings',
-            filter=Q(parish__website__pages__scrapings__pruning__pruned_html__isnull=False)), ) \
+            'parish__website__pages__scraping',
+            filter=Q(parish__website__pages__scraping__pruning__pruned_html__isnull=False)), ) \
         .order_by('-nb_page_with_confessions').all()[:MAX_CHURCHES_IN_RESULTS]
 
     return churches, len(churches) >= MAX_CHURCHES_IN_RESULTS
