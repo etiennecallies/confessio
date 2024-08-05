@@ -35,7 +35,7 @@ class SentenceFromDbTagInterface(BaseTagInterface):
 def reprune_affected_scrapings(sentences: list[Sentence], original_pruning: Pruning):
     query = Q()
     for sentence in sentences:
-        query |= Q(extrated_html__contains=sentence.line)
+        query |= Q(extracted_html__contains=sentence.line)
     affected_prunings = Pruning.objects.filter(query)\
         .exclude(uuid=original_pruning.uuid).all()
     for pruning in affected_prunings:

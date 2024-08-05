@@ -137,7 +137,7 @@ class Scraping(TimeStampMixin):
     confession_html = models.TextField(null=True, editable=False)
     nb_iterations = models.PositiveSmallIntegerField()
     page = models.OneToOneField('Page', on_delete=models.CASCADE, related_name='scraping')
-    pruning = models.ForeignKey('Pruning', on_delete=models.DO_NOTHING, related_name='scrapings',
+    pruning = models.ForeignKey('Pruning', on_delete=models.SET_NULL, related_name='scrapings',
                                 null=True)
 
     def has_been_pruned(self) -> bool:
