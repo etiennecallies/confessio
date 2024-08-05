@@ -32,15 +32,15 @@ class SentenceFromDbTagInterface(BaseTagInterface):
 # REPRUNE AFFECTED SCRAPINGS #
 ##############################
 
-def reprune_affected_scrapings(sentences: list[Sentence], original_scraping: Scraping):
+def reprune_affected_scrapings(sentences: list[Sentence], original_pruning: Pruning):
     query = Q()
     for sentence in sentences:
-        query |= Q(confession_html__contains=sentence.line)
-    affected_scrapings = Scraping.objects.filter(query)\
-        .exclude(uuid=original_scraping.uuid).all()
-    for scraping in affected_scrapings:
-        print(f'repruning affected scraping {scraping}')
-        prune_scraping_and_save(scraping)
+        query |= Q(extrated_html__contains=sentence.line)
+    affected_prunings = Pruning.objects.filter(query)\
+        .exclude(uuid=original_pruning.uuid).all()
+    for pruning in affected_prunings:
+        print(f'repruning affected pruning {pruning}')
+        prune_pruning(pruning)
 
 
 ##############

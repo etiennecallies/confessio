@@ -13,6 +13,9 @@ def upsert_scraping(page: Page, confession_part: str) -> Scraping:
 
         return last_scraping
 
+    if last_scraping is not None:
+        last_scraping.delete()
+
     new_scraping = Scraping(
         confession_html=confession_part,
         nb_iterations=1,

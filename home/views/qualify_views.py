@@ -51,12 +51,13 @@ def qualify_page(request, page_uuid):
             action = action_per_line_without_link[line_without_link]
             if piece['do_show'] or action != Action.SHOW:
                 # We only save the SHOW lines that are shown, and all other lines
-                sentence = save_sentence(line_without_link, latest_scraping, request.user, action)
+                sentence = save_sentence(line_without_link, latest_scraping.pruning, request.user,
+                                         action)
                 if sentence is not None:
                     modified_sentences.append(sentence)
 
         prune_scraping_and_save(latest_scraping)
-        reprune_affected_scrapings(modified_sentences, latest_scraping)
+        reprune_affected_scrapings(modified_sentences, latest_scraping.pruning)
 
     else:
         colored_pieces = get_colored_pieces(confession_html,

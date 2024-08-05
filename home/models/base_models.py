@@ -106,7 +106,7 @@ class Page(TimeStampMixin):
     def get_latest_scraping(self) -> Optional['Scraping']:
         if not self._has_search_latest_scraping:
             try:
-                self._latest_scraping = self.scrapings.latest()
+                self._latest_scraping = self.scraping
             except Scraping.DoesNotExist:
                 self._latest_scraping = None
             self._has_search_latest_scraping = True
@@ -136,7 +136,7 @@ class Crawling(TimeStampMixin):
 class Scraping(TimeStampMixin):
     confession_html = models.TextField(null=True, editable=False)
     nb_iterations = models.PositiveSmallIntegerField()
-    page = models.ForeignKey('Page', on_delete=models.CASCADE, related_name='scrapings')
+    page = models.OneToOneField('Page', on_delete=models.CASCADE, related_name='scraping')
     pruning = models.ForeignKey('Pruning', on_delete=models.DO_NOTHING, related_name='scrapings',
                                 null=True)
 
@@ -145,7 +145,8 @@ class Scraping(TimeStampMixin):
 
 
 class Pruning(TimeStampMixin):
-    extracted_html = models.TextField(editable=False)  # We can not set unique=True because size can exceed index limits
+    # We can not set unique=True because size can exceed index limits
+    extracted_html = models.TextField(editable=False)
     extracted_html_hash = models.CharField(max_length=32, unique=True, editable=False)
     pruned_indices = ArrayField(models.PositiveSmallIntegerField(), null=True)
     pruned_html = models.TextField(null=True)

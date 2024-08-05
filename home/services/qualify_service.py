@@ -2,7 +2,7 @@ from typing import Optional
 
 from django.contrib.auth.models import User
 
-from home.models import Sentence, Scraping
+from home.models import Sentence, Pruning
 from scraping.extract.extract_content import split_and_tag, BaseTagInterface
 from scraping.extract.tag_line import Tag
 from scraping.prune.models import Action
@@ -55,7 +55,7 @@ def get_colored_pieces(confession_html: str, tag_interface: BaseTagInterface):
 # SAVE SENTENCE #
 #################
 
-def save_sentence(line_without_link: str, scraping: Scraping, user: User, action: Action
+def save_sentence(line_without_link: str, pruning: Pruning, user: User, action: Action
                   ) -> Optional[Sentence]:
     """
     :return: Sentence if a new sentence was created or modified, None if nothing was done
@@ -68,7 +68,7 @@ def save_sentence(line_without_link: str, scraping: Scraping, user: User, action
                 or (sentence.source != Sentence.Source.HUMAN and action == Action.SHOW):
             sentence.action = db_action
             sentence.updated_by = user
-            sentence.scraping = scraping
+            sentence.pruning = pruning
             sentence.source = Sentence.Source.HUMAN
         else:
             return None
@@ -81,7 +81,7 @@ def save_sentence(line_without_link: str, scraping: Scraping, user: User, action
 
         sentence = Sentence(
             line=line_without_link,
-            scraping=scraping,
+            pruning=pruning,
             updated_by=user,
             action=db_action,
             source=Sentence.Source.HUMAN,

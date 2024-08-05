@@ -1,4 +1,4 @@
-from home.models import Sentence, Classifier, Scraping, Pruning
+from home.models import Sentence, Classifier, Pruning
 from scraping.prune.models import Action
 from scraping.prune.train_and_predict import TensorFlowModel
 from scraping.prune.transform_sentence import get_transformer, TransformerInterface
