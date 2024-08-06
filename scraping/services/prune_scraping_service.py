@@ -102,6 +102,10 @@ def prune_pruning(pruning: Pruning) -> ():
     paragraphs, indices = extract_content(pruning.extracted_html,
                                           SentenceFromDbTagInterface(pruning))
     pruned_html = '<br>\n'.join(paragraphs) if paragraphs else None
+
+    if pruned_html == pruning.pruned_html and indices == pruning.pruned_indices:
+        return
+
     pruning.pruned_html = pruned_html
     pruning.pruned_indices = indices
     pruning.save()
