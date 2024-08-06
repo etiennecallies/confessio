@@ -5,25 +5,29 @@
         [
             "confession"
         ],
-        "show"
+        "show",
+        null
     ],
     [
         "<a href=\"http://paroissedebron.fr/wp-content/uploads/2013/03/page_la_reconciliation.png\"> </a> « Pardonner ne se pense pas seulement. Cela se vit, se décide, comme on décide de se lever, plutôt que de rester couché ! »",
         "  « Pardonner ne se pense pas seulement. Cela se vit, se décide, comme on décide de se lever, plutôt que de rester couché ! »",
         [],
-        "hide"
+        "hide",
+        null
     ],
     [
         "Il y a bien des moments dans notre vie où nous aurions le désir, des périodes où il serait nécessaire de vivre une démarche de réconciliation avec quelqu’un ou avec Dieu.",
         "Il y a bien des moments dans notre vie où nous aurions le désir, des périodes où il serait nécessaire de vivre une démarche de réconciliation avec quelqu’un ou avec Dieu.",
         [],
-        "hide"
+        "hide",
+        null
     ],
     [
         "Le sacrement du pardon est un trésor inépuisable offert aux baptisés pour les aider à « passer un cap », pour renouer, reconstruire et se reconstruire, pour reprendre conscience de l’amour infini de Dieu pour chacun.",
         "Le sacrement du pardon est un trésor inépuisable offert aux baptisés pour les aider à « passer un cap », pour renouer, reconstruire et se reconstruire, pour reprendre conscience de l’amour infini de Dieu pour chacun.",
         [],
-        "hide"
+        "hide",
+        null
     ],
     [
         "Des célébrations pénitentielles sont proposées pour se préparer à des temps forts dans l’année : Noël, Pâques, etc…",
@@ -31,7 +35,8 @@
         [
             "period"
         ],
-        "show"
+        "show",
+        null
     ],
     [
         "Chacun peut rencontrer un prêtre s’il le désire, sur rendez-vous.",
@@ -40,7 +45,8 @@
             "schedule",
             "date"
         ],
-        "show"
+        "show",
+        null
     ],
     [
         "A noter : 9ème édition d’un grand temps fort intergénérationnel sur le pardon pendant le temps du Carême :",
@@ -49,7 +55,8 @@
             "confession",
             "period"
         ],
-        "show"
+        "show",
+        null
     ],
     [
         "« Matinée du pardon » le samedi 20 mars 2021 au Christ-Roi.",
@@ -58,7 +65,8 @@
             "confession",
             "date"
         ],
-        "show"
+        "show",
+        null
     ],
     [
         "Préparation le mardi 2 février à 20h30 au Christ-Roi.",
@@ -67,6 +75,7 @@
             "schedule",
             "date"
         ],
-        "show"
+        "show",
+        null
     ]
 ]

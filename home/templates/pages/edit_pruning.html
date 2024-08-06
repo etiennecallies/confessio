@@ -28,6 +28,9 @@
                         {% endfor %}
                     </div>
                     <div class="col-md-5 text-end">
+                        {% if colored_piece.source_icon %}
+                            <i class="{{ colored_piece.source_icon }}"></i>
+                        {% endif %}
                         {% for action, action_color in action_colors.items %}
                             <input type="radio" class="btn-check"
                                    id="{{ action.value }}-{{ colored_piece.id }}"

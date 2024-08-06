@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from home.models import Sentence, Pruning
 from scraping.extract.extract_content import split_and_tag, BaseTagInterface
 from scraping.extract.tag_line import Tag
-from scraping.prune.models import Action
+from scraping.prune.models import Action, Source
 from scraping.prune.prune_lines import get_pruned_lines_indices
 from scraping.prune.transform_sentence import get_transformer
 from scraping.services.sentence_action_service import action_to_db_action
@@ -26,8 +26,13 @@ def get_colored_pieces(confession_html: str, tag_interface: BaseTagInterface):
         Tag.CONFESSION: 'success',
     }
 
+    source_icons = {
+        Source.HUMAN: 'fas fa-user',
+        Source.ML: 'fas fa-robot',
+    }
+
     colored_pieces = []
-    for i, (text, text_without_link, tags, action) in enumerate(lines_and_tags):
+    for i, (text, text_without_link, tags, action, source) in enumerate(lines_and_tags):
         new_tags = []
         for tag in tags:
             new_tags.append({
@@ -44,7 +49,8 @@ def get_colored_pieces(confession_html: str, tag_interface: BaseTagInterface):
                 "text_without_link": text_without_link,
                 "color": '' if do_show else 'text-warning',
                 "action": action,
-                "tags": new_tags
+                "tags": new_tags,
+                "source_icon": source_icons[source] if source else None,
             }
         )
 

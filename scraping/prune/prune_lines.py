@@ -1,8 +1,8 @@
 from dataclasses import dataclass
-from typing import Optional, List, Tuple, Set
+from typing import Optional, Tuple, Set
 
 from scraping.extract.tag_line import Tag
-from scraping.prune.models import Action
+from scraping.prune.models import Action, Source
 
 MAX_BUFFERING_ATTEMPTS = 2
 
@@ -36,11 +36,11 @@ class PreBuffer:
 
 @dataclass
 class PostBuffer:
-    buffer: List[int]
+    buffer: list[int]
     is_post_schedule: bool = False
     remaining_attempts: int = MAX_BUFFERING_ATTEMPTS
 
-    def add_line(self, i: int, tags: Set[Tag], results: List[int]):
+    def add_line(self, i: int, tags: Set[Tag], results: list[int]):
         self.buffer.append(i)
         self.is_post_schedule = self.is_post_schedule or Tag.SCHEDULE in tags
         self.remaining_attempts = MAX_BUFFERING_ATTEMPTS
@@ -59,12 +59,13 @@ class PostBuffer:
         return self
 
 
-def get_pruned_lines_indices(lines_and_tags: List[Tuple[str, str, set[Tag], Action]]) -> List[int]:
+def get_pruned_lines_indices(lines_and_tags: list[Tuple[str, str, set[Tag], Action, Source]]
+                             ) -> list[int]:
     results = []
     pre_buffer: Optional[PreBuffer] = None
     post_buffer: Optional[PostBuffer] = None
 
-    for i, (line, line_without_link, tags, action) in enumerate(lines_and_tags):
+    for i, (line, line_without_link, tags, action, source) in enumerate(lines_and_tags):
         # print(line, tags)
         if Tag.CONFESSION in tags and action == Action.SHOW:
             if post_buffer is None:

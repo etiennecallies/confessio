@@ -5,7 +5,8 @@
         [
             "confession"
         ],
-        "show"
+        "show",
+        null
     ],
     [
         "18h-18h45 : mercredi",
@@ -14,13 +15,15 @@
             "date",
             "schedule"
         ],
-        "show"
+        "show",
+        null
     ],
     [
         "à l’église de la Nativité",
         "à l’église de la Nativité",
         [],
-        "show"
+        "show",
+        null
     ],
     [
         "Messe pour les jeunes jeudi 19h au Cœur de Marie",
@@ -29,19 +32,22 @@
             "date",
             "schedule"
         ],
-        "hide"
+        "hide",
+        null
     ],
     [
         "Cde ADORATION",
         "Cde ADORATION",
         [],
-        "stop"
+        "stop",
+        null
     ],
     [
         "à l’église de la Nativité",
         "à l’église de la Nativité",
         [],
-        "show"
+        "show",
+        null
     ],
     [
         "18h-18h45 : mercredi",
@@ -50,13 +56,15 @@
             "date",
             "schedule"
         ],
-        "show"
+        "show",
+        null
     ],
     [
         "à l’église Ste-Thérèse",
         "à l’église Ste-Thérèse",
         [],
-        "hide"
+        "hide",
+        null
     ],
     [
         "15h30-16h30 tous les 1ers samedis du mois",
@@ -65,13 +73,15 @@
             "date",
             "schedule"
         ],
-        "show"
+        "show",
+        null
     ],
     [
         "Prière pour les FAMILLES",
         "Prière pour les FAMILLES",
         [],
-        "stop"
+        "stop",
+        null
     ],
     [
         "les 1ers vendredis du mois",
@@ -79,7 +89,8 @@
         [
             "date"
         ],
-        "show"
+        "show",
+        null
     ],
     [
         "20h-21h au Cœur de Marie",
@@ -87,13 +98,15 @@
         [
             "schedule"
         ],
-        "hide"
+        "hide",
+        null
     ],
     [
         "Prière animée par les groupes de la paroisse",
         "Prière animée par les groupes de la paroisse",
         [],
-        "stop"
+        "stop",
+        null
     ],
     [
         "les 3èmes vendredis du mois",
@@ -101,7 +114,8 @@
         [
             "date"
         ],
-        "show"
+        "show",
+        null
     ],
     [
         "20h-21h au Cœur de Marie",
@@ -109,6 +123,7 @@
         [
             "schedule"
         ],
-        "hide"
+        "hide",
+        null
     ]
 ]

@@ -29,7 +29,8 @@ if __name__ == '__main__':
         # 'http://www.paroisses-pentes-et-saone.fr/soiree-confessions-avec-adoration/',
         # 'https://www.paroissesainteclaire.com/evenements.html',
         # 'https://www.espace-saint-ignace.fr/?page_id=1252',
-        'https://www.paroisse-st-martin-largentiere.fr',
+        # 'https://www.paroisse-st-martin-largentiere.fr',
+        'https://paroissesaintalexandre.fr/etapes-de-la-vie/pardon-reconciliation/',
     ]
 
     for url_ in confession_pages:

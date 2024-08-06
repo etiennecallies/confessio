@@ -1,8 +1,8 @@
 from abc import abstractmethod
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 from scraping.extract.tag_line import Tag, get_tags_with_regex
-from scraping.prune.models import Action
+from scraping.prune.models import Action, Source
 from scraping.prune.prune_lines import get_pruned_lines_indices
 from scraping.refine.refine_content import remove_link_from_html
 
@@ -13,21 +13,21 @@ from scraping.refine.refine_content import remove_link_from_html
 
 class BaseTagInterface:
     @abstractmethod
-    def get_action(self, line_without_link: str) -> Action:
+    def get_action(self, line_without_link: str) -> tuple[Action, Optional[Source]]:
         pass
 
 
 class DummyTagInterface(BaseTagInterface):
-    def get_action(self, line_without_link: str) -> Action:
-        return Action.SHOW
+    def get_action(self, line_without_link: str) -> tuple[Action, Optional[Source]]:
+        return Action.SHOW, None
 
 
 class KeyValueInterface(BaseTagInterface):
     def __init__(self, action_per_line_without_link: dict[str, Action]):
         self.action_per_line_without_link = action_per_line_without_link
 
-    def get_action(self, line_without_link: str) -> Action:
-        return self.action_per_line_without_link[line_without_link]
+    def get_action(self, line_without_link: str) -> tuple[Action, Optional[Source]]:
+        return self.action_per_line_without_link[line_without_link], None
 
 
 ######################
@@ -35,7 +35,7 @@ class KeyValueInterface(BaseTagInterface):
 ######################
 
 def split_and_tag(refined_content: str, tag_interface: BaseTagInterface
-                  ) -> List[Tuple[str, str, set[Tag], Action]]:
+                  ) -> List[Tuple[str, str, set[Tag], Action, Source]]:
     results = []
 
     # Split into lines (or <table>)
@@ -43,8 +43,8 @@ def split_and_tag(refined_content: str, tag_interface: BaseTagInterface
         line_without_link = remove_link_from_html(line)
 
         tags = get_tags_with_regex(line_without_link)
-        action = tag_interface.get_action(line_without_link)
-        results.append((line, line_without_link, tags, action))
+        action, source = tag_interface.get_action(line_without_link)
+        results.append((line, line_without_link, tags, action, source))
 
     return results
 
@@ -57,6 +57,6 @@ def extract_content(refined_content: str, tag_interface: BaseTagInterface
     if not confession_pieces:
         return [], []
 
-    lines, _lines_without_link, _tags, _action = zip(*confession_pieces)
+    lines, _lines_without_link, _tags, _action, _source = zip(*confession_pieces)
 
     return lines, indices
