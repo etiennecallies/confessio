@@ -157,7 +157,7 @@ def render_pruning_moderation(request, moderation: PruningModeration, next_url):
         lines_and_colors.append((line, color))
 
     return render(request, f'pages/moderate_pruning.html', {
-        'scraping_moderation': moderation,
+        'pruning_moderation': moderation,
         'pruning': moderation.pruning,
         'next_url': next_url,
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
