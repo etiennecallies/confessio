@@ -39,6 +39,12 @@ def reprune_affected_scrapings(sentences: list[Sentence], original_pruning: Prun
     affected_prunings = Pruning.objects.filter(query)\
         .exclude(uuid=original_pruning.uuid).all()
     for pruning in affected_prunings:
+        # delete pruning if it has no scraping
+        if not pruning.scrapings.exists():
+            print(f'deleting pruning {pruning} since it has no scraping any more')
+            pruning.delete()
+            continue
+
         print(f'repruning affected pruning {pruning}')
         prune_pruning(pruning)
 
