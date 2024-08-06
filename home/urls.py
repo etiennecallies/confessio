@@ -9,8 +9,8 @@ urlpatterns = [
     path('dioceses', views.dioceses_list, name='dioceses_list'),
     path('diocese/<str:diocese_slug>', views.index, name='diocese_view'),
 
-    # qualify
-    path('qualify/page/<uuid:page_uuid>', views.qualify_page, name='qualify_page'),
+    # edit
+    path('edit/pruning/<uuid:pruning_uuid>', views.edit_pruning, name='edit_pruning'),
 
     # moderation
     path('moderate/website/<category>/<str:is_bug>',

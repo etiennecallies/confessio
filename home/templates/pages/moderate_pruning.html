@@ -18,10 +18,10 @@
             <a class="btn btn-info" role="button" href="{{ next_url }}">Next</a>
         </div>
     </div>
+    <p><a class="btn btn-gray-500" href="{% url 'edit_pruning' pruning.uuid %}" target="_blank" role="button">
+        Edit pruning <i class="fas fa-up-right-from-square"></i>
+    </a></p>
     {% for scraping in pruning.scrapings.all %}
-        <p><a class="btn btn-gray-500" href="{% url 'qualify_page' scraping.page.uuid %}" target="_blank" role="button">
-            Qualify page <i class="fas fa-up-right-from-square"></i>
-        </a></p>
         <p>Scraping page: <a href="{{ scraping.page.url }}" target="_blank">{{ scraping.page.url }}</a></p>
     {% endfor %}
     {% for line, color in lines_and_colors %}

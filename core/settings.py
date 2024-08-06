@@ -197,7 +197,7 @@ DBBACKUP_CONNECTORS = {
 REQUEST_LOG_IP = False
 REQUEST_IGNORE_PATHS = (
     r'^admin/',
-    r'^qualify/',
+    r'^edit/',
     r'^moderate/',
 )
 REQUEST_IGNORE_USER_AGENTS = (

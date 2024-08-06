@@ -133,7 +133,7 @@
                                                                 </p>
                                                                 <p class="col-md-3">
                                                                     {% if request.user.is_authenticated and perms.home.change_sentence %}
-                                                                        <a href="{% url 'qualify_page' page.uuid %}" class="link-info"><i class="fas fa-tags"></i> {% trans 'QualifyPage' %}</a>
+                                                                        <a href="{% url 'edit_pruning' page.scraping.pruning.uuid %}" class="link-info"><i class="fas fa-tags"></i> {% trans 'EditPruning' %}</a>
                                                                     {% endif %}
                                                                 </p>
                                                             </div>
