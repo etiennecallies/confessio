@@ -13,6 +13,8 @@ class Command(AbstractCommand):
                             help='Two letters code of messesinfo network_id (diocese)')
         parser.add_argument('--allow-no-url', action="store_true",
                             help='do not ignore parishes without url')
+        parser.add_argument('--alert-on-new', action="store_true",
+                            help='triggers alert on new parishes and churches')
 
     def handle(self, *args, **options):
         messesinfo_network_id = options['messesinfo_network_id']
@@ -28,9 +30,11 @@ class Command(AbstractCommand):
         self.info(f'Successfully crawled {len(parishes)} parishes and {len(churches)} churches')
         self.info(f'Starting synchronization of parishes')
         sync_parishes(parishes, diocese, MessesinfoParishRetriever(),
-                      allow_no_url=options['allow_no_url'])
+                      allow_no_url=options['allow_no_url'],
+                      alert_on_new=options['alert_on_new'])
         self.success(f'Parish synchronization done!')
         self.info(f'Starting synchronization of churches')
         sync_churches(churches, diocese, MessesinfoChurchRetriever(),
-                      allow_no_url=options['allow_no_url'])
+                      allow_no_url=options['allow_no_url'],
+                      alert_on_new=options['alert_on_new'])
         self.success(f'Church synchronization done!')

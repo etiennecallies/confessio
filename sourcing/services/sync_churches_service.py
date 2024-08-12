@@ -183,7 +183,9 @@ def look_for_similar_churches(external_church: Church, diocese_churches: list[Ch
 def sync_churches(external_churches: list[Church],
                   diocese: Diocese,
                   church_retriever: ChurchRetriever,
-                  allow_no_url: bool = False):
+                  allow_no_url: bool = False,
+                  alert_on_new: bool = False,
+                  ):
     # get all churches in the diocese
     diocese_churches = Church.objects.filter(parish__diocese=diocese).all()
 
@@ -219,11 +221,12 @@ def sync_churches(external_churches: list[Church],
 
             save_church(external_church, church_retriever)
 
-            add_church_moderation_if_not_exists(ChurchModeration(
-                church=external_church,
-                category=ChurchModeration.Category.ADDED_CHURCH,
-                source=church_retriever.source,
-            ), church_retriever, similar_churches=similar_churches)
+            if alert_on_new:
+                add_church_moderation_if_not_exists(ChurchModeration(
+                    church=external_church,
+                    category=ChurchModeration.Category.ADDED_CHURCH,
+                    source=church_retriever.source,
+                ), church_retriever, similar_churches=similar_churches)
 
     print('looping through diocese churches')
     for church in diocese_churches:
