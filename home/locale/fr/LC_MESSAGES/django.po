@@ -144,7 +144,7 @@ msgstr "Pas de résultats..."
 #: templates/pages/index.html:52
 msgid "noResults"
 msgstr ""
-"Confessio est en lancement et n'opère que dans les diocèses de Lyon et du "
+"Confessio est en lancement et n'opère que dans les diocèses de Lyon, de Versailles et du "
 "Havre pour le moment."
 
 #: templates/pages/index.html:66
