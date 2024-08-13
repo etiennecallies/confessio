@@ -167,6 +167,10 @@ def clean_text(text: str):
 
 
 def contains_char_or_digits(text):
+    # If text contains character NUL, it's a good hint that this line is not proper text
+    if '\x00' in text:
+        return False
+
     char_or_digits = set(string.ascii_letters + string.digits)
     for t in remove_link_from_html(text):
         if t in char_or_digits:
