@@ -10,7 +10,7 @@ from django.db.models.functions import Now
 from django.urls import reverse
 from simple_history.models import HistoricalRecords
 
-from home.models.base_models import TimeStampMixin, Church, Parish
+from home.models.base_models import TimeStampMixin, Church, Parish, Sentence
 from sourcing.services.church_name_service import sort_by_name_similarity
 
 BUG_DESCRIPTION_MAX_LENGTH = 200
@@ -367,4 +367,29 @@ class PruningModeration(ModerationMixin):
     def delete_on_validate(self) -> bool:
         # we keep PruningModeration even if confession_html_pruned has changed
         # in order to keep track of which confession_html_pruned has been moderated
+        return False
+
+
+class SentenceModeration(ModerationMixin):
+    class Category(models.TextChoices):
+        ML_MISMATCH = "ml_mismatch"
+
+    resource = 'sentence'
+    validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
+                                     on_delete=models.SET_NULL, null=True)
+    marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
+                                         on_delete=models.SET_NULL, null=True)
+    history = HistoricalRecords()
+    sentence = models.ForeignKey('Sentence', on_delete=models.CASCADE, related_name='moderations')
+    action = models.CharField(max_length=4, choices=Sentence.Action)
+    category = models.CharField(max_length=12, choices=Category)
+
+    class Meta:
+        unique_together = ('sentence', 'category')
+
+    def delete_on_validate(self) -> bool:
+        if self.category == self.Category.ML_MISMATCH and self.sentence.action != self.action:
+            # We delete moderation if action has been changed
+            return True
+
         return False
