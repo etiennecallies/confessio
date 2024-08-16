@@ -38,6 +38,7 @@ def edit_pruning(request, pruning_uuid):
             action = action_per_line_without_link[line_without_link]
             if piece['do_show'] or action != Action.SHOW:
                 # We only save the SHOW lines that are shown, and all other lines
+                # TODO refacto: get the Sentence uuid and pass it in the POST
                 sentence = save_sentence(line_without_link, pruning, request.user,
                                          action)
                 if sentence is not None:

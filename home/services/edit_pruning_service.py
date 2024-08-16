@@ -67,34 +67,16 @@ def save_sentence(line_without_link: str, pruning: Pruning, user: User, action: 
     :return: Sentence if a new sentence was created or modified, None if nothing was done
     """
     db_action = action_to_db_action(action)
+    sentence = Sentence.objects.get(line=line_without_link)
+    if sentence.action != db_action \
+            or (sentence.source != Sentence.Source.HUMAN and action == Action.SHOW):
+        sentence.action = db_action
+        sentence.updated_by = user
+        sentence.pruning = pruning
+        sentence.source = Sentence.Source.HUMAN
 
-    try:
-        sentence = Sentence.objects.get(line=line_without_link)
-        if sentence.action != db_action \
-                or (sentence.source != Sentence.Source.HUMAN and action == Action.SHOW):
-            sentence.action = db_action
-            sentence.updated_by = user
-            sentence.pruning = pruning
-            sentence.source = Sentence.Source.HUMAN
-        else:
-            return None
-    except Sentence.DoesNotExist:
-        print(f"Sentence '{line_without_link}' not found in database. Creating it.")
-        # TODO this should never happen eventually
+        sentence.save()
 
-        transformer = get_transformer()
-        embedding = transformer.transform(line_without_link)
+        return sentence
 
-        sentence = Sentence(
-            line=line_without_link,
-            pruning=pruning,
-            updated_by=user,
-            action=db_action,
-            source=Sentence.Source.HUMAN,
-            transformer_name=transformer.get_name(),
-            embedding=embedding,
-        )
-
-    sentence.save()
-
-    return sentence
+    return None
