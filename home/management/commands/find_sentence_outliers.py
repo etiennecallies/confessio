@@ -27,7 +27,7 @@ class Command(AbstractCommand):
                 self.warning(f'Got {action} vs human label {human_action} '
                              f'on line "{sentence.line}"')
                 nb_sentence_outliers += 1
-                add_sentence_moderation(sentence)
+                add_sentence_moderation(sentence, other_action=action)
             else:
                 remove_sentence_not_validated_moderation(sentence)
 

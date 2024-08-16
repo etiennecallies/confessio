@@ -382,6 +382,7 @@ class SentenceModeration(ModerationMixin):
     history = HistoricalRecords()
     sentence = models.ForeignKey('Sentence', on_delete=models.CASCADE, related_name='moderations')
     action = models.CharField(max_length=4, choices=Sentence.Action)
+    other_action = models.CharField(max_length=4, choices=Sentence.Action)
     category = models.CharField(max_length=12, choices=Category)
 
     class Meta:

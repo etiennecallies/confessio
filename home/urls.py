@@ -29,6 +29,10 @@ urlpatterns = [
          views.moderate_pruning, name='moderate_next_pruning'),
     path('moderate/pruning/<category>/<str:is_bug>/<uuid:moderation_uuid>',
          views.moderate_pruning, name='moderate_one_pruning'),
+    path('moderate/sentence/<category>/<str:is_bug>',
+         views.moderate_sentence, name='moderate_next_sentence'),
+    path('moderate/sentence/<category>/<str:is_bug>/<uuid:moderation_uuid>',
+         views.moderate_sentence, name='moderate_one_sentence'),
     path('moderate/merge_websites/<uuid:website_moderation_uuid>',
          views.moderate_merge_websites, name='moderate_merge_websites'),
 

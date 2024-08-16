@@ -4,9 +4,11 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 
 from home.models import WebsiteModeration, ChurchModeration, ModerationMixin, \
-    BUG_DESCRIPTION_MAX_LENGTH, ParishModeration, ResourceDoesNotExist, PruningModeration
-from sourcing.services.merge_websites_service import merge_websites
+    BUG_DESCRIPTION_MAX_LENGTH, ParishModeration, ResourceDoesNotExist, PruningModeration, \
+    SentenceModeration
 from home.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
+from scraping.services.sentence_outliers_service import get_pruning_containing_sentence
+from sourcing.services.merge_websites_service import merge_websites
 
 
 def redirect_to_moderation(moderation: ModerationMixin, category: str, resource: str, is_bug: bool):
@@ -162,6 +164,27 @@ def render_pruning_moderation(request, moderation: PruningModeration, next_url):
         'next_url': next_url,
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
         'lines_and_colors': lines_and_colors,
+    })
+
+
+@login_required
+@permission_required("home.change_sentence")
+def moderate_sentence(request, category, is_bug, moderation_uuid=None):
+    return get_moderate_response(request, category, 'sentence', is_bug, SentenceModeration,
+                                 moderation_uuid, render_sentence_moderation)
+
+
+def render_sentence_moderation(request, moderation: SentenceModeration, next_url):
+    assert moderation.sentence is not None
+
+    prunings = get_pruning_containing_sentence(moderation.sentence)
+
+    return render(request, f'pages/moderate_sentence.html', {
+        'sentence_moderation': moderation,
+        'sentence': moderation.sentence,
+        'prunings': prunings,
+        'next_url': next_url,
+        'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
     })
 
 

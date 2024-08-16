@@ -4,7 +4,7 @@ from django.forms import ModelChoiceField
 from leaflet.admin import LeafletGeoAdmin
 from simple_history.admin import SimpleHistoryAdmin
 
-from .models import Church, Website, Page, Diocese, Parish, Classifier
+from .models import Church, Website, Page, Diocese, Parish, Classifier, Sentence
 
 
 @admin.register(Diocese)
@@ -89,3 +89,8 @@ class ClassifierAdmin(ModelAdmin):
     list_display = ["uuid", "status", "created_at", "accuracy", 'transformer_name']
     ordering = ["-created_at"]
     fields = ['status']
+
+@admin.register(Sentence)
+class SentenceAdmin(ModelAdmin):
+    list_display = ["line", "action"]
+    fields = ["line", 'action']

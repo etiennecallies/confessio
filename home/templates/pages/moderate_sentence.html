@@ -1,0 +1,60 @@
+{% extends 'layouts/single_card.html' %}
+
+{% block card %}
+    <h2 class="mb-3">
+        Sentence: {{ sentence_moderation.get_category_display }}
+    </h2>
+    {% if sentence_moderation.bug_description %}
+        <p>Bug description : {{ sentence_moderation.bug_description }}</p>
+    {% endif %}
+    <div>
+        <div class="d-inline-block">
+            <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Validate & next</button>
+            </form>
+        </div>
+        <div class="d-inline-block">
+            <a class="btn btn-info" role="button" href="{{ next_url }}">Next</a>
+        </div>
+    </div>
+    <p>
+        <a class="btn btn-tertiary" href="{% url 'admin:home_sentence_change' sentence.uuid %}" target="_blank" role="button">
+            Open sentence admin <i class="fas fa-up-right-from-square"></i>
+        </a>
+    </p>
+
+    Line : {{ sentence.line }}<br>
+    Action : {{ sentence.action }}<br>
+
+    {% if sentence_moderation.other_action and sentence_moderation.other_action != sentence.action %}
+        Other action : {{ sentence_moderation.other_action }}<br>
+    {% endif %}
+
+    {% for pruning in prunings %}
+        <p><a class="btn btn-gray-500" href="{% url 'edit_pruning' pruning.uuid %}" target="_blank" role="button">
+        Edit pruning <i class="fas fa-up-right-from-square"></i>
+        </a></p>
+    {% endfor %}
+
+    {% if not sentence_moderation.marked_as_bug_at %}
+        <div>
+            <form method="post">
+                <label>
+                    <input type="text" name="bug_description" maxlength="{{ bug_description_max_length }}">
+                </label>
+                {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Report bug & next</button>
+            </form>
+        </div>
+    {% endif %}
+    <div>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="delete_moderation" />
+            <button type="submit" class="btn btn-gray-700">
+                 <i class="fas fa-xmark"></i>
+                Delete moderation</button>
+        </form>
+    </div>
+{% endblock card %}

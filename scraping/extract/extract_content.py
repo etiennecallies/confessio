@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import List, Tuple, Optional
+from typing import Tuple, Optional
 
 from scraping.extract.tag_line import Tag, get_tags_with_regex
 from scraping.prune.models import Action, Source
@@ -35,7 +35,7 @@ class KeyValueInterface(BaseTagInterface):
 ######################
 
 def split_and_tag(refined_content: str, tag_interface: BaseTagInterface
-                  ) -> List[Tuple[str, str, set[Tag], Action, Source]]:
+                  ) -> list[Tuple[str, str, set[Tag], Action, Source]]:
     results = []
 
     # Split into lines (or <table>)
@@ -45,6 +45,13 @@ def split_and_tag(refined_content: str, tag_interface: BaseTagInterface
         tags = get_tags_with_regex(line_without_link)
         action, source = tag_interface.get_action(line_without_link)
         results.append((line, line_without_link, tags, action, source))
+
+    return results
+
+def get_lines_without_link(refined_content: str) -> list[str]:
+    results = []
+    for line in refined_content.split('<br>\n'):
+        results.append(remove_link_from_html(line))
 
     return results
 
