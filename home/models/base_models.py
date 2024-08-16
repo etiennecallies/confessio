@@ -125,6 +125,12 @@ class Page(TimeStampMixin):
             and self.get_latest_scraping().pruning is not None\
             and self.get_latest_scraping().pruning.pruned_html is not None
 
+    def get_latest_pruning(self) -> Optional['Pruning']:
+        if self.get_latest_scraping() is None:
+            return None
+
+        return self.get_latest_scraping().pruning
+
 
 class Crawling(TimeStampMixin):
     error_detail = models.TextField(null=True)
@@ -150,6 +156,7 @@ class Pruning(TimeStampMixin):
     extracted_html_hash = models.CharField(max_length=32, unique=True, editable=False)
     pruned_indices = ArrayField(models.PositiveSmallIntegerField(), null=True)
     pruned_html = models.TextField(null=True)
+    history = HistoricalRecords()
 
     def save(self, *args, **kwargs):
         self.extracted_html_hash = hash_string_to_hex(self.extracted_html)

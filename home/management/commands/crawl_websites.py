@@ -1,6 +1,7 @@
 from home.management.abstract_command import AbstractCommand
 from home.models import Website, WebsiteModeration, Page
 from scraping.services.crawl_website_service import crawl_website
+from scraping.services.page_service import delete_page
 
 
 class Command(AbstractCommand):
@@ -15,7 +16,7 @@ class Command(AbstractCommand):
         self.info(f'Starting removing pages of inactive websites')
         delete_count = 0
         for page in Page.objects.filter(website__is_active=False):
-            page.delete()
+            delete_page(page)
             delete_count += 1
         self.success(f'Successfully deleted {delete_count} pages')
 

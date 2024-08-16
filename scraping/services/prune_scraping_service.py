@@ -8,6 +8,7 @@ from scraping.extract.extract_content import BaseTagInterface
 from scraping.extract.extract_content import extract_content
 from scraping.prune.models import Action, Source
 from scraping.services.classify_sentence_service import classify_sentence
+from scraping.services.page_service import remove_pruning_if_orphan
 from scraping.services.sentence_action_service import get_sentence_action, get_sentence_source
 
 
@@ -39,10 +40,8 @@ def reprune_affected_scrapings(sentences: list[Sentence], original_pruning: Prun
     affected_prunings = Pruning.objects.filter(query)\
         .exclude(uuid=original_pruning.uuid).all()
     for pruning in affected_prunings:
-        # delete pruning if it has no scraping
-        if not pruning.scrapings.exists():
-            print(f'deleting pruning {pruning} since it has no scraping any more')
-            pruning.delete()
+        if remove_pruning_if_orphan(pruning):
+            # pruning has been deleted, we do not need to reprune it
             continue
 
         print(f'repruning affected pruning {pruning}')

@@ -1,6 +1,7 @@
 from typing import Tuple, Optional
 
 from home.models import Website, Crawling, Page, WebsiteModeration
+from scraping.services.page_service import delete_page
 from scraping.services.scrape_page_service import upsert_scraping
 from scraping.crawl.download_and_search_urls import search_for_confession_pages
 from scraping.download.download_content import get_url_aliases
@@ -92,7 +93,7 @@ def crawl_website(website: Website) -> Tuple[bool, bool, Optional[str]]:
     for page in existing_pages:
         if page.url not in confession_parts_by_url:
             # Page did exist but not anymore, we remove it
-            page.delete()
+            delete_page(page)
         else:
             # Page still exists, we update scraping
             confession_part = confession_parts_by_url[page.url]
