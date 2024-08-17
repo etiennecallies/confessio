@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'request',  # statistics
     'dbbackup',  # nightly backups
     'simple_history',  # object versioning
+    'captcha',  # captcha
     'theme_pixel',
     "home",
 ]

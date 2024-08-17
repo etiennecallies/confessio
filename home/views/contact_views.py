@@ -3,11 +3,20 @@ import os
 from django.core.mail import send_mail, BadHeaderError
 from django.shortcuts import render, redirect
 
+from home.forms.captcha_form import CaptchaForm
+
 
 def contact(request, message=None):
     if request.method == "GET":
-        return render(request, 'pages/contact.html', {'message': message})
+        form = CaptchaForm()
+        return render(request, 'pages/contact.html',
+                      {'message': message, 'form': form})
     else:
+        form = CaptchaForm(request.POST)
+        if not form.is_valid():
+            print(form.errors)
+            return redirect("contact_with_message", message='failure')
+
         name = request.POST.get('name')
         from_email = request.POST.get('email')
         message = request.POST.get('message')
