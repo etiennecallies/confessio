@@ -22,7 +22,7 @@ def train_classifier(sentence_dataset: list[Sentence]) -> Classifier:
     actions = [get_sentence_action(sentence) for sentence in sentence_dataset]
 
     # Split dataset
-    test_size = 200
+    test_size = 400
     embeddings_train, embeddings_test, \
         actions_train, actions_test, \
         = train_test_split(embeddings, actions, test_size=test_size,
