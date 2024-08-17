@@ -6,6 +6,7 @@ from django.urls import reverse
 from home.models import WebsiteModeration, ChurchModeration, ModerationMixin, \
     BUG_DESCRIPTION_MAX_LENGTH, ParishModeration, ResourceDoesNotExist, PruningModeration, \
     SentenceModeration
+from home.services.edit_pruning_service import set_pruning_human_source
 from home.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 from scraping.services.sentence_outliers_service import get_pruning_containing_sentence
 from sourcing.services.merge_websites_service import merge_websites
@@ -85,6 +86,10 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
                 except ResourceDoesNotExist:
                     return HttpResponseNotFound(
                         f"resource {resource} not found with uuid {similar_uuid}")
+
+            if class_moderation == PruningModeration:
+                # set pruning sentence source to human
+                set_pruning_human_source(moderation.pruning, request.user)
 
             moderation.validate(request.user)
 

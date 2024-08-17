@@ -7,7 +7,7 @@ from scraping.extract.extract_content import split_and_tag, BaseTagInterface
 from scraping.extract.tag_line import Tag
 from scraping.prune.models import Action, Source
 from scraping.prune.prune_lines import get_pruned_lines_indices
-from scraping.prune.transform_sentence import get_transformer
+from scraping.services.prune_scraping_service import SentenceFromDbTagInterface
 from scraping.services.sentence_action_service import action_to_db_action
 
 
@@ -80,3 +80,29 @@ def save_sentence(line_without_link: str, pruning: Pruning, user: User, action: 
         return sentence
 
     return None
+
+
+####################
+# SET HUMAN SOURCE #
+####################
+
+def set_pruning_human_source(pruning: Pruning, user: User):
+    colored_pieces = get_colored_pieces(pruning.extracted_html,
+                                        SentenceFromDbTagInterface(pruning))
+
+    for piece in colored_pieces:
+        line_without_link = piece['text_without_link']
+        if piece['do_show']:
+            set_sentence_human_source(line_without_link, pruning, user)
+
+
+def set_sentence_human_source(line_without_link: str, pruning: Pruning, user: User):
+    sentence = Sentence.objects.get(line=line_without_link)
+    assert sentence.action == Sentence.Action.SHOW
+
+    if sentence.source != Sentence.Source.HUMAN:
+        sentence.updated_by = user
+        sentence.pruning = pruning
+        sentence.source = Sentence.Source.HUMAN
+
+        sentence.save()
