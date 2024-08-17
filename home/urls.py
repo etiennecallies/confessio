@@ -38,5 +38,6 @@ urlpatterns = [
 
     # contact
     path('contact', views.contact, name='contact'),
-    path('contact/<message>', views.contact, name='contact_with_message'),
+    path('contact/<message>', views.contact, name='contact_success'),
+    path('contact/<message>/<name>/<email>/<message_text>', views.contact, name='contact_failure'),
 ]
