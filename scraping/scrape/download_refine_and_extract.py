@@ -30,7 +30,8 @@ if __name__ == '__main__':
         # 'https://www.paroissesainteclaire.com/evenements.html',
         # 'https://www.espace-saint-ignace.fr/?page_id=1252',
         # 'https://www.paroisse-st-martin-largentiere.fr',
-        'https://paroissesaintalexandre.fr/etapes-de-la-vie/pardon-reconciliation/',
+        # 'https://paroissesaintalexandre.fr/etapes-de-la-vie/pardon-reconciliation/',
+        'https://paroisserambouillet.fr/+-Sacrement-+',
     ]
 
     for url_ in confession_pages:
