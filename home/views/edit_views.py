@@ -3,7 +3,8 @@ from django.http import HttpResponseNotFound
 from django.shortcuts import render
 
 from home.models import Page, Pruning
-from home.services.edit_pruning_service import get_colored_pieces, save_sentence
+from home.services.edit_pruning_service import get_colored_pieces, save_sentence, \
+    reset_pages_counter_of_pruning
 from scraping.extract.extract_content import KeyValueInterface, DummyTagInterface
 from scraping.prune.models import Action
 from scraping.services.prune_scraping_service import SentenceFromDbTagInterface, \
@@ -43,6 +44,10 @@ def edit_pruning(request, pruning_uuid):
                                          action)
                 if sentence is not None:
                     modified_sentences.append(sentence)
+
+        if modified_sentences:
+            # reset page counter
+            reset_pages_counter_of_pruning(pruning)
 
         prune_pruning(pruning)
         reprune_affected_scrapings(modified_sentences, pruning)

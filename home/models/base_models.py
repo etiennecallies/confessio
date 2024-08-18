@@ -99,6 +99,9 @@ class Church(TimeStampMixin):
 class Page(TimeStampMixin):
     url = models.URLField(unique=False)
     website = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='pages')
+    validation_counter = models.SmallIntegerField(default=0)
+    last_validated_at = models.DateTimeField(null=True)
+    history = HistoricalRecords()
 
     _latest_scraping = None
     _has_search_latest_scraping = False
@@ -121,9 +124,8 @@ class Page(TimeStampMixin):
             and self.get_latest_scraping().has_been_pruned()
 
     def has_confessions(self) -> bool:
-        return self.get_latest_scraping() is not None\
-            and self.get_latest_scraping().pruning is not None\
-            and self.get_latest_scraping().pruning.pruned_html is not None
+        return self.get_latest_pruning() is not None\
+            and self.get_latest_pruning().pruned_html is not None
 
     def get_latest_pruning(self) -> Optional['Pruning']:
         if self.get_latest_scraping() is None:
@@ -182,6 +184,7 @@ class Sentence(TimeStampMixin):
                                    related_name='sentences', null=True)
     transformer_name = models.CharField(max_length=100)
     embedding = VectorField(dimensions=768)
+    history = HistoricalRecords()
 
 
 class Classifier(TimeStampMixin):
@@ -193,3 +196,4 @@ class Classifier(TimeStampMixin):
     status = models.CharField(max_length=5, choices=Status)
     pickle = models.CharField()
     accuracy = models.FloatField()
+    history = HistoricalRecords()

@@ -1,6 +1,8 @@
+from datetime import timedelta
 from typing import Optional
 
 from django.db.models import Q
+from django.db.models.functions import Now
 
 from home.models import Scraping, Pruning, PruningModeration
 from home.models import Sentence
@@ -59,8 +61,22 @@ def get_current_moderation(pruning: Pruning,
     except PruningModeration.DoesNotExist:
         return None
 
+def pruning_needs_moderation(pruning: Pruning):
+    for scraping in pruning.scrapings.all():
+        page = scraping.page
+        # if page has been validated less than three times or more than one year ago
+        if (page.validation_counter < 3
+                or page.last_validated_at is None
+                or page.last_validated_at < (Now() - timedelta(days=365))):
+            return True
+
+    return False
+
 
 def add_new_moderation(pruning: Pruning, category):
+    if not pruning_needs_moderation(pruning):
+        return
+
     moderation = PruningModeration(
         pruning=pruning,
         category=category,
@@ -131,6 +147,10 @@ def prune_scraping_and_save(scraping: Scraping):
         )
         pruning.save()
 
+    if scraping.pruning != pruning:
+        former_pruning = scraping.pruning
+        scraping.pruning = pruning
+        scraping.save()
+        remove_pruning_if_orphan(former_pruning)
+
     prune_pruning(pruning)
-    scraping.pruning = pruning
-    scraping.save()

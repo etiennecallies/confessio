@@ -1,6 +1,7 @@
 from typing import Optional
 
 from django.contrib.auth.models import User
+from django.db.models.functions import Now
 
 from home.models import Sentence, Pruning
 from scraping.extract.extract_content import split_and_tag, BaseTagInterface
@@ -106,3 +107,22 @@ def set_sentence_human_source(line_without_link: str, pruning: Pruning, user: Us
         sentence.source = Sentence.Source.HUMAN
 
         sentence.save()
+
+
+######################
+# VALIDATION COUNTER #
+######################
+
+def reset_pages_counter_of_pruning(pruning: Pruning):
+    for scraping in pruning.scrapings.all():
+        page = scraping.page
+        page.validation_counter = -1
+        page.save()
+
+
+def increment_page_validation_counter_of_pruning(pruning: Pruning):
+    for scraping in pruning.scrapings.all():
+        page = scraping.page
+        page.validation_counter += 1
+        page.last_validated_at = Now()
+        page.save()
