@@ -3,7 +3,8 @@ from typing import Optional
 
 from home.models import Parish, Diocese, Church, ExternalSource, \
     ChurchModeration
-from sourcing.services.chuch_location_service import compute_church_coordinates
+from sourcing.services.chuch_location_service import compute_church_coordinates, \
+    get_church_with_same_location
 from sourcing.services.church_name_service import sort_by_name_similarity
 from sourcing.utils.geo_utils import get_geo_distance
 
@@ -203,17 +204,15 @@ def sync_churches(external_churches: list[Church],
             if external_church.location is not None:
                 church_with_same_location = get_church_with_same_location(external_church)
                 if church_with_same_location:
-                    add_church_moderation_if_not_exists(ChurchModeration(
-                        church=church_with_same_location,
-                        category=ChurchModeration.Category.LOCATION_CONFLICT,
-                        source=church_retriever.source,
-                        name=external_church.name,
-                        address=external_church.address,
-                        zipcode=external_church.zipcode,
-                        city=external_church.city,
-                        messesinfo_id=external_church.messesinfo_id,
-                    ), church_retriever)
-                    continue
+                    # First we re-compute the coordinates of the existing church
+                    compute_church_coordinates(church_with_same_location, church_retriever.source)
+
+                    # Then we re-compute the coordinates of the draft church
+                    new_church = compute_church_coordinates(external_church, church_retriever.source)
+                    if not new_church:
+                        # If church could not have been saved, we stop here
+                        continue
+
 
             # Church does not exist, finding similar churches or create it
             similar_churches = look_for_similar_churches(external_church, diocese_churches,
@@ -259,9 +258,3 @@ def save_church(church: Church, church_retriever: ChurchRetriever):
     if not church.location.x or not church.location.y:
         compute_church_coordinates(church, church_retriever.source)
 
-
-def get_church_with_same_location(church: Church) -> Optional[Church]:
-    try:
-        return Church.objects.get(location=church.location)
-    except Church.DoesNotExist:
-        return None
