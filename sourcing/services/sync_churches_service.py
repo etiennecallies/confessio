@@ -113,21 +113,27 @@ def add_church_moderation_if_not_exists(church_moderation: ChurchModeration,
 
 def update_church(church: Church, external_church: Church, church_retriever: ChurchRetriever):
     # Check name
-    if church.name != external_church.name:
+    if (church.name != external_church.name
+            and all(c.name != external_church.name for c in church.history.all())):
         add_church_moderation_if_not_exists(ChurchModeration(
             church=church, category=ChurchModeration.Category.NAME_DIFFERS,
             source=church_retriever.source, name=external_church.name), church_retriever)
 
     # Check parish
-    if not church_retriever.is_same_parish(church.parish, external_church.parish):
+    if (not church_retriever.is_same_parish(church.parish, external_church.parish)
+            and all(not church_retriever.is_same_parish(c.parish, external_church.parish)
+               for c in church.history.all())):
         external_parish = save_parish(external_church.parish, church_retriever)
         add_church_moderation_if_not_exists(ChurchModeration(
             church=church, category=ChurchModeration.Category.PARISH_DIFFERS,
             source=church_retriever.source, parish=external_parish), church_retriever)
 
     # Location
-    if church.location != external_church.location or church.address != external_church.address \
-            or church.zipcode != external_church.zipcode or church.city != external_church.city:
+    if ((church.location != external_church.location or church.address != external_church.address
+         or church.zipcode != external_church.zipcode or church.city != external_church.city)
+            and all(c.location != external_church.location or c.address != external_church.address
+                    or c.zipcode != external_church.zipcode or c.city != external_church.city
+                    for c in church.history.all())):
         add_church_moderation_if_not_exists(ChurchModeration(
             church=church, category=ChurchModeration.Category.LOCATION_DIFFERS,
             source=church_retriever.source, location=external_church.location,

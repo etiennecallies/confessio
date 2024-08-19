@@ -90,7 +90,8 @@ def update_parish(parish: Parish,
                   external_parish: Parish,
                   parish_retriever: ParishRetriever):
     # Check name
-    if parish.name != external_parish.name:
+    if (parish.name != external_parish.name and
+            all(p.name != external_parish.name for p in parish.history.all())):
         add_parish_moderation_if_not_exists(ParishModeration(
             parish=parish, category=ParishModeration.Category.NAME_DIFFERS,
             source=parish_retriever.source, name=external_parish.name), parish_retriever)
