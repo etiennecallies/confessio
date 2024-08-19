@@ -27,7 +27,7 @@ class KeyValueInterface(BaseTagInterface):
         self.action_per_line_without_link = action_per_line_without_link
 
     def get_action(self, line_without_link: str) -> tuple[Action, Optional[Source]]:
-        return self.action_per_line_without_link[line_without_link], None
+        return self.action_per_line_without_link[line_without_link], Source.HUMAN
 
 
 ######################
