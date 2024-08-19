@@ -14,6 +14,7 @@ class MyTestCase(unittest.TestCase):
             'mock1',
             'mock2',
             'maisons-laffitte',
+            'maisons-laffitte2',
             'ste-jeanne-darc',
             'st-jacques-du-haut-pas',
             'st-bruno-des-chartreux',
@@ -32,6 +33,7 @@ class MyTestCase(unittest.TestCase):
             'smdv',
             'st-alexandre',
             'rambouillet',
+            'voisins',
         ]
 
     def test_extract(self):

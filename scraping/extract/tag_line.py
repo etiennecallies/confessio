@@ -22,6 +22,8 @@ SCHEDULES_MENTIONS = [
     'heures',
     'apres',
     'avant',
+    'rdv',
+    'rv',
 ]
 
 SCHEDULES_REGEX = [
