@@ -82,7 +82,8 @@ def get_pruned_lines_indices(lines_and_tags: list[Tuple[str, str, set[Tag], Acti
                 post_buffer.add_line(i, tags, results)
             elif pre_buffer is not None:
                 pre_buffer.decrement()
-        elif (Tag.DATE in tags or Tag.PERIOD in tags) and action == Action.SHOW:
+        elif (Tag.DATE in tags or Tag.PERIOD in tags or source is not None) \
+                and action == Action.SHOW:
             if post_buffer is None:
                 if pre_buffer is None:
                     pre_buffer = PreBuffer()
