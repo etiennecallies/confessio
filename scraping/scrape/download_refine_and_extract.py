@@ -31,7 +31,8 @@ if __name__ == '__main__':
         # 'https://www.espace-saint-ignace.fr/?page_id=1252',
         # 'https://www.paroisse-st-martin-largentiere.fr',
         # 'https://paroissesaintalexandre.fr/etapes-de-la-vie/pardon-reconciliation/',
-        'https://paroisserambouillet.fr/+-Sacrement-+',
+        # 'https://paroisserambouillet.fr/+-Sacrement-+',
+        'https://www.paroissedevaise.fr/se-confesser/',
     ]
 
     for url_ in confession_pages:

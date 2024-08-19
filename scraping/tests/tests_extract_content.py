@@ -27,6 +27,7 @@ class MyTestCase(unittest.TestCase):
             'fourviere',
             'cdde',
             'vaise',
+            'vaise2',
             'ferreol',
             'smdv',
             'st-alexandre',

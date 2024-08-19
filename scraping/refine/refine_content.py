@@ -96,7 +96,7 @@ def clear_link_formatting(element: BeautifulSoup):
             del element.attrs[attr]
 
     # keeping only text as html
-    element.string = element.getText()
+    element.string = ' '.join(element.stripped_strings)
 
 
 def clear_table_formatting(element: BeautifulSoup):
