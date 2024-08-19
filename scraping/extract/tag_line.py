@@ -22,8 +22,13 @@ SCHEDULES_MENTIONS = [
     'heures',
     'apres',
     'avant',
+    'pendant',
     'rdv',
     'rv',
+    'supprime',
+    'supprimes',
+    'supprimee',
+    'supprimees',
 ]
 
 SCHEDULES_REGEX = [
@@ -100,6 +105,7 @@ PERIOD_MENTIONS = [
     'vacances',
     'scolaire',
     'scolaires',
+    'ete',
 ]
 
 

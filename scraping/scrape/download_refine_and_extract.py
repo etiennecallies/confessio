@@ -32,7 +32,7 @@ if __name__ == '__main__':
         # 'https://www.paroisse-st-martin-largentiere.fr',
         # 'https://paroissesaintalexandre.fr/etapes-de-la-vie/pardon-reconciliation/',
         # 'https://paroisserambouillet.fr/+-Sacrement-+',
-        'https://www.paroissedevaise.fr/se-confesser/',
+        # 'https://www.paroissedevaise.fr/se-confesser/',
     ]
 
     for url_ in confession_pages:

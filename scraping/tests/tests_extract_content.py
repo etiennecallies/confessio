@@ -34,6 +34,8 @@ class MyTestCase(unittest.TestCase):
             'st-alexandre',
             'rambouillet',
             'voisins',
+            'houilles',
+            'caluire',
         ]
 
     def test_extract(self):
