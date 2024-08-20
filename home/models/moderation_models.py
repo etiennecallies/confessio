@@ -110,6 +110,7 @@ class WebsiteModeration(ModerationMixin):
         HOME_URL_NO_RESPONSE = "hu_no_resp"
         HOME_URL_NO_CONFESSION = "hu_no_conf"
         HOME_URL_CONFLICT = "hu_conflict"
+        HOME_URL_TOO_LONG = "hu_too_long"
 
     resource = 'website'
     validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',

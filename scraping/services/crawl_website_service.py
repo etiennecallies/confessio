@@ -30,6 +30,26 @@ def add_moderation(website: Website, category: WebsiteModeration.Category,
         moderation.save()
 
 
+def update_home_url(website: Website, new_home_url: str):
+    if len(new_home_url) > 200:
+        add_moderation(website, WebsiteModeration.Category.HOME_URL_TOO_LONG)
+        return
+
+    # Check that there is not already a Website with this home_url
+    try:
+        website_with_url = Website.objects.get(home_url=new_home_url)
+        print(f'conflict between website {website.name} ({website.uuid}) '
+              f'and {website_with_url.name} ({website_with_url.uuid}) '
+              f'about url {new_home_url} Adding moderation.')
+        add_moderation(website, WebsiteModeration.Category.HOME_URL_CONFLICT, website_with_url)
+    except Website.DoesNotExist:
+        print(f'replacing home_url from {website.home_url} to {new_home_url} '
+              f'for website {website.name}')
+        website.home_url = new_home_url
+        website.save()
+        remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_CONFLICT)
+
+
 def do_crawl_website(website: Website) -> tuple[dict[str, str], int, Optional[str]]:
     # Get home_url aliases
     home_url_aliases, error_message = get_url_aliases(website.home_url)
@@ -40,19 +60,7 @@ def do_crawl_website(website: Website) -> tuple[dict[str, str], int, Optional[st
 
     # Update home_url if needed
     if website.home_url != new_home_url:
-        # Check that there is not already a Website with this home_url
-        try:
-            website_with_url = Website.objects.get(home_url=new_home_url)
-            print(f'conflict between website {website.name} ({website.uuid}) '
-                  f'and {website_with_url.name} ({website_with_url.uuid}) '
-                  f'about url {new_home_url} Adding moderation.')
-            add_moderation(website, WebsiteModeration.Category.HOME_URL_CONFLICT, website_with_url)
-        except Website.DoesNotExist:
-            print(f'replacing home_url from {website.home_url} to {new_home_url} '
-                  f'for website {website.name}')
-            website.home_url = new_home_url
-            website.save()
-            remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_CONFLICT)
+        update_home_url(website, new_home_url)
 
     aliases_domains = set([alias[1] for alias in home_url_aliases])
 
