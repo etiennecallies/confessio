@@ -15,7 +15,34 @@ def get_headers():
     }
 
 
+def get_content_length(url):
+    print(f'getting content length from url {url}')
+
+    headers = get_headers()
+    try:
+        r = requests.head(url, headers=headers, timeout=TIMEOUT, stream=True)
+    except RequestException as e:
+        print(e)
+        return None
+
+    content_length = r.headers.get('Content-Length')
+    if not content_length:
+        return 0
+
+    return int(content_length)
+
+
 def get_content_from_url(url):
+    if url.endswith('.pdf'):
+        content_length = get_content_length(url)
+        if content_length is None:
+            print(f'could not get content length from url {url}')
+            return None
+
+        if content_length > 10_000_000:
+            print(f'content length is {content_length}, too large (>10MB)')
+            return None
+
     print(f'getting content from url {url}')
 
     headers = get_headers()
