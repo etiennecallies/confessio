@@ -1,7 +1,8 @@
+import json
 from typing import Optional
 
-from scraping.download.download_content import get_content_from_url
 from scraping.crawl.extract_links import parse_content_links, remove_http_https_duplicate
+from scraping.download.download_content import get_content_from_url
 from scraping.scrape.download_refine_and_extract import extract_confession_part_from_content
 from scraping.utils.ram_utils import print_memory_usage
 
@@ -53,5 +54,6 @@ if __name__ == '__main__':
     # home_url = 'https://paroissesaintbruno.pagesperso-orange.fr/'
     # home_url_ = 'https://paroissecroixrousse.fr/'
     # home_url_ = 'https://www.espace-saint-ignace.fr/'
-    home_url_ = 'https://www.paroisse-st-martin-largentiere.fr'
-    print(search_for_confession_pages(home_url_))
+    # home_url_ = 'https://www.paroisse-st-martin-largentiere.fr'
+    home_url_ = 'https://saintetrinite78.fr'
+    print(json.dumps(search_for_confession_pages(home_url_, set('saintetrinite78.fr'), set())))

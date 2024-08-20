@@ -229,7 +229,13 @@ def refine_confession_content(content_html):
         return None
 
     print_memory_usage('before BeautifulSoup')
-    soup = BeautifulSoup(content_html, 'html.parser')
+
+    try:
+        soup = BeautifulSoup(content_html, 'html.parser')
+    except Exception as e:
+        print(e)
+        return None
+
     print_memory_usage('after BeautifulSoup')
     soup = remove_img(soup)
     print_memory_usage('after remove_img')

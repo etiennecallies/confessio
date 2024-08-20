@@ -36,6 +36,7 @@ if __name__ == '__main__':
         # 'https://paroissesaintalexandre.fr/etapes-de-la-vie/pardon-reconciliation/',
         # 'https://paroisserambouillet.fr/+-Sacrement-+',
         # 'https://www.paroissedevaise.fr/se-confesser/',
+        'https://paroisse-sceaux.fr/wp-content/uploads/2023/12/priere-universelle-2eme-dimanche-de-lAvent.pdf',
     ]
 
     for url_ in confession_pages:
