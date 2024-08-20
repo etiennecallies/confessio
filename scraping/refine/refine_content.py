@@ -233,6 +233,7 @@ def refine_confession_content(content_html):
     try:
         soup = BeautifulSoup(content_html, 'html.parser')
     except Exception as e:
+        # TODO mieux gérer les pdf en regardant le content-type
         print(e)
         return None
 

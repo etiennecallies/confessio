@@ -18,22 +18,34 @@ We use S3 to backup postgresql daily and weekly.
 Create two S3 buckets and an IAM user ([tutorial](https://kinsta.com/knowledgebase/amazon-s3-backups/)).
 For security reasons, we don't want the IAM user to be able to delete backups.
 
-Here is a policy (a little bit too permissive on resources though):
+Here is the policy:
 ```json
 {
     "Version": "2012-10-17",
     "Statement": [
         {
-            "Sid": "VisualEditor0",
+            "Sid": "atbucket",
             "Effect": "Allow",
             "Action": [
                 "s3:PutObject",
                 "s3:GetObjectAcl",
                 "s3:GetObject",
-                "s3:ListAllMyBuckets",
                 "s3:ListBucket",
                 "s3:GetBucketAcl",
                 "s3:PutObjectAcl"
+            ],
+            "Resource": [
+                "arn:aws:s3:::confessio-dbbackup-daily",
+                "arn:aws:s3:::confessio-dbbackup-daily/*",
+                "arn:aws:s3:::confessio-dbbackup-weekly",
+                "arn:aws:s3:::confessio-dbbackup-weekly/*"
+            ]
+        },
+        {
+            "Sid": "overall",
+            "Effect": "Allow",
+            "Action": [
+                "s3:ListAllMyBuckets"
             ],
             "Resource": "*"
         }
