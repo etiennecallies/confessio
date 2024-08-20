@@ -6,6 +6,7 @@ from typing import Optional
 from bs4 import BeautifulSoup, NavigableString, Comment, ProcessingInstruction, \
     MarkupResemblesLocatorWarning
 
+from scraping.utils.ram_utils import print_memory_usage
 from scraping.utils.string_utils import is_below_byte_limit
 
 
@@ -227,11 +228,19 @@ def refine_confession_content(content_html):
     if content_html is None:
         return None
 
+    print_memory_usage('before BeautifulSoup')
     soup = BeautifulSoup(content_html, 'html.parser')
+    print_memory_usage('after BeautifulSoup')
     soup = remove_img(soup)
+    print_memory_usage('after remove_img')
     soup = remove_script(soup)
+    print_memory_usage('after remove_script')
 
     text = build_text(soup)
+    print('text len', len(text))
+    print_memory_usage('after build_text')
     text = clean_paragraph(text)
+    print('text len after clean', len(text))
+    print_memory_usage('after clean_paragraph')
 
     return text

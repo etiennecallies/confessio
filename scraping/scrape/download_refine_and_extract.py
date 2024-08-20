@@ -1,12 +1,15 @@
 from scraping.download.download_content import get_content_from_url
 from scraping.refine.refine_content import refine_confession_content
 from scraping.extract.extract_content import extract_content, DummyTagInterface
+from scraping.utils.ram_utils import print_memory_usage
 
 
 def extract_confession_part_from_content(html_content):
     refined_content = refine_confession_content(html_content)
     if refined_content is None:
         return None
+
+    print_memory_usage('after refine_confession_content')
 
     paragraphs, indices_ = extract_content(refined_content, DummyTagInterface())
     if not paragraphs:
