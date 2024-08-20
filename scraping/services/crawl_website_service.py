@@ -116,9 +116,14 @@ def crawl_website(website: Website) -> Tuple[bool, bool, Optional[str]]:
                 upsert_scraping(new_page, confession_part)
 
         remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_NO_RESPONSE)
-        remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_NO_CONFESSION)
 
-        return True, True, None
+        if website.one_page_has_confessions():
+            remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_NO_CONFESSION)
+            return True, True, None
+
+        add_moderation(website, WebsiteModeration.Category.HOME_URL_NO_CONFESSION)
+        return False, True, None
+
     elif nb_visited_links > 0:
         remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_NO_RESPONSE)
         add_moderation(website, WebsiteModeration.Category.HOME_URL_NO_CONFESSION)
