@@ -1,3 +1,5 @@
+from django.db.models import Max, F
+
 from home.management.abstract_command import AbstractCommand
 from home.models import Website, WebsiteModeration, Page
 from scraping.services.crawl_website_service import crawl_website
@@ -28,7 +30,9 @@ class Command(AbstractCommand):
                                            WebsiteModeration.Category.HOME_URL_NO_CONFESSION],
                 moderations__validated_at__isnull=True).all()
         else:
-            websites = Website.objects.filter(is_active=True).all()
+            websites = Website.objects.filter(is_active=True)\
+                .annotate(latest_crawling_date=Max('crawlings__created_at'))\
+                .order_by(F('latest_crawling_date').asc(nulls_first=True)).all()
 
         for website in websites:
             self.info(f'Starting crawling for website {website.name} {website.uuid}')
