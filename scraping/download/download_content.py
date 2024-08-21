@@ -1,6 +1,7 @@
 from typing import Optional
 
 import requests
+from bs4 import BeautifulSoup
 from requests import RequestException
 
 from scraping.utils.url_utils import get_domain
@@ -63,6 +64,18 @@ def get_content_from_url(url):
     return r.text
 
 
+def get_meta_refresh_redirect(soup: BeautifulSoup) -> Optional[str]:
+    meta_refresh = soup.find('meta', attrs={'http-equiv': 'refresh'})
+    if meta_refresh:
+        content = meta_refresh.get('content', '')
+        # The content usually looks like "0; url=http://example.com"
+        parts = content.split(';')
+        if len(parts) > 1 and 'url=' in parts[1]:
+            return parts[1].split('url=')[1].strip()
+
+    return None
+
+
 def get_url_aliases(url) -> tuple[list[tuple[str, str]], Optional[str]]:
     print(f'getting url aliases for {url}')
 
@@ -73,11 +86,23 @@ def get_url_aliases(url) -> tuple[list[tuple[str, str]], Optional[str]]:
         return [], str(e)
 
     aliases = [(url, get_domain(url))]
+    redirect_url = None
+
     if r.status_code in [301, 302] and 'location' in r.headers:
-        location = r.headers['location']
-        url_aliases, error_message = get_url_aliases(location)
+        redirect_url = r.headers['location']
+    elif r.status_code == 200:
+        try:
+            soup = BeautifulSoup(r.text, 'html.parser')
+        except Exception as e:
+            print(e)
+            # TODO handle pdf correctly
+            return aliases, str(e)
+        redirect_url = get_meta_refresh_redirect(soup)
+
+    if redirect_url:
+        url_aliases, error_message = get_url_aliases(redirect_url)
         if not url_aliases:
-            print(f'tried to follow redirect location {location} but got error {error_message}')
+            print(f'tried to follow redirect location {redirect_url} but got error {error_message}')
         else:
             aliases.extend(url_aliases)
 
