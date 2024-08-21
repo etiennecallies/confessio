@@ -55,10 +55,21 @@
 
     {% if latest_crawling %}
         <h3>Latest crawling</h3>
-        <p>Date : {{ latest_crawling.created_at }}</p>
-        <p>Nb visited links : {{ latest_crawling.nb_visited_links }}</p>
-        <p>Nb success links : {{ latest_crawling.nb_success_links }}</p>
-        <p>Error detail : {{ latest_crawling.error_detail }}</p>
+        <div>Date : {{ latest_crawling.created_at }}</div>
+        <div>Nb visited links : {{ latest_crawling.nb_visited_links }}</div>
+        <div>Nb success links : {{ latest_crawling.nb_success_links }}</div>
+        <div>Error detail : {{ latest_crawling.error_detail }}</div>
+        <h4>Pages</h4>
+        {% for page in website.get_pages %}
+            <div>
+                <a href="{{ page.url }}" target="_blank">{{ page.url }}</a>
+                {% if page.get_latest_pruning %}
+                    <a class="btn btn-gray-500" href="{% url 'edit_pruning' page.get_latest_pruning.uuid %}" target="_blank" role="button">
+                        Edit pruning <i class="fas fa-up-right-from-square"></i>
+                    </a>
+                {% endif %}
+            </div>
+        {% endfor %}
     {% else %}
         <h3>No crawling yet</h3>
     {% endif %}
