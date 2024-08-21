@@ -104,7 +104,13 @@ def get_links(element: el, home_url: str, aliases_domains: set[str], forbidden_p
 
 def parse_content_links(content, home_url: str, aliases_domains: set[str],
                         forbidden_paths: set[str]):
-    element = BeautifulSoup(content, 'html.parser', parse_only=SoupStrainer('a'))
+    try:
+        element = BeautifulSoup(content, 'html.parser', parse_only=SoupStrainer('a'))
+    except Exception as e:
+        # TODO handle pdf properly
+        print(e)
+        return set()
+
     links = get_links(element, home_url, aliases_domains, forbidden_paths)
 
     return links
