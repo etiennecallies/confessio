@@ -2,7 +2,7 @@ from datetime import timedelta
 from typing import Optional
 
 from django.db.models import Q
-from django.db.models.functions import Now
+from django.utils import timezone
 
 from home.models import Scraping, Pruning, PruningModeration
 from home.models import Sentence
@@ -67,7 +67,7 @@ def pruning_needs_moderation(pruning: Pruning):
         # if page has been validated less than three times or more than one year ago
         if (page.validation_counter < 3
                 or page.last_validated_at is None
-                or page.last_validated_at < (Now() - timedelta(days=365))):
+                or page.last_validated_at < (timezone.now() - timedelta(days=365))):
             return True
 
     return False

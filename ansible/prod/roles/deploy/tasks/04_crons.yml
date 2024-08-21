@@ -8,6 +8,13 @@
     minute: 0
     job: "(tmux has-session -t crawl_websites || tmux new-session -d -s crawl_websites) && tmux send-keys -t crawl_websites '. {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py crawl_websites' C-m"
 
+- name: Add cron for checking crawling
+  cron:
+    name: daily_check_crawling
+    hour: 8
+    minute: 0
+    job: "(tmux has-session -t check_crawling || tmux new-session -d -s check_crawling) && tmux send-keys -t check_crawling '. {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py check_crawling' C-m"
+
 - name: Add cron for scraping pages
   cron:
     name: hourly_scrape_pages
