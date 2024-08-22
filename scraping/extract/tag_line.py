@@ -48,6 +48,7 @@ SCHEDULES_REGEX = [
 
 SCHEDULES_EXPR = [
     'rendez-vous',
+    "a l'issue",
 ]
 
 DATES_MENTIONS = [

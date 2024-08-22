@@ -71,24 +71,20 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(normalized_content, expected_normalized_content)
 
     def test_is_schedule_description(self):
-        content = "Le célébrant asssure une permanence de confession avant la messe dans le " \
-                  "confessional de la chapelle Saint-Pierre, à droite en entrant dans l'église, " \
-                  "de 9h45 à 10h25."
-        self.assertTrue(is_schedule_description(content))
-
-    def test_is_schedule_description_hour(self):
-        content = "18:00 - 19:00"
-        self.assertTrue(is_schedule_description(content))
-
-    def test_is_schedule_description_space(self):
-        content = "Profitons en quel que soit notre âge d’une soirée « Confessions  et  " \
-                  "Adoration »,  le jeudi 21 décembre  de 20 h à 21 h 30 à la Paroisse " \
-                  "Notre Dame Saint-Vincent."
-        self.assertTrue(is_schedule_description(content))
-
-    def test_is_schedule_description_column(self):
-        content = "Vendredi 9h: Vauxrenard"
-        self.assertTrue(is_schedule_description(content))
+        contents = [
+            "Le célébrant asssure une permanence de confession avant la messe dans le "
+            "confessional de la chapelle Saint-Pierre, à droite en entrant dans l'église, "
+            "de 9h45 à 10h25.",
+            "18:00 - 19:00",
+            "Profitons en quel que soit notre âge d’une soirée « Confessions  et  "
+            "Adoration »,  le jeudi 21 décembre  de 20 h à 21 h 30 à la Paroisse "
+            "Notre Dame Saint-Vincent.",
+            "Vendredi 9h: Vauxrenard",
+            "Confessions : Les prêtres se rendent disponibles à l’issue des messes.",
+        ]
+        for content in contents:
+            with self.subTest():
+                self.assertTrue(is_schedule_description(content))
 
 
 if __name__ == '__main__':

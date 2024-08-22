@@ -12,15 +12,16 @@ class TestPruneLines(unittest.TestCase):
             'bron',
             'villeurbanne',
             'chanoineboursier',
+            'st-marc',
         ]
 
     def test_prune_lines(self):
         tests_dir = os.path.dirname(os.path.realpath(__file__))
         for file_name in self.prune_lines_fixtures():
             with self.subTest():
-                with open(f'{tests_dir}/fixtures/prune/{file_name}-input.json') as f:
+                with open(f'{tests_dir}/fixtures/prune/{file_name}.json') as f:
                     lines_and_tags = json.load(f)
-                with open(f'{tests_dir}/fixtures/prune/{file_name}-output.html') as f:
+                with open(f'{tests_dir}/fixtures/prune/{file_name}.html') as f:
                     lines_output = f.readlines()
                 expected_output = ''.join(lines_output)
                 kept_indices = get_pruned_lines_indices(lines_and_tags)
