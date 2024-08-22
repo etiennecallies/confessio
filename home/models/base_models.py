@@ -37,6 +37,9 @@ class Website(TimeStampMixin):
     _latest_crawling = None
     _has_search_latest_crawling = False
 
+    def __str__(self):
+        return self.name
+
     def get_latest_crawling(self) -> Optional['Crawling']:
         if not self._has_search_latest_crawling:
             try:

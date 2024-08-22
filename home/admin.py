@@ -19,6 +19,7 @@ class ParishInline(admin.StackedInline):
 @admin.register(Website)
 class WebsiteAdmin(SimpleHistoryAdmin):
     list_display = ["name"]
+    search_fields = ["name"]
     inlines = [
         ParishInline,
     ]
@@ -31,6 +32,8 @@ class ChurchInline(admin.StackedInline):
 @admin.register(Parish)
 class ParishAdmin(SimpleHistoryAdmin):
     list_display = ["name"]
+    search_fields = ["name"]
+    autocomplete_fields = ["website"]
     inlines = [
         ChurchInline,
     ]
@@ -38,14 +41,13 @@ class ParishAdmin(SimpleHistoryAdmin):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == 'diocese':
             return DioceseChoiceField(queryset=Diocese.objects.all())
-        if db_field.name == 'website':
-            return WebsiteChoiceField(queryset=Website.objects.all())
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
 @admin.register(Church)
 class ChurchAdmin(LeafletGeoAdmin, SimpleHistoryAdmin):
     list_display = ["name"]
+    search_fields = ["name"]
     display_raw = True
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
