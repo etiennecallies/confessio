@@ -1,4 +1,5 @@
 from home.models import Page, Scraping
+from scraping.services.page_service import delete_scraping
 from scraping.services.prune_scraping_service import prune_scraping_and_save
 
 
@@ -13,7 +14,7 @@ def upsert_scraping(page: Page, confession_part: str) -> ():
     else:
         if scraping is not None:
             # If a scraping exists and is different from last one, we delete it
-            scraping.delete()
+            delete_scraping(scraping)
 
         scraping = Scraping(
             confession_html=confession_part,
