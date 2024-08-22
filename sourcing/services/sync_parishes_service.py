@@ -210,6 +210,7 @@ def sync_parishes(external_parishes: list[Parish],
                   parish_retriever: ParishRetriever,
                   allow_no_url: bool = False,
                   alert_on_new: bool = False,
+                  alert_on_delete: bool = False,
                   ):
     # get all parishes in the diocese
     diocese_parishes = diocese.parishes.all()
@@ -243,14 +244,15 @@ def sync_parishes(external_parishes: list[Parish],
                     source=parish_retriever.source,
                 ), parish_retriever, similar_parishes=similar_parishes)
 
-    print('looping on diocese parishes')
-    for parish in diocese_parishes:
-        if not parish_retriever.parish_exists_in_list(parish, external_parishes):
-            add_parish_moderation_if_not_exists(ParishModeration(
-                parish=parish,
-                category=ParishModeration.Category.DELETED_PARISH,
-                source=parish_retriever.source,
-            ), parish_retriever)
+    if alert_on_delete:
+        print('looping on diocese parishes')
+        for parish in diocese_parishes:
+            if not parish_retriever.parish_exists_in_list(parish, external_parishes):
+                add_parish_moderation_if_not_exists(ParishModeration(
+                    parish=parish,
+                    category=ParishModeration.Category.DELETED_PARISH,
+                    source=parish_retriever.source,
+                ), parish_retriever)
 
 
 ###############

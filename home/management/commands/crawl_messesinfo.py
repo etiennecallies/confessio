@@ -15,6 +15,10 @@ class Command(AbstractCommand):
                             help='do not ignore parishes without url')
         parser.add_argument('--alert-on-new', action="store_true",
                             help='triggers alert on new parishes and churches')
+        parser.add_argument('--alert-on-delete', action="store_true",
+                            help='triggers alert on deleted parishes and churches')
+        parser.add_argument('-f', '--filtered-community-id',
+                            help='filter one particular community_id')
 
     def handle(self, *args, **options):
         messesinfo_network_id = options['messesinfo_network_id']
@@ -26,15 +30,18 @@ class Command(AbstractCommand):
 
         self.info(f'Starting crawling messesinfo parishes and churches in '
                   f'{messesinfo_network_id}')
-        parishes, churches = get_parishes_and_churches(messesinfo_network_id, diocese)
+        parishes, churches = get_parishes_and_churches(messesinfo_network_id, diocese,
+                                                       options['filtered_community_id'])
         self.info(f'Successfully crawled {len(parishes)} parishes and {len(churches)} churches')
         self.info(f'Starting synchronization of parishes')
         sync_parishes(parishes, diocese, MessesinfoParishRetriever(),
                       allow_no_url=options['allow_no_url'],
-                      alert_on_new=options['alert_on_new'])
+                      alert_on_new=options['alert_on_new'],
+                      alert_on_delete=options['alert_on_delete'])
         self.success(f'Parish synchronization done!')
         self.info(f'Starting synchronization of churches')
         sync_churches(churches, diocese, MessesinfoChurchRetriever(),
                       allow_no_url=options['allow_no_url'],
-                      alert_on_new=options['alert_on_new'])
+                      alert_on_new=options['alert_on_new'],
+                      alert_on_delete=options['alert_on_delete'])
         self.success(f'Church synchronization done!')

@@ -64,7 +64,9 @@ def fetch_parish(messesinfo_community_id, diocese: Diocese) -> Optional[Parish]:
 
 
 def get_parishes_and_churches(messesinfo_network_id: str,
-                              diocese: Diocese) -> tuple[list[Parish], list[Church]]:
+                              diocese: Diocese,
+                              filtered_community_id=None,
+                              ) -> tuple[list[Parish], list[Church]]:
     page = 0
     churches = []
     parish_by_community_id = {}
@@ -86,6 +88,9 @@ def get_parishes_and_churches(messesinfo_network_id: str,
             church_messesinfo_id = church_data['id']
 
             messesinfo_community_id = church_data['communityId']
+            if filtered_community_id and messesinfo_community_id != filtered_community_id:
+                continue
+
             parish = parish_by_community_id.get(messesinfo_community_id, None)
             if not parish:
                 parish = fetch_parish(messesinfo_community_id, diocese)
