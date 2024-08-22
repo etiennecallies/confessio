@@ -31,7 +31,7 @@ class ChurchInline(admin.StackedInline):
 
 @admin.register(Parish)
 class ParishAdmin(SimpleHistoryAdmin):
-    list_display = ["name"]
+    list_display = ["name", "website"]
     search_fields = ["name"]
     autocomplete_fields = ["website"]
     inlines = [
