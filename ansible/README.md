@@ -53,6 +53,11 @@ Here is the policy:
 }
 ```
 
+Also, you should add CloudWatch alarms to monitor the buckets size.
+![img.png](s3_cloudwatch_alarms.png)
+In CloudWatch, go to metrics, browse S3 metrics, and for both buckets create an alarm on size. Don't forget to confirm the email subscription in your inbox.
+
+
 ## AWS SES
 We use AWS SES to send email.
 
