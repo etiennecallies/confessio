@@ -4,7 +4,6 @@ from typing import Optional
 from scraping.crawl.extract_links import parse_content_links, remove_http_https_duplicate
 from scraping.download.download_content import get_content_from_url
 from scraping.scrape.download_refine_and_extract import extract_confession_part_from_content
-from scraping.utils.ram_utils import print_memory_usage
 
 MAX_VISITED_LINKS = 50
 
@@ -27,10 +26,8 @@ def search_for_confession_pages(home_url, aliases_domains: set[str], forbidden_p
             # something went wrong (e.g. 404), we just ignore this page
             continue
 
-        print_memory_usage('before extract_confession_part_from_content')
         # Looking if new confession part is found
         confession_part = extract_confession_part_from_content(html_content)
-        print_memory_usage('after extract_confession_part_from_content')
         if confession_part and confession_part not in confession_parts_seen:
             results[link] = confession_part
             confession_parts_seen.add(confession_part)
