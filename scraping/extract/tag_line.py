@@ -50,6 +50,8 @@ SCHEDULES_EXPR = [
     'rendez-vous',
     "a l'issue",
     'sur demande',
+    'lors de ',
+    'lors des ',
 ]
 
 DATES_MENTIONS = [

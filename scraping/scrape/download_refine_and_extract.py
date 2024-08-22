@@ -35,7 +35,9 @@ if __name__ == '__main__':
         # 'https://www.paroissedevaise.fr/se-confesser/',
         # 'https://paroisse-sceaux.fr/wp-content/uploads/2023/12/priere-universelle-2eme-dimanche-de-lAvent.pdf',
         # 'https://www.paroisse-meudonlaforet.fr/reconciliation/',
-        'https://paroissedemontrouge.com/etapes-de-la-vie-chretienne-reconciliation/',
+        # 'https://paroissedemontrouge.com/etapes-de-la-vie-chretienne-reconciliation/',
+        # 'https://saintbenoitdugrandcaux.wordpress.com/le-sacrement-de-la-reconciliation/',
+        'https://meulan-triel.fr/index.php/reconciliation-confession/',
     ]
 
     for url_ in confession_pages:
