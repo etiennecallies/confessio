@@ -3,6 +3,10 @@ from typing import Optional
 from home.models import Page, Pruning, Scraping, PruningModeration
 
 
+############
+# DELETION #
+############
+
 def delete_page(page: Page):
     pruning = page.get_latest_pruning()
     page.delete()
@@ -29,3 +33,17 @@ def remove_pruning_if_orphan(pruning: Optional[Pruning]):
         return True
 
     return False
+
+######################
+# QUALITY EVALUATION #
+######################
+
+def page_first_pruning_was_validated(page: Page) -> Optional[bool]:
+    for page_version in page.history.all():
+        if page_version.validation_counter == -1:
+            return False
+
+        if page_version.validation_counter > 0:
+            return True
+
+    return None

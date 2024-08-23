@@ -100,11 +100,14 @@ class Church(TimeStampMixin):
 
 
 class Page(TimeStampMixin):
-    url = models.URLField(unique=False)
+    url = models.URLField()
     website = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='pages')
     validation_counter = models.SmallIntegerField(default=0)
     last_validated_at = models.DateTimeField(null=True)
     history = HistoricalRecords()
+
+    class Meta:
+        unique_together = ('url', 'website')
 
     _latest_scraping = None
     _has_search_latest_scraping = False
