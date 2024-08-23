@@ -42,6 +42,7 @@ SCHEDULES_REGEX = [
     r'\d\d h \d\d',
     r'\d:\d\d',
     r'\d\d:\d\d',
+    r'\d\d: \d\d',
     r'\dh:',
     r'\d\dh:',
 ]

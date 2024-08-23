@@ -84,6 +84,7 @@ class MyTestCase(unittest.TestCase):
             "Vendredi 9h: Vauxrenard",
             "Confessions : Les prêtres se rendent disponibles à l’issue des messes.",
             "Les confessions reprendront aux horaires habituels à partir de début septembre.",
+            "Fin samedi, mars 30, 2024 - 12: 00",
         ]
         for content in contents:
             with self.subTest():
