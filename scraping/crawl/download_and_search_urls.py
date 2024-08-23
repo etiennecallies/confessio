@@ -4,6 +4,7 @@ from typing import Optional
 from scraping.crawl.extract_links import parse_content_links, remove_http_https_duplicate
 from scraping.download.download_content import get_content_from_url
 from scraping.scrape.download_refine_and_extract import extract_confession_part_from_content
+from scraping.utils.ram_utils import print_memory_usage
 
 MAX_VISITED_LINKS = 50
 
@@ -18,6 +19,8 @@ def search_for_confession_pages(home_url, aliases_domains: set[str], forbidden_p
 
     results = {}
     while len(links_to_visit) > 0 and len(visited_links) < MAX_VISITED_LINKS:
+        print_memory_usage()
+
         link = links_to_visit.pop()
         visited_links.add(link)
 
