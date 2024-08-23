@@ -3,7 +3,7 @@ import unittest
 
 from scraping.scrape.download_refine_and_extract import extract_confession_part_from_content
 from scraping.utils.string_search import normalize_content, get_words
-from scraping.extract.tag_line import is_schedule_description
+from scraping.extract.tag_line import is_schedule_description, is_date_description
 
 
 class MyTestCase(unittest.TestCase):
@@ -88,6 +88,14 @@ class MyTestCase(unittest.TestCase):
         for content in contents:
             with self.subTest():
                 self.assertTrue(is_schedule_description(content))
+
+    def test_is_date_description(self):
+        contents = [
+            "29 Fév",
+        ]
+        for content in contents:
+            with self.subTest():
+                self.assertTrue(is_date_description(content))
 
 
 if __name__ == '__main__':
