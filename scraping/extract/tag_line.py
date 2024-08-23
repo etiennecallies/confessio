@@ -52,6 +52,7 @@ SCHEDULES_EXPR = [
     'sur demande',
     'lors de ',
     'lors des ',
+    'aux horaires ',
 ]
 
 DATES_MENTIONS = [

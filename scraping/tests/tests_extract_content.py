@@ -83,6 +83,7 @@ class MyTestCase(unittest.TestCase):
             "Notre Dame Saint-Vincent.",
             "Vendredi 9h: Vauxrenard",
             "Confessions : Les prêtres se rendent disponibles à l’issue des messes.",
+            "Les confessions reprendront aux horaires habituels à partir de début septembre.",
         ]
         for content in contents:
             with self.subTest():
