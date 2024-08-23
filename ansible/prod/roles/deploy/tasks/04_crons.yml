@@ -11,7 +11,7 @@
 - name: Add cron for checking crawling
   cron:
     name: daily_check_crawling
-    hour: 8
+    hour: 7
     minute: 0
     job: "(tmux has-session -t check_crawling || tmux new-session -d -s check_crawling) && tmux send-keys -t check_crawling '. {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py check_crawling' C-m"
 

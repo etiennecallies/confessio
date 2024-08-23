@@ -1,10 +1,10 @@
 from typing import Tuple, Optional
 
 from home.models import Website, Crawling, Page, WebsiteModeration
-from scraping.services.page_service import delete_page
-from scraping.services.scrape_page_service import upsert_scraping
 from scraping.crawl.download_and_search_urls import search_for_confession_pages
 from scraping.download.download_content import get_url_aliases
+from scraping.services.page_service import delete_page
+from scraping.services.scrape_page_service import upsert_scraping
 from scraping.utils.url_utils import get_clean_full_url, get_path, get_domain
 
 
@@ -76,7 +76,6 @@ def do_crawl_website(website: Website) -> tuple[dict[str, str], int, Optional[st
 
     # Actually crawling website
     return search_for_confession_pages(new_home_url, aliases_domains, forbidden_paths)
-
 
 def crawl_website(website: Website) -> Tuple[bool, bool, Optional[str]]:
     # check if website has parish
