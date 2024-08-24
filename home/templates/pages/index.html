@@ -28,12 +28,12 @@
                                    value="{{ location }}"
                                    data-autocomplete-url="{% url 'autocomplete' %}"
                                    >
-                            <input type="hidden" id="latitude-input" name="latitude">
-                            <input type="hidden" id="longitude-input" name="longitude">
-                            <input type="hidden" id="website-uuid-input" name="websiteUuid">
-                            <button type="submit" class="input-group-text"><i class="fas fa-search"></i></button>
                         </div>
                     </div>
+                    <input type="hidden" id="latitude-input" name="latitude">
+                    <input type="hidden" id="longitude-input" name="longitude">
+                    <input type="hidden" id="website-uuid-input" name="websiteUuid">
+                    <button type="submit" class="d-none" disabled></button>
                 </form>
             </div>
         </div>
