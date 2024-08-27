@@ -69,6 +69,10 @@ python -m unittest discover scraping
 # OR with django loading
 python manage.py test
 ```
+## Linter
+```shell
+flake8
+```
 
 ## Translations
 Inside `/home` directory:
