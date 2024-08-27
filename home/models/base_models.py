@@ -31,6 +31,8 @@ class Website(TimeStampMixin):
     name = models.CharField(max_length=300)
     home_url = models.URLField(unique=True)
     is_active = models.BooleanField(default=True)
+    validation_counter = models.SmallIntegerField(default=0)
+    last_validated_at = models.DateTimeField(null=True)
     history = HistoricalRecords()
 
     _pages = None

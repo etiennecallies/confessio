@@ -65,9 +65,16 @@ def pruning_needs_moderation(pruning: Pruning):
     for scraping in pruning.scrapings.all():
         page = scraping.page
         # if page has been validated less than three times or more than one year ago
-        if (page.validation_counter < 3
+        # and if website has been validated less than seven times or more than one year ago
+        if (
+                page.validation_counter < 3
                 or page.last_validated_at is None
-                or page.last_validated_at < (timezone.now() - timedelta(days=365))):
+                or page.last_validated_at < (timezone.now() - timedelta(days=365))
+        ) and (
+                page.website.validation_counter < 7
+                or page.website.last_validated_at is None
+                or page.website.last_validated_at < (timezone.now() - timedelta(days=365))
+        ):
             return True
 
     return False
