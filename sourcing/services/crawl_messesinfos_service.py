@@ -72,9 +72,9 @@ def get_parishes_and_churches(messesinfo_network_id: str,
     parish_by_community_id = {}
     while True:
         churches_request = f'{{"F":"cef.kephas.shared.request.AppRequestFactory",' \
-                             f'"I":[{{"O":"$i2wVYlJYdDXj9pOVHx42kKyAu8=",' \
-                             f'"P":["DIOCESE:{messesinfo_network_id.upper()}",{page},' \
-                             f'25,"48.856614:2.352222",null]}}]}}'
+                           f'"I":[{{"O":"$i2wVYlJYdDXj9pOVHx42kKyAu8=",' \
+                           f'"P":["DIOCESE:{messesinfo_network_id.upper()}",{page},' \
+                           f'25,"48.856614:2.352222",null]}}]}}'
 
         print(f'fetching churches in {messesinfo_network_id} on page {page}')
         data = post_messesinfo_request(churches_request)

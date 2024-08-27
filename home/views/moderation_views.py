@@ -6,7 +6,8 @@ from django.urls import reverse
 from home.models import WebsiteModeration, ChurchModeration, ModerationMixin, \
     BUG_DESCRIPTION_MAX_LENGTH, ParishModeration, ResourceDoesNotExist, PruningModeration, \
     SentenceModeration
-from home.services.edit_pruning_service import set_pruning_human_source, increment_page_validation_counter_of_pruning
+from home.services.edit_pruning_service import (set_pruning_human_source,
+                                                increment_page_validation_counter_of_pruning)
 from home.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 from scraping.services.sentence_outliers_service import get_pruning_containing_sentence
 from sourcing.services.merge_websites_service import merge_websites
@@ -202,7 +203,8 @@ def moderate_merge_websites(request, website_moderation_uuid=None):
     try:
         website_moderation = WebsiteModeration.objects.get(uuid=website_moderation_uuid)
     except WebsiteModeration.DoesNotExist:
-        return HttpResponseNotFound(f'website moderation not found with uuid {website_moderation_uuid}')
+        return HttpResponseNotFound(f'website moderation not found with uuid '
+                                    f'{website_moderation_uuid}')
 
     if website_moderation.other_website is None:
         return HttpResponseBadRequest(f'website moderation does not have other website')

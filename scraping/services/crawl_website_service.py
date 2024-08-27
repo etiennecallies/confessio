@@ -77,6 +77,7 @@ def do_crawl_website(website: Website) -> tuple[dict[str, str], int, Optional[st
     # Actually crawling website
     return search_for_confession_pages(new_home_url, aliases_domains, forbidden_paths)
 
+
 def crawl_website(website: Website) -> Tuple[bool, bool, Optional[str]]:
     # check if website has parish
     if not website.parishes.exists():
@@ -125,7 +126,8 @@ def crawl_website(website: Website) -> Tuple[bool, bool, Optional[str]]:
         remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_NO_RESPONSE)
 
         if website.one_page_has_confessions():
-            remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_NO_CONFESSION)
+            remove_not_validated_moderation(website,
+                                            WebsiteModeration.Category.HOME_URL_NO_CONFESSION)
             return True, True, None
 
         add_moderation(website, WebsiteModeration.Category.HOME_URL_NO_CONFESSION)
@@ -141,4 +143,3 @@ def crawl_website(website: Website) -> Tuple[bool, bool, Optional[str]]:
         remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_NO_CONFESSION)
 
         return False, False, error_detail
-

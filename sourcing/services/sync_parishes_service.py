@@ -90,8 +90,8 @@ def update_parish(parish: Parish,
                   external_parish: Parish,
                   parish_retriever: ParishRetriever):
     # Check name
-    if (parish.name != external_parish.name and
-            all(p.name != external_parish.name for p in parish.history.all())):
+    if (parish.name != external_parish.name
+            and all(p.name != external_parish.name for p in parish.history.all())):
         add_parish_moderation_if_not_exists(ParishModeration(
             parish=parish, category=ParishModeration.Category.NAME_DIFFERS,
             source=parish_retriever.source, name=external_parish.name), parish_retriever)
@@ -124,7 +124,7 @@ def look_for_similar_parishes_by_name(external_parish: Parish,
                                       diocese_parishes: list[Parish]) -> set[Parish]:
     # get the distance between the external parish and all the parishes in the diocese
     similarity_tuples = zip(map(lambda p: get_string_similarity(external_parish.name, p.name),
-                              diocese_parishes), diocese_parishes)
+                                diocese_parishes), diocese_parishes)
     # keep only the three most similar parishes
     closest_parishes = sorted(similarity_tuples, key=lambda t: t[0], reverse=True)[:3]
     if not closest_parishes:

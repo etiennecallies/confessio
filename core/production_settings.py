@@ -34,21 +34,21 @@ DEBUG = False
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-DB_ENGINE   = os.getenv('PROD_DB_ENGINE'   , None)
-DB_USERNAME = os.getenv('PROD_DB_USERNAME' , None)
-DB_PASS     = os.getenv('PROD_DB_PASS'     , None)
-DB_HOST     = os.getenv('PROD_DB_HOST'     , None)
-DB_PORT     = os.getenv('PROD_DB_PORT'     , None)
-DB_NAME     = os.getenv('PROD_DB_NAME'     , None)
+DB_ENGINE = os.getenv('PROD_DB_ENGINE', None)
+DB_USERNAME = os.getenv('PROD_DB_USERNAME', None)
+DB_PASS = os.getenv('PROD_DB_PASS', None)
+DB_HOST = os.getenv('PROD_DB_HOST', None)
+DB_PORT = os.getenv('PROD_DB_PORT', None)
+DB_NAME = os.getenv('PROD_DB_NAME', None)
 
 DATABASES = {
-  'default': {
-    'ENGINE'  : DB_ENGINE,
-    'NAME'    : DB_NAME,
-    'USER'    : DB_USERNAME,
-    'PASSWORD': DB_PASS,
-    'HOST'    : DB_HOST,
-    'PORT'    : DB_PORT,
+    'default': {
+        'ENGINE': DB_ENGINE,
+        'NAME': DB_NAME,
+        'USER': DB_USERNAME,
+        'PASSWORD': DB_PASS,
+        'HOST': DB_HOST,
+        'PORT': DB_PORT,
     },
 }
 

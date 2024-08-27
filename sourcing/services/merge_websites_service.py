@@ -51,4 +51,3 @@ def merge_websites(website: Website, primary_website: Website):
 
     # Finally we delete other website
     website.delete()
-

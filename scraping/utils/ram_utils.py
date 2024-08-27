@@ -1,5 +1,6 @@
 import psutil
 
+
 def print_memory_usage(prefix: str = ""):
     """
     Returns the current memory usage of the Python process in megabytes (MB).

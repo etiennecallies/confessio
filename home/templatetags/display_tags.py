@@ -1,11 +1,11 @@
+from django.contrib.gis.geos import Point
 from django.template.defaulttags import register
 from django.template.loader import render_to_string
 
-from home.models import Parish, Church, Website, ChurchModeration
-from django.contrib.gis.geos import Point
-
-from home.services.map_service import get_map_with_single_location, get_map_with_multiple_locations, \
-    get_map_with_alternative_locations
+from home.models import Parish, Church, Website
+from home.services.map_service import (get_map_with_single_location,
+                                       get_map_with_multiple_locations,
+                                       get_map_with_alternative_locations)
 
 
 @register.simple_tag

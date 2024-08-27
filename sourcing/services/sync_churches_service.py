@@ -122,7 +122,7 @@ def update_church(church: Church, external_church: Church, church_retriever: Chu
     # Check parish
     if (not church_retriever.is_same_parish(church.parish, external_church.parish)
             and all(not church_retriever.is_same_parish(c.parish, external_church.parish)
-               for c in church.history.all())):
+                    for c in church.history.all())):
         external_parish = save_parish(external_church.parish, church_retriever)
         add_church_moderation_if_not_exists(ChurchModeration(
             church=church, category=ChurchModeration.Category.PARISH_DIFFERS,
@@ -215,11 +215,11 @@ def sync_churches(external_churches: list[Church],
                     compute_church_coordinates(church_with_same_location, church_retriever.source)
 
                     # Then we re-compute the coordinates of the draft church
-                    new_church = compute_church_coordinates(external_church, church_retriever.source)
+                    new_church = compute_church_coordinates(external_church,
+                                                            church_retriever.source)
                     if not new_church:
                         # If church could not have been saved, we stop here
                         continue
-
 
             # Church does not exist, finding similar churches or create it
             similar_churches = look_for_similar_churches(external_church, diocese_churches,
@@ -265,4 +265,3 @@ def save_church(church: Church, church_retriever: ChurchRetriever):
     church.save()
     if not church.location.x or not church.location.y:
         compute_church_coordinates(church, church_retriever.source)
-

@@ -21,4 +21,3 @@ def get_page_title(url):
 
 if __name__ == '__main__':
     print(get_page_title('http://www.montsdelamadeleine.fr/'))
-

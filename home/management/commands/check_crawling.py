@@ -28,9 +28,9 @@ class Command(AbstractCommand):
                 website_not_crawled_recently.append(website)
 
         if website_not_crawled or website_not_crawled_recently:
-            error_message = (f'Crawling failure: {len(website_not_crawled)} websites have never been '
-                             f'crawled and {len(website_not_crawled_recently)} websites have not '
-                             f'been crawled recently')
+            error_message = (f'Crawling failure: {len(website_not_crawled)} websites have never '
+                             f'been crawled and {len(website_not_crawled_recently)} websites have '
+                             f'not been crawled recently')
             self.error(error_message)
             website_not_crawled_str = "\n".join(
                 [f" - {website.name} {website.uuid}" for website in website_not_crawled[:5]])
@@ -40,10 +40,10 @@ class Command(AbstractCommand):
 
             message = f"""
             Crawling failure
-            
+
             Some websites not crawled (total {len(website_not_crawled)}):
             {website_not_crawled_str}
-            
+
             Some websites not crawled recently (total {len(website_not_crawled_recently)}):
             {website_not_crawled_recently_str}
             """

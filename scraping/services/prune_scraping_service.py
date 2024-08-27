@@ -61,6 +61,7 @@ def get_current_moderation(pruning: Pruning,
     except PruningModeration.DoesNotExist:
         return None
 
+
 def pruning_needs_moderation(pruning: Pruning):
     for scraping in pruning.scrapings.all():
         page = scraping.page

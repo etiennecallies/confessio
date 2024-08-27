@@ -92,6 +92,7 @@ class ClassifierAdmin(ModelAdmin):
     ordering = ["-created_at"]
     fields = ['status']
 
+
 @admin.register(Sentence)
 class SentenceAdmin(ModelAdmin):
     list_display = ["line", "action"]

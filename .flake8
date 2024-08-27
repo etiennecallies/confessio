@@ -1,0 +1,4 @@
+[flake8]
+max-line-length = 100
+exclude = home/migrations, __init__.py, production_settings.py
+ignore = F541, W503

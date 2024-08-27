@@ -21,9 +21,11 @@ def add_sentence_moderation(sentence: Sentence, other_action: Sentence.Action):
     )
     sentence_moderation.save()
 
+
 def remove_sentence_not_validated_moderation(sentence: Sentence):
     category = SentenceModeration.Category.ML_MISMATCH
-    SentenceModeration.objects.filter(sentence=sentence, validated_at=None, category=category).delete()
+    SentenceModeration.objects.filter(sentence=sentence, validated_at=None, category=category
+                                      ).delete()
 
 
 def get_pruning_containing_sentence(sentence: Sentence) -> list[Pruning]:

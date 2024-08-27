@@ -48,6 +48,7 @@ def split_and_tag(refined_content: str, tag_interface: BaseTagInterface
 
     return results
 
+
 def get_lines_without_link(refined_content: str) -> list[str]:
     results = []
     for line in refined_content.split('<br>\n'):
