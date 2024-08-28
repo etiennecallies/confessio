@@ -74,6 +74,8 @@ python manage.py test
 flake8
 ```
 Consider adding a pre-commit hook.
+```shell
+```
 
 ## Translations
 Inside `/home` directory:
