@@ -73,9 +73,23 @@ python manage.py test
 ```shell
 flake8
 ```
-Consider adding a pre-commit hook.
+
+## Pre-commit hook
+Consider adding a pre-commit hook (`vim .git/hooks/pre-commit`)
 ```shell
-vim .git/hooks/pre-commit
+echo "Running flake8..."
+flake8 .
+if [ $? -ne 0 ]; then
+    echo "flake8 failed. Please fix the above issues before committing."
+    exit 1
+fi
+
+echo "Running unit tests..."
+python -m unittest discover scraping
+if [ $? -ne 0 ]; then
+    echo "Unit tests failed. Please fix the above issues before committing."
+    exit 1
+fi
 ```
 
 ## Translations
