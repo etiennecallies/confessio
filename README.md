@@ -2,7 +2,13 @@
 A search engine for confession hours by scraping parish websites.
 
 # Dev environment
+
+## Environment variables
+Copy the `.env.sample` file to `.env` and fill in the values.
+
 ## Local env with pyenv
+We recommend using pyenv to manage python versions. Install it following the instructions 
+[here](https://github.com/pyenv/pyenv?tab=readme-ov-file#installation).
 ```shell
 pyenv virtualenv 3.11.4 confessio
 pyenv activate confessio
@@ -10,12 +16,12 @@ pip install -r requirements.txt
 ```
 
 ## Install GIS dependencies
-For MacOS, follow instructions [here](https://mits003.github.io/studio_null/2021/07/install-gdal-on-macos/)
+For MacOS, follow instructions [here](https://mits003.github.io/studio_null/2021/07/install-gdal-on-macos/).
 
 Also, you can configure GDAL_LIBRARY_PATH and GEOS_LIBRARY_PATH env var in .env.
 
 ## Postgresql database
-Works currently on postgresql 15.4, and requires postgis extension.
+Works currently on postgresql 15.4, and requires postgis and pgvector extensions.
 
 ### Create the database
 ```shell
@@ -31,16 +37,20 @@ GRANT ALL PRIVILEGES ON DATABASE confessio TO confessio;
 ### Init database from scratch
 ```shell
 CREATE EXTENSION postgis;
+CREATE EXTENSION vector;
+```
+
+The migrations can not be applied from the beginning because it crashes at some point. 
+If you'd like to start from scratch, you can load the prod database dump in local (see below). 
+
+To detect new migrations:
+```bash
+$ python manage.py makemigrations
 ```
 
 To apply existing migrations:
 ```shell
 $ python manage.py migrate
-```
-
-To detect new migrations:
-```bash
-$ python manage.py makemigrations
 ```
 
 Create the Superuser
@@ -99,10 +109,12 @@ django-admin makemessages -l fr
 django-admin compilemessages
 ```
 
-## Scraping
+## Commands
+You'll find all self implemented commands in `home/management/commands/`. 
+For example, to crawl all websites:
 
 ```shell
-python manage.py scrape_pages
+python manage.py crawl_websites
 ```
 
 ---
@@ -143,6 +155,8 @@ select name, home_url from home_website hp where home_url like '% ';
 ---
 
 # Legacy documentation of  [Django Pixel Bootstrap 5](https://appseed.us/product/pixel-bootstrap/django/)
+
+This part is to be removed once the project has been entirely freed from Django Pixel module.
 
 Open-source **Django** project crafted on top of **[Pixel Bootstrap 5](https://appseed.us/product/pixel-bootstrap/django/)**, an open-source design from `Themesberg`.
 The product is designed to deliver the best possible user experience with highly customizable feature-rich pages. 
