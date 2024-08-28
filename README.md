@@ -40,7 +40,7 @@ CREATE EXTENSION postgis;
 CREATE EXTENSION vector;
 ```
 
-The migrations can not be applied from the beginning because it crashes at some point. 
+The migrations can not be applied from the beginning because it crashes at some point.
 If you'd like to start from scratch, you can load the prod database dump in local (see below).
 
 To detect new migrations:
