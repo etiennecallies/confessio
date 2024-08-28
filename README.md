@@ -73,6 +73,7 @@ python manage.py test
 ```shell
 flake8
 ```
+Consider adding a pre-commit hook.
 
 ## Translations
 Inside `/home` directory:
