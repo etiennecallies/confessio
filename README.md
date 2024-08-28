@@ -1,6 +1,8 @@
 # Confessio
 A search engine for confession hours by scraping parish websites.
 
+This is the codebase of the [confessio.fr](https://confessio.fr) project.
+
 # Dev environment
 
 ## Environment variables
