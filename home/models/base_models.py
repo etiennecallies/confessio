@@ -67,9 +67,6 @@ class Website(TimeStampMixin):
     def all_pages_scraped(self) -> bool:
         return all(map(Page.has_been_scraped, self.get_pages()))
 
-    def all_pages_pruned(self) -> bool:
-        return all(map(Page.latest_scraping_has_been_pruned, self.get_pages()))
-
     def one_page_has_confessions(self) -> bool:
         return any(map(Page.has_confessions, self.get_pages()))
 
@@ -127,10 +124,6 @@ class Page(TimeStampMixin):
     def has_been_scraped(self) -> bool:
         return self.get_latest_scraping() is not None
 
-    def latest_scraping_has_been_pruned(self) -> bool:
-        return self.get_latest_scraping() is not None\
-            and self.get_latest_scraping().has_been_pruned()
-
     def has_confessions(self) -> bool:
         return self.get_latest_pruning() is not None\
             and self.get_latest_pruning().pruned_html is not None
@@ -154,9 +147,6 @@ class Scraping(TimeStampMixin):
     page = models.OneToOneField('Page', on_delete=models.CASCADE, related_name='scraping')
     pruning = models.ForeignKey('Pruning', on_delete=models.SET_NULL, related_name='scrapings',
                                 null=True)  # can be null if extracted_html is None
-
-    def has_been_pruned(self) -> bool:
-        return self.pruning is not None
 
 
 class Pruning(TimeStampMixin):

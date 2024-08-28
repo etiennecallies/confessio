@@ -101,8 +101,7 @@ def get_popup_and_color(church: Church):
         wording = _("ConfessionsExist")
         color = 'blue'
     elif not church.parish.website.has_been_crawled() \
-            or not church.parish.website.all_pages_scraped() \
-            or not church.parish.website.all_pages_pruned():
+            or not church.parish.website.all_pages_scraped():
         wording = _("NotCrawledYet")
         color = 'beige'
     else:
