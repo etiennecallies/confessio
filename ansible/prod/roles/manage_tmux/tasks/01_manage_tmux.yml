@@ -1,0 +1,5 @@
+- name: Check if tmux session already exists
+  shell: tmux has-session -t manage_tmux || tmux new-session -d -s manage_tmux
+
+- name: Launch manage with extra_command
+  shell: tmux send-keys -t manage_tmux '. {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py {{ extra_command }}' C-m

@@ -126,6 +126,12 @@ aws s3 ls confessio-dbbackup-daily --profile confessio
 ./prod.sh manage crawl_websites
 ./prod.sh manage "crawl_websites -n 'Sainte Claire Entre Loire et Rhins'"
 ```
+and if you want to launch the command in tmux (in session "manage_tmux"):
+```shell
+./prod.sh manage_tmux crawl_websites
+./prod.sh manage_tmux "crawl_websites -n 'Sainte Claire Entre Loire et Rhins'"
+```
+
 
 ## Check data integrity
 ```postgresql

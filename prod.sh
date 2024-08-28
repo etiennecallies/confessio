@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [[ $# -eq 0 ]] ; then
-    echo 'please specify install, deploy or manage'
+    echo 'please specify install, deploy, manage or manage_tmux'
     exit 1
 fi
 

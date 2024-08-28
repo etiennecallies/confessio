@@ -1,0 +1,5 @@
+- name: runs a django manage.py command in a tmux session
+  hosts: all
+  user: ubuntu
+  roles:
+    - manage_tmux
