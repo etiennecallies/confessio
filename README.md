@@ -75,6 +75,7 @@ flake8
 ```
 Consider adding a pre-commit hook.
 ```shell
+vim .git/hooks/pre-commit
 ```
 
 ## Translations
