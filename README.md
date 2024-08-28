@@ -85,7 +85,7 @@ flake8
 ```
 
 ## Pre-commit hook
-Consider adding a pre-commit hook (`vim .git/hooks/pre-commit`)
+Consider adding a pre-commit hook (`vim .git/hooks/pre-commit`), but if you don't github actions will catch you.
 ```shell
 echo "Running flake8..."
 flake8 .
