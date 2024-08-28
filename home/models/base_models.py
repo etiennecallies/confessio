@@ -150,14 +150,13 @@ class Crawling(TimeStampMixin):
 
 
 class Scraping(TimeStampMixin):
-    confession_html = models.TextField(null=True, editable=False)
     nb_iterations = models.PositiveSmallIntegerField()
     page = models.OneToOneField('Page', on_delete=models.CASCADE, related_name='scraping')
     pruning = models.ForeignKey('Pruning', on_delete=models.SET_NULL, related_name='scrapings',
-                                null=True)
+                                null=True)  # can be null if extracted_html is None
 
     def has_been_pruned(self) -> bool:
-        return not self.confession_html or self.pruning is not None
+        return self.pruning is not None
 
 
 class Pruning(TimeStampMixin):

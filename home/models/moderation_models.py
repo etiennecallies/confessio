@@ -366,8 +366,8 @@ class PruningModeration(ModerationMixin):
         unique_together = ('pruning', 'category')
 
     def delete_on_validate(self) -> bool:
-        # we keep PruningModeration even if confession_html_pruned has changed
-        # in order to keep track of which confession_html_pruned has been moderated
+        # we keep PruningModeration even if pruned_html has changed
+        # in order to keep track of which pruned_html has been moderated
         return False
 
 

@@ -4,7 +4,7 @@ from typing import Optional
 from django.db.models import Q
 from django.utils import timezone
 
-from home.models import Scraping, Pruning, PruningModeration
+from home.models import Pruning, PruningModeration
 from home.models import Sentence
 from scraping.extract.extract_content import BaseTagInterface
 from scraping.extract.extract_content import extract_content
@@ -106,13 +106,13 @@ def add_necessary_moderation(pruning: Pruning):
             return
 
         if current_moderation.validated_at is None:
-            # confession_html_pruned has changed, but not validated yet, we just update it
+            # pruned_html has changed, but not validated yet, we just update it
             current_moderation.pruned_html = pruning.pruned_html
             current_moderation.pruned_indices = pruning.pruned_indices
             current_moderation.save()
             return
 
-        # confession_html_pruned has changed and was validated, we remove it and add a new one
+        # pruned_html has changed and was validated, we remove it and add a new one
         current_moderation.delete()
         add_new_moderation(pruning, category)
         return
@@ -142,8 +142,7 @@ def prune_pruning(pruning: Pruning) -> ():
     add_necessary_moderation(pruning)
 
 
-def prune_scraping_and_save(scraping: Scraping):
-    extracted_html = scraping.confession_html
+def get_pruned_pruning(extracted_html: Optional[str]) -> Optional[Pruning]:
     if not extracted_html:
         return
 
@@ -155,10 +154,6 @@ def prune_scraping_and_save(scraping: Scraping):
         )
         pruning.save()
 
-    if scraping.pruning != pruning:
-        former_pruning = scraping.pruning
-        scraping.pruning = pruning
-        scraping.save()
-        remove_pruning_if_orphan(former_pruning)
-
     prune_pruning(pruning)
+
+    return pruning
