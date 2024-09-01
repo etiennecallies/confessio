@@ -180,7 +180,7 @@ def contains_char_or_digits(text):
 
 
 def line_is_suitable(text: str):
-    return contains_char_or_digits(text) and is_below_byte_limit(text)
+    return contains_char_or_digits(text) and is_below_byte_limit(remove_link_from_html(text))
 
 
 def flatten_string(text: str):
