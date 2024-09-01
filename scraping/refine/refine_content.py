@@ -179,6 +179,10 @@ def contains_char_or_digits(text):
     return False
 
 
+def line_is_suitable(text: str):
+    return contains_char_or_digits(text) and is_below_byte_limit(text)
+
+
 def flatten_string(text: str):
     text = re.sub(r'^\s*', '', text)
     text = re.sub(r'\s+', ' ', text)
@@ -195,7 +199,8 @@ def clean_paragraph(text: str):
     text = re.sub(r'^<br>(\n)?', '', text)
     text = re.sub(r'<br>(\n)?$', '', text)
 
-    text = '<br>\n'.join(filter(contains_char_or_digits, text.split('<br>\n')))
+    # Remove non suitable lines
+    text = '<br>\n'.join(filter(line_is_suitable, text.split('<br>\n')))
 
     return text
 
