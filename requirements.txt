@@ -29,6 +29,8 @@ numpy==1.26.3
 tqdm==4.66.3
 pgvector==0.3.2
 psutil==6.0.0
+pydantic==2.6.4
+openai==1.41.0
 
 # Used in production
 django-dbbackup==4.0.2
