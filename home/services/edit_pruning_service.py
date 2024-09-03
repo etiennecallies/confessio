@@ -117,11 +117,11 @@ def reset_pages_counter_of_pruning(pruning: Pruning):
     websites_to_reset = set()
     for scraping in pruning.scrapings.all():
         page = scraping.page
-        page.validation_counter = -1
+        page.pruning_validation_counter = -1
         page.save()
 
     for website in websites_to_reset:
-        website.validation_counter = -1
+        website.pruning_validation_counter = -1
         website.save()
 
 
@@ -129,12 +129,12 @@ def increment_page_validation_counter_of_pruning(pruning: Pruning):
     websites_to_increment = set()
     for scraping in pruning.scrapings.all():
         page = scraping.page
-        page.validation_counter += 1
-        page.last_validated_at = Now()
+        page.pruning_validation_counter += 1
+        page.pruning_last_validated_at = Now()
         page.save()
         websites_to_increment.add(page.website)
 
     for website in websites_to_increment:
-        website.validation_counter += 1
-        website.last_validated_at = Now()
+        website.pruning_validation_counter += 1
+        website.pruning_last_validated_at = Now()
         website.save()

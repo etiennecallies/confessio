@@ -41,10 +41,10 @@ def remove_pruning_if_orphan(pruning: Optional[Pruning]):
 
 def page_first_pruning_was_validated(page: Page) -> Optional[bool]:
     for page_version in page.history.all():
-        if page_version.validation_counter == -1:
+        if page_version.pruning_validation_counter == -1:
             return False
 
-        if page_version.validation_counter > 0:
+        if page_version.pruning_validation_counter > 0:
             return True
 
     return None
