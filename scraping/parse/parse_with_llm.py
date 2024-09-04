@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from typing import Optional
 
 from openai import OpenAI, BadRequestError
@@ -27,9 +28,11 @@ def get_openai_client():
     return OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
-def build_prompt_text(pruned_html: str, location_description_by_church_id: dict[int, str]) -> str:
+def build_prompt_text(truncated_html: str,
+                      church_desc_by_id: dict[int, str]) -> str:
     church_description = "\n".join(f'{church_id}: {desc}'
-                                   for church_id, desc in location_description_by_church_id.items())
+                                   for church_id, desc in church_desc_by_id.items())
+    current_year = datetime.now().year
 
     return f"""Please help me extract the schedule of confession from the following French text.
         A confession can be called "confession" or "sacrement de réconciliation"
@@ -48,11 +51,11 @@ def build_prompt_text(pruned_html: str, location_description_by_church_id: dict[
             "exdates": list[str],  # the exception start dates for the confession.
                 Set to midnight if no hour specified.
             "rrules": list[str],  # the recurrence rules for the confession. For example
-                "DTSTART:20240101T103000\\nRRULE:FREQ=WEEKLY;BYDAY=WE" for
+                "DTSTART:{current_year}0101T103000\\nRRULE:FREQ=WEEKLY;BYDAY=WE" for
                 "confession les mercredis de 10h30 à 11h30"
             "exrules": list[str],  # the exception rules for the confession. Set to daily if no
                 frequence is specified. For example "pas de confession en aout" would be
-                "DTSTART:20240801T000000\\nRRULE:FREQ=DAILY;UNTIL=20240831T000000"
+                "DTSTART:{current_year}0801T000000\\nRRULE:FREQ=DAILY;UNTIL={current_year}0831T000000"
             "duration_in_minutes": Optional[int],  # the duration of the confession in minutes
             "during_school_holidays": Optional[bool],  # whether the schedule concerns only the
                 school holidays (true), or explicitely the school term (false) or is not explicit
@@ -66,29 +69,35 @@ def build_prompt_text(pruned_html: str, location_description_by_church_id: dict[
                 permanence schedule
         }}
 
+        Some details :
+        - Consider that we are in year "{current_year}"
+        - When it says "pas de confession pendant l'été", it means "no confession during july and
+            august"
+
+
         The church ids and their names and location are:
         {church_description}
 
         Here is the text:
-        {pruned_html}"""
+        {truncated_html}"""
 
 
 def build_input_messages(pruned_html: str,
-                         location_description_by_church_id: dict[int, str]) -> list[dict]:
+                         church_desc_by_id: dict[int, str]) -> list[dict]:
     return [
         {
             "role": "user",
             "content": [
                 {
                     "type": "text",
-                    "text": build_prompt_text(pruned_html, location_description_by_church_id)
+                    "text": build_prompt_text(pruned_html, church_desc_by_id)
                 }
             ]
         }
     ]
 
 
-def parse_with_llm(pruned_html: str, location_description_by_church_id: dict[int, str]
+def parse_with_llm(truncated_html: str, church_desc_by_id: dict[int, str]
                    ) -> tuple[Optional[SchedulesList], Optional[str]]:
     client = get_openai_client()
     model = "gpt-4o-2024-08-06"  # or "gpt-4o-mini"
@@ -96,7 +105,7 @@ def parse_with_llm(pruned_html: str, location_description_by_church_id: dict[int
     try:
         response = client.beta.chat.completions.parse(
             model=model,
-            messages=build_input_messages(pruned_html, location_description_by_church_id),
+            messages=build_input_messages(truncated_html, church_desc_by_id),
             response_format=SchedulesList,
         )
     except BadRequestError as e:
@@ -122,7 +131,7 @@ if __name__ == '__main__':
                     "jours de 17h à 18h. Le père Jean est disponible pour des confessions sur "
                     "rendez-vous. Pas de confession en août.")
 
-    location_description_by_church_id_ = {
+    church_desc_by_id_ = {
         1: "Sainte-Marie, 123 rue de la Paix, 75000 Paris",
         2: "Saint-Joseph, 456 rue de la Liberté, 75000 Paris",
     }
@@ -140,7 +149,7 @@ if __name__ == '__main__':
     # is_related_to_adoration = False
     # is_related_to_permanence = False
 
-    schedules_list, error_detail = parse_with_llm(pruned_html_, location_description_by_church_id_)
+    schedules_list, error_detail = parse_with_llm(pruned_html_, church_desc_by_id_)
     if schedules_list:
         for schedule in schedules_list.schedules:
             print(schedule)

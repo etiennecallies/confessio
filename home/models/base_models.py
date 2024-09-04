@@ -194,3 +194,26 @@ class Classifier(TimeStampMixin):
     pickle = models.CharField()
     accuracy = models.FloatField()
     history = HistoricalRecords()
+
+
+class Parsing(TimeStampMixin):
+    pruning = models.ForeignKey('Pruning', on_delete=models.CASCADE, related_name='parsings')
+    church_desc_by_id = models.JSONField()
+    error_detail = models.TextField(null=True)
+    history = HistoricalRecords()
+
+
+class Schedule(TimeStampMixin):
+    parsing = models.ForeignKey('Parsing', on_delete=models.CASCADE, related_name='schedules')
+    church_id = models.SmallIntegerField(null=True)
+    rdates = ArrayField(models.CharField())
+    exdates = ArrayField(models.CharField())
+    rrules = ArrayField(models.CharField())
+    exrules = ArrayField(models.CharField())
+    duration_in_minutes = models.SmallIntegerField(null=True)
+    during_school_holidays = models.BooleanField(null=True)
+    possible_by_appointment = models.BooleanField()
+    is_related_to_mass = models.BooleanField()
+    is_related_to_adoration = models.BooleanField()
+    is_related_to_permanence = models.BooleanField()
+    history = HistoricalRecords()
