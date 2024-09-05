@@ -28,13 +28,8 @@ def get_openai_client():
     return OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
-def build_prompt_text(truncated_html: str,
-                      church_desc_by_id: dict[int, str]) -> str:
-    church_description = "\n".join(f'{church_id}: {desc}'
-                                   for church_id, desc in church_desc_by_id.items())
-    current_year = datetime.now().year
-
-    return f"""Please help me extract the schedule of confession from the following French text.
+def get_prompt_template():
+    return """Please help me extract the schedule of confession from the following French text.
         A confession can be called "confession" or "sacrement de réconciliation"
 
         The output should be a list of dictionaries, each containing the schedule for a church.
@@ -82,7 +77,20 @@ def build_prompt_text(truncated_html: str,
         {truncated_html}"""
 
 
-def build_input_messages(pruned_html: str,
+def build_prompt_text(prompt_template: str,
+                      truncated_html: str,
+                      church_desc_by_id: dict[int, str]) -> str:
+    church_description = "\n".join(f'{church_id}: {desc}'
+                                   for church_id, desc in church_desc_by_id.items())
+    current_year = datetime.now().year
+
+    return prompt_template.format(current_year=current_year,
+                                  church_description=church_description,
+                                  truncated_html=truncated_html)
+
+
+def build_input_messages(prompt_template: str,
+                         truncated_html: str,
                          church_desc_by_id: dict[int, str]) -> list[dict]:
     return [
         {
@@ -90,23 +98,28 @@ def build_input_messages(pruned_html: str,
             "content": [
                 {
                     "type": "text",
-                    "text": build_prompt_text(pruned_html, church_desc_by_id)
+                    "text": build_prompt_text(prompt_template, truncated_html, church_desc_by_id)
                 }
             ]
         }
     ]
 
 
-def parse_with_llm(truncated_html: str, church_desc_by_id: dict[int, str]
+def get_llm_model():
+    return "gpt-4o-2024-08-06"  # or "gpt-4o-mini"
+
+
+def parse_with_llm(truncated_html: str, church_desc_by_id: dict[int, str],
+                   model: str, prompt_template: str
                    ) -> tuple[Optional[SchedulesList], Optional[str]]:
     client = get_openai_client()
-    model = "gpt-4o-2024-08-06"  # or "gpt-4o-mini"
 
     try:
         response = client.beta.chat.completions.parse(
             model=model,
-            messages=build_input_messages(truncated_html, church_desc_by_id),
+            messages=build_input_messages(prompt_template, truncated_html, church_desc_by_id),
             response_format=SchedulesList,
+            temperature=0.0,
         )
     except BadRequestError as e:
         print(e)
@@ -149,7 +162,8 @@ if __name__ == '__main__':
     # is_related_to_adoration = False
     # is_related_to_permanence = False
 
-    schedules_list, error_detail = parse_with_llm(pruned_html_, church_desc_by_id_)
+    schedules_list, error_detail = parse_with_llm(pruned_html_, church_desc_by_id_,
+                                                  get_llm_model(), get_prompt_template())
     if schedules_list:
         for schedule in schedules_list.schedules:
             print(schedule)

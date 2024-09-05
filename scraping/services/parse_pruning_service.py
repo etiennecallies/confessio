@@ -1,6 +1,6 @@
 from home.models import Pruning, Website, Parsing, Schedule
-from scraping.parse.parse_with_llm import parse_with_llm
-
+from home.utils.hash_utils import hash_string_to_hex
+from scraping.parse.parse_with_llm import parse_with_llm, get_llm_model, get_prompt_template
 
 TRUNCATION_LENGTH = 10
 
@@ -43,11 +43,16 @@ def parse_pruning_for_website(pruning: Pruning, website: Website):
                               church_desc_by_id=church_desc_by_id).exists():
         return
 
-    schedules_list, error_detail = parse_with_llm(truncated_html, church_desc_by_id)
+    llm_model = get_llm_model()
+    prompt_template = get_prompt_template()
+    schedules_list, error_detail = parse_with_llm(truncated_html, church_desc_by_id,
+                                                  llm_model, prompt_template)
 
     parsing = Parsing(
         pruning=pruning,
         church_desc_by_id=church_desc_by_id,
+        llm_model=llm_model,
+        prompt_template_hash=hash_string_to_hex(prompt_template),
         error_detail=error_detail,
     )
     parsing.save()

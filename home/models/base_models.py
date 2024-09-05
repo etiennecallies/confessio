@@ -199,6 +199,8 @@ class Classifier(TimeStampMixin):
 class Parsing(TimeStampMixin):
     pruning = models.ForeignKey('Pruning', on_delete=models.CASCADE, related_name='parsings')
     church_desc_by_id = models.JSONField()
+    llm_model = models.CharField(max_length=100)
+    prompt_template_hash = models.CharField(max_length=32)
     error_detail = models.TextField(null=True)
     history = HistoricalRecords()
 
