@@ -64,7 +64,10 @@ def get_parsing_schedules_list(parsing: Parsing) -> SchedulesList:
     )
 
 
-def save_schedule_list(parsing: Parsing, schedules_list: SchedulesList):
+def save_schedule_list(parsing: Parsing, schedules_list: Optional[SchedulesList]):
+    if schedules_list is None:
+        return
+
     for schedule_item in schedules_list.schedules:
         schedule = Schedule(
             parsing=parsing,
@@ -79,13 +82,13 @@ def save_schedule_list(parsing: Parsing, schedules_list: SchedulesList):
     parsing.save()
 
 
-def add_necessary_parsing_moderation(parsing: Parsing, schedules_list: SchedulesList):
+def add_necessary_parsing_moderation(parsing: Parsing, schedules_list: Optional[SchedulesList]):
     category = ParsingModeration.Category.NEW_SCHEDULES
-    schedules_list_as_dict = schedules_list.model_dump()
     try:
         parsing_moderation = ParsingModeration.objects.filter(parsing=parsing,
                                                               category=category).get()
-        if parsing_moderation.validated_schedules_list != schedules_list_as_dict:
+        if (schedules_list is None
+                or parsing_moderation.validated_schedules_list != schedules_list.model_dump()):
             parsing_moderation.validated_at = None
             parsing_moderation.validated_by = None
             parsing_moderation.save()
