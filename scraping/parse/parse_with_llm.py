@@ -8,20 +8,20 @@ from pydantic import BaseModel, ValidationError
 
 class ScheduleItem(BaseModel):
     church_id: Optional[int]
-    rdates: list[str]
-    exdates: list[str]
-    rrules: list[str]
-    exrules: list[str]
+    rdates: str
+    exdates: str
+    rrules: str
+    exrules: str
     duration_in_minutes: Optional[int]
     during_school_holidays: Optional[bool]
-    possible_by_appointment: bool
-    is_related_to_mass: bool
-    is_related_to_adoration: bool
-    is_related_to_permanence: bool
 
 
 class SchedulesList(BaseModel):
     schedules: list[ScheduleItem]
+    possible_by_appointment: bool
+    is_related_to_mass: bool
+    is_related_to_adoration: bool
+    is_related_to_permanence: bool
 
 
 def get_openai_client():
@@ -32,7 +32,19 @@ def get_prompt_template():
     return """Please help me extract the schedule of confession from the following French text.
         A confession can be called "confession" or "sacrement de réconciliation"
 
-        The output should be a list of dictionaries, each containing the schedule for a church.
+        The output should be a dictionary with this format:
+        {{
+            "schedules": list[ScheduleItem],  # list of schedule objects, see below
+            "possible_by_appointment": bool, # whether the confession is possible by appointment
+            "is_related_to_mass": bool,  # whether the confession schedule is related to a mass
+                schedule
+            "is_related_to_adoration": bool,  # whether the confession schedule is related to a
+                adoration schedule
+            "is_related_to_permanence": bool  # whether the confession schedule is related to a
+                permanence schedule
+        }}
+
+        Then, "schedules" is of dictionaries, each containing the schedule for a church.
         Sometimes several schedule dictionaries can be extracted from the same church.
 
         A schedule dictionary contains recurrence rules for occasional and regular confessions,
@@ -51,17 +63,11 @@ def get_prompt_template():
             "exrules": list[str],  # the exception rules for the confession. Set to daily if no
                 frequence is specified. For example "pas de confession en aout" would be
                 "DTSTART:{current_year}0801T000000\\nRRULE:FREQ=DAILY;UNTIL={current_year}0831T000000"
-            "duration_in_minutes": Optional[int],  # the duration of the confession in minutes
-            "during_school_holidays": Optional[bool],  # whether the schedule concerns only the
+            "duration_in_minutes": Optional[int],  # the duration of the confession in minutes,
+                null if not explicit
+            "during_school_holidays": Optional[bool]  # whether the schedule concerns only the
                 school holidays (true), or explicitely the school term (false) or is not explicit
                 about it (null)
-            "possible_by_appointment": bool, # whether the confession is possible by appointment
-            "is_related_to_mass": bool,  # whether the confession schedule is related to a mass
-                schedule
-            "is_related_to_adoration": bool,  # whether the confession schedule is related to a
-                adoration schedule
-            "is_related_to_permanence": bool,  # whether the confession schedule is related to a
-                permanence schedule
         }}
 
         Some details :
@@ -151,20 +157,19 @@ if __name__ == '__main__':
 
     # Expected output:
     # church_id = 1
-    # rdates = []
-    # exdates = []
-    # rrules = ['DTSTART:20240101T170000\\nRRULE:FREQ=DAILY']
-    # exrules = ['DTSTART:20240801T000000\\nRRULE:FREQ=DAILY;UNTIL=20240831T000000']
+    # rdates = ''
+    # exdates = ''
+    # rrules = 'DTSTART:20240101T170000\nRRULE:FREQ=DAILY'
+    # exrules = 'DTSTART:20240801T000000\nRRULE:FREQ=DAILY;UNTIL=20240831T000000'
     # duration_in_minutes = 60
     # during_school_holidays = None
-    # possible_by_appointment = True
-    # is_related_to_mass = False
-    # is_related_to_adoration = False
-    # is_related_to_permanence = False
+    # {'possible_by_appointment': True, 'is_related_to_mass': False,
+    # 'is_related_to_adoration': False, 'is_related_to_permanence': False}
 
     schedules_list, error_detail = parse_with_llm(pruned_html_, church_desc_by_id_,
                                                   get_llm_model(), get_prompt_template())
     if schedules_list:
         for schedule in schedules_list.schedules:
             print(schedule)
+        print(schedules_list.model_dump(exclude={'schedules'}))
     print(error_detail)

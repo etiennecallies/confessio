@@ -1,24 +1,16 @@
 <div>
     {% for schedule in schedules_list.schedules %}
         church_id: {{ schedule.church_id }}<br>
-        {% for s in schedule.rdates %}
-            rdate: {{ s }}<br>
-        {% endfor %}
-        {% for s in schedule.exdates %}
-            exdate: {{ s }}<br>
-        {% endfor %}
-        {% for s in schedule.rrules %}
-            rrule: {{ s }}<br>
-        {% endfor %}
-        {% for s in schedule.exrules %}
-            exrule: {{ s }}<br>
-        {% endfor %}
+        rdates: {{ schedule.rdates }}<br>
+        exdates: {{ schedule.exdates }}<br>
+        rrules: {{ schedule.rrules }}<br>
+        exrules: {{ schedule.exrules }}<br>
         duration_in_minutes: {{ schedule.duration_in_minutes }}<br>
         during_school_holidays: {{ schedule.during_school_holidays }}<br>
-        possible_by_appointment: {{ schedule.possible_by_appointment }}<br>
-        is_related_to_mass: {{ schedule.is_related_to_mass }}<br>
-        is_related_to_adoration: {{ schedule.is_related_to_adoration }}<br>
-        is_related_to_permanence: {{ schedule.is_related_to_permanence }}<br>
         <br>
     {% endfor %}
+    possible_by_appointment: {{ schedules_list.possible_by_appointment }}<br>
+    is_related_to_mass: {{ schedules_list.is_related_to_mass }}<br>
+    is_related_to_adoration: {{ schedules_list.is_related_to_adoration }}<br>
+    is_related_to_permanence: {{ schedules_list.is_related_to_permanence }}<br>
 </div>

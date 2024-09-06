@@ -55,7 +55,12 @@ def schedule_item_from_schedule(schedule: Schedule) -> ScheduleItem:
 
 def get_parsing_schedules_list(parsing: Parsing) -> SchedulesList:
     return SchedulesList(
-        schedules=list(map(schedule_item_from_schedule, parsing.schedules.all()))
+        schedules=list(map(schedule_item_from_schedule, parsing.schedules.all())),
+        error_detail=parsing.error_detail,
+        possible_by_appointment=parsing.possible_by_appointment,
+        is_related_to_mass=parsing.is_related_to_mass,
+        is_related_to_adoration=parsing.is_related_to_adoration,
+        is_related_to_permanence=parsing.is_related_to_permanence,
     )
 
 
@@ -66,6 +71,12 @@ def save_schedule_list(parsing: Parsing, schedules_list: SchedulesList):
             **schedule_item.model_dump()
         )
         schedule.save()
+
+    parsing.possible_by_appointment = schedules_list.possible_by_appointment
+    parsing.is_related_to_mass = schedules_list.is_related_to_mass
+    parsing.is_related_to_adoration = schedules_list.is_related_to_adoration
+    parsing.is_related_to_permanence = schedules_list.is_related_to_permanence
+    parsing.save()
 
 
 def add_necessary_parsing_moderation(parsing: Parsing, schedules_list: SchedulesList):
@@ -88,7 +99,8 @@ def add_necessary_parsing_moderation(parsing: Parsing, schedules_list: Schedules
 
 def update_validated_schedules_list(parsing_moderation: ParsingModeration):
     schedules_list = get_parsing_schedules_list(parsing_moderation.parsing)
-    parsing_moderation.validated_schedules_list = schedules_list
+    parsing_moderation.validated_schedules_list = schedules_list.model_dump()
+    parsing_moderation.save()
 
 
 def parse_pruning_for_website(pruning: Pruning, website: Website):
