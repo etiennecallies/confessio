@@ -12,6 +12,7 @@ class Command(AbstractCommand):
         parser.add_argument('-n', '--name', help='name of website to parse')
         parser.add_argument('-p', '--pruning-uuid', action='append',
                             default=[], help='uuid of pruning to parse (can be repeated)')
+        parser.add_argument('-m', '--max', help='max number of parsing to do', type=int)
 
     def handle(self, *args, **options):
         query = Q(scrapings__page__website__is_active=True)
@@ -22,8 +23,12 @@ class Command(AbstractCommand):
         prunings = Pruning.objects.filter(query).distinct()
 
         counter = 0
+        max_parsings = options['max'] or None
         for pruning in prunings:
             for scraping in pruning.scrapings.all():
+                if max_parsings and counter >= max_parsings:
+                    break
+
                 website = scraping.page.website
                 self.info(f'Parsing {pruning.uuid} for website {website.name}')
                 parse_pruning_for_website(pruning, website)
