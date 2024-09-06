@@ -204,6 +204,9 @@ class Parsing(TimeStampMixin):
     error_detail = models.TextField(null=True)
     history = HistoricalRecords()
 
+    class Meta:
+        unique_together = ('pruning', 'church_desc_by_id')
+
 
 class Schedule(TimeStampMixin):
     parsing = models.ForeignKey('Parsing', on_delete=models.CASCADE, related_name='schedules')

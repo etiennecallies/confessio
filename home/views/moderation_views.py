@@ -5,10 +5,12 @@ from django.urls import reverse
 
 from home.models import WebsiteModeration, ChurchModeration, ModerationMixin, \
     BUG_DESCRIPTION_MAX_LENGTH, ParishModeration, ResourceDoesNotExist, PruningModeration, \
-    SentenceModeration
+    SentenceModeration, ParsingModeration
 from home.services.edit_pruning_service import (set_pruning_human_source,
                                                 increment_page_validation_counter_of_pruning)
 from home.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
+from scraping.services.parse_pruning_service import update_validated_schedules_list, \
+    get_truncated_html, get_parsing_schedules_list
 from scraping.services.sentence_outliers_service import get_pruning_containing_sentence
 from sourcing.services.merge_websites_service import merge_websites
 
@@ -94,6 +96,8 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
 
                 # update page validation counter
                 increment_page_validation_counter_of_pruning(moderation.pruning)
+            elif class_moderation == ParsingModeration:
+                update_validated_schedules_list(moderation)
 
             moderation.validate(request.user)
 
@@ -192,6 +196,30 @@ def render_sentence_moderation(request, moderation: SentenceModeration, next_url
         'sentence_moderation': moderation,
         'sentence': moderation.sentence,
         'prunings': prunings,
+        'next_url': next_url,
+        'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
+    })
+
+
+@login_required
+@permission_required("home.change_sentence")
+def moderate_parsing(request, category, is_bug, moderation_uuid=None):
+    return get_moderate_response(request, category, 'parsing', is_bug, ParsingModeration,
+                                 moderation_uuid, render_parsing_moderation)
+
+
+def render_parsing_moderation(request, moderation: ParsingModeration, next_url):
+    parsing = moderation.parsing
+    assert parsing is not None
+
+    truncated_html = get_truncated_html(parsing.pruning)
+    schedules_list = get_parsing_schedules_list(parsing)
+
+    return render(request, f'pages/moderate_parsing.html', {
+        'parsing_moderation': moderation,
+        'parsing': parsing,
+        'truncated_html': truncated_html,
+        'schedules_list': schedules_list,
         'next_url': next_url,
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
     })

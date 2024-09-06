@@ -1,7 +1,7 @@
 from django.template.defaulttags import register
 
 from home.models import WebsiteModeration, ChurchModeration, ParishModeration, \
-    PruningModeration, SentenceModeration
+    PruningModeration, SentenceModeration, ParsingModeration
 
 
 @register.filter
@@ -22,4 +22,5 @@ def get_moderation_stats():
         ChurchModeration.get_stats_by_category(),
         PruningModeration.get_stats_by_category(),
         SentenceModeration.get_stats_by_category(),
+        ParsingModeration.get_stats_by_category(),
     ], [])

@@ -6,6 +6,7 @@ from home.models import Parish, Church, Website
 from home.services.map_service import (get_map_with_single_location,
                                        get_map_with_multiple_locations,
                                        get_map_with_alternative_locations)
+from scraping.parse.parse_with_llm import SchedulesList
 
 
 @register.simple_tag
@@ -51,3 +52,8 @@ def display_similar_churches_location(church: Church, sorted_similar_churches: l
     map_html = folimum_map._repr_html_()
 
     return render_to_string('partials/location_display.html', {'map_html': map_html})
+
+
+@register.simple_tag
+def display_schedules_list(schedules_list: SchedulesList):
+    return render_to_string('partials/schedules_display.html', {'schedules_list': schedules_list})

@@ -395,3 +395,25 @@ class SentenceModeration(ModerationMixin):
             return True
 
         return False
+
+
+class ParsingModeration(ModerationMixin):
+    class Category(models.TextChoices):
+        NEW_SCHEDULES = "new_schedules"
+
+    resource = 'parsing'
+    validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
+                                     on_delete=models.SET_NULL, null=True)
+    marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
+                                         on_delete=models.SET_NULL, null=True)
+    history = HistoricalRecords()
+    parsing = models.ForeignKey('Parsing', on_delete=models.CASCADE, related_name='moderations')
+    category = models.CharField(max_length=13, choices=Category)
+    validated_schedules_list = models.JSONField(null=True)
+
+    class Meta:
+        unique_together = ('parsing', 'category')
+
+    def delete_on_validate(self) -> bool:
+        # we always keep validated ParsingModeration
+        return False
