@@ -108,6 +108,9 @@ def update_validated_schedules_list(parsing_moderation: ParsingModeration):
 
 def parse_pruning_for_website(pruning: Pruning, website: Website):
     truncated_html = get_truncated_html(pruning)
+    if not truncated_html:
+        return
+
     church_desc_by_id = get_church_desc_by_id(website)
 
     llm_model = get_llm_model()

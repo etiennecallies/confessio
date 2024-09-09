@@ -1,3 +1,5 @@
+import json
+
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponseBadRequest, HttpResponseNotFound
 from django.shortcuts import render, redirect
@@ -214,10 +216,12 @@ def render_parsing_moderation(request, moderation: ParsingModeration, next_url):
 
     truncated_html = get_truncated_html(parsing.pruning)
     schedules_list = get_parsing_schedules_list(parsing)
+    church_desc_by_id_json = json.dumps(parsing.church_desc_by_id, indent=2)
 
     return render(request, f'pages/moderate_parsing.html', {
         'parsing_moderation': moderation,
         'parsing': parsing,
+        'church_desc_by_id_json': church_desc_by_id_json,
         'truncated_html': truncated_html,
         'schedules_list': schedules_list,
         'next_url': next_url,

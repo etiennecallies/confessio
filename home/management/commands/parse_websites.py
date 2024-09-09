@@ -15,12 +15,13 @@ class Command(AbstractCommand):
         parser.add_argument('-m', '--max', help='max number of parsing to do', type=int)
 
     def handle(self, *args, **options):
-        query = Q(scrapings__page__website__is_active=True)
+        query = Q(scrapings__page__website__is_active=True,
+                  pruned_html__isnull=False)
         if options['pruning_uuid']:
             query &= Q(uuid__in=options['pruning_uuid'])
         if options['name']:
             query &= Q(scrapings__page__website__name__contains=options['name'])
-        prunings = Pruning.objects.filter(query).distinct()
+        prunings = Pruning.objects.filter(query).exclude(pruned_html__exact='').distinct()
 
         counter = 0
         max_parsings = options['max'] or None
