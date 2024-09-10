@@ -24,6 +24,9 @@
             Open parsing admin <i class="fas fa-up-right-from-square"></i>
         </a>
     </p>
+    {% for scraping in parsing.pruning.scrapings.all %}
+        <p>Scraping page: <a href="{{ scraping.page.url }}" target="_blank">{{ scraping.page.url }}</a></p>
+    {% endfor %}
 
     Church description by id : <pre>{{ church_desc_by_id_json }}</pre><br>
     Truncated html : <br>
