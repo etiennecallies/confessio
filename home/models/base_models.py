@@ -32,7 +32,7 @@ class Website(TimeStampMixin):
     home_url = models.URLField(unique=True)
     is_active = models.BooleanField(default=True)
     pruning_validation_counter = models.SmallIntegerField(default=0)
-    pruning_last_validated_at = models.DateTimeField(null=True)
+    pruning_last_validated_at = models.DateTimeField(null=True, blank=True)
     history = HistoricalRecords()
 
     _pages = None
@@ -102,7 +102,7 @@ class Page(TimeStampMixin):
     url = models.URLField()
     website = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='pages')
     pruning_validation_counter = models.SmallIntegerField(default=0)
-    pruning_last_validated_at = models.DateTimeField(null=True)
+    pruning_last_validated_at = models.DateTimeField(null=True, blank=True)
     history = HistoricalRecords()
 
     class Meta:
