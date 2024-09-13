@@ -3,25 +3,10 @@ from datetime import datetime
 from typing import Optional
 
 from openai import OpenAI, BadRequestError
-from pydantic import BaseModel, ValidationError
+from pydantic import ValidationError
 
-
-class ScheduleItem(BaseModel):
-    church_id: Optional[int]
-    rdates: str
-    exdates: str
-    rrules: str
-    exrules: str
-    duration_in_minutes: Optional[int]
-    during_school_holidays: Optional[bool]
-
-
-class SchedulesList(BaseModel):
-    schedules: list[ScheduleItem]
-    possible_by_appointment: bool
-    is_related_to_mass: bool
-    is_related_to_adoration: bool
-    is_related_to_permanence: bool
+from scraping.parse.schedules import SchedulesList
+from scraping.parse.test_rrule import are_schedules_list_rrules_valid
 
 
 def get_openai_client():
@@ -135,8 +120,12 @@ def parse_with_llm(truncated_html: str, church_desc_by_id: dict[int, str],
         return None, str(e)
 
     message = response.choices[0].message
-    if message.parsed:
-        return message.parsed, None
+    schedules_list = message.parsed
+    if schedules_list:
+        if not are_schedules_list_rrules_valid(schedules_list):
+            return None, "Invalid rrules"
+
+        return schedules_list, None
     else:
         return None, message.refusal
 

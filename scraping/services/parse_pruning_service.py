@@ -4,8 +4,8 @@ from django.forms import model_to_dict
 
 from home.models import Pruning, Website, Parsing, Schedule, ParsingModeration
 from home.utils.hash_utils import hash_string_to_hex
-from scraping.parse.parse_with_llm import parse_with_llm, get_llm_model, get_prompt_template, \
-    SchedulesList, ScheduleItem
+from scraping.parse.parse_with_llm import parse_with_llm, get_llm_model, get_prompt_template
+from scraping.parse.schedules import SchedulesList, ScheduleItem
 
 TRUNCATION_LENGTH = 10
 
@@ -106,7 +106,7 @@ def update_validated_schedules_list(parsing_moderation: ParsingModeration):
     parsing_moderation.save()
 
 
-def parse_pruning_for_website(pruning: Pruning, website: Website):
+def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: bool = False):
     truncated_html = get_truncated_html(pruning)
     if not truncated_html:
         return
@@ -119,8 +119,9 @@ def parse_pruning_for_website(pruning: Pruning, website: Website):
 
     # check the parsing does not already exist
     parsing = get_existing_parsing(pruning, church_desc_by_id)
-    if parsing and parsing.llm_model == llm_model and \
-            parsing.prompt_template_hash == prompt_template_hash:
+    if not force_parse and parsing \
+            and parsing.llm_model == llm_model \
+            and parsing.prompt_template_hash == prompt_template_hash:
         return
 
     schedules_list, error_detail = parse_with_llm(truncated_html, church_desc_by_id,
@@ -135,7 +136,7 @@ def parse_pruning_for_website(pruning: Pruning, website: Website):
         existing_schedules_list = get_parsing_schedules_list(parsing)
         if existing_schedules_list != schedules_list:
             # delete existing schedules
-            parsing.schedules.delete()
+            parsing.schedules.all().delete()
         else:
             return
     else:

@@ -13,6 +13,8 @@ class Command(AbstractCommand):
         parser.add_argument('-p', '--pruning-uuid', action='append',
                             default=[], help='uuid of pruning to parse (can be repeated)')
         parser.add_argument('-m', '--max', help='max number of parsing to do', type=int)
+        parser.add_argument('-f', '--force-parse', action="store_true",
+                            help='force parsing even if already parsed')
 
     def handle(self, *args, **options):
         query = Q(scrapings__page__website__is_active=True,
@@ -32,7 +34,7 @@ class Command(AbstractCommand):
 
                 website = scraping.page.website
                 self.info(f'Parsing {pruning.uuid} for website {website.name}')
-                parse_pruning_for_website(pruning, website)
+                parse_pruning_for_website(pruning, website, options['force_parse'])
                 counter += 1
 
         self.success(f'Successfully parsed {counter} pruning-websites')

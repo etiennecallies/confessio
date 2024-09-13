@@ -6,7 +6,7 @@ from home.models import Parish, Church, Website
 from home.services.map_service import (get_map_with_single_location,
                                        get_map_with_multiple_locations,
                                        get_map_with_alternative_locations)
-from scraping.parse.parse_with_llm import SchedulesList
+from scraping.parse.schedules import SchedulesList
 
 
 @register.simple_tag
