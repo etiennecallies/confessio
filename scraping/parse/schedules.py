@@ -1,9 +1,10 @@
+from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel
 
 
-class ScheduleItem(BaseModel):
+class ScheduleItem(BaseModel, frozen=True):
     church_id: Optional[int]
     rdates: str
     exdates: str
@@ -19,3 +20,9 @@ class SchedulesList(BaseModel):
     is_related_to_mass: bool
     is_related_to_adoration: bool
     is_related_to_permanence: bool
+
+
+class Event(BaseModel, frozen=True):
+    church_id: Optional[int]
+    start: datetime
+    end: datetime

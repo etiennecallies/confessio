@@ -1,16 +1,9 @@
-import os
 from datetime import datetime
 from typing import Optional
 
-from openai import OpenAI, BadRequestError
-from pydantic import ValidationError
-
+from scraping.parse.llm_client import OpenAILLMClient, get_openai_client
 from scraping.parse.schedules import SchedulesList
 from scraping.parse.test_rrule import are_schedules_list_rrules_valid
-
-
-def get_openai_client():
-    return OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
 def get_prompt_template():
@@ -59,6 +52,8 @@ def get_prompt_template():
         - Consider that we are in year "{current_year}"
         - When it says "pas de confession pendant l'été", it means "no confession during july and
             august"
+        - DURATION is not accepted in python rrule, so please do not include it in the rrule, use
+            the "duration_in_minutes" field instead
 
 
         The church ids and their names and location are:
@@ -70,10 +65,11 @@ def get_prompt_template():
 
 def build_prompt_text(prompt_template: str,
                       truncated_html: str,
-                      church_desc_by_id: dict[int, str]) -> str:
+                      church_desc_by_id: dict[int, str],
+                      current_year: Optional[int]) -> str:
     church_description = "\n".join(f'{church_id}: {desc}'
                                    for church_id, desc in church_desc_by_id.items())
-    current_year = datetime.now().year
+    current_year = current_year or datetime.now().year
 
     return prompt_template.format(current_year=current_year,
                                   church_description=church_description,
@@ -82,14 +78,16 @@ def build_prompt_text(prompt_template: str,
 
 def build_input_messages(prompt_template: str,
                          truncated_html: str,
-                         church_desc_by_id: dict[int, str]) -> list[dict]:
+                         church_desc_by_id: dict[int, str],
+                         current_year: Optional[int]) -> list[dict]:
     return [
         {
             "role": "user",
             "content": [
                 {
                     "type": "text",
-                    "text": build_prompt_text(prompt_template, truncated_html, church_desc_by_id)
+                    "text": build_prompt_text(prompt_template, truncated_html, church_desc_by_id,
+                                              current_year)
                 }
             ]
         }
@@ -101,33 +99,24 @@ def get_llm_model():
 
 
 def parse_with_llm(truncated_html: str, church_desc_by_id: dict[int, str],
-                   model: str, prompt_template: str
+                   model: str, prompt_template: str,
+                   llm_client: Optional[OpenAILLMClient] = None,
+                   current_year: Optional[int] = None
                    ) -> tuple[Optional[SchedulesList], Optional[str]]:
-    client = get_openai_client()
+    if llm_client is None:
+        llm_client = OpenAILLMClient(get_openai_client())
 
-    try:
-        response = client.beta.chat.completions.parse(
-            model=model,
-            messages=build_input_messages(prompt_template, truncated_html, church_desc_by_id),
-            response_format=SchedulesList,
-            temperature=0.0,
-        )
-    except BadRequestError as e:
-        print(e)
-        return None, str(e)
-    except ValidationError as e:
-        print(e)
-        return None, str(e)
-
-    message = response.choices[0].message
-    schedules_list = message.parsed
+    schedules_list, error_detail = llm_client.get_completions(
+        model=model,
+        messages=build_input_messages(prompt_template, truncated_html, church_desc_by_id,
+                                      current_year),
+        temperature=0.0,
+    )
     if schedules_list:
         if not are_schedules_list_rrules_valid(schedules_list):
             return None, "Invalid rrules"
 
-        return schedules_list, None
-    else:
-        return None, message.refusal
+    return schedules_list, error_detail
 
 
 if __name__ == '__main__':
@@ -155,10 +144,10 @@ if __name__ == '__main__':
     # {'possible_by_appointment': True, 'is_related_to_mass': False,
     # 'is_related_to_adoration': False, 'is_related_to_permanence': False}
 
-    schedules_list, error_detail = parse_with_llm(pruned_html_, church_desc_by_id_,
-                                                  get_llm_model(), get_prompt_template())
-    if schedules_list:
-        for schedule in schedules_list.schedules:
+    schedules_list_, error_detail_ = parse_with_llm(pruned_html_, church_desc_by_id_,
+                                                    get_llm_model(), get_prompt_template())
+    if schedules_list_:
+        for schedule in schedules_list_.schedules:
             print(schedule)
-        print(schedules_list.model_dump(exclude={'schedules'}))
-    print(error_detail)
+        print(schedules_list_.model_dump(exclude={'schedules'}))
+    print(error_detail_)
