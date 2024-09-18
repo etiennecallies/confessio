@@ -99,7 +99,7 @@ class ModerationMixin(TimeStampMixin):
         self.save()
 
 
-class ResourceDoesNotExist(Exception):
+class ResourceDoesNotExistError(Exception):
     pass
 
 
@@ -211,7 +211,7 @@ class ParishModeration(ModerationMixin):
         try:
             similar_parish = Parish.objects.get(uuid=similar_parish_uuid)
         except Parish.DoesNotExist:
-            raise ResourceDoesNotExist
+            raise ResourceDoesNotExistError
 
         if self.source == ExternalSource.MESSESINFO:
             similar_parish.messesinfo_community_id = self.parish.messesinfo_community_id
@@ -330,7 +330,7 @@ class ChurchModeration(ModerationMixin):
         try:
             similar_church = Church.objects.get(uuid=similar_church_uuid)
         except Church.DoesNotExist:
-            raise ResourceDoesNotExist
+            raise ResourceDoesNotExistError
 
         if self.source == ExternalSource.MESSESINFO:
             similar_church.messesinfo_id = self.church.messesinfo_id

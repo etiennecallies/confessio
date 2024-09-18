@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 
 from home.models import WebsiteModeration, ChurchModeration, ModerationMixin, \
-    BUG_DESCRIPTION_MAX_LENGTH, ParishModeration, ResourceDoesNotExist, PruningModeration, \
+    BUG_DESCRIPTION_MAX_LENGTH, ParishModeration, ResourceDoesNotExistError, PruningModeration, \
     SentenceModeration, ParsingModeration
 from home.services.edit_pruning_service import (set_pruning_human_source,
                                                 increment_page_validation_counter_of_pruning)
@@ -88,7 +88,7 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
                 similar_uuid = request.POST.get('assign_external_id')
                 try:
                     moderation.assign_external_id(similar_uuid)
-                except ResourceDoesNotExist:
+                except ResourceDoesNotExistError:
                     return HttpResponseNotFound(
                         f"resource {resource} not found with uuid {similar_uuid}")
 
