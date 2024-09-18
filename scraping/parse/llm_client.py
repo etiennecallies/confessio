@@ -7,8 +7,11 @@ from pydantic import ValidationError
 from scraping.parse.schedules import SchedulesList
 
 
-def get_openai_client():
-    return OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+def get_openai_client(openai_api_key: Optional[str] = None) -> OpenAI:
+    if not openai_api_key:
+        openai_api_key = os.getenv("OPENAI_API_KEY")
+
+    return OpenAI(api_key=openai_api_key)
 
 
 class OpenAILLMClient:
