@@ -1,6 +1,5 @@
 {% extends 'layouts/base.html' %}
 {% load static %}
-{% load custom_tags %}
 {% load i18n %}
 
 {% block content %}
@@ -76,84 +75,7 @@
         <div class="row">
             <div class="col-12 text-left">
                 {% for website in websites %}
-                    <div class="row mt-5" id="{{ website.uuid }}">
-                        <div class="col-12">
-                            <div class="card shadow">
-                                <div class="card-body px-md-5 py-md-5 text-left">
-                                    <div class="row align-items-center">
-                                        <div class="col-12">
-                                            <div class="row mb-3">
-                                                <h3 class="col-md-8">
-                                                    <a class="link-info"
-                                                        href="{% url 'index' %}?websiteUuid={{ website.uuid }}">
-                                                        {{ website.name }}
-                                                    </a>
-                                                    {% if request.user.is_authenticated and request.user.is_staff %}
-                                                        <a class="text-muted small" href="{% url 'admin:home_website_change' website.uuid %}" target="_blank">
-                                                            - Admin <i class="fas fa-up-right-from-square"></i>
-                                                        </a>
-                                                    {% endif %}
-                                                </h3>
-                                                <h3 class="col-md-4 text-md-end">
-                                                    <span class="small"><span class="small">
-                                                    <a class="text-muted small" href="{{ website.home_url }}" target="_blank">{% trans 'goToParishSite' %}
-                                                        <i class="fas fa-up-right-from-square"></i>
-                                                    </a>
-                                                    </span></span>
-                                                </h3>
-                                            </div>
-                                            {% for church in website_churches|get_item:website.uuid %}
-                                                <div class="row">
-                                                    <p class="col-md-9">
-                                                        <span class="fw-bold">{{ church.name }}</span>
-                                                        {% if request.user.is_authenticated and request.user.is_staff %}
-                                                            <a class="text-muted" href="{% url 'admin:home_church_change' church.uuid %}" target="_blank">
-                                                                - Admin <i class="fas fa-up-right-from-square"></i>
-                                                            </a>
-                                                        {% endif %}
-                                                        <br>
-                                                        <span class="text-muted">{{ church.address }} {{ church.zipcode }} {{ church.city }}</span>
-                                                    </p>
-                                                    <p class="col-md-3">
-                                                        <a href="#map"
-                                                           class="link-info"
-                                                           onclick="return popupChurch('{{ church_marker_names|get_item:church.uuid }}');">
-                                                            {% trans 'locateOnMap' %}
-                                                        </a>
-                                                    </p>
-                                                </div>
-                                            {% endfor %}
-                                            <div class="mb-0">
-                                                {% if website.one_page_has_confessions %}
-                                                    {% for page in website.get_pages %}
-                                                        {% if page.has_confessions %}
-                                                            <div class="row mt-3 mb-1">
-                                                                <p class="col-md-9 lead">
-                                                                    {% blocktrans with url=page_urls|get_item:page.uuid %}BeforeConfessionHTML {{ url }}{% endblocktrans %}
-                                                                </p>
-                                                                <p class="col-md-3">
-                                                                    {% if request.user.is_authenticated and perms.home.change_sentence %}
-                                                                        <a href="{% url 'edit_pruning' page.scraping.pruning.uuid %}" class="link-info"><i class="fas fa-tags"></i> {% trans 'EditPruning' %}</a>
-                                                                    {% endif %}
-                                                                </p>
-                                                            </div>
-                                                            <div>
-                                                                {{ page.get_latest_scraping.pruning.pruned_html|safe }}
-                                                            </div>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                {% elif not website.has_been_crawled %}
-                                                    {% trans 'NotCrawledYet' %}
-                                                {% else %}
-                                                    {% trans 'NoConfessionFound' %}
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    {% include 'includes/website_card.html' with website=website %}
                 {% endfor %}
             </div>
         </div>
