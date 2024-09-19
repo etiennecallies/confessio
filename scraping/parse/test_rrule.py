@@ -53,7 +53,7 @@ def get_events_from_schedule_items(schedules: list[ScheduleItem],
     all_events = sum((get_events_from_schedule_item(schedule, start_date, end_date)
                       for schedule in schedules), [])
 
-    return list(set(all_events))
+    return list(sorted(list(set(all_events))))
 
 
 def are_schedules_list_equivalent(sl1: SchedulesList, sl2: SchedulesList,

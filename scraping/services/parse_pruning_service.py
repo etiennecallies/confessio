@@ -2,7 +2,7 @@ from typing import Optional
 
 from django.forms import model_to_dict
 
-from home.models import Pruning, Website, Parsing, Schedule, ParsingModeration
+from home.models import Pruning, Website, Parsing, Schedule, ParsingModeration, Church
 from home.utils.hash_utils import hash_string_to_hex
 from scraping.parse.parse_with_llm import parse_with_llm, get_llm_model, get_prompt_template
 from scraping.parse.schedules import SchedulesList, ScheduleItem
@@ -24,11 +24,15 @@ def get_truncated_html(pruning: Pruning) -> str:
     return '<br>'.join(truncated_lines)
 
 
+def get_church_desc(church: Church) -> str:
+    return f'{church.name} {church.city}'
+
+
 def get_church_desc_by_id(website: Website) -> dict[int, str]:
     church_descs = []
     for parish in website.parishes.all():
         for church in parish.churches.all():
-            church_descs.append(f'{church.name} {church.city}')
+            church_descs.append(get_church_desc(church))
 
     church_desc_by_id = {}
     church_index = 1
@@ -37,6 +41,24 @@ def get_church_desc_by_id(website: Website) -> dict[int, str]:
         church_index += 1
 
     return church_desc_by_id
+
+
+def get_id_by_value(church_desc: str, church_desc_by_id: dict[int, str]) -> int:
+    for index, desc in church_desc_by_id.items():
+        if desc == church_desc:
+            return int(index)
+
+    raise ValueError(f'Church description {church_desc} not found in church_desc_by_id')
+
+
+def get_church_by_id(parsing: Parsing) -> dict[int, Church]:
+    church_by_id = {}
+    for parish in parsing.website.parishes.all():
+        for church in parish.churches.all():
+            church_id = get_id_by_value(get_church_desc(church), parsing.church_desc_by_id)
+            church_by_id[church_id] = church
+
+    return church_by_id
 
 
 def get_existing_parsing(website: Website, pruning: Pruning) -> Optional[Parsing]:
