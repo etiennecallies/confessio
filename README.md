@@ -3,12 +3,14 @@ A search engine for confession hours by scraping parish websites.
 
 This is the codebase of the [confessio.fr](https://confessio.fr) project.
 
+---
+
 # Dev environment
 
-## Environment variables
+### Environment variables
 Copy the `.env.sample` file to `.env` and fill in the values.
 
-## Local env with pyenv
+### Python virtualenv with pyenv
 We recommend using pyenv to manage python versions. Install it following the instructions 
 [here](https://github.com/pyenv/pyenv?tab=readme-ov-file#installation).
 ```shell
@@ -17,7 +19,7 @@ pyenv activate confessio
 pip install -r requirements.txt
 ```
 
-## Install GIS dependencies
+### Install GIS dependencies
 For MacOS, follow instructions [here](https://mits003.github.io/studio_null/2021/07/install-gdal-on-macos/).
 
 Also, you can configure GDAL_LIBRARY_PATH and GEOS_LIBRARY_PATH env var in .env.
@@ -67,26 +69,33 @@ This will download and load the latest prod database dump in local. Your psql us
 $ python manage.py dbrestore --uncompress
 ```
 
-### Start the app
+## Start the app
 
 ```bash
 $ python manage.py runserver
 ```
 
 At this point, the app runs at `http://127.0.0.1:8000/`.
-## Testing
+
+## Continuous Integration
+To install required packages for tests and linter, run:
+```
+pip install -r ci_requirements.txt
+```
+
+### Testing
 ```shell
 # without django loading
 python -m unittest discover scraping
 # OR with django loading
 python manage.py test
 ```
-## Linter
+### Linter
 ```shell
 flake8
 ```
 
-## Pre-commit hook
+### Pre-commit hook
 Consider adding a pre-commit hook (`vim .git/hooks/pre-commit`), but if you don't github actions will catch you.
 ```shell
 echo "Running flake8..."
