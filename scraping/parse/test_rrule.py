@@ -9,17 +9,11 @@ from scraping.parse.schedules import ScheduleItem, SchedulesList, Event
 def get_rruleset_from_schedule(schedule: ScheduleItem) -> rruleset:
     rset = rruleset()
 
-    if schedule.rdates:
-        rset.rdate(rrulestr(schedule.rdates))
+    if schedule.rrule:
+        rset.rrule(rrulestr(schedule.rrule))
 
-    if schedule.exdates:
-        rset.exdate(rrulestr(schedule.exdates))
-
-    if schedule.rrules:
-        rset.rrule(rrulestr(schedule.rrules))
-
-    if schedule.exrules:
-        rset.exrule(rrulestr(schedule.exrules))
+    if schedule.exrule:
+        rset.exrule(rrulestr(schedule.exrule))
 
     return rset
 
@@ -113,13 +107,10 @@ if __name__ == '__main__':
 
     schedule_ = ScheduleItem(
         church_id=1,
-        rdates='2024-01-01T10:30',
-        # exdates='2024-08-01',
-        exdates='',
-        # rrules='FREQ=WEEKLY;BYDAY=WE',
-        rrules='',
-        # exrules='FREQ=DAILY;UNTIL=2024-08-31',
-        exrules='',
+        # rrule='FREQ=WEEKLY;BYDAY=WE',
+        rrule='',
+        # exrule='FREQ=DAILY;UNTIL=2024-08-31',
+        exrule='',
         duration_in_minutes=60,
         during_school_holidays=True
     )

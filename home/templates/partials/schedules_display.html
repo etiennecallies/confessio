@@ -1,10 +1,8 @@
 <div>
     {% for schedule in schedules_list.schedules %}
         church_id: {{ schedule.church_id }}<br>
-        rdates: {{ schedule.rdates }}<br>
-        exdates: {{ schedule.exdates }}<br>
-        rrules: {{ schedule.rrules }}<br>
-        exrules: {{ schedule.exrules }}<br>
+        rrule: {{ schedule.rrule }}<br>
+        exrule: {{ schedule.exrule }}<br>
         duration_in_minutes: {{ schedule.duration_in_minutes }}<br>
         during_school_holidays: {{ schedule.during_school_holidays }}<br>
         <br>

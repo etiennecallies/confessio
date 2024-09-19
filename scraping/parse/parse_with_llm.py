@@ -32,13 +32,10 @@ def get_prompt_template():
         {{
             "church_id": Optional[int],  # the id of the respective church, can be null if the
                 church information is not explicit in the text
-            "rdates": list[str],  # the start dates of the confession. Can be empty.
-            "exdates": list[str],  # the exception start dates for the confession.
-                Set to midnight if no hour specified.
-            "rrules": list[str],  # the recurrence rules for the confession. For example
+            "rrule": str,  # the recurrence rule for the confession. For example
                 "DTSTART:{current_year}0101T103000\\nRRULE:FREQ=WEEKLY;BYDAY=WE" for
                 "confession les mercredis de 10h30 à 11h30"
-            "exrules": list[str],  # the exception rules for the confession. Set to daily if no
+            "exrule": str,  # the exception rule for the confession. Set to daily if no
                 frequence is specified. For example "pas de confession en aout" would be
                 "DTSTART:{current_year}0801T000000\\nRRULE:FREQ=DAILY;UNTIL={current_year}0831T000000"
             "duration_in_minutes": Optional[int],  # the duration of the confession in minutes,
@@ -135,10 +132,8 @@ if __name__ == '__main__':
 
     # Expected output:
     # church_id = 1
-    # rdates = ''
-    # exdates = ''
-    # rrules = 'DTSTART:20240101T170000\nRRULE:FREQ=DAILY'
-    # exrules = 'DTSTART:20240801T000000\nRRULE:FREQ=DAILY;UNTIL=20240831T000000'
+    # rrule = 'DTSTART:20240101T170000\nRRULE:FREQ=DAILY'
+    # exrule = 'DTSTART:20240801T000000\nRRULE:FREQ=DAILY;UNTIL=20240831T000000'
     # duration_in_minutes = 60
     # during_school_holidays = None
     # {'possible_by_appointment': True, 'is_related_to_mass': False,
