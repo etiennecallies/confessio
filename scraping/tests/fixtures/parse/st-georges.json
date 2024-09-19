@@ -1,0 +1,99 @@
+{
+  "input": {
+    "church_desc_by_id": {
+      "1": "Saint Georges LYON"
+    },
+    "year": 2024
+  },
+  "output": {
+    "schedules_list": {
+      "schedules": [
+        {
+          "church_id": 1,
+          "rdates": "",
+          "exdates": "",
+          "rrules": "DTSTART:20240830T173000\nRRULE:FREQ=DAILY;UNTIL=20240830T181500",
+          "exrules": "",
+          "duration_in_minutes": 45,
+          "during_school_holidays": null
+        },
+        {
+          "church_id": 1,
+          "rdates": "",
+          "exdates": "",
+          "rrules": "DTSTART:20240831T094500\nRRULE:FREQ=DAILY;UNTIL=20240831T103000",
+          "exrules": "",
+          "duration_in_minutes": 45,
+          "during_school_holidays": null
+        },
+        {
+          "church_id": 1,
+          "rdates": "",
+          "exdates": "",
+          "rrules": "DTSTART:20240902T173000\nRRULE:FREQ=DAILY;UNTIL=20240902T181500",
+          "exrules": "",
+          "duration_in_minutes": 45,
+          "during_school_holidays": null
+        },
+        {
+          "church_id": 1,
+          "rdates": "",
+          "exdates": "",
+          "rrules": "DTSTART:20240903T173000\nRRULE:FREQ=DAILY;UNTIL=20240903T181500",
+          "exrules": "",
+          "duration_in_minutes": 45,
+          "during_school_holidays": null
+        },
+        {
+          "church_id": 1,
+          "rdates": "",
+          "exdates": "",
+          "rrules": "DTSTART:20240904T173000\nRRULE:FREQ=DAILY;UNTIL=20240904T181500",
+          "exrules": "",
+          "duration_in_minutes": 45,
+          "during_school_holidays": null
+        },
+        {
+          "church_id": 1,
+          "rdates": "",
+          "exdates": "",
+          "rrules": "DTSTART:20240905T173000\nRRULE:FREQ=DAILY;UNTIL=20240905T181500",
+          "exrules": "",
+          "duration_in_minutes": 45,
+          "during_school_holidays": null
+        },
+        {
+          "church_id": 1,
+          "rdates": "",
+          "exdates": "",
+          "rrules": "DTSTART:20240906T173000\nRRULE:FREQ=DAILY;UNTIL=20240906T181500",
+          "exrules": "",
+          "duration_in_minutes": 45,
+          "during_school_holidays": null
+        },
+        {
+          "church_id": 1,
+          "rdates": "",
+          "exdates": "",
+          "rrules": "DTSTART:20240906T193000\nRRULE:FREQ=DAILY;UNTIL=20240906T220000",
+          "exrules": "",
+          "duration_in_minutes": 150,
+          "during_school_holidays": null
+        },
+        {
+          "church_id": 1,
+          "rdates": "",
+          "exdates": "",
+          "rrules": "DTSTART:20240907T094000\nRRULE:FREQ=DAILY;UNTIL=20240907T103000",
+          "exrules": "",
+          "duration_in_minutes": 50,
+          "during_school_holidays": null
+        }
+      ],
+      "possible_by_appointment": false,
+      "is_related_to_mass": false,
+      "is_related_to_adoration": true,
+      "is_related_to_permanence": false
+    }
+  }
+}

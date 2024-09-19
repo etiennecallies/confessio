@@ -38,12 +38,14 @@ class OpenAILLMClientWithCache(OpenAILLMClient):
 class LlmParsingTests(unittest.TestCase):
     def setUp(self):
         load_dotenv()
-        self.llm_client = OpenAILLMClientWithCache(get_openai_client('thisIsNotARealKey'))
+        openai_api_key = os.getenv("OPENAI_API_KEY") or 'thisIsNotARealKey'
+        self.llm_client = OpenAILLMClientWithCache(get_openai_client(openai_api_key))
 
     @staticmethod
     def get_paragraphs_fixtures():
         return [
             'mock1',
+            'st-georges',
         ]
 
     def test_llm_parsing(self):
