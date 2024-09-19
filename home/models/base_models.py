@@ -55,6 +55,9 @@ class Website(TimeStampMixin):
     def has_been_crawled(self) -> bool:
         return self.get_latest_crawling() is not None
 
+    def has_been_parsed(self) -> bool:
+        return self.parsings.exists()
+
     def get_pages(self) -> List['Page']:
         if self._pages is None:
             self._pages = self.pages.all()
@@ -123,6 +126,9 @@ class Page(TimeStampMixin):
 
     def has_been_scraped(self) -> bool:
         return self.get_latest_scraping() is not None
+
+    def has_been_parsed(self) -> bool:
+        return self.has_confessions() and self.get_latest_pruning().parsings.exists()
 
     def has_confessions(self) -> bool:
         return self.get_latest_pruning() is not None\
@@ -197,6 +203,7 @@ class Classifier(TimeStampMixin):
 
 
 class Parsing(TimeStampMixin):
+    website = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='parsings')
     pruning = models.ForeignKey('Pruning', on_delete=models.CASCADE, related_name='parsings')
     church_desc_by_id = models.JSONField()
     llm_model = models.CharField(max_length=100)
@@ -209,7 +216,7 @@ class Parsing(TimeStampMixin):
     history = HistoricalRecords()
 
     class Meta:
-        unique_together = ('pruning', 'church_desc_by_id')
+        unique_together = ('website', 'pruning')
 
 
 class Schedule(TimeStampMixin):

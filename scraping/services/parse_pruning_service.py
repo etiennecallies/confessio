@@ -39,10 +39,9 @@ def get_church_desc_by_id(website: Website) -> dict[int, str]:
     return church_desc_by_id
 
 
-def get_existing_parsing(pruning: Pruning, church_desc_by_id: dict[int, str]) -> Optional[Parsing]:
+def get_existing_parsing(website: Website, pruning: Pruning) -> Optional[Parsing]:
     try:
-        return Parsing.objects.filter(pruning=pruning,
-                                      church_desc_by_id=church_desc_by_id).get()
+        return Parsing.objects.filter(website=website, pruning=pruning).get()
     except Parsing.DoesNotExist:
         return None
 
@@ -118,8 +117,9 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
     prompt_template_hash = hash_string_to_hex(prompt_template)
 
     # check the parsing does not already exist
-    parsing = get_existing_parsing(pruning, church_desc_by_id)
+    parsing = get_existing_parsing(website, pruning)
     if not force_parse and parsing \
+            and parsing.church_desc_by_id == church_desc_by_id \
             and parsing.llm_model == llm_model \
             and parsing.prompt_template_hash == prompt_template_hash:
         return
@@ -128,6 +128,7 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
                                                   llm_model, prompt_template)
 
     if parsing:
+        parsing.church_desc_by_id = church_desc_by_id
         parsing.llm_model = llm_model
         parsing.prompt_template_hash = prompt_template_hash
         parsing.error_detail = error_detail
@@ -141,6 +142,7 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
             return
     else:
         parsing = Parsing(
+            website=website,
             pruning=pruning,
             church_desc_by_id=church_desc_by_id,
             llm_model=llm_model,
