@@ -77,7 +77,7 @@ class LlmParsingTests(unittest.TestCase):
                 are_equivalent, reason = are_schedules_list_equivalent(
                     schedules_list, expected_schedules_list, year_start, year_end)
 
-                self.assertTrue(are_equivalent, reason)
+                self.assertTrue(are_equivalent, f'{reason} for {file_name}')
 
 
 if __name__ == '__main__':

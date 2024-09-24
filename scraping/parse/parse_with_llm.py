@@ -12,57 +12,6 @@ def double_square_brackets(json_as_dict):
 
 
 def get_prompt_template():
-    # TODO adapt the prompt template to the next years without altering the prompt_template
-    examples = [({
-        1: "Saint Pierre Paris",
-        2: "ND de l'Assomption Paris",
-        3: "Saint Yves Paris"
-    }, """Confessions<br>
-Confessions<br>
-<table>
-<thead><tr>
-<th><p><br/></p></th>
-<th><p>ND de l'Assomption</p></th>
-<th><p>Saint Yves</p></th>
-<th><p>Saint Pierre</p></th>
-</tr></thead>
-<tbody>
-<tr><td><p>Lundi</p></td><td><p><br/></p></td><td><p><br/></p></td><td></td></tr>
-<tr><td><p>Mardi</p></td><td></td><td><p>de 17h à 18h</p></td><td></td></tr>
-<tr><td><p>Vendredi</p></td><td></td><td><p>de 17h à 18h</p></td><td><p>de 10h à 10h45</p></td></tr>
-</tbody>
-</table>""", {
-        "schedules":
-        [
-            {
-                "church_id": 1,
-                "rrule": "DTSTART:20240105T100000\nRRULE:FREQ=WEEKLY;BYDAY=FR",
-                "exrule": None,
-                "duration_in_minutes": 45,
-                "during_school_holidays": None
-            },
-            {
-                "church_id": 3,
-                "rrule": "DTSTART:20240102T170000\nRRULE:FREQ=WEEKLY;BYDAY=TU,FR",
-                "exrule": None,
-                "duration_in_minutes": 60,
-                "during_school_holidays": None
-            }
-        ],
-        "possible_by_appointment": False,
-        "is_related_to_mass": False,
-        "is_related_to_adoration": False,
-        "is_related_to_permanence": False
-    })]
-    examples_string = "\n".join(
-        f"Example {i + 1}:\n"
-        f"With HTML extract:\n"
-        f"{example[1]}\n\n"
-        f"and church by ids:\n"
-        f"{get_church_desc(example[0])}\n\n"
-        f"the output would be:\n"
-        f"{double_square_brackets(example[2])}\n\n" for i, example in enumerate(examples))
-
     return """Please help me extract the schedule of confession from the following French HTML
 extract. A confession can be called "confession" or "sacrement de réconciliation"
 
@@ -109,11 +58,9 @@ Some details :
     august"
 - DURATION is not accepted in python rrule, so please do not include it in the rrule, use
     the "duration_in_minutes" field instead
-- don't mix up with church ids, especially in tables with multiple churches where schedule
-descriptions refer to the church of the column or row. Beware of empty cells.
-- return schedules ordered by church_id, null id being last.
-
-""" + examples_string + """
+- For one-off event, use the keyword UNTIL in the rrule and let the exrule null. For example,
+    "confession le 8 février de 10h à 11h" would be
+    "DTSTART:{current_year}0208T100000\\nRRULE:FREQ=DAILY;UNTIL={current_year}0208T110000"
 
 Here is the HTML extract to parse:
 {truncated_html}
