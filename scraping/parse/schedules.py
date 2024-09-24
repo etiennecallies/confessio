@@ -6,8 +6,8 @@ from pydantic import BaseModel
 
 class ScheduleItem(BaseModel, frozen=True):
     church_id: Optional[int]
-    rrule: str
-    exrule: str
+    rrule: Optional[str]
+    exrule: Optional[str]
     duration_in_minutes: Optional[int]
     during_school_holidays: Optional[bool]
 
