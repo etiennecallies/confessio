@@ -208,7 +208,7 @@ class Parsing(TimeStampMixin):
     church_desc_by_id = models.JSONField()
     llm_model = models.CharField(max_length=100)
     prompt_template_hash = models.CharField(max_length=32)
-    error_detail = models.TextField(null=True)
+    error_detail = models.TextField(null=True, blank=True)
     possible_by_appointment = models.BooleanField(null=True)
     is_related_to_mass = models.BooleanField(null=True)
     is_related_to_adoration = models.BooleanField(null=True)
@@ -222,8 +222,8 @@ class Parsing(TimeStampMixin):
 class Schedule(TimeStampMixin):
     parsing = models.ForeignKey('Parsing', on_delete=models.CASCADE, related_name='schedules')
     church_id = models.SmallIntegerField(null=True)
-    rrule = models.CharField()
-    exrule = models.CharField()
+    rrule = models.TextField(default='', blank=True)  # in order to have TextArea in admin
+    exrule = models.TextField(default='', blank=True)  # in order to have TextArea in admin
     duration_in_minutes = models.SmallIntegerField(null=True)
     during_school_holidays = models.BooleanField(null=True)
     history = HistoricalRecords()

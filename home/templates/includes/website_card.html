@@ -57,8 +57,9 @@
                                 <div id="tab-schedules-{{ website.uuid }}">
                                     {% with church_schedules_list=website|get_church_schedules_list %}
                                         {% for church_event in church_schedules_list.get_church_events %}
-                                            <p>{{ church_event.church.name }}:
-                                                {{ church_event.event.start }} - {{ church_event.event.end }}</p>
+                                            <p>{{ church_event.church.name }} :
+                                                {{ church_event.event.start|date:"l j F" }}
+                                                {{ church_event.event.start|date:"G:i" }} - {{ church_event.event.end|date:"G:i" }}</p>
                                         {% endfor %}
                                     {% endwith %}
                                 </div>

@@ -119,3 +119,6 @@ if __name__ == '__main__':
     for occurrence in rset_.between(datetime(2024, 1, 1),
                                     datetime(2024, 12, 31)):
         print(occurrence)
+
+    rrule_ = 'DTSTART:20240106T100000\nRRULE:FREQ=WEEKLY;BYDAY=SA'
+    rrulestr(rrule_)

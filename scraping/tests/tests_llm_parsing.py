@@ -46,6 +46,7 @@ class LlmParsingTests(unittest.TestCase):
         return [
             'mock1',
             'st-georges',
+            # 'paroisse2lyon',  # TODO fix it
         ]
 
     def test_llm_parsing(self):

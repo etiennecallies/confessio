@@ -1,0 +1,41 @@
+{
+  "input": {
+    "church_desc_by_id": {
+      "1": "Saint Fran\u00e7ois de Sales LYON",
+      "2": "Saint Martin d'Ainay LYON",
+      "3": "Sainte Croix LYON"
+    },
+    "year": 2024
+  },
+  "output": {
+    "schedules_list": {
+      "schedules": [
+        {
+          "church_id": 3,
+          "rrule": "DTSTART:20240102T173000\nRRULE:FREQ=WEEKLY;BYDAY=TU,WE,TH,FR",
+          "exrule": null,
+          "duration_in_minutes": 30,
+          "during_school_holidays": null
+        },
+        {
+          "church_id": 1,
+          "rrule": "DTSTART:20240105T090000\nRRULE:FREQ=WEEKLY;BYDAY=FR",
+          "exrule": null,
+          "duration_in_minutes": 30,
+          "during_school_holidays": null
+        },
+        {
+          "church_id": 2,
+          "rrule": "DTSTART:20240106T100000\nRRULE:FREQ=WEEKLY;BYDAY=SA",
+          "exrule": null,
+          "duration_in_minutes": 120,
+          "during_school_holidays": null
+        }
+      ],
+      "possible_by_appointment": false,
+      "is_related_to_mass": false,
+      "is_related_to_adoration": false,
+      "is_related_to_permanence": false
+    }
+  }
+}
