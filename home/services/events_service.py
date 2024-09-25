@@ -46,8 +46,11 @@ class ChurchSchedulesList:
     schedules_list: SchedulesList
 
     @classmethod
-    def from_parsing(cls, parsing: Parsing) -> 'ChurchSchedulesList':
+    def from_parsing(cls, parsing: Parsing) -> Optional['ChurchSchedulesList']:
         schedules_list = get_parsing_schedules_list(parsing)
+        if schedules_list is None:
+            return None
+
         church_by_id = get_church_by_id(parsing)
         church_schedules = [ChurchScheduleItem.from_schedule_item(schedule, church_by_id)
                             for schedule in schedules_list.schedules]

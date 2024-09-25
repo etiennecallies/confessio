@@ -74,10 +74,12 @@ def schedule_item_from_schedule(schedule: Schedule) -> ScheduleItem:
     return ScheduleItem(**schedule_dict)
 
 
-def get_parsing_schedules_list(parsing: Parsing) -> SchedulesList:
+def get_parsing_schedules_list(parsing: Parsing) -> Optional[SchedulesList]:
+    if parsing.error_detail:
+        return None
+
     return SchedulesList(
         schedules=list(map(schedule_item_from_schedule, parsing.schedules.all())),
-        error_detail=parsing.error_detail,
         possible_by_appointment=parsing.possible_by_appointment,
         is_related_to_mass=parsing.is_related_to_mass,
         is_related_to_adoration=parsing.is_related_to_adoration,
@@ -123,6 +125,7 @@ def add_necessary_parsing_moderation(parsing: Parsing, schedules_list: Optional[
 
 def update_validated_schedules_list(parsing_moderation: ParsingModeration):
     schedules_list = get_parsing_schedules_list(parsing_moderation.parsing)
+    assert schedules_list is not None, 'Can not validate parsing with error'
     parsing_moderation.validated_schedules_list = schedules_list.model_dump()
     parsing_moderation.save()
 

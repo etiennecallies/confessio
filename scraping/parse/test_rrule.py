@@ -35,6 +35,10 @@ def are_schedules_list_rrules_valid(schedules_list: SchedulesList) -> bool:
 
 def get_events_from_schedule_item(schedule: ScheduleItem,
                                   start_date: datetime, end_date: datetime) -> list[Event]:
+    if schedule.duration_in_minutes is None:
+        # TODO this should never happen
+        return []
+
     rset = get_rruleset_from_schedule(schedule)
 
     events = []

@@ -33,15 +33,16 @@
     {{ truncated_html | safe }}<br>
 {#    <pre>{{ truncated_html }}</pre> TODO add it in toggle #}
     <br>
-    Schedules list : <br>
-    {% display_schedules_list schedules_list %}<br>
+    {% if schedules_list %}
+        Schedules list: <br>
+        {% display_schedules_list schedules_list %}<br>
+    {% else %}
+       Error detail: {{ parsing.error_detail }}
+    {% endif %}
     <br>
 
     {% if parsing_moderation.validated_schedules_list %}
         Previously validated schedules list : {% display_schedules_list parsing_moderation.validated_schedules_list %}<br>
-    {% endif %}
-    {% if parsing.error_detail %}
-        Error detail : {{ parsing.error_detail }}<br>
     {% endif %}
 
     {% if not parsing_moderation.marked_as_bug_at %}
