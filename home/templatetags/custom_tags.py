@@ -1,9 +1,13 @@
+from datetime import datetime
+
 from django.template.defaulttags import register
 
 from home.models import WebsiteModeration, ChurchModeration, ParishModeration, \
     PruningModeration, SentenceModeration, ParsingModeration, Website
 from home.services.events_service import ChurchSchedulesList, \
     get_merged_church_schedules_list
+from scraping.parse.schedules import ScheduleItem, Event
+from scraping.parse.test_rrule import get_events_from_schedule_item
 
 
 @register.filter
@@ -21,6 +25,14 @@ def get_church_schedules_list(website: Website) -> ChurchSchedulesList:
     church_schedules_lists = [ChurchSchedulesList.from_parsing(parsing)
                               for parsing in website.parsings.all()]
     return get_merged_church_schedules_list(church_schedules_lists)
+
+
+@register.filter
+def get_schedule_item_events(schedule_item: ScheduleItem) -> list[Event]:
+    start_date = datetime(2000, 1, 1)
+    end_date = datetime(2040, 1, 1)
+
+    return get_events_from_schedule_item(schedule_item, start_date, end_date)[:7]
 
 
 @register.simple_tag
