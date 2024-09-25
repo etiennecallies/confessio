@@ -29,10 +29,19 @@
     {% endfor %}
 
     Church description by id : <pre>{{ church_desc_by_id_json }}</pre><br>
-    Truncated html : <br>
-    {{ truncated_html | safe }}<br>
-{#    <pre>{{ truncated_html }}</pre> TODO add it in toggle #}
-    <br>
+    Truncated html :
+    <div class="truncated-html-tabs">
+      <ul>
+        <li><a href="#tabs-nice">Nice display</a></li>
+        <li><a href="#tabs-raw">Raw HTML</a></li>
+      </ul>
+      <div id="tabs-nice">
+        {{ truncated_html | safe }}
+      </div>
+      <div id="tabs-raw">
+        <pre>{{ truncated_html }}</pre>
+      </div>
+    </div>
     {% if schedules_list %}
         Schedules list: <br>
         {% display_schedules_list schedules_list %}<br>
