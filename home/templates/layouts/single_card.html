@@ -1,5 +1,4 @@
 {% extends 'layouts/base.html' %}
-{% load static %}
 
 {% block content %}
 
@@ -25,8 +24,3 @@
 </main>
 
 {% endblock content %}
-
-{% block javascripts %}
-    {{ block.super }}
-    <script src="{% static 'js/moderation.js' %}"></script>
-{% endblock javascripts %}
