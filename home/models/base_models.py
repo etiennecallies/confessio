@@ -213,6 +213,7 @@ class Parsing(TimeStampMixin):
     is_related_to_mass = models.BooleanField(null=True)
     is_related_to_adoration = models.BooleanField(null=True)
     is_related_to_permanence = models.BooleanField(null=True)
+    has_seasonal_events = models.BooleanField(null=True)
     history = HistoricalRecords()
 
     class Meta:

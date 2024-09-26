@@ -72,6 +72,9 @@ def are_schedules_list_equivalent(sl1: SchedulesList, sl2: SchedulesList,
     if sl1.is_related_to_permanence != sl2.is_related_to_permanence:
         return False, 'is_related_to_permanence differs'
 
+    if sl1.has_seasonal_events != sl2.has_seasonal_events:
+        return False, 'has_seasonal_events differs'
+
     if sl1.possible_by_appointment != sl2.possible_by_appointment:
         return False, 'possible_by_appointment differs'
 

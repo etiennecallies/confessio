@@ -20,7 +20,8 @@
       "possible_by_appointment": true,
       "is_related_to_mass": false,
       "is_related_to_adoration": false,
-      "is_related_to_permanence": false
+      "is_related_to_permanence": false,
+      "has_seasonal_events": false
     }
   }
 }

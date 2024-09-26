@@ -1,0 +1,25 @@
+{
+  "input": {
+    "church_desc_by_id": {
+      "1": "Notre-Dame-de-l'Assomption GRANDRIS",
+      "2": "Saint Just SAINT JUST D'AVRAY",
+      "3": "Saint Laurent CLAVEISOLLES",
+      "4": "Saint Martin LAMURE SUR AZERGUES",
+      "5": "Saint Martin POULE LES ECHARMEAUX",
+      "6": "Saint Nizier SAINT NIZIER D'AZERGUES",
+      "7": "Saint-Pierre et Saint-Paul CHAMBOST ALLIERES",
+      "8": "Sainte Madeleine CHENELETTE"
+    },
+    "year": 2024
+  },
+  "output": {
+    "schedules_list": {
+      "schedules": [],
+      "possible_by_appointment": true,
+      "is_related_to_mass": false,
+      "is_related_to_adoration": false,
+      "is_related_to_permanence": false,
+      "has_seasonal_events": true
+    }
+  }
+}

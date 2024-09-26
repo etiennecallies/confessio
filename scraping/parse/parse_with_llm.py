@@ -23,15 +23,18 @@ The output should be a dictionary with this format:
         schedule
     "is_related_to_adoration": bool,  # whether the confession schedule is related to a
         adoration schedule
-    "is_related_to_permanence": bool  # whether the confession schedule is related to a
+    "is_related_to_permanence": bool,  # whether the confession schedule is related to a
         permanence schedule
+    "has_seasonal_events": bool  # whether the text mentions future confession sessions
+        during liturgical seasons, such as Lent or Advent.
 }}
 
 Then, "schedules" is of dictionaries, each containing the schedule for a church.
 Sometimes several schedule dictionaries can be extracted from the same church.
 
 A schedule dictionary contains recurrence rules for occasional and regular confessions,
-as well as the duration of the event.
+as well as the duration of the event. Only schedules with explicit dates and times should
+appear in this list.
 
 Here is the schedule dictionary format:
 {{

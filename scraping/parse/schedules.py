@@ -18,6 +18,7 @@ class SchedulesList(BaseModel):
     is_related_to_mass: bool
     is_related_to_adoration: bool
     is_related_to_permanence: bool
+    has_seasonal_events: bool
 
 
 class Event(BaseModel, frozen=True):

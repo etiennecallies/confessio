@@ -79,5 +79,6 @@ def get_merged_church_schedules_list(csl: list[ChurchSchedulesList]
             is_related_to_mass=any(sl.schedules_list.is_related_to_mass for sl in csl),
             is_related_to_adoration=any(sl.schedules_list.is_related_to_adoration for sl in csl),
             is_related_to_permanence=any(sl.schedules_list.is_related_to_permanence for sl in csl),
+            has_seasonal_events=any(sl.schedules_list.has_seasonal_events for sl in csl),
         )
     )

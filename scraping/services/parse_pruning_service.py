@@ -84,6 +84,7 @@ def get_parsing_schedules_list(parsing: Parsing) -> Optional[SchedulesList]:
         is_related_to_mass=parsing.is_related_to_mass,
         is_related_to_adoration=parsing.is_related_to_adoration,
         is_related_to_permanence=parsing.is_related_to_permanence,
+        has_seasonal_events=parsing.has_seasonal_events,
     )
 
 
@@ -102,6 +103,7 @@ def save_schedule_list(parsing: Parsing, schedules_list: Optional[SchedulesList]
     parsing.is_related_to_mass = schedules_list.is_related_to_mass
     parsing.is_related_to_adoration = schedules_list.is_related_to_adoration
     parsing.is_related_to_permanence = schedules_list.is_related_to_permanence
+    parsing.has_seasonal_events = schedules_list.has_seasonal_events
     parsing.save()
 
 
