@@ -3,7 +3,7 @@ from typing import Optional
 from home.models import Page, Scraping
 from scraping.services.page_service import delete_scraping
 from scraping.services.prune_scraping_service import prune_pruning, \
-    get_pruned_pruning
+    create_pruning
 
 
 def upsert_scraping(page: Page, extracted_html: Optional[str]) -> ():
@@ -25,7 +25,7 @@ def upsert_scraping(page: Page, extracted_html: Optional[str]) -> ():
             # If a scraping exists and is different from last one, we delete it
             delete_scraping(scraping)
 
-        pruning = get_pruned_pruning(extracted_html)
+        pruning = create_pruning(extracted_html)
 
         scraping = Scraping(
             nb_iterations=1,
@@ -33,3 +33,5 @@ def upsert_scraping(page: Page, extracted_html: Optional[str]) -> ():
             pruning=pruning,
         )
         scraping.save()
+
+        prune_pruning(pruning)

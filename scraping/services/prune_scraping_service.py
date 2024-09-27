@@ -142,7 +142,7 @@ def prune_pruning(pruning: Pruning) -> ():
     add_necessary_moderation(pruning)
 
 
-def get_pruned_pruning(extracted_html: Optional[str]) -> Optional[Pruning]:
+def create_pruning(extracted_html: Optional[str]) -> Optional[Pruning]:
     if not extracted_html:
         return
 
@@ -153,7 +153,5 @@ def get_pruned_pruning(extracted_html: Optional[str]) -> Optional[Pruning]:
             extracted_html=extracted_html,
         )
         pruning.save()
-
-    prune_pruning(pruning)
 
     return pruning
