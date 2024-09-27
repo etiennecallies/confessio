@@ -1,0 +1,25 @@
+{
+  "input": {
+    "church_desc_by_id": {
+      "1": "Chapelle de l'H\u00f4pital Poincar\u00e9 GARCHES",
+      "2": "\u00c9glise Saint-Louis Garches"
+    },
+    "year": 2024
+  },
+  "output": {
+    "schedules_list": {
+      "schedules": [{
+          "church_id": 2,
+          "rrule": "DTSTART:20240106T093000\nRRULE:FREQ=WEEKLY;BYDAY=SA",
+          "exrule": null,
+          "duration_in_minutes": 120,
+          "during_school_holidays": null
+        }],
+      "possible_by_appointment": false,
+      "is_related_to_mass": true,
+      "is_related_to_adoration": false,
+      "is_related_to_permanence": true,
+      "has_seasonal_events": false
+    }
+  }
+}

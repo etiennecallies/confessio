@@ -6,6 +6,10 @@ from dateutil.rrule import rrule, rruleset, WEEKLY, DAILY, rrulestr
 from scraping.parse.schedules import ScheduleItem, SchedulesList, Event
 
 
+def filter_unnecessary_schedules(schedules: list[ScheduleItem]) -> list[ScheduleItem]:
+    return [schedule for schedule in schedules if schedule.rrule or schedule.exrule]
+
+
 def get_rruleset_from_schedule(schedule: ScheduleItem) -> rruleset:
     rset = rruleset()
 
