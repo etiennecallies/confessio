@@ -1,2 +1,4 @@
-{{ event.start|date:"l j F" }} {{ event.start|date:"G:i" }} -
+{% now "Y" as current_year %}
+{{ event.start|date:"l j F" }}{% if event.start|date:"Y" != current_year %} {{ event.start|date:"Y" }}{% endif %}
+{{ event.start|date:"G:i" }} -
 {% if event.end %}{{ event.end|date:"G:i" }}{% else %}?{% endif %}
