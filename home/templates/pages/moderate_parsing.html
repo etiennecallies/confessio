@@ -50,8 +50,9 @@
     {% endif %}
     <br>
 
-    {% if parsing_moderation.validated_schedules_list %}
-        Previously validated schedules list : {% display_schedules_list parsing_moderation.validated_schedules_list %}<br>
+    {% if validated_schedules_list %}
+        <h4>Previously validated schedules list :</h4>
+        {% display_schedules_list validated_schedules_list %}<br>
     {% endif %}
 
     {% if not parsing_moderation.marked_as_bug_at %}

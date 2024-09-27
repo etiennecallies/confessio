@@ -11,6 +11,7 @@ from home.models import WebsiteModeration, ChurchModeration, ModerationMixin, \
 from home.services.edit_pruning_service import (set_pruning_human_source,
                                                 increment_page_validation_counter_of_pruning)
 from home.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
+from scraping.parse.schedules import SchedulesList
 from scraping.services.parse_pruning_service import update_validated_schedules_list, \
     get_truncated_html, get_parsing_schedules_list
 from scraping.services.sentence_outliers_service import get_pruning_containing_sentence
@@ -217,6 +218,8 @@ def render_parsing_moderation(request, moderation: ParsingModeration, next_url):
     truncated_html = get_truncated_html(parsing.pruning)
     schedules_list = get_parsing_schedules_list(parsing)
     church_desc_by_id_json = json.dumps(parsing.church_desc_by_id, indent=2)
+    validated_schedules_list = SchedulesList(**moderation.validated_schedules_list)\
+        if moderation.validated_schedules_list else None
 
     return render(request, f'pages/moderate_parsing.html', {
         'parsing_moderation': moderation,
@@ -224,6 +227,7 @@ def render_parsing_moderation(request, moderation: ParsingModeration, next_url):
         'church_desc_by_id_json': church_desc_by_id_json,
         'truncated_html': truncated_html,
         'schedules_list': schedules_list,
+        'validated_schedules_list': validated_schedules_list,
         'next_url': next_url,
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
     })
