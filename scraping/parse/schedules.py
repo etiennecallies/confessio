@@ -24,7 +24,7 @@ class SchedulesList(BaseModel):
 class Event(BaseModel, frozen=True):
     church_id: Optional[int]
     start: datetime
-    end: datetime
+    end: Optional[datetime]
 
     def __lt__(self, other: 'Event'):
         return self.start.__lt__(other.start)

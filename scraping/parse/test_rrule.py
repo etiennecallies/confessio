@@ -35,18 +35,16 @@ def are_schedules_list_rrules_valid(schedules_list: SchedulesList) -> bool:
 
 def get_events_from_schedule_item(schedule: ScheduleItem,
                                   start_date: datetime, end_date: datetime) -> list[Event]:
-    if schedule.duration_in_minutes is None:
-        # TODO this should never happen
-        return []
-
     rset = get_rruleset_from_schedule(schedule)
 
     events = []
     for start in rset.between(start_date, end_date):
+        end = start + timedelta(minutes=schedule.duration_in_minutes) \
+            if schedule.duration_in_minutes is not None else None
         events.append(Event(
             church_id=schedule.church_id,
             start=start,
-            end=start + timedelta(minutes=schedule.duration_in_minutes)
+            end=end
         ))
 
     return events

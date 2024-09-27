@@ -1,4 +1,5 @@
 {% load custom_tags %}
+{% load display_tags %}
 
 <div>
     {% for schedule in schedules_list.schedules %}
@@ -9,7 +10,7 @@
         during_school_holidays: {{ schedule.during_school_holidays }}<br>
         {% with events=schedule|get_schedule_item_events %}
             {% for event in events %}
-                <p>{{ event.start|date:"l j F" }} {{ event.start|date:"G:i" }} - {{ event.end|date:"G:i" }}</p>
+                <p>{% display_event event %}</p>
             {% endfor %}
         {% endwith %}
         <br>

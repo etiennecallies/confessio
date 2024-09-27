@@ -6,7 +6,7 @@ from home.models import Parish, Church, Website
 from home.services.map_service import (get_map_with_single_location,
                                        get_map_with_multiple_locations,
                                        get_map_with_alternative_locations)
-from scraping.parse.schedules import SchedulesList
+from scraping.parse.schedules import SchedulesList, Event
 
 
 @register.simple_tag
@@ -25,6 +25,11 @@ def display_church(church: Church, with_map=True):
         'church': church,
         'with_map': with_map,
     })
+
+
+@register.simple_tag
+def display_event(event: Event):
+    return render_to_string('partials/event_display.html', {'event': event})
 
 
 @register.simple_tag

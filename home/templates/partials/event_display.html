@@ -1,0 +1,2 @@
+{{ event.start|date:"l j F" }} {{ event.start|date:"G:i" }} -
+{% if event.end %}{{ event.end|date:"G:i" }}{% else %}?{% endif %}
