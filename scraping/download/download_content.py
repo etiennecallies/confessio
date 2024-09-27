@@ -34,9 +34,10 @@ def get_content_length(url):
 
 
 def get_content_from_url(url):
-    if url.endswith('.mp3'):
-        print(f'ignoring mp3 url {url}')
-        return None
+    for extension in ('.mp3', '.m4a'):
+        if url.endswith(extension):
+            print(f'ignoring {extension} url {url}')
+            return None
 
     if url.endswith('.pdf'):
         content_length = get_content_length(url)
