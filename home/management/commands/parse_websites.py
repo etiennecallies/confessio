@@ -15,6 +15,8 @@ class Command(AbstractCommand):
         parser.add_argument('-m', '--max', help='max number of parsing to do', type=int)
         parser.add_argument('-f', '--force-parse', action="store_true",
                             help='force parsing even if already parsed')
+        parser.add_argument('-e', '--existing', action="store_true",
+                            help='re-parse existing parsings')
 
     def handle(self, *args, **options):
         query = Q(scrapings__page__website__is_active=True,
@@ -23,6 +25,8 @@ class Command(AbstractCommand):
             query &= Q(uuid__in=options['pruning_uuid'])
         if options['name']:
             query &= Q(scrapings__page__website__name__contains=options['name'])
+        if options['existing']:
+            query &= Q(parsings__isnull=False)
         prunings = Pruning.objects.filter(query).exclude(pruned_html__exact='').distinct()
 
         counter = 0
