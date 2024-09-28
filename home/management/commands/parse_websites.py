@@ -23,10 +23,14 @@ class Command(AbstractCommand):
                   pruned_html__isnull=False)
         if options['pruning_uuid']:
             query &= Q(uuid__in=options['pruning_uuid'])
+        elif options['existing']:
+            query &= Q(parsings__isnull=False)
+        else:
+            query &= Q(scrapings__isnull=False)
+
         if options['name']:
             query &= Q(scrapings__page__website__name__contains=options['name'])
-        if options['existing']:
-            query &= Q(parsings__isnull=False)
+
         prunings = Pruning.objects.filter(query).exclude(pruned_html__exact='').distinct()
 
         counter = 0

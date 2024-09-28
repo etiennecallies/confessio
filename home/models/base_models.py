@@ -55,9 +55,6 @@ class Website(TimeStampMixin):
     def has_been_crawled(self) -> bool:
         return self.get_latest_crawling() is not None
 
-    def has_been_parsed(self) -> bool:
-        return self.parsings.exists()
-
     def get_pages(self) -> List['Page']:
         if self._pages is None:
             self._pages = self.pages.all()
@@ -68,14 +65,20 @@ class Website(TimeStampMixin):
         return len(self.get_pages()) > 0
 
     def all_pages_scraped(self) -> bool:
-        return all(map(Page.has_been_scraped, self.get_pages()))
+        return all(map(lambda p: p.has_been_scraped(), self.get_pages()))
 
     def one_page_has_confessions(self) -> bool:
-        return any(map(Page.has_confessions, self.get_pages()))
+        return any(map(lambda p: p.has_confessions(), self.get_pages()))
+
+    def all_pages_parsed(self) -> bool:
+        return all(map(lambda p: p.has_been_parsed(), self.get_pages()))
 
     def delete_if_no_parish(self):
         if not self.parishes.exists():
             self.delete()
+
+    def get_all_parsings(self) -> list['Parsing']:
+        return [page.get_parsing() for page in self.get_pages() if page.has_been_parsed()]
 
 
 class Parish(TimeStampMixin):
@@ -128,7 +131,7 @@ class Page(TimeStampMixin):
         return self.get_latest_scraping() is not None
 
     def has_been_parsed(self) -> bool:
-        return self.has_confessions() and self.get_latest_pruning().parsings.exists()
+        return self.get_parsing() is not None
 
     def has_confessions(self) -> bool:
         return self.get_latest_pruning() is not None\
@@ -139,6 +142,12 @@ class Page(TimeStampMixin):
             return None
 
         return self.get_latest_scraping().pruning
+
+    def get_parsing(self) -> Optional['Parsing']:
+        if self.get_latest_pruning() is None:
+            return None
+
+        return self.get_latest_pruning().parsings.filter(website=self.website).first()
 
 
 class Crawling(TimeStampMixin):
