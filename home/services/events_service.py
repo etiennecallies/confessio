@@ -4,7 +4,7 @@ from typing import Optional
 
 from home.models import Church, Parsing
 from scraping.parse.schedules import Event, ScheduleItem, SchedulesList
-from scraping.parse.test_rrule import get_events_from_schedule_items
+from scraping.parse.rrule_utils import get_events_from_schedule_items
 from scraping.services.parse_pruning_service import get_parsing_schedules_list, get_church_by_id
 
 

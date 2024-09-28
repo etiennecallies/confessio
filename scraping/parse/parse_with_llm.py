@@ -4,7 +4,7 @@ from typing import Optional
 
 from scraping.parse.llm_client import OpenAILLMClient, get_openai_client
 from scraping.parse.schedules import SchedulesList
-from scraping.parse.test_rrule import are_schedules_list_rrules_valid, filter_unnecessary_schedules
+from scraping.parse.rrule_utils import are_schedules_list_rrules_valid, filter_unnecessary_schedules
 
 
 def double_square_brackets(json_as_dict):

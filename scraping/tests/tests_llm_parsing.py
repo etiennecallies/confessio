@@ -10,7 +10,7 @@ from home.utils.date_utils import get_year_start_and_end
 from scraping.parse.llm_client import OpenAILLMClient, get_openai_client
 from scraping.parse.parse_with_llm import parse_with_llm, get_llm_model, get_prompt_template
 from scraping.parse.schedules import SchedulesList
-from scraping.parse.test_rrule import are_schedules_list_equivalent
+from scraping.parse.rrule_utils import are_schedules_list_equivalent
 
 
 class OpenAILLMClientWithCache(OpenAILLMClient):

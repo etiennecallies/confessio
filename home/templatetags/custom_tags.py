@@ -7,7 +7,7 @@ from home.models import WebsiteModeration, ChurchModeration, ParishModeration, \
 from home.services.events_service import ChurchSchedulesList, \
     get_merged_church_schedules_list
 from scraping.parse.schedules import ScheduleItem, Event
-from scraping.parse.test_rrule import get_events_from_schedule_item
+from scraping.parse.rrule_utils import get_events_from_schedule_item
 
 
 @register.filter
