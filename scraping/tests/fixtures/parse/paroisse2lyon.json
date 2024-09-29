@@ -13,30 +13,30 @@
         {
           "church_id": 3,
           "rrule": "DTSTART:20240102T173000\nRRULE:FREQ=WEEKLY;BYDAY=TU,WE,TH,FR",
-          "exrule": null,
           "duration_in_minutes": 30,
-          "during_school_holidays": null
+          "include_periods": [],
+          "exclude_periods": []
         },
         {
           "church_id": 1,
           "rrule": "DTSTART:20240105T090000\nRRULE:FREQ=WEEKLY;BYDAY=FR",
-          "exrule": null,
           "duration_in_minutes": 30,
-          "during_school_holidays": null
+          "include_periods": [],
+          "exclude_periods": []
         },
         {
           "church_id": 2,
           "rrule": "DTSTART:20240106T100000\nRRULE:FREQ=WEEKLY;BYDAY=SA",
-          "exrule": null,
           "duration_in_minutes": 120,
-          "during_school_holidays": null
+          "include_periods": [],
+          "exclude_periods": []
         }
       ],
       "possible_by_appointment": false,
       "is_related_to_mass": false,
       "is_related_to_adoration": false,
       "is_related_to_permanence": false,
-      "has_seasonal_events": false
+      "will_be_seasonal_events": false
     }
   }
 }

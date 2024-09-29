@@ -15,6 +15,10 @@ def get_year_start_and_end(year: int):
     return datetime(year, 1, 1), datetime(year, 12, 31, 23, 59, 59)
 
 
+def get_current_year() -> int:
+    return datetime.now().year
+
+
 if __name__ == '__main__':
     ts_us = datetime_to_ts_us(datetime.now())
     print(ts_us)

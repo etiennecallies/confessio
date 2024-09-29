@@ -8,6 +8,7 @@ from pgvector.django import VectorField
 from simple_history.models import HistoricalRecords
 
 from home.utils.hash_utils import hash_string_to_hex
+from scraping.parse.periods import PeriodEnum
 
 
 class TimeStampMixin(models.Model):
@@ -222,7 +223,7 @@ class Parsing(TimeStampMixin):
     is_related_to_mass = models.BooleanField(null=True)
     is_related_to_adoration = models.BooleanField(null=True)
     is_related_to_permanence = models.BooleanField(null=True)
-    has_seasonal_events = models.BooleanField(null=True)
+    will_be_seasonal_events = models.BooleanField(null=True)
     history = HistoricalRecords()
 
     class Meta:
@@ -233,7 +234,7 @@ class Schedule(TimeStampMixin):
     parsing = models.ForeignKey('Parsing', on_delete=models.CASCADE, related_name='schedules')
     church_id = models.SmallIntegerField(null=True)
     rrule = models.TextField(null=True, blank=True)  # in order to have TextArea in admin
-    exrule = models.TextField(null=True, blank=True)  # in order to have TextArea in admin
     duration_in_minutes = models.SmallIntegerField(null=True)
-    during_school_holidays = models.BooleanField(null=True)
+    include_periods = ArrayField(models.CharField(max_length=16), choices=PeriodEnum.choices())
+    exclude_periods = ArrayField(models.CharField(max_length=16), choices=PeriodEnum.choices())
     history = HistoricalRecords()

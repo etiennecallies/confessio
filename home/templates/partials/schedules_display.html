@@ -5,9 +5,9 @@
     {% for schedule in schedules_list.schedules %}
         church_id: {{ schedule.church_id }}<br>
         rrule: {{ schedule.rrule }}<br>
-        exrule: {{ schedule.exrule }}<br>
         duration_in_minutes: {{ schedule.duration_in_minutes }}<br>
-        during_school_holidays: {{ schedule.during_school_holidays }}<br>
+        include_periods: {{ schedule.include_periods }}<br>
+        exclude_periods: {{ schedule.exclude_periods }}<br>
         {% with events=schedule|get_schedule_item_events %}
             {% for event in events %}
                 <p>{% display_event event %}</p>
@@ -19,5 +19,5 @@
     is_related_to_mass: {{ schedules_list.is_related_to_mass }}<br>
     is_related_to_adoration: {{ schedules_list.is_related_to_adoration }}<br>
     is_related_to_permanence: {{ schedules_list.is_related_to_permanence }}<br>
-    has_seasonal_events: {{ schedules_list.has_seasonal_events }}<br>
+    will_be_seasonal_events: {{ schedules_list.will_be_seasonal_events }}<br>
 </div>

@@ -3,11 +3,17 @@ from typing import Optional
 
 from dateutil.rrule import rrule, rruleset, WEEKLY, DAILY, rrulestr
 
+from home.utils.date_utils import get_current_year
+from scraping.parse.periods import rrules_from_period
 from scraping.parse.schedules import ScheduleItem, SchedulesList, Event
 
 
-def filter_unnecessary_schedules(schedules: list[ScheduleItem]) -> list[ScheduleItem]:
-    return [schedule for schedule in schedules if schedule.rrule or schedule.exrule]
+def add_exrules(rset, periods, use_complementary: bool):
+    current_year = get_current_year()
+    for period in periods:
+        for year in [current_year, current_year + 1]:
+            for rule in rrules_from_period(period, year, use_complementary):
+                rset.exrule(rule)
 
 
 def get_rruleset_from_schedule(schedule: ScheduleItem) -> rruleset:
@@ -16,25 +22,10 @@ def get_rruleset_from_schedule(schedule: ScheduleItem) -> rruleset:
     if schedule.rrule:
         rset.rrule(rrulestr(schedule.rrule))
 
-    if schedule.exrule:
-        rset.exrule(rrulestr(schedule.exrule))
+    add_exrules(rset, schedule.include_periods, True)
+    add_exrules(rset, schedule.exclude_periods, False)
 
     return rset
-
-
-def are_schedule_rrules_valid(schedule: ScheduleItem) -> bool:
-    try:
-        get_rruleset_from_schedule(schedule)
-        return True
-    except ValueError as e:
-        print(e)
-        print(schedule)
-        return False
-
-
-def are_schedules_list_rrules_valid(schedules_list: SchedulesList) -> bool:
-    return all(are_schedule_rrules_valid(schedule_item)
-               for schedule_item in schedules_list.schedules)
 
 
 def get_events_from_schedule_item(schedule: ScheduleItem,
@@ -62,6 +53,37 @@ def get_events_from_schedule_items(schedules: list[ScheduleItem],
     return list(sorted(list(set(all_events))))
 
 
+#########
+# CHECK #
+#########
+
+def are_schedule_rrules_valid(schedule: ScheduleItem) -> bool:
+    try:
+        get_rruleset_from_schedule(schedule)
+        return True
+    except ValueError as e:
+        print(e)
+        print(schedule)
+        return False
+
+
+def are_schedules_list_rrules_valid(schedules_list: SchedulesList) -> bool:
+    return all(are_schedule_rrules_valid(schedule_item)
+               for schedule_item in schedules_list.schedules)
+
+
+##########
+# REDUCE #
+##########
+
+def filter_unnecessary_schedules(schedules: list[ScheduleItem]) -> list[ScheduleItem]:
+    return [schedule for schedule in schedules if schedule.rrule or schedule.exclude_periods]
+
+
+###########
+# COMPARE #
+###########
+
 def are_schedules_list_equivalent(sl1: SchedulesList, sl2: SchedulesList,
                                   start_date: datetime, end_date: datetime
                                   ) -> tuple[bool, Optional[str]]:
@@ -74,8 +96,8 @@ def are_schedules_list_equivalent(sl1: SchedulesList, sl2: SchedulesList,
     if sl1.is_related_to_permanence != sl2.is_related_to_permanence:
         return False, 'is_related_to_permanence differs'
 
-    if sl1.has_seasonal_events != sl2.has_seasonal_events:
-        return False, 'has_seasonal_events differs'
+    if sl1.will_be_seasonal_events != sl2.will_be_seasonal_events:
+        return False, 'will_be_seasonal_events differs'
 
     if sl1.possible_by_appointment != sl2.possible_by_appointment:
         return False, 'possible_by_appointment differs'
@@ -116,12 +138,10 @@ if __name__ == '__main__':
 
     schedule_ = ScheduleItem(
         church_id=1,
-        # rrule='FREQ=WEEKLY;BYDAY=WE',
-        rrule='',
-        # exrule='FREQ=DAILY;UNTIL=2024-08-31',
-        exrule='',
+        rrule='FREQ=WEEKLY;BYDAY=WE',
         duration_in_minutes=60,
-        during_school_holidays=True
+        include_periods=[],
+        exclude_periods=[]
     )
     rset_ = get_rruleset_from_schedule(schedule_)
     print(rset_)
