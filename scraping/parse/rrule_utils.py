@@ -13,7 +13,7 @@ def add_exrules(rset, periods, use_complementary: bool):
     for period in periods:
         for year in [current_year, current_year + 1]:
             for rule in rrules_from_period(period, year, use_complementary):
-                rset.exrule(rule)
+                rset.exrule(rrulestr(rule))
 
 
 def get_rruleset_from_schedule(schedule: ScheduleItem) -> rruleset:
@@ -141,7 +141,7 @@ if __name__ == '__main__':
         rrule='FREQ=WEEKLY;BYDAY=WE',
         duration_in_minutes=60,
         include_periods=[],
-        exclude_periods=[]
+        exclude_periods=['lent']
     )
     rset_ = get_rruleset_from_schedule(schedule_)
     print(rset_)

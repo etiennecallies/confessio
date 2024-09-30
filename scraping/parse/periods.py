@@ -62,17 +62,17 @@ def intervals_from_period(period: PeriodEnum, year: int) -> list[tuple[date, dat
 
     # Seasons
     if period == PeriodEnum.ADVENT:
-        if year == '2024':
+        if year == 2024:
             return [(date(year, 11, 30), date(year, 12, 24))]
-        elif year == '2025':
+        elif year == 2025:
             return [(date(year, 11, 29), date(year, 12, 24))]
 
         raise ValueError(f'Advent not implemented for year {year}')
 
     if period == PeriodEnum.LENT:
-        if year == '2024':
+        if year == 2024:
             return [(date(year, 3, 6), date(year, 4, 20))]
-        elif year == '2025':
+        elif year == 2025:
             return [(date(year, 2, 26), date(year, 4, 11))]
 
         raise ValueError(f'Lent not implemented for year {year}')
@@ -80,12 +80,12 @@ def intervals_from_period(period: PeriodEnum, year: int) -> list[tuple[date, dat
     # Holidays
     if period == PeriodEnum.SCHOOL_HOLIDAYS:
         # TODO handle zones
-        if year == '2024':
+        if year == 2024:
             return [(date(year, 2, 10), date(year, 2, 24)),
                     (date(year, 4, 6), date(year, 4, 22)),
                     (date(year, 7, 6), date(year, 9, 2)),
                     (date(year, 10, 19), date(year, 11, 4))]
-        elif year == '2025':
+        elif year == 2025:
             return [(date(year, 2, 23), date(year, 3, 9)),
                     (date(year, 4, 19), date(year, 5, 5)),
                     (date(year, 7, 5), date(year, 8, 31)),
@@ -115,8 +115,8 @@ def compute_intervals_complementary(intervals: list[tuple[date, date]], year: in
 
 
 def rrules_from_intervals(intervals: list[tuple[date, date]]) -> list[str]:
-    return [f'DTSTART:{start.strftime("%Y%m%d")}T000000Z\n'
-            f'RRULE:FREQ=DAILY;UNTIL={end.strftime("%Y%m%d")}T000000Z'
+    return [f'DTSTART:{start.strftime("%Y%m%d")}T000000\n'
+            f'RRULE:FREQ=DAILY;UNTIL={end.strftime("%Y%m%d")}T000000'
             for start, end in intervals]
 
 

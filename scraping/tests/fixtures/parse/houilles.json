@@ -1,0 +1,69 @@
+{
+  "input": {
+    "church_desc_by_id": {
+      "1": "B\u00e9thanie HOUILLES",
+      "2": "Chapelle Sainte Maria Goretti CARRIERES SUR SEINE",
+      "3": "Notre Dame du R\u00e9veil Matin CARRIERES SUR SEINE",
+      "4": "Saint Jean Baptiste CARRIERES SUR SEINE",
+      "5": "Saint Nicolas HOUILLES"
+    },
+    "year": 2024
+  },
+  "output": {
+    "schedules_list": {
+      "schedules": [
+        {
+          "church_id": 5,
+          "rrule": "DTSTART:20240105T180000\nRRULE:FREQ=WEEKLY;BYDAY=FR",
+          "duration_in_minutes": 45,
+          "include_periods": [],
+          "exclude_periods": []
+        },
+        {
+          "church_id": 5,
+          "rrule": "DTSTART:20240106T093000\nRRULE:FREQ=WEEKLY;BYDAY=SA",
+          "duration_in_minutes": 60,
+          "include_periods": [],
+          "exclude_periods": [
+            "school_holidays"
+          ]
+        },
+        {
+          "church_id": 5,
+          "rrule": "DTSTART:20240103T183000\nRRULE:FREQ=WEEKLY;BYDAY=WE",
+          "duration_in_minutes": 30,
+          "include_periods": [],
+          "exclude_periods": [
+            "school_holidays",
+            "lent"
+          ]
+        },
+        {
+          "church_id": 5,
+          "rrule": "DTSTART:20240105T183000\nRRULE:FREQ=WEEKLY;BYDAY=FR",
+          "duration_in_minutes": 30,
+          "include_periods": [],
+          "exclude_periods": [
+            "school_holidays",
+            "lent"
+          ]
+        },
+        {
+          "church_id": 5,
+          "rrule": "DTSTART:20240106T093000\nRRULE:FREQ=WEEKLY;BYDAY=SA",
+          "duration_in_minutes": 60,
+          "include_periods": [],
+          "exclude_periods": [
+            "school_holidays",
+            "lent"
+          ]
+        }
+      ],
+      "possible_by_appointment": false,
+      "is_related_to_mass": false,
+      "is_related_to_adoration": false,
+      "is_related_to_permanence": false,
+      "will_be_seasonal_events": false
+    }
+  }
+}
