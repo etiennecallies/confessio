@@ -61,4 +61,7 @@ def display_similar_churches_location(church: Church, sorted_similar_churches: l
 
 @register.simple_tag
 def display_schedules_list(schedules_list: SchedulesList):
-    return render_to_string('partials/schedules_display.html', {'schedules_list': schedules_list})
+    return render_to_string('partials/schedules_display.html', {
+        'schedules_list': schedules_list,
+        'schedules_list_json': schedules_list.model_dump_json(),
+    })

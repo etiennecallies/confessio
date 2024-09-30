@@ -50,6 +50,7 @@ class LlmParsingTests(unittest.TestCase):
             'azergues',
             'garches',
             'houilles',
+            'stnomdejesus',
         ]
 
     def test_llm_parsing(self):

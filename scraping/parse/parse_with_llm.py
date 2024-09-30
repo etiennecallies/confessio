@@ -68,6 +68,7 @@ Some details :
 or "avant Pâques") or a precise time (e.g. "dans la matinée" or "dans la soirée"), do not return
 a schedule item dictionary for this event. Usually, it means some of the booleans for mass,
 adoration, permanence or seasonal events should be set to True.
+- If the church is not explicit in the text, the church_id must be null.
 
 Here is the HTML extract to parse:
 {truncated_html}

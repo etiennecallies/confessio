@@ -1,23 +1,32 @@
 {% load custom_tags %}
 {% load display_tags %}
 
-<div>
-    {% for schedule in schedules_list.schedules %}
-        church_id: {{ schedule.church_id }}<br>
-        rrule: {{ schedule.rrule }}<br>
-        duration_in_minutes: {{ schedule.duration_in_minutes }}<br>
-        include_periods: {{ schedule.include_periods }}<br>
-        exclude_periods: {{ schedule.exclude_periods }}<br>
-        {% with events=schedule|get_schedule_item_events %}
-            {% for event in events %}
-                <p>{% display_event event %}</p>
-            {% endfor %}
-        {% endwith %}
-        <br>
-    {% endfor %}
-    possible_by_appointment: {{ schedules_list.possible_by_appointment }}<br>
-    is_related_to_mass: {{ schedules_list.is_related_to_mass }}<br>
-    is_related_to_adoration: {{ schedules_list.is_related_to_adoration }}<br>
-    is_related_to_permanence: {{ schedules_list.is_related_to_permanence }}<br>
-    will_be_seasonal_events: {{ schedules_list.will_be_seasonal_events }}<br>
+<div class="moderation-tabs">
+    <ul>
+        <li><a href="#tabs-nice-display">Nice display</a></li>
+        <li><a href="#tabs-raw-json">Raw JSON</a></li>
+    </ul>
+    <div id="tabs-nice-display">
+        {% for schedule in schedules_list.schedules %}
+            church_id: {{ schedule.church_id }}<br>
+            rrule: {{ schedule.rrule }}<br>
+            duration_in_minutes: {{ schedule.duration_in_minutes }}<br>
+            include_periods: {{ schedule.include_periods }}<br>
+            exclude_periods: {{ schedule.exclude_periods }}<br>
+            {% with events=schedule|get_schedule_item_events %}
+                {% for event in events %}
+                    <p>{% display_event event %}</p>
+                {% endfor %}
+            {% endwith %}
+            <br>
+        {% endfor %}
+        possible_by_appointment: {{ schedules_list.possible_by_appointment }}<br>
+        is_related_to_mass: {{ schedules_list.is_related_to_mass }}<br>
+        is_related_to_adoration: {{ schedules_list.is_related_to_adoration }}<br>
+        is_related_to_permanence: {{ schedules_list.is_related_to_permanence }}<br>
+        will_be_seasonal_events: {{ schedules_list.will_be_seasonal_events }}<br>
+    </div>
+    <div id="tabs-raw-json">
+        <pre>{{ schedules_list_json }}</pre>
+    </div>
 </div>

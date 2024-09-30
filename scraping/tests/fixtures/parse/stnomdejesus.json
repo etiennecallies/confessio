@@ -1,0 +1,34 @@
+{
+  "input": {
+    "church_desc_by_id": {
+      "1": "Chapelle du Saint-Nom-de-J\u00e9sus Lyon",
+      "2": "\u00c9glise du Saint-Nom-de-J\u00e9sus Lyon"
+    },
+    "year": 2024
+  },
+  "output": {
+    "schedules_list": {
+      "schedules": [
+        {
+          "church_id": null,
+          "rrule": "DTSTART:20240102T180000\nRRULE:FREQ=WEEKLY;BYDAY=TU",
+          "duration_in_minutes": 60,
+          "include_periods": [],
+          "exclude_periods": []
+        },
+        {
+          "church_id": null,
+          "rrule": "DTSTART:20240106T100000\nRRULE:FREQ=WEEKLY;BYDAY=SA",
+          "duration_in_minutes": 120,
+          "include_periods": [],
+          "exclude_periods": []
+        }
+      ],
+      "possible_by_appointment": false,
+      "is_related_to_mass": false,
+      "is_related_to_adoration": false,
+      "is_related_to_permanence": false,
+      "will_be_seasonal_events": false
+    }
+  }
+}

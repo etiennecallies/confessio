@@ -4,5 +4,5 @@
  * Requires JQuery UI Tabs.
  */
 $( function() {
-  $( ".truncated-html-tabs" ).tabs();
+  $( ".moderation-tabs" ).tabs();
 } );
