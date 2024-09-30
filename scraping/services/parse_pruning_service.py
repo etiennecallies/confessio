@@ -1,6 +1,7 @@
 from typing import Optional
 
 from django.forms import model_to_dict
+from pydantic import ValidationError
 
 from home.models import Pruning, Website, Parsing, Schedule, ParsingModeration, Church
 from home.utils.hash_utils import hash_string_to_hex
@@ -78,14 +79,19 @@ def get_parsing_schedules_list(parsing: Parsing) -> Optional[SchedulesList]:
     if parsing.error_detail:
         return None
 
-    return SchedulesList(
-        schedules=list(map(schedule_item_from_schedule, parsing.schedules.all())),
-        possible_by_appointment=parsing.possible_by_appointment,
-        is_related_to_mass=parsing.is_related_to_mass,
-        is_related_to_adoration=parsing.is_related_to_adoration,
-        is_related_to_permanence=parsing.is_related_to_permanence,
-        will_be_seasonal_events=parsing.will_be_seasonal_events,
-    )
+    try:
+        return SchedulesList(
+            schedules=list(map(schedule_item_from_schedule, parsing.schedules.all())),
+            possible_by_appointment=parsing.possible_by_appointment,
+            is_related_to_mass=parsing.is_related_to_mass,
+            is_related_to_adoration=parsing.is_related_to_adoration,
+            is_related_to_permanence=parsing.is_related_to_permanence,
+            will_be_seasonal_events=parsing.will_be_seasonal_events,
+        )
+    except ValidationError as e:
+        print('ValidationError when creating SchedulesList from existing parsing')
+        print(e)
+        return None
 
 
 def save_schedule_list(parsing: Parsing, schedules_list: Optional[SchedulesList]):
@@ -155,13 +161,14 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
                                                   llm_model, prompt_template)
 
     if parsing:
+        existing_schedules_list = get_parsing_schedules_list(parsing)
+
         parsing.church_desc_by_id = church_desc_by_id
         parsing.llm_model = llm_model
         parsing.prompt_template_hash = prompt_template_hash
         parsing.error_detail = error_detail
         parsing.save()
 
-        existing_schedules_list = get_parsing_schedules_list(parsing)
         if existing_schedules_list != schedules_list:
             # delete existing schedules
             parsing.schedules.all().delete()
