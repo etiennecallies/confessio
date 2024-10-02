@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 from home.models import Church, Parsing
-from scraping.parse.schedules import Event, ScheduleItem, SchedulesList
+from scraping.parse.schedules import Event, ScheduleItem, SchedulesList, get_merged_schedules_list
 from scraping.parse.rrule_utils import get_events_from_schedule_items
 from scraping.services.parse_pruning_service import get_parsing_schedules_list, get_church_by_id
 
@@ -73,12 +73,5 @@ def get_merged_church_schedules_list(csl: list[ChurchSchedulesList]
                                      ) -> ChurchSchedulesList:
     return ChurchSchedulesList(
         church_schedules=[cs for sl in csl for cs in sl.church_schedules],
-        schedules_list=SchedulesList(
-            schedules=[s for sl in csl for s in sl.schedules_list.schedules],
-            possible_by_appointment=any(sl.schedules_list.possible_by_appointment for sl in csl),
-            is_related_to_mass=any(sl.schedules_list.is_related_to_mass for sl in csl),
-            is_related_to_adoration=any(sl.schedules_list.is_related_to_adoration for sl in csl),
-            is_related_to_permanence=any(sl.schedules_list.is_related_to_permanence for sl in csl),
-            will_be_seasonal_events=any(sl.schedules_list.will_be_seasonal_events for sl in csl),
-        )
+        schedules_list=get_merged_schedules_list([cs.schedules_list for cs in csl])
     )

@@ -39,3 +39,14 @@ class Event(BaseModel, frozen=True):
 
     def __lt__(self, other: 'Event'):
         return self.start.__lt__(other.start)
+
+
+def get_merged_schedules_list(sls: list[SchedulesList]) -> SchedulesList:
+    return SchedulesList(
+        schedules=[s for sl in sls for s in sl.schedules],
+        possible_by_appointment=any(sl.possible_by_appointment for sl in sls),
+        is_related_to_mass=any(sl.is_related_to_mass for sl in sls),
+        is_related_to_adoration=any(sl.is_related_to_adoration for sl in sls),
+        is_related_to_permanence=any(sl.is_related_to_permanence for sl in sls),
+        will_be_seasonal_events=any(sl.will_be_seasonal_events for sl in sls),
+    )

@@ -39,10 +39,10 @@ Here is the schedule dictionary format:
         "DTSTART:{current_year}0101T103000\\nRRULE:FREQ=WEEKLY;BYDAY=WE" for
         "confession les mercredis de 10h30 à 11h30". Can be null if the expression is only
         exclusive.
-    "exrule": Optional[str],  # If and only if this is a cancellation definition. For example
-        "DTSTART:{current_year}0929T163000\\nRRULE:FREQ=DAILY;UNTIL={current_year}0929T173000" for
-        "Pas de confession le 29 septembre de 16h30 à 17h30 ". Null if the expression is not
-        a cancellation.
+    "exrule": Optional[str],  # If and only if this is a cancellation definition the expression
+        of the "no-confession" rrule. For example "29 septembre de 16h30 à 17h30 Pas de confession"
+        "DTSTART:{current_year}0929T163000\\nRRULE:FREQ=DAILY;UNTIL={current_year}0929T173000".
+        Null if the expression is not an exclusion.
     "duration_in_minutes": Optional[int],  # the duration of the confession in minutes,
         null if not explicit
     "include_periods": list[PeriodEnum],  # the year periods when the rrule applied. For

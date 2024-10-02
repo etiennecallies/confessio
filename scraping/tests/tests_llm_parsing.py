@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from home.utils.date_utils import get_year_start_and_end
 from scraping.parse.llm_client import OpenAILLMClient, get_openai_client
 from scraping.parse.parse_with_llm import parse_with_llm, get_llm_model, get_prompt_template
-from scraping.parse.schedules import SchedulesList
+from scraping.parse.schedules import SchedulesList, get_merged_schedules_list
 from scraping.parse.rrule_utils import are_schedules_list_equivalent
 
 
@@ -42,7 +42,7 @@ class LlmParsingTests(unittest.TestCase):
         self.llm_client = OpenAILLMClientWithCache(get_openai_client(openai_api_key))
 
     @staticmethod
-    def get_paragraphs_fixtures():
+    def get_simple_fixtures():
         return [
             'mock1',
             'st-georges',
@@ -51,12 +51,11 @@ class LlmParsingTests(unittest.TestCase):
             'garches',
             'houilles',
             'stnomdejesus',
-            'stsaturnin',
         ]
 
     def test_llm_parsing(self):
         tests_dir = os.path.dirname(os.path.realpath(__file__))
-        for file_name in self.get_paragraphs_fixtures():
+        for file_name in self.get_simple_fixtures():
             with self.subTest():
                 with open(f'{tests_dir}/fixtures/parse/{file_name}.html') as f:
                     lines = f.readlines()
@@ -81,6 +80,61 @@ class LlmParsingTests(unittest.TestCase):
                 year_start, year_end = get_year_start_and_end(year)
                 are_equivalent, reason = are_schedules_list_equivalent(
                     schedules_list, expected_schedules_list, year_start, year_end)
+
+                self.assertTrue(are_equivalent, f'{reason} for {file_name}')
+
+    @staticmethod
+    def get_double_fixtures():
+        return [
+            'stsaturnin',
+        ]
+
+    def test_llm_parsing_with_cancellation(self):
+        tests_dir = os.path.dirname(os.path.realpath(__file__))
+        for file_name in self.get_double_fixtures():
+            with self.subTest():
+                with open(f'{tests_dir}/fixtures/parse/{file_name}-1.html') as f:
+                    lines1 = f.readlines()
+                with open(f'{tests_dir}/fixtures/parse/{file_name}-2.html') as f:
+                    lines2 = f.readlines()
+
+                with open(f'{tests_dir}/fixtures/parse/{file_name}.json') as f:
+                    input_and_output = json.load(f)
+
+                church_desc_by_id = input_and_output['input']['church_desc_by_id']
+                year = int(input_and_output['input']['year'])
+                expected_schedules_list = SchedulesList(
+                    **input_and_output['output']['schedules_list'])
+
+                truncated_html1 = ''.join(lines1)
+                llm_model = get_llm_model()
+                prompt_template = get_prompt_template()
+                schedules_list1, error_detail1 = parse_with_llm(truncated_html1, church_desc_by_id,
+                                                                llm_model, prompt_template,
+                                                                llm_client=self.llm_client,
+                                                                current_year=year)
+                self.assertIsNone(error_detail1)
+                self.assertIsNotNone(schedules_list1)
+                # print(schedules_list1.model_dump_json())
+
+                truncated_html2 = ''.join(lines2)
+                schedules_list2, error_detail2 = parse_with_llm(truncated_html2, church_desc_by_id,
+                                                                llm_model, prompt_template,
+                                                                llm_client=self.llm_client,
+                                                                current_year=year)
+                self.assertIsNone(error_detail2)
+                self.assertIsNotNone(schedules_list2)
+                # print(schedules_list2.model_dump_json())
+
+                year_start, year_end = get_year_start_and_end(year)
+
+                merged_schedules_list = get_merged_schedules_list([
+                    schedules_list1,
+                    schedules_list2
+                ])
+                # print(merged_schedules_list.model_dump_json())
+                are_equivalent, reason = are_schedules_list_equivalent(
+                    merged_schedules_list, expected_schedules_list, year_start, year_end)
 
                 self.assertTrue(are_equivalent, f'{reason} for {file_name}')
 

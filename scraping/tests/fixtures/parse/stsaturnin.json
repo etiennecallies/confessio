@@ -57,6 +57,22 @@
           "duration_in_minutes": 60,
           "include_periods": [],
           "exclude_periods": []
+        },
+        {
+          "church_id": null,
+          "rrule": "DTSTART:20240107T163000\nRRULE:FREQ=WEEKLY;BYDAY=SU",
+          "exrule": null,
+          "duration_in_minutes": 60,
+          "include_periods": [],
+          "exclude_periods": []
+        },
+        {
+          "church_id": null,
+          "rrule": "DTSTART:20240105T193000\nRRULE:FREQ=WEEKLY;BYDAY=FR",
+          "exrule": null,
+          "duration_in_minutes": 60,
+          "include_periods": [],
+          "exclude_periods": []
         }
       ],
       "possible_by_appointment": false,
