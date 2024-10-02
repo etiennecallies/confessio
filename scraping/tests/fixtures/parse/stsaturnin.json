@@ -1,0 +1,69 @@
+{
+  "input": {
+    "church_desc_by_id": {
+      "1": "Institution Sainte Marie ANTONY",
+      "2": "Saint Saturnin Antony",
+      "3": "Sainte Odile Antony"
+    },
+    "year": 2024
+  },
+  "output": {
+    "schedules_list": {
+      "schedules": [
+        {
+          "church_id": null,
+          "rrule": "DTSTART:20240106T170000\nRRULE:FREQ=WEEKLY;BYDAY=SA",
+          "exrule": null,
+          "duration_in_minutes": 60,
+          "include_periods": [],
+          "exclude_periods": []
+        },
+        {
+          "church_id": null,
+          "rrule": "DTSTART:20240107T163000\nRRULE:FREQ=WEEKLY;BYDAY=SU",
+          "exrule": null,
+          "duration_in_minutes": 60,
+          "include_periods": [],
+          "exclude_periods": []
+        },
+        {
+          "church_id": null,
+          "rrule": null,
+          "exrule": "DTSTART:20240929T163000\nRRULE:FREQ=DAILY;UNTIL=20240929T173000",
+          "duration_in_minutes": 60,
+          "include_periods": [],
+          "exclude_periods": []
+        },
+        {
+          "church_id": null,
+          "rrule": null,
+          "exrule": "DTSTART:20241004T193000\nRRULE:FREQ=DAILY;UNTIL=20241004T203000",
+          "duration_in_minutes": 60,
+          "include_periods": [],
+          "exclude_periods": []
+        },
+        {
+          "church_id": null,
+          "rrule": "DTSTART:20241005T170000\nRRULE:FREQ=DAILY;UNTIL=20241005T180000",
+          "exrule": null,
+          "duration_in_minutes": 60,
+          "include_periods": [],
+          "exclude_periods": []
+        },
+        {
+          "church_id": null,
+          "rrule": "DTSTART:20241006T163000\nRRULE:FREQ=DAILY;UNTIL=20241006T173000",
+          "exrule": null,
+          "duration_in_minutes": 60,
+          "include_periods": [],
+          "exclude_periods": []
+        }
+      ],
+      "possible_by_appointment": false,
+      "is_related_to_mass": false,
+      "is_related_to_adoration": false,
+      "is_related_to_permanence": false,
+      "will_be_seasonal_events": false
+    }
+  }
+}

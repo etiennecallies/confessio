@@ -9,6 +9,7 @@ from scraping.parse.periods import PeriodEnum
 class ScheduleItem(BaseModel, frozen=True):
     church_id: Optional[int]
     rrule: Optional[str]
+    exrule: Optional[str]
     duration_in_minutes: Optional[int]
     include_periods: list[PeriodEnum]
     exclude_periods: list[PeriodEnum]

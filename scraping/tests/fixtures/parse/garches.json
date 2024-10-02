@@ -12,6 +12,7 @@
         {
           "church_id": 2,
           "rrule": "DTSTART:20240106T093000\nRRULE:FREQ=WEEKLY;BYDAY=SA",
+          "exrule": null,
           "duration_in_minutes": 120,
           "include_periods": [],
           "exclude_periods": []

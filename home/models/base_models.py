@@ -234,6 +234,7 @@ class Schedule(TimeStampMixin):
     parsing = models.ForeignKey('Parsing', on_delete=models.CASCADE, related_name='schedules')
     church_id = models.SmallIntegerField(null=True)
     rrule = models.TextField(null=True, blank=True)  # in order to have TextArea in admin
+    exrule = models.TextField(null=True, blank=True)  # in order to have TextArea in admin
     duration_in_minutes = models.SmallIntegerField(null=True)
     include_periods = ArrayField(models.CharField(max_length=16), choices=PeriodEnum.choices())
     exclude_periods = ArrayField(models.CharField(max_length=16), choices=PeriodEnum.choices())

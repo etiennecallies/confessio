@@ -22,6 +22,9 @@ def get_rruleset_from_schedule(schedule: ScheduleItem) -> rruleset:
     if schedule.rrule:
         rset.rrule(rrulestr(schedule.rrule))
 
+    if schedule.exrule:
+        rset.exrule(rrulestr(schedule.exrule))
+
     add_exrules(rset, schedule.include_periods, True)
     add_exrules(rset, schedule.exclude_periods, False)
 

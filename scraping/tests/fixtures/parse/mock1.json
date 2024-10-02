@@ -12,6 +12,7 @@
         {
           "church_id": 1,
           "rrule": "DTSTART:20240101T170000\nRRULE:FREQ=DAILY;BYHOUR=17;BYMINUTE=0",
+          "exrule": null,
           "duration_in_minutes": 60,
           "include_periods": [],
           "exclude_periods": [

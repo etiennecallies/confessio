@@ -11,6 +11,7 @@
         {
           "church_id": 1,
           "rrule": "DTSTART:20240830T173000\nRRULE:FREQ=DAILY;UNTIL=20240830T181500",
+          "exrule": null,
           "duration_in_minutes": 45,
           "include_periods": [],
           "exclude_periods": []
@@ -18,6 +19,7 @@
         {
           "church_id": 1,
           "rrule": "DTSTART:20240831T094500\nRRULE:FREQ=DAILY;UNTIL=20240831T103000",
+          "exrule": null,
           "duration_in_minutes": 45,
           "include_periods": [],
           "exclude_periods": []
@@ -25,6 +27,7 @@
         {
           "church_id": 1,
           "rrule": "DTSTART:20240902T173000\nRRULE:FREQ=DAILY;UNTIL=20240902T181500",
+          "exrule": null,
           "duration_in_minutes": 45,
           "include_periods": [],
           "exclude_periods": []
@@ -32,6 +35,7 @@
         {
           "church_id": 1,
           "rrule": "DTSTART:20240903T173000\nRRULE:FREQ=DAILY;UNTIL=20240903T181500",
+          "exrule": null,
           "duration_in_minutes": 45,
           "include_periods": [],
           "exclude_periods": []
@@ -39,6 +43,7 @@
         {
           "church_id": 1,
           "rrule": "DTSTART:20240904T173000\nRRULE:FREQ=DAILY;UNTIL=20240904T181500",
+          "exrule": null,
           "duration_in_minutes": 45,
           "include_periods": [],
           "exclude_periods": []
@@ -46,6 +51,7 @@
         {
           "church_id": 1,
           "rrule": "DTSTART:20240905T173000\nRRULE:FREQ=DAILY;UNTIL=20240905T181500",
+          "exrule": null,
           "duration_in_minutes": 45,
           "include_periods": [],
           "exclude_periods": []
@@ -53,6 +59,7 @@
         {
           "church_id": 1,
           "rrule": "DTSTART:20240906T173000\nRRULE:FREQ=DAILY;UNTIL=20240906T181500",
+          "exrule": null,
           "duration_in_minutes": 45,
           "include_periods": [],
           "exclude_periods": []
@@ -60,6 +67,7 @@
         {
           "church_id": 1,
           "rrule": "DTSTART:20240906T193000\nRRULE:FREQ=DAILY;UNTIL=20240906T220000",
+          "exrule": null,
           "duration_in_minutes": 150,
           "include_periods": [],
           "exclude_periods": []
@@ -67,6 +75,7 @@
         {
           "church_id": 1,
           "rrule": "DTSTART:20240907T094000\nRRULE:FREQ=DAILY;UNTIL=20240907T103000",
+          "exrule": null,
           "duration_in_minutes": 50,
           "include_periods": [],
           "exclude_periods": []
