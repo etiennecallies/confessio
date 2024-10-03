@@ -11,8 +11,12 @@ def ts_us_to_datetime(timestamp_us):
     return make_aware(datetime.fromtimestamp(timestamp_us / 1000000.0))
 
 
-def get_year_start_and_end(year: int):
-    return datetime(year, 1, 1), datetime(year, 12, 31, 23, 59, 59)
+def get_year_start(year: int):
+    return datetime(year, 1, 1)
+
+
+def get_year_end(year: int):
+    return datetime(year, 12, 31, 23, 59, 59)
 
 
 def get_current_year() -> int:

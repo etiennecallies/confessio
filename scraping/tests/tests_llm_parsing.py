@@ -6,7 +6,7 @@ from typing import Optional
 import simple_cache
 from dotenv import load_dotenv
 
-from home.utils.date_utils import get_year_start_and_end
+from home.utils.date_utils import get_year_start, get_year_end
 from scraping.parse.llm_client import OpenAILLMClient, get_openai_client
 from scraping.parse.parse_with_llm import parse_with_llm, get_llm_model, get_prompt_template
 from scraping.parse.schedules import SchedulesList, get_merged_schedules_list
@@ -77,7 +77,8 @@ class LlmParsingTests(unittest.TestCase):
                 self.assertIsNotNone(schedules_list)
                 # print(schedules_list.model_dump_json())
 
-                year_start, year_end = get_year_start_and_end(year)
+                year_start = get_year_start(year)
+                year_end = get_year_end(year + 1)
                 are_equivalent, reason = are_schedules_list_equivalent(
                     schedules_list, expected_schedules_list, year_start, year_end)
 
@@ -126,7 +127,8 @@ class LlmParsingTests(unittest.TestCase):
                 self.assertIsNotNone(schedules_list2)
                 # print(schedules_list2.model_dump_json())
 
-                year_start, year_end = get_year_start_and_end(year)
+                year_start = get_year_start(year)
+                year_end = get_year_end(year + 1)
 
                 merged_schedules_list = get_merged_schedules_list([
                     schedules_list1,
