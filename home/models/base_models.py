@@ -7,6 +7,7 @@ from django.db import models
 from pgvector.django import VectorField
 from simple_history.models import HistoricalRecords
 
+from home.models.custom_fields import ChoiceArrayField
 from home.utils.hash_utils import hash_string_to_hex
 from scraping.parse.periods import PeriodEnum
 
@@ -232,10 +233,14 @@ class Parsing(TimeStampMixin):
 
 class Schedule(TimeStampMixin):
     parsing = models.ForeignKey('Parsing', on_delete=models.CASCADE, related_name='schedules')
-    church_id = models.SmallIntegerField(null=True)
+    church_id = models.SmallIntegerField(null=True, blank=True)
     rrule = models.TextField(null=True, blank=True)  # in order to have TextArea in admin
     exrule = models.TextField(null=True, blank=True)  # in order to have TextArea in admin
-    duration_in_minutes = models.SmallIntegerField(null=True)
-    include_periods = ArrayField(models.CharField(max_length=16), choices=PeriodEnum.choices())
-    exclude_periods = ArrayField(models.CharField(max_length=16), choices=PeriodEnum.choices())
+    duration_in_minutes = models.SmallIntegerField(null=True, blank=True)
+    include_periods = ChoiceArrayField(models.CharField(max_length=16,
+                                                        choices=PeriodEnum.choices()),
+                                       blank=True)
+    exclude_periods = ChoiceArrayField(models.CharField(max_length=16,
+                                                        choices=PeriodEnum.choices()),
+                                       blank=True)
     history = HistoricalRecords()
