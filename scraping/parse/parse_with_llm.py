@@ -8,8 +8,8 @@ from scraping.parse.schedules import SchedulesList
 
 def get_prompt_template():
     return """Please help me extract the schedule of confession from the following French HTML
-extract. A confession can be called "confession" or "sacrement de réconciliation",
-but not "heure de la miséricorde".
+extract. A confession can be called "confession", "sacrement de réconciliation"
+or "soirée de réconciliation, but not "heure de la miséricorde".
 
 The output should be a dictionary with this format:
 {{
@@ -65,6 +65,7 @@ Some details :
     the "duration_in_minutes" field instead
 - EXDATE is not accepted in python rrule, so please do not include it in the rrule, use
     the "exclude_periods" field instead
+- use FREQ=WEEKLY for weekly schedules, FREQ=DAILY;BYHOUR=... for daily events
 - For one-off event, use the keyword UNTIL in the rrule.
     For example, "confession le 8 février de 10h à 11h" would be
     "DTSTART:{current_year}0208T100000\\nRRULE:FREQ=DAILY;UNTIL={current_year}0208T110000"
