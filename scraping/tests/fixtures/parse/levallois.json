@@ -1,0 +1,29 @@
+{
+  "input": {
+    "church_desc_by_id": {
+      "1": "Saint Justin Levallois-Perret",
+      "2": "Sainte Bernadette Levallois-Perret",
+      "3": "Sainte Reine Levallois-Perret"
+    },
+    "year": 2024
+  },
+  "output": {
+    "schedules_list": {
+      "schedules": [
+        {
+          "church_id": 1,
+          "rrule": "DTSTART:20240319T203000\nRRULE:FREQ=DAILY;UNTIL=20240319T213000",
+          "exrule": null,
+          "duration_in_minutes": null,
+          "include_periods": [],
+          "exclude_periods": []
+        }
+      ],
+      "possible_by_appointment": false,
+      "is_related_to_mass": false,
+      "is_related_to_adoration": false,
+      "is_related_to_permanence": false,
+      "will_be_seasonal_events": false
+    }
+  }
+}
