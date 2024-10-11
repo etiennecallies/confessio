@@ -1,0 +1,20 @@
+{
+  "input": {
+    "church_desc_by_id": {
+      "1": "Notre-Dame du Perp\u00e9tuel-Secours ASNIERES SUR SEINE",
+      "2": "Saint Daniel ASNIERES SUR SEINE",
+      "3": "Sainte Genevi\u00e8ve ASNIERES SUR SEINE"
+    },
+    "year": 2024
+  },
+  "output": {
+    "schedules_list": {
+      "schedules": [],
+      "possible_by_appointment": true,
+      "is_related_to_mass": false,
+      "is_related_to_adoration": true,
+      "is_related_to_permanence": false,
+      "will_be_seasonal_events": false
+    }
+  }
+}

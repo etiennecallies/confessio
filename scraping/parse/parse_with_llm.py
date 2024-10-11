@@ -70,9 +70,10 @@ Some details :
     For example, "confession le 8 février de 10h à 11h" would be
     "DTSTART:{current_year}0208T100000\\nRRULE:FREQ=DAILY;UNTIL={current_year}0208T110000"
 - If an expression of en event does not contain a precise date (e.g. "avant Noël"
-or "avant Pâques") or a precise time (e.g. "dans la matinée" or "dans la soirée"), do not return
-a schedule item dictionary for this event. Usually, it means some of the booleans for mass,
-adoration, permanence or seasonal events should be set to True.
+"avant Pâques", or "une fois par mois") or a precise time (e.g. "dans la matinée",
+"dans l'après-midi" or "dans la soirée"), do not return a schedule item dictionary for this event.
+Usually, it means some of the booleans for mass, adoration, permanence or seasonal events should
+be set to True.
 - If the church is not explicit in the text, the church_id must be null.
 
 Here is the HTML extract to parse:
