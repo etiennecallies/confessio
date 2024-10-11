@@ -57,9 +57,18 @@
                                 </ul>
                                 <div id="tab-schedules-{{ website.uuid }}">
                                     {% with church_schedules_list=website|get_church_schedules_list %}
-                                        {% for church_event in church_schedules_list.get_church_events %}
-                                            <p>{{ church_event.church.name }} : {% display_event church_event.event %}</p>
-                                        {% endfor %}
+                                        {% with church_events=church_schedules_list.get_church_events %}
+                                            {% if church_events %}
+                                                {% for church_event in church_events %}
+                                                    <p>
+                                                        {% if church_event.church %}{{ church_event.church.name }} : {% endif %}
+                                                        {% display_event church_event.event %}
+                                                    </p>
+                                                {% endfor %}
+                                            {% else %}
+                                                Pas de prochaines dates
+                                            {% endif %}
+                                        {% endwith %}
                                     {% endwith %}
                                 </div>
                                 <div id="tab-sources-{{ website.uuid }}">
