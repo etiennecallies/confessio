@@ -49,8 +49,8 @@ def train_llm(parsing_moderation_dataset: list[ParsingModeration]) -> FineTunedL
         base_model=base_model,
         fine_tuned_model=fine_tune_job_id,
     )
-    fine_tuned_llm.parsing_moderations.set(parsing_moderation_dataset)
     fine_tuned_llm.save()
+    fine_tuned_llm.parsing_moderations.set(parsing_moderation_dataset)
 
     watch_fine_tuning_job_completion(fine_tuned_llm)
 
