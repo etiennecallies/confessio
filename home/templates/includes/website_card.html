@@ -61,7 +61,11 @@
                                             {% if church_events %}
                                                 {% for church_event in church_events %}
                                                     <p>
-                                                        {% if church_event.church %}{{ church_event.church.name }} : {% endif %}
+                                                        {% if church_event.church %}
+                                                            {{ church_event.church.name }} :
+                                                        {% elif church_event.is_church_explicitly_other %}
+                                                            <span class="text-danger">En dehors de cette paroisse :</span>
+                                                        {% endif %}
                                                         {% display_event church_event.event %}
                                                     </p>
                                                 {% endfor %}

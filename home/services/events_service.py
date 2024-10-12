@@ -11,16 +11,22 @@ from scraping.services.parse_pruning_service import get_parsing_schedules_list, 
 @dataclass
 class ChurchScheduleItem:
     church: Optional[Church]
+    is_church_explicitly_other: bool
     schedule_item: ScheduleItem
 
     @classmethod
     def from_schedule_item(cls, schedule_item: ScheduleItem,
                            church_by_id: dict[int, Church]) -> 'ChurchScheduleItem':
-        church = church_by_id[schedule_item.church_id] \
-            if schedule_item.church_id is not None else None
+        if schedule_item.church_id is None or schedule_item.church_id == -1:
+            return cls(
+                church=None,
+                is_church_explicitly_other=schedule_item.church_id == -1,
+                schedule_item=schedule_item,
+            )
 
         return cls(
-            church=church,
+            church=church_by_id[schedule_item.church_id],
+            is_church_explicitly_other=False,
             schedule_item=schedule_item,
         )
 
@@ -28,14 +34,21 @@ class ChurchScheduleItem:
 @dataclass
 class ChurchEvent:
     church: Optional[Church]
+    is_church_explicitly_other: bool
     event: Event
 
     @classmethod
     def from_event(cls, event: Event, church_by_id: dict[int, Church]) -> 'ChurchEvent':
-        church = church_by_id[event.church_id] if event.church_id is not None else None
+        if event.church_id is None or event.church_id == -1:
+            return cls(
+                church=None,
+                is_church_explicitly_other=event.church_id == -1,
+                event=event,
+            )
 
         return cls(
-            church=church,
+            church=church_by_id[event.church_id],
+            is_church_explicitly_other=False,
             event=event,
         )
 
