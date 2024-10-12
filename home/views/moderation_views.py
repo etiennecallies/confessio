@@ -13,7 +13,7 @@ from home.services.edit_pruning_service import (set_pruning_human_source,
 from home.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 from scraping.parse.schedules import SchedulesList
 from scraping.services.parse_pruning_service import update_validated_schedules_list, \
-    get_truncated_html, get_parsing_schedules_list
+    get_truncated_html, get_parsing_schedules_list, save_schedule_list
 from scraping.services.sentence_outliers_service import get_pruning_containing_sentence
 from sourcing.services.merge_websites_service import merge_websites
 
@@ -250,3 +250,23 @@ def moderate_merge_websites(request, website_moderation_uuid=None):
 
     return redirect_to_moderation(website_moderation, website_moderation.category, 'website',
                                   website_moderation.marked_as_bug_at is not None)
+
+
+@login_required
+@permission_required("home.change_sentence")
+def moderate_reset_validated_parsing(request, parsing_moderation_uuid=None):
+    try:
+        parsing_moderation = ParsingModeration.objects.get(uuid=parsing_moderation_uuid)
+    except ParsingModeration.DoesNotExist:
+        return HttpResponseNotFound(f'parsing moderation not found with uuid '
+                                    f'{parsing_moderation_uuid}')
+
+    if parsing_moderation.validated_schedules_list is None:
+        return HttpResponseBadRequest(f'parsing moderation does not have validated_schedules_list')
+
+    # other_website is the primary website
+    validated_schedules_list = SchedulesList(**parsing_moderation.validated_schedules_list)
+    save_schedule_list(parsing_moderation.parsing, validated_schedules_list)
+
+    return redirect_to_moderation(parsing_moderation, parsing_moderation.category, 'parsing',
+                                  parsing_moderation.marked_as_bug_at is not None)

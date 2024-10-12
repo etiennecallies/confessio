@@ -98,6 +98,7 @@ def save_schedule_list(parsing: Parsing, schedules_list: Optional[SchedulesList]
     if schedules_list is None:
         return
 
+    parsing.schedules.all().delete()
     for schedule_item in schedules_list.schedules:
         schedule = Schedule(
             parsing=parsing,
@@ -161,19 +162,11 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
                                                   llm_model, prompt_template)
 
     if parsing:
-        existing_schedules_list = get_parsing_schedules_list(parsing)
-
         parsing.church_desc_by_id = church_desc_by_id
         parsing.llm_model = llm_model
         parsing.prompt_template_hash = prompt_template_hash
         parsing.error_detail = error_detail
         parsing.save()
-
-        if existing_schedules_list != schedules_list:
-            # delete existing schedules
-            parsing.schedules.all().delete()
-        else:
-            return
     else:
         parsing = Parsing(
             website=website,
