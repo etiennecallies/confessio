@@ -51,7 +51,7 @@ class LlmParsingTests(unittest.TestCase):
             'garches',
             'houilles',
             'stnomdejesus',
-            # 'asnieres',  # Not working, duration_in_minutes should be null
+            'asnieres',
             # 'levallois',  # Not working, duration_in_minutes should be null
             # 'levallois2',  # Not working, duration_in_minutes should be null
             'ndlumieres',
@@ -72,10 +72,10 @@ class LlmParsingTests(unittest.TestCase):
                 expected_schedules_list = SchedulesList(
                     **input_and_output['output']['schedules_list'])
 
-                llm_model = get_llm_model()
+                fine_tuned_llm_model = 'ft:gpt-4o-2024-08-06:confessio::AHfHBkNN'
                 prompt_template = get_prompt_template()
                 schedules_list, error_detail = parse_with_llm(truncated_html, church_desc_by_id,
-                                                              llm_model, prompt_template,
+                                                              fine_tuned_llm_model, prompt_template,
                                                               llm_client=self.llm_client,
                                                               current_year=year)
                 self.assertIsNone(error_detail)

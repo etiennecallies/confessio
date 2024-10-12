@@ -417,3 +417,20 @@ class ParsingModeration(ModerationMixin):
     def delete_on_validate(self) -> bool:
         # we always keep validated ParsingModeration
         return False
+
+
+class FineTunedLLM(TimeStampMixin):
+    class Status(models.TextChoices):
+        FINE_TUNING = "fine_tuning"
+        FAILED = "failed"
+        DRAFT = "draft"
+        PROD = "prod"
+
+    status = models.CharField(max_length=12, choices=Status)
+    dataset_name = models.CharField(max_length=100)
+    base_model = models.CharField(max_length=100)
+    fine_tune_job_id = models.CharField(max_length=100)
+    parsing_moderations = models.ManyToManyField('ParsingModeration',
+                                                 related_name='fine_tuned_llms')
+    fine_tuned_model = models.CharField(max_length=100, null=True)
+    error_detail = models.TextField(null=True)
