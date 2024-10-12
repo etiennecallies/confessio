@@ -52,7 +52,7 @@ class LlmParsingTests(unittest.TestCase):
             'houilles',
             'stnomdejesus',
             'asnieres',
-            # 'levallois',  # Not working, duration_in_minutes should be null
+            'levallois',
             # 'levallois2',  # Not working, duration_in_minutes should be null
             'ndlumieres',
             'carmel',
@@ -72,7 +72,7 @@ class LlmParsingTests(unittest.TestCase):
                 expected_schedules_list = SchedulesList(
                     **input_and_output['output']['schedules_list'])
 
-                fine_tuned_llm_model = 'ft:gpt-4o-2024-08-06:confessio::AHfHBkNN'
+                fine_tuned_llm_model = 'ft:gpt-4o-2024-08-06:confessio::AHfh95wJ'
                 prompt_template = get_prompt_template()
                 schedules_list, error_detail = parse_with_llm(truncated_html, church_desc_by_id,
                                                               fine_tuned_llm_model, prompt_template,
