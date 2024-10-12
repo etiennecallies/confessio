@@ -7,6 +7,7 @@ from home.models import Pruning, Website, Parsing, Schedule, ParsingModeration, 
 from home.utils.hash_utils import hash_string_to_hex
 from scraping.parse.parse_with_llm import parse_with_llm, get_llm_model, get_prompt_template
 from scraping.parse.schedules import SchedulesList, ScheduleItem
+from scraping.refine.refine_content import remove_link_from_html
 
 TRUNCATION_LENGTH = 10
 
@@ -18,7 +19,8 @@ def get_truncated_html(pruning: Pruning) -> str:
     last_index = -1
     for index in pruning.pruned_indices:
         if index != last_index + 1:
-            truncated_lines.append(f'[{lines[last_index + 1][:TRUNCATION_LENGTH]}...]')
+            truncated_line = remove_link_from_html(lines[last_index + 1])[:TRUNCATION_LENGTH]
+            truncated_lines.append(f'[{truncated_line}...]')
         truncated_lines.append(lines[index])
         last_index = index
 
