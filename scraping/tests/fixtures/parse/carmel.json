@@ -1,0 +1,35 @@
+{
+  "input": {
+    "church_desc_by_id": {
+      "0": "Chapelle de la Transfiguration LE HAVRE"
+    },
+    "year": 2024
+  },
+  "output": {
+    "schedules_list": {
+      "schedules": [
+        {
+          "church_id": -1,
+          "rrule": "DTSTART:20240105T170000\nRRULE:FREQ=WEEKLY;BYDAY=FR",
+          "exrule": null,
+          "duration_in_minutes": 90,
+          "include_periods": [],
+          "exclude_periods": []
+        },
+        {
+          "church_id": -1,
+          "rrule": "DTSTART:20240106T110000\nRRULE:FREQ=WEEKLY;BYDAY=SA",
+          "exrule": null,
+          "duration_in_minutes": 90,
+          "include_periods": [],
+          "exclude_periods": []
+        }
+      ],
+      "possible_by_appointment": false,
+      "is_related_to_mass": false,
+      "is_related_to_adoration": false,
+      "is_related_to_permanence": true,
+      "will_be_seasonal_events": false
+    }
+  }
+}

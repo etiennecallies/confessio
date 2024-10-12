@@ -14,24 +14,6 @@
       "schedules": [
         {
           "church_id": 5,
-          "rrule": "DTSTART:20240105T180000\nRRULE:FREQ=WEEKLY;BYDAY=FR",
-          "exrule": null,
-          "duration_in_minutes": 45,
-          "include_periods": [],
-          "exclude_periods": []
-        },
-        {
-          "church_id": 5,
-          "rrule": "DTSTART:20240106T093000\nRRULE:FREQ=WEEKLY;BYDAY=SA",
-          "exrule": null,
-          "duration_in_minutes": 60,
-          "include_periods": [],
-          "exclude_periods": [
-            "school_holidays"
-          ]
-        },
-        {
-          "church_id": 5,
           "rrule": "DTSTART:20240103T183000\nRRULE:FREQ=WEEKLY;BYDAY=WE",
           "exrule": null,
           "duration_in_minutes": 30,

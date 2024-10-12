@@ -38,10 +38,8 @@ def get_church_desc_by_id(website: Website) -> dict[int, str]:
             church_descs.append(get_church_desc(church))
 
     church_desc_by_id = {}
-    church_index = 1
     for i, desc in enumerate(sorted(church_descs)):
-        church_desc_by_id[i + 1] = desc
-        church_index += 1
+        church_desc_by_id[i] = desc
 
     return church_desc_by_id
 

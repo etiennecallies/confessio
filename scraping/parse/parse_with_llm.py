@@ -14,13 +14,14 @@ or "soirée de réconciliation, but not "heure de la miséricorde".
 The output should be a dictionary with this format:
 {{
     "schedules": list[ScheduleItem],  # list of schedule objects, see below
-    "possible_by_appointment": bool, # whether the confession is possible by appointment
+    "possible_by_appointment": bool, # whether the confession is possible by appointment,
+        appointment is "rendez-vous" in French
     "is_related_to_mass": bool,  # whether the confession schedule is related to a mass
         schedule
     "is_related_to_adoration": bool,  # whether the confession schedule is related to a
         adoration schedule
     "is_related_to_permanence": bool,  # whether the confession schedule is related to a
-        permanence schedule
+        permanence schedule, can be called "permanence" or "accueil" in French.
     "will_be_seasonal_events": bool  # whether the text mentions future confession sessions
         during liturgical seasons, such as Lent or Advent.
 }}
@@ -34,7 +35,10 @@ as well as the duration of the event.
 Here is the schedule dictionary format:
 {{
     "church_id": Optional[int],  # the id of the respective church, can be null if the
-        church information is not explicit in the text
+        church information is not explicit in the text. Can be -1 if the church is explicit and is
+        not in the provided list. Sometimes, you can guess the church_id when it says
+        "à la chapelle" and there is only one church called "chapelle" in the list.
+        But if there is no mention, the church_id must be null.
     "rrule": Optional[str],  # the recurrence rule for the confession. For example
         "DTSTART:{current_year}0101T103000\\nRRULE:FREQ=WEEKLY;BYDAY=WE" for
         "confession les mercredis de 10h30 à 11h30". Can be null if the expression is only
@@ -71,9 +75,9 @@ Some details :
     "DTSTART:{current_year}0208T100000\\nRRULE:FREQ=DAILY;UNTIL={current_year}0208T110000"
 - If an expression of en event does not contain a precise date (e.g. "avant Noël"
 "avant Pâques", or "une fois par mois") or a precise time (e.g. "dans la matinée",
-"dans l'après-midi" or "dans la soirée"), do not return a schedule item dictionary for this event.
-Usually, it means some of the booleans for mass, adoration, permanence or seasonal events should
-be set to True.
+"dans l'après-midi", "dans la soirée" or "après la messe"), do not return a schedule item
+dictionary for this event. Usually, it means some of the booleans for mass, adoration, permanence
+or seasonal events should be set to True.
 - If the church is not explicit in the text, the church_id must be null.
 
 Here is the HTML extract to parse:
