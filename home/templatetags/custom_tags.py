@@ -1,9 +1,10 @@
 from datetime import datetime
 
 from django.template.defaulttags import register
+from django.urls import reverse
 
 from home.models import WebsiteModeration, ChurchModeration, ParishModeration, \
-    PruningModeration, SentenceModeration, ParsingModeration, Website
+    PruningModeration, SentenceModeration, ParsingModeration, Website, ModerationMixin
 from home.services.events_service import ChurchSchedulesList, \
     get_merged_church_schedules_list
 from scraping.parse.rrule_utils import get_events_from_schedule_item
@@ -34,6 +35,16 @@ def get_schedule_item_events(schedule_item: ScheduleItem) -> list[Event]:
     end_date = datetime(2040, 1, 1)
 
     return get_events_from_schedule_item(schedule_item, start_date, end_date)[:7]
+
+
+@register.filter
+def get_url(moderation: ModerationMixin):
+    return reverse(f'moderate_one_' + moderation.resource,
+                   kwargs={
+                       'category': moderation.category,
+                       'is_bug': moderation.marked_as_bug_at is not None,
+                       'moderation_uuid': moderation.uuid
+                   })
 
 
 @register.simple_tag

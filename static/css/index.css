@@ -212,7 +212,14 @@ https://themesberg.com/docs/pixel-bootstrap/components/badges/
     background-color: #3aaf85
 }
 
+/*
+UI widget
+ */
 .ui-widget-header {
     background: none;
     border: none;
+}
+
+.ui-widget-content a.link-info {
+    color: #0d6efd;
 }

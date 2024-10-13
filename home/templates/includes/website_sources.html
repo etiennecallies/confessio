@@ -4,15 +4,28 @@
 {% if website.one_page_has_confessions %}
     {% for page in website.get_pages %}
         {% if page.has_confessions %}
-            <div class="row mt-3 mb-1">
-                <p class="col-md-9 lead">
+            <div class="row mt-3 mb-2">
+                <div class="col-md-9 lead">
                     {% blocktrans with url=page_urls|get_item:page.uuid %}BeforeConfessionHTML {{ url }}{% endblocktrans %}
-                </p>
-                <p class="col-md-3">
+                </div>
+                <div class="col-md-3">
                     {% if request.user.is_authenticated and perms.home.change_sentence %}
-                        <a href="{% url 'edit_pruning' page.scraping.pruning.uuid %}" class="link-info"><i class="fas fa-tags"></i> {% trans 'EditPruning' %}</a>
+                        <div class="row">
+                            <div class="col-xl-6">
+                                <a href="{% url 'edit_pruning' page.scraping.pruning.uuid %}" class="link-info"><i class="fas fa-tags"></i> {% trans 'EditPruning' %}</a>
+                            </div>
+                            <div class="col-xl-6">
+                                {% if page.get_parsing and page.get_parsing.moderations %}
+                                    {% for parsing_moderation in page.get_parsing.moderations.all %}
+                                        <a href="{{ parsing_moderation|get_url }}" class="link-info">
+                                            <i class="fas fa-code"></i> Modérer
+                                        </a>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
                     {% endif %}
-                </p>
+                </div>
             </div>
             <div>
                 {{ page.get_latest_scraping.pruning.pruned_html|safe }}
