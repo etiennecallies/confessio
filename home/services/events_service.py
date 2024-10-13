@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Optional
 
-from home.models import Church, Parsing
+from home.models import Church, Parsing, Website
 from scraping.parse.schedules import Event, ScheduleItem, SchedulesList, get_merged_schedules_list
 from scraping.parse.rrule_utils import get_events_from_schedule_items
 from scraping.services.parse_pruning_service import get_parsing_schedules_list, get_church_by_id
@@ -59,12 +59,12 @@ class ChurchSchedulesList:
     schedules_list: SchedulesList
 
     @classmethod
-    def from_parsing(cls, parsing: Parsing) -> Optional['ChurchSchedulesList']:
+    def from_parsing(cls, parsing: Parsing, website: Website) -> Optional['ChurchSchedulesList']:
         schedules_list = get_parsing_schedules_list(parsing)
         if schedules_list is None:
             return None
 
-        church_by_id = get_church_by_id(parsing)
+        church_by_id = get_church_by_id(parsing, website)
         church_schedules = [ChurchScheduleItem.from_schedule_item(schedule, church_by_id)
                             for schedule in schedules_list.schedules]
 

@@ -13,7 +13,7 @@ from home.services.edit_pruning_service import (set_pruning_human_source,
 from home.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 from scraping.parse.schedules import SchedulesList
 from scraping.services.parse_pruning_service import update_validated_schedules_list, \
-    get_truncated_html, get_parsing_schedules_list, save_schedule_list
+    get_parsing_schedules_list, save_schedule_list
 from scraping.services.sentence_outliers_service import get_pruning_containing_sentence
 from sourcing.services.merge_websites_service import merge_websites
 
@@ -215,7 +215,7 @@ def render_parsing_moderation(request, moderation: ParsingModeration, next_url):
     parsing = moderation.parsing
     assert parsing is not None
 
-    truncated_html = get_truncated_html(parsing.pruning)
+    truncated_html = parsing.truncated_html
     schedules_list = get_parsing_schedules_list(parsing)
     church_desc_by_id_json = json.dumps(parsing.church_desc_by_id, indent=2)
     validated_schedules_list = SchedulesList(**moderation.validated_schedules_list)\

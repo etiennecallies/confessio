@@ -24,12 +24,15 @@
             Open parsing admin <i class="fas fa-up-right-from-square"></i>
         </a>
     </p>
-    {% for scraping in parsing.pruning.scrapings.all %}
-        <p>Scraping page: <a href="{{ scraping.page.url }}" target="_blank">{{ scraping.page.url }}</a></p>
-    {% endfor %}
-    <p><a class="btn btn-gray-500" href="{% url 'edit_pruning' parsing.pruning.uuid %}" target="_blank" role="button">
+    {% for pruning in parsing.prunings.all %}
+        {% for scraping in pruning.scrapings.all %}
+            <p>Scraping page: <a href="{{ scraping.page.url }}" target="_blank">{{ scraping.page.url }}</a></p>
+        {% endfor %}
+        <p><a class="btn btn-gray-500" href="{% url 'edit_pruning' pruning.uuid %}" target="_blank" role="button">
         Edit pruning <i class="fas fa-up-right-from-square"></i>
-    </a></p>
+        </a></p>
+    {% endfor %}
+
 
     Church description by id : <pre>{{ church_desc_by_id_json }}</pre><br>
     Truncated html :

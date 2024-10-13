@@ -123,7 +123,9 @@ def build_input_messages(prompt_template: str,
 
 
 def get_llm_model():
-    return "gpt-4o-2024-08-06"  # or "gpt-4o-mini"
+    # return "gpt-4o-2024-08-06"  # or "gpt-4o-mini"
+    # TODO get latest fine-tuned model
+    return 'ft:gpt-4o-2024-08-06:confessio::AHfh95wJ'
 
 
 def parse_with_llm(truncated_html: str, church_desc_by_id: dict[int, str],

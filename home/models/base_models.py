@@ -80,7 +80,8 @@ class Website(TimeStampMixin):
             self.delete()
 
     def get_all_parsings(self) -> list['Parsing']:
-        return [page.get_parsing() for page in self.get_pages() if page.has_been_parsed()]
+        all_parsings = [page.get_parsing() for page in self.get_pages()]
+        return [p for p in all_parsings if p is not None]
 
 
 class Parish(TimeStampMixin):
@@ -133,6 +134,13 @@ class Page(TimeStampMixin):
         return self.get_latest_scraping() is not None
 
     def has_been_parsed(self) -> bool:
+        if self.get_latest_pruning() is None:
+            return False
+
+        if not self.get_latest_pruning().pruned_indices:
+            # no parsing needed
+            return True
+
         return self.get_parsing() is not None
 
     def has_confessions(self) -> bool:
@@ -149,7 +157,7 @@ class Page(TimeStampMixin):
         if self.get_latest_pruning() is None:
             return None
 
-        return self.get_latest_pruning().parsings.filter(website=self.website).first()
+        return self.get_latest_pruning().parsings.filter(websites=self.website).first()
 
 
 class Crawling(TimeStampMixin):
@@ -214,21 +222,28 @@ class Classifier(TimeStampMixin):
 
 
 class Parsing(TimeStampMixin):
-    website = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='parsings')
-    pruning = models.ForeignKey('Pruning', on_delete=models.CASCADE, related_name='parsings')
-    church_desc_by_id = models.JSONField()
+    truncated_html = models.TextField(editable=False)
+    truncated_html_hash = models.CharField(max_length=32, editable=False)
+    church_desc_by_id = models.JSONField(editable=False)
+    current_year = models.SmallIntegerField(editable=False)
+
+    websites = models.ManyToManyField('Website', related_name='parsings')
+    prunings = models.ManyToManyField('Pruning', related_name='parsings')
+
     llm_model = models.CharField(max_length=100)
     prompt_template_hash = models.CharField(max_length=32)
+
     error_detail = models.TextField(null=True, blank=True)
     possible_by_appointment = models.BooleanField(null=True)
     is_related_to_mass = models.BooleanField(null=True)
     is_related_to_adoration = models.BooleanField(null=True)
     is_related_to_permanence = models.BooleanField(null=True)
     will_be_seasonal_events = models.BooleanField(null=True)
+
     history = HistoricalRecords()
 
     class Meta:
-        unique_together = ('website', 'pruning')
+        unique_together = ('truncated_html_hash', 'church_desc_by_id', 'current_year')
 
 
 class Schedule(TimeStampMixin):

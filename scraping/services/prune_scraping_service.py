@@ -4,7 +4,7 @@ from typing import Optional
 from django.db.models import Q
 from django.utils import timezone
 
-from home.models import Pruning, PruningModeration
+from home.models import Pruning, PruningModeration, ParsingModeration
 from home.models import Sentence
 from scraping.extract.extract_content import BaseTagInterface
 from scraping.extract.extract_content import extract_content
@@ -121,9 +121,25 @@ def add_necessary_moderation(pruning: Pruning):
     add_new_moderation(pruning, category)
 
 
+####################
+# LINK TO PARSINGS #
+####################
+
+def remove_link_to_parsings(pruning: Pruning):
+    for parsing in pruning.parsings.all():
+        parsing.prunings.remove(pruning)
+
+        if not parsing.prunings.exists():
+            print(f'deleting not validated moderation for parsing {parsing} since it has no '
+                  f'pruning any more')
+            ParsingModeration.objects.filter(parsing=parsing,
+                                             validated_at__isnull=True).delete()
+
+
 ########
 # MAIN #
 ########
+
 
 def prune_pruning(pruning: Pruning) -> ():
     assert pruning.extracted_html, 'Pruning must have not empty extracted_html'
@@ -140,6 +156,7 @@ def prune_pruning(pruning: Pruning) -> ():
     pruning.save()
 
     add_necessary_moderation(pruning)
+    remove_link_to_parsings(pruning)
 
 
 def create_pruning(extracted_html: Optional[str]) -> Optional[Pruning]:

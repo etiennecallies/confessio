@@ -6,8 +6,8 @@ from home.models import WebsiteModeration, ChurchModeration, ParishModeration, \
     PruningModeration, SentenceModeration, ParsingModeration, Website
 from home.services.events_service import ChurchSchedulesList, \
     get_merged_church_schedules_list
-from scraping.parse.schedules import ScheduleItem, Event
 from scraping.parse.rrule_utils import get_events_from_schedule_item
+from scraping.parse.schedules import ScheduleItem, Event
 
 
 @register.filter
@@ -22,7 +22,7 @@ def negate(value):
 
 @register.filter
 def get_church_schedules_list(website: Website) -> ChurchSchedulesList:
-    church_schedules_lists = [ChurchSchedulesList.from_parsing(parsing)
+    church_schedules_lists = [ChurchSchedulesList.from_parsing(parsing, website)
                               for parsing in website.get_all_parsings()]
     return get_merged_church_schedules_list([csl for csl in church_schedules_lists
                                              if csl is not None])

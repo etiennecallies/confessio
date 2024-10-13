@@ -8,9 +8,9 @@ from dotenv import load_dotenv
 
 from home.utils.date_utils import get_year_start, get_year_end
 from scraping.parse.llm_client import OpenAILLMClient, get_openai_client
-from scraping.parse.parse_with_llm import parse_with_llm, get_llm_model, get_prompt_template
-from scraping.parse.schedules import SchedulesList, get_merged_schedules_list
+from scraping.parse.parse_with_llm import parse_with_llm, get_prompt_template
 from scraping.parse.rrule_utils import are_schedules_list_equivalent
+from scraping.parse.schedules import SchedulesList, get_merged_schedules_list
 
 
 class OpenAILLMClientWithCache(OpenAILLMClient):
@@ -113,7 +113,7 @@ class LlmParsingTests(unittest.TestCase):
                     **input_and_output['output']['schedules_list'])
 
                 truncated_html1 = ''.join(lines1)
-                llm_model = get_llm_model()
+                llm_model = 'gpt-4o-2024-08-06'
                 prompt_template = get_prompt_template()
                 schedules_list1, error_detail1 = parse_with_llm(truncated_html1, church_desc_by_id,
                                                                 llm_model, prompt_template,

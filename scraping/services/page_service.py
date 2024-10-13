@@ -30,7 +30,7 @@ def remove_pruning_if_orphan(pruning: Optional[Pruning]):
         print(f'deleting not validated moderation for pruning {pruning} since it has no scraping '
               f'any more')
         PruningModeration.objects.filter(pruning=pruning, validated_at__isnull=True).delete()
-        ParsingModeration.objects.filter(parsing__pruning=pruning, validated_at__isnull=True)\
+        ParsingModeration.objects.filter(parsing__prunings=pruning, validated_at__isnull=True)\
             .delete()
         return True
 

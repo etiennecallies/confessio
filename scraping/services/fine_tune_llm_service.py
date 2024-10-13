@@ -1,9 +1,7 @@
 from home.models import ParsingModeration, FineTunedLLM
-from home.utils.date_utils import get_current_year
 from scraping.parse.fine_tune_llm import build_jsonl_file, upload_file_on_openai, \
     launch_fine_tuning_job, check_fine_tuning_job_completion
 from scraping.parse.schedules import SchedulesList
-from scraping.services.parse_pruning_service import get_truncated_html
 
 LLM_MIN_ITEMS_FOR_TRAIN = 15
 
@@ -21,11 +19,9 @@ def train_llm(parsing_moderation_dataset: list[ParsingModeration]) -> FineTunedL
 
     dataset = []
     for parsing_moderation in parsing_moderation_dataset:
-        # TODO get the truncated_html from parsing
-        truncated_html = get_truncated_html(parsing_moderation.parsing.pruning)
+        truncated_html = parsing_moderation.parsing.truncated_html_hash
         church_desc_by_id = parsing_moderation.parsing.church_desc_by_id
-        # TODO get the current_year from parsing
-        current_year = get_current_year()
+        current_year = parsing_moderation.parsing.current_year
         schedules_list = SchedulesList(**parsing_moderation.validated_schedules_list)
 
         dataset.append((
