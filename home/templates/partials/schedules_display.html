@@ -21,11 +21,11 @@
             {% endwith %}
             <br>
         {% endfor %}
-        possible_by_appointment: {{ schedules_list.possible_by_appointment }}<br>
-        is_related_to_mass: {{ schedules_list.is_related_to_mass }}<br>
-        is_related_to_adoration: {{ schedules_list.is_related_to_adoration }}<br>
-        is_related_to_permanence: {{ schedules_list.is_related_to_permanence }}<br>
-        will_be_seasonal_events: {{ schedules_list.will_be_seasonal_events }}<br>
+        possible_by_appointment: {% display_bool schedules_list.possible_by_appointment %}<br>
+        is_related_to_mass: {% display_bool schedules_list.is_related_to_mass %}<br>
+        is_related_to_adoration: {% display_bool schedules_list.is_related_to_adoration %}<br>
+        is_related_to_permanence: {% display_bool schedules_list.is_related_to_permanence %}<br>
+        will_be_seasonal_events: {% display_bool schedules_list.will_be_seasonal_events %}<br>
     </div>
     <div id="tabs-raw-json">
         <pre>{{ schedules_list_json }}</pre>

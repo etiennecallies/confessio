@@ -33,6 +33,11 @@ def display_event(event: Event):
 
 
 @register.simple_tag
+def display_bool(v: bool):
+    return render_to_string('partials/bool_display.html', {'v': v})
+
+
+@register.simple_tag
 def display_location(location: Point):
     folimum_map = get_map_with_single_location(location)
     map_html = folimum_map._repr_html_()
