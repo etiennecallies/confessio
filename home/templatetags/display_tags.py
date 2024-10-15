@@ -2,11 +2,12 @@ from django.contrib.gis.geos import Point
 from django.template.defaulttags import register
 from django.template.loader import render_to_string
 
-from home.models import Parish, Church, Website
+from home.models import Parish, Church, Website, Pruning
 from home.services.map_service import (get_map_with_single_location,
                                        get_map_with_multiple_locations,
                                        get_map_with_alternative_locations)
 from scraping.parse.schedules import SchedulesList, Event
+from home.utils.list_utils import group_consecutive_indices
 
 
 @register.simple_tag
@@ -69,4 +70,22 @@ def display_schedules_list(schedules_list: SchedulesList):
     return render_to_string('partials/schedules_display.html', {
         'schedules_list': schedules_list,
         'schedules_list_json': schedules_list.model_dump_json(),
+    })
+
+
+@register.simple_tag
+def display_expandable_pruning(pruning: Pruning):
+    lines = pruning.extracted_html.split('<br>\n')
+    consecutive_indices = group_consecutive_indices(len(lines), pruning.pruned_indices)
+
+    spans = []
+    for is_displayed, indices in consecutive_indices:
+        span_lines = lines[min(indices):max(indices) + 1]
+        spans.append({
+            'html': '<br>'.join(span_lines),
+            'is_displayed': is_displayed
+        })
+
+    return render_to_string('partials/expandable_pruning_display.html', {
+        'spans': spans,
     })

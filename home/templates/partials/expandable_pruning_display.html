@@ -1,0 +1,10 @@
+{% for span in spans %}
+    {% if span.is_displayed %}
+        {{ span.html|safe }}<br>
+    {% else %}
+        <div class="expandable text-warning" role="button">
+            <span class="expandable-item">[...]</span>
+            <div class="expandable-item" style="display: none">{{ span.html|safe }}</div>
+        </div>
+    {% endif %}
+{% endfor %}

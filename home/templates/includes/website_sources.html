@@ -1,4 +1,5 @@
 {% load custom_tags %}
+{% load display_tags %}
 {% load i18n %}
 
 {% if website.one_page_has_confessions %}
@@ -28,7 +29,7 @@
                 </div>
             </div>
             <div>
-                {{ page.get_latest_scraping.pruning.pruned_html|safe }}
+                {% display_expandable_pruning page.get_latest_scraping.pruning %}
             </div>
         {% endif %}
     {% endfor %}
