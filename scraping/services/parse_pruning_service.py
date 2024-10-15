@@ -11,6 +11,7 @@ from scraping.parse.schedules import SchedulesList, ScheduleItem
 from scraping.refine.refine_content import remove_link_from_html
 
 TRUNCATION_LENGTH = 10
+MAX_LENGTH_FOR_PARSING = 3000
 
 
 def get_truncated_html(pruning: Pruning) -> str:
@@ -147,7 +148,13 @@ def update_validated_schedules_list(parsing_moderation: ParsingModeration):
 def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: bool = False):
     truncated_html = get_truncated_html(pruning)
     if not truncated_html:
+        # no parsing on empty content
         return
+
+    if len(truncated_html) > MAX_LENGTH_FOR_PARSING:
+        print(f'No parsing above {MAX_LENGTH_FOR_PARSING}, got {len(truncated_html)}')
+        return
+
     truncated_html_hash = hash_string_to_hex(truncated_html)
 
     church_desc_by_id = get_church_desc_by_id(website)
