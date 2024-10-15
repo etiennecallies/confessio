@@ -57,22 +57,29 @@
                                 </ul>
                                 <div id="tab-schedules-{{ website.uuid }}">
                                     {% with church_schedules_list=website|get_church_schedules_list %}
-                                        {% with church_events=church_schedules_list.get_church_events %}
-                                            {% if church_events %}
-                                                {% for church_event in church_events %}
-                                                    <p>
-                                                        {% if church_event.church %}
-                                                            {{ church_event.church.name }} :
-                                                        {% elif church_event.is_church_explicitly_other %}
-                                                            <span class="text-danger">En dehors de cette paroisse :</span>
-                                                        {% endif %}
-                                                        {% display_event church_event.event %}
-                                                    </p>
-                                                {% endfor %}
-                                            {% else %}
-                                                Pas de prochaines dates
+                                        <div>
+                                            {% with church_events=church_schedules_list.get_church_events %}
+                                                {% if church_events %}
+                                                    {% for church_event in church_events %}
+                                                        <p>
+                                                            {% if church_event.church %}
+                                                                {{ church_event.church.name }} :
+                                                            {% elif church_event.is_church_explicitly_other %}
+                                                                <span class="text-danger">En dehors de cette paroisse :</span>
+                                                            {% endif %}
+                                                            {% display_event church_event.event %}
+                                                        </p>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    Pas de prochaines dates
+                                                {% endif %}
+                                            {% endwith %}
+                                        </div>
+                                        <div>
+                                            {% if church_schedules_list.schedules_list.possible_by_appointment %}
+                                                Il est possible de se confesser sur rendez-vous.
                                             {% endif %}
-                                        {% endwith %}
+                                        </div>
                                     {% endwith %}
                                 </div>
                                 <div id="tab-sources-{{ website.uuid }}">
