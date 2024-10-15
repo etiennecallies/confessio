@@ -75,6 +75,23 @@ def are_schedules_list_rrules_valid(schedules_list: SchedulesList) -> bool:
                for schedule_item in schedules_list.schedules)
 
 
+def is_overnight_schedule(schedule: ScheduleItem) -> bool:
+    if not schedule.duration_in_minutes:
+        return False
+
+    rset = get_rruleset_from_schedule(schedule)
+    dt_2000 = datetime(2000, 1, 1)
+    start = rset.after(dt_2000)
+    end = start + timedelta(minutes=schedule.duration_in_minutes)
+
+    return start.date() != end.date()
+
+
+def has_overnight_schedules(schedules_list: SchedulesList) -> bool:
+    return any(is_overnight_schedule(schedule_item)
+               for schedule_item in schedules_list.schedules)
+
+
 ##########
 # REDUCE #
 ##########

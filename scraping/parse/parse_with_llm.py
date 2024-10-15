@@ -2,7 +2,8 @@ from typing import Optional
 
 from home.utils.date_utils import get_current_year
 from scraping.parse.llm_client import OpenAILLMClient, get_openai_client
-from scraping.parse.rrule_utils import are_schedules_list_rrules_valid, filter_unnecessary_schedules
+from scraping.parse.rrule_utils import are_schedules_list_rrules_valid, \
+    filter_unnecessary_schedules, has_overnight_schedules
 from scraping.parse.schedules import SchedulesList
 
 
@@ -145,6 +146,10 @@ def parse_with_llm(truncated_html: str, church_desc_by_id: dict[int, str],
     if schedules_list:
         if not are_schedules_list_rrules_valid(schedules_list):
             return None, "Invalid rrules"
+
+        if has_overnight_schedules(schedules_list):
+            # TODO make a moderation instead
+            return None, "Overnight schedules"
 
         schedules_list.schedules = filter_unnecessary_schedules(schedules_list.schedules)
 
