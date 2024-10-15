@@ -118,7 +118,7 @@ msgstr "Liste des diocèses opérés"
 #, python-format
 msgid "BeforeConfessionHTML %(url)s"
 msgstr ""
-"Voici l'extrait de leur <a href=\"%(url)s\" class=\"link-info\">page</a> "
+"Voici un extrait de cette <a href=\"%(url)s\" class=\"link-info\">page</a> "
 "concernant les confessions :"
 
 #: templates/pages/index.html:14
