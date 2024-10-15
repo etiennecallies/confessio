@@ -77,8 +77,9 @@
                                         </div>
                                         <div>
                                             {% if church_schedules_list.schedules_list.possible_by_appointment %}
-                                                Il est possible de se confesser sur rendez-vous.
+                                                <div>🤝 Il est possible de se confesser sur rendez-vous.</div>
                                             {% endif %}
+                                            {{ church_schedules_list.schedules_list|has_relation_text }}
                                         </div>
                                     {% endwith %}
                                 </div>

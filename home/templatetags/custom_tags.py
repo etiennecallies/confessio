@@ -8,7 +8,7 @@ from home.models import WebsiteModeration, ChurchModeration, ParishModeration, \
 from home.services.events_service import ChurchSchedulesList, \
     get_merged_church_schedules_list
 from scraping.parse.rrule_utils import get_events_from_schedule_item
-from scraping.parse.schedules import ScheduleItem, Event
+from scraping.parse.schedules import ScheduleItem, Event, SchedulesList
 
 
 @register.filter
@@ -35,6 +35,26 @@ def get_schedule_item_events(schedule_item: ScheduleItem) -> list[Event]:
     end_date = datetime(2040, 1, 1)
 
     return get_events_from_schedule_item(schedule_item, start_date, end_date)[:7]
+
+
+@register.filter
+def has_relation_text(schedules_list: SchedulesList) -> str:
+    relations = []
+    if schedules_list.is_related_to_mass:
+        relations.append('messes')
+    if schedules_list.is_related_to_adoration:
+        relations.append('adorations')
+    if schedules_list.is_related_to_permanence:
+        relations.append('permanences')
+    if relations:
+        if len(relations) > 1:
+            relation_text = f"{', '.join(relations[:-1])} et {relations[-1]}"
+        else:
+            relation_text = relations[0]
+
+        return f'👉 Certaines horaires sont liées aux {relation_text} (voir sources).'
+
+    return ''
 
 
 @register.filter
