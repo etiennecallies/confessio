@@ -71,14 +71,16 @@ def get_explanation_from_schedule(schedule: ScheduleItem) -> str:
         elif frequency == Frequency.DAILY:
             explanation += get_daily_explanation(rstr)
         else:
-            raise NotImplementedError(f"Frequency {frequency} not implemented yet")
+            # TODO clean this
+            explanation += "PAS IMPLEMENTE !!"
+            # raise NotImplementedError(f"Frequency {frequency} not implemented yet")
 
-    dtstart = rstr._dtstart
-    if schedule.duration_in_minutes:
-        dtend = dtstart + timedelta(minutes=schedule.duration_in_minutes)
-        explanation += f" de {dtstart.strftime('%H:%M')} à {dtend.strftime('%H:%M')}"
-    else:
-        explanation += f" à partir de {dtstart.strftime('%H:%M')}"
+        dtstart = rstr._dtstart
+        if schedule.duration_in_minutes:
+            dtend = dtstart + timedelta(minutes=schedule.duration_in_minutes)
+            explanation += f" de {dtstart.strftime('%H:%M')} à {dtend.strftime('%H:%M')}"
+        else:
+            explanation += f" à partir de {dtstart.strftime('%H:%M')}"
 
     return explanation
 
