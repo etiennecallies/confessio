@@ -1,3 +1,4 @@
+import locale
 from datetime import datetime
 
 from django.utils.timezone import make_aware
@@ -21,6 +22,18 @@ def get_year_end(year: int):
 
 def get_current_year() -> int:
     return datetime.now().year
+
+
+def format_datetime_with_locale(dt: datetime, dt_format: str, locale_name: str) -> str:
+    current_locale = locale.getlocale(locale.LC_TIME)
+
+    try:
+        locale.setlocale(locale.LC_TIME, locale_name)
+        formatted_date = dt.strftime(dt_format)
+    finally:
+        locale.setlocale(locale.LC_TIME, current_locale)
+
+    return formatted_date
 
 
 if __name__ == '__main__':
