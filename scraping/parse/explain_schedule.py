@@ -105,4 +105,3 @@ if __name__ == '__main__':
     )
 
     print(get_explanation_from_schedule(schedule))
-
