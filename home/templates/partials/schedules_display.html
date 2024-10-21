@@ -3,9 +3,20 @@
 
 <div class="moderation-tabs">
     <ul>
+        <li><a href="#tabs-explained">Explained</a></li>
         <li><a href="#tabs-nice-display">Nice display</a></li>
         <li><a href="#tabs-raw-json">Raw JSON</a></li>
     </ul>
+    <div id="tabs-explained">
+        {% for schedule in schedules_list.schedules %}
+            {% explain_schedule schedule church_desc_by_id_json %}<br>
+        {% endfor %}
+        possible_by_appointment: {% display_bool schedules_list.possible_by_appointment %}<br>
+        is_related_to_mass: {% display_bool schedules_list.is_related_to_mass %}<br>
+        is_related_to_adoration: {% display_bool schedules_list.is_related_to_adoration %}<br>
+        is_related_to_permanence: {% display_bool schedules_list.is_related_to_permanence %}<br>
+        will_be_seasonal_events: {% display_bool schedules_list.will_be_seasonal_events %}<br>
+    </div>
     <div id="tabs-nice-display">
         {% for schedule in schedules_list.schedules %}
             church_id: {{ schedule.church_id }}<br>

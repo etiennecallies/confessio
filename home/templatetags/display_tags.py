@@ -1,3 +1,5 @@
+import json
+
 from django.contrib.gis.geos import Point
 from django.template.defaulttags import register
 from django.template.loader import render_to_string
@@ -6,7 +8,8 @@ from home.models import Parish, Church, Website, Pruning
 from home.services.map_service import (get_map_with_single_location,
                                        get_map_with_multiple_locations,
                                        get_map_with_alternative_locations)
-from scraping.parse.schedules import SchedulesList, Event
+from scraping.parse.explain_schedule import get_explanation_from_schedule
+from scraping.parse.schedules import SchedulesList, Event, ScheduleItem
 from home.utils.list_utils import group_consecutive_indices
 
 
@@ -66,10 +69,11 @@ def display_similar_churches_location(church: Church, sorted_similar_churches: l
 
 
 @register.simple_tag
-def display_schedules_list(schedules_list: SchedulesList):
+def display_schedules_list(schedules_list: SchedulesList, church_desc_by_id_json: str):
     return render_to_string('partials/schedules_display.html', {
         'schedules_list': schedules_list,
         'schedules_list_json': schedules_list.model_dump_json(),
+        'church_desc_by_id_json': church_desc_by_id_json,
     })
 
 
@@ -88,4 +92,20 @@ def display_expandable_pruning(pruning: Pruning):
 
     return render_to_string('partials/expandable_pruning_display.html', {
         'spans': spans,
+    })
+
+
+@register.simple_tag
+def explain_schedule(schedule: ScheduleItem, church_desc_by_id_json: str):
+    church_desc_by_id = json.loads(church_desc_by_id_json)
+    if schedule.church_id in church_desc_by_id:
+        church_desc = church_desc_by_id[schedule.church_id]
+    elif schedule.church_id == -1:
+        church_desc = 'Autre église'
+    else:
+        church_desc = 'Église inconnue'
+    explained_schedule = get_explanation_from_schedule(schedule)
+    return render_to_string('partials/explained_schedule_display.html', {
+        'explained_schedule': explained_schedule,
+        'church_desc': church_desc,
     })

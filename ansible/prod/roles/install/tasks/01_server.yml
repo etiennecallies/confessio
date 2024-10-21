@@ -41,3 +41,9 @@
     user: "{{ deployer_user }}"
     state: present
     key: "{{ additional_pub_key1 }}"
+
+- name: Add fr-FR locale
+  community.general.locale_gen:
+    name: fr_FR.UTF-8
+    state: present
+  become: true

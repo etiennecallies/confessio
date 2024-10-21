@@ -50,7 +50,7 @@
     </div>
     {% if schedules_list %}
         Schedules list: <br>
-        {% display_schedules_list schedules_list %}<br>
+        {% display_schedules_list schedules_list church_desc_by_id_json %}<br>
     {% else %}
        Error detail: {{ parsing.error_detail }}
     {% endif %}
@@ -59,7 +59,7 @@
     {% if validated_schedules_list %}
         <h4>Previously validated schedules list :</h4>
         {% if validated_schedules_list != schedules_list %}
-            {% display_schedules_list validated_schedules_list %}<br>
+            {% display_schedules_list validated_schedules_list church_desc_by_id_json %}<br>
             <div>
                 <form action="{% url 'moderate_reset_validated_parsing' parsing_moderation.uuid %}" method="post">
                     {% csrf_token %}
