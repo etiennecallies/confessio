@@ -9,6 +9,10 @@ from scraping.parse.periods import PeriodEnum
 from scraping.parse.schedules import ScheduleItem
 
 
+#########
+# ENUMS #
+#########
+
 class Frequency(Enum):
     YEARLY = 0
     MONTHLY = 1
@@ -29,6 +33,19 @@ class Weekday(Enum):
     SUNDAY = 6
 
 
+class Position(Enum):
+    FIRST = 1
+    SECOND = 2
+    THIRD = 3
+    FOURTH = 4
+    FIFTH = 5
+    LAST = -1
+
+
+################
+# TRANSLATIONS #
+################
+
 NAME_BY_WEEKDAY = {
     Weekday.MONDAY: "lundi",
     Weekday.TUESDAY: "mardi",
@@ -37,6 +54,15 @@ NAME_BY_WEEKDAY = {
     Weekday.FRIDAY: "vendredi",
     Weekday.SATURDAY: "samedi",
     Weekday.SUNDAY: "dimanche",
+}
+
+NAME_BY_POSITION = {
+    Position.FIRST: "premier",
+    Position.SECOND: "deuxième",
+    Position.THIRD: "troisième",
+    Position.FOURTH: "quatrième",
+    Position.FIFTH: "cinquième",
+    Position.LAST: "dernier",
 }
 
 NAME_BY_PERIOD = {
@@ -67,12 +93,12 @@ def get_weekly_explanation(rstr: rrule) -> str:
 
     weekdays = [NAME_BY_WEEKDAY[Weekday(w)] for w in rstr._byweekday]
 
-    assert len(weekdays) > 0, "No weekday in weekly rrule"
+    if not weekdays:
+        raise ValueError("No weekday in weekly rrule")
 
-    if len(weekdays) == 1:
-        return f"{prefix} le {weekdays[0]}"
+    article = "le" if len(weekdays) == 1 else "les"
 
-    return f"{prefix} les {enumerate_with_and(weekdays)}"
+    return f"{prefix} {article} {enumerate_with_and(weekdays)}"
 
 
 def get_daily_explanation(rstr: rrule) -> str:
@@ -84,27 +110,48 @@ def get_daily_explanation(rstr: rrule) -> str:
     return "tous les jours"
 
 
+def get_monthly_explanation(rstr: rrule) -> str:
+    by_days = [Weekday(w) for w in rstr._byweekday]
+    if not by_days:
+        raise ValueError("No weekday in monthly rrule")
+
+    if len(by_days) > 1:
+        raise ValueError("Multiple weekdays in monthly rrule not implemented yet")
+
+    by_set_positions = [NAME_BY_POSITION[Position(p)] for p in rstr._bysetpos]
+    if not by_set_positions:
+        raise ValueError("No set position in monthly rrule")
+
+    article = "le" if len(by_set_positions) == 1 else "les"
+
+    return f"{article} {enumerate_with_and(by_set_positions)} {NAME_BY_WEEKDAY[by_days[0]]} du mois"
+
+
 def get_explanation_from_schedule(schedule: ScheduleItem) -> str:
     explanation = ''
 
     if schedule.rrule:
         rstr: rrule = rrulestr(schedule.rrule)
+
+        dt_start = rstr._dtstart
+        if not dt_start:
+            raise ValueError("No start date in rrule")
+
         frequency = Frequency(rstr._freq)
         if frequency == Frequency.WEEKLY:
             explanation += get_weekly_explanation(rstr)
         elif frequency == Frequency.DAILY:
             explanation += get_daily_explanation(rstr)
+        elif frequency == Frequency.MONTHLY:
+            explanation += get_monthly_explanation(rstr)
         else:
-            # TODO clean this
-            explanation += "PAS IMPLEMENTE !!"
-            # raise NotImplementedError(f"Frequency {frequency} not implemented yet")
+            raise ValueError(f"Frequency {frequency} not implemented yet")
 
-        dtstart = rstr._dtstart
         if schedule.duration_in_minutes:
-            dtend = dtstart + timedelta(minutes=schedule.duration_in_minutes)
-            explanation += f" de {dtstart.strftime('%H:%M')} à {dtend.strftime('%H:%M')}"
+            dt_end = dt_start + timedelta(minutes=schedule.duration_in_minutes)
+            explanation += f" de {dt_start.strftime('%H:%M')} à {dt_end.strftime('%H:%M')}"
         else:
-            explanation += f" à partir de {dtstart.strftime('%H:%M')}"
+            explanation += f" à partir de {dt_start.strftime('%H:%M')}"
 
     if schedule.include_periods:
         periods = [NAME_BY_PERIOD[p] for p in schedule.include_periods]
@@ -135,6 +182,17 @@ if __name__ == '__main__':
         exrule=None,
         duration_in_minutes=60,
         include_periods=[PeriodEnum.LENT],
+        exclude_periods=[]
+    )
+
+    print(get_explanation_from_schedule(schedule))
+
+    schedule = ScheduleItem(
+        church_id=None,
+        rrule='DTSTART:20240105T210000\nRRULE:FREQ=MONTHLY;BYDAY=FR;BYSETPOS=1',
+        exrule=None,
+        duration_in_minutes=180,
+        include_periods=[],
         exclude_periods=[]
     )
 

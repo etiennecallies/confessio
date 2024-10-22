@@ -3,7 +3,7 @@ from typing import Optional
 from home.utils.date_utils import get_current_year
 from scraping.parse.llm_client import OpenAILLMClient, get_openai_client
 from scraping.parse.rrule_utils import are_schedules_list_rrules_valid, \
-    filter_unnecessary_schedules, has_overnight_schedules
+    filter_unnecessary_schedules, has_overnight_schedules, is_schedules_list_explainable
 from scraping.parse.schedules import SchedulesList
 
 
@@ -150,6 +150,9 @@ def parse_with_llm(truncated_html: str, church_desc_by_id: dict[int, str],
         if has_overnight_schedules(schedules_list):
             # TODO make a moderation instead
             return None, "Overnight schedules"
+
+        if not is_schedules_list_explainable(schedules_list):
+            return None, "Not explainable"
 
         schedules_list.schedules = filter_unnecessary_schedules(schedules_list.schedules)
 

@@ -1,9 +1,10 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 from typing import Optional
 
 from dateutil.rrule import rrule, rruleset, WEEKLY, DAILY, rrulestr
 
 from home.utils.date_utils import get_current_year
+from scraping.parse.explain_schedule import get_explanation_from_schedule
 from scraping.parse.periods import rrules_from_period
 from scraping.parse.schedules import ScheduleItem, SchedulesList, Event
 
@@ -79,16 +80,38 @@ def is_overnight_schedule(schedule: ScheduleItem) -> bool:
     if not schedule.duration_in_minutes:
         return False
 
+    if schedule.duration_in_minutes > 18 * 60:
+        return True
+
     rset = get_rruleset_from_schedule(schedule)
     dt_2000 = datetime(2000, 1, 1)
     start = rset.after(dt_2000)
     end = start + timedelta(minutes=schedule.duration_in_minutes)
+
+    if end.time() <= time(hour=1):
+        # If the schedule ends before 1am, it is not considered as overnight
+        return False
 
     return start.date() != end.date()
 
 
 def has_overnight_schedules(schedules_list: SchedulesList) -> bool:
     return any(is_overnight_schedule(schedule_item)
+               for schedule_item in schedules_list.schedules)
+
+
+def is_schedule_explainable(schedule: ScheduleItem) -> bool:
+    try:
+        get_explanation_from_schedule(schedule)
+        return True
+    except ValueError as e:
+        print(e)
+        print(schedule)
+        return False
+
+
+def is_schedules_list_explainable(schedules_list: SchedulesList) -> bool:
+    return all(is_schedule_explainable(schedule_item)
                for schedule_item in schedules_list.schedules)
 
 
