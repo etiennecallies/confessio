@@ -111,16 +111,22 @@ def get_daily_explanation(rstr: rrule) -> str:
 
 
 def get_monthly_explanation(rstr: rrule) -> str:
-    by_days = [Weekday(w) for w in rstr._byweekday]
-    if not by_days:
+    if rstr._bymonthday:
+        if len(rstr._bymonthday) > 1:
+            raise ValueError("Multiple month days in monthly rrule not implemented yet")
+
+        return f"le {rstr._bymonthday[0]} du mois"
+
+    if not rstr._byweekday:
         raise ValueError("No weekday in monthly rrule")
+    by_days = [Weekday(w) for w in rstr._byweekday]
 
     if len(by_days) > 1:
         raise ValueError("Multiple weekdays in monthly rrule not implemented yet")
 
-    by_set_positions = [NAME_BY_POSITION[Position(p)] for p in rstr._bysetpos]
-    if not by_set_positions:
+    if not rstr._bysetpos:
         raise ValueError("No set position in monthly rrule")
+    by_set_positions = [NAME_BY_POSITION[Position(p)] for p in rstr._bysetpos]
 
     article = "le" if len(by_set_positions) == 1 else "les"
 
@@ -190,6 +196,17 @@ if __name__ == '__main__':
     schedule = ScheduleItem(
         church_id=None,
         rrule='DTSTART:20240105T210000\nRRULE:FREQ=MONTHLY;BYDAY=FR;BYSETPOS=1',
+        exrule=None,
+        duration_in_minutes=180,
+        include_periods=[],
+        exclude_periods=[]
+    )
+
+    print(get_explanation_from_schedule(schedule))
+
+    schedule = ScheduleItem(
+        church_id=None,
+        rrule='DTSTART:20240616T160000\nRRULE:FREQ=MONTHLY;BYMONTHDAY=16',
         exrule=None,
         duration_in_minutes=180,
         include_periods=[],
