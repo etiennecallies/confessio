@@ -133,11 +133,26 @@ def get_monthly_explanation(rstr: rrule) -> str:
     return f"{article} {enumerate_with_and(by_set_positions)} {NAME_BY_WEEKDAY[by_days[0]]} du mois"
 
 
+def get_exrule_explanation(exrule: rrule) -> str:
+    if not exrule._dtstart:
+        raise ValueError("No start date in exrule")
+    dt_start = format_datetime_with_locale(exrule._dtstart, '%d %B %Y', 'fr_FR.UTF-8')
+
+    if not exrule._until:
+        raise ValueError("No until date in exrule")
+    dt_until = format_datetime_with_locale(exrule._until, '%d %B %Y', 'fr_FR.UTF-8')
+
+    if dt_start == dt_until:
+        return f"le {dt_start}"
+
+    return f"du {dt_start} au {dt_until}"
+
+
 def get_explanation_from_schedule(schedule: ScheduleItem) -> str:
     explanation = ''
 
     if schedule.rrule:
-        rstr: rrule = rrulestr(schedule.rrule)
+        rstr = rrulestr(schedule.rrule)
 
         dt_start = rstr._dtstart
         if not dt_start:
@@ -166,8 +181,14 @@ def get_explanation_from_schedule(schedule: ScheduleItem) -> str:
         periods = [NAME_BY_PERIOD[p] for p in schedule.include_periods]
         explanation = f"{enumerate_with_and(periods)}, {explanation}"
 
-    if schedule.exclude_periods:
-        periods = [NAME_BY_PERIOD[p] for p in schedule.exclude_periods]
+    if schedule.exrule or schedule.exclude_periods:
+        periods = []
+        if schedule.exclude_periods:
+            periods = [NAME_BY_PERIOD[p] for p in schedule.exclude_periods]
+        if schedule.exrule:
+            exrule_explanation = get_exrule_explanation(rrulestr(schedule.exrule))
+            periods.append(exrule_explanation)
+
         if not explanation:
             explanation = f"pas de confessions {enumerate_with_and(periods)}"
         else:
@@ -217,6 +238,17 @@ if __name__ == '__main__':
         duration_in_minutes=180,
         include_periods=[],
         exclude_periods=[]
+    )
+
+    print(get_explanation_from_schedule(schedule))
+
+    schedule = ScheduleItem(
+        church_id=None,
+        rrule='DTSTART:20240102T170000\nRRULE:FREQ=WEEKLY;BYDAY=TU,FR',
+        exrule='DTSTART:20240701T000000\nRRULE:FREQ=DAILY;UNTIL=20240831T235959',
+        duration_in_minutes=90,
+        include_periods=[],
+        exclude_periods=[PeriodEnum.JULY, PeriodEnum.AUGUST]
     )
 
     print(get_explanation_from_schedule(schedule))
