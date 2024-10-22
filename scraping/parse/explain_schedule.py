@@ -160,12 +160,18 @@ def get_explanation_from_schedule(schedule: ScheduleItem) -> str:
             explanation += f" à partir de {dt_start.strftime('%H:%M')}"
 
     if schedule.include_periods:
+        if not explanation:
+            raise ValueError("No rrule but include periods")
+
         periods = [NAME_BY_PERIOD[p] for p in schedule.include_periods]
         explanation = f"{enumerate_with_and(periods)}, {explanation}"
 
     if schedule.exclude_periods:
         periods = [NAME_BY_PERIOD[p] for p in schedule.exclude_periods]
-        explanation += f", sauf {enumerate_with_and(periods)}"
+        if not explanation:
+            explanation = f"pas de confessions {enumerate_with_and(periods)}"
+        else:
+            explanation += f", sauf {enumerate_with_and(periods)}"
 
     return f"{explanation.capitalize()}."
 
