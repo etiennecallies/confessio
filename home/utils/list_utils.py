@@ -22,3 +22,23 @@ def group_consecutive_indices(n: int, indices: list[int]) -> list[tuple[bool, li
         result.append((current_belongs, current_indices))
 
     return result
+
+
+def enumerate_with_and(items: list[str]) -> str:
+    """
+    >>> enumerate_with_and(['a', 'b', 'c'])
+    'a, b and c'
+    >>> enumerate_with_and(['a', 'b'])
+    'a and b'
+    >>> enumerate_with_and(['a'])
+    'a'
+    >>> enumerate_with_and([])
+    ''
+    """
+    if not items:
+        return ''
+
+    if len(items) == 1:
+        return items[0]
+
+    return ', '.join(items[:-1]) + ' et ' + items[-1]

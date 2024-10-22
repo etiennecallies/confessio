@@ -7,6 +7,7 @@ from home.models import WebsiteModeration, ChurchModeration, ParishModeration, \
     PruningModeration, SentenceModeration, ParsingModeration, Website, ModerationMixin
 from home.services.events_service import ChurchSchedulesList, \
     get_merged_church_schedules_list
+from home.utils.list_utils import enumerate_with_and
 from scraping.parse.rrule_utils import get_events_from_schedule_item
 from scraping.parse.schedules import ScheduleItem, Event, SchedulesList
 
@@ -47,10 +48,7 @@ def has_relation_text(schedules_list: SchedulesList) -> str:
     if schedules_list.is_related_to_permanence:
         relations.append('permanences')
     if relations:
-        if len(relations) > 1:
-            relation_text = f"{', '.join(relations[:-1])} et {relations[-1]}"
-        else:
-            relation_text = relations[0]
+        relation_text = enumerate_with_and(relations)
 
         return f'👉 Certaines horaires sont liées aux {relation_text} (voir sources).'
 
