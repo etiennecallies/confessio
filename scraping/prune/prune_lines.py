@@ -4,14 +4,15 @@ from typing import Optional, Tuple, Set
 from scraping.extract.tag_line import Tag
 from scraping.prune.models import Action, Source
 
-MAX_BUFFERING_ATTEMPTS = 2
+MAX_PRE_BUFFERING_ATTEMPTS = 3
+MAX_POST_BUFFERING_ATTEMPTS = 3
 
 
 @dataclass
 class PreBuffer:
     last_period_line: Optional[int] = None
     last_date_line: Optional[int] = None
-    remaining_attempts: int = MAX_BUFFERING_ATTEMPTS
+    remaining_attempts: int = MAX_PRE_BUFFERING_ATTEMPTS
 
     def to_buffer(self) -> list[int]:
         return sorted(filter(
@@ -38,12 +39,12 @@ class PreBuffer:
 class PostBuffer:
     buffer: list[int]
     is_post_schedule: bool = False
-    remaining_attempts: int = MAX_BUFFERING_ATTEMPTS
+    remaining_attempts: int = MAX_POST_BUFFERING_ATTEMPTS
 
     def add_line(self, i: int, tags: Set[Tag], results: list[int]):
         self.buffer.append(i)
         self.is_post_schedule = self.is_post_schedule or Tag.SCHEDULE in tags
-        self.remaining_attempts = MAX_BUFFERING_ATTEMPTS
+        self.remaining_attempts = MAX_POST_BUFFERING_ATTEMPTS
         if self.is_post_schedule:
             results.extend(self.buffer)
             self.buffer = []

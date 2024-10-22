@@ -37,7 +37,8 @@ if __name__ == '__main__':
         # 'https://www.paroisse-meudonlaforet.fr/reconciliation/',
         # 'https://paroissedemontrouge.com/etapes-de-la-vie-chretienne-reconciliation/',
         # 'https://saintbenoitdugrandcaux.wordpress.com/le-sacrement-de-la-reconciliation/',
-        'https://meulan-triel.fr/index.php/reconciliation-confession/',
+        # 'https://meulan-triel.fr/index.php/reconciliation-confession/',
+        'https://paroisse-sevres.fr/les-etapes-de-la-vie-chretienne/confession/',
     ]
 
     for url_ in confession_pages:
