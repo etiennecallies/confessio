@@ -97,7 +97,7 @@ def display_expandable_pruning(pruning: Pruning):
 
 @register.simple_tag
 def explain_schedule(schedule: ScheduleItem, church_desc_by_id_json: str):
-    church_desc_by_id = json.loads(church_desc_by_id_json)
+    church_desc_by_id = {int(k): v for (k, v) in json.loads(church_desc_by_id_json).items()}
     if schedule.church_id in church_desc_by_id:
         church_desc = church_desc_by_id[schedule.church_id]
     elif schedule.church_id == -1:
