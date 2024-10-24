@@ -6,7 +6,7 @@ from requests import RequestException
 
 from scraping.utils.url_utils import get_domain
 
-TIMEOUT = 10
+TIMEOUT = 20
 
 
 def get_headers():
