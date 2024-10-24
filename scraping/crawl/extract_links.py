@@ -11,6 +11,7 @@ from scraping.utils.url_utils import is_internal_link, get_clean_full_url, \
 CONFESSIONS_OR_SCHEDULES_MENTIONS = [
     'confession',
     'confessions',
+    'confesser',
     'reconciliation',
     'penitence',
     'sacrement',
@@ -23,6 +24,7 @@ CONFESSIONS_OR_SCHEDULES_MENTIONS = [
     'paques',
     'pascal',
     'priere',
+    'etapes',
 ]
 
 

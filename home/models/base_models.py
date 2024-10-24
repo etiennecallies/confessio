@@ -37,7 +37,6 @@ class Website(TimeStampMixin):
     pruning_last_validated_at = models.DateTimeField(null=True, blank=True)
     history = HistoricalRecords()
 
-    _pages = None
     _latest_crawling = None
     _has_search_latest_crawling = False
 
@@ -58,10 +57,7 @@ class Website(TimeStampMixin):
         return self.get_latest_crawling() is not None
 
     def get_pages(self) -> List['Page']:
-        if self._pages is None:
-            self._pages = self.pages.all()
-
-        return self._pages
+        return self.pages.all()
 
     def has_pages(self) -> bool:
         return len(self.get_pages()) > 0
@@ -117,18 +113,11 @@ class Page(TimeStampMixin):
     class Meta:
         unique_together = ('url', 'website')
 
-    _latest_scraping = None
-    _has_search_latest_scraping = False
-
     def get_latest_scraping(self) -> Optional['Scraping']:
-        if not self._has_search_latest_scraping:
-            try:
-                self._latest_scraping = self.scraping
-            except Scraping.DoesNotExist:
-                self._latest_scraping = None
-            self._has_search_latest_scraping = True
-
-        return self._latest_scraping
+        try:
+            return self.scraping
+        except Scraping.DoesNotExist:
+            return None
 
     def has_been_scraped(self) -> bool:
         return self.get_latest_scraping() is not None
