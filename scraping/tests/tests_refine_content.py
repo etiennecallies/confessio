@@ -20,6 +20,7 @@ class TestExtractLinks(unittest.TestCase):
             'paroisseoullins',
             'tassin',
             'mornantais',
+            'montesson',
         ]
 
     def test_parse_content_links(self):

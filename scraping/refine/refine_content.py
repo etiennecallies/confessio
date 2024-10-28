@@ -106,6 +106,10 @@ def clear_table_formatting(element: BeautifulSoup):
         if attr in ['style', 'width']:
             del element.attrs[attr]
 
+    # Transform <font> and <strong> into <span>
+    for tag in element.find_all(["font", "strong"]):
+        tag.name = "span"
+
 
 def rec_prettify(element: BeautifulSoup):
     last_prettified_html = None
