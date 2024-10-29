@@ -5,8 +5,8 @@ from dateutil.rrule import rrule, rruleset, WEEKLY, DAILY, rrulestr
 
 from home.utils.date_utils import get_current_year
 from scraping.parse.explain_schedule import get_explanation_from_schedule
-from scraping.parse.periods import rrules_from_period
-from scraping.parse.schedules import ScheduleItem, SchedulesList, Event
+from scraping.parse.periods import rrules_from_period, PeriodEnum
+from scraping.parse.schedules import ScheduleItem, SchedulesList, Event, RegularRule
 
 
 def add_exrules(rset, periods, use_complementary: bool):
@@ -20,14 +20,25 @@ def add_exrules(rset, periods, use_complementary: bool):
 def get_rruleset_from_schedule(schedule: ScheduleItem) -> rruleset:
     rset = rruleset()
 
-    if schedule.rrule:
-        rset.rrule(rrulestr(schedule.rrule))
+    if schedule.is_one_off_rule():
+        dt_as_string = schedule.rule.get_start().strftime('%Y%m%dT%H%M%S')
+        one_off_rrule = f"DTSTART:{dt_as_string}\nRRULE:FREQ=DAILY;UNTIL={dt_as_string}"
 
-    if schedule.exrule:
-        rset.exrule(rrulestr(schedule.exrule))
+        if schedule.is_exception_rule:
+            rset.exrule(rrulestr(one_off_rrule))
+        else:
+            rset.rrule(rrulestr(one_off_rrule))
 
-    add_exrules(rset, schedule.include_periods, True)
-    add_exrules(rset, schedule.exclude_periods, False)
+        return rset
+
+    if schedule.is_regular_rule():
+        if schedule.is_exception_rule:
+            rset.exrule(rrulestr(schedule.rule.rrule))
+        else:
+            rset.rrule(rrulestr(schedule.rule.rrule))
+
+    add_exrules(rset, schedule.rule.include_periods, not schedule.is_exception_rule)
+    add_exrules(rset, schedule.rule.exclude_periods, schedule.is_exception_rule)
 
     return rset
 
@@ -115,14 +126,6 @@ def is_schedules_list_explainable(schedules_list: SchedulesList) -> bool:
                for schedule_item in schedules_list.schedules)
 
 
-##########
-# REDUCE #
-##########
-
-def filter_unnecessary_schedules(schedules: list[ScheduleItem]) -> list[ScheduleItem]:
-    return [schedule for schedule in schedules if schedule.rrule or schedule.exclude_periods]
-
-
 ###########
 # COMPARE #
 ###########
@@ -181,10 +184,13 @@ if __name__ == '__main__':
 
     schedule_ = ScheduleItem(
         church_id=1,
-        rrule='FREQ=WEEKLY;BYDAY=WE',
+        rule=RegularRule(
+            rrule='FREQ=WEEKLY;BYDAY=WE',
+            include_periods=[],
+            exclude_periods=[PeriodEnum.LENT]
+        ),
+        is_exception_rule=False,
         duration_in_minutes=60,
-        include_periods=[],
-        exclude_periods=['lent']
     )
     rset_ = get_rruleset_from_schedule(schedule_)
     print(rset_)

@@ -6,7 +6,7 @@ from dateutil.rrule import rrulestr, rrule
 from home.utils.date_utils import format_datetime_with_locale
 from home.utils.list_utils import enumerate_with_and
 from scraping.parse.periods import PeriodEnum
-from scraping.parse.schedules import ScheduleItem
+from scraping.parse.schedules import ScheduleItem, RegularRule, OneOffRule
 
 
 #########
@@ -103,9 +103,7 @@ def get_weekly_explanation(rstr: rrule) -> str:
 
 def get_daily_explanation(rstr: rrule) -> str:
     if rstr._until:
-        full_date = format_datetime_with_locale(rstr._dtstart, "%A %d %B %Y",
-                                                'fr_FR.UTF-8')
-        return f"le {full_date.lower()}"
+        raise ValueError("Until date in daily rrule not implemented yet")
 
     return "tous les jours"
 
@@ -149,10 +147,14 @@ def get_exrule_explanation(exrule: rrule) -> str:
 
 
 def get_explanation_from_schedule(schedule: ScheduleItem) -> str:
+    dt_start = None
     explanation = ''
 
-    if schedule.rrule:
-        rstr = rrulestr(schedule.rrule)
+    if schedule.is_exception_rule:
+        explanation += "pas de confessions "
+
+    if schedule.is_regular_rule():
+        rstr = rrulestr(schedule.rule.rrule)
 
         dt_start = rstr._dtstart
         if not dt_start:
@@ -168,30 +170,27 @@ def get_explanation_from_schedule(schedule: ScheduleItem) -> str:
         else:
             raise ValueError(f"Frequency {frequency} not implemented yet")
 
+    elif schedule.is_one_off_rule():
+        dt_start = schedule.rule.get_start()
+        full_date = format_datetime_with_locale(dt_start, "%A %d %B %Y",
+                                                'fr_FR.UTF-8')
+        explanation += f"le {full_date.lower()}"
+
+    start_time = dt_start.strftime('%H:%M')
+    if start_time != '00:00':
         if schedule.duration_in_minutes:
             dt_end = dt_start + timedelta(minutes=schedule.duration_in_minutes)
-            explanation += f" de {dt_start.strftime('%H:%M')} à {dt_end.strftime('%H:%M')}"
+            explanation += f" de {start_time} à {dt_end.strftime('%H:%M')}"
         else:
-            explanation += f" à partir de {dt_start.strftime('%H:%M')}"
+            explanation += f" à partir de {start_time}"
 
-    if schedule.include_periods:
-        if not explanation:
-            raise ValueError("No rrule but include periods")
+    if schedule.is_regular_rule():
+        if schedule.rule.include_periods:
+            periods = [NAME_BY_PERIOD[p] for p in schedule.rule.include_periods]
+            explanation = f"{enumerate_with_and(periods)}, {explanation}"
 
-        periods = [NAME_BY_PERIOD[p] for p in schedule.include_periods]
-        explanation = f"{enumerate_with_and(periods)}, {explanation}"
-
-    if schedule.exrule or schedule.exclude_periods:
-        periods = []
-        if schedule.exclude_periods:
-            periods = [NAME_BY_PERIOD[p] for p in schedule.exclude_periods]
-        if schedule.exrule:
-            exrule_explanation = get_exrule_explanation(rrulestr(schedule.exrule))
-            periods.append(exrule_explanation)
-
-        if not explanation:
-            explanation = f"pas de confessions {enumerate_with_and(periods)}"
-        else:
+        if schedule.rule.exclude_periods:
+            periods = [NAME_BY_PERIOD[p] for p in schedule.rule.exclude_periods]
             explanation += f", sauf {enumerate_with_and(periods)}"
 
     return f"{explanation.capitalize()}."
@@ -200,55 +199,63 @@ def get_explanation_from_schedule(schedule: ScheduleItem) -> str:
 if __name__ == '__main__':
     schedule = ScheduleItem(
         church_id=None,
-        rrule='DTSTART:20240102T173000\nRRULE:FREQ=WEEKLY;BYDAY=TU,WE,TH,FR',
-        exrule=None,
+        rule=RegularRule(
+            rrule='DTSTART:20240102T173000\nRRULE:FREQ=WEEKLY;BYDAY=TU,WE,TH,FR',
+            include_periods=[],
+            exclude_periods=[PeriodEnum.JULY, PeriodEnum.AUGUST]
+        ),
+        is_exception_rule=False,
         duration_in_minutes=60,
-        include_periods=[],
-        exclude_periods=[PeriodEnum.JULY, PeriodEnum.AUGUST]
     )
 
     print(get_explanation_from_schedule(schedule))
 
     schedule = ScheduleItem(
         church_id=None,
-        rrule='DTSTART:20240329T160000\nRRULE:FREQ=DAILY;UNTIL=20240329T170000',
-        exrule=None,
+        rule=OneOffRule(
+            start_isoformat='2024-03-29T160000',
+            weekday=None,
+        ),
+        is_exception_rule=False,
         duration_in_minutes=60,
-        include_periods=[PeriodEnum.LENT],
-        exclude_periods=[]
     )
 
     print(get_explanation_from_schedule(schedule))
 
     schedule = ScheduleItem(
         church_id=None,
-        rrule='DTSTART:20240105T210000\nRRULE:FREQ=MONTHLY;BYDAY=FR;BYSETPOS=1',
-        exrule=None,
+        rule=RegularRule(
+            rrule='DTSTART:20240105T210000\nRRULE:FREQ=MONTHLY;BYDAY=FR;BYSETPOS=1',
+            include_periods=[],
+            exclude_periods=[]
+        ),
+        is_exception_rule=False,
         duration_in_minutes=180,
-        include_periods=[],
-        exclude_periods=[]
     )
 
     print(get_explanation_from_schedule(schedule))
 
     schedule = ScheduleItem(
         church_id=None,
-        rrule='DTSTART:20240616T160000\nRRULE:FREQ=MONTHLY;BYMONTHDAY=16',
-        exrule=None,
+        rule=RegularRule(
+            rrule='DTSTART:20240616T160000\nRRULE:FREQ=MONTHLY;BYMONTHDAY=16',
+            include_periods=[],
+            exclude_periods=[]
+        ),
+        is_exception_rule=False,
         duration_in_minutes=180,
-        include_periods=[],
-        exclude_periods=[]
     )
 
     print(get_explanation_from_schedule(schedule))
 
     schedule = ScheduleItem(
         church_id=None,
-        rrule='DTSTART:20240102T170000\nRRULE:FREQ=WEEKLY;BYDAY=TU,FR',
-        exrule='DTSTART:20240701T000000\nRRULE:FREQ=DAILY;UNTIL=20240831T235959',
-        duration_in_minutes=90,
-        include_periods=[],
-        exclude_periods=[PeriodEnum.JULY, PeriodEnum.AUGUST]
+        rule=OneOffRule(
+            start_isoformat='2024-07-01T000000',
+            weekday=None,
+        ),
+        is_exception_rule=True,
+        duration_in_minutes=None,
     )
 
     print(get_explanation_from_schedule(schedule))

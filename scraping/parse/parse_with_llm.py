@@ -2,8 +2,8 @@ from typing import Optional
 
 from home.utils.date_utils import get_current_year
 from scraping.parse.llm_client import OpenAILLMClient, get_openai_client
-from scraping.parse.rrule_utils import are_schedules_list_rrules_valid, \
-    filter_unnecessary_schedules, has_overnight_schedules, is_schedules_list_explainable
+from scraping.parse.rrule_utils import are_schedules_list_rrules_valid, has_overnight_schedules, \
+    is_schedules_list_explainable
 from scraping.parse.schedules import SchedulesList
 
 
@@ -40,21 +40,32 @@ Here is the schedule dictionary format:
         not in the provided list. Sometimes, you can guess the church_id when it says
         "à la chapelle" and there is only one church called "chapelle" in the list.
         But if there is no mention, the church_id must be null.
-    "rrule": Optional[str],  # the recurrence rule for the confession. For example
-        "DTSTART:{current_year}0101T103000\\nRRULE:FREQ=WEEKLY;BYDAY=WE" for
-        "confession les mercredis de 10h30 à 11h30". Can be null if the expression is only
-        exclusive.
-    "exrule": Optional[str],  # If and only if this is a cancellation definition the expression
-        of the "no-confession" rrule. For example "29 septembre de 16h30 à 17h30 Pas de confession"
-        "DTSTART:{current_year}0929T163000\\nRRULE:FREQ=DAILY;UNTIL={current_year}0929T173000".
-        Null if the expression is not an exclusion.
+    "rule": OneOffRule | RegularRule,  # the recurrence rule for the confession (see below)
+    "is_exception_rule": bool,  # whether the rule is an exception rule
     "duration_in_minutes": Optional[int],  # the duration of the confession in minutes,
         null if not explicit
+}}
+
+Then rule is a dictionary containing the recurrence rule for the confession. It can be a
+one-off rule or a regular rule.
+
+Here is the one-off rule format:
+{{
+    "start_isoformat": str,  # the start date time of the one-off confession in the format
+        "YYYY-MM-DDTHHMMSS". For example "{current_year}-01-01T103000" for "le 1er janvier à 10h30".
+    "weekday": Optional[int]  # the weekday of the one-off confession, if it is a weekday
+}}
+
+Here is the regular rule format:
+{{
+    "rrule": str,  # the recurrence rule for the confession. For example
+        "DTSTART:{current_year}0101T103000\\nRRULE:FREQ=WEEKLY;BYDAY=WE" for
+        "confession les mercredis de 10h30 à 11h30".
     "include_periods": list[PeriodEnum],  # the year periods when the rrule applied. For
         example, if the confession is only during the school holidays, the list would be
         ['school_holidays']. If the expression says "durant l'été", the list would be
         ['july', 'august'].
-    "exclude_periods": list[PeriodEnum],  # the year periods excluded. For example, if the
+    "exclude_periods": list[PeriodEnum]  # the year periods excluded. For example, if the
         confession is only during the school terms, the list would be ['school_holidays']. If the
         expression says "sauf pendant le carême", the list would be ['lent'].
 }}
@@ -71,9 +82,6 @@ Some details :
 - EXDATE is not accepted in python rrule, so please do not include it in the rrule, use
     the "exclude_periods" field instead
 - use FREQ=WEEKLY for weekly schedules, FREQ=DAILY;BYHOUR=... for daily events
-- For one-off event, use the keyword UNTIL in the rrule.
-    For example, "confession le 8 février de 10h à 11h" would be
-    "DTSTART:{current_year}0208T100000\\nRRULE:FREQ=DAILY;UNTIL={current_year}0208T110000"
 - If an expression of en event does not contain a precise date (e.g. "avant Noël"
 "avant Pâques", or "une fois par mois") or a precise time (e.g. "dans la matinée",
 "dans l'après-midi", "dans la soirée" or "après la messe"), do not return a schedule item
@@ -155,8 +163,6 @@ def parse_with_llm(truncated_html: str, church_desc_by_id: dict[int, str],
 
         if not is_schedules_list_explainable(schedules_list):
             return None, "Not explainable"
-
-        schedules_list.schedules = filter_unnecessary_schedules(schedules_list.schedules)
 
     return schedules_list, error_detail
 
