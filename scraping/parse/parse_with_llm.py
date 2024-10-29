@@ -79,6 +79,8 @@ Some details :
 "dans l'après-midi", "dans la soirée" or "après la messe"), do not return a schedule item
 dictionary for this event. Usually, it means some of the booleans for mass, adoration, permanence
 or seasonal events should be set to True.
+- A mass lasts 30 minutes, except on Sundays and feast days, when it lasts 1 hour. Therefore, if
+the confession starts "après la messe de 17 h le vendredi", the start time should be 17h30.
 - If the church is not explicit in the text, the church_id must be null.
 
 Here is the HTML extract to parse:

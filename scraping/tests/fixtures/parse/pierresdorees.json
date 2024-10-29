@@ -1,0 +1,45 @@
+{
+  "input": {
+    "church_desc_by_id": {
+      "0": "Nativit\u00e9 de Jean Baptiste TERNAND",
+      "1": "Nativit\u00e9 de Notre Dame CHESSY",
+      "2": "Saint Antoine THEIZE",
+      "3": "Saint Barthelemy CHAMELET",
+      "4": "Saint Barthelemy CHATILLON",
+      "5": "Saint Blaise BAGNOLS",
+      "6": "Saint Denis ALIX",
+      "7": "Saint Dutrille FRONTENAS",
+      "8": "Saint Etienne JARNIOUX",
+      "9": "Saint Etienne LEGNY",
+      "10": "Saint Laurent SAINT LAURENT D'OINGT",
+      "11": "Saint Martin LE BOIS D'OINGT",
+      "12": "Saint Martin LETRA",
+      "13": "Saint Martin VILLE SUR JARNIOUX",
+      "14": "Saint Mathieu OINGT",
+      "15": "Saint Pancrace LE BREUIL",
+      "16": "Saint Pierre MOIRE",
+      "17": "Saint V\u00e9rand SAINT VERAND",
+      "18": "Sainte Paule SAINTE PAULE"
+    },
+    "year": 2024
+  },
+  "output": {
+    "schedules_list": {
+      "schedules": [
+        {
+          "church_id": 11,
+          "rrule": "DTSTART:20240105T173000\nRRULE:FREQ=WEEKLY;BYDAY=FR",
+          "exrule": null,
+          "duration_in_minutes": null,
+          "include_periods": [],
+          "exclude_periods": []
+        }
+      ],
+      "possible_by_appointment": true,
+      "is_related_to_mass": true,
+      "is_related_to_adoration": false,
+      "is_related_to_permanence": true,
+      "will_be_seasonal_events": true
+    }
+  }
+}

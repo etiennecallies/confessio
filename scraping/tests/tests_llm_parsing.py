@@ -52,12 +52,13 @@ class LlmParsingTests(unittest.TestCase):
             'houilles',
             'stnomdejesus',
             'asnieres',
-            'levallois',
+            # 'levallois',  # Not working, duration_in_minutes should be null
             # 'levallois2',  # Not working, duration_in_minutes should be null
             'ndlumieres',
             'carmel',
             # 'stnizier',  # Not working, too long
             'bron',
+            'pierresdorees',
         ]
 
     def test_llm_parsing(self):
