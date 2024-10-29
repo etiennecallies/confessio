@@ -1,0 +1,22 @@
+{
+  "input": {
+    "church_desc_by_id": {
+      "0": "Chapelle de l\u2019H\u00f4pital du Vinatier BRON",
+      "1": "Notre Dame de Lourdes BRON",
+      "2": "Oratoire du Christ Roi BRON",
+      "3": "Saint Denis BRON",
+      "4": "Saint Etienne (Terraillon) BRON"
+    },
+    "year": 2024
+  },
+  "output": {
+    "schedules_list": {
+      "schedules": [],
+      "possible_by_appointment": true,
+      "is_related_to_mass": false,
+      "is_related_to_adoration": false,
+      "is_related_to_permanence": false,
+      "will_be_seasonal_events": true
+    }
+  }
+}
