@@ -234,13 +234,31 @@ class Parsing(TimeStampMixin):
     class Meta:
         unique_together = ('truncated_html_hash', 'church_desc_by_id', 'current_year')
 
+    def get_schedules(self) -> list['Schedule']:
+        return list(self.one_off_schedules.all()) + list(self.regular_schedules.all())
+
 
 class Schedule(TimeStampMixin):
-    parsing = models.ForeignKey('Parsing', on_delete=models.CASCADE, related_name='schedules')
     church_id = models.SmallIntegerField(null=True, blank=True)
-    rrule = models.TextField(null=True, blank=True)  # in order to have TextArea in admin
-    exrule = models.TextField(null=True, blank=True)  # in order to have TextArea in admin
+    is_exception_rule = models.BooleanField()
     duration_in_minutes = models.SmallIntegerField(null=True, blank=True)
+
+    class Meta:
+        abstract = True
+
+
+class OneOffSchedule(Schedule):
+    parsing = models.ForeignKey('Parsing', on_delete=models.CASCADE,
+                                related_name='one_off_schedules')
+    start_isoformat = models.CharField(max_length=19)
+    weekday = models.SmallIntegerField(null=True, blank=True)
+    history = HistoricalRecords()
+
+
+class RegularSchedule(Schedule):
+    parsing = models.ForeignKey('Parsing', on_delete=models.CASCADE,
+                                related_name='regular_schedules')
+    rrule = models.TextField()  # in order to have TextArea in admin
     include_periods = ChoiceArrayField(models.CharField(max_length=16,
                                                         choices=PeriodEnum.choices()),
                                        blank=True)

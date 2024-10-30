@@ -3,7 +3,8 @@ from typing import Optional
 from django.forms import model_to_dict
 from pydantic import ValidationError
 
-from home.models import Pruning, Website, Parsing, Schedule, ParsingModeration, Church
+from home.models import Pruning, Website, Parsing, Schedule, ParsingModeration, Church, \
+    OneOffSchedule, RegularSchedule
 from home.utils.date_utils import get_current_year
 from home.utils.hash_utils import hash_string_to_hex
 from scraping.parse.parse_with_llm import parse_with_llm, get_llm_model, get_prompt_template
@@ -76,7 +77,11 @@ def get_existing_parsing(truncated_html: str,
 
 
 def schedule_item_from_schedule(schedule: Schedule) -> ScheduleItem:
-    schedule_dict = model_to_dict(schedule, exclude=['id', 'parsing'])
+    base_fields = ['church_id', 'is_exception_rule', 'duration_in_minutes']
+    exclude_fields = ['id', 'schedule']
+
+    schedule_dict = model_to_dict(schedule, fields=base_fields)
+    schedule_dict['rule'] = model_to_dict(schedule, exclude=base_fields + exclude_fields)
 
     return ScheduleItem(**schedule_dict)
 
@@ -87,7 +92,7 @@ def get_parsing_schedules_list(parsing: Parsing) -> Optional[SchedulesList]:
 
     try:
         return SchedulesList(
-            schedules=list(map(schedule_item_from_schedule, parsing.schedules.all())),
+            schedules=list(map(schedule_item_from_schedule, parsing.get_schedules())),
             possible_by_appointment=parsing.possible_by_appointment,
             is_related_to_mass=parsing.is_related_to_mass,
             is_related_to_adoration=parsing.is_related_to_adoration,
@@ -104,12 +109,25 @@ def save_schedule_list(parsing: Parsing, schedules_list: Optional[SchedulesList]
     if schedules_list is None:
         return
 
-    parsing.schedules.all().delete()
+    for schedule in parsing.get_schedules():
+        schedule.delete()
+
+    base_fields = {'church_id', 'is_exception_rule', 'duration_in_minutes'}
     for schedule_item in schedules_list.schedules:
-        schedule = Schedule(
-            parsing=parsing,
-            **schedule_item.model_dump()
-        )
+        if schedule_item.is_one_off_rule():
+            schedule = OneOffSchedule(
+                parsing=parsing,
+                **schedule_item.model_dump(include=base_fields),
+                **schedule_item.rule.model_dump()
+            )
+        elif schedule_item.is_regular_rule():
+            schedule = RegularSchedule(
+                parsing=parsing,
+                **schedule_item.model_dump(include=base_fields),
+                **schedule_item.rule.model_dump()
+            )
+        else:
+            raise ValueError('Unknown schedule type')
         schedule.save()
 
     parsing.possible_by_appointment = schedules_list.possible_by_appointment

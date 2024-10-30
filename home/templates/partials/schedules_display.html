@@ -20,11 +20,9 @@
     <div id="tabs-nice-display">
         {% for schedule in schedules_list.schedules %}
             church_id: {{ schedule.church_id }}<br>
-            rrule: {{ schedule.rrule }}<br>
-            exrule: {{ schedule.exrule }}<br>
+            rule: {{ schedule.rule }}<br>
+            is_exception_rule: {% display_bool schedule.is_exception_rule %}<br>
             duration_in_minutes: {{ schedule.duration_in_minutes }}<br>
-            include_periods: {{ schedule.include_periods }}<br>
-            exclude_periods: {{ schedule.exclude_periods }}<br>
             {% with events=schedule|get_schedule_item_events %}
                 {% for event in events %}
                     <p>{% display_event event %}</p>

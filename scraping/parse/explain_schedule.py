@@ -131,21 +131,6 @@ def get_monthly_explanation(rstr: rrule) -> str:
     return f"{article} {enumerate_with_and(by_set_positions)} {NAME_BY_WEEKDAY[by_days[0]]} du mois"
 
 
-def get_exrule_explanation(exrule: rrule) -> str:
-    if not exrule._dtstart:
-        raise ValueError("No start date in exrule")
-    dt_start = format_datetime_with_locale(exrule._dtstart, '%d %B %Y', 'fr_FR.UTF-8')
-
-    if not exrule._until:
-        raise ValueError("No until date in exrule")
-    dt_until = format_datetime_with_locale(exrule._until, '%d %B %Y', 'fr_FR.UTF-8')
-
-    if dt_start == dt_until:
-        return f"le {dt_start}"
-
-    return f"du {dt_start} au {dt_until}"
-
-
 def get_explanation_from_schedule(schedule: ScheduleItem) -> str:
     dt_start = None
     explanation = ''
