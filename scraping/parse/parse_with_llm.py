@@ -27,11 +27,10 @@ The output should be a dictionary with this format:
         during liturgical seasons, such as Lent or Advent.
 }}
 
-Then, "schedules" is of dictionaries, each containing the schedule for a church.
-Sometimes several schedule dictionaries can be extracted from the same church.
-
-A schedule dictionary contains recurrence rules for occasional and regular confessions,
-as well as the duration of the event.
+Then, "schedules" is a list of dictionaries, each containing the schedule for a church.
+Sometimes several schedule dictionaries can be extracted from the same church. If there is no
+explicit date in the text, do not return a schedule item dictionary for this event. If there is no
+explicit time in the text, do not return a schedule item dictionary for this event neither.
 
 Here is the schedule dictionary format:
 {{
@@ -46,13 +45,13 @@ Here is the schedule dictionary format:
         null if not explicit
 }}
 
-Then rule is a dictionary containing the recurrence rule for the confession. It can be a
+The field "rule" is a dictionary containing the recurrence rule for the confession. It can be a
 one-off rule or a regular rule.
 
 Here is the one-off rule format:
 {{
     "start_isoformat": str,  # the start date time of the one-off confession in the format
-        "YYYY-MM-DDTHHMMSS". For example "{current_year}-01-01T103000" for "le 1er janvier à 10h30".
+        "YYYY-MM-DDTHH:MM:SS". For example "{current_year}-01-01T10:30:00" for "1er janvier à 10h30"
     "weekday": Optional[int]  # the weekday of the one-off confession, if it is a weekday
 }}
 
@@ -75,7 +74,7 @@ The accepted PeriodEnum values are:
 - 'school_holidays'. If you need 'school_terms', just add 'school_holidays' to the opposite list.
 - 'advent' or 'lent' for the liturgical seasons
 
-Some details :
+Some details:
 - Consider that we are in year "{current_year}"
 - DURATION is not accepted in python rrule, so please do not include it in the rrule, use
     the "duration_in_minutes" field instead
@@ -87,8 +86,8 @@ Some details :
 "dans l'après-midi", "dans la soirée" or "après la messe"), do not return a schedule item
 dictionary for this event. Usually, it means some of the booleans for mass, adoration, permanence
 or seasonal events should be set to True.
-- A mass lasts 30 minutes, except on Sundays and feast days, when it lasts 1 hour. Therefore, if
-the confession starts "après la messe de 17 h le vendredi", the start time should be 17h30.
+- A mass lasts 30 minutes, except on Sundays and feast days when it lasts 1 hour. Therefore, if the
+confession starts "après la messe de 17 h le vendredi" for example, the start time should be 17h30.
 - If the church is not explicit in the text, the church_id must be null.
 
 Here is the HTML extract to parse:

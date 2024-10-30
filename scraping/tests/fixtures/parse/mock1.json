@@ -2,7 +2,7 @@
   "input": {
     "church_desc_by_id": {
       "1": "Sainte-Marie, 123 rue de la Paix, 75000 Paris",
-      "2": "Saint-Joseph, 456 rue de la Liberté, 75000 Paris"
+      "2": "Saint-Joseph, 456 rue de la Libert\u00e9, 75000 Paris"
     },
     "year": 2024
   },
@@ -11,13 +11,15 @@
       "schedules": [
         {
           "church_id": 1,
-          "rrule": "DTSTART:20240101T170000\nRRULE:FREQ=DAILY;BYHOUR=17;BYMINUTE=0",
-          "exrule": null,
-          "duration_in_minutes": 60,
-          "include_periods": [],
-          "exclude_periods": [
-            "august"
-          ]
+          "rule": {
+            "rrule": "DTSTART:20240101T170000\nRRULE:FREQ=DAILY;BYHOUR=17;BYMINUTE=0",
+            "include_periods": [],
+            "exclude_periods": [
+              "august"
+            ]
+          },
+          "is_exception_rule": false,
+          "duration_in_minutes": 60
         }
       ],
       "possible_by_appointment": true,

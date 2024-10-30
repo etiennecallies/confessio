@@ -11,7 +11,7 @@ class OneOffRule(BaseModel, frozen=True):
     weekday: int | None
 
     def get_start(self) -> datetime:
-        return datetime.strptime(self.start_isoformat, "%Y-%m-%dT%H%M%S")
+        return datetime.strptime(self.start_isoformat, "%Y-%m-%dT%H:%M:%S")
 
 
 class RegularRule(BaseModel, frozen=True):
