@@ -6,11 +6,16 @@ from pydantic import BaseModel
 from scraping.parse.periods import PeriodEnum
 
 
-class ScheduleItem(BaseModel, frozen=True):
-    church_id: Optional[int]
-    rrule: Optional[str]
-    exrule: Optional[str]
-    duration_in_minutes: Optional[int]
+class OneOffRule(BaseModel, frozen=True):
+    start_isoformat: str
+    weekday: int | None
+
+    def get_start(self) -> datetime:
+        return datetime.strptime(self.start_isoformat, "%Y-%m-%dT%H:%M:%S")
+
+
+class RegularRule(BaseModel, frozen=True):
+    rrule: str
     include_periods: list[PeriodEnum]
     exclude_periods: list[PeriodEnum]
 
@@ -21,6 +26,19 @@ class ScheduleItem(BaseModel, frozen=True):
             tuple(sorted(self.model_dump(exclude={'include_periods', 'exclude_periods'}).items())),
             tuple(self.include_periods), tuple(self.exclude_periods)
         ))
+
+
+class ScheduleItem(BaseModel, frozen=True):
+    church_id: Optional[int]
+    rule: OneOffRule | RegularRule
+    is_exception_rule: bool
+    duration_in_minutes: Optional[int]
+
+    def is_one_off_rule(self) -> bool:
+        return isinstance(self.rule, OneOffRule)
+
+    def is_regular_rule(self) -> bool:
+        return isinstance(self.rule, RegularRule)
 
 
 class SchedulesList(BaseModel):

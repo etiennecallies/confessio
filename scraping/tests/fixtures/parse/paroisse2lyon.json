@@ -12,27 +12,33 @@
       "schedules": [
         {
           "church_id": 3,
-          "rrule": "DTSTART:20240102T173000\nRRULE:FREQ=WEEKLY;BYDAY=TU,WE,TH,FR",
-          "exrule": null,
-          "duration_in_minutes": 30,
-          "include_periods": [],
-          "exclude_periods": []
+          "rule": {
+            "rrule": "DTSTART:20240102T173000\nRRULE:FREQ=WEEKLY;BYDAY=TU,WE,TH,FR",
+            "include_periods": [],
+            "exclude_periods": []
+          },
+          "is_exception_rule": false,
+          "duration_in_minutes": 30
         },
         {
           "church_id": 1,
-          "rrule": "DTSTART:20240105T090000\nRRULE:FREQ=WEEKLY;BYDAY=FR",
-          "exrule": null,
-          "duration_in_minutes": 30,
-          "include_periods": [],
-          "exclude_periods": []
+          "rule": {
+            "rrule": "DTSTART:20240105T090000\nRRULE:FREQ=WEEKLY;BYDAY=FR",
+            "include_periods": [],
+            "exclude_periods": []
+          },
+          "is_exception_rule": false,
+          "duration_in_minutes": 30
         },
         {
           "church_id": 2,
-          "rrule": "DTSTART:20240106T100000\nRRULE:FREQ=WEEKLY;BYDAY=SA",
-          "exrule": null,
-          "duration_in_minutes": 120,
-          "include_periods": [],
-          "exclude_periods": []
+          "rule": {
+            "rrule": "DTSTART:20240106T100000\nRRULE:FREQ=WEEKLY;BYDAY=SA",
+            "include_periods": [],
+            "exclude_periods": []
+          },
+          "is_exception_rule": false,
+          "duration_in_minutes": 120
         }
       ],
       "possible_by_appointment": false,

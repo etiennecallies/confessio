@@ -4,7 +4,8 @@ from django.forms import ModelChoiceField
 from leaflet.admin import LeafletGeoAdmin
 from simple_history.admin import SimpleHistoryAdmin
 
-from .models import Church, Website, Page, Diocese, Parish, Classifier, Sentence, Parsing, Schedule
+from .models import Church, Website, Page, Diocese, Parish, Classifier, Sentence, Parsing, \
+    OneOffSchedule, RegularSchedule
 
 
 @admin.register(Diocese)
@@ -99,12 +100,17 @@ class SentenceAdmin(ModelAdmin):
     fields = ["line", 'action']
 
 
-class ScheduleInline(admin.StackedInline):
-    model = Schedule
+class OneOffScheduleInline(admin.StackedInline):
+    model = OneOffSchedule
+
+
+class RegularScheduleInline(admin.StackedInline):
+    model = RegularSchedule
 
 
 @admin.register(Parsing)
 class ParsingAdmin(ModelAdmin):
     inlines = [
-        ScheduleInline,
+        OneOffScheduleInline,
+        RegularScheduleInline
     ]
