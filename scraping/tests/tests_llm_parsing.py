@@ -59,6 +59,7 @@ class LlmParsingTests(unittest.TestCase):
             # 'stnizier',  # Not working, too long
             'bron',
             'pierresdorees',
+            'ste-therese',
         ]
 
     def test_llm_parsing(self):

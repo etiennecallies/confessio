@@ -1,0 +1,57 @@
+{
+  "input": {
+    "church_desc_by_id": {
+      "0": "Sainte Th\u00e9r\u00e8se de l'Enfant J\u00e9sus Boulogne-Billancourt"
+    },
+    "year": 2024
+  },
+  "output": {
+    "schedules_list": {
+      "schedules": [
+        {
+          "church_id": 0,
+          "rule": {
+            "start_isoformat": "2024-12-08T14:00:00",
+            "weekday_iso8601": 2
+          },
+          "is_exception_rule": false,
+          "duration_in_minutes": 360
+        },
+        {
+          "church_id": 0,
+          "rule": {
+            "start_isoformat": "2024-04-06T14:00:00",
+            "weekday_iso8601": 2
+          },
+          "is_exception_rule": false,
+          "duration_in_minutes": 360
+        },
+        {
+          "church_id": 0,
+          "rule": {
+            "rrule": "DTSTART:20240102T170000\nRRULE:FREQ=WEEKLY;BYDAY=TU,WE,TH,FR",
+            "include_periods": [],
+            "exclude_periods": []
+          },
+          "is_exception_rule": false,
+          "duration_in_minutes": 120
+        },
+        {
+          "church_id": 0,
+          "rule": {
+            "rrule": "DTSTART:20240106T100000\nRRULE:FREQ=WEEKLY;BYDAY=SA",
+            "include_periods": [],
+            "exclude_periods": []
+          },
+          "is_exception_rule": false,
+          "duration_in_minutes": 120
+        }
+      ],
+      "possible_by_appointment": false,
+      "is_related_to_mass": true,
+      "is_related_to_adoration": false,
+      "is_related_to_permanence": true,
+      "will_be_seasonal_events": true
+    }
+  }
+}
