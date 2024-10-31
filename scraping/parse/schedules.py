@@ -8,7 +8,7 @@ from scraping.parse.periods import PeriodEnum
 
 class OneOffRule(BaseModel, frozen=True):
     start_isoformat: str
-    weekday: int | None
+    weekday_iso8601: int | None
 
     def get_start(self) -> datetime:
         return datetime.strptime(self.start_isoformat, "%Y-%m-%dT%H:%M:%S")

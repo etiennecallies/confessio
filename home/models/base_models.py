@@ -251,7 +251,7 @@ class OneOffSchedule(Schedule):
     parsing = models.ForeignKey('Parsing', on_delete=models.CASCADE,
                                 related_name='one_off_schedules')
     start_isoformat = models.CharField(max_length=19)
-    weekday = models.SmallIntegerField(null=True, blank=True)
+    weekday_iso8601 = models.SmallIntegerField(null=True, blank=True)
     history = HistoricalRecords()
 
 

@@ -2,7 +2,7 @@ import json
 
 from home.management.abstract_command import AbstractCommand
 from home.models import ParsingModeration
-from scraping.parse.schedules import SchedulesList, ScheduleItem
+from scraping.parse.schedules import SchedulesList
 
 
 class Command(AbstractCommand):
@@ -16,14 +16,15 @@ class Command(AbstractCommand):
                 # deep copy the dictionary to avoid modifying the original
                 sl_dict = json.loads(json.dumps(parsing_moderation.validated_schedules_list))
 
-                # create ScheduleItem objects from the dictionary and add missing exrule
-                schedules = [ScheduleItem(**({'exrule': None} | s))
-                             for s in sl_dict.pop('schedules')]
+                for schedule in sl_dict['schedules']:
+                    if 'weekday' in schedule['rule']:
+                        schedule['rule']['weekday_iso8601'] = schedule['rule']['weekday']
+                        del schedule['rule']['weekday']
 
-                schedules_list = SchedulesList(schedules=schedules, **sl_dict)
+                schedules_list = SchedulesList(**sl_dict)
                 parsing_moderation.validated_schedules_list = schedules_list.model_dump()
                 parsing_moderation.save()
 
                 counter += 1
 
-        self.success(f'Successfully parsed {counter} pruning-websites')
+        self.success(f'Successfully resaved {counter} pruning-websites')

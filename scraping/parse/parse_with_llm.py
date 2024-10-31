@@ -52,7 +52,8 @@ Here is the one-off rule format:
 {{
     "start_isoformat": str,  # the start date time of the one-off confession in the format
         "YYYY-MM-DDTHH:MM:SS". For example "{current_year}-01-01T10:30:00" for "1er janvier à 10h30"
-    "weekday": Optional[int]  # the weekday of the one-off confession, if it is a weekday
+    "weekday_iso8601": Optional[int]  # the weekday of the one-off confession, 1 for Monday to 7,
+        null if not explicit
 }}
 
 Here is the regular rule format:
@@ -83,9 +84,9 @@ Some details:
 - use FREQ=WEEKLY for weekly schedules, FREQ=DAILY;BYHOUR=... for daily events
 - If an expression of en event does not contain a precise date (e.g. "avant Noël"
 "avant Pâques", or "une fois par mois") or a precise time (e.g. "dans la matinée",
-"dans l'après-midi", "dans la soirée" or "après la messe"), do not return a schedule item
-dictionary for this event. Usually, it means some of the booleans for mass, adoration, permanence
-or seasonal events should be set to True.
+"dans l'après-midi", "dans la soirée", "après la messe" or no time at all), do not return a schedule
+item dictionary for this event. Usually, it means some of the booleans for mass, adoration,
+permanence or seasonal events should be set to True.
 - A mass lasts 30 minutes, except on Sundays and feast days when it lasts 1 hour. Therefore, if the
 confession starts "après la messe de 17 h le vendredi" for example, the start time should be 17h30.
 - If the church is not explicit in the text, the church_id must be null.

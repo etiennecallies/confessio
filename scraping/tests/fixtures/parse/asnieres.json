@@ -14,7 +14,7 @@
           "church_id": 1,
           "rule": {
             "start_isoformat": "2024-03-29T16:00:00",
-            "weekday": null
+            "weekday_iso8601": null
           },
           "is_exception_rule": false,
           "duration_in_minutes": null
@@ -23,7 +23,7 @@
           "church_id": 3,
           "rule": {
             "start_isoformat": "2024-03-29T16:00:00",
-            "weekday": null
+            "weekday_iso8601": null
           },
           "is_exception_rule": false,
           "duration_in_minutes": null
@@ -32,7 +32,7 @@
           "church_id": 1,
           "rule": {
             "start_isoformat": "2024-03-30T10:00:00",
-            "weekday": null
+            "weekday_iso8601": null
           },
           "is_exception_rule": false,
           "duration_in_minutes": null
@@ -41,7 +41,7 @@
           "church_id": 2,
           "rule": {
             "start_isoformat": "2024-03-30T10:00:00",
-            "weekday": null
+            "weekday_iso8601": null
           },
           "is_exception_rule": false,
           "duration_in_minutes": null

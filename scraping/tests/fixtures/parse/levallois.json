@@ -14,7 +14,7 @@
           "church_id": 1,
           "rule": {
             "start_isoformat": "2024-03-19T20:30:00",
-            "weekday": null
+            "weekday_iso8601": null
           },
           "is_exception_rule": false,
           "duration_in_minutes": null
