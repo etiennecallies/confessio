@@ -17,11 +17,11 @@ def add_exrules(rset, periods, use_complementary: bool):
                 rset.exrule(rrulestr(rule))
 
 
-def get_rruleset_from_schedule(schedule: ScheduleItem) -> rruleset:
+def get_rruleset_from_schedule(schedule: ScheduleItem, default_year: int) -> rruleset:
     rset = rruleset()
 
     if schedule.is_one_off_rule():
-        dt_as_string = schedule.rule.get_start().strftime('%Y%m%dT%H%M%S')
+        dt_as_string = schedule.rule.get_start(default_year).strftime('%Y%m%dT%H%M%S')
         one_off_rrule = f"DTSTART:{dt_as_string}\nRRULE:FREQ=DAILY;UNTIL={dt_as_string}"
 
         if schedule.is_exception_rule:
@@ -44,8 +44,9 @@ def get_rruleset_from_schedule(schedule: ScheduleItem) -> rruleset:
 
 
 def get_events_from_schedule_item(schedule: ScheduleItem,
-                                  start_date: datetime, end_date: datetime) -> list[Event]:
-    rset = get_rruleset_from_schedule(schedule)
+                                  start_date: datetime, end_date: datetime,
+                                  default_year: int) -> list[Event]:
+    rset = get_rruleset_from_schedule(schedule, default_year)
 
     events = []
     for start in rset.between(start_date, end_date):
@@ -61,8 +62,9 @@ def get_events_from_schedule_item(schedule: ScheduleItem,
 
 
 def get_events_from_schedule_items(schedules: list[ScheduleItem],
-                                   start_date: datetime, end_date: datetime) -> list[Event]:
-    all_events = sum((get_events_from_schedule_item(schedule, start_date, end_date)
+                                   start_date: datetime, end_date: datetime,
+                                   default_year: int) -> list[Event]:
+    all_events = sum((get_events_from_schedule_item(schedule, start_date, end_date, default_year)
                       for schedule in schedules), [])
 
     return list(sorted(list(set(all_events))))
@@ -74,7 +76,7 @@ def get_events_from_schedule_items(schedules: list[ScheduleItem],
 
 def are_schedule_rrules_valid(schedule: ScheduleItem) -> bool:
     try:
-        get_rruleset_from_schedule(schedule)
+        get_rruleset_from_schedule(schedule, get_current_year())
         return True
     except ValueError as e:
         print(e)
@@ -94,7 +96,7 @@ def is_overnight_schedule(schedule: ScheduleItem) -> bool:
     if schedule.duration_in_minutes > 18 * 60:
         return True
 
-    rset = get_rruleset_from_schedule(schedule)
+    rset = get_rruleset_from_schedule(schedule, get_current_year())
     dt_2000 = datetime(2000, 1, 1)
     start = rset.after(dt_2000)
     end = start + timedelta(minutes=schedule.duration_in_minutes)
@@ -113,7 +115,7 @@ def has_overnight_schedules(schedules_list: SchedulesList) -> bool:
 
 def is_schedule_explainable(schedule: ScheduleItem) -> bool:
     try:
-        get_explanation_from_schedule(schedule)
+        get_explanation_from_schedule(schedule, get_current_year())
         return True
     except ValueError as e:
         print(e)
@@ -133,6 +135,8 @@ def is_schedules_list_explainable(schedules_list: SchedulesList) -> bool:
 def are_schedules_list_equivalent(sl1: SchedulesList, sl2: SchedulesList,
                                   start_date: datetime, end_date: datetime
                                   ) -> tuple[bool, Optional[str]]:
+    default_year = start_date.year
+
     if sl1.is_related_to_mass != sl2.is_related_to_mass:
         return False, 'is_related_to_mass differs'
 
@@ -151,8 +155,8 @@ def are_schedules_list_equivalent(sl1: SchedulesList, sl2: SchedulesList,
     if set(sl1.schedules) == set(sl2.schedules):
         return True, None
 
-    events1 = get_events_from_schedule_items(sl1.schedules, start_date, end_date)
-    events2 = get_events_from_schedule_items(sl2.schedules, start_date, end_date)
+    events1 = get_events_from_schedule_items(sl1.schedules, start_date, end_date, default_year)
+    events2 = get_events_from_schedule_items(sl2.schedules, start_date, end_date, default_year)
 
     if set(events1) == set(events2):
         return True, None
@@ -192,7 +196,8 @@ if __name__ == '__main__':
         is_exception_rule=False,
         duration_in_minutes=60,
     )
-    rset_ = get_rruleset_from_schedule(schedule_)
+    default_year_ = 2024
+    rset_ = get_rruleset_from_schedule(schedule_, default_year_)
     print(rset_)
     for occurrence in rset_.between(datetime(2024, 1, 1),
                                     datetime(2024, 12, 31)):

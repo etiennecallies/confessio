@@ -1,6 +1,5 @@
 from typing import Optional
 
-from home.utils.date_utils import get_current_year
 from scraping.parse.llm_client import OpenAILLMClient, get_openai_client
 from scraping.parse.rrule_utils import are_schedules_list_rrules_valid, has_overnight_schedules, \
     is_schedules_list_explainable
@@ -50,17 +49,19 @@ one-off rule or a regular rule.
 
 Here is the one-off rule format:
 {{
-    "start_isoformat": str,  # the start date time of the one-off confession in the format
-        "YYYY-MM-DDTHH:MM:SS". For example "{current_year}-01-01T10:30:00" for "1er janvier à 10h30"
-    "weekday_iso8601": Optional[int]  # the weekday of the one-off confession, 1 for Monday to 7,
-        null if not explicit
+    "year": Optional[int],  # the year as written in the text, let null if not explicit
+    "month": int,  # the month of the one-off confession
+    "day": int,  # the day of month of the one-off confession
+    "weekday_iso8601": Optional[int],  # the week day, 1 for Monday to 7, null if not explicit
+    "hour": int,  # the hour of the one-off confession in 24-hour format
+    "minute": int  # the minute of the one-off confession
 }}
 
 Here is the regular rule format:
 {{
     "rrule": str,  # the recurrence rule for the confession. For example
-        "DTSTART:{current_year}0101T103000\\nRRULE:FREQ=WEEKLY;BYDAY=WE" for
-        "confession les mercredis de 10h30 à 11h30".
+        "DTSTART:20000101T103000\\nRRULE:FREQ=WEEKLY;BYDAY=WE" for
+        "confession les mercredis de 10h30 à 11h30". By default, set 2000 as the year.
     "include_periods": list[PeriodEnum],  # the year periods when the rrule applied. For
         example, if the confession is only during the school holidays, the list would be
         ['school_holidays']. If the expression says "durant l'été", the list would be
@@ -76,7 +77,6 @@ The accepted PeriodEnum values are:
 - 'advent' or 'lent' for the liturgical seasons
 
 Some details:
-- Consider that we are in year "{current_year}"
 - DURATION is not accepted in python rrule, so please do not include it in the rrule, use
     the "duration_in_minutes" field instead
 - EXDATE is not accepted in python rrule, so please do not include it in the rrule, use
@@ -105,28 +105,23 @@ def get_church_desc(church_desc_by_id: dict[int, str]):
 
 def build_prompt_text(prompt_template: str,
                       truncated_html: str,
-                      church_desc_by_id: dict[int, str],
-                      current_year: Optional[int]) -> str:
+                      church_desc_by_id: dict[int, str]) -> str:
     church_description = get_church_desc(church_desc_by_id)
-    current_year = current_year or get_current_year()
 
-    return prompt_template.format(current_year=current_year,
-                                  church_description=church_description,
+    return prompt_template.format(church_description=church_description,
                                   truncated_html=truncated_html)
 
 
 def build_input_messages(prompt_template: str,
                          truncated_html: str,
-                         church_desc_by_id: dict[int, str],
-                         current_year: Optional[int]) -> list[dict]:
+                         church_desc_by_id: dict[int, str]) -> list[dict]:
     return [
         {
             "role": "user",
             "content": [
                 {
                     "type": "text",
-                    "text": build_prompt_text(prompt_template, truncated_html, church_desc_by_id,
-                                              current_year)
+                    "text": build_prompt_text(prompt_template, truncated_html, church_desc_by_id)
                 }
             ]
         }
@@ -141,16 +136,14 @@ def get_llm_model():
 
 def parse_with_llm(truncated_html: str, church_desc_by_id: dict[int, str],
                    model: str, prompt_template: str,
-                   llm_client: Optional[OpenAILLMClient] = None,
-                   current_year: Optional[int] = None
+                   llm_client: Optional[OpenAILLMClient] = None
                    ) -> tuple[Optional[SchedulesList], Optional[str]]:
     if llm_client is None:
         llm_client = OpenAILLMClient(get_openai_client())
 
     schedules_list, error_detail = llm_client.get_completions(
         model=model,
-        messages=build_input_messages(prompt_template, truncated_html, church_desc_by_id,
-                                      current_year),
+        messages=build_input_messages(prompt_template, truncated_html, church_desc_by_id),
         temperature=0.0,
     )
     if schedules_list:
@@ -173,8 +166,8 @@ if __name__ == '__main__':
     # print(json.dumps(SchedulesList.model_json_schema()))
 
     pruned_html_ = ("Le sacrement de réconciliation est célébré à l'église Sainte-Marie tous les "
-                    "jours de 17h à 18h. Le père Jean est disponible pour des confessions sur "
-                    "rendez-vous. Pas de confession en août.")
+                    "jours de 17h à 18h, et le lundi 30 octobre de 10h à 10h30. Le père Jean est "
+                    "disponible pour des confessions sur rendez-vous. Pas de confession en août.")
 
     church_desc_by_id_ = {
         1: "Sainte-Marie, 123 rue de la Paix, 75000 Paris",

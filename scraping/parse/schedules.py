@@ -1,17 +1,54 @@
-from datetime import datetime
+from datetime import datetime, time
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 
+from home.utils.date_utils import guess_year_from_weekday
 from scraping.parse.periods import PeriodEnum
 
 
 class OneOffRule(BaseModel, frozen=True):
-    start_isoformat: str
+    year: int | None
+    month: int
+    day: int
     weekday_iso8601: int | None
+    hour: int
+    minute: int
 
-    def get_start(self) -> datetime:
-        return datetime.strptime(self.start_isoformat, "%Y-%m-%dT%H:%M:%S")
+    @model_validator(mode='after')
+    def validate_date(self) -> 'OneOffRule':
+        # check day and month
+        datetime(2000, self.month, self.day)  # 2000 is a leap year
+
+        # Check day and month with year
+        if self.year:
+            datetime(self.year, self.month, self.day)
+
+        # Check year and weekday
+        if self.year and self.weekday_iso8601 is not None:
+            if datetime(self.year, self.month, self.day).weekday() != self.weekday_iso8601 - 1:
+                raise ValueError(f'Invalid weekday for {self}')
+
+        return self
+
+    @model_validator(mode='after')
+    def validate_time(self) -> 'OneOffRule':
+        # check hour and minute
+        time(self.hour, self.minute)
+
+        return self
+
+    def get_start(self, default_year: int) -> datetime:
+        if not self.year:
+            if self.weekday_iso8601 is not None:
+                year = guess_year_from_weekday(default_year, self.month, self.day,
+                                               self.weekday_iso8601)
+            else:
+                year = default_year
+        else:
+            year = self.year
+
+        return datetime(year, self.month, self.day, self.hour, self.minute)
 
 
 class RegularRule(BaseModel, frozen=True):

@@ -131,7 +131,7 @@ def get_monthly_explanation(rstr: rrule) -> str:
     return f"{article} {enumerate_with_and(by_set_positions)} {NAME_BY_WEEKDAY[by_days[0]]} du mois"
 
 
-def get_explanation_from_schedule(schedule: ScheduleItem) -> str:
+def get_explanation_from_schedule(schedule: ScheduleItem, year: int) -> str:
     dt_start = None
     explanation = ''
 
@@ -156,7 +156,7 @@ def get_explanation_from_schedule(schedule: ScheduleItem) -> str:
             raise ValueError(f"Frequency {frequency} not implemented yet")
 
     elif schedule.is_one_off_rule():
-        dt_start = schedule.rule.get_start()
+        dt_start = schedule.rule.get_start(year)
         full_date = format_datetime_with_locale(dt_start, "%A %d %B %Y",
                                                 'fr_FR.UTF-8')
         explanation += f"le {full_date.lower()}"
@@ -182,7 +182,9 @@ def get_explanation_from_schedule(schedule: ScheduleItem) -> str:
 
 
 if __name__ == '__main__':
-    schedule = ScheduleItem(
+    year_ = 2024
+
+    schedule_ = ScheduleItem(
         church_id=None,
         rule=RegularRule(
             rrule='DTSTART:20240102T173000\nRRULE:FREQ=WEEKLY;BYDAY=TU,WE,TH,FR',
@@ -193,21 +195,41 @@ if __name__ == '__main__':
         duration_in_minutes=60,
     )
 
-    print(get_explanation_from_schedule(schedule))
+    print(get_explanation_from_schedule(schedule_, year_))
 
-    schedule = ScheduleItem(
+    schedule_ = ScheduleItem(
         church_id=None,
         rule=OneOffRule(
-            start_isoformat='2024-03-29T160000',
-            weekday=None,
+            year=None,
+            month=3,
+            day=29,
+            weekday_iso8601=None,
+            hour=16,
+            minute=30
         ),
         is_exception_rule=False,
         duration_in_minutes=60,
     )
 
-    print(get_explanation_from_schedule(schedule))
+    print(get_explanation_from_schedule(schedule_, year_))
 
-    schedule = ScheduleItem(
+    schedule_ = ScheduleItem(
+        church_id=None,
+        rule=OneOffRule(
+            year=None,
+            month=3,
+            day=29,
+            weekday_iso8601=3,
+            hour=16,
+            minute=0
+        ),
+        is_exception_rule=False,
+        duration_in_minutes=60,
+    )
+
+    print(get_explanation_from_schedule(schedule_, year_))
+
+    schedule_ = ScheduleItem(
         church_id=None,
         rule=RegularRule(
             rrule='DTSTART:20240105T210000\nRRULE:FREQ=MONTHLY;BYDAY=FR;BYSETPOS=1',
@@ -218,9 +240,9 @@ if __name__ == '__main__':
         duration_in_minutes=180,
     )
 
-    print(get_explanation_from_schedule(schedule))
+    print(get_explanation_from_schedule(schedule_, year_))
 
-    schedule = ScheduleItem(
+    schedule_ = ScheduleItem(
         church_id=None,
         rule=RegularRule(
             rrule='DTSTART:20240616T160000\nRRULE:FREQ=MONTHLY;BYMONTHDAY=16',
@@ -231,16 +253,20 @@ if __name__ == '__main__':
         duration_in_minutes=180,
     )
 
-    print(get_explanation_from_schedule(schedule))
+    print(get_explanation_from_schedule(schedule_, year_))
 
-    schedule = ScheduleItem(
+    schedule_ = ScheduleItem(
         church_id=None,
         rule=OneOffRule(
-            start_isoformat='2024-07-01T000000',
-            weekday=None,
+            year=2024,
+            month=7,
+            day=1,
+            weekday_iso8601=None,
+            hour=0,
+            minute=0
         ),
         is_exception_rule=True,
         duration_in_minutes=None,
     )
 
-    print(get_explanation_from_schedule(schedule))
+    print(get_explanation_from_schedule(schedule_, year_))

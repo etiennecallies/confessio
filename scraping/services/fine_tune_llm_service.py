@@ -21,13 +21,11 @@ def train_llm(parsing_moderation_dataset: list[ParsingModeration]) -> FineTunedL
     for parsing_moderation in parsing_moderation_dataset:
         truncated_html = parsing_moderation.parsing.truncated_html_hash
         church_desc_by_id = parsing_moderation.parsing.church_desc_by_id
-        current_year = parsing_moderation.parsing.current_year
         schedules_list = SchedulesList(**parsing_moderation.validated_schedules_list)
 
         dataset.append((
             truncated_html,
             church_desc_by_id,
-            current_year,
             schedules_list
         ))
 

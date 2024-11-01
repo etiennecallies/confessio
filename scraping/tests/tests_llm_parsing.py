@@ -81,8 +81,7 @@ class LlmParsingTests(unittest.TestCase):
                 prompt_template = get_prompt_template()
                 schedules_list, error_detail = parse_with_llm(truncated_html, church_desc_by_id,
                                                               fine_tuned_llm_model, prompt_template,
-                                                              llm_client=self.llm_client,
-                                                              current_year=year)
+                                                              llm_client=self.llm_client)
                 self.assertIsNone(error_detail)
                 self.assertIsNotNone(schedules_list)
                 # print(schedules_list.model_dump_json())
@@ -122,8 +121,7 @@ class LlmParsingTests(unittest.TestCase):
                 prompt_template = get_prompt_template()
                 schedules_list1, error_detail1 = parse_with_llm(truncated_html1, church_desc_by_id,
                                                                 llm_model, prompt_template,
-                                                                llm_client=self.llm_client,
-                                                                current_year=year)
+                                                                llm_client=self.llm_client)
                 self.assertIsNone(error_detail1)
                 self.assertIsNotNone(schedules_list1)
                 # print(schedules_list1.model_dump_json())
@@ -131,8 +129,7 @@ class LlmParsingTests(unittest.TestCase):
                 truncated_html2 = ''.join(lines2)
                 schedules_list2, error_detail2 = parse_with_llm(truncated_html2, church_desc_by_id,
                                                                 llm_model, prompt_template,
-                                                                llm_client=self.llm_client,
-                                                                current_year=year)
+                                                                llm_client=self.llm_client)
                 self.assertIsNone(error_detail2)
                 self.assertIsNotNone(schedules_list2)
                 # print(schedules_list2.model_dump_json())

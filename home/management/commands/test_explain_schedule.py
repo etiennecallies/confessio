@@ -1,6 +1,7 @@
 from home.management.abstract_command import AbstractCommand
 from home.models import Parsing, ParsingModeration
 from home.templatetags.custom_tags import get_url
+from home.utils.date_utils import get_current_year
 from scraping.parse.explain_schedule import get_explanation_from_schedule
 from scraping.services.parse_pruning_service import get_parsing_schedules_list
 
@@ -15,7 +16,7 @@ class Command(AbstractCommand):
             schedules_list = get_parsing_schedules_list(parsing)
             for schedule in schedules_list.schedules:
                 try:
-                    print(get_explanation_from_schedule(schedule))
+                    print(get_explanation_from_schedule(schedule, get_current_year()))
                 except Exception as e:
                     self.error(f'Error explaining schedule {schedule}: {e}')
                     print(parsing.uuid)

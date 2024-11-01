@@ -66,12 +66,10 @@ def get_church_by_id(parsing: Parsing, website: Website) -> dict[int, Church]:
 
 
 def get_existing_parsing(truncated_html: str,
-                         church_desc_by_id: dict[int, str],
-                         current_year: int) -> Optional[Parsing]:
+                         church_desc_by_id: dict[int, str]) -> Optional[Parsing]:
     try:
         return Parsing.objects.filter(truncated_html=truncated_html,
-                                      church_desc_by_id=church_desc_by_id,
-                                      current_year=current_year).get()
+                                      church_desc_by_id=church_desc_by_id).get()
     except Parsing.DoesNotExist:
         return None
 
@@ -176,22 +174,20 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
     truncated_html_hash = hash_string_to_hex(truncated_html)
 
     church_desc_by_id = get_church_desc_by_id(website)
-    current_year = get_current_year()
 
     llm_model = get_llm_model()
     prompt_template = get_prompt_template()
     prompt_template_hash = hash_string_to_hex(prompt_template)
 
     # check the parsing does not already exist
-    parsing = get_existing_parsing(truncated_html, church_desc_by_id, current_year)
+    parsing = get_existing_parsing(truncated_html, church_desc_by_id)
     if not force_parse and parsing \
             and parsing.llm_model == llm_model \
             and parsing.prompt_template_hash == prompt_template_hash:
         return
 
     schedules_list, error_detail = parse_with_llm(truncated_html, church_desc_by_id,
-                                                  llm_model, prompt_template,
-                                                  current_year=current_year)
+                                                  llm_model, prompt_template)
 
     if parsing:
         parsing.llm_model = llm_model
