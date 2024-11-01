@@ -2,6 +2,88 @@ from datetime import date
 from enum import Enum
 
 
+###################
+# LITURGICAL DAYS #
+###################
+
+class LiturgicalDayEnum(str, Enum):
+    ASH_WEDNESDAY = 'ash_wednesday'
+    PALM_SUNDAY = 'palm_sunday'
+    HOLY_MONDAY = 'holy_monday'
+    HOLY_TUESDAY = 'holy_tuesday'
+    HOLY_WEDNESDAY = 'holy_wednesday'
+    MAUNDY_THURSDAY = 'maundy_thursday'
+    GOOD_FRIDAY = 'good_friday'
+    HOLY_SATURDAY = 'holy_saturday'
+    EASTER_SUNDAY = 'easter_sunday'
+    ASCENSION = 'ascension'
+    PENTECOST = 'pentecost'
+
+    @classmethod
+    def choices(cls):
+        return [(item.value, item.name) for item in cls]
+
+
+def get_liturgical_date(liturgical_day: LiturgicalDayEnum, year: int) -> date:
+    if year == 2024:
+        if liturgical_day == LiturgicalDayEnum.ASH_WEDNESDAY:
+            return date(year, 2, 26)
+        if liturgical_day == LiturgicalDayEnum.PALM_SUNDAY:
+            return date(year, 4, 5)
+        if liturgical_day == LiturgicalDayEnum.HOLY_MONDAY:
+            return date(year, 4, 6)
+        if liturgical_day == LiturgicalDayEnum.HOLY_TUESDAY:
+            return date(year, 4, 7)
+        if liturgical_day == LiturgicalDayEnum.HOLY_WEDNESDAY:
+            return date(year, 4, 8)
+        if liturgical_day == LiturgicalDayEnum.MAUNDY_THURSDAY:
+            return date(year, 4, 9)
+        if liturgical_day == LiturgicalDayEnum.GOOD_FRIDAY:
+            return date(year, 4, 10)
+        if liturgical_day == LiturgicalDayEnum.HOLY_SATURDAY:
+            return date(year, 4, 11)
+        if liturgical_day == LiturgicalDayEnum.EASTER_SUNDAY:
+            return date(year, 4, 12)
+        if liturgical_day == LiturgicalDayEnum.ASCENSION:
+            return date(year, 5, 21)
+        if liturgical_day == LiturgicalDayEnum.PENTECOST:
+            return date(year, 5, 31)
+
+        raise ValueError(f'Liturgical day {liturgical_day} not implemented')
+
+    if year == 2025:
+        if liturgical_day == LiturgicalDayEnum.ASH_WEDNESDAY:
+            return date(year, 2, 18)
+        if liturgical_day == LiturgicalDayEnum.PALM_SUNDAY:
+            return date(year, 3, 29)
+        if liturgical_day == LiturgicalDayEnum.HOLY_MONDAY:
+            return date(year, 3, 30)
+        if liturgical_day == LiturgicalDayEnum.HOLY_TUESDAY:
+            return date(year, 3, 31)
+        if liturgical_day == LiturgicalDayEnum.HOLY_WEDNESDAY:
+            return date(year, 4, 1)
+        if liturgical_day == LiturgicalDayEnum.MAUNDY_THURSDAY:
+            return date(year, 4, 2)
+        if liturgical_day == LiturgicalDayEnum.GOOD_FRIDAY:
+            return date(year, 4, 3)
+        if liturgical_day == LiturgicalDayEnum.HOLY_SATURDAY:
+            return date(year, 4, 4)
+        if liturgical_day == LiturgicalDayEnum.EASTER_SUNDAY:
+            return date(year, 4, 5)
+        if liturgical_day == LiturgicalDayEnum.ASCENSION:
+            return date(year, 5, 14)
+        if liturgical_day == LiturgicalDayEnum.PENTECOST:
+            return date(year, 5, 24)
+
+        raise ValueError(f'Liturgical day {liturgical_day} not implemented')
+
+    raise ValueError(f'Liturgical dates not implemented for year {year}')
+
+
+###########
+# PERIODS #
+###########
+
 class PeriodEnum(str, Enum):
     # Months
     JANUARY = 'january'
@@ -115,8 +197,8 @@ def compute_intervals_complementary(intervals: list[tuple[date, date]], year: in
 
 
 def rrules_from_intervals(intervals: list[tuple[date, date]]) -> list[str]:
-    return [f'DTSTART:{start.strftime("%Y%m%d")}T000000\n'
-            f'RRULE:FREQ=DAILY;UNTIL={end.strftime("%Y%m%d")}T000000'
+    return [f'DTSTART:{start.strftime("%Y%m%d")}\n'
+            f'RRULE:FREQ=DAILY;UNTIL={end.strftime("%Y%m%d")}'
             for start, end in intervals]
 
 

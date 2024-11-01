@@ -8,9 +8,9 @@ from home.models import Parish, Church, Website, Pruning
 from home.services.map_service import (get_map_with_single_location,
                                        get_map_with_multiple_locations,
                                        get_map_with_alternative_locations)
+from home.utils.list_utils import group_consecutive_indices
 from scraping.parse.explain_schedule import get_explanation_from_schedule
 from scraping.parse.schedules import SchedulesList, Event, ScheduleItem
-from home.utils.list_utils import group_consecutive_indices
 
 
 @register.simple_tag

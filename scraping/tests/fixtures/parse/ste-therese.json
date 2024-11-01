@@ -10,41 +10,51 @@
       "schedules": [
         {
           "church_id": 0,
-          "rule": {
-            "start_isoformat": "2024-12-08T14:00:00",
-            "weekday_iso8601": 2
-          },
-          "is_exception_rule": false,
-          "duration_in_minutes": 360
-        },
-        {
-          "church_id": 0,
-          "rule": {
-            "start_isoformat": "2024-04-06T14:00:00",
-            "weekday_iso8601": 2
-          },
-          "is_exception_rule": false,
-          "duration_in_minutes": 360
-        },
-        {
-          "church_id": 0,
-          "rule": {
-            "rrule": "DTSTART:20240102T170000\nRRULE:FREQ=WEEKLY;BYDAY=TU,WE,TH,FR",
+          "date_rule": {
+            "rrule": "DTSTART:20000101\nRRULE:FREQ=WEEKLY;BYDAY=TU,WE,TH,FR",
             "include_periods": [],
             "exclude_periods": []
           },
-          "is_exception_rule": false,
-          "duration_in_minutes": 120
+          "is_cancellation": false,
+          "start_time_iso8601": "17:00:00",
+          "end_time_iso8601": "19:00:00"
         },
         {
           "church_id": 0,
-          "rule": {
-            "rrule": "DTSTART:20240106T100000\nRRULE:FREQ=WEEKLY;BYDAY=SA",
+          "date_rule": {
+            "rrule": "DTSTART:20000101\nRRULE:FREQ=WEEKLY;BYDAY=SA",
             "include_periods": [],
             "exclude_periods": []
           },
-          "is_exception_rule": false,
-          "duration_in_minutes": 120
+          "is_cancellation": false,
+          "start_time_iso8601": "10:00:00",
+          "end_time_iso8601": "12:00:00"
+        },
+        {
+          "church_id": 0,
+          "date_rule": {
+            "year": null,
+            "month": 12,
+            "day": 8,
+            "weekday_iso8601": 3,
+            "liturgical_day": null
+          },
+          "is_cancellation": false,
+          "start_time_iso8601": "14:00:00",
+          "end_time_iso8601": "20:00:00"
+        },
+        {
+          "church_id": 0,
+          "date_rule": {
+            "year": null,
+            "month": 4,
+            "day": 6,
+            "weekday_iso8601": 3,
+            "liturgical_day": null
+          },
+          "is_cancellation": false,
+          "start_time_iso8601": "14:00:00",
+          "end_time_iso8601": "20:00:00"
         }
       ],
       "possible_by_appointment": false,

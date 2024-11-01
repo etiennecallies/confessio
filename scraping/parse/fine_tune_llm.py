@@ -24,7 +24,7 @@ def get_json_file_name_and_path(dataset_name):
     return jsonl_filename, jsonl_filepath
 
 
-def build_jsonl_file(dataset: list[tuple[str, dict[int, str], int, SchedulesList]]):
+def build_jsonl_file(dataset: list[tuple[str, dict[int, str], SchedulesList]]):
     dataset_name = f'parsings_{datetime.now().strftime("%Y%m%d%H%M%S")}'
     jsonl_filename, jsonl_filepath = get_json_file_name_and_path(dataset_name)
 
@@ -32,12 +32,11 @@ def build_jsonl_file(dataset: list[tuple[str, dict[int, str], int, SchedulesList
 
     # Build messages list
     messages_list = []
-    for truncated_html, church_desc_by_id, year, schedules_list in dataset:
+    for truncated_html, church_desc_by_id, schedules_list in dataset:
         input_messages = build_input_messages(
             prompt_template,
             truncated_html,
             church_desc_by_id,
-            year
         )
         output_message = {
             "role": "assistant",

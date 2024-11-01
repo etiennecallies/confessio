@@ -10,84 +10,120 @@
       "schedules": [
         {
           "church_id": 1,
-          "rule": {
-            "start_isoformat": "2024-08-30T17:30:00",
-            "weekday_iso8601": null
+          "is_cancellation": false,
+          "date_rule": {
+            "year": 2024,
+            "month": 8,
+            "day": 30,
+            "weekday_iso8601": null,
+            "liturgical_day": null
           },
-          "is_exception_rule": false,
-          "duration_in_minutes": 45
+          "start_time_iso8601": "17:30:00",
+          "end_time_iso8601": "18:15:00"
         },
         {
           "church_id": 1,
-          "rule": {
-            "start_isoformat": "2024-08-31T09:45:00",
-            "weekday_iso8601": null
+          "is_cancellation": false,
+          "date_rule": {
+            "year": 2024,
+            "month": 8,
+            "day": 31,
+            "weekday_iso8601": null,
+            "liturgical_day": null
           },
-          "is_exception_rule": false,
-          "duration_in_minutes": 45
+          "start_time_iso8601": "09:45:00",
+          "end_time_iso8601": "10:30:00"
         },
         {
           "church_id": 1,
-          "rule": {
-            "start_isoformat": "2024-09-02T17:30:00",
-            "weekday_iso8601": null
+          "is_cancellation": false,
+          "date_rule": {
+            "year": 2024,
+            "month": 9,
+            "day": 2,
+            "weekday_iso8601": null,
+            "liturgical_day": null
           },
-          "is_exception_rule": false,
-          "duration_in_minutes": 45
+          "start_time_iso8601": "17:30:00",
+          "end_time_iso8601": "18:15:00"
         },
         {
           "church_id": 1,
-          "rule": {
-            "start_isoformat": "2024-09-03T17:30:00",
-            "weekday_iso8601": null
+          "is_cancellation": false,
+          "date_rule": {
+            "year": 2024,
+            "month": 9,
+            "day": 3,
+            "weekday_iso8601": null,
+            "liturgical_day": null
           },
-          "is_exception_rule": false,
-          "duration_in_minutes": 45
+          "start_time_iso8601": "17:30:00",
+          "end_time_iso8601": "18:15:00"
         },
         {
           "church_id": 1,
-          "rule": {
-            "start_isoformat": "2024-09-04T17:30:00",
-            "weekday_iso8601": null
+          "is_cancellation": false,
+          "date_rule": {
+            "year": 2024,
+            "month": 9,
+            "day": 4,
+            "weekday_iso8601": null,
+            "liturgical_day": null
           },
-          "is_exception_rule": false,
-          "duration_in_minutes": 45
+          "start_time_iso8601": "17:30:00",
+          "end_time_iso8601": "18:15:00"
         },
         {
           "church_id": 1,
-          "rule": {
-            "start_isoformat": "2024-09-05T17:30:00",
-            "weekday_iso8601": null
+          "is_cancellation": false,
+          "date_rule": {
+            "year": 2024,
+            "month": 9,
+            "day": 5,
+            "weekday_iso8601": null,
+            "liturgical_day": null
           },
-          "is_exception_rule": false,
-          "duration_in_minutes": 45
+          "start_time_iso8601": "17:30:00",
+          "end_time_iso8601": "18:15:00"
         },
         {
           "church_id": 1,
-          "rule": {
-            "start_isoformat": "2024-09-06T17:30:00",
-            "weekday_iso8601": null
+          "is_cancellation": false,
+          "date_rule": {
+            "year": 2024,
+            "month": 9,
+            "day": 6,
+            "weekday_iso8601": null,
+            "liturgical_day": null
           },
-          "is_exception_rule": false,
-          "duration_in_minutes": 45
+          "start_time_iso8601": "17:30:00",
+          "end_time_iso8601": "18:15:00"
         },
         {
           "church_id": 1,
-          "rule": {
-            "start_isoformat": "2024-09-06T19:30:00",
-            "weekday_iso8601": null
+          "is_cancellation": false,
+          "date_rule": {
+            "year": 2024,
+            "month": 9,
+            "day": 6,
+            "weekday_iso8601": null,
+            "liturgical_day": null
           },
-          "is_exception_rule": false,
-          "duration_in_minutes": 150
+          "start_time_iso8601": "19:30:00",
+          "end_time_iso8601": "22:00:00"
         },
         {
           "church_id": 1,
-          "rule": {
-            "start_isoformat": "2024-09-07T09:40:00",
-            "weekday_iso8601": null
+          "is_cancellation": false,
+          "date_rule": {
+            "year": 2024,
+            "month": 9,
+            "day": 7,
+            "weekday_iso8601": null,
+            "liturgical_day": null
           },
-          "is_exception_rule": false,
-          "duration_in_minutes": 50
+          "start_time_iso8601": "09:40:00",
+          "end_time_iso8601": "10:30:00"
         }
       ],
       "possible_by_appointment": false,

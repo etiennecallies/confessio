@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 from home.models import Church, Parsing, Website
+from home.utils.date_utils import get_current_year
 from scraping.parse.schedules import Event, ScheduleItem, SchedulesList, get_merged_schedules_list
 from scraping.parse.rrule_utils import get_events_from_schedule_items
 from scraping.services.parse_pruning_service import get_parsing_schedules_list, get_church_by_id
@@ -76,7 +77,8 @@ class ChurchSchedulesList:
     def get_church_events(self) -> list[ChurchEvent]:
         start_date = datetime.now()
         end_date = start_date + timedelta(days=365)
-        events = get_events_from_schedule_items(self.schedules_list.schedules, start_date, end_date)
+        events = get_events_from_schedule_items(self.schedules_list.schedules, start_date, end_date,
+                                                get_current_year())
         church_by_id = {cs.schedule_item.church_id: cs.church for cs in self.church_schedules}
 
         return [ChurchEvent.from_event(event, church_by_id) for event in events[:7]]

@@ -6,7 +6,7 @@ from scraping.services.parse_pruning_service import get_parsing_schedules_list
 
 
 class Command(AbstractCommand):
-    help = "Test get_parsing_schedules_list on all schedules."
+    help = "Test get_explanation_from_schedule on all schedules."
 
     def handle(self, *args, **options):
         counter = 0

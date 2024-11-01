@@ -11,15 +11,16 @@
       "schedules": [
         {
           "church_id": 1,
-          "rule": {
-            "rrule": "DTSTART:20240101T170000\nRRULE:FREQ=DAILY;BYHOUR=17;BYMINUTE=0",
+          "is_cancellation": false,
+          "date_rule": {
+            "rrule": "DTSTART:20240101\nRRULE:FREQ=DAILY",
             "include_periods": [],
             "exclude_periods": [
               "august"
             ]
           },
-          "is_exception_rule": false,
-          "duration_in_minutes": 60
+          "start_time_iso8601": "17:00:00",
+          "end_time_iso8601": "18:00:00"
         }
       ],
       "possible_by_appointment": true,
