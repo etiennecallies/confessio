@@ -36,10 +36,10 @@ def remove_pruning_if_orphan(pruning: Optional[Pruning]):
 
     return False
 
+
 ######################
 # QUALITY EVALUATION #
 ######################
-
 
 def page_first_pruning_was_validated(page: Page) -> Optional[bool]:
     for page_version in page.history.all():

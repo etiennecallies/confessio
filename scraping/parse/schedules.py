@@ -102,6 +102,10 @@ class SchedulesList(BaseModel):
     is_related_to_permanence: bool
     will_be_seasonal_events: bool
 
+    def __eq__(self, other: 'SchedulesList'):
+        return self.model_dump(exclude={'schedules'}) == other.model_dump(exclude={'schedules'}) \
+            and set(self.schedules) == set(other.schedules)
+
 
 class Event(BaseModel, frozen=True):
     church_id: Optional[int]

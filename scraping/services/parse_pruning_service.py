@@ -1,6 +1,8 @@
+from datetime import timedelta
 from typing import Optional
 
 from django.forms import model_to_dict
+from django.utils import timezone
 from pydantic import ValidationError
 
 from home.models import Pruning, Website, Parsing, Schedule, ParsingModeration, Church, \
@@ -173,8 +175,62 @@ def add_necessary_parsing_moderation(parsing: Parsing, schedules_list: Optional[
 def update_validated_schedules_list(parsing_moderation: ParsingModeration):
     schedules_list = get_parsing_schedules_list(parsing_moderation.parsing)
     assert schedules_list is not None, 'Can not validate parsing with error'
+
     parsing_moderation.validated_schedules_list = schedules_list.model_dump()
     parsing_moderation.save()
+
+    update_counters_of_parsing(parsing_moderation.parsing)
+
+
+def has_parsing_been_modified(parsing: Parsing) -> bool:
+    non_human_parsing_history = parsing.history.filter(history_user_id__isnull=True) \
+        .order_by('-history_date').first()
+    non_human_schedules_list = get_parsing_schedules_list(non_human_parsing_history.instance)
+    current_schedule_list = get_parsing_schedules_list(parsing)
+
+    return current_schedule_list != non_human_schedules_list
+
+
+def update_counters_of_parsing(parsing: Parsing):
+    has_been_modified = has_parsing_been_modified(parsing)
+
+    websites_to_update = set()
+    for pruning in parsing.prunings.all():
+        for scraping in pruning.scrapings.all():
+            page = scraping.page
+            if has_been_modified:
+                page.parsing_validation_counter = -1
+            else:
+                page.parsing_validation_counter += 1
+            page.save()
+            websites_to_update.add(page.website)
+
+    for website in websites_to_update:
+        if has_been_modified:
+            website.parsing_validation_counter = -1
+        else:
+            website.parsing_validation_counter += 1
+        website.save()
+
+
+def parsing_needs_moderation(parsing: Parsing):
+    for pruning in parsing.prunings.all():
+        for scraping in pruning.scrapings.all():
+            page = scraping.page
+            # if page has been validated less than three times or more than one year ago
+            # and if website has been validated less than seven times or more than one year ago
+            if (
+                page.parsing_validation_counter < 2
+                or page.parsing_last_validated_at is None
+                or page.parsing_last_validated_at < (timezone.now() - timedelta(days=365))
+            ) and (
+                page.website.parsing_validation_counter < 6
+                or page.website.parsing_last_validated_at is None
+                or page.website.parsing_last_validated_at < (timezone.now() - timedelta(days=365))
+            ):
+                return True
+
+    return False
 
 
 ########

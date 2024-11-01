@@ -119,6 +119,7 @@ def reset_pages_counter_of_pruning(pruning: Pruning):
         page = scraping.page
         page.pruning_validation_counter = -1
         page.save()
+        websites_to_reset.add(page.website)
 
     for website in websites_to_reset:
         website.pruning_validation_counter = -1

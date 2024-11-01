@@ -5,7 +5,7 @@ from django.contrib.gis.db import models as gis_models
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from pgvector.django import VectorField
-from simple_history.models import HistoricalRecords
+from simple_history.models import HistoricalRecords, HistoricForeignKey
 
 from home.models.custom_fields import ChoiceArrayField
 from home.utils.hash_utils import hash_string_to_hex
@@ -35,6 +35,8 @@ class Website(TimeStampMixin):
     is_active = models.BooleanField(default=True)
     pruning_validation_counter = models.SmallIntegerField(default=0)
     pruning_last_validated_at = models.DateTimeField(null=True, blank=True)
+    parsing_validation_counter = models.SmallIntegerField(default=0)
+    parsing_last_validated_at = models.DateTimeField(null=True, blank=True)
     history = HistoricalRecords()
 
     _latest_crawling = None
@@ -108,6 +110,8 @@ class Page(TimeStampMixin):
     website = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='pages')
     pruning_validation_counter = models.SmallIntegerField(default=0)
     pruning_last_validated_at = models.DateTimeField(null=True, blank=True)
+    parsing_validation_counter = models.SmallIntegerField(default=0)
+    parsing_last_validated_at = models.DateTimeField(null=True, blank=True)
     history = HistoricalRecords()
 
     class Meta:
@@ -249,8 +253,8 @@ class Schedule(TimeStampMixin):
 
 
 class OneOffSchedule(Schedule):
-    parsing = models.ForeignKey('Parsing', on_delete=models.CASCADE,
-                                related_name='one_off_schedules')
+    parsing = HistoricForeignKey('Parsing', on_delete=models.CASCADE,
+                                 related_name='one_off_schedules')
     year = models.SmallIntegerField(null=True, blank=True)
     month = models.SmallIntegerField(null=True, blank=True)
     day = models.SmallIntegerField(null=True, blank=True)
@@ -261,8 +265,8 @@ class OneOffSchedule(Schedule):
 
 
 class RegularSchedule(Schedule):
-    parsing = models.ForeignKey('Parsing', on_delete=models.CASCADE,
-                                related_name='regular_schedules')
+    parsing = HistoricForeignKey('Parsing', on_delete=models.CASCADE,
+                                 related_name='regular_schedules')
     rrule = models.TextField()  # in order to have TextArea in admin
     include_periods = ChoiceArrayField(models.CharField(max_length=16,
                                                         choices=PeriodEnum.choices()),
