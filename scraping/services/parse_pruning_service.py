@@ -14,6 +14,10 @@ TRUNCATION_LENGTH = 10
 MAX_LENGTH_FOR_PARSING = 3000
 
 
+##############
+# TRUNCATION #
+##############
+
 def get_truncated_html(pruning: Pruning) -> str:
     lines = pruning.extracted_html.split('<br>\n')
 
@@ -28,6 +32,10 @@ def get_truncated_html(pruning: Pruning) -> str:
 
     return '<br>'.join(truncated_lines)
 
+
+###############
+# CHURCH DESC #
+###############
 
 def get_church_desc(church: Church) -> str:
     return f'{church.name} {church.city}'
@@ -64,6 +72,13 @@ def get_church_by_id(parsing: Parsing, website: Website) -> dict[int, Church]:
     return church_by_id
 
 
+########################
+# PARSING MANIPULATION #
+########################
+
+BASE_FIELDS = {'church_id', 'is_cancellation', 'start_time_iso8601', 'end_time_iso8601'}
+
+
 def get_existing_parsing(truncated_html: str,
                          church_desc_by_id: dict[int, str]) -> Optional[Parsing]:
     try:
@@ -74,11 +89,10 @@ def get_existing_parsing(truncated_html: str,
 
 
 def schedule_item_from_schedule(schedule: Schedule) -> ScheduleItem:
-    base_fields = ['church_id', 'is_exception_rule', 'duration_in_minutes']
-    exclude_fields = ['id', 'schedule']
+    exclude_fields = {'id', 'schedule'}
 
-    schedule_dict = model_to_dict(schedule, fields=base_fields)
-    schedule_dict['rule'] = model_to_dict(schedule, exclude=base_fields + exclude_fields)
+    schedule_dict = model_to_dict(schedule, fields=BASE_FIELDS)
+    schedule_dict['date_rule'] = model_to_dict(schedule, exclude=BASE_FIELDS | exclude_fields)
 
     return ScheduleItem(**schedule_dict)
 
@@ -109,18 +123,17 @@ def save_schedule_list(parsing: Parsing, schedules_list: Optional[SchedulesList]
     for schedule in parsing.get_schedules():
         schedule.delete()
 
-    base_fields = {'church_id', 'is_exception_rule', 'duration_in_minutes'}
     for schedule_item in schedules_list.schedules:
         if schedule_item.is_one_off_rule():
             schedule = OneOffSchedule(
                 parsing=parsing,
-                **schedule_item.model_dump(include=base_fields),
+                **schedule_item.model_dump(include=BASE_FIELDS),
                 **schedule_item.date_rule.model_dump()
             )
         elif schedule_item.is_regular_rule():
             schedule = RegularSchedule(
                 parsing=parsing,
-                **schedule_item.model_dump(include=base_fields),
+                **schedule_item.model_dump(include=BASE_FIELDS),
                 **schedule_item.date_rule.model_dump()
             )
         else:
@@ -134,6 +147,10 @@ def save_schedule_list(parsing: Parsing, schedules_list: Optional[SchedulesList]
     parsing.will_be_seasonal_events = schedules_list.will_be_seasonal_events
     parsing.save()
 
+
+##############
+# MODERATION #
+##############
 
 def add_necessary_parsing_moderation(parsing: Parsing, schedules_list: Optional[SchedulesList]):
     category = ParsingModeration.Category.NEW_SCHEDULES
@@ -160,6 +177,10 @@ def update_validated_schedules_list(parsing_moderation: ParsingModeration):
     parsing_moderation.save()
 
 
+########
+# MAIN #
+########
+
 def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: bool = False):
     truncated_html = get_truncated_html(pruning)
     if not truncated_html:
@@ -171,7 +192,6 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
         return
 
     truncated_html_hash = hash_string_to_hex(truncated_html)
-
     church_desc_by_id = get_church_desc_by_id(website)
 
     llm_model = get_llm_model()

@@ -9,7 +9,7 @@ from simple_history.models import HistoricalRecords
 
 from home.models.custom_fields import ChoiceArrayField
 from home.utils.hash_utils import hash_string_to_hex
-from scraping.parse.periods import PeriodEnum
+from scraping.parse.periods import PeriodEnum, LiturgicalDayEnum
 
 
 class TimeStampMixin(models.Model):
@@ -214,7 +214,6 @@ class Parsing(TimeStampMixin):
     truncated_html = models.TextField(editable=False)
     truncated_html_hash = models.CharField(max_length=32, editable=False)
     church_desc_by_id = models.JSONField(editable=False)
-    current_year = models.SmallIntegerField(editable=False)
 
     websites = models.ManyToManyField('Website', related_name='parsings')
     prunings = models.ManyToManyField('Pruning', related_name='parsings')
@@ -232,7 +231,7 @@ class Parsing(TimeStampMixin):
     history = HistoricalRecords()
 
     class Meta:
-        unique_together = ('truncated_html_hash', 'church_desc_by_id', 'current_year')
+        unique_together = ('truncated_html_hash', 'church_desc_by_id')
 
     def get_schedules(self) -> list['Schedule']:
         return list(self.one_off_schedules.all()) + list(self.regular_schedules.all())
@@ -240,7 +239,9 @@ class Parsing(TimeStampMixin):
 
 class Schedule(TimeStampMixin):
     church_id = models.SmallIntegerField(null=True, blank=True)
-    is_exception_rule = models.BooleanField()
+    is_cancellation = models.BooleanField()
+    start_time_iso8601 = models.CharField(max_length=8)
+    end_time_iso8601 = models.CharField(max_length=8, null=True, blank=True)
     duration_in_minutes = models.SmallIntegerField(null=True, blank=True)
 
     class Meta:
@@ -250,8 +251,12 @@ class Schedule(TimeStampMixin):
 class OneOffSchedule(Schedule):
     parsing = models.ForeignKey('Parsing', on_delete=models.CASCADE,
                                 related_name='one_off_schedules')
-    start_isoformat = models.CharField(max_length=19)
+    year = models.SmallIntegerField(null=True, blank=True)
+    month = models.SmallIntegerField(null=True, blank=True)
+    day = models.SmallIntegerField(null=True, blank=True)
     weekday_iso8601 = models.SmallIntegerField(null=True, blank=True)
+    liturgical_day = models.CharField(max_length=16, null=True, blank=True,
+                                      choices=LiturgicalDayEnum.choices())
     history = HistoricalRecords()
 
 
