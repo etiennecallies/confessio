@@ -8,10 +8,9 @@ from home.models import Parish, Church, Website, Pruning
 from home.services.map_service import (get_map_with_single_location,
                                        get_map_with_multiple_locations,
                                        get_map_with_alternative_locations)
-from home.utils.date_utils import get_current_year
+from home.utils.list_utils import group_consecutive_indices
 from scraping.parse.explain_schedule import get_explanation_from_schedule
 from scraping.parse.schedules import SchedulesList, Event, ScheduleItem
-from home.utils.list_utils import group_consecutive_indices
 
 
 @register.simple_tag
@@ -105,7 +104,7 @@ def explain_schedule(schedule: ScheduleItem, church_desc_by_id_json: str):
         church_desc = 'Autre église'
     else:
         church_desc = 'Église inconnue'
-    explained_schedule = get_explanation_from_schedule(schedule, get_current_year())
+    explained_schedule = get_explanation_from_schedule(schedule)
     return render_to_string('partials/explained_schedule_display.html', {
         'explained_schedule': explained_schedule,
         'church_desc': church_desc,

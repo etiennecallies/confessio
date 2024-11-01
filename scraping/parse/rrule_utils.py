@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, time
+from datetime import datetime
 from typing import Optional
 
 from dateutil.rrule import rrule, rruleset, WEEKLY, DAILY, rrulestr
@@ -21,10 +21,10 @@ def get_rruleset_from_schedule(schedule: ScheduleItem, default_year: int) -> rru
     rset = rruleset()
 
     if schedule.is_one_off_rule():
-        dt_as_string = schedule.rule.get_start(default_year).strftime('%Y%m%dT%H%M%S')
+        dt_as_string = schedule.date_rule.get_start(default_year).strftime('%Y%m%d')
         one_off_rrule = f"DTSTART:{dt_as_string}\nRRULE:FREQ=DAILY;UNTIL={dt_as_string}"
 
-        if schedule.is_exception_rule:
+        if schedule.is_cancellation:
             rset.exrule(rrulestr(one_off_rrule))
         else:
             rset.rrule(rrulestr(one_off_rrule))
@@ -32,13 +32,14 @@ def get_rruleset_from_schedule(schedule: ScheduleItem, default_year: int) -> rru
         return rset
 
     if schedule.is_regular_rule():
-        if schedule.is_exception_rule:
-            rset.exrule(rrulestr(schedule.rule.rrule))
+        rrule_str = rrulestr(schedule.date_rule.rrule)
+        if schedule.is_cancellation:
+            rset.exrule(rrule_str)
         else:
-            rset.rrule(rrulestr(schedule.rule.rrule))
+            rset.rrule(rrule_str)
 
-    add_exrules(rset, schedule.rule.include_periods, not schedule.is_exception_rule)
-    add_exrules(rset, schedule.rule.exclude_periods, schedule.is_exception_rule)
+    add_exrules(rset, schedule.date_rule.include_periods, not schedule.is_cancellation)
+    add_exrules(rset, schedule.date_rule.exclude_periods, schedule.is_cancellation)
 
     return rset
 
@@ -49,13 +50,19 @@ def get_events_from_schedule_item(schedule: ScheduleItem,
     rset = get_rruleset_from_schedule(schedule, default_year)
 
     events = []
-    for start in rset.between(start_date, end_date):
-        end = start + timedelta(minutes=schedule.duration_in_minutes) \
-            if schedule.duration_in_minutes is not None else None
+    for one_date in rset.between(start_date, end_date):
+        start_time = schedule.get_start_time()
+        start_dt = one_date.replace(hour=start_time.hour, minute=start_time.minute)
+
+        end_dt = None
+        end_time = schedule.get_end_time()
+        if end_time is not None:
+            end_dt = one_date.replace(hour=end_time.hour, minute=end_time.minute)
+
         events.append(Event(
             church_id=schedule.church_id,
-            start=start,
-            end=end
+            start=start_dt,
+            end=end_dt
         ))
 
     return events
@@ -89,33 +96,9 @@ def are_schedules_list_rrules_valid(schedules_list: SchedulesList) -> bool:
                for schedule_item in schedules_list.schedules)
 
 
-def is_overnight_schedule(schedule: ScheduleItem) -> bool:
-    if not schedule.duration_in_minutes:
-        return False
-
-    if schedule.duration_in_minutes > 18 * 60:
-        return True
-
-    rset = get_rruleset_from_schedule(schedule, get_current_year())
-    dt_2000 = datetime(2000, 1, 1)
-    start = rset.after(dt_2000)
-    end = start + timedelta(minutes=schedule.duration_in_minutes)
-
-    if end.time() <= time(hour=1):
-        # If the schedule ends before 1am, it is not considered as overnight
-        return False
-
-    return start.date() != end.date()
-
-
-def has_overnight_schedules(schedules_list: SchedulesList) -> bool:
-    return any(is_overnight_schedule(schedule_item)
-               for schedule_item in schedules_list.schedules)
-
-
 def is_schedule_explainable(schedule: ScheduleItem) -> bool:
     try:
-        get_explanation_from_schedule(schedule, get_current_year())
+        get_explanation_from_schedule(schedule)
         return True
     except ValueError as e:
         print(e)
@@ -188,13 +171,15 @@ if __name__ == '__main__':
 
     schedule_ = ScheduleItem(
         church_id=1,
-        rule=RegularRule(
-            rrule='FREQ=WEEKLY;BYDAY=WE',
+        date_rule=RegularRule(
+            rrule='DTSTART:20240101T170000\nRRULE:FREQ=DAILY;BYHOUR=17;BYMINUTE=0',
+            # rrule='DTSTART:20000101\nRRULE:FREQ=DAILY',
             include_periods=[],
-            exclude_periods=[PeriodEnum.LENT]
+            exclude_periods=[PeriodEnum.AUGUST]
         ),
-        is_exception_rule=False,
-        duration_in_minutes=60,
+        is_cancellation=False,
+        start_time_iso8601='16:00:00',
+        end_time_iso8601=None,
     )
     default_year_ = 2024
     rset_ = get_rruleset_from_schedule(schedule_, default_year_)

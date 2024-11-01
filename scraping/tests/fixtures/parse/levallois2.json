@@ -12,21 +12,29 @@
       "schedules": [
         {
           "church_id": 1,
-          "rule": {
-            "start_isoformat": "2024-04-05T20:15:00",
-            "weekday_iso8601": null
+          "is_cancellation": false,
+          "date_rule": {
+            "year": 2024,
+            "month": 4,
+            "day": 5,
+            "weekday_iso8601": null,
+            "liturgical_day": null
           },
-          "is_exception_rule": false,
-          "duration_in_minutes": null
+          "start_time_iso8601": "20:15:00",
+          "end_time_iso8601": null
         },
         {
           "church_id": 1,
-          "rule": {
-            "start_isoformat": "2024-04-06T14:00:00",
-            "weekday_iso8601": null
+          "is_cancellation": false,
+          "date_rule": {
+            "year": 2024,
+            "month": 4,
+            "day": 6,
+            "weekday_iso8601": null,
+            "liturgical_day": null
           },
-          "is_exception_rule": false,
-          "duration_in_minutes": 300
+          "start_time_iso8601": "14:00:00",
+          "end_time_iso8601": "19:00:00"
         }
       ],
       "possible_by_appointment": false,

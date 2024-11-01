@@ -12,33 +12,36 @@
       "schedules": [
         {
           "church_id": 3,
-          "rule": {
+          "is_cancellation": false,
+          "date_rule": {
             "rrule": "DTSTART:20240102T173000\nRRULE:FREQ=WEEKLY;BYDAY=TU,WE,TH,FR",
             "include_periods": [],
             "exclude_periods": []
           },
-          "is_exception_rule": false,
-          "duration_in_minutes": 30
+          "start_time_iso8601": "17:30:00",
+          "end_time_iso8601": "18:00:00"
         },
         {
           "church_id": 1,
-          "rule": {
+          "is_cancellation": false,
+          "date_rule": {
             "rrule": "DTSTART:20240105T090000\nRRULE:FREQ=WEEKLY;BYDAY=FR",
             "include_periods": [],
             "exclude_periods": []
           },
-          "is_exception_rule": false,
-          "duration_in_minutes": 30
+          "start_time_iso8601": "09:00:00",
+          "end_time_iso8601": "09:30:00"
         },
         {
           "church_id": 2,
-          "rule": {
+          "is_cancellation": false,
+          "date_rule": {
             "rrule": "DTSTART:20240106T100000\nRRULE:FREQ=WEEKLY;BYDAY=SA",
             "include_periods": [],
             "exclude_periods": []
           },
-          "is_exception_rule": false,
-          "duration_in_minutes": 120
+          "start_time_iso8601": "10:00:00",
+          "end_time_iso8601": "12:00:00"
         }
       ],
       "possible_by_appointment": false,

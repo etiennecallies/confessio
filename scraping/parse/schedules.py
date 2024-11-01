@@ -1,44 +1,43 @@
-from datetime import datetime, time
+from datetime import datetime, time, date
 from typing import Optional
 
 from pydantic import BaseModel, model_validator
 
 from home.utils.date_utils import guess_year_from_weekday
-from scraping.parse.periods import PeriodEnum
+from scraping.parse.periods import PeriodEnum, LiturgicalDayEnum, get_liturgical_date
 
 
 class OneOffRule(BaseModel, frozen=True):
     year: int | None
-    month: int
-    day: int
+    month: int | None  # only nullable when liturgical_day is given
+    day: int | None  # only nullable when liturgical_day is given
     weekday_iso8601: int | None
-    hour: int
-    minute: int
+    liturgical_day: LiturgicalDayEnum | None
 
     @model_validator(mode='after')
     def validate_date(self) -> 'OneOffRule':
-        # check day and month
-        datetime(2000, self.month, self.day)  # 2000 is a leap year
+        if (not self.month or not self.day) and not self.liturgical_day:
+            raise ValueError(f'Missing month or day for {self}')
 
-        # Check day and month with year
-        if self.year:
-            datetime(self.year, self.month, self.day)
+        if self.month and self.day:
+            # check day and month
+            datetime(2000, self.month, self.day)  # 2000 is a leap year
 
-        # Check year and weekday
-        if self.year and self.weekday_iso8601 is not None:
-            if datetime(self.year, self.month, self.day).weekday() != self.weekday_iso8601 - 1:
-                raise ValueError(f'Invalid weekday for {self}')
+            # Check day and month with year
+            if self.year:
+                datetime(self.year, self.month, self.day)
 
-        return self
-
-    @model_validator(mode='after')
-    def validate_time(self) -> 'OneOffRule':
-        # check hour and minute
-        time(self.hour, self.minute)
+            # Check year and weekday
+            if self.year and self.weekday_iso8601 is not None:
+                if datetime(self.year, self.month, self.day).weekday() != self.weekday_iso8601 - 1:
+                    raise ValueError(f'Invalid weekday for {self}')
 
         return self
 
-    def get_start(self, default_year: int) -> datetime:
+    def get_start(self, default_year: int) -> date:
+        if self.liturgical_day:
+            return get_liturgical_date(self.liturgical_day, self.year or default_year)
+
         if not self.year:
             if self.weekday_iso8601 is not None:
                 year = guess_year_from_weekday(default_year, self.month, self.day,
@@ -48,7 +47,7 @@ class OneOffRule(BaseModel, frozen=True):
         else:
             year = self.year
 
-        return datetime(year, self.month, self.day, self.hour, self.minute)
+        return date(year, self.month, self.day)
 
 
 class RegularRule(BaseModel, frozen=True):
@@ -66,16 +65,33 @@ class RegularRule(BaseModel, frozen=True):
 
 
 class ScheduleItem(BaseModel, frozen=True):
-    church_id: Optional[int]
-    rule: OneOffRule | RegularRule
-    is_exception_rule: bool
-    duration_in_minutes: Optional[int]
+    church_id: int | None
+    date_rule: OneOffRule | RegularRule
+    is_cancellation: bool
+    start_time_iso8601: str
+    end_time_iso8601: str | None
+
+    @model_validator(mode='after')
+    def validate_times(self) -> 'ScheduleItem':
+        self.get_start_time()
+        self.get_end_time()
+
+        return self
 
     def is_one_off_rule(self) -> bool:
-        return isinstance(self.rule, OneOffRule)
+        return isinstance(self.date_rule, OneOffRule)
 
     def is_regular_rule(self) -> bool:
-        return isinstance(self.rule, RegularRule)
+        return isinstance(self.date_rule, RegularRule)
+
+    def get_start_time(self) -> time:
+        return time.fromisoformat(self.start_time_iso8601)
+
+    def get_end_time(self) -> Optional[time]:
+        if self.end_time_iso8601 is None:
+            return None
+
+        return time.fromisoformat(self.end_time_iso8601)
 
 
 class SchedulesList(BaseModel):

@@ -1,12 +1,12 @@
-from datetime import timedelta
+from datetime import datetime
 from enum import Enum
 
 from dateutil.rrule import rrulestr, rrule
 
 from home.utils.date_utils import format_datetime_with_locale
 from home.utils.list_utils import enumerate_with_and
-from scraping.parse.periods import PeriodEnum
-from scraping.parse.schedules import ScheduleItem, RegularRule, OneOffRule
+from scraping.parse.periods import PeriodEnum, get_liturgical_date, LiturgicalDayEnum
+from scraping.parse.schedules import ScheduleItem, OneOffRule
 
 
 #########
@@ -65,27 +65,60 @@ NAME_BY_POSITION = {
     Position.LAST: "dernier",
 }
 
-NAME_BY_PERIOD = {
-    PeriodEnum.JANUARY: 'en janvier',
-    PeriodEnum.FEBRUARY: 'en février',
-    PeriodEnum.MARCH: 'en mars',
-    PeriodEnum.APRIL: 'en avril',
-    PeriodEnum.MAY: 'en mai',
-    PeriodEnum.JUNE: 'en juin',
-    PeriodEnum.JULY: 'en juillet',
-    PeriodEnum.AUGUST: 'en août',
-    PeriodEnum.SEPTEMBER: 'en septembre',
-    PeriodEnum.OCTOBER: 'en octobre',
-    PeriodEnum.NOVEMBER: 'en novembre',
-    PeriodEnum.DECEMBER: 'en décembre',
-
-    # Seasons
-    PeriodEnum.ADVENT: 'pendant l\'avent',
-    PeriodEnum.LENT: 'pendant le carême',
-
-    # Holidays
-    PeriodEnum.SCHOOL_HOLIDAYS: 'pendant les vacances scolaires',
+NAME_BY_LITURGICAL_DAY = {
+    LiturgicalDayEnum.ASH_WEDNESDAY: "mercredi des Cendres",
+    LiturgicalDayEnum.PALM_SUNDAY: "dimanche des Rameaux",
+    LiturgicalDayEnum.HOLY_MONDAY: "lundi Saint",
+    LiturgicalDayEnum.HOLY_TUESDAY: "mardi Saint",
+    LiturgicalDayEnum.HOLY_WEDNESDAY: "mercredi Saint",
+    LiturgicalDayEnum.MAUNDY_THURSDAY: "jeudi Saint",
+    LiturgicalDayEnum.GOOD_FRIDAY: "vendredi Saint",
+    LiturgicalDayEnum.HOLY_SATURDAY: "samedi Saint",
+    LiturgicalDayEnum.EASTER_SUNDAY: "dimanche de Pâques",
+    LiturgicalDayEnum.ASCENSION: "jeudi de l'Ascension",
+    LiturgicalDayEnum.PENTECOST: "dimanche de Pentecôte",
 }
+
+PERIOD_BY_MONTH = {
+    1: PeriodEnum.JANUARY,
+    2: PeriodEnum.FEBRUARY,
+    3: PeriodEnum.MARCH,
+    4: PeriodEnum.APRIL,
+    5: PeriodEnum.MAY,
+    6: PeriodEnum.JUNE,
+    7: PeriodEnum.JULY,
+    8: PeriodEnum.AUGUST,
+    9: PeriodEnum.SEPTEMBER,
+    10: PeriodEnum.OCTOBER,
+    11: PeriodEnum.NOVEMBER,
+    12: PeriodEnum.DECEMBER,
+}
+
+NAME_BY_MONTH = {
+    PeriodEnum.JANUARY: 'janvier',
+    PeriodEnum.FEBRUARY: 'février',
+    PeriodEnum.MARCH: 'mars',
+    PeriodEnum.APRIL: 'avril',
+    PeriodEnum.MAY: 'mai',
+    PeriodEnum.JUNE: 'juin',
+    PeriodEnum.JULY: 'juillet',
+    PeriodEnum.AUGUST: 'août',
+    PeriodEnum.SEPTEMBER: 'septembre',
+    PeriodEnum.OCTOBER: 'octobre',
+    PeriodEnum.NOVEMBER: 'novembre',
+    PeriodEnum.DECEMBER: 'décembre',
+}
+
+
+def get_name_by_period(period: PeriodEnum) -> str:
+    if period == PeriodEnum.ADVENT:
+        return 'pendant l\'avent'
+    if period == PeriodEnum.LENT:
+        return 'pendant le carême'
+    if period == PeriodEnum.SCHOOL_HOLIDAYS:
+        return 'pendant les vacances scolaires'
+
+    return f'en {NAME_BY_MONTH[period]}'
 
 
 def get_weekly_explanation(rstr: rrule) -> str:
@@ -131,18 +164,54 @@ def get_monthly_explanation(rstr: rrule) -> str:
     return f"{article} {enumerate_with_and(by_set_positions)} {NAME_BY_WEEKDAY[by_days[0]]} du mois"
 
 
-def get_explanation_from_schedule(schedule: ScheduleItem, year: int) -> str:
-    dt_start = None
+def get_one_off_explanation(one_off_rule: OneOffRule) -> str:
+    if one_off_rule.year:
+        if one_off_rule.liturgical_day:
+            dt_start = get_liturgical_date(one_off_rule.liturgical_day, one_off_rule.year)
+        else:
+            dt_start = datetime(one_off_rule.year,
+                                one_off_rule.month,
+                                one_off_rule.day)
+        full_date = format_datetime_with_locale(dt_start, "%A %d %B %Y",
+                                                'fr_FR.UTF-8')
+    elif one_off_rule.liturgical_day:
+        full_date = NAME_BY_LITURGICAL_DAY[one_off_rule.liturgical_day]
+    else:
+        full_date = ''
+        if one_off_rule.weekday_iso8601:
+            weekday_python = one_off_rule.weekday_iso8601 - 1
+            full_date += f"{NAME_BY_WEEKDAY[Weekday(weekday_python)]} "
+        full_date += f"{one_off_rule.day} {NAME_BY_MONTH[PERIOD_BY_MONTH[one_off_rule.month]]}"
+
+    return f"le {full_date.lower()}"
+
+
+def get_time_explanation(schedule: ScheduleItem) -> str:
     explanation = ''
 
-    if schedule.is_exception_rule:
+    start_time = schedule.get_start_time()
+    start_time_str = start_time.strftime('%H:%M')
+    if start_time_str != '00:00':
+        end_time = schedule.get_end_time()
+        if end_time is not None:
+            end_time_str = end_time.strftime('%H:%M')
+            explanation += f" de {start_time_str} à {end_time_str}"
+        else:
+            explanation += f" à partir de {start_time_str}"
+
+    return explanation
+
+
+def get_explanation_from_schedule(schedule: ScheduleItem) -> str:
+    explanation = ''
+
+    if schedule.is_cancellation:
         explanation += "pas de confessions "
 
     if schedule.is_regular_rule():
-        rstr = rrulestr(schedule.rule.rrule)
+        rstr = rrulestr(schedule.date_rule.rrule)
 
-        dt_start = rstr._dtstart
-        if not dt_start:
+        if not rstr._dtstart:
             raise ValueError("No start date in rrule")
 
         frequency = Frequency(rstr._freq)
@@ -156,117 +225,17 @@ def get_explanation_from_schedule(schedule: ScheduleItem, year: int) -> str:
             raise ValueError(f"Frequency {frequency} not implemented yet")
 
     elif schedule.is_one_off_rule():
-        dt_start = schedule.rule.get_start(year)
-        full_date = format_datetime_with_locale(dt_start, "%A %d %B %Y",
-                                                'fr_FR.UTF-8')
-        explanation += f"le {full_date.lower()}"
+        explanation += get_one_off_explanation(schedule.date_rule)
 
-    start_time = dt_start.strftime('%H:%M')
-    if start_time != '00:00':
-        if schedule.duration_in_minutes:
-            dt_end = dt_start + timedelta(minutes=schedule.duration_in_minutes)
-            explanation += f" de {start_time} à {dt_end.strftime('%H:%M')}"
-        else:
-            explanation += f" à partir de {start_time}"
+    explanation += get_time_explanation(schedule)
 
     if schedule.is_regular_rule():
-        if schedule.rule.include_periods:
-            periods = [NAME_BY_PERIOD[p] for p in schedule.rule.include_periods]
+        if schedule.date_rule.include_periods:
+            periods = [get_name_by_period(p) for p in schedule.date_rule.include_periods]
             explanation = f"{enumerate_with_and(periods)}, {explanation}"
 
-        if schedule.rule.exclude_periods:
-            periods = [NAME_BY_PERIOD[p] for p in schedule.rule.exclude_periods]
+        if schedule.date_rule.exclude_periods:
+            periods = [get_name_by_period(p) for p in schedule.date_rule.exclude_periods]
             explanation += f", sauf {enumerate_with_and(periods)}"
 
     return f"{explanation.capitalize()}."
-
-
-if __name__ == '__main__':
-    year_ = 2024
-
-    schedule_ = ScheduleItem(
-        church_id=None,
-        rule=RegularRule(
-            rrule='DTSTART:20240102T173000\nRRULE:FREQ=WEEKLY;BYDAY=TU,WE,TH,FR',
-            include_periods=[],
-            exclude_periods=[PeriodEnum.JULY, PeriodEnum.AUGUST]
-        ),
-        is_exception_rule=False,
-        duration_in_minutes=60,
-    )
-
-    print(get_explanation_from_schedule(schedule_, year_))
-
-    schedule_ = ScheduleItem(
-        church_id=None,
-        rule=OneOffRule(
-            year=None,
-            month=3,
-            day=29,
-            weekday_iso8601=None,
-            hour=16,
-            minute=30
-        ),
-        is_exception_rule=False,
-        duration_in_minutes=60,
-    )
-
-    print(get_explanation_from_schedule(schedule_, year_))
-
-    schedule_ = ScheduleItem(
-        church_id=None,
-        rule=OneOffRule(
-            year=None,
-            month=3,
-            day=29,
-            weekday_iso8601=3,
-            hour=16,
-            minute=0
-        ),
-        is_exception_rule=False,
-        duration_in_minutes=60,
-    )
-
-    print(get_explanation_from_schedule(schedule_, year_))
-
-    schedule_ = ScheduleItem(
-        church_id=None,
-        rule=RegularRule(
-            rrule='DTSTART:20240105T210000\nRRULE:FREQ=MONTHLY;BYDAY=FR;BYSETPOS=1',
-            include_periods=[],
-            exclude_periods=[]
-        ),
-        is_exception_rule=False,
-        duration_in_minutes=180,
-    )
-
-    print(get_explanation_from_schedule(schedule_, year_))
-
-    schedule_ = ScheduleItem(
-        church_id=None,
-        rule=RegularRule(
-            rrule='DTSTART:20240616T160000\nRRULE:FREQ=MONTHLY;BYMONTHDAY=16',
-            include_periods=[],
-            exclude_periods=[]
-        ),
-        is_exception_rule=False,
-        duration_in_minutes=180,
-    )
-
-    print(get_explanation_from_schedule(schedule_, year_))
-
-    schedule_ = ScheduleItem(
-        church_id=None,
-        rule=OneOffRule(
-            year=2024,
-            month=7,
-            day=1,
-            weekday_iso8601=None,
-            hour=0,
-            minute=0
-        ),
-        is_exception_rule=True,
-        duration_in_minutes=None,
-    )
-
-    print(get_explanation_from_schedule(schedule_, year_))

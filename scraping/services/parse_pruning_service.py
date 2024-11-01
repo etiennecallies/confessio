@@ -5,7 +5,6 @@ from pydantic import ValidationError
 
 from home.models import Pruning, Website, Parsing, Schedule, ParsingModeration, Church, \
     OneOffSchedule, RegularSchedule
-from home.utils.date_utils import get_current_year
 from home.utils.hash_utils import hash_string_to_hex
 from scraping.parse.parse_with_llm import parse_with_llm, get_llm_model, get_prompt_template
 from scraping.parse.schedules import SchedulesList, ScheduleItem
@@ -116,13 +115,13 @@ def save_schedule_list(parsing: Parsing, schedules_list: Optional[SchedulesList]
             schedule = OneOffSchedule(
                 parsing=parsing,
                 **schedule_item.model_dump(include=base_fields),
-                **schedule_item.rule.model_dump()
+                **schedule_item.date_rule.model_dump()
             )
         elif schedule_item.is_regular_rule():
             schedule = RegularSchedule(
                 parsing=parsing,
                 **schedule_item.model_dump(include=base_fields),
-                **schedule_item.rule.model_dump()
+                **schedule_item.date_rule.model_dump()
             )
         else:
             raise ValueError('Unknown schedule type')
@@ -198,7 +197,6 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
         parsing = Parsing(
             truncated_html=truncated_html,
             truncated_html_hash=truncated_html_hash,
-            current_year=current_year,
             church_desc_by_id=church_desc_by_id,
             llm_model=llm_model,
             prompt_template_hash=prompt_template_hash,

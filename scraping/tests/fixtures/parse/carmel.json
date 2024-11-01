@@ -10,23 +10,25 @@
       "schedules": [
         {
           "church_id": -1,
-          "rule": {
+          "is_cancellation": false,
+          "date_rule": {
             "rrule": "DTSTART:20240105T170000\nRRULE:FREQ=WEEKLY;BYDAY=FR",
             "include_periods": [],
             "exclude_periods": []
           },
-          "is_exception_rule": false,
-          "duration_in_minutes": 90
+          "start_time_iso8601": "17:00:00",
+          "end_time_iso8601": "18:30:00"
         },
         {
           "church_id": -1,
-          "rule": {
+          "is_cancellation": false,
+          "date_rule": {
             "rrule": "DTSTART:20240106T110000\nRRULE:FREQ=WEEKLY;BYDAY=SA",
             "include_periods": [],
             "exclude_periods": []
           },
-          "is_exception_rule": false,
-          "duration_in_minutes": 90
+          "start_time_iso8601": "11:00:00",
+          "end_time_iso8601": "12:30:00"
         }
       ],
       "possible_by_appointment": false,

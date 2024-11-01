@@ -12,79 +12,99 @@
       "schedules": [
         {
           "church_id": null,
-          "rule": {
+          "is_cancellation": false,
+          "date_rule": {
             "rrule": "DTSTART:20240106T170000\nRRULE:FREQ=WEEKLY;BYDAY=SA",
             "include_periods": [],
             "exclude_periods": []
           },
-          "is_exception_rule": false,
-          "duration_in_minutes": 60
+          "start_time_iso8601": "17:00:00",
+          "end_time_iso8601": "18:00:00"
         },
         {
           "church_id": null,
-          "rule": {
+          "is_cancellation": false,
+          "date_rule": {
             "rrule": "DTSTART:20240107T163000\nRRULE:FREQ=WEEKLY;BYDAY=SU",
             "include_periods": [],
             "exclude_periods": []
           },
-          "is_exception_rule": false,
-          "duration_in_minutes": 60
+          "start_time_iso8601": "16:30:00",
+          "end_time_iso8601": "17:30:00"
         },
         {
           "church_id": null,
-          "rule": {
-            "start_isoformat": "2024-09-29T16:30:00",
-            "weekday_iso8601": null
+          "is_cancellation": true,
+          "date_rule": {
+            "year": 2024,
+            "month": 9,
+            "day": 29,
+            "weekday_iso8601": null,
+            "liturgical_day": null
           },
-          "is_exception_rule": true,
-          "duration_in_minutes": 60
+          "start_time_iso8601": "16:30:00",
+          "end_time_iso8601": "17:30:00"
         },
         {
           "church_id": null,
-          "rule": {
-            "start_isoformat": "2024-10-04T19:30:00",
-            "weekday_iso8601": null
+          "is_cancellation": true,
+          "date_rule": {
+            "year": 2024,
+            "month": 10,
+            "day": 4,
+            "weekday_iso8601": null,
+            "liturgical_day": null
           },
-          "is_exception_rule": true,
-          "duration_in_minutes": 60
+          "start_time_iso8601": "19:30:00",
+          "end_time_iso8601": "20:30:00"
         },
         {
           "church_id": null,
-          "rule": {
-            "start_isoformat": "2024-10-05T17:00:00",
-            "weekday_iso8601": null
+          "is_cancellation": false,
+          "date_rule": {
+            "year": 2024,
+            "month": 10,
+            "day": 5,
+            "weekday_iso8601": null,
+            "liturgical_day": null
           },
-          "is_exception_rule": false,
-          "duration_in_minutes": 60
+          "start_time_iso8601": "17:00:00",
+          "end_time_iso8601": "18:00:00"
         },
         {
           "church_id": null,
-          "rule": {
-            "start_isoformat": "2024-10-06T16:30:00",
-            "weekday_iso8601": null
+          "is_cancellation": false,
+          "date_rule": {
+            "year": 2024,
+            "month": 10,
+            "day": 6,
+            "weekday_iso8601": null,
+            "liturgical_day": null
           },
-          "is_exception_rule": false,
-          "duration_in_minutes": 60
+          "start_time_iso8601": "16:30:00",
+          "end_time_iso8601": "17:30:00"
         },
         {
           "church_id": null,
-          "rule": {
+          "is_cancellation": false,
+          "date_rule": {
             "rrule": "DTSTART:20240107T163000\nRRULE:FREQ=WEEKLY;BYDAY=SU",
             "include_periods": [],
             "exclude_periods": []
           },
-          "is_exception_rule": false,
-          "duration_in_minutes": 60
+          "start_time_iso8601": "16:30:00",
+          "end_time_iso8601": "17:30:00"
         },
         {
           "church_id": null,
-          "rule": {
+          "is_cancellation": false,
+          "date_rule": {
             "rrule": "DTSTART:20240105T193000\nRRULE:FREQ=WEEKLY;BYDAY=FR",
             "include_periods": [],
             "exclude_periods": []
           },
-          "is_exception_rule": false,
-          "duration_in_minutes": 60
+          "start_time_iso8601": "19:30:00",
+          "end_time_iso8601": "20:30:00"
         }
       ],
       "possible_by_appointment": false,
