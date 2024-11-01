@@ -14,10 +14,10 @@
           "church_id": 1,
           "is_cancellation": false,
           "date_rule": {
-            "year": 2024,
+            "year": null,
             "month": 4,
             "day": 5,
-            "weekday_iso8601": null,
+            "weekday_iso8601": 2,
             "liturgical_day": null
           },
           "start_time_iso8601": "20:15:00",
@@ -27,10 +27,10 @@
           "church_id": 1,
           "is_cancellation": false,
           "date_rule": {
-            "year": 2024,
+            "year": null,
             "month": 4,
             "day": 6,
-            "weekday_iso8601": null,
+            "weekday_iso8601": 5,
             "liturgical_day": null
           },
           "start_time_iso8601": "14:00:00",

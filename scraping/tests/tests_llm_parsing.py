@@ -52,8 +52,8 @@ class LlmParsingTests(unittest.TestCase):
             'houilles',
             'stnomdejesus',
             'asnieres',
-            # 'levallois',  # Not working, duration_in_minutes should be null
-            # 'levallois2',  # Not working, duration_in_minutes should be null
+            'levallois',
+            'levallois2',
             'ndlumieres',
             'carmel',
             # 'stnizier',  # Not working, too long
