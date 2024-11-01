@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, time
 from typing import Optional
 
 from dateutil.rrule import rrule, rruleset, WEEKLY, DAILY, rrulestr
@@ -109,6 +109,21 @@ def is_schedule_explainable(schedule: ScheduleItem) -> bool:
 def is_schedules_list_explainable(schedules_list: SchedulesList) -> bool:
     return all(is_schedule_explainable(schedule_item)
                for schedule_item in schedules_list.schedules)
+
+
+##########
+# REDUCE #
+##########
+
+def is_necessary_schedule(schedule: ScheduleItem) -> bool:
+    if not schedule.is_cancellation and schedule.get_start_time() == time(0, 0):
+        return False
+
+    return True
+
+
+def filter_unnecessary_schedules(schedules: list[ScheduleItem]) -> list[ScheduleItem]:
+    return [schedule for schedule in schedules if is_necessary_schedule(schedule)]
 
 
 ###########

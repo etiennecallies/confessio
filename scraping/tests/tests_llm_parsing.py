@@ -45,7 +45,7 @@ class LlmParsingTests(unittest.TestCase):
     def get_simple_fixtures():
         return [
             'mock1',
-            # 'st-georges',  # Not working, too long
+            'st-georges',
             'paroisse2lyon',
             'azergues',
             'garches',
@@ -82,7 +82,7 @@ class LlmParsingTests(unittest.TestCase):
                 schedules_list, error_detail = parse_with_llm(truncated_html, church_desc_by_id,
                                                               fine_tuned_llm_model, prompt_template,
                                                               llm_client=self.llm_client)
-                self.assertIsNone(error_detail)
+                self.assertIsNone(error_detail, file_name)
                 self.assertIsNotNone(schedules_list)
                 # print(schedules_list.model_dump_json())
 

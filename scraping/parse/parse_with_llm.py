@@ -2,7 +2,7 @@ from typing import Optional
 
 from scraping.parse.llm_client import OpenAILLMClient, get_openai_client
 from scraping.parse.rrule_utils import are_schedules_list_rrules_valid, \
-    is_schedules_list_explainable
+    is_schedules_list_explainable, filter_unnecessary_schedules
 from scraping.parse.schedules import SchedulesList
 
 
@@ -59,6 +59,15 @@ Here is the one-off date rule format:
     "liturgical_day": Optional[LiturgicalDayEnum],  # the liturgical day, null if not explicit
 }}
 
+For example, for "Vendredi 30 août", the one-off date rule would be:
+{{
+    "year": null,
+    "month": 8,
+    "day": 30,
+    "weekday_iso8601": 5,
+    "liturgical_day": null
+}}
+
 The accepted LiturgicalDayEnum values are 'ash_wednesday', from 'palms_sunday' to 'easter_sunday',
 'ascension' and 'pentecost'.
 
@@ -81,6 +90,14 @@ The accepted PeriodEnum values are:
 - 'school_holidays'. If you need 'school_terms', just add 'school_holidays' to the opposite list.
 - 'advent' or 'lent' for the liturgical seasons
 
+For example, for "tous les jours sauf en août de 10h à 10h30", the regular date rule would be:
+{{
+    "rrule": "DTSTART:20000101\\nRRULE:FREQ=DAILY",
+    "include_periods": [],
+    "exclude_periods": ["august"]
+}}
+For "tous les jours sauf en août" without any time, do not return a schedule item dictionary.
+
 Some details:
 - EXDATE is not accepted in python rrule, so please do not include it in the rrule, use
     the "exclude_periods" field instead
@@ -91,7 +108,7 @@ Some details:
 item dictionary for this event. Usually, it means some of the booleans for mass, adoration,
 permanence or seasonal events should be set to True.
 - A mass lasts 30 minutes, except on Sundays and feast days when it lasts 1 hour. Therefore, if the
-confession starts "après la messe de 17 h le vendredi" for example, the start time should be 17h30.
+confession starts "après la messe de 9h le vendredi" for example, the start time should be 9h30.
 - If the church is not explicit in the text, the church_id must be null.
 
 Here is the HTML extract to parse:
@@ -156,6 +173,8 @@ def parse_with_llm(truncated_html: str, church_desc_by_id: dict[int, str],
 
         if not is_schedules_list_explainable(schedules_list):
             return None, "Not explainable"
+
+        schedules_list.schedules = filter_unnecessary_schedules(schedules_list.schedules)
 
     return schedules_list, error_detail
 
