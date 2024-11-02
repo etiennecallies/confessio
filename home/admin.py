@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin
 from django.forms import ModelChoiceField
-from leaflet.admin import LeafletGeoAdmin
+from leaflet.admin import LeafletGeoAdmin, LeafletGeoAdminMixin
 from simple_history.admin import SimpleHistoryAdmin
 
 from .models import Church, Website, Page, Diocese, Parish, Classifier, Sentence, Parsing, \
@@ -26,7 +26,7 @@ class WebsiteAdmin(SimpleHistoryAdmin):
     ]
 
 
-class ChurchInline(admin.StackedInline):
+class ChurchInline(LeafletGeoAdminMixin, admin.StackedInline):
     model = Church
 
 
