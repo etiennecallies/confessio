@@ -1,0 +1,48 @@
+{
+  "input": {
+    "church_desc_by_id": {
+      "0": "Maison paroissiale du Village VAULX EN VELIN",
+      "1": "Notre Dame de l'Assomption VAULX EN VELIN",
+      "2": "Saint Joseph (la Poudrette) VAULX EN VELIN",
+      "3": "Saint THOMAS VAULX EN VELIN"
+    },
+    "year": 2024
+  },
+  "output": {
+    "schedules_list": {
+      "schedules": [
+        {
+          "church_id": null,
+          "date_rule": {
+            "rrule": "DTSTART:20000101\nRRULE:FREQ=WEEKLY;BYDAY=SA",
+            "include_periods": [],
+            "exclude_periods": [
+              "school_holidays"
+            ]
+          },
+          "is_cancellation": false,
+          "start_time_iso8601": "15:00:00",
+          "end_time_iso8601": "17:00:00"
+        },
+        {
+          "church_id": null,
+          "date_rule": {
+            "year": 2023,
+            "month": 3,
+            "day": 26,
+            "weekday_iso8601": 4,
+            "liturgical_day": null
+          },
+          "is_cancellation": false,
+          "start_time_iso8601": "18:00:00",
+          "end_time_iso8601": null
+        }
+      ],
+      "possible_by_appointment": true,
+      "is_related_to_mass": false,
+      "is_related_to_adoration": false,
+      "is_related_to_permanence": true,
+      "will_be_seasonal_events": true
+    }
+  }
+}

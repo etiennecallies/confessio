@@ -19,20 +19,28 @@ class OneOffRule(BaseModel, frozen=True):
         if (not self.month or not self.day) and not self.liturgical_day:
             raise ValueError(f'Missing month or day for {self}')
 
-        if self.month and self.day:
-            # check day and month
-            datetime(2000, self.month, self.day)  # 2000 is a leap year
-
-            # Check day and month with year
-            if self.year:
-                datetime(self.year, self.month, self.day)
-
-            # Check year and weekday
-            if self.year and self.weekday_iso8601 is not None:
-                if datetime(self.year, self.month, self.day).weekday() != self.weekday_iso8601 - 1:
-                    raise ValueError(f'Invalid weekday for {self}')
-
         return self
+
+    def is_valid_date(self) -> bool:
+        try:
+            if self.month and self.day:
+                # check day and month
+                datetime(2000, self.month, self.day)  # 2000 is a leap year
+
+                # Check day and month with year
+                if self.year:
+                    datetime(self.year, self.month, self.day)
+
+                # Check year and weekday
+                if self.year and self.weekday_iso8601 is not None:
+                    python_weekday = self.weekday_iso8601 - 1
+                    if datetime(self.year, self.month, self.day).weekday() != python_weekday:
+                        raise ValueError(f'Invalid weekday for {self}')
+
+            return True
+        except ValueError as e:
+            print(e)
+            return False
 
     def get_start(self, default_year: int) -> date:
         if self.liturgical_day:

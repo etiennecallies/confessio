@@ -47,6 +47,9 @@ def get_rruleset_from_schedule(schedule: ScheduleItem, default_year: int) -> rru
 def get_events_from_schedule_item(schedule: ScheduleItem,
                                   start_date: datetime, end_date: datetime,
                                   default_year: int) -> list[Event]:
+    if schedule.is_one_off_rule() and not schedule.date_rule.is_valid_date():
+        return []
+
     rset = get_rruleset_from_schedule(schedule, default_year)
 
     events = []
@@ -82,6 +85,9 @@ def get_events_from_schedule_items(schedules: list[ScheduleItem],
 #########
 
 def are_schedule_rrules_valid(schedule: ScheduleItem) -> bool:
+    if schedule.is_one_off_rule():
+        return True
+
     try:
         get_rruleset_from_schedule(schedule, get_current_year())
         return True
