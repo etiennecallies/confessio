@@ -246,7 +246,6 @@ class Schedule(TimeStampMixin):
     is_cancellation = models.BooleanField()
     start_time_iso8601 = models.CharField(max_length=8)
     end_time_iso8601 = models.CharField(max_length=8, null=True, blank=True)
-    duration_in_minutes = models.SmallIntegerField(null=True, blank=True)
 
     class Meta:
         abstract = True
