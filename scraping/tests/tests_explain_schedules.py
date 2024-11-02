@@ -101,6 +101,22 @@ class ExplainSchedulesTests(unittest.TestCase):
                 ),
                 'Le 16 du mois de 16:00 à 19:00.'
             ),
+            (
+                ScheduleItem(
+                    church_id=None,
+                    date_rule=OneOffRule(
+                        year=2023,
+                        month=3,
+                        day=26,
+                        weekday_iso8601=4,
+                        liturgical_day=None
+                    ),
+                    is_cancellation=False,
+                    start_time_iso8601='18:00:00',
+                    end_time_iso8601=None,
+                ),
+                'Le jeudi 26 mars 2023 (⚠️ date impossible) à partir de 18:00.'
+            ),
         ]
 
     def test_explain_schedules(self):

@@ -165,7 +165,7 @@ def get_monthly_explanation(rstr: rrule) -> str:
 
 
 def get_one_off_explanation(one_off_rule: OneOffRule) -> str:
-    if one_off_rule.year:
+    if one_off_rule.year and one_off_rule.is_valid_date():
         if one_off_rule.liturgical_day:
             dt_start = get_liturgical_date(one_off_rule.liturgical_day, one_off_rule.year)
         else:
@@ -182,6 +182,8 @@ def get_one_off_explanation(one_off_rule: OneOffRule) -> str:
             weekday_python = one_off_rule.weekday_iso8601 - 1
             full_date += f"{NAME_BY_WEEKDAY[Weekday(weekday_python)]} "
         full_date += f"{one_off_rule.day} {NAME_BY_MONTH[PERIOD_BY_MONTH[one_off_rule.month]]}"
+        if one_off_rule.year:
+            full_date += f" {one_off_rule.year} (⚠️ date impossible)"
 
     return f"le {full_date.lower()}"
 
