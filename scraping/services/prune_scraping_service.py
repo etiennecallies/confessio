@@ -12,7 +12,6 @@ from scraping.prune.models import Action, Source
 from scraping.services.classify_sentence_service import classify_sentence
 from scraping.services.page_service import remove_pruning_if_orphan
 from scraping.services.parse_pruning_service import parse_pruning_for_website
-from scraping.services.sentence_action_service import get_sentence_action, get_sentence_source
 
 
 ###################
@@ -23,13 +22,13 @@ class SentenceFromDbTagInterface(BaseTagInterface):
     def __init__(self, pruning: Pruning):
         self.pruning = pruning
 
-    def get_action(self, line_without_link: str) -> tuple[Action, Optional[Source]]:
+    def get_action(self, line_without_link: str) -> tuple[Action, Source]:
         try:
             sentence = Sentence.objects.get(line=line_without_link)
         except Sentence.DoesNotExist:
             sentence = classify_sentence(line_without_link, self.pruning)
 
-        return get_sentence_action(sentence), get_sentence_source(sentence)
+        return Action(sentence.action), Source(sentence.source)
 
 
 ##############################

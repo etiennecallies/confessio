@@ -9,7 +9,6 @@ from scraping.extract.tag_line import Tag
 from scraping.prune.models import Action, Source
 from scraping.prune.prune_lines import get_pruned_lines_indices
 from scraping.services.prune_scraping_service import SentenceFromDbTagInterface
-from scraping.services.sentence_action_service import action_to_db_action
 
 
 ############################
@@ -67,14 +66,13 @@ def save_sentence(line_without_link: str, pruning: Pruning, user: User, action: 
     """
     :return: Sentence if a new sentence was created or modified, None if nothing was done
     """
-    db_action = action_to_db_action(action)
     sentence = Sentence.objects.get(line=line_without_link)
-    if sentence.action != db_action \
-            or (sentence.source != Sentence.Source.HUMAN and action == Action.SHOW):
-        sentence.action = db_action
+    if Action(sentence.action) != action \
+            or (Source(sentence.source) != Source.HUMAN and action == Action.SHOW):
+        sentence.action = action
         sentence.updated_by = user
         sentence.pruning = pruning
-        sentence.source = Sentence.Source.HUMAN
+        sentence.source = Source.HUMAN
 
         sentence.save()
 
@@ -99,12 +97,12 @@ def set_pruning_human_source(pruning: Pruning, user: User):
 
 def set_sentence_human_source(line_without_link: str, pruning: Pruning, user: User):
     sentence = Sentence.objects.get(line=line_without_link)
-    assert sentence.action == Sentence.Action.SHOW
+    assert Action(sentence.action) == Action.SHOW
 
-    if sentence.source != Sentence.Source.HUMAN:
+    if Source(sentence.source) != Source.HUMAN:
         sentence.updated_by = user
         sentence.pruning = pruning
-        sentence.source = Sentence.Source.HUMAN
+        sentence.source = Source.HUMAN
 
         sentence.save()
 

@@ -1,12 +1,13 @@
 from home.models import Sentence, SentenceModeration, Pruning
 from scraping.extract.extract_content import get_lines_without_link
+from scraping.prune.models import Action
 
 
 ##############
 # MODERATION #
 ##############
 
-def add_sentence_moderation(sentence: Sentence, other_action: Sentence.Action):
+def add_sentence_moderation(sentence: Sentence, other_action: Action):
     category = SentenceModeration.Category.ML_MISMATCH
 
     # check if moderation already exists

@@ -10,7 +10,8 @@ from django.db.models.functions import Now
 from django.urls import reverse
 from simple_history.models import HistoricalRecords
 
-from home.models.base_models import TimeStampMixin, Church, Parish, Sentence
+from home.models.base_models import TimeStampMixin, Church, Parish
+from scraping.prune.models import Action
 from sourcing.services.church_name_service import sort_by_name_similarity
 
 BUG_DESCRIPTION_MAX_LENGTH = 200
@@ -382,8 +383,8 @@ class SentenceModeration(ModerationMixin):
                                          on_delete=models.SET_NULL, null=True)
     history = HistoricalRecords()
     sentence = models.ForeignKey('Sentence', on_delete=models.CASCADE, related_name='moderations')
-    action = models.CharField(max_length=4, choices=Sentence.Action)
-    other_action = models.CharField(max_length=4, choices=Sentence.Action)
+    action = models.CharField(max_length=4, choices=Action.choices())
+    other_action = models.CharField(max_length=4, choices=Action.choices())
     category = models.CharField(max_length=12, choices=Category)
 
     class Meta:

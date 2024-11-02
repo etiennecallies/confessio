@@ -1,6 +1,6 @@
 from home.management.abstract_command import AbstractCommand
+from scraping.prune.models import Action
 from scraping.services.classify_sentence_service import classify_line
-from scraping.services.sentence_action_service import get_sentence_action
 from scraping.services.sentence_outliers_service import add_sentence_moderation, \
     remove_sentence_not_validated_moderation
 from scraping.services.train_classifier_service import build_sentence_dataset
@@ -21,7 +21,7 @@ class Command(AbstractCommand):
 
         nb_sentence_outliers = 0
         for sentence in sentence_dataset:
-            human_action = get_sentence_action(sentence)
+            human_action = Action(sentence.action)
             action, classifier, embedding, transformer = classify_line(sentence.line)
             if action != human_action:
                 self.warning(f'Got {action} vs human label {human_action} '

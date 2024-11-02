@@ -10,6 +10,7 @@ from simple_history.models import HistoricalRecords, HistoricForeignKey
 from home.models.custom_fields import ChoiceArrayField
 from home.utils.hash_utils import hash_string_to_hex
 from scraping.parse.periods import PeriodEnum, LiturgicalDayEnum
+from scraping.prune.models import Action, Source
 
 
 class TimeStampMixin(models.Model):
@@ -181,20 +182,11 @@ class Pruning(TimeStampMixin):
 
 
 class Sentence(TimeStampMixin):
-    class Action(models.TextChoices):
-        SHOW = "show"
-        HIDE = "hide"
-        STOP = "stop"
-
-    class Source(models.TextChoices):
-        HUMAN = "human"
-        ML = 'ml'
-
     line = models.TextField(null=False, unique=True)
     updated_by = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
     pruning = models.ForeignKey('Pruning', on_delete=models.SET_NULL, null=True)
-    action = models.CharField(max_length=4, choices=Action)
-    source = models.CharField(max_length=5, choices=Source)
+    action = models.CharField(max_length=4, choices=Action.choices())
+    source = models.CharField(max_length=5, choices=Source.choices())
     classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,
                                    related_name='sentences', null=True)
     transformer_name = models.CharField(max_length=100)

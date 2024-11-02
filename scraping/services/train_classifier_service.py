@@ -1,12 +1,12 @@
 from sklearn.model_selection import train_test_split
 
 from home.models import Sentence, Classifier
+from scraping.prune.models import Source, Action
 from scraping.prune.train_and_predict import TensorFlowModel, evaluate
-from scraping.services.sentence_action_service import get_sentence_action
 
 
 def build_sentence_dataset() -> list[Sentence]:
-    return Sentence.objects.filter(source=Sentence.Source.HUMAN).all()
+    return Sentence.objects.filter(source=Source.HUMAN).all()
 
 
 def train_classifier(sentence_dataset: list[Sentence]) -> Classifier:
@@ -19,7 +19,7 @@ def train_classifier(sentence_dataset: list[Sentence]) -> Classifier:
 
     # Get embeddings and actions
     embeddings = [sentence.embedding for sentence in sentence_dataset]
-    actions = [get_sentence_action(sentence) for sentence in sentence_dataset]
+    actions = [Action(sentence.action) for sentence in sentence_dataset]
 
     # Split dataset
     test_size = 400

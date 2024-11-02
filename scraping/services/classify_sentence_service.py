@@ -1,8 +1,7 @@
 from home.models import Sentence, Classifier, Pruning
-from scraping.prune.models import Action
+from scraping.prune.models import Action, Source
 from scraping.prune.train_and_predict import TensorFlowModel
 from scraping.prune.transform_sentence import get_transformer, TransformerInterface
-from scraping.services.sentence_action_service import action_to_db_action
 
 _classifier = None
 _model = None
@@ -55,12 +54,10 @@ def classify_sentence(line_without_link: str,
     action, classifier, embedding, transformer = classify_line(line_without_link)
 
     # Save sentence
-    db_action = action_to_db_action(action)
-
     sentence = Sentence(
         line=line_without_link,
-        action=db_action,
-        source=Sentence.Source.ML,
+        action=action,
+        source=Source.ML,
         pruning=pruning,
         updated_by=None,
         classifier=classifier,
