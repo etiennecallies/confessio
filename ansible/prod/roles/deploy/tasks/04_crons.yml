@@ -4,21 +4,21 @@
 - name: Add cron for training pruning model
   cron:
     name: train_pruning_model
-    hour: 1
+    hour: "1"
     minute: 0
     job: "(tmux has-session -t train_pruning_model || tmux new-session -d -s train_pruning_model) && tmux send-keys -t train_pruning_model '. {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py train_pruning_model --automatic' C-m"
 
 - name: Add cron for crawling websites
   cron:
     name: daily_crawl_websites
-    hour: 2
+    hour: "2,3,4,5,6"
     minute: 0
-    job: "(tmux has-session -t crawl_websites || tmux new-session -d -s crawl_websites) && tmux send-keys -t crawl_websites '. {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py crawl_websites' C-m"
+    job: "(tmux has-session -t crawl_websites_with_timeout || tmux new-session -d -s crawl_websites_with_timeout) && tmux send-keys -t crawl_websites_with_timeout '. {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py crawl_websites -t 3300 --no-recent' C-m"
 
 - name: Add cron for checking crawling
   cron:
     name: daily_check_crawling
-    hour: 7
+    hour: "7"
     minute: 0
     job: "(tmux has-session -t check_crawling || tmux new-session -d -s check_crawling) && tmux send-keys -t check_crawling '. {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py check_crawling' C-m"
 
