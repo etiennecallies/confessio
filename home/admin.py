@@ -15,6 +15,7 @@ class DioceseAdmin(SimpleHistoryAdmin):
 
 class ParishInline(admin.StackedInline):
     model = Parish
+    show_change_link = True
 
 
 @admin.register(Website)
@@ -28,6 +29,7 @@ class WebsiteAdmin(SimpleHistoryAdmin):
 
 class ChurchInline(LeafletGeoAdminMixin, admin.StackedInline):
     model = Church
+    show_change_link = True
 
 
 @admin.register(Parish)
