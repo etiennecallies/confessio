@@ -1,10 +1,17 @@
 ##
 # Install crons commands
 ##
+- name: Add cron for training pruning model
+  cron:
+    name: train_pruning_model
+    hour: 1
+    minute: 0
+    job: "(tmux has-session -t train_pruning_model || tmux new-session -d -s train_pruning_model) && tmux send-keys -t train_pruning_model '. {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py train_pruning_model --automatic' C-m"
+
 - name: Add cron for crawling websites
   cron:
     name: daily_crawl_websites
-    hour: 1
+    hour: 2
     minute: 0
     job: "(tmux has-session -t crawl_websites || tmux new-session -d -s crawl_websites) && tmux send-keys -t crawl_websites '. {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py crawl_websites' C-m"
 

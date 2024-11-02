@@ -203,6 +203,7 @@ class Classifier(TimeStampMixin):
     status = models.CharField(max_length=5, choices=Status)
     pickle = models.CharField()
     accuracy = models.FloatField()
+    test_size = models.PositiveSmallIntegerField()
     history = HistoricalRecords()
 
 
@@ -246,10 +247,10 @@ class Schedule(TimeStampMixin):
 class OneOffSchedule(Schedule):
     parsing = HistoricForeignKey('Parsing', on_delete=models.CASCADE,
                                  related_name='one_off_schedules')
-    year = models.SmallIntegerField(null=True, blank=True)
-    month = models.SmallIntegerField(null=True, blank=True)
-    day = models.SmallIntegerField(null=True, blank=True)
-    weekday_iso8601 = models.SmallIntegerField(null=True, blank=True)
+    year = models.PositiveSmallIntegerField(null=True, blank=True)
+    month = models.PositiveSmallIntegerField(null=True, blank=True)
+    day = models.PositiveSmallIntegerField(null=True, blank=True)
+    weekday_iso8601 = models.PositiveSmallIntegerField(null=True, blank=True)
     liturgical_day = models.CharField(max_length=16, null=True, blank=True,
                                       choices=LiturgicalDayEnum.choices())
     history = HistoricalRecords()

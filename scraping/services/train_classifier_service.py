@@ -22,7 +22,7 @@ def train_classifier(sentence_dataset: list[Sentence]) -> Classifier:
     actions = [Action(sentence.action) for sentence in sentence_dataset]
 
     # Split dataset
-    test_size = 400
+    test_size = 800
     embeddings_train, embeddings_test, \
         actions_train, actions_test, \
         = train_test_split(embeddings, actions, test_size=test_size,
@@ -42,6 +42,7 @@ def train_classifier(sentence_dataset: list[Sentence]) -> Classifier:
         pickle=model.to_pickle(),
         status=Classifier.Status.DRAFT,
         accuracy=accuracy,
+        test_size=test_size,
     )
     classifier.save()
 
