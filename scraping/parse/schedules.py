@@ -38,8 +38,7 @@ class OneOffRule(BaseModel, frozen=True):
                         raise ValueError(f'Invalid weekday for {self}')
 
             return True
-        except ValueError as e:
-            print(e)
+        except ValueError:
             return False
 
     def get_start(self, default_year: int) -> date:
