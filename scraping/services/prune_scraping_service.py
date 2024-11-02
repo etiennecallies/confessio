@@ -11,6 +11,7 @@ from scraping.extract.extract_content import extract_content
 from scraping.prune.models import Action, Source
 from scraping.services.classify_sentence_service import classify_sentence
 from scraping.services.page_service import remove_pruning_if_orphan
+from scraping.services.parse_pruning_service import parse_pruning_for_website
 from scraping.services.sentence_action_service import get_sentence_action, get_sentence_source
 
 
@@ -125,7 +126,7 @@ def add_necessary_moderation(pruning: Pruning):
 # LINK TO PARSINGS #
 ####################
 
-def remove_link_to_parsings(pruning: Pruning):
+def update_parsings(pruning: Pruning):
     for parsing in pruning.parsings.all():
         parsing.prunings.remove(pruning)
 
@@ -134,6 +135,13 @@ def remove_link_to_parsings(pruning: Pruning):
                   f'pruning any more')
             ParsingModeration.objects.filter(parsing=parsing,
                                              validated_at__isnull=True).delete()
+
+    websites = {scraping.page.website for scraping in pruning.scrapings.all()}
+    for website in websites:
+        # TODO open everywhere
+        if website.parishes.filter(diocese__messesinfo_network_id='lh').exists():
+            print(f'parsing {pruning} for website {website}')
+            parse_pruning_for_website(pruning, website)
 
 
 ########
@@ -156,7 +164,7 @@ def prune_pruning(pruning: Pruning) -> ():
     pruning.save()
 
     add_necessary_moderation(pruning)
-    remove_link_to_parsings(pruning)
+    update_parsings(pruning)
 
 
 def create_pruning(extracted_html: Optional[str]) -> Optional[Pruning]:
