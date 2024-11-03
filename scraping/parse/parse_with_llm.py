@@ -66,7 +66,14 @@ For example, for "Vendredi 30 août", the one-off date rule would be:
     "day": 30,
     "weekday_iso8601": 5,
     "liturgical_day": null
-}}
+}}, and for "30 août", the one-off date rule would be:
+{{
+    "year": null,
+    "month": 8,
+    "day": 30,
+    "weekday_iso8601": null,
+    "liturgical_day": null
+}}.
 
 The accepted LiturgicalDayEnum values are 'ash_wednesday', from 'palms_sunday' to 'easter_sunday',
 'ascension' and 'pentecost'.
@@ -109,7 +116,9 @@ Some details:
 item dictionary for this event. Usually, it means some of the booleans for mass, adoration,
 permanence or seasonal events should be set to True.
 - A mass lasts 30 minutes, except on Sundays and feast days when it lasts 1 hour. Therefore, if the
-confession starts "après la messe de Xh le vendredi" for example, the start time should be Xh30.
+confession starts "après la messe", two cases : either the schedule is explicit, e.g
+"après la messe de Xh le vendredi" would give a start time of Xh30, or the schedule is not explicit,
+e.g. "après la messe" would not give a schedule item dictionary.
 - If the church is not explicit in the text, the church_id must be null.
 
 Here is the HTML extract to parse:

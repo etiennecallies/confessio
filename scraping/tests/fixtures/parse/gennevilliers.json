@@ -1,0 +1,34 @@
+{
+  "input": {
+    "church_desc_by_id": {
+      "0": "Notre-Dame des Agnettes GENNEVILLIERS",
+      "1": "Saint Jean des Grésillons GENNEVILLIERS",
+      "2": "Sainte Marie Madeleine GENNEVILLIERS"
+    },
+    "year": 2025
+  },
+  "output": {
+    "schedules_list": {
+      "schedules": [
+        {
+          "church_id": null,
+          "date_rule": {
+            "year": null,
+            "month": 1,
+            "day": 26,
+            "weekday_iso8601": null,
+            "liturgical_day": null
+          },
+          "is_cancellation": false,
+          "start_time_iso8601": "17:00:00",
+          "end_time_iso8601": "19:00:00"
+        }
+      ],
+      "possible_by_appointment": false,
+      "is_related_to_mass": false,
+      "is_related_to_adoration": false,
+      "is_related_to_permanence": true,
+      "will_be_seasonal_events": false
+    }
+  }
+}
