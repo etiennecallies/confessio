@@ -149,7 +149,11 @@ msgstr ""
 
 #: templates/pages/index.html:66
 msgid "searchInThisArea"
-msgstr "Rechercher dans cette zone"
+msgstr "Dans cette zone"
+
+#: templates/pages/index.html:66
+msgid "searchAroundMe"
+msgstr "Autour de moi"
 
 #: templates/pages/index.html:99
 msgid "goToParishSite"

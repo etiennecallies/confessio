@@ -55,14 +55,27 @@
             </div>
         {% endif %}
         <div class="row text-white mb-3 text-center">
-            <div class="col-sm">
+            <div class="col-6 mx-auto" id="search-around-me-col" style="display: none">
+                <form id="search-around-me-form">
+                    <div class="form-group">
+                        <input type="hidden" id="position-latitude-input" name="latitude">
+                        <input type="hidden" id="position-longitude-input" name="longitude">
+                        <button type="submit" class="btn btn-tertiary" id="search-around-me-btn">
+                            <span class="fas fa-dot-circle"></span> {% trans 'searchAroundMe' %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="col-6 mx-auto" id="search-in-this-area-col" style="display: none">
                 <form id="search-in-this-area-form">
                     <div class="form-group">
                         <input type="hidden" id="min-lat-input" name="minLat">
                         <input type="hidden" id="min-lng-input" name="minLng">
                         <input type="hidden" id="max-lat-input" name="maxLat">
                         <input type="hidden" id="max-lng-input" name="maxLng">
-                        <button type="submit" class="btn btn-tertiary" style="visibility: hidden" id="search-in-this-area-btn">{% trans 'searchInThisArea' %}</button>
+                        <button type="submit" class="btn btn-tertiary" id="search-in-this-area-btn">
+                            <span class="fas fa-map-marked-alt"></span> {% trans 'searchInThisArea' %}
+                        </button>
                     </div>
                 </form>
             </div>
@@ -87,5 +100,5 @@
 
 {% block javascripts %}
     {{ block.super }}
-    <script src="{% static 'js/index2.js' %}"></script>
+    <script src="{% static 'js/index.js' %}"></script>
 {% endblock javascripts %}

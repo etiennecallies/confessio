@@ -91,7 +91,7 @@ $(document).ready(function () {
       $("#min-lng-input").val(bounds._southWest.lng);
       $("#max-lat-input").val(bounds._northEast.lat);
       $("#max-lng-input").val(bounds._northEast.lng);
-      $("#search-in-this-area-btn").css('visibility', 'visible');
+      $("#search-in-this-area-col").show();
     });
   }
 
@@ -105,6 +105,37 @@ $(document).ready(function () {
       handleIframeLoaded();
     });
   }
+});
+
+/**
+ * Handle search around me button.
+ */
+$(document).ready(function () {
+  if (navigator.geolocation) {
+    $('#search-around-me-col').show();
+
+    let $searchAroundMe = $('#search-around-me-btn');
+    $searchAroundMe.click(function (e) {
+      // disable button submit on click
+      e.preventDefault();
+
+      let originalText = $searchAroundMe.html();
+      // Change the text of the button
+      $searchAroundMe.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Recherche ...');
+
+      navigator.geolocation.getCurrentPosition(function (position) {
+        $("#position-latitude-input").val(position.coords.latitude);
+        $("#position-longitude-input").val(position.coords.longitude);
+        $("#search-around-me-form").submit();
+      }, function (error) {
+        console.log('error getting position', error);
+        alert('Erreur lors de la récupération de votre position');
+        // Change the text of the button
+        $searchAroundMe.html(originalText);
+      });
+    });
+  }
+
 });
 
 /**
