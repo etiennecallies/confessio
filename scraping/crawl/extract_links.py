@@ -25,11 +25,14 @@ CONFESSIONS_OR_SCHEDULES_MENTIONS = [
     'pascal',
     'priere',
     'etapes',
+    'paroisse',
 ]
 
 
 def might_be_confession_link(path, text):
-    if has_any_of_words(path, CONFESSIONS_OR_SCHEDULES_MENTIONS) \
+    last_part_of_path = path.split('/')[-1] if '/' in path else path
+
+    if has_any_of_words(last_part_of_path, CONFESSIONS_OR_SCHEDULES_MENTIONS) \
             or has_any_of_words(text, CONFESSIONS_OR_SCHEDULES_MENTIONS):
         return True
 
