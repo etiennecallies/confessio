@@ -133,3 +133,10 @@ $(document).ready(function () {
     $(this).children('.expandable-item').toggle();
   });
 });
+
+/**
+ * Activate tooltips.
+ */
+$(window).on("load", function () {
+  $('[data-toggle="tooltip"]').tooltip();
+});

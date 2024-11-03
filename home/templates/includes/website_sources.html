@@ -8,6 +8,12 @@
             <div class="row mt-3 mb-2">
                 <div class="col-md-9 lead">
                     {% blocktrans with url=page_urls|get_item:page.uuid %}BeforeConfessionHTML {{ url }}{% endblocktrans %}
+                    {% if page.has_been_modified_recently %}
+                        <button type="button" class="btn btn-success btn-sm" data-toggle="tooltip" data-placement="bottom"
+                                title="Contenu modifié le {{ page.get_latest_scraping.created_at|date:"d M" }}">
+                            À jour
+                        </button>
+                    {% endif %}
                 </div>
                 <div class="col-md-3">
                     {% if request.user.is_authenticated and perms.home.change_sentence %}

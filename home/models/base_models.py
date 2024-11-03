@@ -1,9 +1,11 @@
 import uuid
+from datetime import timedelta
 from typing import List, Optional
 
 from django.contrib.gis.db import models as gis_models
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
+from django.utils import timezone
 from pgvector.django import VectorField
 from simple_history.models import HistoricalRecords, HistoricForeignKey
 
@@ -152,6 +154,21 @@ class Page(TimeStampMixin):
             return None
 
         return self.get_latest_pruning().parsings.filter(websites=self.website).first()
+
+    def has_been_modified_recently(self) -> bool:
+        latest_scraping = self.get_latest_scraping()
+        if latest_scraping is None:
+            return False
+
+        # If latest scraping was created more than one year ago
+        if latest_scraping.created_at < timezone.now() - timedelta(days=365):
+            return False
+
+        # If latest scraping is older than page creation
+        if latest_scraping.created_at <= self.created_at + timedelta(hours=2):
+            return False
+
+        return True
 
 
 class Crawling(TimeStampMixin):
