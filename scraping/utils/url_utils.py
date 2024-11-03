@@ -52,21 +52,36 @@ def is_internal_link(url: str, url_parsed: ParseResult, aliases_domains: set[str
         # link on same page
         return False
 
-    if url_parsed.netloc not in aliases_domains:
+    if not is_similar_to_domains(url_parsed.netloc, aliases_domains):
         # external link
         return False
 
     return True
 
 
-def are_similar_domain(url1: str, url2: str):
-    url1_parsed = urlparse(url1)
-    url2_parsed = urlparse(url2)
+def is_similar_to_domains(domain: str, domains: set[str]):
+    for d in domains:
+        if are_similar_domains(domain, d):
+            return True
 
-    domain1 = url1_parsed.netloc.replace('www.', '').split('.')[:-1]
-    domain2 = url2_parsed.netloc.replace('www.', '').split('.')[:-1]
+    return False
 
-    return domain1 == domain2
+
+def get_canonical_domain(domain: str):
+    return domain.replace('www.', '')\
+        .replace('ww2.', '')\
+        .split('.')[:-1]
+
+
+def are_similar_domains(domain1: str, domain2: str):
+    return get_canonical_domain(domain1) == get_canonical_domain(domain2)
+
+
+def have_similar_domain(url1: str, url2: str):
+    domain1 = urlparse(url1).netloc
+    domain2 = urlparse(url2).netloc
+
+    return are_similar_domains(domain1, domain2)
 
 
 def are_similar_path(url1: str, url2: str):
@@ -89,7 +104,7 @@ def are_similar_urls(url1: str, url2: str):
     if url1 == url2:
         return True
 
-    if are_similar_domain(url1, url2) and are_similar_path(url1, url2):
+    if have_similar_domain(url1, url2) and are_similar_path(url1, url2):
         return True
 
     return False

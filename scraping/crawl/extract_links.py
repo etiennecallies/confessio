@@ -66,44 +66,46 @@ def get_links(element: el, home_url: str, aliases_domains: set[str], forbidden_p
     results = set()
 
     for link in element:
-        if link.has_attr('href'):
-            full_url = link['href']
+        if not link.has_attr('href'):
+            continue
+
+        full_url = link['href']
+        url_parsed = urlparse(full_url)
+
+        # If the link is like "sacrements.html", we build it from any home_url we have
+        if not url_parsed.netloc:
+            full_url = replace_scheme_and_hostname(url_parsed, new_url=home_url)
             url_parsed = urlparse(full_url)
 
-            # If the link is like "sacrements.html", we build it from any home_url we have
-            if not url_parsed.netloc:
-                full_url = replace_scheme_and_hostname(url_parsed, new_url=home_url)
-                url_parsed = urlparse(full_url)
+        # We ignore external links (ex: facebook page...)
+        if not is_internal_link(full_url, url_parsed, aliases_domains):
+            continue
 
-            # We ignore external links (ex: facebook page...)
-            if not is_internal_link(full_url, url_parsed, aliases_domains):
-                continue
+        # We ignore forbidden paths and their children
+        if is_forbidden(url_parsed, forbidden_paths):
+            continue
 
-            # We ignore forbidden paths and their children
-            if is_forbidden(url_parsed, forbidden_paths):
-                continue
+        full_url = get_clean_full_url(full_url)  # we use standardized url to ensure unicity
+        url_parsed = urlparse(full_url)
 
-            full_url = get_clean_full_url(full_url)  # we use standardized url to ensure unicity
+        # If the link contains parameters we remove the non-useful ones
+        if url_parsed.query:
+            full_url = clean_url_query(url_parsed)
             url_parsed = urlparse(full_url)
 
-            # If the link contains parameters we remove the non-useful ones
-            if url_parsed.query:
-                full_url = clean_url_query(url_parsed)
-                url_parsed = urlparse(full_url)
+        # If this is a link to an image or a calendar we ignore it
+        if url_parsed.path.endswith('.jpg') \
+                or url_parsed.path.endswith('.jpeg') \
+                or url_parsed.path.endswith('.ics'):
+            continue
 
-            # If this is a link to an image or a calendar we ignore it
-            if url_parsed.path.endswith('.jpg') \
-                    or url_parsed.path.endswith('.jpeg') \
-                    or url_parsed.path.endswith('.ics'):
-                continue
+        # Extract link text
+        all_strings = link.find_all(text=lambda t: not isinstance(t, Comment),
+                                    recursive=True)
+        text = ' '.join(all_strings).rstrip()
 
-            # Extract link text
-            all_strings = link.find_all(text=lambda t: not isinstance(t, Comment),
-                                        recursive=True)
-            text = ' '.join(all_strings).rstrip()
-
-            if might_be_confession_link(url_parsed.path, text):
-                results.add(full_url)
+        if might_be_confession_link(url_parsed.path, text):
+            results.add(full_url)
 
     return results
 
