@@ -50,6 +50,9 @@ def get_events_from_schedule_item(schedule: ScheduleItem,
     if schedule.is_one_off_rule() and not schedule.date_rule.is_valid_date():
         return []
 
+    if schedule.get_start_time() is None:
+        return []
+
     rset = get_rruleset_from_schedule(schedule, default_year)
 
     events = []
@@ -122,7 +125,9 @@ def is_schedules_list_explainable(schedules_list: SchedulesList) -> bool:
 ##########
 
 def is_necessary_schedule(schedule: ScheduleItem) -> bool:
-    if not schedule.is_cancellation and schedule.get_start_time() == time(0, 0):
+    if (not schedule.is_cancellation
+            and (schedule.get_start_time() is None
+                 or schedule.get_start_time() == time(0, 0))):
         return False
 
     return True

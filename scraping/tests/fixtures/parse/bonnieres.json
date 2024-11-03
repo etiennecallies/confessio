@@ -1,0 +1,38 @@
+{
+  "input": {
+    "church_desc_by_id": {
+      "0": "Assomption de la Très Sainte Vierge (Notre Dame de la Mer) NOTRE DAME DE LA MER",
+      "1": "Le Prieuré de Béthanie (Blaru) BLARU",
+      "2": "Nativité (Cravent) CRAVENT",
+      "3": "Nativité (Méricourt) MERICOURT",
+      "4": "Nativité de la Très Sainte Vierge (Bonnières sur Seine) BONNIERES SUR SEINE",
+      "5": "Saint Crépin et Saint Crépinien (Gommecourt) GOMMECOURT",
+      "6": "Saint Hilaire (Blaru) BLARU",
+      "7": "Saint Jean Baptiste (Rosny sur Seine) ROSNY SUR SEINE",
+      "8": "Saint Léger (Lommoye) LOMMOYE",
+      "9": "Saint Léger (Moisson) MOISSON",
+      "10": "Saint Léger (Mousseaux) MOUSSEAUX SUR SEINE",
+      "11": "Saint Martin (Freneuse) FRENEUSE",
+      "12": "Saint Martin (Perdreauville) PERDREAUVILLE",
+      "13": "Saint Michel (Rolleboise ) ROLLEBOISE",
+      "14": "Saint Nicolas (Fontenay Mauvoisin) FONTENAY MAUVOISIN",
+      "15": "Saint Nicolas (La Villeneuve en Chevrie) LA VILLENEUVE EN CHEVRIE",
+      "16": "Saint Ouen (Bennecourt) BENNECOURT",
+      "17": "Saint Pierre (Port Villez) PORT VILLEZ",
+      "18": "Saint Sulpice (Limetz Villez) LIMETZ VILLEZ",
+      "19": "Sainte Foi (Jouy Mauvoisin) JOUY MAUVOISIN",
+      "20": "Transfiguration de Notre Seigneur (Chaufour les Bonnières) CHAUFOUR LES BONNIERES"
+    },
+    "year": 2024
+  },
+  "output": {
+    "schedules_list": {
+      "schedules": [],
+      "possible_by_appointment": true,
+      "is_related_to_mass": true,
+      "is_related_to_adoration": false,
+      "is_related_to_permanence": true,
+      "will_be_seasonal_events": false
+    }
+  }
+}

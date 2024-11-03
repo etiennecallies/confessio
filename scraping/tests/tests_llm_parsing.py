@@ -62,6 +62,7 @@ class LlmParsingTests(unittest.TestCase):
             'ste-therese',
             # 'chambourcy',  # an item is missing
             'vauxenvelin',
+            'bonnieres',
         ]
 
     def test_llm_parsing(self):

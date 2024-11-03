@@ -75,7 +75,7 @@ class ScheduleItem(BaseModel, frozen=True):
     church_id: int | None
     date_rule: OneOffRule | RegularRule
     is_cancellation: bool
-    start_time_iso8601: str
+    start_time_iso8601: str | None
     end_time_iso8601: str | None
 
     @model_validator(mode='after')
@@ -91,10 +91,13 @@ class ScheduleItem(BaseModel, frozen=True):
     def is_regular_rule(self) -> bool:
         return isinstance(self.date_rule, RegularRule)
 
-    def get_start_time(self) -> time:
+    def get_start_time(self) -> time | None:
+        if self.start_time_iso8601 is None:
+            return
+
         return time.fromisoformat(self.start_time_iso8601)
 
-    def get_end_time(self) -> Optional[time]:
+    def get_end_time(self) -> time | None:
         if self.end_time_iso8601 is None:
             return None
 

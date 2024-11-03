@@ -237,7 +237,7 @@ class Parsing(TimeStampMixin):
 class Schedule(TimeStampMixin):
     church_id = models.SmallIntegerField(null=True, blank=True)
     is_cancellation = models.BooleanField()
-    start_time_iso8601 = models.CharField(max_length=8)
+    start_time_iso8601 = models.CharField(max_length=8, null=True, blank=True)
     end_time_iso8601 = models.CharField(max_length=8, null=True, blank=True)
 
     class Meta:

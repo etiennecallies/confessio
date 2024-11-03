@@ -217,7 +217,7 @@ def render_parsing_moderation(request, moderation: ParsingModeration, next_url):
 
     truncated_html = parsing.truncated_html
     schedules_list = get_parsing_schedules_list(parsing)
-    church_desc_by_id_json = json.dumps(parsing.church_desc_by_id, indent=2)
+    church_desc_by_id_json = json.dumps(parsing.church_desc_by_id, indent=2, ensure_ascii=False)
     validated_schedules_list = SchedulesList(**moderation.validated_schedules_list)\
         if moderation.validated_schedules_list else None
 

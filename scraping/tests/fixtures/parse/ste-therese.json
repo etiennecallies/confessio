@@ -9,7 +9,7 @@
     "schedules_list": {
       "schedules": [
         {
-          "church_id": 0,
+          "church_id": null,
           "date_rule": {
             "rrule": "DTSTART:20000101\nRRULE:FREQ=WEEKLY;BYDAY=TU,WE,TH,FR",
             "include_periods": [],
@@ -20,7 +20,7 @@
           "end_time_iso8601": "19:00:00"
         },
         {
-          "church_id": 0,
+          "church_id": null,
           "date_rule": {
             "rrule": "DTSTART:20000101\nRRULE:FREQ=WEEKLY;BYDAY=SA",
             "include_periods": [],
@@ -31,7 +31,7 @@
           "end_time_iso8601": "12:00:00"
         },
         {
-          "church_id": 0,
+          "church_id": null,
           "date_rule": {
             "year": null,
             "month": 12,
@@ -44,7 +44,7 @@
           "end_time_iso8601": "20:00:00"
         },
         {
-          "church_id": 0,
+          "church_id": null,
           "date_rule": {
             "year": null,
             "month": 4,

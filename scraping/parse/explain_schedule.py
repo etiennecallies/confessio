@@ -192,7 +192,7 @@ def get_time_explanation(schedule: ScheduleItem) -> str:
     explanation = ''
 
     start_time = schedule.get_start_time()
-    start_time_str = start_time.strftime('%H:%M')
+    start_time_str = start_time.strftime('%H:%M') if start_time is not None else '00:00'
     if start_time_str != '00:00':
         end_time = schedule.get_end_time()
         if end_time is not None:

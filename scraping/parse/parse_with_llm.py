@@ -41,8 +41,8 @@ Here is the schedule dictionary format:
     "date_rule": OneOffRule | RegularRule,  # the recurrence rule for the confession (see below)
     "is_cancellation": bool,  # whether this is a cancellation of a confession, e.g "pas de
         confession en août"
-    "start_time_iso8601": str,  # the start time of the confession in "HH:MM:SS" format. Can not
-be null. For cancellation only it is possible to set '00:00:00'.
+    "start_time_iso8601": Optional[str],  # the start time of the confession in "HH:MM:SS" format,
+null if not explicit.
     "end_time_iso8601": Optional[str]  # the end time of the confession in "HH:MM:SS" format,
 null if not explicit.
 }}
@@ -73,9 +73,9 @@ The accepted LiturgicalDayEnum values are 'ash_wednesday', from 'palms_sunday' t
 
 Here is the regular date rule format:
 {{
-    "rrule": str,  # the recurrence rule for the confession. For example
-        "DTSTART:20000101\\nRRULE:FREQ=WEEKLY;BYDAY=WE" for
-        "confession les mercredis de 10h30 à 11h30". By default, set 2000 as the year.
+    "rrule": str,  # the recurrence rule for the confession. For example "DTSTART:20000101
+RRULE:FREQ=WEEKLY;BYDAY=WE" for "confession les mercredis de 10h30 à 11h30".
+        By default, set 2000 as the year.
     "include_periods": list[PeriodEnum],  # the year periods when the rrule applied. For
         example, if the confession is only during the school holidays, the list would be
         ['school_holidays']. If the expression says "durant l'été", the list would be
@@ -92,7 +92,8 @@ The accepted PeriodEnum values are:
 
 For example, for "tous les jours sauf en août de 10h à 10h30", the regular date rule would be:
 {{
-    "rrule": "DTSTART:20000101\\nRRULE:FREQ=DAILY",
+    "rrule": "DTSTART:20000101
+RRULE:FREQ=DAILY",
     "include_periods": [],
     "exclude_periods": ["august"]
 }}
@@ -108,7 +109,7 @@ Some details:
 item dictionary for this event. Usually, it means some of the booleans for mass, adoration,
 permanence or seasonal events should be set to True.
 - A mass lasts 30 minutes, except on Sundays and feast days when it lasts 1 hour. Therefore, if the
-confession starts "après la messe de 9h le vendredi" for example, the start time should be 9h30.
+confession starts "après la messe de Xh le vendredi" for example, the start time should be Xh30.
 - If the church is not explicit in the text, the church_id must be null.
 
 Here is the HTML extract to parse:
