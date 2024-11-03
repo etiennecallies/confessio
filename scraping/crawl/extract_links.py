@@ -26,6 +26,7 @@ CONFESSIONS_OR_SCHEDULES_MENTIONS = [
     'priere',
     'etapes',
     'paroisse',
+    'spirituelle',
 ]
 
 
