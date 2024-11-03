@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Literal
 
 from home.models import Page, Pruning, Scraping, PruningModeration, ParsingModeration
 
@@ -41,12 +41,15 @@ def remove_pruning_if_orphan(pruning: Optional[Pruning]):
 # QUALITY EVALUATION #
 ######################
 
-def page_first_pruning_was_validated(page: Page) -> Optional[bool]:
+def page_was_validated_at_first(page: Page,
+                                resource: Literal['pruning', 'parsing']) -> Optional[bool]:
     for page_version in page.history.all():
-        if page_version.pruning_validation_counter == -1:
+        counter = page_version.pruning_validation_counter if resource == 'pruning' else \
+            page_version.parsing_validation_counter
+        if counter == -1:
             return False
 
-        if page_version.pruning_validation_counter > 0:
+        if counter > 0:
             return True
 
     return None
