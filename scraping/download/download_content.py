@@ -7,6 +7,7 @@ from requests import RequestException
 from scraping.utils.url_utils import get_domain
 
 TIMEOUT = 20
+MAX_SIZE = 10_000_000
 
 
 def get_headers():
@@ -28,9 +29,29 @@ def get_content_length(url):
 
     content_length = r.headers.get('Content-Length')
     if not content_length:
-        return 0
+        return get_content_length_by_streaming(url)
 
     return int(content_length)
+
+
+def get_content_length_by_streaming(url: str) -> int | None:
+    print(f'getting content length by streaming from url {url}')
+
+    headers = get_headers()
+    try:
+        r = requests.get(url, headers=headers, timeout=TIMEOUT, stream=True)
+    except RequestException as e:
+        print(e)
+        return None
+
+    total_size = 0
+    for chunk in r.iter_content(chunk_size=8192):
+        total_size += len(chunk)
+        if total_size > MAX_SIZE:
+            print("File size exceeds limit. Download aborted.")
+            return None
+
+    return total_size
 
 
 def get_content_from_url(url):
@@ -45,9 +66,11 @@ def get_content_from_url(url):
             print(f'could not get content length from url {url}')
             return None
 
-        if content_length > 10_000_000:
+        if content_length > MAX_SIZE:
             print(f'content length is {content_length}, too large (>10MB)')
             return None
+        else:
+            print(f'content length is {content_length}')
 
     print(f'getting content from url {url}')
 
