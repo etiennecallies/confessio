@@ -7,7 +7,7 @@ from requests import RequestException
 from scraping.utils.url_utils import get_domain
 
 TIMEOUT = 20
-MAX_SIZE = 10_000_000
+MAX_SIZE = 5_000_000
 
 
 def get_headers():
