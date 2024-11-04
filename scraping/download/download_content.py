@@ -55,11 +55,14 @@ def get_content_length_by_streaming(url: str) -> int | None:
 
 
 def get_content_from_url(url):
-    for extension in ('.mp3', '.m4a'):
+    # ignore media urls
+    for extension in ('.mp3', '.m4a', '.wav', '.mp4', '.mov', '.avi', '.mkv', '.webm', '.flv',
+                      '.wmv', '.wma', '.flac'):
         if url.endswith(extension):
             print(f'ignoring {extension} url {url}')
             return None
 
+    # Handle heavy pdf files
     if url.endswith('.pdf'):
         content_length = get_content_length(url)
         if content_length is None:
