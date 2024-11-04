@@ -49,41 +49,47 @@
                                 </p>
                             </div>
                         {% endfor %}
-                        {% if website.all_pages_parsed %}
+                        {% if website.all_pages_parsed or website.unreliability_reason %}
                             <div class="schedules-sources-tabs">
                                 <ul class="nav nav-tabs">
                                     <li class="nav-item"><a class="nav-link" href="#tab-schedules-{{ website.uuid }}">📆 Dates</a></li>
                                     <li class="nav-item"><a class="nav-link" href="#tab-sources-{{ website.uuid }}">📖 Sources</a></li>
                                 </ul>
                                 <div id="tab-schedules-{{ website.uuid }}">
-                                    {% with church_schedules_list=website|get_church_schedules_list %}
+                                    {% if website.unreliability_reason %}
                                         <div>
-                                            {% with church_events=church_schedules_list.get_church_events %}
-                                                {% if church_events %}
-                                                    {% for church_event in church_events %}
-                                                        <p>
-                                                            {% if church_event.church %}
-                                                                {{ church_event.church.name }} :
-                                                            {% elif church_event.is_church_explicitly_other %}
-                                                                <span class="text-danger">En dehors de cette paroisse :</span>
-                                                            {% endif %}
-                                                            {% display_event church_event.event %}
-                                                        </p>
-                                                    {% endfor %}
-                                                {% elif not website.has_been_crawled %}
-                                                    {% trans 'NotCrawledYet' %}
-                                                {% else %}
-                                                    Pas de prochaines dates
+                                            Nous regrettons de ne pouvoir afficher les horaires de cette paroisse pour des raisons techniques.
+                                        </div>
+                                    {% else %}
+                                        {% with church_schedules_list=website|get_church_schedules_list %}
+                                            <div>
+                                                {% with church_events=church_schedules_list.get_church_events %}
+                                                    {% if church_events %}
+                                                        {% for church_event in church_events %}
+                                                            <p>
+                                                                {% if church_event.church %}
+                                                                    {{ church_event.church.name }} :
+                                                                {% elif church_event.is_church_explicitly_other %}
+                                                                    <span class="text-danger">En dehors de cette paroisse :</span>
+                                                                {% endif %}
+                                                                {% display_event church_event.event %}
+                                                            </p>
+                                                        {% endfor %}
+                                                    {% elif not website.has_been_crawled %}
+                                                        {% trans 'NotCrawledYet' %}
+                                                    {% else %}
+                                                        Pas de prochaines dates
+                                                    {% endif %}
+                                                {% endwith %}
+                                            </div>
+                                            <div>
+                                                {% if church_schedules_list.schedules_list.possible_by_appointment %}
+                                                    <div>🤝 Il est possible de se confesser sur rendez-vous.</div>
                                                 {% endif %}
-                                            {% endwith %}
-                                        </div>
-                                        <div>
-                                            {% if church_schedules_list.schedules_list.possible_by_appointment %}
-                                                <div>🤝 Il est possible de se confesser sur rendez-vous.</div>
-                                            {% endif %}
-                                            {{ church_schedules_list.schedules_list|has_relation_text }}
-                                        </div>
-                                    {% endwith %}
+                                                {{ church_schedules_list.schedules_list|has_relation_text }}
+                                            </div>
+                                        {% endwith %}
+                                    {% endif %}
                                 </div>
                                 <div id="tab-sources-{{ website.uuid }}">
                                     {% include 'includes/website_sources.html' %}

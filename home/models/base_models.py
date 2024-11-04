@@ -40,6 +40,7 @@ class Website(TimeStampMixin):
     pruning_last_validated_at = models.DateTimeField(null=True, blank=True)
     parsing_validation_counter = models.SmallIntegerField(default=0)
     parsing_last_validated_at = models.DateTimeField(null=True, blank=True)
+    unreliability_reason = models.TextField(null=False, default='', blank=True)
     history = HistoricalRecords()
 
     _latest_crawling = None

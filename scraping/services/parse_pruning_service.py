@@ -155,6 +155,9 @@ def save_schedule_list(parsing: Parsing, schedules_list: Optional[SchedulesList]
 ##############
 
 def add_necessary_parsing_moderation(parsing: Parsing, schedules_list: Optional[SchedulesList]):
+    if not parsing_needs_moderation(parsing):
+        return
+
     category = ParsingModeration.Category.NEW_SCHEDULES
     try:
         parsing_moderation = ParsingModeration.objects.filter(parsing=parsing,
@@ -217,6 +220,11 @@ def parsing_needs_moderation(parsing: Parsing):
     for pruning in parsing.prunings.all():
         for scraping in pruning.scrapings.all():
             page = scraping.page
+
+            # If website has been marked as unreliable, we don't want to moderate it
+            if page.website.unreliability_reason:
+                break
+
             # if page has been validated less than three times or more than one year ago
             # and if website has been validated less than seven times or more than one year ago
             if (

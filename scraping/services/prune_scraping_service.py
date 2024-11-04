@@ -65,6 +65,11 @@ def get_current_moderation(pruning: Pruning,
 def pruning_needs_moderation(pruning: Pruning):
     for scraping in pruning.scrapings.all():
         page = scraping.page
+
+        # If website has been marked as unreliable, we don't want to moderate it
+        if page.website.unreliability_reason:
+            break
+
         # if page has been validated less than three times or more than one year ago
         # and if website has been validated less than seven times or more than one year ago
         if (
@@ -137,6 +142,9 @@ def update_parsings(pruning: Pruning):
 
     websites = {scraping.page.website for scraping in pruning.scrapings.all()}
     for website in websites:
+        if website.unreliability_reason:
+            continue
+
         # TODO open everywhere
         if website.parishes.filter(diocese__messesinfo_network_id='lh').exists():
             print(f'parsing {pruning} for website {website}')
