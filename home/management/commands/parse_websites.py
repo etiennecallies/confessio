@@ -46,7 +46,7 @@ class Command(AbstractCommand):
                     break
 
                 website = scraping.page.website
-                self.info(f'Parsing {pruning.uuid} for website {website.name}')
+                self.info(f'Pruning {pruning.uuid} for website {website.name}')
                 parse_pruning_for_website(pruning, website, options['force_parse'])
                 counter += 1
 
