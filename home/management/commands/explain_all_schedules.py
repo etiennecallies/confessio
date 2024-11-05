@@ -13,9 +13,13 @@ class Command(AbstractCommand):
         parsings = Parsing.objects.all()
         for parsing in parsings:
             schedules_list = get_parsing_schedules_list(parsing)
+            if not schedules_list:
+                continue
+
             for schedule in schedules_list.schedules:
                 try:
-                    print(get_explanation_from_schedule(schedule))
+                    explanation = get_explanation_from_schedule(schedule)
+                    print(explanation)
                 except Exception as e:
                     self.error(f'Error explaining schedule {schedule}: {e}')
                     print(parsing.uuid)
