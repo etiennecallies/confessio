@@ -148,6 +148,17 @@ def get_monthly_explanation(rstr: rrule) -> str:
 
         return f"le {rstr._bymonthday[0]} du mois"
 
+    if rstr._bynweekday:
+        items = []
+        for weekday, position in rstr._bynweekday:
+            if position == 0:
+                raise ValueError("Position 0 in monthly rrule not implemented yet")
+
+            items.append(f"le {NAME_BY_POSITION[Position(position)]} "
+                         f"{NAME_BY_WEEKDAY[Weekday(weekday)]}")
+
+        return f"{enumerate_with_and(items)} du mois"
+
     if not rstr._byweekday:
         raise ValueError("No weekday in monthly rrule")
     by_days = [Weekday(w) for w in rstr._byweekday]

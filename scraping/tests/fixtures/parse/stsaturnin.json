@@ -14,7 +14,7 @@
           "church_id": null,
           "is_cancellation": false,
           "date_rule": {
-            "rrule": "DTSTART:20240106T170000\nRRULE:FREQ=WEEKLY;BYDAY=SA",
+            "rrule": "DTSTART:20240106\nRRULE:FREQ=WEEKLY;BYDAY=SA",
             "include_periods": [],
             "exclude_periods": []
           },
@@ -25,7 +25,7 @@
           "church_id": null,
           "is_cancellation": false,
           "date_rule": {
-            "rrule": "DTSTART:20240107T163000\nRRULE:FREQ=WEEKLY;BYDAY=SU",
+            "rrule": "DTSTART:20240107\nRRULE:FREQ=WEEKLY;BYDAY=SU",
             "include_periods": [],
             "exclude_periods": []
           },
@@ -88,7 +88,7 @@
           "church_id": null,
           "is_cancellation": false,
           "date_rule": {
-            "rrule": "DTSTART:20240107T163000\nRRULE:FREQ=WEEKLY;BYDAY=SU",
+            "rrule": "DTSTART:20240107\nRRULE:FREQ=WEEKLY;BYDAY=SU",
             "include_periods": [],
             "exclude_periods": []
           },
@@ -99,7 +99,7 @@
           "church_id": null,
           "is_cancellation": false,
           "date_rule": {
-            "rrule": "DTSTART:20240105T193000\nRRULE:FREQ=WEEKLY;BYDAY=FR",
+            "rrule": "DTSTART:20240105\nRRULE:FREQ=WEEKLY;BYDAY=FR",
             "include_periods": [],
             "exclude_periods": []
           },

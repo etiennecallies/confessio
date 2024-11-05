@@ -64,6 +64,7 @@ class LlmParsingTests(unittest.TestCase):
             'vauxenvelin',
             'bonnieres',
             'gennevilliers',
+            'fecamp',
         ]
 
     def test_llm_parsing(self):

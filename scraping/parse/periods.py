@@ -1,6 +1,8 @@
 from datetime import date
 from enum import Enum
 
+from dateutil.rrule import rrulestr
+
 
 ###################
 # LITURGICAL DAYS #
@@ -178,22 +180,46 @@ def intervals_from_period(period: PeriodEnum, year: int) -> list[tuple[date, dat
     raise ValueError(f'Period {period} not implemented')
 
 
-def compute_intervals_complementary(intervals: list[tuple[date, date]], year: int
+def compute_intervals_complementary(intervals: list[tuple[date, date]],
+                                    start_year: int, end_year: int
                                     ) -> list[tuple[date, date]]:
+    sorted_intervals = sorted(intervals)
+
     # Get the full year
-    full_year = [(date(year, 1, 1), date(year, 12, 31))]
+    full_start = date(start_year, 1, 1)
+    full_end = date(end_year, 12, 31)
 
     # Compute the complementary
     complementary = []
-    for full_start, full_end in full_year:
-        for start, end in intervals:
-            if full_start < start:
-                complementary.append((full_start, start))
-            full_start = end
-        if full_start < full_end:
-            complementary.append((full_start, full_end))
+    for start, end in sorted_intervals:
+        if full_start < start:
+            complementary.append((full_start, start))
+        full_start = end
+    if full_start < full_end:
+        complementary.append((full_start, full_end))
 
     return complementary
+
+
+def add_interval(interval: tuple[date, date],
+                 intervals: list[tuple[date, date]]) -> list[tuple[date, date]]:
+    start, end = interval
+    for i, (i_start, i_end) in enumerate(intervals):
+        if i_start <= start <= i_end or i_start <= end <= i_end:
+            return add_interval((min(i_start, start), max(i_end, end)),
+                                [*intervals[:i], *intervals[i + 1:]])
+
+    intervals.append((start, end))
+
+    return intervals
+
+
+def compute_union_of_all_intervals(intervals: list[tuple[date, date]]) -> list[tuple[date, date]]:
+    result_intervals = []
+    for interval in intervals:
+        result_intervals = add_interval(interval, result_intervals)
+
+    return result_intervals
 
 
 def rrules_from_intervals(intervals: list[tuple[date, date]]) -> list[str]:
@@ -202,9 +228,16 @@ def rrules_from_intervals(intervals: list[tuple[date, date]]) -> list[str]:
             for start, end in intervals]
 
 
-def rrules_from_period(period: PeriodEnum, year: int, use_complementary: bool) -> list[str]:
-    intervals = intervals_from_period(period, year)
-    if use_complementary:
-        intervals = compute_intervals_complementary(intervals, year)
+def add_exrules(rset, periods, start_year, end_year, use_complementary: bool):
+    all_intervals = []
+    for period in periods:
+        for year in range(start_year, end_year + 1):
+            all_intervals += intervals_from_period(period, year)
 
-    return rrules_from_intervals(intervals)
+    merged_intervals = compute_union_of_all_intervals(all_intervals)
+    if use_complementary:
+        merged_intervals = compute_intervals_complementary(merged_intervals,
+                                                           start_year, end_year)
+
+    for rule in rrules_from_intervals(merged_intervals):
+        rset.exrule(rrulestr(rule))

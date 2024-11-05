@@ -117,6 +117,21 @@ class ExplainSchedulesTests(unittest.TestCase):
                 ),
                 'Le jeudi 26 mars 2023 (⚠️ date impossible) à partir de 18:00.'
             ),
+            (
+                ScheduleItem(
+                    church_id=None,
+                    date_rule=RegularRule(
+                        rrule='DTSTART:20000101\nRRULE:FREQ=MONTHLY;BYDAY=1SA,3SA,5SA',
+                        include_periods=[],
+                        exclude_periods=[PeriodEnum.SCHOOL_HOLIDAYS]
+                    ),
+                    is_cancellation=False,
+                    start_time_iso8601=None,
+                    end_time_iso8601=None
+                ),
+                'Le premier samedi, le troisième samedi et le cinquième samedi du mois, '
+                'sauf pendant les vacances scolaires.'
+            ),
         ]
 
     def test_explain_schedules(self):

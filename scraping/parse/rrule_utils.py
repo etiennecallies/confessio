@@ -5,16 +5,8 @@ from dateutil.rrule import rrule, rruleset, WEEKLY, DAILY, rrulestr
 
 from home.utils.date_utils import get_current_year
 from scraping.parse.explain_schedule import get_explanation_from_schedule
-from scraping.parse.periods import rrules_from_period, PeriodEnum
+from scraping.parse.periods import PeriodEnum, add_exrules
 from scraping.parse.schedules import ScheduleItem, SchedulesList, Event, RegularRule
-
-
-def add_exrules(rset, periods, use_complementary: bool):
-    current_year = get_current_year()
-    for period in periods:
-        for year in [current_year, current_year + 1]:
-            for rule in rrules_from_period(period, year, use_complementary):
-                rset.exrule(rrulestr(rule))
 
 
 def get_rruleset_from_schedule(schedule: ScheduleItem, default_year: int) -> rruleset:
@@ -38,8 +30,12 @@ def get_rruleset_from_schedule(schedule: ScheduleItem, default_year: int) -> rru
         else:
             rset.rrule(rrule_str)
 
-    add_exrules(rset, schedule.date_rule.include_periods, not schedule.is_cancellation)
-    add_exrules(rset, schedule.date_rule.exclude_periods, schedule.is_cancellation)
+    start_year = default_year
+    end_year = default_year + 1
+    add_exrules(rset, schedule.date_rule.include_periods, start_year, end_year,
+                use_complementary=not schedule.is_cancellation)
+    add_exrules(rset, schedule.date_rule.exclude_periods, start_year, end_year,
+                use_complementary=schedule.is_cancellation)
 
     return rset
 

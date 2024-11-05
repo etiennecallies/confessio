@@ -13,7 +13,7 @@
           "church_id": null,
           "is_cancellation": false,
           "date_rule": {
-            "rrule": "DTSTART:20240102T180000\nRRULE:FREQ=WEEKLY;BYDAY=TU",
+            "rrule": "DTSTART:20240102\nRRULE:FREQ=WEEKLY;BYDAY=TU",
             "include_periods": [],
             "exclude_periods": []
           },
@@ -24,7 +24,7 @@
           "church_id": null,
           "is_cancellation": false,
           "date_rule": {
-            "rrule": "DTSTART:20240106T100000\nRRULE:FREQ=WEEKLY;BYDAY=SA",
+            "rrule": "DTSTART:20240106\nRRULE:FREQ=WEEKLY;BYDAY=SA",
             "include_periods": [],
             "exclude_periods": []
           },

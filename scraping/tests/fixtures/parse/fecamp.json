@@ -1,0 +1,37 @@
+{
+  "input": {
+    "church_desc_by_id": {
+      "0": "Chapelle de l'Oasis (Maison d'église Oasis) Fécamp",
+      "1": "Notre Dame du Salut FECAMP",
+      "2": "Sacré Coeur FECAMP",
+      "3": "Saint Etienne FECAMP",
+      "4": "Saint Louis du Ramponneau FECAMP",
+      "5": "Sainte Trinite FECAMP"
+    },
+    "year": 2024
+  },
+  "output": {
+    "schedules_list": {
+      "schedules": [
+        {
+          "church_id": null,
+          "date_rule": {
+            "rrule": "DTSTART:20000101\nRRULE:FREQ=MONTHLY;BYDAY=1SA,3SA,5SA",
+            "include_periods": [],
+            "exclude_periods": [
+              "school_holidays"
+            ]
+          },
+          "is_cancellation": false,
+          "start_time_iso8601": "10:00:00",
+          "end_time_iso8601": "11:00:00"
+        }
+      ],
+      "possible_by_appointment": true,
+      "is_related_to_mass": false,
+      "is_related_to_adoration": false,
+      "is_related_to_permanence": true,
+      "will_be_seasonal_events": false
+    }
+  }
+}
