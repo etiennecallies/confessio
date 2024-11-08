@@ -66,6 +66,9 @@ $ python manage.py createsuperuser
 
 This will download and load the latest prod database dump in local. Your psql user must be superadmin.
 ```bash
+# Remove and recreate confessio database
+$ psql postgres -c "DROP DATABASE confessio;" && psql postgres -c "CREATE DATABASE confessio;"
+# Download and load the latest prod database dump
 $ python manage.py dbrestore --uncompress
 ```
 

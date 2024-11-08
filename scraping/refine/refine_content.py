@@ -4,7 +4,7 @@ import warnings
 from typing import Optional
 
 from bs4 import BeautifulSoup, NavigableString, Comment, ProcessingInstruction, \
-    MarkupResemblesLocatorWarning
+    MarkupResemblesLocatorWarning, PageElement
 
 from scraping.utils.string_utils import is_below_byte_limit
 
@@ -99,16 +99,22 @@ def clear_link_formatting(element: BeautifulSoup):
     element.string = ' '.join(element.stripped_strings)
 
 
-def clear_table_formatting(element: BeautifulSoup):
-    # remove all attributes except "href"
-    attrs = dict(element.attrs)
-    for attr in attrs:
-        if attr in ['style', 'width']:
-            del element.attrs[attr]
+def clear_formatting(element: PageElement):
+    if element.name in ['font', 'strong']:
+        element.name = 'span'
 
-    # Transform <font> and <strong> into <span>
-    for tag in element.find_all(["font", "strong"]):
-        tag.name = "span"
+    if hasattr(element, 'attrs'):
+        attrs = dict(element.attrs)
+        for attr in attrs:
+            if attr in ['style', 'width', 'border']:
+                del element.attrs[attr]
+
+
+def clear_table_formatting(element: BeautifulSoup):
+    clear_formatting(element)
+
+    for el in element.descendants:
+        clear_formatting(el)
 
 
 def rec_prettify(element: BeautifulSoup):

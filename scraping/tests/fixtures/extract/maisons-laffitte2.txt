@@ -12,7 +12,7 @@ Confessions<br>
    </th>
   </tr>
   <tr>
-   <td style="text-align: right;">
+   <td>
     Mercredi
    </td>
    <td>
@@ -22,7 +22,7 @@ Confessions<br>
    </td>
   </tr>
   <tr>
-   <td style="text-align: right;">
+   <td>
     Jeudi
    </td>
    <td>
@@ -32,7 +32,7 @@ Confessions<br>
    </td>
   </tr>
   <tr>
-   <td style="text-align: right;">
+   <td>
     Vendredi
    </td>
    <td>
@@ -42,7 +42,7 @@ Confessions<br>
    </td>
   </tr>
   <tr>
-   <td style="text-align: right;">
+   <td>
     Samedi
    </td>
    <td>

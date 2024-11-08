@@ -15,6 +15,7 @@ class TestExtractLinks(unittest.TestCase):
             'st-georges',
             'st-nizier',
             'st-bonaventure',
+            'st-louis-antin',
             'bellecombe',
             'vaise',
             'paroisseoullins',
