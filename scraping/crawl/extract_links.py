@@ -29,6 +29,29 @@ CONFESSIONS_OR_SCHEDULES_MENTIONS = [
     'spirituelle',
 ]
 
+IGNORED_EXTENSIONS = [
+    # images
+    '.jpg',
+    '.jpeg',
+
+    # media
+    '.mp3',
+    '.m4a',
+    '.wav',
+    '.mp4',
+    '.mov',
+    '.avi',
+    '.mkv',
+    '.webm',
+    '.flv',
+    '.wmv',
+    '.wma',
+    '.flac'
+
+    # calendar
+    '.ics',
+]
+
 
 def might_be_confession_link(path, text):
     last_part_of_path = path.split('/')[-1] if '/' in path else path
@@ -95,10 +118,9 @@ def get_links(element: el, home_url: str, aliases_domains: set[str], forbidden_p
             url_parsed = urlparse(full_url)
 
         # If this is a link to an image or a calendar we ignore it
-        if url_parsed.path.endswith('.jpg') \
-                or url_parsed.path.endswith('.jpeg') \
-                or url_parsed.path.endswith('.ics'):
-            continue
+        for extension in IGNORED_EXTENSIONS:
+            if url_parsed.path.endswith(extension):
+                continue
 
         # Extract link text
         all_strings = link.find_all(text=lambda t: not isinstance(t, Comment),
