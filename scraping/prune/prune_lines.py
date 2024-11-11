@@ -25,6 +25,7 @@ class PreBuffer:
             self.last_period_line = i
         if Tag.DATE in tags:
             self.last_date_line = i
+        self.remaining_attempts = MAX_PRE_BUFFERING_ATTEMPTS
 
     def decrement(self) -> 'Optional[PreBuffer]':
         if self.remaining_attempts == 0:
@@ -78,11 +79,6 @@ def get_pruned_lines_indices(lines_and_tags: list[Tuple[str, str, set[Tag], Acti
         elif action == Action.STOP:
             pre_buffer = None
             post_buffer = None
-        elif Tag.SCHEDULE in tags and action == Action.SHOW:
-            if post_buffer is not None:
-                post_buffer.add_line(i, tags, results)
-            elif pre_buffer is not None:
-                pre_buffer.decrement()
         elif (Tag.DATE in tags or Tag.PERIOD in tags or source is not None) \
                 and action == Action.SHOW:
             if post_buffer is None:
@@ -91,6 +87,11 @@ def get_pruned_lines_indices(lines_and_tags: list[Tuple[str, str, set[Tag], Acti
                 pre_buffer.from_tags(tags, i)
             else:
                 post_buffer.add_line(i, tags, results)
+        elif Tag.SCHEDULE in tags and action == Action.SHOW:
+            if post_buffer is not None:
+                post_buffer.add_line(i, tags, results)
+            elif pre_buffer is not None:
+                pre_buffer = pre_buffer.decrement()
         elif pre_buffer is not None:
             pre_buffer = pre_buffer.decrement()
         elif post_buffer is not None:

@@ -1,3 +1,95 @@
+<table class="horaires">
+ <tbody>
+  <tr>
+   <td class="main-par">
+    <a href="/index.php/nous-contacter">
+     Nous contacter
+    </a>
+   </td>
+   <th>
+    Maisons-Laffitte
+    <br/>
+    43 rue du fossé
+    <br/>
+    01 39 62 01 12
+   </th>
+   <th>
+    Le Mesnil le Roi
+    <br/>
+    6 rue de Romilly
+    <br/>
+    01 39 62 22 33
+   </th>
+  </tr>
+  <tr>
+   <td>
+    lundi
+   </td>
+   <td>
+    fermé
+   </td>
+   <td>
+    fermé
+   </td>
+  </tr>
+  <tr>
+   <td>
+    mardi
+   </td>
+   <td>
+    9:30 à 12:00 - 13:30 à 16:30
+   </td>
+   <td>
+    fermé
+   </td>
+  </tr>
+  <tr>
+   <td>
+    mercredi
+   </td>
+   <td>
+    9:30 à 12:00
+   </td>
+   <td>
+    16:30 à 18:00
+   </td>
+  </tr>
+  <tr>
+   <td>
+    jeudi
+   </td>
+   <td>
+    9:30 à 12:00 - 13:30 à 16:30
+   </td>
+   <td>
+    fermé
+   </td>
+  </tr>
+  <tr>
+   <td>
+    vendredi
+   </td>
+   <td>
+    9:30 à 12:00
+   </td>
+   <td>
+    fermé
+   </td>
+  </tr>
+  <tr>
+   <td>
+    samedi
+   </td>
+   <td>
+    9:45 à 12:00
+   </td>
+   <td>
+    fermé
+   </td>
+  </tr>
+ </tbody>
+</table>
+<br>
 <a href="javascript:void(0);"> Confessions </a><br>
 <table class="horaires">
  <tbody>
