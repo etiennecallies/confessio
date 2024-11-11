@@ -61,6 +61,11 @@ table {
     white-space: nowrap;
 }
 
+/* Table must apply text color from parent div */
+.table {
+    color: inherit;
+}
+
 /* Reduce container padding */
 .container {
     padding-right: 1rem;
