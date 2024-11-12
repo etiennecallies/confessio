@@ -1,6 +1,9 @@
 <div style="color: darkgreen">
     <p>Name : {{ website.name }}</p>
     <p>Home url : <a href="{{ website.home_url }}" target="_blank">{{ website.home_url }}</a></p>
+    {% if website.unreliability_reason %}
+        <p>Unreliability reason : {{ website.unreliability_reason }}</p>
+    {% endif %}
     <p>
         <a class="btn btn-tertiary"
            style="background-color: darkgreen; border-color: darkgreen;"
