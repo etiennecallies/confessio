@@ -8,6 +8,8 @@ from home.management.abstract_command import AbstractCommand
 from home.models import Website, WebsiteModeration, Page
 from scraping.services.crawl_website_service import crawl_website
 from scraping.services.page_service import delete_page
+from scraping.services.parse_pruning_service import clean_parsing_moderations
+from scraping.services.prune_scraping_service import clean_pruning_moderations
 
 
 class Command(AbstractCommand):
@@ -28,6 +30,12 @@ class Command(AbstractCommand):
             delete_page(page)
             delete_count += 1
         self.success(f'Successfully deleted {delete_count} pages')
+        self.info(f'Starting cleaning pruning moderations')
+        delete_count = clean_pruning_moderations()
+        self.success(f'Successfully cleaning {delete_count} pruning moderations')
+        self.info(f'Starting cleaning parsing moderations')
+        delete_count = clean_parsing_moderations()
+        self.success(f'Successfully cleaning {delete_count} parsing moderations')
 
         if options['name']:
             websites = Website.objects.filter(is_active=True, name__contains=options['name']).all()

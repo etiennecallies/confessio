@@ -19,6 +19,10 @@ def remove_not_validated_moderation(website: Website, category: WebsiteModeratio
 
 def add_moderation(website: Website, category: WebsiteModeration.Category,
                    other_website: Optional[Website] = None):
+    if website.unreliability_reason is not None:
+        # we do not add moderation for unreliable website
+        return
+
     try:
         WebsiteModeration.objects.get(website=website, category=category)
     except WebsiteModeration.DoesNotExist:

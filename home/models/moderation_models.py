@@ -133,7 +133,8 @@ class WebsiteModeration(ModerationMixin):
         # If website home_url has been changed, those moderation objects are not relevant anymore
         if self.category in [self.Category.HOME_URL_NO_RESPONSE,
                              self.Category.HOME_URL_NO_CONFESSION]\
-                and self.home_url != self.website.home_url:
+                and (self.home_url != self.website.home_url
+                     or self.website.unreliability_reason is not None):
             return True
 
         # If other_website has been merged, we can delete this moderation

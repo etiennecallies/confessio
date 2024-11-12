@@ -4,7 +4,7 @@ from typing import Optional
 from django.db.models import Q
 from django.utils import timezone
 
-from home.models import Pruning, PruningModeration, ParsingModeration
+from home.models import Pruning, PruningModeration, ParsingModeration, Website
 from home.models import Sentence
 from scraping.extract.extract_content import BaseTagInterface
 from scraping.extract.extract_content import extract_content
@@ -100,6 +100,9 @@ def add_new_moderation(pruning: Pruning, category):
 
 
 def add_necessary_moderation(pruning: Pruning):
+    if not is_eligible_to_pruning_moderation(pruning):
+        return
+
     category = PruningModeration.Category.NEW_PRUNED_HTML
 
     # 1. If pruning has already moderation
@@ -124,6 +127,29 @@ def add_necessary_moderation(pruning: Pruning):
 
     # 2. No moderation for this scraping yet. We add new moderation, only if not already exists
     add_new_moderation(pruning, category)
+
+
+####################
+# MODERATION CLEAN #
+####################
+
+def is_eligible_to_pruning_moderation(pruning: Pruning):
+    for scraping in pruning.scrapings.all():
+        if scraping.page.website.unreliability_reason \
+                != Website.UnreliabilityReason.SCHEDULE_IN_IMAGE:
+            return True
+
+    return False
+
+
+def clean_pruning_moderations() -> int:
+    counter = 0
+    for pruning_moderation in PruningModeration.objects.filter(validated_at__isnull=True).all():
+        if not is_eligible_to_pruning_moderation(pruning_moderation.pruning):
+            pruning_moderation.delete()
+            counter += 1
+
+    return counter
 
 
 ####################

@@ -241,11 +241,32 @@ def parsing_needs_moderation(parsing: Parsing):
     return False
 
 
+####################
+# MODERATION CLEAN #
+####################
+
+def is_eligible_to_parsing(website: Website):
+    return website.unreliability_reason != Website.UnreliabilityReason.SCHEDULE_IN_IMAGE
+
+
+def clean_parsing_moderations() -> int:
+    counter = 0
+    for parsing_moderation in ParsingModeration.objects.filter(validated_at__isnull=True).all():
+        if not any(is_eligible_to_parsing(w) for w in parsing_moderation.parsing.websites.all()):
+            parsing_moderation.delete()
+            counter += 1
+
+    return counter
+
+
 ########
 # MAIN #
 ########
 
 def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: bool = False):
+    if not is_eligible_to_parsing(website):
+        return
+
     truncated_html = get_truncated_html(pruning)
     if not truncated_html:
         # no parsing on empty content
