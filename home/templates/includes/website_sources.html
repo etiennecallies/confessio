@@ -18,11 +18,21 @@
                 <div class="col-md-3">
                     {% if request.user.is_authenticated and perms.home.change_sentence %}
                         <div class="row">
+                            {% with unvalidated_pruning_moderation=page.scraping.pruning|get_unvalidated_pruning_moderation %}
+                                {% if unvalidated_pruning_moderation %}
+                                    <div class="col-xl-6">
+                                        <a href="{{ unvalidated_pruning_moderation|get_url }}" class="link-info">
+                                            <i class="fas fa-tags"></i> Valider
+                                        </a>
+                                    </div>
+                                {% else %}
+                                    <div class="col-xl-6">
+                                        <a href="{% url 'edit_pruning' page.scraping.pruning.uuid %}" class="link-info"><i class="fas fa-tags"></i> {% trans 'EditPruning' %}</a>
+                                    </div>
+                                {% endif %}
+                            {% endwith %}
                             <div class="col-xl-6">
-                                <a href="{% url 'edit_pruning' page.scraping.pruning.uuid %}" class="link-info"><i class="fas fa-tags"></i> {% trans 'EditPruning' %}</a>
-                            </div>
-                            <div class="col-xl-6">
-                                {% if page.get_parsing and page.get_parsing.moderations %}
+                                {% if page.get_parsing %}
                                     {% for parsing_moderation in page.get_parsing.moderations.all %}
                                         <a href="{{ parsing_moderation|get_url }}" class="link-info">
                                             <i class="fas fa-code"></i> Modérer
