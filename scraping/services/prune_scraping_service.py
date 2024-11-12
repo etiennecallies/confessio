@@ -172,7 +172,7 @@ def update_parsings(pruning: Pruning):
             continue
 
         # TODO open everywhere
-        if website.parishes.filter(diocese__messesinfo_network_id='lh').exists():
+        if website.parishes.filter(diocese__messesinfo_network_id__in=['lh', 'ly']).exists():
             print(f'parsing {pruning} for website {website}')
             parse_pruning_for_website(pruning, website)
 
