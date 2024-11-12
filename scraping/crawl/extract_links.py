@@ -118,9 +118,8 @@ def get_links(element: el, home_url: str, aliases_domains: set[str], forbidden_p
             url_parsed = urlparse(full_url)
 
         # If this is a link to an image or a calendar we ignore it
-        for extension in IGNORED_EXTENSIONS:
-            if url_parsed.path.endswith(extension):
-                continue
+        if any(url_parsed.path.endswith(extension) for extension in IGNORED_EXTENSIONS):
+            continue
 
         # Extract link text
         all_strings = link.find_all(text=lambda t: not isinstance(t, Comment),
