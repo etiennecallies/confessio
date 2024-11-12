@@ -33,6 +33,13 @@ class Diocese(TimeStampMixin):
 
 
 class Website(TimeStampMixin):
+    class UnreliabilityReason(models.TextChoices):
+        SCHEDULE_IN_IMAGE = "schedule_in_image"
+        JAVASCRIPT_REQUIRED = "javascript_required"
+        NOT_RESPONDING_AT_ALL = "not_responding_at_all"
+        NOT_RESPONDING_IN_TIME = "not_responding_in_time"
+        NOT_RESPONDING_200 = "not_responding_200"
+
     name = models.CharField(max_length=300)
     home_url = models.URLField(unique=True)
     is_active = models.BooleanField(default=True)
@@ -40,7 +47,7 @@ class Website(TimeStampMixin):
     pruning_last_validated_at = models.DateTimeField(null=True, blank=True)
     parsing_validation_counter = models.SmallIntegerField(default=0)
     parsing_last_validated_at = models.DateTimeField(null=True, blank=True)
-    unreliability_reason = models.TextField(null=False, default='', blank=True)
+    unreliability_reason = models.CharField(choices=UnreliabilityReason, null=True, blank=True)
     history = HistoricalRecords()
 
     _latest_crawling = None
