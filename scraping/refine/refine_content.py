@@ -100,7 +100,7 @@ def clear_link_formatting(element: BeautifulSoup):
 
 
 def clear_formatting(element: PageElement):
-    if element.name in ['font', 'strong']:
+    if element.name in ['font', 'strong', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
         element.name = 'span'
 
     if hasattr(element, 'attrs'):
