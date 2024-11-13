@@ -229,6 +229,9 @@ def rrules_from_intervals(intervals: list[tuple[date, date]]) -> list[str]:
 
 
 def add_exrules(rset, periods, start_year, end_year, use_complementary: bool):
+    if not periods:
+        return
+
     all_intervals = []
     for period in periods:
         for year in range(start_year, end_year + 1):

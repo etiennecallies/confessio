@@ -35,6 +35,27 @@ class GenerateEventsTests(unittest.TestCase):
                     datetime(2024, 2, 17, 16, 0),
                 ]
             ),
+            (
+                [
+                    ScheduleItem(
+                        church_id=None,
+                        date_rule=RegularRule(
+                            rrule='DTSTART:20000101\r\nRRULE:FREQ=WEEKLY;BYDAY=FR',
+                            include_periods=[],
+                            exclude_periods=[]
+                        ),
+                        is_cancellation=False,
+                        start_time_iso8601='17:00:00',
+                        end_time_iso8601=None
+                    )
+                ],
+                datetime(2024, 1, 1),
+                datetime(2024, 1, 8),
+                2024,
+                [
+                    datetime(2024, 1, 5, 17, 0),
+                ]
+            ),
         ]
 
     def test_generate_events(self):
