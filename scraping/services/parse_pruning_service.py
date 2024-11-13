@@ -188,6 +188,12 @@ def update_validated_schedules_list(parsing_moderation: ParsingModeration):
 def has_parsing_been_modified(parsing: Parsing) -> bool:
     non_human_parsing_history = parsing.history.filter(history_user_id__isnull=True) \
         .order_by('-history_date').first()
+
+    if non_human_parsing_history is None:
+        # TODO this is not supposed to happen, but it does when human is logged in during parsing
+        non_human_parsing_history = parsing.history.filter(history_type='~') \
+            .order_by('history_date').first()
+
     non_human_schedules_list = get_parsing_schedules_list(non_human_parsing_history.instance)
     current_schedule_list = get_parsing_schedules_list(parsing)
 
