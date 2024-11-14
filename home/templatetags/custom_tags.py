@@ -28,6 +28,7 @@ def negate(value):
 def get_church_schedules_list(website: Website) -> ChurchSchedulesList:
     church_schedules_lists = [ChurchSchedulesList.from_parsing(parsing, website)
                               for parsing in website.get_all_parsings()]
+
     return get_merged_church_schedules_list([csl for csl in church_schedules_lists
                                              if csl is not None])
 
