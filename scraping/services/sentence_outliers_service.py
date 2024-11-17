@@ -1,6 +1,6 @@
 from home.models import Sentence, SentenceModeration, Pruning
-from scraping.extract.extract_content import get_lines_without_link
 from scraping.prune.models import Action
+from scraping.refine.refine_content import remove_link_from_html
 
 
 ##############
@@ -29,13 +29,19 @@ def remove_sentence_not_validated_moderation(sentence: Sentence):
                                       ).delete()
 
 
+def get_lines_without_link(refined_content: str) -> list[str]:
+    results = []
+    for line in refined_content.split('<br>\n'):
+        results.append(remove_link_from_html(line))
+
+    return results
+
+
 def get_pruning_containing_sentence(sentence: Sentence) -> list[Pruning]:
     all_prunings = Pruning.objects.filter(extracted_html__contains=sentence.line).all()
 
     prunings = []
     for pruning in all_prunings:
-        print(sentence.line)
-        print(get_lines_without_link(pruning.extracted_html))
         if sentence.line in get_lines_without_link(pruning.extracted_html):
             prunings.append(pruning)
 

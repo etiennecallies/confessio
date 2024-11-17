@@ -6,7 +6,7 @@ from django.utils import timezone
 
 from home.models import Pruning, PruningModeration, ParsingModeration, Website
 from home.models import Sentence
-from scraping.extract.extract_content import BaseTagInterface
+from scraping.extract.extract_content import BaseActionInterface, ExtractMode
 from scraping.extract.extract_content import extract_paragraphs_lines_and_indices
 from scraping.prune.models import Action, Source
 from scraping.services.classify_sentence_service import classify_sentence
@@ -18,7 +18,7 @@ from scraping.services.parse_pruning_service import parse_pruning_for_website
 # TAGGING WITH DB #
 ###################
 
-class SentenceFromDbTagInterface(BaseTagInterface):
+class SentenceFromDbActionInterface(BaseActionInterface):
     def __init__(self, pruning: Pruning):
         self.pruning = pruning
 
@@ -186,7 +186,8 @@ def prune_pruning(pruning: Pruning) -> ():
     assert pruning.extracted_html, 'Pruning must have not empty extracted_html'
 
     paragraphs = extract_paragraphs_lines_and_indices(pruning.extracted_html,
-                                                      SentenceFromDbTagInterface(pruning))
+                                                      SentenceFromDbActionInterface(pruning),
+                                                      ExtractMode.PRUNE)
     all_lines = []
     all_indices = []
     for paragraph_lines, paragraph_indices in paragraphs:

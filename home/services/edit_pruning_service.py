@@ -4,19 +4,19 @@ from django.contrib.auth.models import User
 from django.db.models.functions import Now
 
 from home.models import Sentence, Pruning
-from scraping.extract.extract_content import split_and_tag, BaseTagInterface
+from scraping.extract.extract_content import split_and_tag, BaseActionInterface
 from scraping.extract.tag_line import Tag
 from scraping.prune.models import Action, Source
 from scraping.prune.prune_lines import get_pruned_lines_indices
-from scraping.services.prune_scraping_service import SentenceFromDbTagInterface
+from scraping.services.prune_scraping_service import SentenceFromDbActionInterface
 
 
 ############################
 # ADD ID AND COLOR TO TAGS #
 ############################
 
-def get_colored_pieces(extracted_html: str, tag_interface: BaseTagInterface):
-    lines_and_tags = split_and_tag(extracted_html, tag_interface)
+def get_colored_pieces(extracted_html: str, action_interface: BaseActionInterface):
+    lines_and_tags = split_and_tag(extracted_html, action_interface)
     kept_indices = sum(get_pruned_lines_indices(lines_and_tags), [])
 
     tag_colors = {
@@ -87,7 +87,7 @@ def save_sentence(line_without_link: str, pruning: Pruning, user: User, action: 
 
 def set_pruning_human_source(pruning: Pruning, user: User):
     colored_pieces = get_colored_pieces(pruning.extracted_html,
-                                        SentenceFromDbTagInterface(pruning))
+                                        SentenceFromDbActionInterface(pruning))
 
     for piece in colored_pieces:
         line_without_link = piece['text_without_link']

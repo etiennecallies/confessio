@@ -2,7 +2,7 @@ import json
 import os
 import unittest
 
-from scraping.extract.extract_content import extract_lines_and_indices
+from scraping.extract.extract_content import extract_lines_and_indices, ExtractMode
 
 
 class TestPruneLines(unittest.TestCase):
@@ -24,7 +24,7 @@ class TestPruneLines(unittest.TestCase):
                 with open(f'{tests_dir}/fixtures/prune/{file_name}.html') as f:
                     lines_output = f.readlines()
                 expected_output = ''.join(lines_output)
-                paragraphs = extract_lines_and_indices(lines_and_tags)
+                paragraphs = extract_lines_and_indices(lines_and_tags, ExtractMode.PRUNE)
                 paragraph_outputs = []
                 for paragraph_lines, paragraph_indices in paragraphs:
                     paragraph_outputs.append('<br>\n'.join(paragraph_lines))

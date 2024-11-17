@@ -5,9 +5,9 @@ from django.shortcuts import render
 from home.models import Page, Pruning
 from home.services.edit_pruning_service import get_colored_pieces, save_sentence, \
     reset_pages_counter_of_pruning
-from scraping.extract.extract_content import KeyValueInterface, DummyTagInterface
+from scraping.extract.extract_content import KeyValueInterface, DummyActionInterface
 from scraping.prune.models import Action
-from scraping.services.prune_scraping_service import SentenceFromDbTagInterface, \
+from scraping.services.prune_scraping_service import SentenceFromDbActionInterface, \
     reprune_affected_scrapings, prune_pruning
 
 
@@ -25,7 +25,7 @@ def edit_pruning(request, pruning_uuid):
         # We extract action per line from POST
         action_per_line_without_link = {}
         colored_pieces = get_colored_pieces(extracted_html,
-                                            DummyTagInterface())
+                                            DummyActionInterface())
         for piece in colored_pieces:
             action = Action(request.POST.get(f"action-{piece['id']}"))
             action_per_line_without_link[piece['text_without_link']] = action
@@ -54,7 +54,7 @@ def edit_pruning(request, pruning_uuid):
 
     else:
         colored_pieces = get_colored_pieces(extracted_html,
-                                            SentenceFromDbTagInterface(pruning))
+                                            SentenceFromDbActionInterface(pruning))
 
     action_colors = {
         Action.SHOW: 'success',
