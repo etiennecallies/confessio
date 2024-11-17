@@ -1,5 +1,3 @@
-from typing import Optional
-
 from home.models import Page, Scraping
 from scraping.services.page_service import delete_scraping
 from scraping.services.prune_scraping_service import prune_pruning, \
@@ -18,9 +16,7 @@ def is_extracted_html_list_identical_for_scraping(scraping: Scraping,
     return set(p.extracted_html for p in prunings) == set(extracted_html_list)
 
 
-def upsert_scraping(page: Page, extracted_html: Optional[str]) -> ():
-    extracted_html_list = [extracted_html] if extracted_html else []  # TODO adapt this
-
+def upsert_extracted_html_list(page: Page, extracted_html_list: list[str]):
     # Compare result to last scraping
     scraping = page.get_latest_scraping()
     if (scraping is not None
@@ -49,8 +45,3 @@ def upsert_scraping(page: Page, extracted_html: Optional[str]) -> ():
         for pruning in prunings:
             scraping.prunings.add(pruning)
             prune_pruning(pruning)
-
-
-def upsert_extracted_html_list(page: Page, extracted_html_list: list[str]):
-    for extracted_html in extracted_html_list:
-        upsert_scraping(page, extracted_html)
