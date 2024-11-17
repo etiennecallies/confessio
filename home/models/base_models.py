@@ -191,6 +191,7 @@ class Scraping(TimeStampMixin):
     page = models.OneToOneField('Page', on_delete=models.CASCADE, related_name='scraping')
     pruning = models.ForeignKey('Pruning', on_delete=models.SET_NULL, related_name='scrapings',
                                 null=True)  # can be null if extracted_html is None
+    prunings = models.ManyToManyField('Pruning', related_name='new_scrapings')
 
 
 class Pruning(TimeStampMixin):
