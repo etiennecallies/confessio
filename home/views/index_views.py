@@ -8,7 +8,7 @@ from home.models import Website, Diocese
 from home.services.autocomplete_service import get_aggregated_response
 from home.services.map_service import get_churches_in_box, get_churches_around, prepare_map, \
     get_churches_by_website, get_center, get_churches_by_diocese
-from home.services.page_url_service import get_page_url_with_pointer
+from home.services.page_url_service import get_page_url_with_pointer_at_pruning
 
 
 def render_map(request, center, churches, bounds, location, too_many_results: bool):
@@ -39,10 +39,12 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
     websites = websites_by_uuid.values()
 
     # Page url with #:~:text=
-    page_urls = {}
+    page_pruning_urls = {}
     for website in websites:
         for page in website.get_pages():
-            page_urls[page.uuid] = get_page_url_with_pointer(page)
+            for pruning in page.get_prunings():
+                url = get_page_url_with_pointer_at_pruning(page, pruning)
+                page_pruning_urls.setdefault(page.uuid, {})[pruning.uuid] = url
 
     context = {
         'location': location,
@@ -50,7 +52,7 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
         'church_marker_names': church_marker_names,
         'websites': websites,
         'website_churches': website_churches,
-        'page_urls': page_urls,
+        'page_pruning_urls': page_pruning_urls,
         'too_many_results': too_many_results,
     }
 

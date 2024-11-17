@@ -5,7 +5,8 @@ from django.template.defaulttags import register
 from django.urls import reverse
 
 from home.models import WebsiteModeration, ChurchModeration, ParishModeration, \
-    PruningModeration, SentenceModeration, ParsingModeration, Website, ModerationMixin, Pruning
+    PruningModeration, SentenceModeration, ParsingModeration, Website, ModerationMixin, Pruning, \
+    Page, Parsing
 from home.services.events_service import ChurchSchedulesList, \
     get_merged_church_schedules_list
 from home.utils.date_utils import get_current_year
@@ -72,6 +73,11 @@ def get_url(moderation: ModerationMixin):
 @register.filter
 def get_unvalidated_pruning_moderation(pruning: Pruning) -> Optional[PruningModeration]:
     return pruning.moderations.filter(validated_at__isnull=True).first()
+
+
+@register.filter
+def get_page_parsing_of_pruning(page: Page, pruning: Pruning) -> Optional[Parsing]:
+    return page.get_parsing(pruning)
 
 
 @register.simple_tag

@@ -63,11 +63,11 @@
         {% for page in website.get_pages %}
             <div>
                 <a href="{{ page.url }}" target="_blank">{{ page.url }}</a>
-                {% if page.get_latest_pruning %}
-                    <a class="btn btn-gray-500" href="{% url 'edit_pruning' page.get_latest_pruning.uuid %}" target="_blank" role="button">
+                {% for pruning in page.get_prunings %}
+                    <a class="btn btn-gray-500" href="{% url 'edit_pruning' pruning.uuid %}" target="_blank" role="button">
                         Edit pruning <i class="fas fa-up-right-from-square"></i>
                     </a>
-                {% endif %}
+                {% endfor %}
             </div>
         {% endfor %}
     {% else %}

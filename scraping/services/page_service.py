@@ -8,15 +8,17 @@ from home.models import Page, Pruning, Scraping, PruningModeration, ParsingModer
 ############
 
 def delete_page(page: Page):
-    pruning = page.get_latest_pruning()
+    prunings = page.get_prunings()
     page.delete()
-    remove_pruning_if_orphan(pruning)
+    for pruning in prunings:
+        remove_pruning_if_orphan(pruning)
 
 
 def delete_scraping(scraping: Scraping):
-    pruning = scraping.pruning
+    prunings = scraping.prunings.all()
     scraping.delete()
-    remove_pruning_if_orphan(pruning)
+    for pruning in prunings:
+        remove_pruning_if_orphan(pruning)
 
 
 def remove_pruning_if_orphan(pruning: Optional[Pruning]):

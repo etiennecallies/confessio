@@ -82,14 +82,16 @@ class Website(TimeStampMixin):
         return any(map(lambda p: p.has_confessions(), self.get_pages()))
 
     def all_pages_parsed(self) -> bool:
-        return all(map(lambda p: p.has_been_parsed(), self.get_pages()))
+        return all(map(lambda page: page.has_been_parsed(), self.get_pages()))
 
     def delete_if_no_parish(self):
         if not self.parishes.exists():
             self.delete()
 
     def get_all_parsings(self) -> list['Parsing']:
-        all_parsings = [page.get_parsing() for page in self.get_pages()]
+        all_parsings = [page.get_parsing(pruning)
+                        for page in self.get_pages()
+                        for pruning in page.get_prunings()]
         return [p for p in all_parsings if p is not None]
 
 
@@ -138,30 +140,25 @@ class Page(TimeStampMixin):
         return self.get_latest_scraping() is not None
 
     def has_been_parsed(self) -> bool:
-        if self.get_latest_pruning() is None:
+        if self.get_prunings() is None:
             return False
 
-        if not self.get_latest_pruning().pruned_indices:
-            # no parsing needed
-            return True
-
-        return self.get_parsing() is not None
+        return all(pruning.has_been_parsed(self.website) for pruning in self.get_prunings())
 
     def has_confessions(self) -> bool:
-        return self.get_latest_pruning() is not None\
-            and self.get_latest_pruning().pruned_html is not None
+        if self.get_prunings() is None:
+            return False
 
-    def get_latest_pruning(self) -> Optional['Pruning']:
+        return any(pruning.has_confessions() for pruning in self.get_prunings())
+
+    def get_prunings(self) -> list['Pruning'] or None:
         if self.get_latest_scraping() is None:
             return None
 
-        return self.get_latest_scraping().pruning
+        return self.get_latest_scraping().prunings.all()
 
-    def get_parsing(self) -> Optional['Parsing']:
-        if self.get_latest_pruning() is None:
-            return None
-
-        return self.get_latest_pruning().parsings.filter(websites=self.website).first()
+    def get_parsing(self, pruning: 'Pruning') -> Optional['Parsing']:
+        return pruning.parsings.filter(websites=self.website).first()
 
     def has_been_modified_recently(self) -> bool:
         latest_scraping = self.get_latest_scraping()
@@ -205,6 +202,19 @@ class Pruning(TimeStampMixin):
     def save(self, *args, **kwargs):
         self.extracted_html_hash = hash_string_to_hex(self.extracted_html)
         super().save(*args, **kwargs)
+
+    def has_confessions(self) -> bool:
+        return self.pruned_html is not None
+
+    def get_parsing(self, website: Website) -> Optional['Parsing']:
+        return self.parsings.filter(websites=website).first()
+
+    def has_been_parsed(self, website: Website) -> bool:
+        if not self.pruned_indices:
+            # no parsing needed
+            return True
+
+        return self.get_parsing(website) is not None
 
 
 class Sentence(TimeStampMixin):
