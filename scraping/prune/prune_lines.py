@@ -61,6 +61,12 @@ class PostBuffer:
         return self
 
 
+def flush_results(paragraph_indices: list[int], results: list[list[int]]) -> list[int]:
+    if paragraph_indices:
+        results.append(paragraph_indices)
+    return []
+
+
 def get_pruned_lines_indices(lines_and_tags: list[Tuple[str, str, set[Tag], Action, Source]]
                              ) -> list[list[int]]:
     results = []
@@ -81,9 +87,7 @@ def get_pruned_lines_indices(lines_and_tags: list[Tuple[str, str, set[Tag], Acti
             pre_buffer = None
             if post_buffer is not None:
                 post_buffer = None
-                if paragraph_indices:
-                    results.append(paragraph_indices)
-                    paragraph_indices = []
+                paragraph_indices = flush_results(paragraph_indices, results)
         elif (Tag.DATE in tags or Tag.PERIOD in tags or source is not None) \
                 and action == Action.SHOW:
             if post_buffer is None:
@@ -102,11 +106,8 @@ def get_pruned_lines_indices(lines_and_tags: list[Tuple[str, str, set[Tag], Acti
         elif post_buffer is not None:
             post_buffer = post_buffer.decrement(i, action)
             if post_buffer is None:
-                if paragraph_indices:
-                    results.append(paragraph_indices)
-                    paragraph_indices = []
+                paragraph_indices = flush_results(paragraph_indices, results)
 
-    if paragraph_indices:
-        results.append(paragraph_indices)
+    flush_results(paragraph_indices, results)
 
     return results
