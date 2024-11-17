@@ -14,7 +14,7 @@ def contact(request, message=None, name=None, email=None, message_text=None):
                       {'message': message, 'form': form,
                        'name': name or '',
                        'email': email or '',
-                       'message_text': unquote(message_text) or ''
+                       'message_text': unquote(message_text or '')
                        })
     else:
         name = request.POST.get('name')
