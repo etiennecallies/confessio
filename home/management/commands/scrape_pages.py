@@ -1,7 +1,7 @@
 from home.management.abstract_command import AbstractCommand
 from home.models import Website
-from scraping.services.scrape_page_service import upsert_scraping
-from scraping.scrape.download_refine_and_extract import get_fresh_confessions_part
+from scraping.scrape.download_refine_and_extract import get_fresh_extracted_html_list
+from scraping.services.scrape_page_service import upsert_extracted_html_list
 
 
 class Command(AbstractCommand):
@@ -21,10 +21,10 @@ class Command(AbstractCommand):
 
             for page in website.get_pages():
                 # Actually do the scraping
-                confession_part = get_fresh_confessions_part(page.url)
+                extracted_html_list = get_fresh_extracted_html_list(page.url)
 
                 # Insert or update scraping
-                upsert_scraping(page, confession_part)
+                upsert_extracted_html_list(page, extracted_html_list)
                 self.info(f'Successfully scrapped page {page.url} {page.uuid}')
 
             self.success(f'Successfully scrapped website {website.name} {website.uuid}')

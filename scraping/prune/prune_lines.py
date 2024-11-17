@@ -42,12 +42,12 @@ class PostBuffer:
     is_post_schedule: bool = False
     remaining_attempts: int = MAX_POST_BUFFERING_ATTEMPTS
 
-    def add_line(self, i: int, tags: Set[Tag], results: list[int]):
+    def add_line(self, i: int, tags: Set[Tag], paragraph_indices: list[int]):
         self.buffer.append(i)
         self.is_post_schedule = self.is_post_schedule or Tag.SCHEDULE in tags
         self.remaining_attempts = MAX_POST_BUFFERING_ATTEMPTS
         if self.is_post_schedule:
-            results.extend(self.buffer)
+            paragraph_indices.extend(self.buffer)
             self.buffer = []
 
     def decrement(self, i: int, action: Action) -> 'Optional[PostBuffer]':
@@ -62,8 +62,9 @@ class PostBuffer:
 
 
 def get_pruned_lines_indices(lines_and_tags: list[Tuple[str, str, set[Tag], Action, Source]]
-                             ) -> list[int]:
+                             ) -> list[list[int]]:
     results = []
+    paragraph_indices = []
     pre_buffer: Optional[PreBuffer] = None
     post_buffer: Optional[PostBuffer] = None
 
@@ -75,10 +76,14 @@ def get_pruned_lines_indices(lines_and_tags: list[Tuple[str, str, set[Tag], Acti
                     buffer=[] if pre_buffer is None else pre_buffer.to_buffer()
                 )
                 pre_buffer = None
-            post_buffer.add_line(i, tags, results)
+            post_buffer.add_line(i, tags, paragraph_indices)
         elif action == Action.STOP:
             pre_buffer = None
-            post_buffer = None
+            if post_buffer is not None:
+                post_buffer = None
+                if paragraph_indices:
+                    results.append(paragraph_indices)
+                    paragraph_indices = []
         elif (Tag.DATE in tags or Tag.PERIOD in tags or source is not None) \
                 and action == Action.SHOW:
             if post_buffer is None:
@@ -86,15 +91,22 @@ def get_pruned_lines_indices(lines_and_tags: list[Tuple[str, str, set[Tag], Acti
                     pre_buffer = PreBuffer()
                 pre_buffer.from_tags(tags, i)
             else:
-                post_buffer.add_line(i, tags, results)
+                post_buffer.add_line(i, tags, paragraph_indices)
         elif Tag.SCHEDULE in tags and action == Action.SHOW:
             if post_buffer is not None:
-                post_buffer.add_line(i, tags, results)
+                post_buffer.add_line(i, tags, paragraph_indices)
             elif pre_buffer is not None:
                 pre_buffer = pre_buffer.decrement()
         elif pre_buffer is not None:
             pre_buffer = pre_buffer.decrement()
         elif post_buffer is not None:
             post_buffer = post_buffer.decrement(i, action)
+            if post_buffer is None:
+                if paragraph_indices:
+                    results.append(paragraph_indices)
+                    paragraph_indices = []
+
+    if paragraph_indices:
+        results.append(paragraph_indices)
 
     return results

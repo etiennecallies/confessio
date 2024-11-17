@@ -2,7 +2,7 @@ import json
 import os
 import unittest
 
-from scraping.prune.prune_lines import get_pruned_lines_indices
+from scraping.extract.extract_content import extract_lines_and_indices
 
 
 class TestPruneLines(unittest.TestCase):
@@ -24,10 +24,11 @@ class TestPruneLines(unittest.TestCase):
                 with open(f'{tests_dir}/fixtures/prune/{file_name}.html') as f:
                     lines_output = f.readlines()
                 expected_output = ''.join(lines_output)
-                kept_indices = get_pruned_lines_indices(lines_and_tags)
-                confession_pieces = list(map(lines_and_tags.__getitem__, kept_indices))
-                paragraphs = list(map(lambda x: x[0], confession_pieces))
-                output = '<br>\n'.join(paragraphs)
+                paragraphs = extract_lines_and_indices(lines_and_tags)
+                paragraph_outputs = []
+                for paragraph_lines, paragraph_indices in paragraphs:
+                    paragraph_outputs.append('<br>\n'.join(paragraph_lines))
+                output = '\n\n'.join(paragraph_outputs)
                 # print(output)
                 self.maxDiff = None
                 self.assertEqual(expected_output, output, file_name)

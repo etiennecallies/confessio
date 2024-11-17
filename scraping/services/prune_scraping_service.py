@@ -7,7 +7,7 @@ from django.utils import timezone
 from home.models import Pruning, PruningModeration, ParsingModeration, Website
 from home.models import Sentence
 from scraping.extract.extract_content import BaseTagInterface
-from scraping.extract.extract_content import extract_content
+from scraping.extract.extract_content import extract_paragraphs_lines_and_indices
 from scraping.prune.models import Action, Source
 from scraping.services.classify_sentence_service import classify_sentence
 from scraping.services.page_service import remove_pruning_if_orphan
@@ -185,15 +185,21 @@ def update_parsings(pruning: Pruning):
 def prune_pruning(pruning: Pruning) -> ():
     assert pruning.extracted_html, 'Pruning must have not empty extracted_html'
 
-    paragraphs, indices = extract_content(pruning.extracted_html,
-                                          SentenceFromDbTagInterface(pruning))
-    pruned_html = '<br>\n'.join(paragraphs) if paragraphs else None
+    paragraphs = extract_paragraphs_lines_and_indices(pruning.extracted_html,
+                                                      SentenceFromDbTagInterface(pruning))
+    all_lines = []
+    all_indices = []
+    for paragraph_lines, paragraph_indices in paragraphs:
+        all_lines.extend(paragraph_lines)
+        all_indices.extend(paragraph_indices)
 
-    if pruned_html == pruning.pruned_html and indices == pruning.pruned_indices:
+    pruned_html = '<br>\n'.join(all_lines) if paragraphs else None
+
+    if pruned_html == pruning.pruned_html and all_indices == pruning.pruned_indices:
         return
 
     pruning.pruned_html = pruned_html
-    pruning.pruned_indices = indices
+    pruning.pruned_indices = all_indices
     pruning.save()
 
     add_necessary_moderation(pruning)

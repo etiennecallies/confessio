@@ -1,26 +1,31 @@
 from scraping.download.download_content import get_content_from_url
-from scraping.extract.extract_content import extract_content, DummyTagInterface
+from scraping.extract.extract_content import extract_paragraphs_lines_and_indices, DummyTagInterface
 from scraping.refine.refine_content import refine_confession_content
 
 
-def extract_confession_part_from_content(html_content):
+def get_extracted_html_list(html_content: str) -> list[str] | None:
     refined_content = refine_confession_content(html_content)
     if refined_content is None:
         return None
 
-    paragraphs, indices_ = extract_content(refined_content, DummyTagInterface())
-    if not paragraphs:
+    paragraphs_lines_and_indices = extract_paragraphs_lines_and_indices(refined_content,
+                                                                        DummyTagInterface())
+    if not paragraphs_lines_and_indices:
         return None
 
-    return '<br>\n'.join(paragraphs)
+    extracted_html_list = []
+    for paragraph_lines, paragraph_indices in paragraphs_lines_and_indices:
+        extracted_html_list.append('<br>\n'.join(paragraph_lines))
+
+    return extracted_html_list
 
 
-def get_fresh_confessions_part(url):
+def get_fresh_extracted_html_list(url) -> list[str] | None:
     html_content = get_content_from_url(url)
     if html_content is None:
         return None
 
-    return extract_confession_part_from_content(html_content)
+    return get_extracted_html_list(html_content)
 
 
 if __name__ == '__main__':
@@ -42,8 +47,8 @@ if __name__ == '__main__':
     ]
 
     for url_ in confession_pages:
-        confession_part = get_fresh_confessions_part(url_)
+        extracted_html_list = get_fresh_extracted_html_list(url_)
 
         print()
         print(url_)
-        print(confession_part)
+        print(extracted_html_list)

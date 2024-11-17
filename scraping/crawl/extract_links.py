@@ -1,4 +1,3 @@
-from typing import Dict
 from urllib.parse import urlparse, ParseResult, parse_qs, urlencode
 
 from bs4 import BeautifulSoup, SoupStrainer, Comment
@@ -146,21 +145,22 @@ def parse_content_links(content, home_url: str, aliases_domains: set[str],
     return links
 
 
-def remove_http_https_duplicate(confession_part_by_link: Dict[str, str]) -> Dict[str, str]:
+def remove_http_https_duplicate(extracted_html_list_by_link: dict[str, list[str]]
+                                ) -> dict[str, list[str]]:
     """If links appear twice in given list with different scheme, we keep only https"""
     d = {}
-    for link, confession_part in confession_part_by_link.items():
+    for link, extracted_html_list in extracted_html_list_by_link.items():
         link_with_https = link.replace('http://', 'https://')
         link_parsed = urlparse(link)
-        d.setdefault(link_with_https, {})[link_parsed.scheme] = confession_part
+        d.setdefault(link_with_https, {})[link_parsed.scheme] = extracted_html_list
 
     results = {}
-    for link_with_https, confession_part_by_scheme in d.items():
-        if 'https' in confession_part_by_scheme:
-            results[link_with_https] = confession_part_by_scheme['https']
+    for link_with_https, extracted_html_list_by_scheme in d.items():
+        if 'https' in extracted_html_list_by_scheme:
+            results[link_with_https] = extracted_html_list_by_scheme['https']
         else:
-            scheme, confession_part = list(confession_part_by_scheme.items())[0]
+            scheme, extracted_html_list = list(extracted_html_list_by_scheme.items())[0]
             original_link = link_with_https.replace('https://', f'{scheme}://')
-            results[original_link] = confession_part
+            results[original_link] = extracted_html_list
 
     return results

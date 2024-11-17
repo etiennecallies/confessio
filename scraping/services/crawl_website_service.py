@@ -4,7 +4,7 @@ from home.models import Website, Crawling, Page, WebsiteModeration
 from scraping.crawl.download_and_search_urls import search_for_confession_pages
 from scraping.download.download_content import get_url_aliases
 from scraping.services.page_service import delete_page
-from scraping.services.scrape_page_service import upsert_scraping
+from scraping.services.scrape_page_service import upsert_extracted_html_list
 from scraping.utils.url_utils import get_clean_full_url, get_path, get_domain
 
 
@@ -54,7 +54,7 @@ def update_home_url(website: Website, new_home_url: str):
         remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_CONFLICT)
 
 
-def do_crawl_website(website: Website) -> tuple[dict[str, str], int, Optional[str]]:
+def do_crawl_website(website: Website) -> tuple[dict[str, list[str]], int, Optional[str]]:
     # Get home_url aliases
     home_url_aliases, error_message = get_url_aliases(website.home_url)
     if not home_url_aliases:
@@ -88,12 +88,12 @@ def crawl_website(website: Website) -> Tuple[bool, bool, Optional[str]]:
         website.delete()
         return False, False, 'website has no parish'
 
-    confession_parts_by_url, nb_visited_links, error_detail = do_crawl_website(website)
+    extracted_html_list_by_url, nb_visited_links, error_detail = do_crawl_website(website)
 
     # Inserting global statistics
     crawling = Crawling(
         nb_visited_links=nb_visited_links,
-        nb_success_links=len(confession_parts_by_url),
+        nb_success_links=len(extracted_html_list_by_url),
         error_detail=error_detail,
         website=website,
     )
@@ -103,17 +103,16 @@ def crawl_website(website: Website) -> Tuple[bool, bool, Optional[str]]:
     existing_pages = website.get_pages()
     existing_urls = list(map(lambda p: p.url, existing_pages))
     for page in existing_pages:
-        if page.url not in confession_parts_by_url:
+        if page.url not in extracted_html_list_by_url:
             # Page did exist but not anymore, we remove it
             delete_page(page)
         else:
             # Page still exists, we update scraping
-            confession_part = confession_parts_by_url[page.url]
-            upsert_scraping(page, confession_part)
+            upsert_extracted_html_list(page, extracted_html_list_by_url[page.url])
 
-    if confession_parts_by_url:
+    if extracted_html_list_by_url:
         # Adding new pages
-        for url in confession_parts_by_url:
+        for url in extracted_html_list_by_url:
             if url not in existing_urls:
                 # New page was found
 
@@ -124,8 +123,7 @@ def crawl_website(website: Website) -> Tuple[bool, bool, Optional[str]]:
                 new_page.save()
 
                 # Insert or update scraping
-                confession_part = confession_parts_by_url[url]
-                upsert_scraping(new_page, confession_part)
+                upsert_extracted_html_list(new_page, extracted_html_list_by_url[url])
 
         remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_NO_RESPONSE)
 

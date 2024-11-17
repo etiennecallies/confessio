@@ -3,17 +3,17 @@ from typing import Optional
 
 from scraping.crawl.extract_links import parse_content_links, remove_http_https_duplicate
 from scraping.download.download_content import get_content_from_url
-from scraping.scrape.download_refine_and_extract import extract_confession_part_from_content
+from scraping.scrape.download_refine_and_extract import get_extracted_html_list
 from scraping.utils.ram_utils import print_memory_usage
 
 MAX_VISITED_LINKS = 50
 
 
 def search_for_confession_pages(home_url, aliases_domains: set[str], forbidden_paths: set[str]
-                                ) -> tuple[dict[str, str], int, Optional[str]]:
+                                ) -> tuple[dict[str, list[str]], int, Optional[str]]:
     visited_links = set()
     links_to_visit = {home_url}
-    confession_parts_seen = set()
+    extracted_html_seen = set()
 
     error_detail = None
 
@@ -30,10 +30,11 @@ def search_for_confession_pages(home_url, aliases_domains: set[str], forbidden_p
             continue
 
         # Looking if new confession part is found
-        confession_part = extract_confession_part_from_content(html_content)
-        if confession_part and confession_part not in confession_parts_seen:
-            results[link] = confession_part
-            confession_parts_seen.add(confession_part)
+        extracted_html_list = get_extracted_html_list(html_content)
+        if any(extracted_html not in extracted_html_seen
+               for extracted_html in extracted_html_list or []):
+            results[link] = extracted_html_list
+            extracted_html_seen.update(set(extracted_html_list))
 
         # Looking for new links to visit
         new_links = parse_content_links(html_content, home_url, aliases_domains, forbidden_paths)

@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from scraping.scrape.download_refine_and_extract import extract_confession_part_from_content
+from scraping.scrape.download_refine_and_extract import get_extracted_html_list
 from scraping.utils.string_search import normalize_content, get_words
 from scraping.extract.tag_line import is_schedule_description, is_date_description
 
@@ -53,11 +53,12 @@ class MyTestCase(unittest.TestCase):
                 content_html = ''.join(lines)
                 expected_confession_part = ''.join(expected_lines)
 
-                confession_part = extract_confession_part_from_content(content_html)
+                confession_parts = get_extracted_html_list(content_html)
+                confession_part = '\n\n'.join(confession_parts) if confession_parts else None
                 # print(confession_part)
 
                 if not expected_confession_part:
-                    self.assertIsNone(confession_part)
+                    self.assertIsNone(confession_part, msg=file_name)
                 else:
                     self.maxDiff = None
                     self.assertEqual(expected_confession_part, confession_part, msg=file_name)

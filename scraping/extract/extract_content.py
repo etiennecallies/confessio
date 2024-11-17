@@ -57,14 +57,21 @@ def get_lines_without_link(refined_content: str) -> list[str]:
     return results
 
 
-def extract_content(refined_content: str, tag_interface: BaseTagInterface
-                    ) -> tuple[list[str], list[int]]:
-    lines_and_tags = split_and_tag(refined_content, tag_interface)
+def extract_lines_and_indices(lines_and_tags: list[Tuple[str, str, set[Tag], Action, Source]]
+                              ) -> list[tuple[list[str], list[int]]]:
     indices = get_pruned_lines_indices(lines_and_tags)
-    confession_pieces = list(map(lines_and_tags.__getitem__, indices))
-    if not confession_pieces:
-        return [], []
 
-    lines, _lines_without_link, _tags, _action, _source = zip(*confession_pieces)
+    results = []
+    for paragraph_indices in indices:
+        paragraph_lines_and_tags = list(map(lines_and_tags.__getitem__, paragraph_indices))
+        paragraph_lines = list(map(lambda x: x[0], paragraph_lines_and_tags))
+        results.append((paragraph_lines, paragraph_indices))
 
-    return lines, indices
+    return results
+
+
+def extract_paragraphs_lines_and_indices(refined_content: str, tag_interface: BaseTagInterface
+                                         ) -> list[tuple[list[str], list[int]]]:
+    lines_and_tags = split_and_tag(refined_content, tag_interface)
+
+    return extract_lines_and_indices(lines_and_tags)

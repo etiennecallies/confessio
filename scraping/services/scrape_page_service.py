@@ -49,3 +49,8 @@ def upsert_scraping(page: Page, extracted_html: Optional[str]) -> ():
         for pruning in prunings:
             scraping.prunings.add(pruning)
             prune_pruning(pruning)
+
+
+def upsert_extracted_html_list(page: Page, extracted_html_list: list[str]):
+    for extracted_html in extracted_html_list:
+        upsert_scraping(page, extracted_html)
