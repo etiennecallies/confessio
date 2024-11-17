@@ -186,7 +186,7 @@ class Crawling(TimeStampMixin):
 class Scraping(TimeStampMixin):
     nb_iterations = models.PositiveSmallIntegerField()
     page = models.OneToOneField('Page', on_delete=models.CASCADE, related_name='scraping')
-    prunings = models.ManyToManyField('Pruning', related_name='new_scrapings')
+    prunings = models.ManyToManyField('Pruning', related_name='scrapings')
 
 
 class Pruning(TimeStampMixin):

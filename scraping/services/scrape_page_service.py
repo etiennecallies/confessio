@@ -40,12 +40,9 @@ def upsert_scraping(page: Page, extracted_html: Optional[str]) -> ():
         for extracted_html_item in extracted_html_list:
             prunings.append(create_pruning(extracted_html_item))
 
-        legacy_pruning = prunings[0] if prunings else None  # TODO remove this line
-
         scraping = Scraping(
             nb_iterations=1,
             page=page,
-            pruning=legacy_pruning,  # TODO remove this line
         )
         scraping.save()
 
