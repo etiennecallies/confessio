@@ -1,6 +1,6 @@
 from scraping.download.download_content import get_content_from_url
-from scraping.extract.extract_content import extract_paragraphs_lines_and_indices, \
-    DummyActionInterface, ExtractMode
+from scraping.extract.extract_content import extract_paragraphs_lines_and_indices, ExtractMode
+from scraping.prune.action_interfaces import DummyActionInterface
 from scraping.refine.refine_content import refine_confession_content
 
 

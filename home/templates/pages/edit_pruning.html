@@ -26,6 +26,8 @@
                         {% for tag in colored_piece.tags %}
                             <span class="badge bg-{{ tag.color }}">{{ tag.name }}</span>
                         {% endfor %}
+                        <input type="hidden" name="sentence-uuid-{{ colored_piece.id }}"
+                               value="{{ colored_piece.sentence_uuid }}">
                     </div>
                     <div class="col-md-5 text-end">
                         {% if colored_piece.source_icon %}

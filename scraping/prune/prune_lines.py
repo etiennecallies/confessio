@@ -1,8 +1,9 @@
 from dataclasses import dataclass
-from typing import Optional, Tuple, Set
+from typing import Optional, Set
 
+from scraping.extract.split_content import LineAndTag
 from scraping.extract.tag_line import Tag
-from scraping.prune.models import Action, Source
+from scraping.prune.models import Action
 
 MAX_PRE_BUFFERING_ATTEMPTS = 3
 MAX_POST_BUFFERING_ATTEMPTS = 3
@@ -67,14 +68,17 @@ def flush_results(paragraph_indices: list[int], results: list[list[int]]) -> lis
     return []
 
 
-def get_pruned_lines_indices(lines_and_tags: list[Tuple[str, str, set[Tag], Action, Source]]
-                             ) -> list[list[int]]:
+def get_pruned_lines_indices(lines_and_tags: list[LineAndTag]) -> list[list[int]]:
     results = []
     paragraph_indices = []
     pre_buffer: Optional[PreBuffer] = None
     post_buffer: Optional[PostBuffer] = None
 
-    for i, (line, line_without_link, tags, action, source) in enumerate(lines_and_tags):
+    for i, line_and_tag in enumerate(lines_and_tags):
+        tags = line_and_tag.tags
+        action = line_and_tag.action
+        source = line_and_tag.source
+
         # print(line, tags)
         if Tag.CONFESSION in tags and action == Action.SHOW:
             if post_buffer is None:

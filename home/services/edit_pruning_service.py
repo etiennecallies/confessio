@@ -1,4 +1,5 @@
 from typing import Optional
+from uuid import UUID
 
 from django.contrib.auth.models import User
 from django.db.models.functions import Now
@@ -30,6 +31,7 @@ class ColoredPiece(BaseModel):
     action: Action
     tags: list[ColoredTag]
     source_icon: Optional[str]
+    sentence_uuid: UUID | None
 
 
 def get_colored_pieces(extracted_html: str, action_interface: BaseActionInterface
@@ -50,51 +52,55 @@ def get_colored_pieces(extracted_html: str, action_interface: BaseActionInterfac
     }
 
     colored_pieces = []
-    for i, (text, text_without_link, tags, action, source) in enumerate(lines_and_tags):
+    for i, lines_and_tag in enumerate(lines_and_tags):
         new_tags = []
-        for tag in tags:
+        for tag in lines_and_tag.tags:
             new_tags.append(ColoredTag(
                 name=tag.value,
                 color=tag_colors[tag]
             ))
 
         do_show = i in kept_indices
+
         colored_pieces.append(ColoredPiece(
             id=f'{i}',
             do_show=do_show,
-            text=text,
-            text_without_link=text_without_link,
+            text=lines_and_tag.line,
+            text_without_link=lines_and_tag.line_without_link,
             color='' if do_show else 'text-warning',
-            action=action,
+            action=lines_and_tag.action,
             tags=new_tags,
-            source_icon=source_icons[source] if source else None,
+            source_icon=source_icons[lines_and_tag.source] if lines_and_tag.source else None,
+            sentence_uuid=lines_and_tag.sentence_uuid,
         ))
 
     return colored_pieces
 
 
-#################
-# SAVE SENTENCE #
-#################
+###################
+# UPDATE SENTENCE #
+###################
 
-def save_sentence(line_without_link: str, pruning: Pruning, user: User, action: Action
-                  ) -> Optional[Sentence]:
-    """
-    :return: Sentence if a new sentence was created or modified, None if nothing was done
-    """
-    sentence = Sentence.objects.get(line=line_without_link)
-    if Action(sentence.action) != action \
-            or (Source(sentence.source) != Source.HUMAN and action == Action.SHOW):
-        sentence.action = action
-        sentence.updated_by = user
-        sentence.updated_on_pruning = pruning
-        sentence.source = Source.HUMAN
+def needs_update_sentence_action(sentence: Sentence, new_action: Action, do_show: bool) -> bool:
+    if Action(sentence.action) != new_action:
+        # If action has changed, we need to update the sentence
+        return True
 
-        sentence.save()
+    # If action has not changed
+    if new_action == Action.SHOW and do_show:
+        # For SHOW lines that are shown
+        return True
 
-        return sentence
+    return False
 
-    return None
+
+def update_sentence_action(sentence: Sentence, pruning: Pruning, user: User, action: Action):
+    sentence.action = action
+    sentence.updated_by = user
+    sentence.updated_on_pruning = pruning
+    sentence.source = Source.HUMAN
+
+    sentence.save()
 
 
 ####################
