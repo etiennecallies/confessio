@@ -10,6 +10,10 @@ from home.models import Page, Pruning, Scraping, PruningModeration, ParsingModer
 def delete_page(page: Page):
     prunings = page.get_prunings()
     page.delete()
+
+    if not prunings:
+        return
+
     for pruning in prunings:
         remove_pruning_if_orphan(pruning)
 
