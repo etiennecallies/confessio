@@ -27,17 +27,17 @@ def edit_pruning(request, pruning_uuid):
         colored_pieces = get_colored_pieces(extracted_html,
                                             DummyActionInterface())
         for piece in colored_pieces:
-            action = Action(request.POST.get(f"action-{piece['id']}"))
-            action_per_line_without_link[piece['text_without_link']] = action
+            action = Action(request.POST.get(f"action-{piece.id}"))
+            action_per_line_without_link[piece.text_without_link] = action
 
         # We compute new color based on these given POST actions
         colored_pieces = get_colored_pieces(extracted_html,
                                             KeyValueInterface(action_per_line_without_link))
         modified_sentences = []
         for piece in colored_pieces:
-            line_without_link = piece['text_without_link']
+            line_without_link = piece.text_without_link
             action = action_per_line_without_link[line_without_link]
-            if piece['do_show'] or action != Action.SHOW:
+            if piece.do_show or action != Action.SHOW:
                 # We only save the SHOW lines that are shown, and all other lines
                 # TODO refacto: get the Sentence uuid and pass it in the POST
                 sentence = save_sentence(line_without_link, pruning, request.user,
@@ -62,10 +62,8 @@ def edit_pruning(request, pruning_uuid):
         Action.STOP: 'danger',
     }
 
-    context = {
+    return render(request, 'pages/edit_pruning.html', {
         'pruning': pruning,
         'colored_pieces': colored_pieces,
         'action_colors': action_colors,
-    }
-
-    return render(request, 'pages/edit_pruning.html', context)
+    })

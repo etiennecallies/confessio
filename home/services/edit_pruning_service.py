@@ -2,6 +2,7 @@ from typing import Optional
 
 from django.contrib.auth.models import User
 from django.db.models.functions import Now
+from pydantic import BaseModel
 
 from home.models import Sentence, Pruning
 from scraping.extract.extract_content import split_and_tag, BaseActionInterface
@@ -15,7 +16,24 @@ from scraping.services.prune_scraping_service import SentenceFromDbActionInterfa
 # ADD ID AND COLOR TO TAGS #
 ############################
 
-def get_colored_pieces(extracted_html: str, action_interface: BaseActionInterface):
+class ColoredTag(BaseModel):
+    name: str
+    color: str
+
+
+class ColoredPiece(BaseModel):
+    id: str
+    do_show: bool
+    text: str
+    text_without_link: str
+    color: str
+    action: Action
+    tags: list[ColoredTag]
+    source_icon: Optional[str]
+
+
+def get_colored_pieces(extracted_html: str, action_interface: BaseActionInterface
+                       ) -> list[ColoredPiece]:
     lines_and_tags = split_and_tag(extracted_html, action_interface)
     kept_indices = sum(get_pruned_lines_indices(lines_and_tags), [])
 
@@ -35,24 +53,22 @@ def get_colored_pieces(extracted_html: str, action_interface: BaseActionInterfac
     for i, (text, text_without_link, tags, action, source) in enumerate(lines_and_tags):
         new_tags = []
         for tag in tags:
-            new_tags.append({
-                'name': tag.value,
-                'color': tag_colors[tag]
-            })
+            new_tags.append(ColoredTag(
+                name=tag.value,
+                color=tag_colors[tag]
+            ))
 
         do_show = i in kept_indices
-        colored_pieces.append(
-            {
-                "id": f'{i}',
-                "do_show": do_show,
-                "text": text,
-                "text_without_link": text_without_link,
-                "color": '' if do_show else 'text-warning',
-                "action": action,
-                "tags": new_tags,
-                "source_icon": source_icons[source] if source else None,
-            }
-        )
+        colored_pieces.append(ColoredPiece(
+            id=f'{i}',
+            do_show=do_show,
+            text=text,
+            text_without_link=text_without_link,
+            color='' if do_show else 'text-warning',
+            action=action,
+            tags=new_tags,
+            source_icon=source_icons[source] if source else None,
+        ))
 
     return colored_pieces
 
@@ -90,9 +106,8 @@ def set_pruning_human_source(pruning: Pruning, user: User):
                                         SentenceFromDbActionInterface(pruning))
 
     for piece in colored_pieces:
-        line_without_link = piece['text_without_link']
-        if piece['do_show']:
-            set_sentence_human_source(line_without_link, pruning, user)
+        if piece.do_show:
+            set_sentence_human_source(piece.text_without_link, pruning, user)
 
 
 def set_sentence_human_source(line_without_link: str, pruning: Pruning, user: User):
