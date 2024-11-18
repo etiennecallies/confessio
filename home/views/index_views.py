@@ -42,7 +42,11 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
     page_pruning_urls = {}
     for website in websites:
         for page in website.get_pages():
-            for pruning in page.get_prunings():
+            prunings = page.get_prunings()
+            if not prunings:
+                continue
+
+            for pruning in prunings:
                 url = get_page_url_with_pointer_at_pruning(page, pruning)
                 page_pruning_urls.setdefault(page.uuid, {})[pruning.uuid] = url
 
