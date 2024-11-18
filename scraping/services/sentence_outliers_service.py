@@ -38,6 +38,8 @@ def get_lines_without_link(refined_content: str) -> list[str]:
 
 
 def get_pruning_containing_sentence(sentence: Sentence) -> list[Pruning]:
+    """Could be faster with a many-to-many relationship Sentence <-> Pruning"""
+
     all_prunings = Pruning.objects.filter(extracted_html__contains=sentence.line).all()
 
     prunings = []

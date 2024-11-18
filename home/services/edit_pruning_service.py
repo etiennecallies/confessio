@@ -71,7 +71,7 @@ def save_sentence(line_without_link: str, pruning: Pruning, user: User, action: 
             or (Source(sentence.source) != Source.HUMAN and action == Action.SHOW):
         sentence.action = action
         sentence.updated_by = user
-        sentence.pruning = pruning
+        sentence.updated_on_pruning = pruning
         sentence.source = Source.HUMAN
 
         sentence.save()
@@ -101,7 +101,7 @@ def set_sentence_human_source(line_without_link: str, pruning: Pruning, user: Us
 
     if Source(sentence.source) != Source.HUMAN:
         sentence.updated_by = user
-        sentence.pruning = pruning
+        sentence.updated_on_pruning = pruning
         sentence.source = Source.HUMAN
 
         sentence.save()
