@@ -45,12 +45,8 @@ class Command(AbstractCommand):
         self.info(f'Successfully got {len(websites)} websites')
         counter_by_unreliability_reason = {}
         for website in websites:
-            if website.unreliability_reason:
-                counter_by_unreliability_reason[website.unreliability_reason] = \
-                    counter_by_unreliability_reason.get(website.unreliability_reason, 0) + 1
-
-        if not counter_by_unreliability_reason:
-            self.info('No unreliability reason for websites')
+            counter_by_unreliability_reason[website.unreliability_reason] = \
+                counter_by_unreliability_reason.get(website.unreliability_reason, 0) + 1
 
         for unreliability_reason, counter in counter_by_unreliability_reason.items():
             percentage = counter / len(websites) * 100
