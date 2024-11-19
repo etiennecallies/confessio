@@ -31,7 +31,7 @@
         Other action : {{ sentence_moderation.other_action }}<br>
     {% endif %}
 
-    {% for pruning in prunings %}
+    {% for pruning in sentence.prunings.all %}
         <p><a class="btn btn-gray-500" href="{% url 'edit_pruning' pruning.uuid %}" target="_blank" role="button">
         Edit pruning <i class="fas fa-up-right-from-square"></i>
         </a></p>

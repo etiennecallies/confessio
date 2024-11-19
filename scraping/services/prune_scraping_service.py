@@ -2,7 +2,6 @@ from datetime import timedelta
 from typing import Optional
 from uuid import UUID
 
-from django.db.models import Q
 from django.utils import timezone
 from tqdm import tqdm
 
@@ -26,6 +25,7 @@ class SentenceFromDbActionInterface(BaseActionInterface):
 
     def get_action(self, line_without_link: str) -> tuple[Action, Source, UUID]:
         sentence = self.get_sentence(line_without_link)
+        sentence.prunings.add(self.pruning)
 
         return Action(sentence.action), Source(sentence.source), sentence.uuid
 
@@ -41,12 +41,15 @@ class SentenceFromDbActionInterface(BaseActionInterface):
 ##############################
 
 def reprune_affected_scrapings(sentences: list[Sentence], original_pruning: Pruning):
-    """Could be faster with a many-to-many relationship Sentence <-> Pruning"""
-    query = Q()
+    affected_prunings = []
     for sentence in sentences:
-        query |= Q(extracted_html__contains=sentence.line)
-    affected_prunings = Pruning.objects.filter(query)\
-        .exclude(uuid=original_pruning.uuid).all()
+        for pruning in sentence.prunings.all():
+            if pruning.uuid == original_pruning.uuid:
+                continue
+
+            if pruning not in affected_prunings:
+                affected_prunings.append(pruning)
+
     print(f'got {len(affected_prunings)} affected prunings')
     for pruning in tqdm(affected_prunings):
         if remove_pruning_if_orphan(pruning):

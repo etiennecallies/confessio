@@ -225,6 +225,7 @@ class Sentence(TimeStampMixin):
                                    related_name='sentences', null=True)
     transformer_name = models.CharField(max_length=100)
     embedding = VectorField(dimensions=768)
+    prunings = models.ManyToManyField('Pruning', related_name='sentences')
     history = HistoricalRecords()
 
 

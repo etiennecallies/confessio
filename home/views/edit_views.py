@@ -40,9 +40,7 @@ def edit_pruning(request, pruning_uuid):
             reset_pages_counter_of_pruning(pruning)
 
         prune_pruning(pruning)
-        if False:
-            # TODO Fix too many affected prunings
-            reprune_affected_scrapings(modified_sentences, pruning)
+        reprune_affected_scrapings(modified_sentences, pruning)
 
     colored_pieces = get_colored_pieces(extracted_html,
                                         SentenceFromDbActionInterface(pruning))

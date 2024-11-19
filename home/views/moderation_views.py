@@ -13,7 +13,6 @@ from home.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 from scraping.parse.schedules import SchedulesList
 from scraping.services.parse_pruning_service import update_validated_schedules_list, \
     get_parsing_schedules_list, save_schedule_list
-from scraping.services.sentence_outliers_service import get_pruning_containing_sentence
 from sourcing.services.merge_websites_service import merge_websites
 
 
@@ -189,12 +188,9 @@ def moderate_sentence(request, category, is_bug, moderation_uuid=None):
 def render_sentence_moderation(request, moderation: SentenceModeration, next_url):
     assert moderation.sentence is not None
 
-    prunings = get_pruning_containing_sentence(moderation.sentence)
-
     return render(request, f'pages/moderate_sentence.html', {
         'sentence_moderation': moderation,
         'sentence': moderation.sentence,
-        'prunings': prunings,
         'next_url': next_url,
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
     })
