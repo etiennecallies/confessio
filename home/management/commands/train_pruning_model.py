@@ -38,6 +38,12 @@ class Command(AbstractCommand):
         sentence_dataset = build_sentence_dataset()
         self.info(f'Got {len(sentence_dataset)} sentences')
 
+        count_by_action = {}
+        for sentence in sentence_dataset:
+            count_by_action[sentence.action] = count_by_action.get(sentence.action, 0) + 1
+        for action, count in count_by_action.items():
+            self.info(f'{count} sentences with action {action}')
+
         self.info(f'Training model ...')
         classifier = train_classifier(sentence_dataset)
         self.success(f'Successfully trained model with accuracy {classifier.accuracy}, '
