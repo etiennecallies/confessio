@@ -219,7 +219,7 @@ class Sentence(TimeStampMixin):
     line = models.TextField(null=False, unique=True)
     updated_by = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
     updated_on_pruning = models.ForeignKey('Pruning', on_delete=models.SET_NULL, null=True)
-    action = models.CharField(max_length=4, choices=Action.choices())
+    action = models.CharField(max_length=5, choices=Action.choices())
     source = models.CharField(max_length=5, choices=Source.choices())
     classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,
                                    related_name='sentences', null=True)

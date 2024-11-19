@@ -10,7 +10,6 @@ from scraping.extract.extract_content import split_and_tag, BaseActionInterface
 from scraping.extract.tag_line import Tag
 from scraping.prune.models import Action, Source
 from scraping.prune.prune_lines import get_pruned_lines_indices
-from scraping.services.prune_scraping_service import SentenceFromDbActionInterface
 
 
 ############################
@@ -81,19 +80,6 @@ def get_colored_pieces(extracted_html: str, action_interface: BaseActionInterfac
 # UPDATE SENTENCE #
 ###################
 
-def needs_update_sentence_action(sentence: Sentence, new_action: Action, do_show: bool) -> bool:
-    if Action(sentence.action) != new_action:
-        # If action has changed, we need to update the sentence
-        return True
-
-    # If action has not changed
-    if new_action == Action.SHOW and do_show:
-        # For SHOW lines that are shown
-        return True
-
-    return False
-
-
 def update_sentence_action(sentence: Sentence, pruning: Pruning, user: User, action: Action):
     sentence.action = action
     sentence.updated_by = user
@@ -101,31 +87,6 @@ def update_sentence_action(sentence: Sentence, pruning: Pruning, user: User, act
     sentence.source = Source.HUMAN
 
     sentence.save()
-
-
-####################
-# SET HUMAN SOURCE #
-####################
-
-def set_pruning_human_source(pruning: Pruning, user: User):
-    colored_pieces = get_colored_pieces(pruning.extracted_html,
-                                        SentenceFromDbActionInterface(pruning))
-
-    for piece in colored_pieces:
-        if piece.do_show:
-            set_sentence_human_source(piece.text_without_link, pruning, user)
-
-
-def set_sentence_human_source(line_without_link: str, pruning: Pruning, user: User):
-    sentence = Sentence.objects.get(line=line_without_link)
-    assert Action(sentence.action) == Action.SHOW
-
-    if Source(sentence.source) != Source.HUMAN:
-        sentence.updated_by = user
-        sentence.updated_on_pruning = pruning
-        sentence.source = Source.HUMAN
-
-        sentence.save()
 
 
 ######################

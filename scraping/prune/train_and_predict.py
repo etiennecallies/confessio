@@ -45,6 +45,7 @@ class TensorFlowModel(MachineLearningInterface):
                  loss='sparse_categorical_crossentropy'):
         self.model = None
         self.different_labels = [
+            Action.START,
             Action.SHOW,
             Action.HIDE,
             Action.STOP,
@@ -70,7 +71,7 @@ class TensorFlowModel(MachineLearningInterface):
                                activation='relu'),
             keras.layers.Dense(nb_neurones,
                                activation='relu'),
-            keras.layers.Dense(3,
+            keras.layers.Dense(len(self.different_labels),
                                activation='softmax')
         ])
         self.model.compile(

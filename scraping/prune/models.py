@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class Action(str, Enum):
+    START = "start"
     SHOW = "show"
     HIDE = "hide"
     STOP = "stop"

@@ -4,8 +4,8 @@ from django.shortcuts import render
 
 from home.models import Page, Pruning, Sentence
 from home.services.edit_pruning_service import get_colored_pieces, update_sentence_action, \
-    reset_pages_counter_of_pruning, needs_update_sentence_action
-from scraping.prune.action_interfaces import DummyActionInterface, KeyValueInterface
+    reset_pages_counter_of_pruning
+from scraping.prune.action_interfaces import DummyActionInterface
 from scraping.prune.models import Action
 from scraping.services.prune_scraping_service import SentenceFromDbActionInterface, \
     reprune_affected_scrapings, prune_pruning
@@ -23,27 +23,16 @@ def edit_pruning(request, pruning_uuid):
 
     if request.method == "POST":
         # We extract action per line from POST
-        action_per_line_without_link = {}
         dummy_colored_pieces = get_colored_pieces(extracted_html,
                                                   DummyActionInterface())
+        modified_sentences = []
         for dummy_piece in dummy_colored_pieces:
             new_action = Action(request.POST.get(f"action-{dummy_piece.id}"))
-            action_per_line_without_link[dummy_piece.text_without_link] = new_action
-
-        # We compute new color based on these given POST actions
-        new_colored_pieces = get_colored_pieces(extracted_html,
-                                                KeyValueInterface(action_per_line_without_link))
-        modified_sentences = []
-        for new_piece in new_colored_pieces:
-            line_without_link = new_piece.text_without_link
-            new_action = action_per_line_without_link[line_without_link]
-            sentence_uuid = request.POST.get(f"sentence-uuid-{new_piece.id}")
+            sentence_uuid = request.POST.get(f"sentence-uuid-{dummy_piece.id}")
             sentence = Sentence.objects.get(uuid=sentence_uuid)
 
-            if needs_update_sentence_action(sentence, new_action, new_piece.do_show):
-                if Action(sentence.action) != new_action:
-                    modified_sentences.append(sentence)
-
+            if Action(sentence.action) != new_action:
+                modified_sentences.append(sentence)
                 update_sentence_action(sentence, pruning, request.user, new_action)
 
         if modified_sentences:
@@ -51,12 +40,15 @@ def edit_pruning(request, pruning_uuid):
             reset_pages_counter_of_pruning(pruning)
 
         prune_pruning(pruning)
-        reprune_affected_scrapings(modified_sentences, pruning)
+        if False:
+            # TODO Fix too many affected prunings
+            reprune_affected_scrapings(modified_sentences, pruning)
 
     colored_pieces = get_colored_pieces(extracted_html,
                                         SentenceFromDbActionInterface(pruning))
 
     action_colors = {
+        Action.START: 'info',
         Action.SHOW: 'success',
         Action.HIDE: 'black',
         Action.STOP: 'danger',

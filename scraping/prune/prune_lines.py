@@ -80,7 +80,8 @@ def get_pruned_lines_indices(lines_and_tags: list[LineAndTag]) -> list[list[int]
         source = line_and_tag.source
 
         # print(line, tags)
-        if Tag.CONFESSION in tags and action == Action.SHOW:
+        if Tag.CONFESSION in tags \
+                and action in (Action.START, Action.SHOW):
             if post_buffer is None:
                 post_buffer = PostBuffer(
                     buffer=[] if pre_buffer is None else pre_buffer.to_buffer()
@@ -93,18 +94,16 @@ def get_pruned_lines_indices(lines_and_tags: list[LineAndTag]) -> list[list[int]
                 post_buffer = None
                 paragraph_indices = flush_results(paragraph_indices, results)
         elif (Tag.DATE in tags or Tag.PERIOD in tags or source is not None) \
-                and action == Action.SHOW:
-            if post_buffer is None:
+                and action in (Action.START, Action.SHOW):
+            if post_buffer is not None:
+                post_buffer.add_line(i, tags, paragraph_indices)
+            elif action == Action.START:
                 if pre_buffer is None:
                     pre_buffer = PreBuffer()
                 pre_buffer.from_tags(tags, i)
-            else:
-                post_buffer.add_line(i, tags, paragraph_indices)
-        elif Tag.SCHEDULE in tags and action == Action.SHOW:
-            if post_buffer is not None:
-                post_buffer.add_line(i, tags, paragraph_indices)
-            elif pre_buffer is not None:
-                pre_buffer = pre_buffer.decrement()
+        elif Tag.SCHEDULE in tags and post_buffer is not None \
+                and action in (Action.START, Action.SHOW):
+            post_buffer.add_line(i, tags, paragraph_indices)
         elif pre_buffer is not None:
             pre_buffer = pre_buffer.decrement()
         elif post_buffer is not None:
