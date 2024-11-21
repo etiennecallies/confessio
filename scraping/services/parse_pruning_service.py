@@ -265,17 +265,40 @@ def clean_parsing_moderations() -> int:
     return counter
 
 
+###########################
+# Website & Pruning links #
+###########################
+
+def unlink_website_from_existing_parsing_for_pruning(website: Website, pruning: Pruning):
+    try:
+        parsing = Parsing.objects.filter(prunings=pruning, websites=website).get()
+    except Parsing.DoesNotExist:
+        return
+
+    parsing.websites.remove(website)
+
+    print(f'deleting not validated moderation for parsing {parsing} since it has no '
+          f'website any more')
+    ParsingModeration.objects.filter(parsing=parsing, validated_at__isnull=True).delete()
+
+
+def ensure_website_pruning_links(parsing: Parsing, website: Website, pruning: Pruning):
+    parsing.websites.add(website)
+    parsing.prunings.add(pruning)
+
+
 ########
 # MAIN #
 ########
 
 def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: bool = False):
     if not is_eligible_to_parsing(website):
+        print(f'website {website} not eligible to parsing')
         return
 
     truncated_html = get_truncated_html(pruning)
     if not truncated_html:
-        # no parsing on empty content
+        print(f'No truncated html for pruning {pruning}')
         return
 
     if len(truncated_html) > MAX_LENGTH_FOR_PARSING:
@@ -294,8 +317,11 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
     if not force_parse and parsing \
             and parsing.llm_model == llm_model \
             and parsing.prompt_template_hash == prompt_template_hash:
+        print(f'Parsing already exists for pruning {pruning}')
+        ensure_website_pruning_links(parsing, website, pruning)
         return
 
+    print(f'parsing {pruning} for website {website}')
     schedules_list, error_detail = parse_with_llm(truncated_html, church_desc_by_id,
                                                   llm_model, prompt_template)
 
@@ -305,6 +331,8 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
         parsing.error_detail = error_detail
         parsing.save()
     else:
+        unlink_website_from_existing_parsing_for_pruning(website, pruning)
+
         parsing = Parsing(
             truncated_html=truncated_html,
             truncated_html_hash=truncated_html_hash,
@@ -315,8 +343,7 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
         )
         parsing.save()
 
-    parsing.websites.add(website)
-    parsing.prunings.add(pruning)
+    ensure_website_pruning_links(parsing, website, pruning)
 
     save_schedule_list(parsing, schedules_list)
     add_necessary_parsing_moderation(parsing, schedules_list)

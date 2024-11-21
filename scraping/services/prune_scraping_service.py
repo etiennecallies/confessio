@@ -166,7 +166,7 @@ def clean_pruning_moderations() -> int:
 # LINK TO PARSINGS #
 ####################
 
-def update_parsings(pruning: Pruning):
+def unlink_pruning_from_parsings(pruning: Pruning):
     for parsing in pruning.parsings.all():
         parsing.prunings.remove(pruning)
 
@@ -176,14 +176,12 @@ def update_parsings(pruning: Pruning):
             ParsingModeration.objects.filter(parsing=parsing,
                                              validated_at__isnull=True).delete()
 
+
+def update_parsings(pruning: Pruning):
     websites = {scraping.page.website for scraping in pruning.scrapings.all()}
     for website in websites:
-        if website.unreliability_reason:
-            continue
-
         # TODO open everywhere
         if website.parishes.filter(diocese__messesinfo_network_id__in=['lh', 'ly']).exists():
-            print(f'parsing {pruning} for website {website}')
             parse_pruning_for_website(pruning, website)
 
 
@@ -206,14 +204,14 @@ def prune_pruning(pruning: Pruning) -> ():
 
     pruned_html = '<br>\n'.join(all_lines) if paragraphs else None
 
-    if pruned_html == pruning.pruned_html and all_indices == pruning.pruned_indices:
-        return
+    if pruned_html != pruning.pruned_html or all_indices != pruning.pruned_indices:
+        pruning.pruned_html = pruned_html
+        pruning.pruned_indices = all_indices
+        pruning.save()
 
-    pruning.pruned_html = pruned_html
-    pruning.pruned_indices = all_indices
-    pruning.save()
+        add_necessary_moderation(pruning)
+        unlink_pruning_from_parsings(pruning)
 
-    add_necessary_moderation(pruning)
     update_parsings(pruning)
 
 
