@@ -7,6 +7,16 @@
   notify:
     - restart nginx
 
+- name: Ensure application/manifest+json is in the types block of mime.types
+  become: true
+  lineinfile:
+    path: /etc/nginx/mime.types
+    insertafter: "^\\s*application/json.*"
+    line: "    application/manifest+json             webmanifest;"
+    state: present
+  notify:
+    - restart nginx
+
 # https://gist.github.com/mattiaslundberg/ba214a35060d3c8603e9b1ec8627d349
 - name: Install nginx site for letsencrypt requests
   template:
