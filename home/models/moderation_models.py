@@ -361,15 +361,14 @@ class PruningModeration(ModerationMixin):
     pruning = models.ForeignKey('Pruning', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=16, choices=Category)
 
-    pruned_html = models.TextField(null=True)
     pruned_indices = ArrayField(models.PositiveSmallIntegerField(), null=True)
 
     class Meta:
         unique_together = ('pruning', 'category')
 
     def delete_on_validate(self) -> bool:
-        # we keep PruningModeration even if pruned_html has changed
-        # in order to keep track of which pruned_html has been moderated
+        # we keep PruningModeration even if pruned_indices has changed
+        # in order to keep track of which pruned_indices has been moderated
         return False
 
 

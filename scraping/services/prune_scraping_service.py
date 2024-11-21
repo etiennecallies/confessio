@@ -103,7 +103,6 @@ def add_new_moderation(pruning: Pruning, category):
     moderation = PruningModeration(
         pruning=pruning,
         category=category,
-        pruned_html=pruning.pruned_html,
         pruned_indices=pruning.pruned_indices,
     )
     moderation.save()
@@ -118,19 +117,17 @@ def add_necessary_moderation(pruning: Pruning):
     # 1. If pruning has already moderation
     current_moderation = get_current_moderation(pruning, category)
     if current_moderation is not None:
-        if current_moderation.pruned_html == pruning.pruned_html\
-                and current_moderation.pruned_indices == pruning.pruned_indices:
-            # pruned_html has not changed, we do nothing
+        if current_moderation.pruned_indices == pruning.pruned_indices:
+            # pruned_indices has not changed, we do nothing
             return
 
         if current_moderation.validated_at is None:
-            # pruned_html has changed, but not validated yet, we just update it
-            current_moderation.pruned_html = pruning.pruned_html
+            # pruned_indices has changed, but not validated yet, we just update it
             current_moderation.pruned_indices = pruning.pruned_indices
             current_moderation.save()
             return
 
-        # pruned_html has changed and was validated, we remove it and add a new one
+        # pruned_indices has changed and was validated, we remove it and add a new one
         current_moderation.delete()
         add_new_moderation(pruning, category)
         return
@@ -196,16 +193,9 @@ def prune_pruning(pruning: Pruning) -> ():
     paragraphs = extract_paragraphs_lines_and_indices(pruning.extracted_html,
                                                       SentenceFromDbActionInterface(pruning),
                                                       ExtractMode.PRUNE)
-    all_lines = []
-    all_indices = []
-    for paragraph_lines, paragraph_indices in paragraphs:
-        all_lines.extend(paragraph_lines)
-        all_indices.extend(paragraph_indices)
+    all_indices = sum([indices for _, indices in paragraphs], [])
 
-    pruned_html = '<br>\n'.join(all_lines) if paragraphs else None
-
-    if pruned_html != pruning.pruned_html or all_indices != pruning.pruned_indices:
-        pruning.pruned_html = pruned_html
+    if all_indices != pruning.pruned_indices:
         pruning.pruned_indices = all_indices
         pruning.save()
 

@@ -194,16 +194,17 @@ if __name__ == '__main__':
     load_dotenv()
     # print(json.dumps(SchedulesList.model_json_schema()))
 
-    pruned_html_ = ("Le sacrement de réconciliation est célébré à l'église Sainte-Marie tous les "
-                    "jours de 17h à 18h, et le lundi 30 octobre de 10h à 10h30. Le père Jean est "
-                    "disponible pour des confessions sur rendez-vous. Pas de confession en août.")
+    truncated_html_ = ("Le sacrement de réconciliation est célébré à l'église Sainte-Marie tous "
+                       "les jours de 17h à 18h, et le lundi 30 octobre de 10h à 10h30. Le père "
+                       "Jean est disponible pour des confessions sur rendez-vous. Pas de "
+                       "confession en août.")
 
     church_desc_by_id_ = {
         1: "Sainte-Marie, 123 rue de la Paix, 75000 Paris",
         2: "Saint-Joseph, 456 rue de la Liberté, 75000 Paris",
     }
 
-    schedules_list_, error_detail_ = parse_with_llm(pruned_html_, church_desc_by_id_,
+    schedules_list_, error_detail_ = parse_with_llm(truncated_html_, church_desc_by_id_,
                                                     get_llm_model(), get_prompt_template())
     if schedules_list_:
         for schedule in schedules_list_.schedules:

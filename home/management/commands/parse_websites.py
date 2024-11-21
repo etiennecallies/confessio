@@ -22,7 +22,7 @@ class Command(AbstractCommand):
     def handle(self, *args, **options):
         query = Q(scrapings__page__website__is_active=True,
                   scrapings__page__website__unreliability_reason__exact='',
-                  pruned_html__isnull=False)
+                  pruned_indices__len__gt=0)
         if options['pruning_uuid']:
             query &= Q(uuid__in=options['pruning_uuid'])
         elif options['existing']:
@@ -36,7 +36,7 @@ class Command(AbstractCommand):
             d = options['diocese']
             query &= Q(scrapings__page__website__parishes__diocese__messesinfo_network_id__exact=d)
 
-        prunings = Pruning.objects.filter(query).exclude(pruned_html__exact='').distinct()
+        prunings = Pruning.objects.filter(query).distinct()
 
         counter = 0
         max_parsings = options['max'] or None

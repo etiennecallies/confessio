@@ -197,7 +197,6 @@ class Pruning(TimeStampMixin):
     extracted_html = models.TextField(editable=False)
     extracted_html_hash = models.CharField(max_length=32, unique=True, editable=False)
     pruned_indices = ArrayField(models.PositiveSmallIntegerField(), null=True)
-    pruned_html = models.TextField(null=True)
     history = HistoricalRecords()
 
     def save(self, *args, **kwargs):
@@ -205,7 +204,7 @@ class Pruning(TimeStampMixin):
         super().save(*args, **kwargs)
 
     def has_confessions(self) -> bool:
-        return self.pruned_html is not None
+        return bool(self.pruned_indices)
 
     def get_parsing(self, website: Website) -> Optional['Parsing']:
         try:
