@@ -61,13 +61,13 @@
                                             Nous regrettons de ne pouvoir afficher les horaires de cette paroisse pour des raisons techniques.
                                         </div>
                                     {% else %}
-                                        {% if website.parsing_validation_counter == 0 %}
-                                            <div class="text-warning">⚠️ Ces horaires n'ont pas encore été vérifiés pour cette paroisse.</div>
-                                        {% endif %}
                                         {% with church_schedules_list=website|get_church_schedules_list %}
                                             <div>
                                                 {% with church_events=church_schedules_list.get_church_events %}
                                                     {% if church_events %}
+                                                        {% if website|has_not_validated_parsing_moderation %}
+                                                            <div class="text-warning">⚠️ Ces horaires n'ont pas encore été vérifiés pour cette paroisse.</div>
+                                                        {% endif %}
                                                         {% for church_event in church_events %}
                                                             <p>
                                                                 {% if church_event.church %}

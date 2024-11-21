@@ -158,7 +158,7 @@ class Page(TimeStampMixin):
         return self.get_latest_scraping().prunings.all()
 
     def get_parsing(self, pruning: 'Pruning') -> Optional['Parsing']:
-        return pruning.parsings.filter(websites=self.website).first()
+        return pruning.parsings.filter(websites=self.website).get()
 
     def has_been_modified_recently(self) -> bool:
         latest_scraping = self.get_latest_scraping()
