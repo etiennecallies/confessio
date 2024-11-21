@@ -72,7 +72,10 @@ def get_url(moderation: ModerationMixin):
 
 @register.filter
 def get_unvalidated_pruning_moderation(pruning: Pruning) -> Optional[PruningModeration]:
-    return pruning.moderations.filter(validated_at__isnull=True).first()
+    try:
+        return pruning.moderations.filter(validated_at__isnull=True).get()
+    except PruningModeration.DoesNotExist:
+        return None
 
 
 @register.filter
