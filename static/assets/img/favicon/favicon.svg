@@ -5,7 +5,7 @@
  width="700.000000pt" height="700.000000pt" viewBox="0 0 700.000000 700.000000"
  preserveAspectRatio="xMidYMid meet">
 <style>
-#crosslogo { fill: #000000 }
+#crosslogo { fill: #242E4C }
 @media (prefers-color-scheme: dark) {
   #crosslogo { fill: #ffffff }
 }
