@@ -69,6 +69,13 @@
   become: true
   become_user: postgres
 
+- name: install pgvector extension
+  postgresql_ext:
+    name: vector
+    db: "{{ db_name }}"
+  become: true
+  become_user: postgres
+
 - name: copy pg_hba.conf
   template:
     src: pg_hba.conf

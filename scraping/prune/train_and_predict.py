@@ -34,8 +34,8 @@ def evaluate(model: MachineLearningInterface, vectors_test, labels_test):
     labels_pred = model.predict(vectors_test)
 
     for action in Action:
-        print(f'{action}: predicted {len([l for l in labels_pred if l == action])} vs '
-              f'{len([l for l in labels_test if l == action])} in dataset')
+        print(f'{action}: predicted {len([lab for lab in labels_pred if lab == action])} vs '
+              f'{len([lab for lab in labels_test if lab == action])} in dataset')
 
     return accuracy_score(list(map(str, labels_test)), list(map(str, labels_pred)))
 

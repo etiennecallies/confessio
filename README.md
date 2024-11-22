@@ -14,7 +14,7 @@ Copy the `.env.sample` file to `.env` and fill in the values.
 We recommend using pyenv to manage python versions. Install it following the instructions 
 [here](https://github.com/pyenv/pyenv?tab=readme-ov-file#installation).
 ```shell
-pyenv virtualenv 3.11.4 confessio
+pyenv virtualenv 3.12.4 confessio
 pyenv activate confessio
 pip install -r requirements.txt
 ```

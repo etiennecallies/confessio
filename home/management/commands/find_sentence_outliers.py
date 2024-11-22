@@ -32,4 +32,4 @@ class Command(AbstractCommand):
                 remove_sentence_not_validated_moderation(sentence)
 
         self.success(f'Done! Got {nb_sentence_outliers} sentence outliers '
-                     f'({nb_sentence_outliers/len(sentence_dataset) * 100:.2f} %)')
+                     f'({nb_sentence_outliers / len(sentence_dataset) * 100:.2f} %)')
