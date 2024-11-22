@@ -4,6 +4,34 @@
 # - https://stormatics.tech/blogs/install-postgresql-using-ansible-on-remote-servers
 # - https://gist.github.com/kharandziuk/d11aab8b1560d408032911140a0b103a
 
+- name: Add the PostgreSQL GPG key as a keyring
+  ansible.builtin.shell: |
+    curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor -o /usr/share/keyrings/postgresql-pgdg.gpg
+  args:
+    creates: /usr/share/keyrings/postgresql-pgdg.gpg
+  become: true
+
+- name: Add the PostgreSQL PPA
+  apt_repository:
+    repo: "deb [signed-by=/usr/share/keyrings/postgresql-pgdg.gpg] https://apt.postgresql.org/pub/repos/apt {{ ansible_distribution_release }}-pgdg main"
+    state: present
+  become: true
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+  become: true
+
+- name: Install required packages
+  apt:
+    name:
+      - postgresql
+      - postgresql-contrib
+      - postgresql-15-postgis-3
+      - postgresql-15-pgvector
+    state: latest
+  become: true
+
 - name: Start and enable postgres
   service: name=postgresql enabled=yes state=started
   become: true

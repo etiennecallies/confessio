@@ -1,14 +1,10 @@
 # https://citizix.com/how-to-use-ansible-to-install-and-configure-postgres-14-on-ubuntu-20-04/
 
-# TODO upgrade to a stable version
-# The repository 'http://security.ubuntu.com/ubuntu mantic-security Release' no longer has a Release file.
-# Updating from such a repository can't be done securely, and is therefore disabled by default.
-
-#- name: Update apt repo and cache on Ubuntu box
-#  apt:
-#    update_cache: yes
-#    force_apt_get: yes
-#  become: true
+- name: Update apt repo and cache on Ubuntu box
+  apt:
+    update_cache: yes
+    force_apt_get: yes
+  become: true
 
 - name: Upgrade all packages on servers
   apt:
@@ -25,10 +21,6 @@
       - python3-venv
       - acl
       - git
-      - postgresql
-      - postgresql-contrib
-      - postgresql-postgis
-      - postgresql-15-pgvector
       - nginx
     state: latest
   become: true
