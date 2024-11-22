@@ -97,6 +97,8 @@ This is mainly inspired by https://realpython.com/automating-django-deployments-
 # SSH to server then grant confessio postgresql superuser privilege
 # This is required because backup will drop/create postgis extension
 sudo -u postgres psql -c "ALTER ROLE confessio SUPERUSER;"
+# Drop and recreate database
+sudo -u postgres psql postgres -c "DROP DATABASE confessio;" && sudo -u postgres psql postgres -c "CREATE DATABASE confessio;"
 # This will restore last backup
 . /home/ubuntu/confessio/.env; /home/ubuntu/envs/confessio/bin/python3.12 /home/ubuntu/confessio/manage.py dbrestore --uncompress
 # Revoke superuser access
