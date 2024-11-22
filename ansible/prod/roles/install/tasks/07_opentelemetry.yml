@@ -1,0 +1,69 @@
+##
+# Install OpenTelemetry Collector with AWS CloudWatch Exporter
+##
+
+- name: Install AWS CLI
+  apt:
+    name:
+      - awscli
+    state: latest
+  become: true
+
+- name: Create AWS credentials directory
+  file:
+    path: "~/.aws"
+    state: directory
+    mode: "0700"
+
+- name: Configure AWS credentials
+  copy:
+    dest: "~/.aws/credentials"
+    content: |
+      [default]
+      aws_access_key_id = {{ otel_aws_access_key_id }}
+      aws_secret_access_key = {{ otel_aws_secret_access_key }}
+    mode: "0600"
+
+- name: Configure AWS config
+  copy:
+    dest: "~/.aws/config"
+    content: |
+      [default]
+      region = eu-west-3
+      output = json
+    mode: "0600"
+
+- name: Install OpenTelemetry Collector
+  ansible.builtin.include_role:
+    name: opentelemetry_collector
+  vars:
+    otel_collector_receivers:
+      hostmetrics:
+        collection_interval: 60s
+        scrapers:
+          cpu: {}              # CPU usage metrics
+          memory: {}           # RAM usage metrics
+          disk: {}             # Disk metrics
+
+    otel_collector_processors:
+      batch: {}                # Batch processor for metrics
+      resourcedetection:
+        detectors: [env, system]
+        timeout: 2s
+        system:
+          hostname_sources: [os]
+
+    otel_collector_exporters:
+      awsemf: # AWS CloudWatch Embedded Metric Format exporter
+        region: eu-west-3
+        log_group_name: /metrics/opentelemetry
+        log_stream_name: 'confessio-stream'
+        resource_to_telemetry_conversion:
+          enabled: true         # Include resource attributes in metrics
+
+    otel_collector_service:
+      pipelines:
+        metrics:
+          receivers: [hostmetrics]
+          processors: [resourcedetection, batch]
+          exporters: [awscloudwatchremotewrite]

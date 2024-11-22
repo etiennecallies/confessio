@@ -45,6 +45,10 @@ letsencrypt_email: "{{ lookup('ansible.builtin.env', 'PROD_LETSENCRYPT_EMAIL') }
 aws_access_key: "{{ lookup('ansible.builtin.env', 'AWS_ACCESS_KEY') }}"
 aws_secret_key: "{{ lookup('ansible.builtin.env', 'AWS_SECRET_KEY') }}"
 
+# AWS for OpenTelemetry
+otel_aws_access_key_id: "{{ lookup('ansible.builtin.env', 'OTEL_AWS_ACCESS_KEY_ID') }}"
+otel_aws_secret_access_key: "{{ lookup('ansible.builtin.env', 'OTEL_AWS_SECRET_KEY') }}"
+
 # SSH
 additional_pub_key1: "{{ lookup('ansible.builtin.env', 'ADDITIONAL_PUB_KEY1') }}"
 whitelisted_ip1: "{{ lookup('ansible.builtin.env', 'WHITELISTED_IP1') }}"
