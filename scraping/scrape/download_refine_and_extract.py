@@ -53,4 +53,5 @@ if __name__ == '__main__':
 
         print()
         print(url_)
-        print(extracted_html_list_)
+        for extracted_html_ in extracted_html_list_:
+            print(extracted_html_)

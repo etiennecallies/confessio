@@ -23,6 +23,7 @@ CONFESSIONS_OR_SCHEDULES_MENTIONS = [
     'paques',
     'pascal',
     'priere',
+    'prier',
     'etapes',
     'paroisse',
     'spirituelle',

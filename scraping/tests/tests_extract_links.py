@@ -25,8 +25,8 @@ class TestExtractLinks(unittest.TestCase):
                     expected_links = json.load(f)
                 content = ''.join(lines)
                 links = parse_content_links(content, home_url, {get_domain(home_url)}, set())
-                # print(links)
-                self.assertSetEqual(links, set(expected_links))
+                # print(json.dumps(list(links), indent=2))
+                self.assertSetEqual(links, set(expected_links), f'Failed for {file_name}')
 
 
 if __name__ == '__main__':
