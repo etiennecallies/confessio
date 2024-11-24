@@ -3,7 +3,7 @@ Deployment in production instructions.
 ## OVH
 
 Create a public cloud instance `discovery` `d2-2` in Gravelines, on public network,
-using ubuntu 24.04, with a name like `confessio-1`.
+using ubuntu 24.04.1, with a name like `confessio-1`.
 
 Add the following firewall configuration:
 ![OVHcloud.png](./OVHcloud.png)
