@@ -4,5 +4,7 @@
 - name: apply install configuration to server
   hosts: all
   user: ubuntu
+  collections:
+    - grafana.grafana
   roles:
     - install

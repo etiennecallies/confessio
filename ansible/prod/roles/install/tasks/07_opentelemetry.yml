@@ -2,40 +2,76 @@
 # Install OpenTelemetry Collector with AWS CloudWatch Exporter
 ##
 
-- name: Install AWS CLI
+- name: Ensure snap is installed
   apt:
-    name:
-      - awscli
-    state: latest
+    name: snapd
+    state: present
+    update_cache: yes
+  become: true
+
+- name: Ensure snapd service is running
+  service:
+    name: snapd
+    state: started
+    enabled: yes
+  become: true
+
+- name: Install AWS CLI using snap
+  snap:
+    name: aws-cli
+    state: present
+    classic: true
+  become: true
+
+- name: Ensure the /home/otel directory exists
+  file:
+    path: /home/otel
+    state: directory
+    owner: otel
+    group: otel
+    mode: '0755'
   become: true
 
 - name: Create AWS credentials directory
   file:
-    path: "~/.aws"
+    path: "/home/otel/.aws"
     state: directory
+    owner: otel
+    group: otel
     mode: "0700"
+  become_user: "otel"
+  become: true
 
 - name: Configure AWS credentials
   copy:
-    dest: "~/.aws/credentials"
+    dest: "/home/otel/.aws/credentials"
     content: |
       [default]
       aws_access_key_id = {{ otel_aws_access_key_id }}
       aws_secret_access_key = {{ otel_aws_secret_access_key }}
+      region = eu-west-3
+    owner: otel
+    group: otel
     mode: "0600"
+  become_user: "otel"
+  become: true
 
 - name: Configure AWS config
   copy:
-    dest: "~/.aws/config"
+    dest: "/home/otel/.aws/config"
     content: |
       [default]
       region = eu-west-3
       output = json
+    owner: otel
+    group: otel
     mode: "0600"
+  become_user: "otel"
+  become: true
 
 - name: Install OpenTelemetry Collector
   ansible.builtin.include_role:
-    name: opentelemetry_collector
+    name: grafana.grafana.opentelemetry_collector
   vars:
     otel_collector_receivers:
       hostmetrics:
@@ -66,4 +102,4 @@
         metrics:
           receivers: [hostmetrics]
           processors: [resourcedetection, batch]
-          exporters: [awscloudwatchremotewrite]
+          exporters: [awsemf]

@@ -7,4 +7,4 @@
 - include: 04_gunicorn.yml
 - include: 05_systemd.yml
 - include: 06_backup.yml
-#- include: 07_opentelemetry.yml
+- include: 07_opentelemetry.yml

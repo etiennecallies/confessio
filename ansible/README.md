@@ -82,7 +82,29 @@ Here is a policy to add to the IAM user to allow email sending:
 
 You'll have to verify domain and some email address on SES console.
 
+### AWS CloudWatch
+
+Create a loggroup in AWS CloudWatch called "/metrics/opentelemetry", 
+and in it a log stream "confessio-stream".
+Create an IAM user "otel-metrics-agent", with "CloudWatchAgentServerPolicy" permissions.
+Export the access key and secret key.
+
+You can check the permissions in server by doing :
+```shell
+sudo su - otel
+aws logs put-log-events --log-group-name "/metrics/opentelemetry" --log-stream-name "confessio-stream" --log-events timestamp=$(date +%s%3N),message="Test log event" --region eu-west-3
+```
+
 ## Run ansible playbook
+
+### Install Ansible dependencies
+
+Install latest grafana.grafana ansible collection:
+```
+ansible-galaxy collection install grafana.grafana --force
+```
+
+### Run playbook
 
 ```shell
 # first installation of server
