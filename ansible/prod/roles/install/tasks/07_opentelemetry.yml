@@ -77,8 +77,26 @@
       hostmetrics:
         collection_interval: 60s
         scrapers:
-          cpu: {}              # CPU usage metrics
-          memory: {}           # RAM usage metrics
+          cpu:
+            metrics:
+              system.cpu.utilization:
+                enabled: true
+              system.cpu.time:
+                enabled: true
+          memory:
+            metrics:
+              system.memory.utilization:
+                enabled: true
+              system.memory.usage:
+                enabled: true
+          filesystem:
+            metrics:
+              system.filesystem.utilization:
+                enabled: true
+              system.filesystem.usage:
+                enabled: true
+              system.filesystem.inodes.usage:
+                enabled: false
 
     otel_collector_processors:
       batch: {}                # Batch processor for metrics
