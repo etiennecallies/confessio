@@ -79,7 +79,6 @@
         scrapers:
           cpu: {}              # CPU usage metrics
           memory: {}           # RAM usage metrics
-          disk: {}             # Disk metrics
 
     otel_collector_processors:
       batch: {}                # Batch processor for metrics
@@ -94,8 +93,11 @@
         region: eu-west-3
         log_group_name: /metrics/opentelemetry
         log_stream_name: 'confessio-stream'
+        namespace: 'confessio'
+        log_retention: 60
         resource_to_telemetry_conversion:
-          enabled: true         # Include resource attributes in metrics
+          enabled: true
+        dimension_rollup_option: "NoDimensionRollup"
 
     otel_collector_service:
       pipelines:
