@@ -60,6 +60,9 @@ INSTALLED_APPS = [
     "home",
 ]
 
+# OTEL
+import core.otel.exporter  # noqa
+
 MIDDLEWARE = [
     'core.otel.middlewares.RequestStartTimeMiddleware',
     "django.middleware.security.SecurityMiddleware",
@@ -251,6 +254,3 @@ REQUEST_TRAFFIC_MODULES = (
     'request.traffic.Hit',
     'request.traffic.Search',
 )
-
-# OTEL
-import core.otel.exporter  # noqa
