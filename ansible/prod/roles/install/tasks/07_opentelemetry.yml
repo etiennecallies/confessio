@@ -74,6 +74,9 @@
     name: grafana.grafana.opentelemetry_collector
   vars:
     otel_collector_receivers:
+      otlp:
+        protocols:
+          http:
       hostmetrics:
         collection_interval: 60s
         scrapers:
@@ -120,6 +123,6 @@
     otel_collector_service:
       pipelines:
         metrics:
-          receivers: [hostmetrics]
+          receivers: [hostmetrics, otlp]
           processors: [resourcedetection, batch]
           exporters: [awsemf]
