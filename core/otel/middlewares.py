@@ -36,6 +36,14 @@ class ResponseTimeMetricsMiddleware:
             elapsed_time = time.time() - start_time
             url_name = request.resolver_match.url_name or "unknown"
 
+            # Avoid too many metrics
+            if url_name not in [
+                'index',
+                'autocomplete',
+                'diocese_view',
+            ]:
+                url_name = 'other'
+
             # Record the response time in the histogram
             self.response_time_histogram.record(elapsed_time, {
                 "url_name": url_name,
