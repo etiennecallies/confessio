@@ -23,7 +23,4 @@ urlpatterns = [
 
     # captcha
     path('captcha/', include('captcha.urls')),
-
-    # prometheus
-    path('prometheus/', include('django_prometheus.urls')),
 ]

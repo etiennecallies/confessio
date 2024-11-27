@@ -53,7 +53,6 @@ INSTALLED_APPS = [
 
     'leaflet',  # used in admin
     'request',  # statistics
-    'django_prometheus',  # prometheus metrics
     'dbbackup',  # nightly backups
     'simple_history',  # object versioning
     'captcha',  # captcha
@@ -62,7 +61,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'django_prometheus.middleware.PrometheusBeforeMiddleware',
+    'core.otel.middlewares.RequestStartTimeMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -73,7 +72,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "request.middleware.RequestMiddleware",
     'simple_history.middleware.HistoryRequestMiddleware',
-    'django_prometheus.middleware.PrometheusAfterMiddleware',
+    'core.otel.middlewares.ResponseTimeMetricsMiddleware',
 ]
 
 ROOT_URLCONF = "core.urls"
@@ -253,7 +252,5 @@ REQUEST_TRAFFIC_MODULES = (
     'request.traffic.Search',
 )
 
-# PROMETHEUS
-PROMETHEUS_LATENCY_BUCKETS = (0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 0.75, 1.0, 2.5, 5.0, 7.5,
-                              10.0, 25.0, float("inf"),)
-PROMETHEUS_METRIC_NAMESPACE = "confessio"
+# OTEL
+import core.otel.exporter  # noqa
