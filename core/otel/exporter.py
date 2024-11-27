@@ -4,7 +4,7 @@ from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
 
 # Use ConsoleMetricExporter() for debugging
-metric_exporter = OTLPMetricExporter(endpoint="http://localhost:4318")
+metric_exporter = OTLPMetricExporter()
 metric_reader = PeriodicExportingMetricReader(metric_exporter)
 meter_provider = MeterProvider(metric_readers=[metric_reader])
 

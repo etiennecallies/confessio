@@ -8,6 +8,9 @@ from core.settings import *
 
 import os
 
+# OTEL
+import core.otel.exporter  # noqa
+
 # SECURITY WARNING: keep the secret key used in production secret!
 if not os.environ.get('DJANGO_SECRET_KEY'):
     raise ValueError('no DJANGO_SECRET_KEY found')

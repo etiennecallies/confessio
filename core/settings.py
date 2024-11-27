@@ -60,9 +60,6 @@ INSTALLED_APPS = [
     "home",
 ]
 
-# OTEL
-import core.otel.exporter  # noqa
-
 MIDDLEWARE = [
     'core.otel.middlewares.RequestStartTimeMiddleware',
     "django.middleware.security.SecurityMiddleware",
