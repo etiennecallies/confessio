@@ -22,12 +22,6 @@ class ResponseTimeMetricsMiddleware:
             description="Response time by URL name",
         )
 
-        # Counter to track the number of requests per URL name
-        self.request_counter = meter.create_counter(
-            "http.server.requests.count",
-            description="Count of requests by URL name",
-        )
-
     def __call__(self, request):
         response = self.get_response(request)
         start_time = getattr(request, "start_time", None)
@@ -49,8 +43,4 @@ class ResponseTimeMetricsMiddleware:
                 "url_name": url_name,
             })
 
-            # Increment the request counter
-            self.request_counter.add(1, {
-                "url_name": url_name,
-            })
         return response
