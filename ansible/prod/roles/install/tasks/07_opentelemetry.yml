@@ -1,78 +1,12 @@
 ##
-# Install OpenTelemetry Collector with AWS CloudWatch Exporter
+# Install OpenTelemetry Collector
 ##
-
-- name: Ensure snap is installed
-  apt:
-    name: snapd
-    state: present
-    update_cache: yes
-  become: true
-
-- name: Ensure snapd service is running
-  service:
-    name: snapd
-    state: started
-    enabled: yes
-  become: true
-
-- name: Install AWS CLI using snap
-  snap:
-    name: aws-cli
-    state: present
-    classic: true
-  become: true
-
-- name: Ensure the /home/otel directory exists
-  file:
-    path: /home/otel
-    state: directory
-    owner: otel
-    group: otel
-    mode: '0755'
-  become: true
-
-- name: Create AWS credentials directory
-  file:
-    path: "/home/otel/.aws"
-    state: directory
-    owner: otel
-    group: otel
-    mode: "0700"
-  become_user: "otel"
-  become: true
-
-- name: Configure AWS credentials
-  copy:
-    dest: "/home/otel/.aws/credentials"
-    content: |
-      [default]
-      aws_access_key_id = {{ otel_aws_access_key_id }}
-      aws_secret_access_key = {{ otel_aws_secret_access_key }}
-      region = eu-west-3
-    owner: otel
-    group: otel
-    mode: "0600"
-  become_user: "otel"
-  become: true
-
-- name: Configure AWS config
-  copy:
-    dest: "/home/otel/.aws/config"
-    content: |
-      [default]
-      region = eu-west-3
-      output = json
-    owner: otel
-    group: otel
-    mode: "0600"
-  become_user: "otel"
-  become: true
 
 - name: Install OpenTelemetry Collector
   ansible.builtin.include_role:
     name: grafana.grafana.opentelemetry_collector
   vars:
+    otel_collector_version: 0.114.0
     otel_collector_receivers:
       otlp:
         protocols:
@@ -85,19 +19,19 @@
               system.cpu.utilization:
                 enabled: true
               system.cpu.time:
-                enabled: true
+                enabled: false
           memory:
             metrics:
               system.memory.utilization:
                 enabled: true
               system.memory.usage:
-                enabled: true
+                enabled: false
           filesystem:
             metrics:
               system.filesystem.utilization:
                 enabled: true
               system.filesystem.usage:
-                enabled: true
+                enabled: false
               system.filesystem.inodes.usage:
                 enabled: false
 
@@ -108,21 +42,19 @@
         timeout: 2s
         system:
           hostname_sources: [os]
+      attributes/betterstack:
+        actions:
+          - key: better_stack_source_token
+            value: '{{ otel_better_stack_source_token }}'
+            action: insert
 
     otel_collector_exporters:
-      awsemf: # AWS CloudWatch Embedded Metric Format exporter
-        region: eu-west-3
-        log_group_name: /metrics/opentelemetry
-        log_stream_name: 'confessio-stream'
-        namespace: 'confessio'
-        log_retention: 60
-        resource_to_telemetry_conversion:
-          enabled: true
-        dimension_rollup_option: "NoDimensionRollup"
+      prometheusremotewrite/betterstack:
+        endpoint: "https://in-otel.logs.betterstack.com/metrics"
 
     otel_collector_service:
       pipelines:
         metrics:
           receivers: [hostmetrics, otlp]
-          processors: [resourcedetection, batch]
-          exporters: [awsemf]
+          processors: [resourcedetection, batch, attributes/betterstack]
+          exporters: [prometheusremotewrite/betterstack]
