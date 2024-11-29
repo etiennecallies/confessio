@@ -14,3 +14,5 @@ env
 
 .env
 .python-version
+
+static_profiling/

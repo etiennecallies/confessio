@@ -131,6 +131,16 @@ For example, to crawl all websites:
 python manage.py crawl_websites
 ```
 
+## Profiling
+
+We use [silk](https://github.com/jazzband/django-silk) as profiling tool.
+```
+DJANGO_SETTINGS_MODULE=core.profiling_settings python manage.py migrate
+DJANGO_SETTINGS_MODULE=core.profiling_settings python manage.py collectstatic
+DJANGO_SETTINGS_MODULE=core.profiling_settings python manage.py runserver
+```
+Then visit http://127.0.0.1:8000/silk.
+
 ---
 
 # Prod environment
