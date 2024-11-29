@@ -130,14 +130,8 @@ class Page(TimeStampMixin):
     class Meta:
         unique_together = ('url', 'website')
 
-    def get_latest_scraping(self) -> Optional['Scraping']:
-        try:
-            return self.scraping
-        except Scraping.DoesNotExist:
-            return None
-
     def has_been_scraped(self) -> bool:
-        return self.get_latest_scraping() is not None
+        return self.scraping is not None
 
     def has_been_parsed(self) -> bool:
         if self.get_prunings() is None:
@@ -152,10 +146,10 @@ class Page(TimeStampMixin):
         return any(pruning.has_confessions() for pruning in self.get_prunings())
 
     def get_prunings(self) -> list['Pruning'] or None:
-        if self.get_latest_scraping() is None:
+        if self.scraping is None:
             return None
 
-        return self.get_latest_scraping().prunings.all()
+        return self.scraping.prunings.all()
 
     def get_parsing(self, pruning: 'Pruning') -> Optional['Parsing']:
         try:
@@ -164,16 +158,15 @@ class Page(TimeStampMixin):
             return None
 
     def has_been_modified_recently(self) -> bool:
-        latest_scraping = self.get_latest_scraping()
-        if latest_scraping is None:
+        if self.scraping is None:
             return False
 
         # If latest scraping was created more than one year ago
-        if latest_scraping.created_at < timezone.now() - timedelta(days=365):
+        if self.scraping.created_at < timezone.now() - timedelta(days=365):
             return False
 
         # If latest scraping is older than page creation
-        if latest_scraping.created_at <= self.created_at + timedelta(hours=2):
+        if self.scraping.created_at <= self.created_at + timedelta(hours=2):
             return False
 
         return True

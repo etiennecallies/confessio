@@ -12,5 +12,15 @@ INSTALLED_APPS += ['silk']
 
 ROOT_URLCONF = "core.profiling_urls"
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static_profiling')
+STATIC_ROOT = os.path.join(BASE_DIR, 'profiling_static')
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
+
+SILKY_PYTHON_PROFILER = True
+SILKY_PYTHON_PROFILER_BINARY = True
+
+SILKY_PYTHON_PROFILER_RESULT_PATH = 'profiling_prof_files/'
+
+# create directory if not exists
+if not os.path.exists(SILKY_PYTHON_PROFILER_RESULT_PATH):
+    os.makedirs(SILKY_PYTHON_PROFILER_RESULT_PATH)
+

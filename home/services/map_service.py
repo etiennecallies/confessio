@@ -23,8 +23,9 @@ def get_churches_around(center) -> tuple[list[Church], bool]:
     latitude, longitude = center
     center_as_point = Point(x=longitude, y=latitude)
 
-    # TODO load parish and latest scraping at the same time
     churches = Church.objects\
+        .select_related('parish__website') \
+        .prefetch_related('parish__website__pages__scraping__prunings') \
         .filter(location__dwithin=(center_as_point, D(km=5)),
                 is_active=True,
                 parish__website__is_active=True) \
@@ -37,8 +38,9 @@ def get_churches_around(center) -> tuple[list[Church], bool]:
 def get_churches_in_box(min_lat, max_lat, min_long, max_long) -> tuple[list[Church], bool]:
     polygon = Polygon.from_bbox((min_long, min_lat, max_long, max_lat))
 
-    # TODO load parish and latest scraping at the same time
     churches = Church.objects\
+        .select_related('parish__website') \
+        .prefetch_related('parish__website__pages__scraping__prunings') \
         .filter(location__within=polygon,
                 is_active=True,
                 parish__website__is_active=True) \
@@ -51,8 +53,9 @@ def get_churches_in_box(min_lat, max_lat, min_long, max_long) -> tuple[list[Chur
 
 
 def get_churches_by_website(website: Website) -> tuple[list[Church], bool]:
-    # TODO load website and latest scraping at the same time
     churches = Church.objects\
+        .select_related('parish__website') \
+        .prefetch_related('parish__website__pages__scraping__prunings') \
         .filter(parish__website=website,
                 is_active=True,
                 parish__website__is_active=True).all()[:MAX_CHURCHES_IN_RESULTS]
@@ -61,8 +64,9 @@ def get_churches_by_website(website: Website) -> tuple[list[Church], bool]:
 
 
 def get_churches_by_diocese(diocese: Diocese) -> tuple[list[Church], bool]:
-    # TODO load parish and latest scraping at the same time
     churches = Church.objects\
+        .select_related('parish__website') \
+        .prefetch_related('parish__website__pages__scraping__prunings') \
         .filter(parish__diocese=diocese,
                 is_active=True,
                 parish__website__is_active=True) \

@@ -11,7 +11,7 @@
                         {% blocktrans with url=page_pruning_urls|get_item:page.uuid|get_item:pruning.uuid %}BeforeConfessionHTML {{ url }}{% endblocktrans %}
                         {% if page.has_been_modified_recently %}
                             <button type="button" class="btn btn-success btn-sm" data-toggle="tooltip" data-placement="bottom"
-                                    title="Contenu modifié le {{ page.get_latest_scraping.created_at|date:"d M" }}">
+                                    title="Contenu modifié le {{ page.scraping.created_at|date:"d M" }}">
                                 À jour
                             </button>
                         {% endif %}

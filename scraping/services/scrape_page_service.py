@@ -18,19 +18,18 @@ def is_extracted_html_list_identical_for_scraping(scraping: Scraping,
 
 def upsert_extracted_html_list(page: Page, extracted_html_list: list[str]):
     # Compare result to last scraping
-    scraping = page.get_latest_scraping()
-    if (scraping is not None
-            and is_extracted_html_list_identical_for_scraping(scraping, extracted_html_list)):
+    if (page.scraping is not None
+            and is_extracted_html_list_identical_for_scraping(page.scraping, extracted_html_list)):
         # If a scraping exists and is identical to last one
-        scraping.nb_iterations += 1
-        scraping.save()
+        page.scraping.nb_iterations += 1
+        page.scraping.save()
 
-        for pruning in scraping.prunings.all():
+        for pruning in page.scraping.prunings.all():
             prune_pruning(pruning)
     else:
-        if scraping is not None:
+        if page.scraping is not None:
             # If a scraping exists and is different from last one, we delete it
-            delete_scraping(scraping)
+            delete_scraping(page.scraping)
 
         prunings = []
         for extracted_html_item in extracted_html_list:
