@@ -36,12 +36,17 @@
                 enabled: false
 
     otel_collector_processors:
-      batch: {}                # Batch processor for metrics
       resourcedetection:
         detectors: [env, system]
         timeout: 2s
         system:
           hostname_sources: [os]
+      filter/ottl:
+        error_mode: ignore
+        metrics:
+          datapoint:
+            - 'metric.name == "system.filesystem.utilization" and attributes["mountpoint"] != "/"'
+      batch: {}
       attributes/betterstack:
         actions:
           - key: better_stack_source_token
@@ -49,6 +54,8 @@
             action: insert
 
     otel_collector_exporters:
+#      debug:
+#        verbosity: detailed
       prometheusremotewrite/betterstack:
         endpoint: "https://in-otel.logs.betterstack.com/metrics"
 
@@ -56,5 +63,5 @@
       pipelines:
         metrics:
           receivers: [hostmetrics, otlp]
-          processors: [resourcedetection, batch, attributes/betterstack]
+          processors: [resourcedetection, filter/ottl, batch, attributes/betterstack]
           exporters: [prometheusremotewrite/betterstack]
