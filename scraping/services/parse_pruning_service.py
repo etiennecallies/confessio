@@ -39,23 +39,6 @@ def get_truncated_html(pruning: Pruning) -> str:
 # CHURCH DESC #
 ###############
 
-def get_church_desc(church: Church) -> str:
-    return f'{church.name} {church.city}'
-
-
-def get_church_desc_by_id(website: Website) -> dict[int, str]:
-    church_descs = []
-    for parish in website.parishes.all():
-        for church in parish.churches.all():
-            church_descs.append(get_church_desc(church))
-
-    church_desc_by_id = {}
-    for i, desc in enumerate(sorted(church_descs)):
-        church_desc_by_id[i] = desc
-
-    return church_desc_by_id
-
-
 def get_id_by_value(church_desc: str, church_desc_by_id: dict[int, str]) -> int:
     for index, desc in church_desc_by_id.items():
         if desc == church_desc:
@@ -68,7 +51,7 @@ def get_church_by_id(parsing: Parsing, website: Website) -> dict[int, Church]:
     church_by_id = {}
     for parish in website.parishes.all():
         for church in parish.churches.all():
-            church_id = get_id_by_value(get_church_desc(church), parsing.church_desc_by_id)
+            church_id = get_id_by_value(church.get_desc(), parsing.church_desc_by_id)
             church_by_id[church_id] = church
 
     return church_by_id
@@ -258,7 +241,7 @@ def is_eligible_to_parsing(website: Website):
 def clean_parsing_moderations() -> int:
     counter = 0
     for parsing_moderation in ParsingModeration.objects.filter(validated_at__isnull=True).all():
-        if not any(is_eligible_to_parsing(w) for w in parsing_moderation.parsing.websites.all()):
+        if not any(is_eligible_to_parsing(w) for w in parsing_moderation.parsing.get_websites()):
             parsing_moderation.delete()
             counter += 1
 
@@ -268,23 +251,22 @@ def clean_parsing_moderations() -> int:
 ###########################
 # Website & Pruning links #
 ###########################
+def has_parsing_a_matching_website(parsing: Parsing) -> bool:
+    for website in parsing.get_websites():
+        if parsing.match_website(website):
+            return True
 
-def unlink_website_from_existing_parsing_for_pruning(website: Website, pruning: Pruning):
-    try:
-        parsing = Parsing.objects.filter(prunings=pruning, websites=website).get()
-    except Parsing.DoesNotExist:
-        return
-
-    parsing.websites.remove(website)
-
-    print(f'deleting not validated moderation for parsing {parsing} since it has no '
-          f'website any more')
-    ParsingModeration.objects.filter(parsing=parsing, validated_at__isnull=True).delete()
+    return False
 
 
-def ensure_website_pruning_links(parsing: Parsing, website: Website, pruning: Pruning):
-    parsing.websites.add(website)
-    parsing.prunings.add(pruning)
+def unlink_website_from_existing_parsing_for_pruning(pruning: Pruning):
+    parsings = Parsing.objects.filter(prunings=pruning).all()
+
+    for parsing in parsings:
+        if not has_parsing_a_matching_website(parsing):
+            print(f'deleting not validated moderation for parsing {parsing} since it has no '
+                  f'website any more')
+            ParsingModeration.objects.filter(parsing=parsing, validated_at__isnull=True).delete()
 
 
 ########
@@ -306,7 +288,7 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
         return
 
     truncated_html_hash = hash_string_to_hex(truncated_html)
-    church_desc_by_id = get_church_desc_by_id(website)
+    church_desc_by_id = website.get_church_desc_by_id()
 
     llm_model = get_llm_model()
     prompt_template = get_prompt_template()
@@ -318,7 +300,6 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
             and parsing.llm_model == llm_model \
             and parsing.prompt_template_hash == prompt_template_hash:
         print(f'Parsing already exists for pruning {pruning}')
-        ensure_website_pruning_links(parsing, website, pruning)
         return
 
     print(f'parsing {pruning} for website {website}')
@@ -331,7 +312,7 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
         parsing.error_detail = error_detail
         parsing.save()
     else:
-        unlink_website_from_existing_parsing_for_pruning(website, pruning)
+        unlink_website_from_existing_parsing_for_pruning(pruning)
 
         parsing = Parsing(
             truncated_html=truncated_html,
@@ -342,8 +323,6 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
             error_detail=error_detail,
         )
         parsing.save()
-
-    ensure_website_pruning_links(parsing, website, pruning)
 
     save_schedule_list(parsing, schedules_list)
     add_necessary_parsing_moderation(parsing, schedules_list)

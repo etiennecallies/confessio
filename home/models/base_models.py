@@ -94,6 +94,18 @@ class Website(TimeStampMixin):
                         for pruning in page.get_prunings()]
         return [p for p in all_parsings if p is not None]
 
+    def get_church_desc_by_id(self) -> dict[int, str]:
+        church_descs = []
+        for parish in self.parishes.all():
+            for church in parish.churches.all():
+                church_descs.append(church.get_desc())
+
+        church_desc_by_id = {}
+        for i, desc in enumerate(sorted(church_descs)):
+            church_desc_by_id[i] = desc
+
+        return church_desc_by_id
+
 
 class Parish(TimeStampMixin):
     name = models.CharField(max_length=100)
@@ -116,6 +128,9 @@ class Church(TimeStampMixin):
                                related_name='churches')
     is_active = models.BooleanField(default=True)
     history = HistoricalRecords()
+
+    def get_desc(self) -> str:
+        return f'{self.name} {self.city}'
 
 
 class Page(TimeStampMixin):
@@ -152,10 +167,7 @@ class Page(TimeStampMixin):
         return self.scraping.prunings.all()
 
     def get_parsing(self, pruning: 'Pruning') -> Optional['Parsing']:
-        try:
-            return pruning.parsings.filter(websites=self.website).get()
-        except Parsing.DoesNotExist:
-            return None
+        return pruning.get_parsing(self.website)
 
     def has_been_modified_recently(self) -> bool:
         if self.scraping is None:
@@ -200,10 +212,11 @@ class Pruning(TimeStampMixin):
         return bool(self.pruned_indices)
 
     def get_parsing(self, website: Website) -> Optional['Parsing']:
-        try:
-            return self.parsings.filter(websites=website).get()
-        except Parsing.DoesNotExist:
-            return None
+        for parsing in self.parsings.all():
+            if parsing.match_website(website):
+                return parsing
+
+        return None
 
     def has_been_parsed(self, website: Website) -> bool:
         if not self.pruned_indices:
@@ -245,7 +258,6 @@ class Parsing(TimeStampMixin):
     truncated_html_hash = models.CharField(max_length=32, editable=False)
     church_desc_by_id = models.JSONField(editable=False)
 
-    websites = models.ManyToManyField('Website', related_name='parsings')
     prunings = models.ManyToManyField('Pruning', related_name='parsings')
 
     llm_model = models.CharField(max_length=100)
@@ -265,6 +277,12 @@ class Parsing(TimeStampMixin):
 
     def get_schedules(self) -> list['Schedule']:
         return list(self.one_off_schedules.all()) + list(self.regular_schedules.all())
+
+    def get_websites(self) -> list['Website']:
+        return Website.objects.filter(pages__scraping__prunings__parsings=self).distinct()
+
+    def match_website(self, website: Website) -> bool:
+        return self.church_desc_by_id == website.get_church_desc_by_id()
 
 
 class Schedule(TimeStampMixin):
