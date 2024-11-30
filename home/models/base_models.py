@@ -145,6 +145,13 @@ class Page(TimeStampMixin):
     class Meta:
         unique_together = ('url', 'website')
 
+    def get_scraping(self) -> Optional['Scraping']:
+        # TODO refacto, scraping should be nullable field on Page side
+        try:
+            return self.scraping
+        except Scraping.DoesNotExist:
+            return None
+
     def has_been_scraped(self) -> bool:
         return self.scraping is not None
 
@@ -161,7 +168,7 @@ class Page(TimeStampMixin):
         return any(pruning.has_confessions() for pruning in self.get_prunings())
 
     def get_prunings(self) -> list['Pruning'] or None:
-        if self.scraping is None:
+        if self.get_scraping() is None:
             return None
 
         return self.scraping.prunings.all()
