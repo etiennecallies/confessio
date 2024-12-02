@@ -190,7 +190,8 @@ class Crawling(TimeStampMixin):
     error_detail = models.TextField(null=True)
     nb_visited_links = models.PositiveSmallIntegerField()
     nb_success_links = models.PositiveSmallIntegerField()
-    website = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='crawlings')
+    website_temp = models.ForeignKey('Website', on_delete=models.CASCADE,
+                                     related_name='crawlings')
 
 
 class Scraping(TimeStampMixin):
