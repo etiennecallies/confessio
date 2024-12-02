@@ -18,13 +18,12 @@ class Command(AbstractCommand):
         website_not_crawled = []
         website_not_crawled_recently = []
         for website in active_websites:
-            latest_crawling = website.get_latest_crawling()
-            if latest_crawling is None:
+            if website.crawling is None:
                 website_not_crawled.append(website)
                 continue
 
             # check that latest crawling is no older than 24 hours
-            if latest_crawling.created_at < timezone.now() - timedelta(days=1):
+            if website.crawling.created_at < timezone.now() - timedelta(days=1):
                 website_not_crawled_recently.append(website)
 
         if website_not_crawled or website_not_crawled_recently:
@@ -35,7 +34,7 @@ class Command(AbstractCommand):
             website_not_crawled_str = "\n".join(
                 [f" - {website.name} {website.uuid}" for website in website_not_crawled[:5]])
             website_not_crawled_recently_str = "\n".join(
-                [f" - {website.get_latest_crawling().created_at} {website.name} {website.uuid}"
+                [f" - {website.crawling.created_at} {website.name} {website.uuid}"
                  for website in website_not_crawled_recently[:5]])
 
             message = f"""

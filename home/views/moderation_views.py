@@ -115,7 +115,7 @@ def render_website_moderation(request, moderation: WebsiteModeration, next_url):
     return render(request, f'pages/moderate_website.html', {
         'website_moderation': moderation,
         'website': moderation.website,
-        'latest_crawling': moderation.website.get_latest_crawling(),
+        'latest_crawling': moderation.website.crawling,
         'next_url': next_url,
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
     })

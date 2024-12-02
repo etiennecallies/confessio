@@ -52,24 +52,11 @@ class Website(TimeStampMixin):
     unreliability_reason = models.CharField(choices=UnreliabilityReason, null=True, blank=True)
     history = HistoricalRecords()
 
-    _latest_crawling = None
-    _has_search_latest_crawling = False
-
     def __str__(self):
         return self.name
 
-    def get_latest_crawling(self) -> Optional['Crawling']:
-        if not self._has_search_latest_crawling:
-            try:
-                self._latest_crawling = self.crawlings.latest()
-            except Crawling.DoesNotExist:
-                self._latest_crawling = None
-            self._has_search_latest_crawling = True
-
-        return self._latest_crawling
-
     def has_been_crawled(self) -> bool:
-        return self.get_latest_crawling() is not None
+        return self.crawling is not None
 
     def get_pages(self) -> List['Page']:
         return self.pages.all()
