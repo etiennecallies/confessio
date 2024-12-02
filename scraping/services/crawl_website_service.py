@@ -95,7 +95,6 @@ def crawl_website(website: Website) -> Tuple[bool, bool, Optional[str]]:
         nb_visited_links=nb_visited_links,
         nb_success_links=len(extracted_html_list_by_url),
         error_detail=error_detail,
-        website_temp=website,  # TODO remove this
     )
     crawling.save()
 
