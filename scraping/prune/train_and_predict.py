@@ -85,7 +85,7 @@ class TensorFlowModel(MachineLearningInterface):
                        epochs=self.epochs,
                        verbose=False)
 
-    def predict(self, vectors) -> list:
+    def predict(self, vectors) -> list[Action]:
         import pandas as pd
         predictions = self.model.predict(pd.DataFrame(vectors),
                                          verbose=False)

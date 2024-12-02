@@ -10,7 +10,7 @@ from home.models import Sentence
 from scraping.extract.extract_content import BaseActionInterface, ExtractMode
 from scraping.extract.extract_content import extract_paragraphs_lines_and_indices
 from scraping.prune.models import Action, Source
-from scraping.services.classify_sentence_service import classify_sentence
+from scraping.services.classify_sentence_service import classify_and_create_sentence
 from scraping.services.page_service import remove_pruning_if_orphan
 from scraping.services.parse_pruning_service import parse_pruning_for_website
 
@@ -33,7 +33,7 @@ class SentenceFromDbActionInterface(BaseActionInterface):
         try:
             return Sentence.objects.get(line=line_without_link)
         except Sentence.DoesNotExist:
-            return classify_sentence(line_without_link, self.pruning)
+            return classify_and_create_sentence(line_without_link, self.pruning)
 
 
 ##############################

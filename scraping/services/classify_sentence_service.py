@@ -48,8 +48,26 @@ def classify_line(line_without_link: str
     return action, classifier, embedding, transformer
 
 
-def classify_sentence(line_without_link: str,
-                      pruning: Pruning) -> Sentence:
+def classify_existing_sentence(sentence: Sentence) -> Action:
+    # 1. Get transformer
+    transformer = get_transformer()
+    if sentence.transformer_name != transformer.get_name():
+        embedding = transformer.transform(sentence.line)
+    else:
+        embedding = sentence.embedding
+
+    # 2. Get classifier
+    classifier = get_classifier(transformer)
+    model = get_model(classifier)
+
+    # 3. Predict action
+    action = model.predict([embedding])[0]
+
+    return action
+
+
+def classify_and_create_sentence(line_without_link: str,
+                                 pruning: Pruning) -> Sentence:
     # Classify line
     action, classifier, embedding, transformer = classify_line(line_without_link)
 
