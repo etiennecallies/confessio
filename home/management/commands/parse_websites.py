@@ -20,8 +20,8 @@ class Command(AbstractCommand):
                             help='re-parse existing parsings')
 
     def handle(self, *args, **options):
-        query = Q(scrapings__temp_page__website__is_active=True,
-                  scrapings__temp_page__website__unreliability_reason__exact='',
+        query = Q(scrapings__page__website__is_active=True,
+                  scrapings__page__website__unreliability_reason__exact='',
                   pruned_indices__len__gt=0)
         if options['pruning_uuid']:
             query &= Q(uuid__in=options['pruning_uuid'])
@@ -31,11 +31,11 @@ class Command(AbstractCommand):
             query &= Q(scrapings__isnull=False)
 
         if options['name']:
-            query &= Q(scrapings__temp_page__website__name__contains=options['name'])
+            query &= Q(scrapings__page__website__name__contains=options['name'])
         if options['diocese']:
             d = options['diocese']
             query &= Q(
-                scrapings__temp_page__website__parishes__diocese__messesinfo_network_id__exact=d)
+                scrapings__page__website__parishes__diocese__messesinfo_network_id__exact=d)
 
         prunings = Pruning.objects.filter(query).distinct()
 
@@ -46,7 +46,7 @@ class Command(AbstractCommand):
                 if max_parsings and counter >= max_parsings:
                     break
 
-                website = scraping.temp_page.website
+                website = scraping.page.website
                 self.info(f'Pruning {pruning.uuid} for website {website.name}')
                 parse_pruning_for_website(pruning, website, options['force_parse'])
                 counter += 1

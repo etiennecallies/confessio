@@ -21,15 +21,15 @@ MAX_CHURCHES_IN_RESULTS = 50
 
 def build_church_query() -> 'QuerySet[Church]':
     return Church.objects.select_related('parish__website') \
-        .prefetch_related('parish__website__pages__temp_scraping__prunings__parsings') \
+        .prefetch_related('parish__website__pages__scraping__prunings__parsings') \
         .prefetch_related('parish__website__parishes__churches') \
         .filter(is_active=True, parish__website__is_active=True)
 
 
 def order_by_nb_page_with_confessions(church_query: 'QuerySet[Church]') -> 'QuerySet[Church]':
     return church_query.annotate(nb_page_with_confessions=Count(
-        'parish__website__pages__temp_scraping',
-        filter=Q(parish__website__pages__temp_scraping__prunings__pruned_indices__len__gt=0)), ) \
+        'parish__website__pages__scraping',
+        filter=Q(parish__website__pages__scraping__prunings__pruned_indices__len__gt=0)), ) \
         .order_by('-nb_page_with_confessions')
 
 

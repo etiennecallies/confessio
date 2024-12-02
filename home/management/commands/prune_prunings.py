@@ -12,11 +12,11 @@ class Command(AbstractCommand):
 
     def handle(self, *args, **options):
         if options['pruning_uuid']:
-            prunings = Pruning.objects.filter(scrapings__temp_page__website__is_active=True,
+            prunings = Pruning.objects.filter(scrapings__page__website__is_active=True,
                                               uuid__in=options['pruning_uuid']).distinct()
         else:
             prunings = Pruning.objects.filter(
-                scrapings__temp_page__website__is_active=True
+                scrapings__page__website__is_active=True
             ).distinct()
 
         counter = 0

@@ -23,8 +23,12 @@ class Command(AbstractCommand):
                 # Actually do the scraping
                 extracted_html_list = get_fresh_extracted_html_list(page.url)
 
+                if not extracted_html_list:
+                    self.error(f'Failed to scrape page {page.url}')
+                    continue
+
                 # Insert or update scraping
                 upsert_extracted_html_list(page, extracted_html_list)
-                self.info(f'Successfully scrapped page {page.url} {page.uuid}')
+                self.info(f'Successfully scraped page {page.url} {page.uuid}')
 
-            self.success(f'Successfully scrapped website {website.name} {website.uuid}')
+            self.success(f'Successfully scraped website {website.name} {website.uuid}')

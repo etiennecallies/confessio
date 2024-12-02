@@ -96,7 +96,7 @@ def update_sentence_action(sentence: Sentence, pruning: Pruning, user: User, act
 def reset_pages_counter_of_pruning(pruning: Pruning):
     websites_to_reset = set()
     for scraping in pruning.scrapings.all():
-        page = scraping.temp_page
+        page = scraping.page
         page.pruning_validation_counter = -1
         page.save()
         websites_to_reset.add(page.website)
@@ -109,7 +109,7 @@ def reset_pages_counter_of_pruning(pruning: Pruning):
 def increment_page_validation_counter_of_pruning(pruning: Pruning):
     websites_to_increment = set()
     for scraping in pruning.scrapings.all():
-        page = scraping.temp_page
+        page = scraping.page
         page.pruning_validation_counter += 1
         page.pruning_last_validated_at = Now()
         page.save()
