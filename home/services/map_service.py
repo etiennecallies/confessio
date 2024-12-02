@@ -5,7 +5,7 @@ from uuid import UUID
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.geos import Point, Polygon
 from django.contrib.gis.measure import D
-from django.db.models import Count, Q
+from django.db.models import Count, Q, QuerySet
 from django.utils.translation import gettext as _
 
 from home.models import Church, Website, Diocese
@@ -19,67 +19,57 @@ MAX_CHURCHES_IN_RESULTS = 50
 # SEARCH #
 ##########
 
+def build_church_query() -> 'QuerySet[Church]':
+    return Church.objects.select_related('parish__website') \
+        .prefetch_related('parish__website__pages__temp_scraping__prunings__parsings') \
+        .prefetch_related('parish__website__parishes__churches') \
+        .filter(is_active=True, parish__website__is_active=True)
+
+
+def order_by_nb_page_with_confessions(church_query: 'QuerySet[Church]') -> 'QuerySet[Church]':
+    return church_query.annotate(nb_page_with_confessions=Count(
+        'parish__website__pages__temp_scraping',
+        filter=Q(parish__website__pages__temp_scraping__prunings__pruned_indices__len__gt=0)), ) \
+        .order_by('-nb_page_with_confessions')
+
+
+def truncate_results(church_query: 'QuerySet[Church]') -> tuple[list[Church], bool]:
+    churches = church_query.all()[:MAX_CHURCHES_IN_RESULTS]
+    return churches, len(churches) >= MAX_CHURCHES_IN_RESULTS
+
+
 def get_churches_around(center) -> tuple[list[Church], bool]:
     latitude, longitude = center
     center_as_point = Point(x=longitude, y=latitude)
 
-    churches = Church.objects\
-        .select_related('parish__website') \
-        .prefetch_related('parish__website__pages__scraping__prunings__parsings') \
-        .prefetch_related('parish__website__parishes__churches') \
-        .filter(location__dwithin=(center_as_point, D(km=5)),
-                is_active=True,
-                parish__website__is_active=True) \
+    church_query = build_church_query() \
+        .filter(location__dwithin=(center_as_point, D(km=5))) \
         .annotate(distance=Distance('location', center_as_point)) \
-        .order_by('distance')[:MAX_CHURCHES_IN_RESULTS]
+        .order_by('distance')
 
-    return churches, False
+    return truncate_results(church_query)
 
 
 def get_churches_in_box(min_lat, max_lat, min_long, max_long) -> tuple[list[Church], bool]:
     polygon = Polygon.from_bbox((min_long, min_lat, max_long, max_lat))
 
-    churches = Church.objects\
-        .select_related('parish__website') \
-        .prefetch_related('parish__website__pages__scraping__prunings__parsings') \
-        .prefetch_related('parish__website__parishes__churches') \
-        .filter(location__within=polygon,
-                is_active=True,
-                parish__website__is_active=True) \
-        .annotate(nb_page_with_confessions=Count(
-            'parish__website__pages__scraping',
-            filter=Q(parish__website__pages__scraping__prunings__pruned_indices__len__gt=0)), ) \
-        .order_by('-nb_page_with_confessions').distinct()[:MAX_CHURCHES_IN_RESULTS]
+    church_query = build_church_query().filter(location__within=polygon)
+    church_query = order_by_nb_page_with_confessions(church_query)
 
-    return churches, len(churches) >= MAX_CHURCHES_IN_RESULTS
+    return truncate_results(church_query)
 
 
 def get_churches_by_website(website: Website) -> tuple[list[Church], bool]:
-    churches = Church.objects\
-        .select_related('parish__website') \
-        .prefetch_related('parish__website__pages__scraping__prunings__parsings') \
-        .prefetch_related('parish__website__parishes__churches') \
-        .filter(parish__website=website,
-                is_active=True,
-                parish__website__is_active=True).all()[:MAX_CHURCHES_IN_RESULTS]
+    church_query = build_church_query().filter(parish__website=website)
 
-    return churches, len(churches) >= MAX_CHURCHES_IN_RESULTS
+    return truncate_results(church_query)
 
 
 def get_churches_by_diocese(diocese: Diocese) -> tuple[list[Church], bool]:
-    churches = Church.objects\
-        .select_related('parish__website') \
-        .prefetch_related('parish__website__pages__scraping__prunings__parsings') \
-        .prefetch_related('parish__website__parishes__churches') \
-        .filter(parish__diocese=diocese,
-                is_active=True,
-                parish__website__is_active=True) \
-        .annotate(nb_page_with_confessions=Count(
-            'parish__website__pages__scraping',
-            filter=Q(parish__website__pages__scraping__prunings__pruned_indices__len__gt=0)), ) \
-        .order_by('-nb_page_with_confessions').distinct()[:MAX_CHURCHES_IN_RESULTS]
+    church_query = build_church_query().filter(parish__diocese=diocese)
+    church_query = order_by_nb_page_with_confessions(church_query)
 
-    return churches, len(churches) >= MAX_CHURCHES_IN_RESULTS
+    return truncate_results(church_query)
 
 
 ###########

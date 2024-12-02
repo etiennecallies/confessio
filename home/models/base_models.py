@@ -148,12 +148,12 @@ class Page(TimeStampMixin):
     def get_scraping(self) -> Optional['Scraping']:
         # TODO refacto, scraping should be nullable field on Page side
         try:
-            return self.scraping
+            return self.temp_scraping
         except Scraping.DoesNotExist:
             return None
 
     def has_been_scraped(self) -> bool:
-        return self.scraping is not None
+        return self.temp_scraping is not None
 
     def has_been_parsed(self) -> bool:
         if self.get_prunings() is None:
@@ -171,21 +171,21 @@ class Page(TimeStampMixin):
         if self.get_scraping() is None:
             return None
 
-        return self.scraping.prunings.all()
+        return self.temp_scraping.prunings.all()
 
     def get_parsing(self, pruning: 'Pruning') -> Optional['Parsing']:
         return pruning.get_parsing(self.website)
 
     def has_been_modified_recently(self) -> bool:
-        if self.scraping is None:
+        if self.temp_scraping is None:
             return False
 
         # If latest scraping was created more than one year ago
-        if self.scraping.created_at < timezone.now() - timedelta(days=365):
+        if self.temp_scraping.created_at < timezone.now() - timedelta(days=365):
             return False
 
         # If latest scraping is older than page creation
-        if self.scraping.created_at <= self.created_at + timedelta(hours=2):
+        if self.temp_scraping.created_at <= self.created_at + timedelta(hours=2):
             return False
 
         return True
@@ -200,7 +200,7 @@ class Crawling(TimeStampMixin):
 
 class Scraping(TimeStampMixin):
     nb_iterations = models.PositiveSmallIntegerField()
-    page = models.OneToOneField('Page', on_delete=models.CASCADE, related_name='scraping')
+    page = models.OneToOneField('Page', on_delete=models.CASCADE, related_name='temp_scraping')
     prunings = models.ManyToManyField('Pruning', related_name='scrapings')
 
 
@@ -286,7 +286,7 @@ class Parsing(TimeStampMixin):
         return list(self.one_off_schedules.all()) + list(self.regular_schedules.all())
 
     def get_websites(self) -> list['Website']:
-        return Website.objects.filter(pages__scraping__prunings__parsings=self).distinct()
+        return Website.objects.filter(pages__temp_scraping__prunings__parsings=self).distinct()
 
     def match_website(self, website: Website) -> bool:
         return self.church_desc_by_id == website.get_church_desc_by_id()

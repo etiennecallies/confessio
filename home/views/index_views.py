@@ -100,7 +100,8 @@ def index(request, diocese_slug=None):
         bounds = None
     elif latitude and longitude:
         center = [float(latitude), float(longitude)]
-        churches, too_many_results = get_churches_around(center)
+        churches, _ = get_churches_around(center)
+        too_many_results = False
         bounds = None
     elif diocese_slug:
         try:
@@ -117,7 +118,8 @@ def index(request, diocese_slug=None):
         # Default coordinates
         # center = [48.859, 2.342]  # Paris
         center = [45.758, 4.832]  # Lyon - Bellecour
-        churches, too_many_results = get_churches_around(center)
+        churches, _ = get_churches_around(center)
+        too_many_results = False
         bounds = None
 
     return render_map(request, center, churches, bounds, location, too_many_results)
