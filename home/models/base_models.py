@@ -136,6 +136,8 @@ class Church(TimeStampMixin):
 class Page(TimeStampMixin):
     url = models.URLField()
     website = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='pages')
+    scraping = models.OneToOneField('Scraping', on_delete=models.SET_NULL, related_name='page',
+                                    null=True)
     pruning_validation_counter = models.SmallIntegerField(default=0)
     pruning_last_validated_at = models.DateTimeField(null=True, blank=True)
     parsing_validation_counter = models.SmallIntegerField(default=0)
@@ -200,7 +202,7 @@ class Crawling(TimeStampMixin):
 
 class Scraping(TimeStampMixin):
     nb_iterations = models.PositiveSmallIntegerField()
-    page = models.OneToOneField('Page', on_delete=models.CASCADE, related_name='temp_scraping')
+    temp_page = models.OneToOneField('Page', on_delete=models.CASCADE, related_name='temp_scraping')
     prunings = models.ManyToManyField('Pruning', related_name='scrapings')
 
 

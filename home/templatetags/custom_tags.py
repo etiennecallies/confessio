@@ -86,7 +86,7 @@ def get_page_parsing_of_pruning(page: Page, pruning: Pruning) -> Optional[Parsin
 @register.filter
 def has_not_validated_parsing_moderation(website: Website) -> bool:
     return website.parsings.filter(moderations__validated_at__isnull=True,
-                                   prunings__scrapings__page__website=website).exists()
+                                   prunings__scrapings__temp_page__website=website).exists()
 
 
 @register.simple_tag

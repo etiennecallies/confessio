@@ -189,7 +189,7 @@ def update_counters_of_parsing(parsing: Parsing):
     websites_to_update = set()
     for pruning in parsing.prunings.all():
         for scraping in pruning.scrapings.all():
-            page = scraping.page
+            page = scraping.temp_page
             if has_been_modified:
                 page.parsing_validation_counter = -1
             else:
@@ -208,7 +208,7 @@ def update_counters_of_parsing(parsing: Parsing):
 def parsing_needs_moderation(parsing: Parsing):
     for pruning in parsing.prunings.all():
         for scraping in pruning.scrapings.all():
-            page = scraping.page
+            page = scraping.temp_page
 
             # If website has been marked as unreliable, we don't want to moderate it
             if page.website.unreliability_reason:

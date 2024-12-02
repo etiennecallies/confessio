@@ -74,7 +74,7 @@ def get_current_moderation(pruning: Pruning,
 
 def pruning_needs_moderation(pruning: Pruning):
     for scraping in pruning.scrapings.all():
-        page = scraping.page
+        page = scraping.temp_page
 
         # If website has been marked as unreliable, we don't want to moderate it
         if page.website.unreliability_reason:
@@ -142,7 +142,7 @@ def add_necessary_moderation(pruning: Pruning):
 
 def is_eligible_to_pruning_moderation(pruning: Pruning):
     for scraping in pruning.scrapings.all():
-        if scraping.page.website.unreliability_reason \
+        if scraping.temp_page.website.unreliability_reason \
                 != Website.UnreliabilityReason.SCHEDULE_IN_IMAGE:
             return True
 
@@ -175,7 +175,7 @@ def unlink_pruning_from_parsings(pruning: Pruning):
 
 
 def update_parsings(pruning: Pruning):
-    websites = {scraping.page.website for scraping in pruning.scrapings.all()}
+    websites = {scraping.temp_page.website for scraping in pruning.scrapings.all()}
     for website in websites:
         # TODO open everywhere
         if website.parishes.filter(diocese__messesinfo_network_id__in=['lh', 'ly']).exists():
