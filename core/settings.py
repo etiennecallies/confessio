@@ -244,6 +244,8 @@ REQUEST_IGNORE_USER_AGENTS = (
     r'Baidu-YunGuanCe',
     r'ia_archiver',  # Alexa's web crawler
     r'Bytespider',  # Alexa's web crawler
+    r'uptime bot',
+    r'fr_bot',
 )
 REQUEST_TRAFFIC_MODULES = (
     'request.traffic.UniqueVisitor',
