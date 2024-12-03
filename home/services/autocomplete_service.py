@@ -81,10 +81,6 @@ def get_data_gouv_response(query) -> list[AutocompleteResult]:
         metrics_service.increment_warning_counter('data_gouv_error')
         return []
 
-    # TODO remove this
-    from core.otel.metrics_service import metrics_service
-    metrics_service.increment_warning_counter('data_gouv_error')
-
     data = response.json()
     if 'features' not in data or not data['features']:
         return []
