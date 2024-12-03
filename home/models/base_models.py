@@ -39,6 +39,7 @@ class Website(TimeStampMixin):
         NOT_RESPONDING_AT_ALL = "not_responding_at_all"
         NOT_RESPONDING_IN_TIME = "not_responding_in_time"
         NOT_RESPONDING_200 = "not_responding_200"
+        FOREIGN_LANGUAGE = "foreign_language"
 
     name = models.CharField(max_length=300)
     home_url = models.URLField(unique=True)
