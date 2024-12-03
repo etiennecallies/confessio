@@ -1,7 +1,7 @@
 import time
 from datetime import timedelta
 
-from django.db.models import Max, F, Q
+from django.db.models import F, Q
 from django.utils import timezone
 
 from home.management.abstract_command import AbstractCommand
@@ -46,14 +46,12 @@ class Command(AbstractCommand):
                 moderations__validated_at__isnull=True).all()
         elif options['no_recent']:
             websites = Website.objects.filter(is_active=True) \
-                .annotate(latest_crawling_date=Max('crawlings__created_at')) \
-                .filter(Q(latest_crawling_date__isnull=True)
-                        | Q(latest_crawling_date__lt=timezone.now() - timedelta(hours=16))) \
-                .order_by(F('latest_crawling_date').asc(nulls_first=True)).all()
+                .filter(Q(crawling__isnull=True)
+                        | Q(crawling__created_at__lt=timezone.now() - timedelta(hours=16))) \
+                .order_by(F('crawling').asc(nulls_first=True)).all()
         else:
-            websites = Website.objects.filter(is_active=True)\
-                .annotate(latest_crawling_date=Max('crawlings__created_at'))\
-                .order_by(F('latest_crawling_date').asc(nulls_first=True)).all()
+            websites = Website.objects.filter(is_active=True) \
+                .order_by(F('crawling').asc(nulls_first=True)).all()
 
         timeout_reached = False
         start_time = time.time()
