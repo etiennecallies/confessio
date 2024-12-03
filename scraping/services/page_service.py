@@ -8,14 +8,9 @@ from home.models import Page, Pruning, Scraping, PruningModeration, ParsingModer
 ############
 
 def delete_page(page: Page):
-    prunings = page.get_prunings()
+    if page.scraping is not None:
+        delete_scraping(page.scraping)
     page.delete()
-
-    if not prunings:
-        return
-
-    for pruning in prunings:
-        remove_pruning_if_orphan(pruning)
 
 
 def delete_scraping(scraping: Scraping):
