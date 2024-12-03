@@ -272,7 +272,7 @@ class Parsing(TimeStampMixin):
         return Website.objects.filter(pages__scraping__prunings__parsings=self).distinct()
 
     def match_website(self, website: Website) -> bool:
-        return self.church_desc_by_id == website.get_church_desc_by_id()
+        return set(self.church_desc_by_id.values()) == set(website.get_church_desc_by_id().values())
 
 
 class Schedule(TimeStampMixin):
