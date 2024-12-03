@@ -1,7 +1,5 @@
 import time
 
-from opentelemetry.metrics import get_meter
-
 
 class RequestStartTimeMiddleware:
     def __init__(self, get_response):
@@ -15,12 +13,8 @@ class RequestStartTimeMiddleware:
 class ResponseTimeMetricsMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
-        meter = get_meter(__name__)
-        # Histogram to record response times
-        self.response_time_histogram = meter.create_histogram(
-            "http.server.response.time",
-            description="Response time by URL name",
-        )
+        from core.otel.metrics_service import metrics_service
+        self.metrics_service = metrics_service
 
     def __call__(self, request):
         response = self.get_response(request)
@@ -38,9 +32,6 @@ class ResponseTimeMetricsMiddleware:
             ]:
                 url_name = 'other'
 
-            # Record the response time in the histogram
-            self.response_time_histogram.record(elapsed_time, {
-                "url_name": url_name,
-            })
+            self.metrics_service.record_response_time(elapsed_time, url_name)
 
         return response

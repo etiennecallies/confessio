@@ -73,6 +73,14 @@ def get_data_gouv_response(query) -> list[AutocompleteResult]:
         'autocomplete': 1,
         'type': 'municipality',
     })
+
+    if response.status_code != 200:
+        print(f'Error in get_data_gouv_response: {response.status_code}')
+        print(response.text)
+        from core.otel.metrics_service import metrics_service
+        metrics_service.increment_warning_counter('data_gouv_error')
+        return []
+
     data = response.json()
     if 'features' not in data or not data['features']:
         return []

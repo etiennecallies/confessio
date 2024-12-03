@@ -8,7 +8,7 @@ from core.settings import *
 
 import os
 
-# OTEL
+# OTEL - initialize the exporter
 import core.otel.exporter  # noqa
 
 # SECURITY WARNING: keep the secret key used in production secret!
