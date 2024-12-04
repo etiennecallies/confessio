@@ -45,7 +45,7 @@ class Website(TimeStampMixin):
     home_url = models.URLField(unique=True)
     is_active = models.BooleanField(default=True)
     crawling = models.OneToOneField('Crawling', on_delete=models.SET_NULL,
-                                    related_name='website', null=True)
+                                    related_name='website', null=True, blank=True)
     pruning_validation_counter = models.SmallIntegerField(default=0)
     pruning_last_validated_at = models.DateTimeField(null=True, blank=True)
     parsing_validation_counter = models.SmallIntegerField(default=0)
