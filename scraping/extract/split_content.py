@@ -17,12 +17,16 @@ class LineAndTag(BaseModel):
     sentence_uuid: UUID | None
 
 
+def split_lines(refined_content: str) -> list[str]:
+    return refined_content.split('<br>\n')
+
+
 def split_and_tag(refined_content: str, action_interface: BaseActionInterface
                   ) -> list[LineAndTag]:
     results = []
 
     # Split into lines (or <table>)
-    for line in refined_content.split('<br>\n'):
+    for line in split_lines(refined_content):
         line_without_link = remove_link_from_html(line)
 
         tags = get_tags_with_regex(line_without_link)

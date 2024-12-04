@@ -57,7 +57,7 @@ class Website(TimeStampMixin):
         return self.name
 
     def has_been_crawled(self) -> bool:
-        return self.crawling is not None
+        return self.crawling_id is not None
 
     def get_pages(self) -> List['Page']:
         return self.pages.all()
