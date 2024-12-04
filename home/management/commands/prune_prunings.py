@@ -1,3 +1,5 @@
+from tqdm import tqdm
+
 from home.management.abstract_command import AbstractCommand
 from home.models import Pruning
 from scraping.services.prune_scraping_service import prune_pruning
@@ -20,7 +22,7 @@ class Command(AbstractCommand):
             ).distinct()
 
         counter = 0
-        for pruning in prunings:
+        for pruning in tqdm(prunings):
             prune_pruning(pruning)
             counter += 1
 
