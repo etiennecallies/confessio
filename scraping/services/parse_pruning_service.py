@@ -299,6 +299,11 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
     if not force_parse and parsing \
             and parsing.llm_model == llm_model \
             and parsing.prompt_template_hash == prompt_template_hash:
+
+        # Check if parsing is already linked to the pruning
+        if not parsing.prunings.filter(pk=pruning.pk).exists():
+            parsing.prunings.add(pruning)
+
         print(f'Parsing already exists for pruning {pruning}')
         return
 
@@ -325,4 +330,6 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
         parsing.save()
 
     save_schedule_list(parsing, schedules_list)
+
+    parsing.prunings.add(pruning)
     add_necessary_parsing_moderation(parsing, schedules_list)
