@@ -83,6 +83,8 @@ def schedule_item_from_schedule(schedule: Schedule) -> ScheduleItem:
 
 
 def get_parsing_schedules_list(parsing: Parsing) -> Optional[SchedulesList]:
+    # TODO return human_json || llm_json
+
     if parsing.error_detail:
         return None
 
@@ -251,6 +253,7 @@ def clean_parsing_moderations() -> int:
 ###########################
 # Website & Pruning links #
 ###########################
+
 def has_parsing_a_matching_website(parsing: Parsing) -> bool:
     for website in parsing.get_websites():
         if parsing.match_website(website):
