@@ -250,7 +250,7 @@ class Parsing(TimeStampMixin):
 
     prunings = models.ManyToManyField('Pruning', related_name='parsings')
 
-    llm_json = models.JSONField(null=True, blank=True)  # TODO set it as not nullable
+    llm_json = models.JSONField(null=True, blank=True)
     llm_model = models.CharField(max_length=100)
     prompt_template_hash = models.CharField(max_length=32)
     error_detail = models.TextField(null=True, blank=True)

@@ -310,8 +310,10 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
     print(f'parsing {pruning} for website {website}')
     schedules_list, error_detail = parse_with_llm(truncated_html, church_desc_by_id,
                                                   llm_model, prompt_template)
+    llm_json = schedules_list.model_dump() if schedules_list else None
 
     if parsing:
+        parsing.llm_json = llm_json
         parsing.llm_model = llm_model
         parsing.prompt_template_hash = prompt_template_hash
         parsing.error_detail = error_detail
@@ -323,6 +325,7 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
             truncated_html=truncated_html,
             truncated_html_hash=truncated_html_hash,
             church_desc_by_id=church_desc_by_id,
+            llm_json=llm_json,
             llm_model=llm_model,
             prompt_template_hash=prompt_template_hash,
             error_detail=error_detail,
