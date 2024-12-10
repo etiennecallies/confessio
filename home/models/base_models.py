@@ -7,11 +7,9 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils import timezone
 from pgvector.django import VectorField
-from simple_history.models import HistoricalRecords, HistoricForeignKey
+from simple_history.models import HistoricalRecords
 
-from home.models.custom_fields import ChoiceArrayField
 from home.utils.hash_utils import hash_string_to_hex
-from scraping.parse.periods import PeriodEnum, LiturgicalDayEnum
 from scraping.prune.models import Action, Source
 
 
@@ -256,57 +254,14 @@ class Parsing(TimeStampMixin):
     llm_error_detail = models.TextField(null=True, blank=True)
 
     human_json = models.JSONField(null=True, blank=True)
-    possible_by_appointment = models.BooleanField(null=True)
-    is_related_to_mass = models.BooleanField(null=True)
-    is_related_to_adoration = models.BooleanField(null=True)
-    is_related_to_permanence = models.BooleanField(null=True)
-    will_be_seasonal_events = models.BooleanField(null=True)
 
     history = HistoricalRecords()
 
     class Meta:
         unique_together = ('truncated_html_hash', 'church_desc_by_id')
 
-    def get_schedules(self) -> list['Schedule']:
-        return list(self.one_off_schedules.all()) + list(self.regular_schedules.all())
-
     def get_websites(self) -> list['Website']:
         return Website.objects.filter(pages__scraping__prunings__parsings=self).distinct()
 
     def match_website(self, website: Website) -> bool:
         return set(self.church_desc_by_id.values()) == set(website.get_church_desc_by_id().values())
-
-
-class Schedule(TimeStampMixin):
-    church_id = models.SmallIntegerField(null=True, blank=True)
-    is_cancellation = models.BooleanField()
-    start_time_iso8601 = models.CharField(max_length=8, null=True, blank=True)
-    end_time_iso8601 = models.CharField(max_length=8, null=True, blank=True)
-
-    class Meta:
-        abstract = True
-
-
-class OneOffSchedule(Schedule):
-    parsing = HistoricForeignKey('Parsing', on_delete=models.CASCADE,
-                                 related_name='one_off_schedules')
-    year = models.PositiveSmallIntegerField(null=True, blank=True)
-    month = models.PositiveSmallIntegerField(null=True, blank=True)
-    day = models.PositiveSmallIntegerField(null=True, blank=True)
-    weekday_iso8601 = models.PositiveSmallIntegerField(null=True, blank=True)
-    liturgical_day = models.CharField(max_length=16, null=True, blank=True,
-                                      choices=LiturgicalDayEnum.choices())
-    history = HistoricalRecords()
-
-
-class RegularSchedule(Schedule):
-    parsing = HistoricForeignKey('Parsing', on_delete=models.CASCADE,
-                                 related_name='regular_schedules')
-    rrule = models.TextField()  # in order to have TextArea in admin
-    include_periods = ChoiceArrayField(models.CharField(max_length=16,
-                                                        choices=PeriodEnum.choices()),
-                                       blank=True)
-    exclude_periods = ChoiceArrayField(models.CharField(max_length=16,
-                                                        choices=PeriodEnum.choices()),
-                                       blank=True)
-    history = HistoricalRecords()
