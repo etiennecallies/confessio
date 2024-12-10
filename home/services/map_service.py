@@ -21,7 +21,7 @@ MAX_CHURCHES_IN_RESULTS = 50
 
 def build_church_query() -> 'QuerySet[Church]':
     return Church.objects.select_related('parish__website') \
-        .prefetch_related('parish__website__pages__scraping__prunings__parsings__moderations') \
+        .prefetch_related('parish__website__pages__scraping__prunings__parsings') \
         .prefetch_related('parish__website__parishes__churches') \
         .filter(is_active=True, parish__website__is_active=True)
 

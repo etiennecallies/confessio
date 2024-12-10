@@ -65,7 +65,7 @@
                                             <div>
                                                 {% with church_events=church_schedules_list.get_church_events %}
                                                     {% if church_events %}
-                                                        {% if website|has_not_validated_parsing_moderation %}
+                                                        {% if not website.parsings_have_been_moderated %}
                                                             <div class="text-warning">⚠️ Ces horaires n'ont pas encore été vérifiés pour cette paroisse.</div>
                                                         {% endif %}
                                                         {% for church_event in church_events %}

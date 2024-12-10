@@ -94,6 +94,9 @@ class Website(TimeStampMixin):
 
         return church_desc_by_id
 
+    def parsings_have_been_moderated(self) -> bool:
+        return all(parsing.has_been_moderated() for parsing in self.get_all_parsings())
+
 
 class Parish(TimeStampMixin):
     name = models.CharField(max_length=100)
@@ -265,3 +268,6 @@ class Parsing(TimeStampMixin):
 
     def match_website(self, website: Website) -> bool:
         return set(self.church_desc_by_id.values()) == set(website.get_church_desc_by_id().values())
+
+    def has_been_moderated(self) -> bool:
+        return self.human_json is not None

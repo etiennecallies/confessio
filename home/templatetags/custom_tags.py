@@ -83,15 +83,6 @@ def get_page_parsing_of_pruning(page: Page, pruning: Pruning) -> Optional[Parsin
     return page.get_parsing(pruning)
 
 
-@register.filter
-def has_not_validated_parsing_moderation(website: Website) -> bool:
-    for parsing in website.get_all_parsings():
-        for moderation in parsing.moderations.all():
-            if moderation.validated_at is None:
-                return True
-    return False
-
-
 @register.simple_tag
 def get_moderation_stats():
     return sum([
