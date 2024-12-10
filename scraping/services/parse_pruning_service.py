@@ -1,15 +1,12 @@
 from datetime import timedelta
 from typing import Optional
 
-from django.forms import model_to_dict
 from django.utils import timezone
-from pydantic import ValidationError
 
-from home.models import Pruning, Website, Parsing, Schedule, ParsingModeration, Church, \
-    OneOffSchedule, RegularSchedule
+from home.models import Pruning, Website, Parsing, ParsingModeration, Church
 from home.utils.hash_utils import hash_string_to_hex
 from scraping.parse.parse_with_llm import parse_with_llm, get_llm_model, get_prompt_template
-from scraping.parse.schedules import SchedulesList, ScheduleItem
+from scraping.parse.schedules import SchedulesList
 from scraping.refine.refine_content import remove_link_from_html
 
 TRUNCATION_LENGTH = 10
@@ -73,66 +70,12 @@ def get_existing_parsing(truncated_html: str,
         return None
 
 
-def schedule_item_from_schedule(schedule: Schedule) -> ScheduleItem:
-    exclude_fields = {'id', 'schedule'}
-
-    schedule_dict = model_to_dict(schedule, fields=BASE_FIELDS)
-    schedule_dict['date_rule'] = model_to_dict(schedule, exclude=BASE_FIELDS | exclude_fields)
-
-    return ScheduleItem(**schedule_dict)
-
-
 def get_parsing_schedules_list(parsing: Parsing) -> Optional[SchedulesList]:
-    # TODO return human_json || llm_json
-
-    if parsing.error_detail:
+    schedules_list_as_dict = parsing.human_json or parsing.llm_json
+    if schedules_list_as_dict is None:
         return None
 
-    try:
-        return SchedulesList(
-            schedules=list(map(schedule_item_from_schedule, parsing.get_schedules())),
-            possible_by_appointment=parsing.possible_by_appointment,
-            is_related_to_mass=parsing.is_related_to_mass,
-            is_related_to_adoration=parsing.is_related_to_adoration,
-            is_related_to_permanence=parsing.is_related_to_permanence,
-            will_be_seasonal_events=parsing.will_be_seasonal_events,
-        )
-    except ValidationError as e:
-        print('ValidationError when creating SchedulesList from existing parsing')
-        print(e)
-        return None
-
-
-def save_schedule_list(parsing: Parsing, schedules_list: Optional[SchedulesList]):
-    if schedules_list is None:
-        return
-
-    for schedule in parsing.get_schedules():
-        schedule.delete()
-
-    for schedule_item in schedules_list.schedules:
-        if schedule_item.is_one_off_rule():
-            schedule = OneOffSchedule(
-                parsing=parsing,
-                **schedule_item.model_dump(include=BASE_FIELDS),
-                **schedule_item.date_rule.model_dump()
-            )
-        elif schedule_item.is_regular_rule():
-            schedule = RegularSchedule(
-                parsing=parsing,
-                **schedule_item.model_dump(include=BASE_FIELDS),
-                **schedule_item.date_rule.model_dump()
-            )
-        else:
-            raise ValueError('Unknown schedule type')
-        schedule.save()
-
-    parsing.possible_by_appointment = schedules_list.possible_by_appointment
-    parsing.is_related_to_mass = schedules_list.is_related_to_mass
-    parsing.is_related_to_adoration = schedules_list.is_related_to_adoration
-    parsing.is_related_to_permanence = schedules_list.is_related_to_permanence
-    parsing.will_be_seasonal_events = schedules_list.will_be_seasonal_events
-    parsing.save()
+    return SchedulesList(**schedules_list_as_dict)
 
 
 ##############
@@ -143,15 +86,16 @@ def add_necessary_parsing_moderation(parsing: Parsing):
     if not parsing_needs_moderation(parsing):
         return
 
+    if parsing.llm_json is not None and parsing.human_json == parsing.llm_json:
+        return
+
     category = ParsingModeration.Category.NEW_SCHEDULES
     try:
         parsing_moderation = ParsingModeration.objects.filter(parsing=parsing,
                                                               category=category).get()
-        if (parsing.llm_json is None
-                or parsing.human_json != parsing.llm_json):
-            parsing_moderation.validated_at = None
-            parsing_moderation.validated_by = None
-            parsing_moderation.save()
+        parsing_moderation.validated_at = None
+        parsing_moderation.validated_by = None
+        parsing_moderation.save()
     except ParsingModeration.DoesNotExist:
         parsing_moderation = ParsingModeration(
             parsing=parsing,
@@ -320,8 +264,6 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
             error_detail=error_detail,
         )
         parsing.save()
-
-    save_schedule_list(parsing, schedules_list)
 
     parsing.prunings.add(pruning)
     add_necessary_parsing_moderation(parsing)

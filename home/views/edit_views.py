@@ -12,6 +12,7 @@ from jsoneditor.forms import JSONSchemaForm
 from scraping.parse.schedules import SchedulesList
 from scraping.prune.action_interfaces import DummyActionInterface
 from scraping.prune.models import Action
+from scraping.services.parse_pruning_service import get_parsing_schedules_list
 from scraping.services.prune_scraping_service import SentenceFromDbActionInterface, \
     reprune_affected_scrapings, prune_pruning
 
@@ -88,8 +89,7 @@ def edit_parsing(request, parsing_uuid):
             validation_error = str(e)
 
     if not schedules_list_as_json:
-        # TODO make a function to get the schedules_list from parsing
-        schedules_list = SchedulesList(**(parsing.human_json or parsing.llm_json))
+        schedules_list = get_parsing_schedules_list(parsing)
         schedules_list_as_json = schedules_list.model_dump_json()
 
     # This is a ugly hack since openai doesn't support format in the schema
