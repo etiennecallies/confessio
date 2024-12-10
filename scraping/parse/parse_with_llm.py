@@ -172,7 +172,7 @@ def parse_with_llm(truncated_html: str, church_desc_by_id: dict[int, str],
     if llm_client is None:
         llm_client = OpenAILLMClient(get_openai_client())
 
-    schedules_list, error_detail = llm_client.get_completions(
+    schedules_list, llm_error_detail = llm_client.get_completions(
         model=model,
         messages=build_input_messages(prompt_template, truncated_html, church_desc_by_id),
         temperature=0.0,
@@ -186,7 +186,7 @@ def parse_with_llm(truncated_html: str, church_desc_by_id: dict[int, str],
 
         schedules_list.schedules = filter_unnecessary_schedules(schedules_list.schedules)
 
-    return schedules_list, error_detail
+    return schedules_list, llm_error_detail
 
 
 if __name__ == '__main__':
@@ -204,13 +204,13 @@ if __name__ == '__main__':
         2: "Saint-Joseph, 456 rue de la Liberté, 75000 Paris",
     }
 
-    schedules_list_, error_detail_ = parse_with_llm(truncated_html_, church_desc_by_id_,
-                                                    get_llm_model(), get_prompt_template())
+    schedules_list_, llm_error_detail_ = parse_with_llm(truncated_html_, church_desc_by_id_,
+                                                        get_llm_model(), get_prompt_template())
     if schedules_list_:
         for schedule in schedules_list_.schedules:
             print(schedule)
         print(schedules_list_.model_dump(exclude={'schedules'}))
-    print(error_detail_)
+    print(llm_error_detail_)
 
     # Expected output:
     # church_id=1

@@ -57,7 +57,7 @@
         Schedules list: <br>
         {% display_schedules_list schedules_list church_desc_by_id_json %}<br>
     {% else %}
-       Error detail: {{ parsing.error_detail }}
+       Error detail: {{ parsing.llm_error_detail }}
     {% endif %}
     <br>
 

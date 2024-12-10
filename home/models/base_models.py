@@ -253,7 +253,7 @@ class Parsing(TimeStampMixin):
     llm_json = models.JSONField(null=True, blank=True)
     llm_model = models.CharField(max_length=100)
     prompt_template_hash = models.CharField(max_length=32)
-    error_detail = models.TextField(null=True, blank=True)
+    llm_error_detail = models.TextField(null=True, blank=True)
 
     human_json = models.JSONField(null=True, blank=True)
     possible_by_appointment = models.BooleanField(null=True)
