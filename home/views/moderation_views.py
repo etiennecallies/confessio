@@ -11,8 +11,8 @@ from home.models import WebsiteModeration, ChurchModeration, ModerationMixin, \
 from home.services.edit_pruning_service import increment_page_validation_counter_of_pruning
 from home.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 from scraping.parse.schedules import SchedulesList
-from scraping.services.parse_pruning_service import update_validated_schedules_list, \
-    get_parsing_schedules_list, save_schedule_list
+from scraping.services.parse_pruning_service import on_human_validation, \
+    get_parsing_schedules_list
 from sourcing.services.merge_websites_service import merge_websites
 
 
@@ -95,7 +95,7 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
                 # update page validation counter
                 increment_page_validation_counter_of_pruning(moderation.pruning)
             elif class_moderation == ParsingModeration:
-                update_validated_schedules_list(moderation)
+                on_human_validation(moderation)
 
             moderation.validate(request.user)
 
@@ -210,8 +210,7 @@ def render_parsing_moderation(request, moderation: ParsingModeration, next_url):
     truncated_html = parsing.truncated_html
     schedules_list = get_parsing_schedules_list(parsing)
     church_desc_by_id_json = json.dumps(parsing.church_desc_by_id, indent=2, ensure_ascii=False)
-    validated_schedules_list = SchedulesList(**moderation.validated_schedules_list)\
-        if moderation.validated_schedules_list else None
+    human_schedules_list = SchedulesList(**parsing.human_json) if parsing.human_json else None
 
     return render(request, f'pages/moderate_parsing.html', {
         'parsing_moderation': moderation,
@@ -219,7 +218,7 @@ def render_parsing_moderation(request, moderation: ParsingModeration, next_url):
         'church_desc_by_id_json': church_desc_by_id_json,
         'truncated_html': truncated_html,
         'schedules_list': schedules_list,
-        'validated_schedules_list': validated_schedules_list,
+        'human_schedules_list': human_schedules_list,
         'next_url': next_url,
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
     })
@@ -246,19 +245,20 @@ def moderate_merge_websites(request, website_moderation_uuid=None):
 
 @login_required
 @permission_required("home.change_sentence")
-def moderate_reset_validated_parsing(request, parsing_moderation_uuid=None):
+def moderate_erase_human_by_llm(request, parsing_moderation_uuid=None):
     try:
         parsing_moderation = ParsingModeration.objects.get(uuid=parsing_moderation_uuid)
     except ParsingModeration.DoesNotExist:
         return HttpResponseNotFound(f'parsing moderation not found with uuid '
                                     f'{parsing_moderation_uuid}')
 
-    if parsing_moderation.validated_schedules_list is None:
-        return HttpResponseBadRequest(f'parsing moderation does not have validated_schedules_list')
+    parsing = parsing_moderation.parsing
+    if parsing.llm_json is None:
+        return HttpResponseBadRequest(f'Can not erase human by llm because parsing '
+                                      f'{parsing.uuid} does not have llm_json')
 
-    # other_website is the primary website
-    validated_schedules_list = SchedulesList(**parsing_moderation.validated_schedules_list)
-    save_schedule_list(parsing_moderation.parsing, validated_schedules_list)
+    parsing.human_json = parsing.llm_json
+    parsing.save()
 
     return redirect_to_moderation(parsing_moderation, parsing_moderation.category, 'parsing',
                                   parsing_moderation.marked_as_bug_at is not None)

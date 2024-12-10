@@ -139,7 +139,7 @@ def save_schedule_list(parsing: Parsing, schedules_list: Optional[SchedulesList]
 # MODERATION #
 ##############
 
-def add_necessary_parsing_moderation(parsing: Parsing, schedules_list: Optional[SchedulesList]):
+def add_necessary_parsing_moderation(parsing: Parsing):
     if not parsing_needs_moderation(parsing):
         return
 
@@ -147,8 +147,8 @@ def add_necessary_parsing_moderation(parsing: Parsing, schedules_list: Optional[
     try:
         parsing_moderation = ParsingModeration.objects.filter(parsing=parsing,
                                                               category=category).get()
-        if (schedules_list is None
-                or parsing_moderation.validated_schedules_list != schedules_list.model_dump()):
+        if (parsing.llm_json is None
+                or parsing.human_json != parsing.llm_json):
             parsing_moderation.validated_at = None
             parsing_moderation.validated_by = None
             parsing_moderation.save()
@@ -160,39 +160,25 @@ def add_necessary_parsing_moderation(parsing: Parsing, schedules_list: Optional[
         parsing_moderation.save()
 
 
-def update_validated_schedules_list(parsing_moderation: ParsingModeration):
-    schedules_list = get_parsing_schedules_list(parsing_moderation.parsing)
-    assert schedules_list is not None, 'Can not validate parsing with error'
+def on_human_validation(parsing_moderation: ParsingModeration):
+    parsing = parsing_moderation.parsing
+    assert parsing.llm_json or parsing.human_json, 'Can not validate parsing with error'
 
-    parsing_moderation.validated_schedules_list = schedules_list.model_dump()
-    parsing_moderation.save()
+    if parsing.human_json is None:
+        parsing.human_json = parsing.llm_json
+        parsing.save()
 
-    update_counters_of_parsing(parsing_moderation.parsing)
-
-
-def has_parsing_been_modified(parsing: Parsing) -> bool:
-    non_human_parsing_history = parsing.history.filter(history_user_id__isnull=True) \
-        .order_by('-history_date').first()
-
-    if non_human_parsing_history is None:
-        # TODO this is not supposed to happen, but it does when human is logged in during parsing
-        non_human_parsing_history = parsing.history.filter(history_type='~') \
-            .order_by('history_date').first()
-
-    non_human_schedules_list = get_parsing_schedules_list(non_human_parsing_history.instance)
-    current_schedule_list = get_parsing_schedules_list(parsing)
-
-    return current_schedule_list != non_human_schedules_list
+    update_counters_of_parsing(parsing)
 
 
 def update_counters_of_parsing(parsing: Parsing):
-    has_been_modified = has_parsing_been_modified(parsing)
+    human_differs_from_llm = parsing.llm_json != parsing.human_json
 
     websites_to_update = set()
     for pruning in parsing.prunings.all():
         for scraping in pruning.scrapings.all():
             page = scraping.page
-            if has_been_modified:
+            if human_differs_from_llm:
                 page.parsing_validation_counter = -1
             else:
                 page.parsing_validation_counter += 1
@@ -200,7 +186,7 @@ def update_counters_of_parsing(parsing: Parsing):
             websites_to_update.add(page.website)
 
     for website in websites_to_update:
-        if has_been_modified:
+        if human_differs_from_llm:
             website.parsing_validation_counter = -1
         else:
             website.parsing_validation_counter += 1
@@ -338,4 +324,4 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
     save_schedule_list(parsing, schedules_list)
 
     parsing.prunings.add(pruning)
-    add_necessary_parsing_moderation(parsing, schedules_list)
+    add_necessary_parsing_moderation(parsing)

@@ -40,8 +40,8 @@ urlpatterns = [
          views.moderate_parsing, name='moderate_one_parsing'),
     path('moderate/merge_websites/<uuid:website_moderation_uuid>',
          views.moderate_merge_websites, name='moderate_merge_websites'),
-    path('moderate/reset_validated_parsing/<uuid:parsing_moderation_uuid>',
-         views.moderate_reset_validated_parsing, name='moderate_reset_validated_parsing'),
+    path('moderate/erase_human_by_llm/<uuid:parsing_moderation_uuid>',
+         views.moderate_erase_human_by_llm, name='moderate_erase_human_by_llm'),
 
     # contact
     path('contact', views.contact, name='contact'),
