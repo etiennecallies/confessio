@@ -15,5 +15,5 @@ env
 .env
 .python-version
 
-profiling_static/
+local_static/
 profiling_prof_files/

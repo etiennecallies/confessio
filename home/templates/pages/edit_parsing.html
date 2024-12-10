@@ -1,0 +1,28 @@
+{% extends 'layouts/single_card.html' %}
+{% load static %}
+
+{% load i18n %}
+
+{% block card %}
+
+    <div class="col-12">
+        <h2>Edit Parsing</h2>
+        {% for pruning in parsing.prunings.all %}
+            {% for scraping in pruning.scrapings.all %}
+                <p class="mb-3"> Page URL:
+                    <a class="link-info"
+                        href="{{ scraping.page.url }}">
+                        {{ scraping.page.url }}
+                    </a>
+                </p>
+            {% endfor %}
+        {% endfor %}
+        <form action="{% url 'edit_parsing' parsing.uuid %}" method="post">
+            {% csrf_token %}
+            {{ form.media }}
+            {{ form }}
+            <button type="submit" class="btn btn-primary mt-4">Submit</button>
+        </form>
+    </div>
+
+{% endblock card %}

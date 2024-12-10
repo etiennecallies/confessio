@@ -76,6 +76,11 @@
         {% endif %}
     {% endif %}
 
+    <p><a class="btn btn-black" href="{% url 'edit_parsing' parsing.uuid %}" target="_blank" role="button">
+        Edit parsing <i class="fas fa-up-right-from-square"></i>
+        </a>
+    </p>
+
     {% if not parsing_moderation.marked_as_bug_at %}
         <div>
             <form method="post">

@@ -66,7 +66,6 @@ EMAIL_BACKEND = 'django_ses.SESBackend'
 if not os.environ.get('STATIC_ROOT'):
     raise ValueError('no STATIC_ROOT found')
 STATIC_ROOT = os.environ.get('STATIC_ROOT')
-STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
 # Email
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
