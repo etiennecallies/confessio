@@ -1,7 +1,7 @@
 from datetime import datetime, time, date
 from typing import Optional
 
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, model_validator, Field
 
 from home.utils.date_utils import guess_year_from_weekday
 from scraping.parse.periods import PeriodEnum, LiturgicalDayEnum, get_liturgical_date
@@ -58,9 +58,11 @@ class OneOffRule(BaseModel, frozen=True):
 
 
 class RegularRule(BaseModel, frozen=True):
-    rrule: str
-    include_periods: list[PeriodEnum]
-    exclude_periods: list[PeriodEnum]
+    rrule: str = Field(..., description='textarea')
+    include_periods: list[PeriodEnum] = Field(...,
+                                              description='table')
+    exclude_periods: list[PeriodEnum] = Field(...,
+                                              description='table')
 
     def __hash__(self):
         """It would have been simpler to use tuple instead of list for include_periods and
@@ -75,8 +77,8 @@ class ScheduleItem(BaseModel, frozen=True):
     church_id: int | None
     date_rule: OneOffRule | RegularRule
     is_cancellation: bool
-    start_time_iso8601: str | None
-    end_time_iso8601: str | None
+    start_time_iso8601: str | None = Field(..., description='time')
+    end_time_iso8601: str | None = Field(..., description='time')
 
     @model_validator(mode='after')
     def validate_times(self) -> 'ScheduleItem':
@@ -106,11 +108,11 @@ class ScheduleItem(BaseModel, frozen=True):
 
 class SchedulesList(BaseModel):
     schedules: list[ScheduleItem]
-    possible_by_appointment: bool
-    is_related_to_mass: bool
-    is_related_to_adoration: bool
-    is_related_to_permanence: bool
-    will_be_seasonal_events: bool
+    possible_by_appointment: bool = Field(..., description='checkbox')
+    is_related_to_mass: bool = Field(..., description='checkbox')
+    is_related_to_adoration: bool = Field(..., description='checkbox')
+    is_related_to_permanence: bool = Field(..., description='checkbox')
+    will_be_seasonal_events: bool = Field(..., description='checkbox')
 
     def __eq__(self, other: 'SchedulesList'):
         return self.model_dump(exclude={'schedules'}) == other.model_dump(exclude={'schedules'}) \

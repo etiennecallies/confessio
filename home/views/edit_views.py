@@ -92,8 +92,13 @@ def edit_parsing(request, parsing_uuid):
         schedules_list = SchedulesList(**(parsing.human_json or parsing.llm_json))
         schedules_list_as_json = schedules_list.model_dump_json()
 
+    # This is a ugly hack since openai doesn't support format in the schema
+    json_schema = json.loads(
+        json.dumps(SchedulesList.model_json_schema())
+        .replace('description', 'format')
+    )
     form = JSONSchemaForm(
-        schema=SchedulesList.model_json_schema(),
+        schema=json_schema,
         options={
             "theme": "bootstrap4",
             "enable_array_copy": True,
