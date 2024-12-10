@@ -37,7 +37,7 @@
         <form action="{% url 'edit_parsing' parsing.uuid %}" method="post">
             {% csrf_token %}
             {{ form.media }}
-            {{ form }}
+            {{ form.json }}
             <button type="submit" class="btn btn-primary mt-4">Submit</button>
         </form>
     </div>
