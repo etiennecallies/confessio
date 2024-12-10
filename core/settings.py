@@ -56,8 +56,8 @@ INSTALLED_APPS = [
     'dbbackup',  # nightly backups
     'simple_history',  # object versioning
     'captcha',  # captcha
-    'django_jsonforms',  # json form
     'theme_pixel',
+    'jsoneditor',  # json form
     "home",
 ]
 
