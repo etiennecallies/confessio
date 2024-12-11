@@ -3,7 +3,6 @@ from typing import Optional
 
 from django.contrib.auth.models import User
 from django.contrib.gis.db import models as gis_models
-from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.db.models import Count
 from django.db.models.functions import Now
@@ -360,8 +359,6 @@ class PruningModeration(ModerationMixin):
     history = HistoricalRecords()
     pruning = models.ForeignKey('Pruning', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=16, choices=Category)
-
-    pruned_indices = ArrayField(models.PositiveSmallIntegerField(), null=True)
 
     class Meta:
         unique_together = ('pruning', 'category')
