@@ -24,7 +24,9 @@ def get_rruleset_from_schedule(schedule: ScheduleItem, default_year: int) -> rru
         return rset
 
     if schedule.is_regular_rule():
-        rrule_str = rrulestr(schedule.date_rule.rrule)
+        rrule_at_default_year = schedule.date_rule.rrule.replace(
+            'DTSTART:2000', f'DTSTART:{default_year}')
+        rrule_str = rrulestr(rrule_at_default_year)
         if schedule.is_cancellation:
             rset.exrule(rrule_str)
         else:
@@ -42,7 +44,8 @@ def get_rruleset_from_schedule(schedule: ScheduleItem, default_year: int) -> rru
 
 def get_events_from_schedule_item(schedule: ScheduleItem,
                                   start_date: datetime, end_date: datetime,
-                                  default_year: int) -> list[Event]:
+                                  default_year: int,
+                                  max_events: int = None) -> list[Event]:
     if schedule.is_one_off_rule() and not schedule.date_rule.is_valid_date():
         return []
 
@@ -52,7 +55,10 @@ def get_events_from_schedule_item(schedule: ScheduleItem,
     rset = get_rruleset_from_schedule(schedule, default_year)
 
     events = []
-    for one_date in rset.between(start_date, end_date):
+    for one_date in rset.xafter(start_date, count=max_events):
+        if one_date > end_date:
+            break
+
         start_time = schedule.get_start_time()
         start_dt = one_date.replace(hour=start_time.hour, minute=start_time.minute)
 
@@ -72,8 +78,10 @@ def get_events_from_schedule_item(schedule: ScheduleItem,
 
 def get_events_from_schedule_items(schedules: list[ScheduleItem],
                                    start_date: datetime, end_date: datetime,
-                                   default_year: int) -> list[Event]:
-    all_events = sum((get_events_from_schedule_item(schedule, start_date, end_date, default_year)
+                                   default_year: int,
+                                   max_events: int = None) -> list[Event]:
+    all_events = sum((get_events_from_schedule_item(schedule, start_date, end_date, default_year,
+                                                    max_events)
                       for schedule in schedules), [])
 
     return list(sorted(list(set(all_events))))
