@@ -104,7 +104,7 @@ def add_necessary_parsing_moderation(parsing: Parsing):
         parsing_moderation.save()
 
 
-def on_human_validation(parsing_moderation: ParsingModeration):
+def on_parsing_human_validation(parsing_moderation: ParsingModeration):
     parsing = parsing_moderation.parsing
     assert parsing.llm_json or parsing.human_json, 'Can not validate parsing with error'
 

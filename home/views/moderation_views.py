@@ -8,10 +8,10 @@ from django.urls import reverse
 from home.models import WebsiteModeration, ChurchModeration, ModerationMixin, \
     BUG_DESCRIPTION_MAX_LENGTH, ParishModeration, ResourceDoesNotExistError, PruningModeration, \
     SentenceModeration, ParsingModeration
-from home.services.edit_pruning_service import increment_page_validation_counter_of_pruning
+from home.services.edit_pruning_service import on_pruning_human_validation
 from home.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 from scraping.parse.schedules import SchedulesList
-from scraping.services.parse_pruning_service import on_human_validation, \
+from scraping.services.parse_pruning_service import on_parsing_human_validation, \
     get_parsing_schedules_list
 from sourcing.services.merge_websites_service import merge_websites
 
@@ -92,10 +92,9 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
                         f"resource {resource} not found with uuid {similar_uuid}")
 
             if class_moderation == PruningModeration:
-                # update page validation counter
-                increment_page_validation_counter_of_pruning(moderation.pruning)
+                on_pruning_human_validation(moderation.pruning)
             elif class_moderation == ParsingModeration:
-                on_human_validation(moderation)
+                on_parsing_human_validation(moderation)
 
             moderation.validate(request.user)
 

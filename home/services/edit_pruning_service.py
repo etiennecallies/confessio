@@ -106,7 +106,11 @@ def reset_pages_counter_of_pruning(pruning: Pruning):
         website.save()
 
 
-def increment_page_validation_counter_of_pruning(pruning: Pruning):
+def on_pruning_human_validation(pruning: Pruning):
+    pruning.human_indices = pruning.ml_indices
+    pruning.pruned_indices = pruning.ml_indices
+    pruning.save()
+
     websites_to_increment = set()
     for scraping in pruning.scrapings.all():
         page = scraping.page

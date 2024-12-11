@@ -193,6 +193,8 @@ class Pruning(TimeStampMixin):
     extracted_html = models.TextField(editable=False)
     extracted_html_hash = models.CharField(max_length=32, unique=True, editable=False)
     pruned_indices = ArrayField(models.PositiveSmallIntegerField(), null=True)
+    ml_indices = ArrayField(models.PositiveSmallIntegerField(), null=True)
+    human_indices = ArrayField(models.PositiveSmallIntegerField(), null=True)
     history = HistoricalRecords()
 
     def save(self, *args, **kwargs):
@@ -210,7 +212,7 @@ class Pruning(TimeStampMixin):
         return None
 
     def has_been_parsed(self, website: Website) -> bool:
-        if not self.pruned_indices:
+        if not self.has_confessions():
             # no parsing needed
             return True
 

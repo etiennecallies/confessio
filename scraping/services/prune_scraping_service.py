@@ -103,7 +103,6 @@ def add_new_moderation(pruning: Pruning, category):
     moderation = PruningModeration(
         pruning=pruning,
         category=category,
-        pruned_indices=pruning.pruned_indices,
     )
     moderation.save()
 
@@ -113,26 +112,22 @@ def add_necessary_moderation(pruning: Pruning):
         return
 
     category = PruningModeration.Category.NEW_PRUNED_HTML
-
-    # 1. If pruning has already moderation
     current_moderation = get_current_moderation(pruning, category)
-    if current_moderation is not None:
-        if current_moderation.pruned_indices == pruning.pruned_indices:
-            # pruned_indices has not changed, we do nothing
-            return
 
-        if current_moderation.validated_at is None:
-            # pruned_indices has changed, but not validated yet, we just update it
-            current_moderation.pruned_indices = pruning.pruned_indices
-            current_moderation.save()
-            return
-
-        # pruned_indices has changed and was validated, we remove it and add a new one
-        current_moderation.delete()
-        add_new_moderation(pruning, category)
+    if pruning.ml_indices == pruning.human_indices:
+        if current_moderation is not None:
+            current_moderation.delete()
         return
 
-    # 2. No moderation for this scraping yet. We add new moderation, only if not already exists
+    # 1. If pruning has already moderation
+    if current_moderation is not None:
+        if current_moderation.validated_at is None:
+            # moderation is not validated yet, we just keep it
+            return
+
+        # moderation has been validated
+        current_moderation.delete()
+
     add_new_moderation(pruning, category)
 
 
@@ -193,10 +188,12 @@ def prune_pruning(pruning: Pruning) -> ():
     paragraphs = extract_paragraphs_lines_and_indices(pruning.extracted_html,
                                                       SentenceFromDbActionInterface(pruning),
                                                       ExtractMode.PRUNE)
-    all_indices = sum([indices for _, indices in paragraphs], [])
+    ml_indices = sum([indices for _, indices in paragraphs], [])
 
-    if all_indices != pruning.pruned_indices:
-        pruning.pruned_indices = all_indices
+    if ml_indices != pruning.ml_indices:
+        pruning.ml_indices = ml_indices
+        if pruning.human_indices is None:
+            pruning.pruned_indices = ml_indices
         pruning.save()
 
         add_necessary_moderation(pruning)
