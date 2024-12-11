@@ -161,19 +161,26 @@ def moderate_pruning(request, category, is_bug, moderation_uuid=None):
 
 
 def render_pruning_moderation(request, moderation: PruningModeration, next_url):
-    assert moderation.pruning is not None
+    pruning = moderation.pruning
+    assert pruning is not None
 
-    lines_and_colors = []
-    for i, line in enumerate(moderation.pruning.extracted_html.split('<br>\n')):
-        color = '' if i in moderation.pruned_indices else 'text-warning'
-        lines_and_colors.append((line, color))
+    ml_lines_and_colors = []
+    for i, line in enumerate(pruning.extracted_html.split('<br>\n')):
+        color = '' if i in (pruning.ml_indices or []) else 'text-warning'
+        ml_lines_and_colors.append((line, color))
+
+    human_lines_and_colors = []
+    for i, line in enumerate(pruning.extracted_html.split('<br>\n')):
+        color = '' if i in (pruning.human_indices or []) else 'text-warning'
+        human_lines_and_colors.append((line, color))
 
     return render(request, f'pages/moderate_pruning.html', {
         'pruning_moderation': moderation,
-        'pruning': moderation.pruning,
+        'pruning': pruning,
         'next_url': next_url,
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
-        'lines_and_colors': lines_and_colors,
+        'ml_lines_and_colors': ml_lines_and_colors,
+        'human_lines_and_colors': human_lines_and_colors,
     })
 
 

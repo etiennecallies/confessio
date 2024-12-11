@@ -24,9 +24,15 @@
     {% for scraping in pruning.scrapings.all %}
         <p>Scraping page: <a href="{{ scraping.page.url }}" target="_blank">{{ scraping.page.url }}</a></p>
     {% endfor %}
-    {% for line, color in lines_and_colors %}
+    {% for line, color in ml_lines_and_colors %}
         <div class="{{ color }}">{{ line|safe }}</div>
     {% endfor %}
+    {% if human_lines_and_colors != ml_lines_and_colors %}
+        <h3>Human validated pruning</h3>
+        {% for line, color in human_lines_and_colors %}
+            <div class="{{ color }}">{{ line|safe }}</div>
+        {% endfor %}
+    {% endif %}
 
     {% if not pruning_moderation.marked_as_bug_at %}
         <div>
