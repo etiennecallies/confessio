@@ -410,7 +410,6 @@ class ParsingModeration(ModerationMixin):
     history = HistoricalRecords()
     parsing = models.ForeignKey('Parsing', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=13, choices=Category)
-    validated_schedules_list = models.JSONField(null=True)
 
     class Meta:
         unique_together = ('parsing', 'category')
