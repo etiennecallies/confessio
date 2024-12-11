@@ -19,11 +19,6 @@
             <a class="btn btn-info" role="button" href="{{ next_url }}">Next</a>
         </div>
     </div>
-    <p>
-        <a class="btn btn-tertiary" href="{% url 'admin:home_parsing_change' parsing.uuid %}" target="_blank" role="button">
-            Open parsing admin <i class="fas fa-up-right-from-square"></i>
-        </a>
-    </p>
     {% for pruning in parsing.prunings.all %}
         {% for scraping in pruning.scrapings.all %}
             <p>Scraping page: <a href="{{ scraping.page.url }}" target="_blank">{{ scraping.page.url }}</a>
