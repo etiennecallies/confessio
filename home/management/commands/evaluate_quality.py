@@ -14,7 +14,7 @@ class Command(AbstractCommand):
 
     @staticmethod
     def evaluate_quality_for_resource(pages: list[Page],
-                                      resource: Literal['pruning', 'parsing']) -> int:
+                                      resource: Literal['pruning', 'parsing']) -> tuple[int, int]:
         total_qualified = 0
         total_success = 0
         for page in pages:
@@ -25,7 +25,7 @@ class Command(AbstractCommand):
                 if was_firstly_validated:
                     total_success += 1
 
-        return total_success / total_qualified if total_qualified > 0 else 0
+        return total_success, total_qualified
 
     def handle(self, *args, **options):
         if not options['messesinfo_network_id']:
@@ -59,5 +59,7 @@ class Command(AbstractCommand):
         pruning_resource: Literal['pruning', 'parsing'] = 'pruning'
         parsing_resource: Literal['pruning', 'parsing'] = 'parsing'
         for resource in [pruning_resource, parsing_resource]:
-            accuracy = self.evaluate_quality_for_resource(pages, resource)
-            self.success(f'Got accuracy {accuracy * 100:.2f} % for {resource}')
+            total_success, total_qualified = self.evaluate_quality_for_resource(pages, resource)
+            accuracy = total_success / total_qualified if total_qualified > 0 else 0
+            self.success(f'Got accuracy {accuracy * 100:.2f} % for {resource}'
+                         f' ({total_success} / {total_qualified})')
