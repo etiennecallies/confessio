@@ -27,7 +27,7 @@
     {% for line, color in ml_lines_and_colors %}
         <div class="{{ color }}">{{ line|safe }}</div>
     {% endfor %}
-    {% if human_lines_and_colors != ml_lines_and_colors %}
+    {% if human_lines_and_colors and human_lines_and_colors != ml_lines_and_colors %}
         <h3>Human validated pruning</h3>
         {% for line, color in human_lines_and_colors %}
             <div class="{{ color }}">{{ line|safe }}</div>

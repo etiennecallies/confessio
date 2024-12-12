@@ -173,9 +173,10 @@ def render_pruning_moderation(request, moderation: PruningModeration, next_url):
         ml_lines_and_colors.append((line, color))
 
     human_lines_and_colors = []
-    for i, line in enumerate(pruning.extracted_html.split('<br>\n')):
-        color = '' if i in (pruning.human_indices or []) else 'text-warning'
-        human_lines_and_colors.append((line, color))
+    if pruning.human_indices is not None:
+        for i, line in enumerate(pruning.extracted_html.split('<br>\n')):
+            color = '' if i in pruning.human_indices else 'text-warning'
+            human_lines_and_colors.append((line, color))
 
     return render(request, f'pages/moderate_pruning.html', {
         'pruning_moderation': moderation,
