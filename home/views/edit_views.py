@@ -7,14 +7,15 @@ from pydantic import ValidationError
 
 from home.models import Page, Pruning, Sentence, Parsing
 from home.services.edit_pruning_service import get_colored_pieces, update_sentence_action, \
-    reset_pages_counter_of_pruning
+    reset_pages_counter_of_pruning, set_human_indices
 from jsoneditor.forms import JSONSchemaForm
 from scraping.parse.schedules import SchedulesList
 from scraping.prune.action_interfaces import DummyActionInterface
 from scraping.prune.models import Action
-from scraping.services.parse_pruning_service import get_parsing_schedules_list
+from scraping.services.parse_pruning_service import get_parsing_schedules_list, \
+    reset_counters_of_parsing
 from scraping.services.prune_scraping_service import SentenceFromDbActionInterface, \
-    reprune_affected_scrapings, prune_pruning
+    reprune_affected_prunings, prune_pruning
 
 
 @login_required
@@ -41,12 +42,18 @@ def edit_pruning(request, pruning_uuid):
                 modified_sentences.append(sentence)
                 update_sentence_action(sentence, pruning, request.user, new_action)
 
+        # Save pruning
+        prune_pruning(pruning)
+
+        # Set human indices
+        set_human_indices(pruning)
+
         if modified_sentences:
             # reset page counter
             reset_pages_counter_of_pruning(pruning)
 
-        prune_pruning(pruning)
-        reprune_affected_scrapings(modified_sentences, pruning)
+            # re-prune affected prunings
+            reprune_affected_prunings(modified_sentences, pruning)
 
     colored_pieces = get_colored_pieces(extracted_html,
                                         SentenceFromDbActionInterface(pruning))
@@ -80,11 +87,16 @@ def edit_parsing(request, parsing_uuid):
     if request.method == "POST":
         schedules_list_as_json = request.POST.get("json")
         schedules_list_as_dict = json.loads(schedules_list_as_json)
+        previous_schedule_list = get_parsing_schedules_list(parsing)
         try:
             schedules_list = SchedulesList(**schedules_list_as_dict)
             parsing.human_json = schedules_list.model_dump()
             parsing.save()
             success = True
+
+            if schedules_list != previous_schedule_list:
+                # reset page counter
+                reset_counters_of_parsing(parsing)
         except ValidationError as e:
             validation_error = str(e)
 

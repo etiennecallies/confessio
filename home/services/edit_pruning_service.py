@@ -89,9 +89,20 @@ def update_sentence_action(sentence: Sentence, pruning: Pruning, user: User, act
     sentence.save()
 
 
+def set_human_indices(pruning: Pruning):
+    pruning.human_indices = pruning.ml_indices
+    pruning.pruned_indices = pruning.ml_indices
+    pruning.save()
+
+
 ######################
 # VALIDATION COUNTER #
 ######################
+
+def on_pruning_human_validation(pruning: Pruning):
+    set_human_indices(pruning)
+    increment_counters_of_pruning(pruning)
+
 
 def reset_pages_counter_of_pruning(pruning: Pruning):
     websites_to_reset = set()
@@ -106,11 +117,7 @@ def reset_pages_counter_of_pruning(pruning: Pruning):
         website.save()
 
 
-def on_pruning_human_validation(pruning: Pruning):
-    pruning.human_indices = pruning.ml_indices
-    pruning.pruned_indices = pruning.ml_indices
-    pruning.save()
-
+def increment_counters_of_pruning(pruning: Pruning):
     websites_to_increment = set()
     for scraping in pruning.scrapings.all():
         page = scraping.page

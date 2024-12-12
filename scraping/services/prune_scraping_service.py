@@ -40,7 +40,7 @@ class SentenceFromDbActionInterface(BaseActionInterface):
 # REPRUNE AFFECTED SCRAPINGS #
 ##############################
 
-def reprune_affected_scrapings(sentences: list[Sentence], original_pruning: Pruning):
+def reprune_affected_prunings(sentences: list[Sentence], original_pruning: Pruning):
     affected_prunings = []
     for sentence in sentences:
         for pruning in sentence.prunings.all():

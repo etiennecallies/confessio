@@ -12,7 +12,7 @@ from home.services.edit_pruning_service import on_pruning_human_validation
 from home.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 from scraping.parse.schedules import SchedulesList
 from scraping.services.parse_pruning_service import on_parsing_human_validation, \
-    get_parsing_schedules_list
+    get_parsing_schedules_list, set_human_json, ParsingValidationError
 from sourcing.services.merge_websites_service import merge_websites
 
 
@@ -94,7 +94,10 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
             if class_moderation == PruningModeration:
                 on_pruning_human_validation(moderation.pruning)
             elif class_moderation == ParsingModeration:
-                on_parsing_human_validation(moderation)
+                try:
+                    on_parsing_human_validation(moderation)
+                except ParsingValidationError as e:
+                    return HttpResponseBadRequest(str(e))
 
             moderation.validate(request.user)
 
@@ -263,8 +266,7 @@ def moderate_erase_human_by_llm(request, parsing_moderation_uuid=None):
         return HttpResponseBadRequest(f'Can not erase human by llm because parsing '
                                       f'{parsing.uuid} does not have llm_json')
 
-    parsing.human_json = parsing.llm_json
-    parsing.save()
+    set_human_json(parsing)
 
     return redirect_to_moderation(parsing_moderation, parsing_moderation.category, 'parsing',
                                   parsing_moderation.marked_as_bug_at is not None)

@@ -104,39 +104,6 @@ def add_necessary_parsing_moderation(parsing: Parsing):
         parsing_moderation.save()
 
 
-def on_parsing_human_validation(parsing_moderation: ParsingModeration):
-    parsing = parsing_moderation.parsing
-    assert parsing.llm_json or parsing.human_json, 'Can not validate parsing with error'
-
-    if parsing.human_json is None:
-        parsing.human_json = parsing.llm_json
-        parsing.save()
-
-    update_counters_of_parsing(parsing)
-
-
-def update_counters_of_parsing(parsing: Parsing):
-    human_differs_from_llm = parsing.llm_json != parsing.human_json
-
-    websites_to_update = set()
-    for pruning in parsing.prunings.all():
-        for scraping in pruning.scrapings.all():
-            page = scraping.page
-            if human_differs_from_llm:
-                page.parsing_validation_counter = -1
-            else:
-                page.parsing_validation_counter += 1
-            page.save()
-            websites_to_update.add(page.website)
-
-    for website in websites_to_update:
-        if human_differs_from_llm:
-            website.parsing_validation_counter = -1
-        else:
-            website.parsing_validation_counter += 1
-        website.save()
-
-
 def parsing_needs_moderation(parsing: Parsing):
     for pruning in parsing.prunings.all():
         for scraping in pruning.scrapings.all():
@@ -160,6 +127,64 @@ def parsing_needs_moderation(parsing: Parsing):
                 return True
 
     return False
+
+
+#########################
+# MODERATION VALIDATION #
+#########################
+
+class ParsingValidationError(Exception):
+    pass
+
+
+def on_parsing_human_validation(parsing_moderation: ParsingModeration):
+    parsing = parsing_moderation.parsing
+    if parsing.human_json is None:
+        if parsing.llm_json is None:
+            raise ParsingValidationError(
+                'No human nor LLM json for parsing, can not be validated'
+            )
+
+        set_human_json(parsing)
+
+    increment_counters_of_parsing(parsing)
+
+
+def set_human_json(parsing: Parsing):
+    parsing.human_json = parsing.llm_json
+    parsing.save()
+
+
+############
+# COUNTERS #
+############
+
+def reset_counters_of_parsing(parsing: Parsing):
+    websites_to_update = set()
+    for pruning in parsing.prunings.all():
+        for scraping in pruning.scrapings.all():
+            page = scraping.page
+            page.parsing_validation_counter = -1
+            page.save()
+            websites_to_update.add(page.website)
+
+    for website in websites_to_update:
+        website.parsing_validation_counter = -1
+        website.save()
+
+
+def increment_counters_of_parsing(parsing: Parsing):
+    websites_to_update = set()
+    for pruning in parsing.prunings.all():
+        for scraping in pruning.scrapings.all():
+            page = scraping.page
+            page.parsing_validation_counter += 1
+            page.save()
+            websites_to_update.add(page.website)
+
+    for website in websites_to_update:
+        website.parsing_validation_counter += 1
+        website.save()
 
 
 ####################
