@@ -22,7 +22,12 @@
         Edit pruning <i class="fas fa-up-right-from-square"></i>
     </a></p>
     {% for scraping in pruning.scrapings.all %}
-        <p>Scraping page: <a href="{{ scraping.page.url }}" target="_blank">{{ scraping.page.url }}</a></p>
+        <p>Scraping page: <a href="{{ scraping.page.url }}" target="_blank">{{ scraping.page.url }}</a>
+        <a class="btn btn-tertiary" style="background-color: darkgreen; border-color: darkgreen;"
+                   href="{% url 'admin:home_website_change' scraping.page.website.uuid %}" target="_blank" role="button">
+        Open website admin <i class="fas fa-up-right-from-square"></i>
+        </a>
+        </p>
     {% endfor %}
     {% for line, color in ml_lines_and_colors %}
         <div class="{{ color }}">{{ line|safe }}</div>
