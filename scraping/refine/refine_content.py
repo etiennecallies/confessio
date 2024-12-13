@@ -164,6 +164,7 @@ def build_text(soup: BeautifulSoup):
 
 
 def clean_text(text: str):
+    text = text.replace("", "")
     text = text.replace('\u200b', '')
     text = text.replace('\u00A0', ' ')  # replace non-breaking space by space
     text = re.sub(r'^\s*', '', text)

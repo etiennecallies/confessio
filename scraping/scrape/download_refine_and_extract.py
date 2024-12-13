@@ -31,28 +31,11 @@ def get_fresh_extracted_html_list(url) -> list[str] | None:
 
 
 if __name__ == '__main__':
-    confession_pages = [
-        # 'https://paroissesaintbruno.pagesperso-orange.fr/messes.html',
-        # 'http://www.paroisses-pentes-et-saone.fr/soiree-confessions-avec-adoration/',
-        # 'https://www.paroissesainteclaire.com/evenements.html',
-        # 'https://www.espace-saint-ignace.fr/?page_id=1252',
-        # 'https://www.paroisse-st-martin-largentiere.fr',
-        # 'https://paroissesaintalexandre.fr/etapes-de-la-vie/pardon-reconciliation/',
-        # 'https://paroisserambouillet.fr/+-Sacrement-+',
-        # 'https://www.paroissedevaise.fr/se-confesser/',
-        # 'https://paroisse-sceaux.fr/wp-content/uploads/2023/12/priere-universelle-2eme-dimanche-de-lAvent.pdf',
-        # 'https://www.paroisse-meudonlaforet.fr/reconciliation/',
-        # 'https://paroissedemontrouge.com/etapes-de-la-vie-chretienne-reconciliation/',
-        # 'https://saintbenoitdugrandcaux.wordpress.com/le-sacrement-de-la-reconciliation/',
-        # 'https://meulan-triel.fr/index.php/reconciliation-confession/',
-        'https://paroisse-sevres.fr/les-etapes-de-la-vie-chretienne/confession/',
-    ]
+    url_ = 'https://www.steloi.com/et-si-jallais-me-confesser/'
+    extracted_html_list_ = get_fresh_extracted_html_list(url_)
 
-    for url_ in confession_pages:
-        extracted_html_list_ = get_fresh_extracted_html_list(url_)
-
-        print()
-        print(url_)
-        if extracted_html_list_ is not None:
-            for extracted_html_ in extracted_html_list_:
-                print(extracted_html_)
+    print()
+    print(url_)
+    if extracted_html_list_ is not None:
+        for extracted_html_ in extracted_html_list_:
+            print(extracted_html_)
