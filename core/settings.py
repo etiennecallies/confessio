@@ -246,6 +246,7 @@ REQUEST_IGNORE_USER_AGENTS = (
     r'ia_archiver',  # Alexa's web crawler
     r'Bytespider',  # Alexa's web crawler
     r'uptime bot',
+    r'Uptime Bot',
     r'fr_bot',
 )
 REQUEST_TRAFFIC_MODULES = (
