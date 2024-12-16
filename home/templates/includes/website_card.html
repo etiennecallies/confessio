@@ -28,32 +28,12 @@
                                 </span></span>
                             </h3>
                         </div>
-                        {% for church in website_churches|get_item:website.uuid %}
-                            <div class="row">
-                                <p class="col-md-9">
-                                    <span class="fw-bold">⛪️ {{ church.name }}</span>
-                                    {% if request.user.is_authenticated and request.user.is_staff %}
-                                        <a class="text-muted" href="{% url 'admin:home_church_change' church.uuid %}" target="_blank">
-                                            - Admin <i class="fas fa-up-right-from-square"></i>
-                                        </a>
-                                    {% endif %}
-                                    <br>
-                                    <span class="text-muted">{{ church.address }} {{ church.zipcode }} {{ church.city }}</span>
-                                </p>
-                                <p class="col-md-3">
-                                    <a href="#map"
-                                       class="link-info"
-                                       onclick="return popupChurch('{{ church_marker_names|get_item:church.uuid }}');">
-                                        {% trans 'locateOnMap' %}
-                                    </a>
-                                </p>
-                            </div>
-                        {% endfor %}
                         {% if website.all_pages_parsed or website.unreliability_reason %}
                             <div class="schedules-sources-tabs">
                                 <ul class="nav nav-tabs">
                                     <li class="nav-item"><a class="nav-link" href="#tab-schedules-{{ website.uuid }}">📆 Dates</a></li>
                                     <li class="nav-item"><a class="nav-link" href="#tab-sources-{{ website.uuid }}">📖 Sources</a></li>
+                                    <li class="nav-item"><a class="nav-link" href="#tab-churches-{{ website.uuid }}">⛪️ Églises</a></li>
                                 </ul>
                                 <div id="tab-schedules-{{ website.uuid }}">
                                     {% if website.unreliability_reason %}
@@ -97,8 +77,12 @@
                                 <div id="tab-sources-{{ website.uuid }}">
                                     {% include 'includes/website_sources.html' %}
                                 </div>
+                                <div id="tab-churches-{{ website.uuid }}">
+                                    {% include 'includes/website_churches.html' %}
+                                </div>
                             </div>
                         {% else %}
+                            {% include 'includes/website_churches.html' %}
                             <div class="mb-0">
                                 {% include 'includes/website_sources.html' %}
                             </div>
