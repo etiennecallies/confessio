@@ -5,10 +5,8 @@ from django.template.defaulttags import register
 from django.urls import reverse
 
 from home.models import WebsiteModeration, ChurchModeration, ParishModeration, \
-    PruningModeration, SentenceModeration, ParsingModeration, Website, ModerationMixin, Pruning, \
+    PruningModeration, SentenceModeration, ParsingModeration, ModerationMixin, Pruning, \
     Page, Parsing
-from home.services.events_service import ChurchSchedulesList, \
-    get_merged_church_schedules_list
 from home.utils.date_utils import get_current_year
 from home.utils.list_utils import enumerate_with_and
 from scraping.parse.rrule_utils import get_events_from_schedule_item
@@ -23,15 +21,6 @@ def get_item(dictionary, key):
 @register.filter
 def negate(value):
     return not value
-
-
-@register.filter
-def get_church_schedules_list(website: Website) -> ChurchSchedulesList:
-    church_schedules_lists = [ChurchSchedulesList.from_parsing(parsing, website)
-                              for parsing in website.get_all_parsings()]
-
-    return get_merged_church_schedules_list([csl for csl in church_schedules_lists
-                                             if csl is not None])
 
 
 @register.filter

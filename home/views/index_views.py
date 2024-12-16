@@ -6,13 +6,30 @@ from django.shortcuts import render
 
 from home.models import Website, Diocese
 from home.services.autocomplete_service import get_aggregated_response
+from home.services.events_service import ChurchSchedulesList, get_merged_church_schedules_list
 from home.services.map_service import get_churches_in_box, get_churches_around, prepare_map, \
     get_churches_by_website, get_center, get_churches_by_diocese
 from home.services.page_url_service import get_page_url_with_pointer_at_pruning
 
 
 def render_map(request, center, churches, bounds, location, too_many_results: bool):
-    folium_map, church_marker_names = prepare_map(center, churches, bounds)
+    website_merged_church_schedules_list = {}
+    for church in churches:
+        website = church.parish.website
+        if website in website_merged_church_schedules_list:
+            continue
+
+        if not website.all_pages_parsed() or website.unreliability_reason:
+            continue
+
+        church_schedules_lists = [ChurchSchedulesList.from_parsing(parsing, website)
+                                  for parsing in website.get_all_parsings()]
+        merged_church_schedules_list = get_merged_church_schedules_list(
+            [csl for csl in church_schedules_lists if csl is not None])
+        website_merged_church_schedules_list[website.uuid] = merged_church_schedules_list
+
+    folium_map, church_marker_names = prepare_map(center, churches, bounds,
+                                                  website_merged_church_schedules_list)
 
     # Get HTML Representation of Map Object
     map_html = folium_map._repr_html_()
@@ -55,6 +72,7 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
         'map_html': map_html,
         'church_marker_names': church_marker_names,
         'websites': websites,
+        'website_merged_church_schedules_list': website_merged_church_schedules_list,
         'website_churches': website_churches,
         'page_pruning_urls': page_pruning_urls,
         'too_many_results': too_many_results,

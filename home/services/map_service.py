@@ -1,3 +1,4 @@
+import datetime
 from statistics import mean
 from typing import List, Tuple, Dict, Optional
 from uuid import UUID
@@ -11,6 +12,8 @@ from django.utils.translation import gettext as _
 from home.models import Church, Website, Diocese
 from folium import Map, Icon, Popup, Marker
 
+from home.services.events_service import MergedChurchSchedulesList
+from home.utils.date_utils import format_datetime_with_locale
 
 MAX_CHURCHES_IN_RESULTS = 50
 
@@ -94,8 +97,18 @@ def get_latitude_longitude(point):
     return [point.coords[1], point.coords[0]]
 
 
-def get_popup_and_color(church: Church):
-    if church.parish.website.one_page_has_confessions():
+def get_popup_and_color(church: Church,
+                        merged_church_schedules_list: MergedChurchSchedulesList
+                        ) -> Tuple[str, str]:
+    next_event = merged_church_schedules_list.next_event_in_church(church) \
+        if merged_church_schedules_list else None
+    if next_event is not None:
+        date_str = format_datetime_with_locale(next_event.start, "%A %d %B", 'fr_FR.UTF-8')
+        year_str = f" {next_event.start.year}" \
+            if next_event.start.year != datetime.date.today().year else ''
+        wording = f'{_("NextEvent")}<br>le {date_str.lower()}{year_str} à {next_event.start:%H:%M}'
+        color = 'green'
+    elif church.parish.website.one_page_has_confessions():
         wording = _("ConfessionsExist")
         color = 'blue'
     elif not church.parish.website.has_been_crawled() \
@@ -116,7 +129,9 @@ def get_popup_and_color(church: Church):
     return popup_html, color
 
 
-def prepare_map(center, churches: List[Church], bounds) -> Tuple[Map, Dict[UUID, str]]:
+def prepare_map(center, churches: List[Church], bounds,
+                website_merged_church_schedules_list: dict[UUID, MergedChurchSchedulesList]
+                ) -> Tuple[Map, Dict[UUID, str]]:
     # Create Map Object
     folium_map = Map(location=center)
 
@@ -125,7 +140,9 @@ def prepare_map(center, churches: List[Church], bounds) -> Tuple[Map, Dict[UUID,
 
     for church in churches:
         tootltip_text = f'{church.name}'
-        popup_html, color = get_popup_and_color(church)
+        merged_church_schedules_list = \
+            website_merged_church_schedules_list.get(church.parish.website.uuid)
+        popup_html, color = get_popup_and_color(church, merged_church_schedules_list)
         marker = Marker(get_latitude_longitude(church.location),
                         tooltip=tootltip_text,
                         popup=Popup(html=popup_html, max_width=None),

@@ -20,7 +20,11 @@ msgstr ""
 
 #: services/map_service.py:101
 msgid "ConfessionsExist"
-msgstr "Des confessions existent"
+msgstr "Des confessions existent dans la paroisse"
+
+#: services/map_service.py:101
+msgid "NextEvent"
+msgstr "Prochaine confession"
 
 #: services/map_service.py:106 templates/pages/index.html:146
 msgid "NotCrawledYet"

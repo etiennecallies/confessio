@@ -74,20 +74,36 @@ class ChurchSchedulesList:
             schedules_list=schedules_list
         )
 
-    def get_church_events(self) -> list[ChurchEvent]:
-        max_events = 7
-        start_date = datetime.now()
-        end_date = start_date + timedelta(days=365)
-        events = get_events_from_schedule_items(self.schedules_list.schedules, start_date, end_date,
-                                                get_current_year(), max_events)
-        church_by_id = {cs.schedule_item.church_id: cs.church for cs in self.church_schedules}
 
-        return [ChurchEvent.from_event(event, church_by_id) for event in events[:max_events]]
+@dataclass
+class MergedChurchSchedulesList:
+    schedules_list: SchedulesList
+    church_events: list[ChurchEvent]
+
+    def next_event_in_church(self, church: Church) -> Optional[Event]:
+        for church_event in self.church_events:
+            if church_event.church == church:
+                return church_event.event
+
+        return None
 
 
 def get_merged_church_schedules_list(csl: list[ChurchSchedulesList]
-                                     ) -> ChurchSchedulesList:
-    return ChurchSchedulesList(
-        church_schedules=[cs for sl in csl for cs in sl.church_schedules],
-        schedules_list=get_merged_schedules_list([cs.schedules_list for cs in csl])
+                                     ) -> MergedChurchSchedulesList:
+    church_schedules = [cs for sl in csl for cs in sl.church_schedules]
+    schedules_list = get_merged_schedules_list([cs.schedules_list for cs in csl])
+
+    max_events = 7
+    start_date = datetime.now()
+    end_date = start_date + timedelta(days=365)
+    events = get_events_from_schedule_items(schedules_list.schedules, start_date, end_date,
+                                            get_current_year(), max_events)
+
+    church_by_id = {cs.schedule_item.church_id: cs.church for cs in church_schedules}
+    church_events = [ChurchEvent.from_event(event, church_by_id)
+                     for event in events[:max_events]]
+
+    return MergedChurchSchedulesList(
+        schedules_list=schedules_list,
+        church_events=church_events,
     )

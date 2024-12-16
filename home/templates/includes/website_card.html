@@ -61,9 +61,9 @@
                                             Nous regrettons de ne pouvoir afficher les horaires de cette paroisse pour des raisons techniques.
                                         </div>
                                     {% else %}
-                                        {% with church_schedules_list=website|get_church_schedules_list %}
+                                        {% with merged_schedules_list=website_merged_church_schedules_list|get_item:website.uuid %}
                                             <div>
-                                                {% with church_events=church_schedules_list.get_church_events %}
+                                                {% with church_events=merged_schedules_list.church_events %}
                                                     {% if church_events %}
                                                         {% if not website.parsings_have_been_moderated %}
                                                             <div class="text-warning">⚠️ Ces horaires n'ont pas encore été vérifiés pour cette paroisse.</div>
@@ -86,10 +86,10 @@
                                                 {% endwith %}
                                             </div>
                                             <div>
-                                                {% if church_schedules_list.schedules_list.possible_by_appointment %}
+                                                {% if merged_schedules_list.schedules_list.possible_by_appointment %}
                                                     <div>🤝 Il est possible de se confesser sur rendez-vous.</div>
                                                 {% endif %}
-                                                {{ church_schedules_list.schedules_list|has_relation_text }}
+                                                {{ merged_schedules_list.schedules_list|has_relation_text }}
                                             </div>
                                         {% endwith %}
                                     {% endif %}
