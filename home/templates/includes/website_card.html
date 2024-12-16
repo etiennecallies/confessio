@@ -48,6 +48,16 @@
                                                         {% if not website.parsings_have_been_moderated %}
                                                             <div class="text-warning">⚠️ Ces horaires n'ont pas encore été vérifiés pour cette paroisse.</div>
                                                         {% endif %}
+                                                        {% for church_schedule in merged_schedules_list.regular_church_schedules %}
+                                                            <div>
+                                                                {% if church_schedule.church %}
+                                                                    {{ church_schedule.church.name }} :
+                                                                {% elif church_schedule.is_church_explicitly_other %}
+                                                                    <span class="text-danger">En dehors de cette paroisse :</span>
+                                                                {% endif %}
+                                                                {{ church_schedule.schedule_item|get_explanation }}
+                                                            </div>
+                                                        {% endfor %}
                                                         {% for church_event in church_events %}
                                                             <p>
                                                                 {% if church_event.church %}

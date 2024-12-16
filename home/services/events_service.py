@@ -79,6 +79,7 @@ class ChurchSchedulesList:
 class MergedChurchSchedulesList:
     schedules_list: SchedulesList
     church_events: list[ChurchEvent]
+    regular_church_schedules: list[ChurchScheduleItem]
 
     def next_event_in_church(self, church: Church) -> Optional[Event]:
         for church_event in self.church_events:
@@ -92,6 +93,8 @@ def get_merged_church_schedules_list(csl: list[ChurchSchedulesList]
                                      ) -> MergedChurchSchedulesList:
     church_schedules = [cs for sl in csl for cs in sl.church_schedules]
     schedules_list = get_merged_schedules_list([cs.schedules_list for cs in csl])
+    regular_church_schedules = [cs for cs in church_schedules
+                                if cs.schedule_item.is_regular_rule()]
 
     max_events = 7
     start_date = datetime.now()
@@ -106,4 +109,5 @@ def get_merged_church_schedules_list(csl: list[ChurchSchedulesList]
     return MergedChurchSchedulesList(
         schedules_list=schedules_list,
         church_events=church_events,
+        regular_church_schedules=regular_church_schedules,
     )
