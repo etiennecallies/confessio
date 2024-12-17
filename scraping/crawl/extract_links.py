@@ -27,6 +27,8 @@ CONFESSIONS_OR_SCHEDULES_MENTIONS = [
     'etapes',
     'paroisse',
     'spirituelle',
+    'info',
+    'infos',
 ]
 
 IGNORED_EXTENSIONS = [
