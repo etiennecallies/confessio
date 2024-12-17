@@ -51,7 +51,11 @@
                                                         {% for church_event in church_events %}
                                                             <p>
                                                                 {% if church_event.church %}
-                                                                    {{ church_event.church.name }} :
+                                                                    <a href="#map"
+                                                                       class="link-info"
+                                                                       onclick="return popupChurch('{{ church_marker_names|get_item:church_event.church.uuid }}');">
+                                                                        {{ church_event.church.name }}
+                                                                    </a> :
                                                                 {% elif church_event.is_church_explicitly_other %}
                                                                     <span class="text-danger">En dehors de cette paroisse :</span>
                                                                 {% endif %}
