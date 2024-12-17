@@ -80,6 +80,11 @@ table {
     vertical-align: text-top;
 }
 
+/* copy to clipboard */
+.copy-to-clipboard {
+    cursor: pointer;
+}
+
 
 /*
  * On mobile the hover state remains after click.
