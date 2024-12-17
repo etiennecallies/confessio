@@ -107,7 +107,7 @@ def get_popup_and_color(church: Church,
         year_str = f" {next_event.start.year}" \
             if next_event.start.year != datetime.date.today().year else ''
         wording = f'{_("NextEvent")}<br>le {date_str.lower()}{year_str} à {next_event.start:%H:%M}'
-        color = 'green'
+        color = 'darkblue'
     elif church.parish.website.one_page_has_confessions():
         wording = _("ConfessionsExist")
         color = 'blue'
