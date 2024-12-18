@@ -24,7 +24,7 @@ def contact(request, message=None, name=None, email=None, message_text=None):
         form = CaptchaForm(request.POST)
         if not form.is_valid():
             print(form.errors)
-            message_text = quote(message)
+            message_text = quote(message) if message else None
             return redirect("contact_failure", message='failure',
                             name=name, email=from_email, message_text=message_text)
 
