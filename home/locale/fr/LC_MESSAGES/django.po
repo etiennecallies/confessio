@@ -78,9 +78,7 @@ msgstr "Confessio - horaires des confessions"
 #: templates/layouts/base.html:29 templates/layouts/base.html:35
 #: templates/layouts/base.html:42 templates/pages/index.html:15
 msgid "confessioDescription"
-msgstr ""
-"Un premier moteur de recherche inter-paroissial d'horaires de confession "
-"utilisant l'intelligence artificielle."
+msgstr "Un moteur de recherche d'horaires de confession qui cite ses sources."
 
 #: templates/pages/contact.html:4 templates/pages/contact.html:5
 msgid "contactPageTitle"
