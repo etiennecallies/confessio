@@ -172,9 +172,7 @@ def unlink_pruning_from_parsings(pruning: Pruning):
 def update_parsings(pruning: Pruning):
     websites = {scraping.page.website for scraping in pruning.scrapings.all()}
     for website in websites:
-        # TODO open everywhere
-        if website.parishes.filter(diocese__messesinfo_network_id__in=['lh', 'ly']).exists():
-            parse_pruning_for_website(pruning, website)
+        parse_pruning_for_website(pruning, website)
 
 
 ########
