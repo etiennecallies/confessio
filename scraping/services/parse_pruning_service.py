@@ -90,6 +90,10 @@ def add_necessary_parsing_moderation(parsing: Parsing):
         return
 
     category = ParsingModeration.Category.NEW_SCHEDULES
+    add_parsing_moderation(parsing, category)
+
+
+def add_parsing_moderation(parsing: Parsing, category: ParsingModeration.Category):
     try:
         parsing_moderation = ParsingModeration.objects.filter(parsing=parsing,
                                                               category=category).get()
@@ -102,6 +106,10 @@ def add_necessary_parsing_moderation(parsing: Parsing):
             category=category,
         )
         parsing_moderation.save()
+
+
+def remove_parsing_moderation(parsing: Parsing, category: ParsingModeration.Category):
+    ParsingModeration.objects.filter(parsing=parsing, category=category).delete()
 
 
 def parsing_needs_moderation(parsing: Parsing):
@@ -291,4 +299,8 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
         parsing.save()
 
     parsing.prunings.add(pruning)
-    add_necessary_parsing_moderation(parsing)
+    if llm_error_detail:
+        add_parsing_moderation(parsing, ParsingModeration.Category.LLM_ERROR)
+    else:
+        remove_parsing_moderation(parsing, ParsingModeration.Category.LLM_ERROR)
+        add_necessary_parsing_moderation(parsing)

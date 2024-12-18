@@ -398,6 +398,7 @@ class SentenceModeration(ModerationMixin):
 class ParsingModeration(ModerationMixin):
     class Category(models.TextChoices):
         NEW_SCHEDULES = "new_schedules"
+        LLM_ERROR = "llm_error"
 
     resource = 'parsing'
     validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
