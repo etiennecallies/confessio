@@ -146,7 +146,7 @@ def intervals_from_period(period: PeriodEnum, year: int) -> list[tuple[date, dat
 
     # Seasons
     if period == PeriodEnum.ADVENT:
-        if year == 2024:
+        if year == 2026:
             return [(date(year, 11, 30), date(year, 12, 24))]
         elif year == 2025:
             return [(date(year, 11, 29), date(year, 12, 24))]
@@ -154,7 +154,7 @@ def intervals_from_period(period: PeriodEnum, year: int) -> list[tuple[date, dat
         raise ValueError(f'Advent not implemented for year {year}')
 
     if period == PeriodEnum.LENT:
-        if year == 2024:
+        if year == 2026:
             return [(date(year, 3, 6), date(year, 4, 20))]
         elif year == 2025:
             return [(date(year, 2, 26), date(year, 4, 11))]
@@ -164,7 +164,7 @@ def intervals_from_period(period: PeriodEnum, year: int) -> list[tuple[date, dat
     # Holidays
     if period == PeriodEnum.SCHOOL_HOLIDAYS:
         # TODO handle zones
-        if year == 2024:
+        if year == 2026:
             return [(date(year, 2, 10), date(year, 2, 24)),
                     (date(year, 4, 6), date(year, 4, 22)),
                     (date(year, 7, 6), date(year, 9, 2)),
