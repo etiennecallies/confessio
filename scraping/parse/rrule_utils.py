@@ -139,6 +139,12 @@ def is_necessary_schedule(schedule: ScheduleItem) -> bool:
         # we ignore schedules with no start time or with start time at midnight
         return False
 
+    if schedule.is_one_off_rule():
+        if (not schedule.date_rule.month or not schedule.date_rule.day) \
+                and not schedule.date_rule.liturgical_day:
+            # we ignore one-off schedules without date
+            return False
+
     if schedule.is_regular_rule():
         rstr = rrulestr(schedule.date_rule.rrule)
         frequency = Frequency(rstr._freq)

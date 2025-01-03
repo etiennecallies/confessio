@@ -14,14 +14,10 @@ class OneOffRule(BaseModel, frozen=True):
     weekday_iso8601: int | None
     liturgical_day: LiturgicalDayEnum | None
 
-    @model_validator(mode='after')
-    def validate_date(self) -> 'OneOffRule':
-        if (not self.month or not self.day) and not self.liturgical_day:
-            raise ValueError(f'Missing month or day for {self}')
-
-        return self
-
     def is_valid_date(self) -> bool:
+        if (not self.month or not self.day) and not self.liturgical_day:
+            return False
+
         try:
             if self.month and self.day:
                 # check day and month

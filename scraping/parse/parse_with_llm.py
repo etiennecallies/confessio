@@ -27,9 +27,7 @@ The output should be a dictionary with this format:
 }}
 
 Then, "schedules" is a list of dictionaries, each containing the schedule for a church.
-Sometimes several schedule dictionaries can be extracted from the same church. If there is no
-explicit date in the text, do not return a schedule item dictionary for this event. If there is no
-explicit time in the text, do not return a schedule item dictionary for this event neither.
+Sometimes several schedule dictionaries can be extracted from the same church.
 
 Here is the schedule dictionary format:
 {{
@@ -53,10 +51,10 @@ be a one-off date rule or a regular date rule.
 Here is the one-off date rule format:
 {{
     "year": Optional[int],  # the year as written in the text, let null if not explicit
-    "month": int,  # month, only nullable when liturgical_day is specified
-    "day": int,  # day of month, only nullable when liturgical_day is specified
+    "month": Optional[int],  # month, let null if not explicit
+    "day": Optional[int],  # day of month, let null if not explicit
     "weekday_iso8601": Optional[int],  # the week day, 1 for Monday to 7, null if not explicit
-    "liturgical_day": Optional[LiturgicalDayEnum],  # the liturgical day, null if not explicit
+    "liturgical_day": LiturgicalDayEnum | null,  # the liturgical day, let null if not explicit
 }}
 
 For example, for "Vendredi 30 août", the one-off date rule would be:
@@ -73,7 +71,14 @@ For example, for "Vendredi 30 août", the one-off date rule would be:
     "day": 30,
     "weekday_iso8601": null,
     "liturgical_day": null
-}}.
+}}, for no date at all:
+{{
+    "year": null,
+    "month": null,
+    "day": null,
+    "weekday_iso8601": null,
+    "liturgical_day": null
+}}
 
 The accepted LiturgicalDayEnum values are 'ash_wednesday', from 'palms_sunday' to 'easter_sunday',
 'ascension' and 'pentecost'.
@@ -112,11 +117,14 @@ Some details:
 - rrule must start with "DTSTART:some date", e.g. "DTSTART:20000101"
 - if a recurring event description is vague (e.g. "une fois par mois") and is followed by a list of
 dates, prefer to return a list of one-off date rules instead of a regular date rule.
-- If an expression of en event does not contain a precise date (e.g. "avant Noël"
-"avant Pâques", or "une fois par mois") or a precise time (e.g. "dans la matinée",
-"dans l'après-midi", "dans la soirée", "après la messe" or no time at all), do not return a schedule
-item dictionary for this event. Usually, it means some of the booleans for mass, adoration,
-permanence or seasonal events should be set to True.
+- If there is no explicit date in the text (e.g. "avant Noël", "avant Pâques", or
+"une fois par mois" or no date at all), you can skip this schedule or return a one off rule with
+all fields null.
+- If there is no explicit time in the text (e.g. "dans la matinée", "dans l'après-midi",
+"dans la soirée", "après la messe" or no time at all), you can skip this schedule or
+set start_time_iso8601 and end_time_iso8601 to null.
+- Usually, the lack of precision means some of the booleans for mass, adoration, permanence or
+seasonal events should be set to True.
 - A mass lasts 30 minutes, except on Sundays and feast days when it lasts 1 hour. Therefore, if the
 confession starts "après la messe", two cases : either the schedule is explicit, e.g
 "après la messe de Xh le vendredi" would give a start time of Xh30, or the schedule is not explicit,
