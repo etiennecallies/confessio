@@ -1,0 +1,54 @@
+{
+  "input": {
+    "church_desc_by_id": {
+      "0": "Saint-Ambroise Paris"
+    },
+    "year": 2024
+  },
+  "output": {
+    "schedules_list": {
+      "schedules": [
+        {
+          "church_id": 0,
+          "date_rule": {
+            "rrule": "DTSTART:20000101\nRRULE:FREQ=WEEKLY;BYDAY=TU,WE,TH,FR",
+            "include_periods": [],
+            "exclude_periods": []
+          },
+          "is_cancellation": false,
+          "start_time_iso8601": "17:00:00",
+          "end_time_iso8601": "19:00:00"
+        },
+        {
+          "church_id": 0,
+          "date_rule": {
+            "rrule": "DTSTART:20000101\nRRULE:FREQ=WEEKLY;BYDAY=SA",
+            "include_periods": [],
+            "exclude_periods": []
+          },
+          "is_cancellation": false,
+          "start_time_iso8601": "16:30:00",
+          "end_time_iso8601": "18:00:00"
+        },
+        {
+          "church_id": 0,
+          "date_rule": {
+            "rrule": "DTSTART:20000101\nRRULE:FREQ=WEEKLY;BYDAY=SA",
+            "include_periods": [
+              "school_holidays"
+            ],
+            "exclude_periods": []
+          },
+          "is_cancellation": false,
+          "start_time_iso8601": "16:30:00",
+          "end_time_iso8601": "18:00:00"
+        }
+      ],
+      "possible_by_appointment": true,
+      "is_related_to_mass": false,
+      "is_related_to_adoration": false,
+      "is_related_to_permanence": true,
+      "will_be_seasonal_events": true
+    }
+  }
+}
