@@ -9,7 +9,7 @@ from scraping.parse.parse_with_llm import parse_with_llm, get_llm_model, get_pro
 from scraping.parse.schedules import SchedulesList
 from scraping.refine.refine_content import remove_link_from_html
 
-TRUNCATION_LENGTH = 10
+TRUNCATION_LENGTH = 32
 MAX_LENGTH_FOR_PARSING = 3000
 
 
@@ -17,15 +17,23 @@ MAX_LENGTH_FOR_PARSING = 3000
 # TRUNCATION #
 ##############
 
+def get_truncated_line(line: str) -> str:
+    truncated_line = remove_link_from_html(line)[:TRUNCATION_LENGTH]
+    return f'[{truncated_line}...]'
+
+
 def get_truncated_html(pruning: Pruning) -> str:
     lines = pruning.extracted_html.split('<br>\n')
 
     truncated_lines = []
-    last_index = -1
+    last_index = None
     for index in pruning.pruned_indices:
-        if index != last_index + 1:
-            truncated_line = remove_link_from_html(lines[last_index + 1])[:TRUNCATION_LENGTH]
-            truncated_lines.append(f'[{truncated_line}...]')
+        if last_index is not None and index != last_index + 1:
+            truncated_lines.append(get_truncated_line(lines[last_index + 1]))
+            if index - 1 > last_index + 1:
+                if index - 2 > last_index + 1:
+                    truncated_lines.append('[...]')
+                truncated_lines.append(get_truncated_line(lines[index - 1]))
         truncated_lines.append(lines[index])
         last_index = index
 
@@ -235,6 +243,17 @@ def unlink_website_from_existing_parsing_for_pruning(pruning: Pruning):
             ParsingModeration.objects.filter(parsing=parsing, validated_at__isnull=True).delete()
 
 
+def unlink_pruning_from_existing_parsing(pruning: Pruning):
+    parsings = Parsing.objects.filter(prunings=pruning).all()
+
+    for parsing in parsings:
+        if parsing.truncated_html != get_truncated_html(pruning):
+            print(f'deleting not validated moderation for parsing {parsing} since it has no '
+                  f'pruning any more')
+            parsing.prunings.remove(pruning)
+            ParsingModeration.objects.filter(parsing=parsing, validated_at__isnull=True).delete()
+
+
 ########
 # MAIN #
 ########
@@ -286,6 +305,7 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
         parsing.save()
     else:
         unlink_website_from_existing_parsing_for_pruning(pruning)
+        unlink_pruning_from_existing_parsing(pruning)
 
         parsing = Parsing(
             truncated_html=truncated_html,
