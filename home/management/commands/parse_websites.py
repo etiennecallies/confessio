@@ -21,7 +21,7 @@ class Command(AbstractCommand):
 
     def handle(self, *args, **options):
         query = Q(scrapings__page__website__is_active=True,
-                  scrapings__page__website__unreliability_reason__exact='',
+                  scrapings__page__website__unreliability_reason__isnull=True,
                   pruned_indices__len__gt=0)
         if options['pruning_uuid']:
             query &= Q(uuid__in=options['pruning_uuid'])
