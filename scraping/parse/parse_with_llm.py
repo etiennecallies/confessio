@@ -181,10 +181,10 @@ def parse_with_llm(truncated_html: str, church_desc_by_id: dict[int, str],
         if not are_schedules_list_rrules_valid(schedules_list):
             return None, "Invalid rrules"
 
+        schedules_list.schedules = filter_unnecessary_schedules(schedules_list.schedules)
+
         if not is_schedules_list_explainable(schedules_list):
             return None, "Not explainable"
-
-        schedules_list.schedules = filter_unnecessary_schedules(schedules_list.schedules)
 
     return schedules_list, llm_error_detail
 

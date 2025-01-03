@@ -164,7 +164,7 @@ def intervals_from_period(period: PeriodEnum, year: int) -> list[tuple[date, dat
     # Holidays
     if period == PeriodEnum.SCHOOL_HOLIDAYS:
         # TODO handle zones
-        if year == 2026:
+        if year == 2024:
             return [(date(year, 2, 10), date(year, 2, 24)),
                     (date(year, 4, 6), date(year, 4, 22)),
                     (date(year, 7, 6), date(year, 9, 2)),
@@ -176,6 +176,12 @@ def intervals_from_period(period: PeriodEnum, year: int) -> list[tuple[date, dat
                     (date(year, 7, 5), date(year, 8, 31)),
                     (date(year, 10, 18), date(year, 11, 3)),
                     (date(year, 12, 20), date(year + 1, 1, 5))]
+        elif year == 2026:
+            return [(date(year, 2, 10), date(year, 2, 24)),
+                    (date(year, 4, 6), date(year, 4, 22)),
+                    (date(year, 7, 6), date(year, 9, 2)),
+                    (date(year, 10, 19), date(year, 11, 4)),
+                    (date(year, 12, 21), date(year + 1, 1, 6))]
 
         raise ValueError(f'School holidays not implemented for year {year}')
 

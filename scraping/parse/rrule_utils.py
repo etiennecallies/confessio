@@ -4,10 +4,14 @@ from typing import Optional
 from dateutil.rrule import rrule, rruleset, WEEKLY, DAILY, rrulestr
 
 from home.utils.date_utils import get_current_year
-from scraping.parse.explain_schedule import get_explanation_from_schedule
-from scraping.parse.periods import PeriodEnum, add_exrules
+from scraping.parse.explain_schedule import get_explanation_from_schedule, Frequency
+from scraping.parse.periods import add_exrules
 from scraping.parse.schedules import ScheduleItem, SchedulesList, Event, RegularRule
 
+
+#####################
+# EVENTS GENERATION #
+#####################
 
 def get_rruleset_from_schedule(schedule: ScheduleItem, default_year: int) -> rruleset:
     rset = rruleset()
@@ -132,7 +136,19 @@ def is_necessary_schedule(schedule: ScheduleItem) -> bool:
     if (not schedule.is_cancellation
             and (schedule.get_start_time() is None
                  or schedule.get_start_time() == time(0, 0))):
+        # we ignore schedules with no start time or with start time at midnight
         return False
+
+    if schedule.is_regular_rule():
+        rstr = rrulestr(schedule.date_rule.rrule)
+        frequency = Frequency(rstr._freq)
+        if frequency == Frequency.MONTHLY \
+                and not rstr._bymonthday \
+                and not rstr._bynweekday \
+                and (not rstr._byweekday or not rstr._bysetpos):
+            # we ignore monthly schedules with no precise week position
+            # ex: DTSTART:20000101\nRRULE:FREQ=MONTHLY;BYDAY=SU
+            return False
 
     return True
 
@@ -202,10 +218,11 @@ if __name__ == '__main__':
     schedule_ = ScheduleItem(
         church_id=1,
         date_rule=RegularRule(
-            rrule='DTSTART:20240101T170000\nRRULE:FREQ=DAILY;BYHOUR=17;BYMINUTE=0',
+            rrule='DTSTART:20000101\nRRULE:FREQ=MONTHLY;BYDAY=SU',
+            # rrule='DTSTART:20240101T170000\nRRULE:FREQ=DAILY;BYHOUR=17;BYMINUTE=0',
             # rrule='DTSTART:20000101\nRRULE:FREQ=DAILY',
             include_periods=[],
-            exclude_periods=[PeriodEnum.AUGUST]
+            exclude_periods=[]
         ),
         is_cancellation=False,
         start_time_iso8601='16:00:00',
