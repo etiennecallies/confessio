@@ -110,6 +110,8 @@ Some details:
 - EXDATE is not accepted in python rrule, so please do not include it in the rrule, use
     the "exclude_periods" field instead
 - rrule must start with "DTSTART:some date", e.g. "DTSTART:20000101"
+- if a recurring event description is vague (e.g. "une fois par mois") and is followed by a list of
+dates, prefer to return a list of one-off date rules instead of a regular date rule.
 - If an expression of en event does not contain a precise date (e.g. "avant Noël"
 "avant Pâques", or "une fois par mois") or a precise time (e.g. "dans la matinée",
 "dans l'après-midi", "dans la soirée", "après la messe" or no time at all), do not return a schedule

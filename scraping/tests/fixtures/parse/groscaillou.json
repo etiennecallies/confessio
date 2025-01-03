@@ -1,0 +1,136 @@
+{
+  "input": {
+    "church_desc_by_id": {
+      "0": "Saint-Pierre du Gros-Caillou Paris"
+    },
+    "year": 2025
+  },
+  "output": {
+    "schedules_list": {
+      "schedules": [
+        {
+          "church_id": 0,
+          "date_rule": {
+            "year": null,
+            "month": 10,
+            "day": 10,
+            "weekday_iso8601": 4,
+            "liturgical_day": null
+          },
+          "is_cancellation": false,
+          "start_time_iso8601": "20:30:00",
+          "end_time_iso8601": null
+        },
+        {
+          "church_id": 0,
+          "date_rule": {
+            "year": null,
+            "month": 11,
+            "day": 14,
+            "weekday_iso8601": 4,
+            "liturgical_day": null
+          },
+          "is_cancellation": false,
+          "start_time_iso8601": "20:30:00",
+          "end_time_iso8601": null
+        },
+        {
+          "church_id": 0,
+          "date_rule": {
+            "year": null,
+            "month": 12,
+            "day": 12,
+            "weekday_iso8601": 4,
+            "liturgical_day": null
+          },
+          "is_cancellation": false,
+          "start_time_iso8601": "20:30:00",
+          "end_time_iso8601": null
+        },
+        {
+          "church_id": 0,
+          "date_rule": {
+            "year": null,
+            "month": 1,
+            "day": 16,
+            "weekday_iso8601": 4,
+            "liturgical_day": null
+          },
+          "is_cancellation": false,
+          "start_time_iso8601": "20:30:00",
+          "end_time_iso8601": null
+        },
+        {
+          "church_id": 0,
+          "date_rule": {
+            "year": null,
+            "month": 2,
+            "day": 13,
+            "weekday_iso8601": 4,
+            "liturgical_day": null
+          },
+          "is_cancellation": false,
+          "start_time_iso8601": "20:30:00",
+          "end_time_iso8601": null
+        },
+        {
+          "church_id": 0,
+          "date_rule": {
+            "year": null,
+            "month": 3,
+            "day": 13,
+            "weekday_iso8601": 4,
+            "liturgical_day": null
+          },
+          "is_cancellation": false,
+          "start_time_iso8601": "20:30:00",
+          "end_time_iso8601": null
+        },
+        {
+          "church_id": 0,
+          "date_rule": {
+            "year": null,
+            "month": 4,
+            "day": 10,
+            "weekday_iso8601": 4,
+            "liturgical_day": null
+          },
+          "is_cancellation": false,
+          "start_time_iso8601": "20:30:00",
+          "end_time_iso8601": null
+        },
+        {
+          "church_id": 0,
+          "date_rule": {
+            "year": null,
+            "month": 5,
+            "day": 15,
+            "weekday_iso8601": 4,
+            "liturgical_day": null
+          },
+          "is_cancellation": false,
+          "start_time_iso8601": "20:30:00",
+          "end_time_iso8601": null
+        },
+        {
+          "church_id": 0,
+          "date_rule": {
+            "year": null,
+            "month": 6,
+            "day": 12,
+            "weekday_iso8601": 4,
+            "liturgical_day": null
+          },
+          "is_cancellation": false,
+          "start_time_iso8601": "20:30:00",
+          "end_time_iso8601": null
+        }
+      ],
+      "possible_by_appointment": false,
+      "is_related_to_mass": false,
+      "is_related_to_adoration": true,
+      "is_related_to_permanence": false,
+      "will_be_seasonal_events": true
+    }
+  }
+}
