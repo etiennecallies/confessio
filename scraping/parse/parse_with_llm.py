@@ -117,9 +117,10 @@ Some details:
 - rrule must start with "DTSTART:some date", e.g. "DTSTART:20000101"
 - if a recurring event description is vague (e.g. "une fois par mois") and is followed by a list of
 dates, prefer to return a list of one-off date rules instead of a regular date rule.
-- If there is no explicit date in the text (e.g. "avant Noël", "avant Pâques", or
-"une fois par mois" or no date at all), you can skip this schedule or return a one off rule with
-all fields null.
+- If there is no explicit date in the text (e.g. "avant Noël", "avant Pâques", "une fois par mois",
+"la semaine précédant les grandes fêtes religieuses" or no date at all), you can skip this schedule
+or return a one off rule with all fields null. FREQ=YEARLY is not accepted in rrule, since it is
+often too vague.
 - If there is no explicit time in the text (e.g. "dans la matinée", "dans l'après-midi",
 "dans la soirée", "après la messe" or no time at all), you can skip this schedule or
 set start_time_iso8601 and end_time_iso8601 to null.
