@@ -12,7 +12,7 @@ from home.services.edit_pruning_service import on_pruning_human_validation
 from home.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 from scraping.parse.schedules import SchedulesList
 from scraping.services.parse_pruning_service import on_parsing_human_validation, \
-    get_parsing_schedules_list, set_human_json, ParsingValidationError
+    set_human_json, ParsingValidationError
 from sourcing.services.merge_websites_service import merge_websites
 
 
@@ -218,7 +218,7 @@ def render_parsing_moderation(request, moderation: ParsingModeration, next_url):
     assert parsing is not None
 
     truncated_html = parsing.truncated_html
-    schedules_list = get_parsing_schedules_list(parsing)
+    llm_schedules_list = SchedulesList(**parsing.llm_json) if parsing.llm_json else None
     church_desc_by_id_json = json.dumps(parsing.church_desc_by_id, indent=2, ensure_ascii=False)
     human_schedules_list = SchedulesList(**parsing.human_json) if parsing.human_json else None
 
@@ -227,7 +227,7 @@ def render_parsing_moderation(request, moderation: ParsingModeration, next_url):
         'parsing': parsing,
         'church_desc_by_id_json': church_desc_by_id_json,
         'truncated_html': truncated_html,
-        'schedules_list': schedules_list,
+        'llm_schedules_list': llm_schedules_list,
         'human_schedules_list': human_schedules_list,
         'next_url': next_url,
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,

@@ -48,9 +48,9 @@
         <pre>{{ truncated_html }}</pre>
       </div>
     </div>
-    {% if schedules_list %}
+    {% if llm_schedules_list %}
         Schedules list: <br>
-        {% display_schedules_list schedules_list church_desc_by_id_json %}<br>
+        {% display_schedules_list llm_schedules_list church_desc_by_id_json %}<br>
     {% else %}
        Error detail: {{ parsing.llm_error_detail }}
     {% endif %}
@@ -58,7 +58,7 @@
 
     {% if human_schedules_list %}
         <h4>Previously validated schedules list :</h4>
-        {% if human_schedules_list != schedules_list %}
+        {% if not llm_schedules_list or human_schedules_list != llm_schedules_list %}
             {% display_schedules_list human_schedules_list church_desc_by_id_json %}<br>
             <div>
                 <form action="{% url 'moderate_erase_human_by_llm' parsing_moderation.uuid %}" method="post">
