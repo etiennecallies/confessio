@@ -119,7 +119,7 @@ def get_pruned_lines_indices(lines_and_tags: list[LineAndTag]) -> list[list[int]
         elif Tag.SCHEDULE in tags and post_buffer is not None \
                 and action in (Action.START, Action.SHOW):
             post_buffer.add_line(index_line, paragraph_indices)
-        elif pre_buffer is not None:
+        elif pre_buffer is not None and Tag.SCHEDULE not in tags:
             pre_buffer = pre_buffer.decrement()
         elif post_buffer is not None:
             post_buffer = post_buffer.decrement(i, action)
