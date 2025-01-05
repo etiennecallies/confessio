@@ -23,6 +23,12 @@
 
     {% display_website website %}
 
+    {% if website_moderation.home_url and website.home_url != website_moderation.home_url %}
+        Other home_url: <a class="btn btn-info" role="button" href="{{ website_moderation.home_url }}">
+            {{ website_moderation.home_url }}
+        </a>
+    {% endif %}
+
     <h4>Parishes & Churches</h4>
     {% for parish in website.parishes.all %}
         {% display_parish parish %}

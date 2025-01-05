@@ -18,7 +18,8 @@ def remove_not_validated_moderation(website: Website, category: WebsiteModeratio
 
 
 def add_moderation(website: Website, category: WebsiteModeration.Category,
-                   other_website: Optional[Website] = None):
+                   other_website: Optional[Website] = None,
+                   other_home_url: Optional[str] = None):
     if website.unreliability_reason is not None:
         # we do not add moderation for unreliable website
         return
@@ -29,14 +30,15 @@ def add_moderation(website: Website, category: WebsiteModeration.Category,
         moderation = WebsiteModeration(
             website=website, category=category,
             other_website=other_website,
-            home_url=website.home_url
+            home_url=other_home_url or website.home_url
         )
         moderation.save()
 
 
 def update_home_url(website: Website, new_home_url: str):
     if len(new_home_url) > 200:
-        add_moderation(website, WebsiteModeration.Category.HOME_URL_TOO_LONG)
+        add_moderation(website, WebsiteModeration.Category.HOME_URL_TOO_LONG,
+                       other_home_url=new_home_url)
         return
 
     # Check that there is not already a Website with this home_url
