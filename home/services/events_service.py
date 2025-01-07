@@ -4,6 +4,7 @@ from typing import Optional
 
 from home.models import Church, Parsing, Website
 from home.utils.date_utils import get_current_year
+from scraping.parse.explain_schedule import get_explanations_by_church_id
 from scraping.parse.rrule_utils import get_events_from_schedule_items
 from scraping.parse.schedules import Event, ScheduleItem, SchedulesList, get_merged_schedules_list
 from scraping.services.parse_pruning_service import get_parsing_schedules_list, get_church_by_id
@@ -76,9 +77,27 @@ class ChurchSchedulesList:
 
 
 @dataclass
+class ChurchExplanations:
+    church: Optional[Church]
+    is_church_explicitly_other: bool
+    explanations: list[str]
+
+    @classmethod
+    def from_explanations(cls, explanations: list[str],
+                          church_id: int | None,
+                          church_by_id: dict[int, Church]) -> 'ChurchExplanations':
+        return cls(
+            church=church_by_id[church_id] if church_id is not None and church_id != -1 else None,
+            is_church_explicitly_other=church_id == -1,
+            explanations=explanations,
+        )
+
+
+@dataclass
 class MergedChurchSchedulesList:
     schedules_list: SchedulesList
     church_events: list[ChurchEvent]
+    church_explanations: list[ChurchExplanations]
 
     def next_event_in_church(self, church: Church) -> Optional[Event]:
         for church_event in self.church_events:
@@ -103,7 +122,13 @@ def get_merged_church_schedules_list(csl: list[ChurchSchedulesList]
     church_events = [ChurchEvent.from_event(event, church_by_id)
                      for event in events[:max_events]]
 
+    explanations_by_church_id = get_explanations_by_church_id(schedules_list.schedules)
+    church_explanations = [ChurchExplanations.from_explanations(explanations,
+                                                                church_id, church_by_id)
+                           for church_id, explanations in explanations_by_church_id.items()]
+
     return MergedChurchSchedulesList(
         schedules_list=schedules_list,
         church_events=church_events,
+        church_explanations=church_explanations
     )

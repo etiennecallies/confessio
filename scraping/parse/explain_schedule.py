@@ -6,7 +6,7 @@ from dateutil.rrule import rrulestr, rrule
 from home.utils.date_utils import format_datetime_with_locale
 from home.utils.list_utils import enumerate_with_and
 from scraping.parse.periods import PeriodEnum, get_liturgical_date, LiturgicalDayEnum
-from scraping.parse.schedules import ScheduleItem, OneOffRule
+from scraping.parse.schedules import ScheduleItem, OneOffRule, RegularRule
 
 
 #########
@@ -228,7 +228,7 @@ def get_explanation_from_schedule(schedule: ScheduleItem) -> str:
             raise ValueError("No start date in rrule")
 
         frequency = Frequency(rstr._freq)
-        if frequency == Frequency.WEEKLY:
+        if frequency == Frequency.WEEKLY or (frequency == Frequency.DAILY and rstr._byweekday):
             explanation += get_weekly_explanation(rstr)
         elif frequency == Frequency.DAILY:
             explanation += get_daily_explanation(rstr)
@@ -252,3 +252,55 @@ def get_explanation_from_schedule(schedule: ScheduleItem) -> str:
             explanation += f", sauf {enumerate_with_and(periods)}"
 
     return f"{explanation.capitalize()}."
+
+
+###########
+# SORTING #
+###########
+
+def regular_rule_sort_key(regular_rule: RegularRule) -> tuple:
+    rstr = rrulestr(regular_rule.rrule)
+    return (
+        Frequency(rstr._freq).value,
+        tuple(Weekday(w).value for w in rstr._byweekday) if rstr._byweekday else (),
+    )
+
+
+def one_off_rule_sort_key(one_off_rule: OneOffRule) -> tuple:
+    # Sort by year, month, day
+    return (
+        one_off_rule.year or 0,
+        one_off_rule.month or 0,
+        one_off_rule.day or 0
+    )
+
+
+def schedule_item_sort_key(item: ScheduleItem) -> tuple:
+    return (
+        item.is_cancellation,  # Cancellation items come last (False < True).
+        item.is_one_off_rule(),  # RegularRule comes first (False < True).
+        (
+            regular_rule_sort_key(item.date_rule) if item.is_regular_rule()
+            else one_off_rule_sort_key(item.date_rule)
+        ),
+        item.start_time_iso8601 or '',  # Sort by start time.
+        item.end_time_iso8601 or '',  # Sort by end time.
+    )
+
+
+def sort_schedules(schedules: list[ScheduleItem]) -> list[ScheduleItem]:
+    return sorted(list(set(schedules)), key=schedule_item_sort_key)
+
+
+################
+# EXPLANATIONS #
+################
+
+def get_explanations_by_church_id(schedules: list[ScheduleItem]) -> dict[int, list[str]]:
+    explanations_by_church_id = {}
+
+    for schedule in sort_schedules(schedules):
+        explanations_by_church_id.setdefault(schedule.church_id, [])\
+            .append(get_explanation_from_schedule(schedule))
+
+    return explanations_by_church_id
