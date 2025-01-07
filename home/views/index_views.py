@@ -134,8 +134,8 @@ def index(request, diocese_slug=None):
         bounds = None
     else:
         # Default coordinates
-        # center = [48.859, 2.342]  # Paris
-        center = [45.758, 4.832]  # Lyon - Bellecour
+        center = [48.859, 2.342]  # Paris
+        # center = [45.758, 4.832]  # Lyon - Bellecour
         churches, _ = get_churches_around(center)
         too_many_results = False
         bounds = None

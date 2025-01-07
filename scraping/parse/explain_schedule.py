@@ -262,6 +262,7 @@ def regular_rule_sort_key(regular_rule: RegularRule) -> tuple:
     rstr = rrulestr(regular_rule.rrule)
     return (
         Frequency(rstr._freq).value,
+        len(rstr._byweekday) if rstr._byweekday else 0,
         tuple(Weekday(w).value for w in rstr._byweekday) if rstr._byweekday else (),
     )
 
