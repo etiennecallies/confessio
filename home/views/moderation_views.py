@@ -178,6 +178,9 @@ def render_pruning_moderation(request, moderation: PruningModeration, next_url):
             color = '' if i in pruning.human_indices else 'text-warning'
             human_lines_and_colors.append((line, color))
 
+    parsing_moderation = ParsingModeration.objects.filter(parsing__prunings=pruning,
+                                                          validated_at__isnull=True).first()
+
     return render(request, f'pages/moderate_pruning.html', {
         'pruning_moderation': moderation,
         'pruning': pruning,
@@ -185,6 +188,7 @@ def render_pruning_moderation(request, moderation: PruningModeration, next_url):
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
         'ml_lines_and_colors': ml_lines_and_colors,
         'human_lines_and_colors': human_lines_and_colors,
+        'parsing_moderation': parsing_moderation,
     })
 
 

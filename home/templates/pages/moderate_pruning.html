@@ -1,5 +1,7 @@
 {% extends 'layouts/moderation_card.html' %}
 
+{% load custom_tags %}
+
 {% block card %}
     <h2 class="mb-3">
         Pruning: {{ pruning_moderation.get_category_display }}
@@ -41,6 +43,15 @@
         {% for line, color in human_lines_and_colors %}
             <div class="{{ color }}">{{ line|safe }}</div>
         {% endfor %}
+    {% endif %}
+
+    {% if parsing_moderation %}
+        <div>
+            <a class="btn btn-success"
+                       href="{{ parsing_moderation|get_url }}" target="_blank" role="button">
+            Parsing moderation <i class="fas fa-up-right-from-square"></i>
+            </a>
+        </div>
     {% endif %}
 
     {% if not pruning_moderation.marked_as_bug_at %}
