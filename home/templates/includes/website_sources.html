@@ -36,11 +36,15 @@
                                     <div class="col-xl-6">
                                         {% with parsing=page|get_page_parsing_of_pruning:pruning %}
                                             {% if parsing %}
-                                                {% for parsing_moderation in parsing.moderations.all %}
-                                                    <a href="{{ parsing_moderation|get_url }}" class="link-info">
-                                                        <i class="fas fa-code"></i> Modérer
-                                                    </a>
-                                                {% endfor %}
+                                                {% with parsing_moderation=parsing.moderations.first %}
+                                                    {% if parsing_moderation %}
+                                                        <a href="{{ parsing_moderation|get_url }}" class="link-info">
+                                                            <i class="fas fa-code"></i> Modérer
+                                                        </a>
+                                                    {% else %}
+                                                        <a href="{% url 'edit_parsing' parsing.uuid %}" class="link-info"><i class="fas fa-code"></i> {% trans 'EditParsing' %}</a>
+                                                    {% endif %}
+                                                {% endwith %}
                                             {% endif %}
                                         {% endwith %}
                                     </div>

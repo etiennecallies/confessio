@@ -168,3 +168,7 @@ msgstr "Situer sur la carte"
 #: templates/pages/index.html:136
 msgid "EditPruning"
 msgstr "Corriger"
+
+#: templates/pages/index.html:136
+msgid "EditParsing"
+msgstr "Corriger"
