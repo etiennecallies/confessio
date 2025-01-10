@@ -5,11 +5,14 @@ from sourcing.utils.geocode_address import geocode
 from django.contrib.gis.geos import Point
 
 
-def compute_church_coordinates(church: Church, source: ExternalSource) -> Optional[Church]:
+def compute_church_coordinates(church: Church, source: ExternalSource,
+                               no_save: bool = False
+                               ) -> tuple[Optional[Church], Optional[ChurchModeration.Category]]:
     result = geocode(church.name, church.address, church.city, church.zipcode)
     if not result or not result.get('coordinates', None):
         category = ChurchModeration.Category.LOCATION_NULL
     else:
+        category = ChurchModeration.Category.LOCATION_FROM_API
         longitude, latitude = result.get('coordinates')
         church.location = Point(longitude, latitude)
         if not church.address:
@@ -19,24 +22,37 @@ def compute_church_coordinates(church: Church, source: ExternalSource) -> Option
         if not church.city:
             church.city = result.get('city', None)
 
-        church_with_same_location = get_church_with_same_location(church)
-        if church_with_same_location:
-            # We can not save church since another church already has the same location
-            add_church_location_conflict(church_with_same_location, church, source)
-            return None
+    church_with_same_location = get_church_with_same_location(church)
+    if church_with_same_location:
+        # We can not save church since another church already has the same location
+        add_church_location_conflict(church_with_same_location, church, source)
+        return None, None
 
-        church.save()
-        category = ChurchModeration.Category.LOCATION_FROM_API
+    if no_save:
+        return church, category
 
-    church_moderation = ChurchModeration(
-        church=church,
-        category=category,
-        source=source,
-        location=church.location
-    )
-    church_moderation.save()
+    church.save()
+    add_church_moderation_if_not_exists(church, category, source)
 
-    return church
+    return church, category
+
+
+def add_church_moderation_if_not_exists(church: Church, category: ChurchModeration.Category,
+                                        source: ExternalSource):
+    try:
+        ChurchModeration.objects.get(
+            church=church,
+            category=category,
+            source=source
+        )
+    except ChurchModeration.DoesNotExist:
+        church_moderation = ChurchModeration(
+            church=church,
+            category=category,
+            source=source,
+            location=church.location
+        )
+        church_moderation.save()
 
 
 def add_church_location_conflict(existing_church: Church, church: Church,
@@ -67,6 +83,6 @@ def add_church_location_conflict(existing_church: Church, church: Church,
 
 def get_church_with_same_location(church: Church) -> Optional[Church]:
     try:
-        return Church.objects.get(location=church.location)
+        return Church.objects.filter(location=church.location).exclude(pk=church.pk).get()
     except Church.DoesNotExist:
         return None

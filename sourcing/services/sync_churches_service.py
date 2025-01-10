@@ -208,6 +208,7 @@ def sync_churches(external_churches: list[Church],
                 # We don't really care if there is a new church whose parish does not have a website
                 continue
 
+            church_moderation_category = None
             if external_church.location is not None:
                 church_with_same_location = get_church_with_same_location(external_church)
                 if church_with_same_location:
@@ -215,8 +216,8 @@ def sync_churches(external_churches: list[Church],
                     compute_church_coordinates(church_with_same_location, church_retriever.source)
 
                     # Then we re-compute the coordinates of the draft church
-                    new_church = compute_church_coordinates(external_church,
-                                                            church_retriever.source)
+                    new_church, church_moderation_category = compute_church_coordinates(
+                        external_church, church_retriever.source, no_save=True)
                     if not new_church:
                         # If church could not have been saved, we stop here
                         continue
@@ -226,6 +227,11 @@ def sync_churches(external_churches: list[Church],
                                                          church_retriever)
 
             save_church(external_church, church_retriever)
+            if church_moderation_category:
+                add_church_moderation_if_not_exists(ChurchModeration(
+                    church=external_church,
+                    category=church_moderation_category,
+                    source=church_retriever.source), church_retriever)
 
             if alert_on_new:
                 add_church_moderation_if_not_exists(ChurchModeration(
