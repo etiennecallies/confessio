@@ -90,13 +90,13 @@ class ScheduleItem(BaseModel, frozen=True):
         return isinstance(self.date_rule, RegularRule)
 
     def get_start_time(self) -> time | None:
-        if self.start_time_iso8601 is None or self.start_time_iso8601 == 'null':
+        if self.start_time_iso8601 is None or self.start_time_iso8601 in ('', 'null'):
             return
 
         return time.fromisoformat(self.start_time_iso8601)
 
     def get_end_time(self) -> time | None:
-        if self.end_time_iso8601 is None or self.end_time_iso8601 == 'null':
+        if self.end_time_iso8601 is None or self.end_time_iso8601 in ('', 'null'):
             return None
 
         return time.fromisoformat(self.end_time_iso8601)
