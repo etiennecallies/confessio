@@ -1,6 +1,7 @@
 from datetime import timedelta
 from typing import Optional
 
+from django.db.models.functions import Now
 from django.utils import timezone
 
 from home.models import Pruning, Website, Parsing, ParsingModeration, Church
@@ -91,9 +92,6 @@ def get_parsing_schedules_list(parsing: Parsing) -> Optional[SchedulesList]:
 ##############
 
 def add_necessary_parsing_moderation(parsing: Parsing):
-    if not parsing_needs_moderation(parsing):
-        return
-
     if parsing.llm_json is not None and parsing.human_json == parsing.llm_json:
         return
 
@@ -109,9 +107,11 @@ def add_parsing_moderation(parsing: Parsing, category: ParsingModeration.Categor
         parsing_moderation.validated_by = None
         parsing_moderation.save()
     except ParsingModeration.DoesNotExist:
+        needs_moderation = parsing_needs_moderation(parsing)
         parsing_moderation = ParsingModeration(
             parsing=parsing,
             category=category,
+            validated_at=None if needs_moderation else Now(),
         )
         parsing_moderation.save()
 

@@ -9,12 +9,16 @@
         <p>Bug description : {{ parsing_moderation.bug_description }}</p>
     {% endif %}
     <div>
-        <div class="d-inline-block">
-            <form method="post">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-primary">Validate & next</button>
-            </form>
-        </div>
+        {% if parsing_moderation.validated_at %}
+            <p>Validated at: {{ parsing_moderation.validated_at }}</p>
+        {% else %}
+            <div class="d-inline-block">
+                <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Validate & next</button>
+                </form>
+            </div>
+        {% endif %}
         <div class="d-inline-block">
             <a class="btn btn-info" role="button" href="{{ next_url }}">Next</a>
         </div>

@@ -47,9 +47,10 @@
 
     {% if parsing_moderation %}
         <div>
-            <a class="btn btn-success"
+            <a class="btn {% if parsing_moderation.validated_at %}btn-primary{% else %}btn-success{% endif %}"
                        href="{{ parsing_moderation|get_url }}" target="_blank" role="button">
-            Parsing moderation <i class="fas fa-up-right-from-square"></i>
+                {% if parsing_moderation.validated_at %}View {% endif %}
+                Parsing moderation <i class="fas fa-up-right-from-square"></i>
             </a>
         </div>
     {% endif %}
