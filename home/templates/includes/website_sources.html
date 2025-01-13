@@ -37,9 +37,13 @@
                                         {% with parsing=page|get_page_parsing_of_pruning:pruning %}
                                             {% if parsing %}
                                                 {% with parsing_moderation=parsing.moderations.first %}
-                                                    <a href="{{ parsing_moderation|get_url }}" class="link-info">
-                                                        <i class="fas fa-code"></i> Modérer
-                                                    </a>
+                                                    {% if parsing_moderation %}
+                                                        <a href="{{ parsing_moderation|get_url }}" class="link-info">
+                                                            <i class="fas fa-code"></i> Modérer
+                                                        </a>
+                                                    {% else %}
+                                                        <a href="{% url 'edit_parsing' parsing.uuid %}" class="link-info"><i class="fas fa-code"></i> {% trans 'EditParsing' %}</a>
+                                                    {% endif %}
                                                 {% endwith %}
                                             {% endif %}
                                         {% endwith %}
