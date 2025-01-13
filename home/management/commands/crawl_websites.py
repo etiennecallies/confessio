@@ -10,6 +10,7 @@ from scraping.services.crawl_website_service import crawl_website
 from scraping.services.page_service import delete_page
 from scraping.services.parse_pruning_service import clean_parsing_moderations
 from scraping.services.prune_scraping_service import clean_pruning_moderations
+from scraping.services.scrape_page_service import delete_orphan_scrapings
 
 
 class Command(AbstractCommand):
@@ -30,6 +31,9 @@ class Command(AbstractCommand):
             delete_page(page)
             delete_count += 1
         self.success(f'Successfully deleted {delete_count} pages')
+        self.info(f'Starting cleaning orphan scrapings')
+        delete_count = delete_orphan_scrapings()
+        self.success(f'Successfully cleaning {delete_count} orphan scrapings')
         self.info(f'Starting cleaning pruning moderations')
         delete_count = clean_pruning_moderations()
         self.success(f'Successfully cleaning {delete_count} pruning moderations')

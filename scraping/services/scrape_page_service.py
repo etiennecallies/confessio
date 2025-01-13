@@ -47,3 +47,12 @@ def upsert_extracted_html_list(page: Page, extracted_html_list: list[str]):
         for pruning in prunings:
             scraping.prunings.add(pruning)
             prune_pruning(pruning)
+
+
+def delete_orphan_scrapings() -> int:
+    delete_count = 0
+    for scraping in Scraping.objects.filter(page__isnull=True):
+        delete_scraping(scraping)
+        delete_count += 1
+
+    return delete_count
