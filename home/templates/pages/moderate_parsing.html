@@ -15,13 +15,19 @@
             <div class="d-inline-block">
                 <form method="post">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-primary">Validate & next</button>
+                <button type="submit" class="btn btn-primary">Validate & {% if back_path %}back{% else %}next{% endif %}</button>
                 </form>
             </div>
         {% endif %}
-        <div class="d-inline-block">
-            <a class="btn btn-info" role="button" href="{{ next_url }}">Next</a>
-        </div>
+        {% if back_path %}
+            <div class="d-inline-block">
+                <a class="btn btn-info" role="button" href="{{ back_path }}">Back</a>
+            </div>
+        {% else %}
+            <div class="d-inline-block">
+                <a class="btn btn-info" role="button" href="{{ next_url }}">Next</a>
+            </div>
+        {% endif %}
     </div>
     {% for pruning in parsing.prunings.all %}
         {% for scraping in pruning.scrapings.all %}
@@ -90,7 +96,7 @@
                     <input type="text" name="bug_description" maxlength="{{ bug_description_max_length }}">
                 </label>
                 {% csrf_token %}
-            <button type="submit" class="btn btn-danger">Report bug & next</button>
+            <button type="submit" class="btn btn-danger">Report bug & {% if back_path %}back{% else %}next{% endif %}</button>
             </form>
         </div>
     {% endif %}

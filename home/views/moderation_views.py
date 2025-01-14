@@ -54,9 +54,13 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
         return redirect('moderate_next_' + resource, category=category, is_bug=is_bug)
 
     created_at_ts_us = datetime_to_ts_us(moderation.created_at)
-    next_url = \
-        reverse('moderate_next_' + resource, kwargs={'category': category, 'is_bug': is_bug}) \
-        + f'?created_after={created_at_ts_us}'
+    back_path = request.GET.get('backPath', '')
+    if back_path:
+        next_url = back_path
+    else:
+        next_url = \
+            reverse('moderate_next_' + resource, kwargs={'category': category, 'is_bug': is_bug}) \
+            + f'?created_after={created_at_ts_us}'
     if request.method == "POST":
         if 'bug_description' in request.POST:
             bug_description = request.POST.get('bug_description')
@@ -100,6 +104,10 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
                     return HttpResponseBadRequest(str(e))
 
             moderation.validate(request.user)
+
+        related_url = request.POST.get('related_url')
+        if related_url:
+            next_url = f"{related_url}?backPath={next_url}"
 
         return redirect(next_url)
 
@@ -225,6 +233,8 @@ def render_parsing_moderation(request, moderation: ParsingModeration, next_url):
     church_desc_by_id_json = json.dumps(parsing.church_desc_by_id, indent=2, ensure_ascii=False)
     human_schedules_list = SchedulesList(**parsing.human_json) if parsing.human_json else None
 
+    back_path = request.GET.get('backPath', '')
+
     return render(request, f'pages/moderate_parsing.html', {
         'parsing_moderation': moderation,
         'parsing': parsing,
@@ -234,6 +244,7 @@ def render_parsing_moderation(request, moderation: ParsingModeration, next_url):
         'human_schedules_list': human_schedules_list,
         'next_url': next_url,
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
+        'back_path': back_path,
     })
 
 

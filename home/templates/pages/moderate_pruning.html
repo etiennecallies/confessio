@@ -16,6 +16,15 @@
             <button type="submit" class="btn btn-primary">Validate & next</button>
             </form>
         </div>
+        {% if parsing_moderation %}
+            <div class="d-inline-block">
+                <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="related_url" value="{{ parsing_moderation|get_url }}">
+                <button type="submit" class="btn btn-primary">Validate & related</button>
+                </form>
+            </div>
+        {% endif %}
         <div class="d-inline-block">
             <a class="btn btn-info" role="button" href="{{ next_url }}">Next</a>
         </div>
@@ -48,9 +57,9 @@
     {% if parsing_moderation %}
         <div>
             <a class="btn {% if parsing_moderation.validated_at %}btn-primary{% else %}btn-success{% endif %}"
-                       href="{{ parsing_moderation|get_url }}" target="_blank" role="button">
+                       href="{{ parsing_moderation|get_url }}?backPath={{ pruning_moderation|get_url }}" role="button">
                 {% if parsing_moderation.validated_at %}View {% endif %}
-                Parsing moderation <i class="fas fa-up-right-from-square"></i>
+                Parsing moderation
             </a>
         </div>
     {% endif %}
