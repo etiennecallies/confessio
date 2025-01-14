@@ -21,7 +21,7 @@
                 <form method="post">
                 {% csrf_token %}
                 <input type="hidden" name="related_url" value="{{ parsing_moderation|get_url }}">
-                <button type="submit" class="btn btn-primary">Validate & related</button>
+                <button type="submit" class="btn {% if parsing_moderation.validated_at %}btn-primary{% else %}btn-success{% endif %}">Validate & related</button>
                 </form>
             </div>
         {% endif %}
