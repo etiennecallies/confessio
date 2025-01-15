@@ -70,10 +70,10 @@ def get_church_by_id(parsing: Parsing, website: Website) -> dict[int, Church]:
 BASE_FIELDS = {'church_id', 'is_cancellation', 'start_time_iso8601', 'end_time_iso8601'}
 
 
-def get_existing_parsing(truncated_html: str,
+def get_existing_parsing(truncated_html_hash: str,
                          church_desc_by_id: dict[int, str]) -> Optional[Parsing]:
     try:
-        return Parsing.objects.filter(truncated_html=truncated_html,
+        return Parsing.objects.filter(truncated_html_hash=truncated_html_hash,
                                       church_desc_by_id=church_desc_by_id).get()
     except Parsing.DoesNotExist:
         return None
@@ -268,10 +268,6 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
         print(f'No truncated html for pruning {pruning}')
         return
 
-    if len(truncated_html) > MAX_LENGTH_FOR_PARSING:
-        print(f'No parsing above {MAX_LENGTH_FOR_PARSING}, got {len(truncated_html)}')
-        return
-
     truncated_html_hash = hash_string_to_hex(truncated_html)
     church_desc_by_id = website.get_church_desc_by_id()
 
@@ -280,7 +276,7 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
     prompt_template_hash = hash_string_to_hex(prompt_template)
 
     # check the parsing does not already exist
-    parsing = get_existing_parsing(truncated_html, church_desc_by_id)
+    parsing = get_existing_parsing(truncated_html_hash, church_desc_by_id)
     if not force_parse and parsing \
             and parsing.llm_model == llm_model \
             and parsing.prompt_template_hash == prompt_template_hash:
@@ -292,9 +288,14 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
         print(f'Parsing already exists for pruning {pruning}')
         return
 
-    print(f'parsing {pruning} for website {website}')
-    schedules_list, llm_error_detail = parse_with_llm(truncated_html, church_desc_by_id,
-                                                      llm_model, prompt_template)
+    if len(truncated_html) > MAX_LENGTH_FOR_PARSING:
+        print(f'No parsing above {MAX_LENGTH_FOR_PARSING}, got {len(truncated_html)}')
+        schedules_list, llm_error_detail = None, "Truncated html too long"
+    else:
+        print(f'parsing {pruning} for website {website}')
+        schedules_list, llm_error_detail = parse_with_llm(truncated_html, church_desc_by_id,
+                                                          llm_model, prompt_template)
+
     llm_json = schedules_list.model_dump() if schedules_list else None
 
     if parsing:
