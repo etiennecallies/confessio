@@ -17,6 +17,7 @@ class Command(AbstractCommand):
         active_websites = Website.objects.filter(is_active=True).all()
         website_not_crawled = []
         website_not_crawled_recently = []
+        website_not_parsed = []
         for website in active_websites:
             if website.crawling is None:
                 website_not_crawled.append(website)
@@ -25,17 +26,24 @@ class Command(AbstractCommand):
             # check that latest crawling is no older than 24 hours
             if website.crawling.created_at < timezone.now() - timedelta(days=1):
                 website_not_crawled_recently.append(website)
+                continue
 
-        if website_not_crawled or website_not_crawled_recently:
+            if not website.all_pages_parsed():
+                website_not_parsed.append(website)
+
+        if website_not_crawled or website_not_crawled_recently or website_not_parsed:
             error_message = (f'Crawling failure: {len(website_not_crawled)} websites have never '
-                             f'been crawled and {len(website_not_crawled_recently)} websites have '
-                             f'not been crawled recently')
+                             f'been crawled and {len(website_not_crawled_recently)} have '
+                             f'not been crawled recently and {len(website_not_parsed)} have not '
+                             f'been parsed')
             self.error(error_message)
             website_not_crawled_str = "\n".join(
                 [f" - {website.name} {website.uuid}" for website in website_not_crawled[:5]])
             website_not_crawled_recently_str = "\n".join(
                 [f" - {website.crawling.created_at} {website.name} {website.uuid}"
                  for website in website_not_crawled_recently[:5]])
+            website_not_parsed_str = "\n".join(
+                [f" - {website.name} {website.uuid}" for website in website_not_parsed[:5]])
 
             message = f"""
             Crawling failure
@@ -45,6 +53,9 @@ class Command(AbstractCommand):
 
             Some websites not crawled recently (total {len(website_not_crawled_recently)}):
             {website_not_crawled_recently_str}
+
+            Some websites not parsed (total {len(website_not_parsed)}):
+            {website_not_parsed_str}
             """
             mail_admins(subject=error_message, message=message)
             self.success(f'Email sent to admins')
