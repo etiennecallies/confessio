@@ -1,3 +1,4 @@
+import re
 from datetime import timedelta
 from typing import Optional
 
@@ -11,7 +12,7 @@ from scraping.parse.schedules import SchedulesList
 from scraping.refine.refine_content import remove_link_from_html
 
 TRUNCATION_LENGTH = 32
-MAX_LENGTH_FOR_PARSING = 3000
+MAX_LENGTH_FOR_PARSING = 5000
 
 
 ##############
@@ -24,7 +25,8 @@ def get_truncated_line(line: str) -> str:
 
 
 def get_truncated_html(pruning: Pruning) -> str:
-    lines = pruning.extracted_html.split('<br>\n')
+    extracted_html = str(re.sub(r"\n\s*", "", pruning.extracted_html))
+    lines = extracted_html.split('<br>\n')
 
     truncated_lines = []
     last_index = None

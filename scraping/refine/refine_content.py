@@ -106,7 +106,8 @@ def clear_formatting(element: PageElement):
     if hasattr(element, 'attrs'):
         attrs = dict(element.attrs)
         for attr in attrs:
-            if attr in ['style', 'width', 'border']:
+            if attr in ['id', 'class', 'style', 'href', 'width', 'border'] \
+                    or attr.startswith('data-'):
                 del element.attrs[attr]
 
 

@@ -1,8 +1,8 @@
-<table class="horaires">
+<table>
  <tbody>
   <tr>
-   <td class="main-par">
-    <a href="/index.php/nous-contacter">
+   <td>
+    <a>
      Nous contacter
     </a>
    </td>
@@ -91,10 +91,10 @@
 </table>
 <br>
 <a href="javascript:void(0);"> Confessions </a><br>
-<table class="horaires">
+<table>
  <tbody>
   <tr>
-   <td class="main-par">
+   <td>
    </td>
    <th>
     Saint-Nicolas
@@ -147,10 +147,10 @@
 </table>
 <br>
 <a href="javascript:void(0);"> Laudes </a><br>
-<table class="horaires">
+<table>
  <tbody>
   <tr>
-   <td class="main-par">
+   <td>
    </td>
    <th>
     Saint-Nicolas
@@ -208,10 +208,10 @@
 </table>
 <br>
 <a href="javascript:void(0);"> Bibliothèque </a><br>
-<table class="horaires">
+<table>
  <tbody>
   <tr>
-   <td class="main-par">
+   <td>
    </td>
    <th>
     Centre Saints Pierre et Paul
