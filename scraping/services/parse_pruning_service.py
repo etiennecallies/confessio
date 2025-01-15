@@ -26,7 +26,7 @@ def get_truncated_line(line: str) -> str:
 
 def get_truncated_html(pruning: Pruning) -> str:
     extracted_html = str(re.sub(r"\n\s*", "", pruning.extracted_html))
-    lines = extracted_html.split('<br>\n')
+    lines = extracted_html.split('<br>')
 
     truncated_lines = []
     last_index = None
