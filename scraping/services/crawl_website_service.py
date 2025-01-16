@@ -100,8 +100,11 @@ def crawl_website(website: Website) -> Tuple[bool, bool, Optional[str]]:
     )
     crawling.save()
 
+    last_crawling = website.crawling
     website.crawling = crawling
     website.save()
+    if last_crawling:
+        last_crawling.delete()
 
     # Removing old pages
     existing_pages = website.get_pages()
