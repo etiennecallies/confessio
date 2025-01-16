@@ -28,7 +28,7 @@ class Command(AbstractCommand):
                 website_not_crawled_recently.append(website)
                 continue
 
-            if not website.all_pages_parsed():
+            if not website.all_pages_parsed() and not website.unreliability_reason:
                 website_not_parsed.append(website)
 
         if website_not_crawled or website_not_crawled_recently or website_not_parsed:
