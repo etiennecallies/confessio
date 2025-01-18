@@ -91,3 +91,11 @@
         dest=/etc/nginx/sites-enabled/{{ app_name }}
         state=link
   become: true
+
+# Permissions
+- name: Add user to www-data group
+  ansible.builtin.user:
+    name: "{{ deployer_user }}"
+    append: true
+    groups: www-data
+  become: true

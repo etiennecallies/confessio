@@ -1,42 +1,34 @@
 ##
 # Install crons commands
 ##
-- name: Add cron for training pruning model
+- name: Add cron for commands
   cron:
-    name: train_pruning_model
-    hour: "1"
-    minute: 0
-    job: "(tmux has-session -t train_pruning_model || tmux new-session -d -s train_pruning_model) && tmux send-keys -t train_pruning_model '. {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py train_pruning_model --automatic' C-m"
-
-- name: Add cron for crawling websites
-  cron:
-    name: daily_crawl_websites
-    hour: "2,3,4,5,6"
-    minute: 0
-    job: "(tmux has-session -t crawl_websites_with_timeout || tmux new-session -d -s crawl_websites_with_timeout) && tmux send-keys -t crawl_websites_with_timeout '. {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py crawl_websites -t 3300 --no-recent' C-m"
-
-- name: Add cron for checking crawling
-  cron:
-    name: daily_check_crawling
-    hour: "7"
-    minute: 0
-    job: "(tmux has-session -t check_crawling || tmux new-session -d -s check_crawling) && tmux send-keys -t check_crawling '. {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py check_crawling' C-m"
-
-- name: Add cron for scraping pages
-  cron:
-    name: hourly_scrape_pages
-    special_time: hourly
-    job: "(tmux has-session -t scrape_pages || tmux new-session -d -s scrape_pages) && tmux send-keys -t scrape_pages '. {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py scrape_pages' C-m"
-
-- name: Add cron for crawling websites with error
-  cron:
-    name: hourly_crawl_websites_in_error
-    special_time: hourly
-    job: "(tmux has-session -t crawl_websites_in_error || tmux new-session -d -s crawl_websites_in_error) && tmux send-keys -t crawl_websites_in_error '. {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py crawl_websites --in-error' C-m"
-
-- name: Add cron to clean database
-  cron:
-    name: daily_check_crawling
-    hour: "23"
-    minute: 0
-    job: "(tmux has-session -t clean_database || tmux new-session -d -s clean_database) && tmux send-keys -t clean_database '. {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py clean_database' C-m"
+    name: "{{ item.name }}"
+    hour: "{{ item.hour }}"
+    minute: "{{ item.minute }}"
+    job: "(tmux has-session -t train_pruning_model || tmux new-session -d -s train_pruning_model) && tmux send-keys -t train_pruning_model '. {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py {{ item.command }}' C-m"
+  with_items:
+    - name: train_pruning_model
+      command: "train_pruning_model --automatic"
+      hour: "1"
+      minute: 0
+    - name: daily_crawl_websites
+      command: "crawl_websites -t 3300 --no-recent"
+      hour: "2,3,4,5,6"
+      minute: 0
+    - name: daily_check_crawling
+      command: "check_crawling"
+      hour: "7"
+      minute: 0
+    - name: hourly_scrape_pages
+      command: "scrape_pages"
+      hour: "*"
+      minute: 20
+    - name: hourly_crawl_websites_in_error
+      command: "crawl_websites --in-error"
+      hour: "*"
+      minute: 40
+    - name: daily_clean_database
+      command: "clean_database"
+      hour: "23"
+      minute: 0
