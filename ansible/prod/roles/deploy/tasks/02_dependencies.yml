@@ -8,8 +8,12 @@
   pip:    requirements={{ app_dir }}/requirements.txt
           virtualenv={{ venv_dir }}
           virtualenv_command='python3 -m venv'
+  notify:
+    - restart app
 
 - name: Install prod-specific dependencies
   pip:    requirements={{ app_dir }}/prod_requirements.txt
           virtualenv={{ venv_dir }}
           virtualenv_command='python3 -m venv'
+  notify:
+    - restart app
