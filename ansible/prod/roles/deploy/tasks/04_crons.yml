@@ -33,3 +33,10 @@
     name: hourly_crawl_websites_in_error
     special_time: hourly
     job: "(tmux has-session -t crawl_websites_in_error || tmux new-session -d -s crawl_websites_in_error) && tmux send-keys -t crawl_websites_in_error '. {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py crawl_websites --in-error' C-m"
+
+- name: Add cron to clean database
+  cron:
+    name: daily_check_crawling
+    hour: "23"
+    minute: 0
+    job: "(tmux has-session -t clean_database || tmux new-session -d -s clean_database) && tmux send-keys -t clean_database '. {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py clean_database' C-m"
