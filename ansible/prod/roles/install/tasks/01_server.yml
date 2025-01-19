@@ -45,3 +45,12 @@
     name: fr_FR.UTF-8
     state: present
   become: true
+
+# Python environment
+- name: Create a virtualenv directory
+  file: path={{ venv_dir }} state=directory
+
+- name: Install uv
+  pip:    name=uv
+          virtualenv={{ venv_dir }}
+          virtualenv_command='python3 -m venv'

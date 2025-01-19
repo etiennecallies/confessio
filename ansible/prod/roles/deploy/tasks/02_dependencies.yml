@@ -1,19 +1,10 @@
 ##
 # Set up all the dependencies in a virtualenv required by the Django app
 ##
-- name: Create a virtualenv directory
-  file: path={{ venv_dir }} state=directory
-
-- name: Install common dependencies
-  pip:    requirements={{ app_dir }}/requirements.txt
-          virtualenv={{ venv_dir }}
-          virtualenv_command='python3 -m venv'
-  notify:
-    - restart app
-
-- name: Install prod-specific dependencies
-  pip:    requirements={{ app_dir }}/prod_requirements.txt
-          virtualenv={{ venv_dir }}
-          virtualenv_command='python3 -m venv'
+- name: Install common and prod-specific dependencies
+  shell: |
+    . {{ venv_dir }}/bin/activate && \
+    uv pip install -r {{ app_dir }}/requirements.txt && \
+    uv pip install -r {{ app_dir }}/prod_requirements.txt
   notify:
     - restart app
