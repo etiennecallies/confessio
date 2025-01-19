@@ -111,6 +111,8 @@ ansible-galaxy collection install grafana.grafana --force
 ./prod.sh install
 # after any change of code
 ./prod.sh deploy
+# once and after any cron change
+./prod.sh cron
 ```
 This is mainly inspired by https://realpython.com/automating-django-deployments-with-fabric-and-ansible/
 

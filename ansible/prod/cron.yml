@@ -1,0 +1,8 @@
+##
+# This playbook installs cron
+##
+- name: add cron configuration
+  hosts: all
+  user: ubuntu
+  roles:
+    - cron
