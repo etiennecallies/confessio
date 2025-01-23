@@ -128,9 +128,29 @@ def remove_parsing_moderation_of_other_category(parsing: Parsing,
     ParsingModeration.objects.filter(parsing=parsing).exclude(category=category).delete()
 
 
+def get_category(parsing: Parsing) -> ParsingModeration.Category:
+    if parsing.llm_error_detail:
+        return ParsingModeration.Category.LLM_ERROR
+
+    if parsing.llm_json is not None and parsing.human_json != parsing.llm_json:
+        return ParsingModeration.Category.SCHEDULES_DIFFER
+
+    return ParsingModeration.Category.NEW_SCHEDULES
+
+
 def parsing_needs_moderation(parsing: Parsing):
     if parsing.llm_json is not None and parsing.human_json == parsing.llm_json:
         return False
+
+    if parsing.llm_json is not None and parsing.human_json != parsing.llm_json:
+        if ParsingModeration.objects.filter(
+                parsing=parsing,
+                category=ParsingModeration.Category.SCHEDULES_DIFFER,
+                validated_at__isnull=False
+        ).exists():
+            return False
+
+        return True
 
     for pruning in parsing.prunings.all():
         for scraping in pruning.scrapings.all():

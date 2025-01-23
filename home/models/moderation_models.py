@@ -398,6 +398,7 @@ class SentenceModeration(ModerationMixin):
 class ParsingModeration(ModerationMixin):
     class Category(models.TextChoices):
         NEW_SCHEDULES = "new_schedules"
+        SCHEDULES_DIFFER = "schedules_differ"
         LLM_ERROR = "llm_error"
 
     resource = 'parsing'
@@ -407,7 +408,7 @@ class ParsingModeration(ModerationMixin):
                                          on_delete=models.SET_NULL, null=True)
     history = HistoricalRecords()
     parsing = models.ForeignKey('Parsing', on_delete=models.CASCADE, related_name='moderations')
-    category = models.CharField(max_length=13, choices=Category)
+    category = models.CharField(max_length=16, choices=Category)
 
     class Meta:
         unique_together = ('parsing', 'category')
