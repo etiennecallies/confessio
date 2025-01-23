@@ -94,22 +94,27 @@ def get_parsing_schedules_list(parsing: Parsing) -> Optional[SchedulesList]:
 ##############
 
 def add_necessary_parsing_moderation(parsing: Parsing):
-    if parsing.llm_json is not None and parsing.human_json == parsing.llm_json:
-        return
+    category = ParsingModeration.Category.LLM_ERROR if parsing.llm_error_detail \
+        else ParsingModeration.Category.NEW_SCHEDULES
+    needs_moderation = parsing_needs_moderation(parsing)
 
-    category = ParsingModeration.Category.NEW_SCHEDULES
-    add_parsing_moderation(parsing, category)
+    # 1. we remove moderation of other category
+    remove_parsing_moderation_of_other_category(parsing, category)
+
+    # 2. we add moderation
+    add_parsing_moderation(parsing, category, needs_moderation)
 
 
-def add_parsing_moderation(parsing: Parsing, category: ParsingModeration.Category):
+def add_parsing_moderation(parsing: Parsing, category: ParsingModeration.Category,
+                           needs_moderation: bool):
     try:
         parsing_moderation = ParsingModeration.objects.filter(parsing=parsing,
                                                               category=category).get()
-        parsing_moderation.validated_at = None
-        parsing_moderation.validated_by = None
-        parsing_moderation.save()
+        if needs_moderation:
+            parsing_moderation.validated_at = None
+            parsing_moderation.validated_by = None
+            parsing_moderation.save()
     except ParsingModeration.DoesNotExist:
-        needs_moderation = parsing_needs_moderation(parsing)
         parsing_moderation = ParsingModeration(
             parsing=parsing,
             category=category,
@@ -118,11 +123,15 @@ def add_parsing_moderation(parsing: Parsing, category: ParsingModeration.Categor
         parsing_moderation.save()
 
 
-def remove_parsing_moderation(parsing: Parsing, category: ParsingModeration.Category):
-    ParsingModeration.objects.filter(parsing=parsing, category=category).delete()
+def remove_parsing_moderation_of_other_category(parsing: Parsing,
+                                                category: ParsingModeration.Category):
+    ParsingModeration.objects.filter(parsing=parsing).exclude(category=category).delete()
 
 
 def parsing_needs_moderation(parsing: Parsing):
+    if parsing.llm_json is not None and parsing.human_json == parsing.llm_json:
+        return False
+
     for pruning in parsing.prunings.all():
         for scraping in pruning.scrapings.all():
             page = scraping.page
@@ -287,6 +296,9 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
         if not parsing.prunings.filter(pk=pruning.pk).exists():
             parsing.prunings.add(pruning)
 
+        # Adding necessary moderation if missing
+        add_necessary_parsing_moderation(parsing)
+
         print(f'Parsing already exists for pruning {pruning}')
         return
 
@@ -322,8 +334,4 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
         parsing.save()
 
     parsing.prunings.add(pruning)
-    if llm_error_detail:
-        add_parsing_moderation(parsing, ParsingModeration.Category.LLM_ERROR)
-    else:
-        remove_parsing_moderation(parsing, ParsingModeration.Category.LLM_ERROR)
-        add_necessary_parsing_moderation(parsing)
+    add_necessary_parsing_moderation(parsing)
