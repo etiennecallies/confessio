@@ -7,6 +7,17 @@
 
 {% block card %}
     <h1>Revue de la paroisse {{ website.name }}</h1>
+
+    {% if success_message %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <span class="alert-inner--icon"><i class="far fa-thumbs-up"></i></span>
+            <span class="alert-inner--text">{{ success_message }}</span>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endif %}
+
     <h4 class="mt-4">1️⃣ Églises</h4>
     {% include 'includes/website_churches.html' %}
 
@@ -22,26 +33,27 @@
     {% include 'includes/website_schedules.html' %}
 
     <h4 class="mt-4">💬 Votre retour</h4>
-    <form id="feedbackForm">
+    <form id="feedbackForm" method="POST">
+        {% csrf_token %}
         <div class="radio-group">
             <label>
-                <input type="radio" name="feedback" value="good">
+                <input type="radio" name="feedback_type" value="good" required>
                 👍 Tout semble bon !
             </label>
         </div>
         <div class="radio-group">
             <label>
-                <input type="radio" name="feedback" value="outdated">
+                <input type="radio" name="feedback_type" value="outdated">
                 👎 L'analyse est correcte, mais le site de la paroisse n'est pas à jour
             </label>
         </div>
         <div class="radio-group">
             <label>
-                <input type="radio" name="feedback" value="error">
+                <input type="radio" name="feedback_type" value="error">
                 ❌ Il y a une erreur
             </label>
             <label>
-                <select>
+                <select name="error_type">
                     <option value="">Sélectionnez le type d'erreur</option>
                     <option value="churches">1. Dans la liste des églises ou leur positionnement</option>
                     <option value="paragraphs">2. Dans les paragraphes extraits du site</option>
