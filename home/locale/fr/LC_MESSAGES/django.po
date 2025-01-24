@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-08-06 08:27+0200\n"
+"POT-Creation-Date: 2025-01-24 16:27+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,23 +18,20 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: services/map_service.py:101
+#: services/map_service.py:112
 msgid "ConfessionsExist"
 msgstr "Des confessions existent dans la paroisse"
 
-#: services/map_service.py:101
-msgid "NextEvent"
-msgstr "Prochaine confession"
-
-#: services/map_service.py:106 templates/pages/index.html:146
+#: services/map_service.py:116 templates/includes/website_schedules.html:55
+#: templates/includes/website_sources.html:63
 msgid "NotCrawledYet"
 msgstr "Traitement en cours pour cette paroisse"
 
-#: services/map_service.py:109 templates/pages/index.html:148
+#: services/map_service.py:119 templates/includes/website_sources.html:65
 msgid "NoConfessionFound"
 msgstr "Pas de confessions trouvées"
 
-#: services/map_service.py:112
+#: services/map_service.py:122
 msgid "JumpBelow"
 msgstr "Voir ci-dessous"
 
@@ -50,7 +47,7 @@ msgstr "Nous contacter"
 msgid "footerDiocesesList"
 msgstr "Voir la liste des diocèses opérés"
 
-#: templates/includes/footer.html:24
+#: templates/includes/footer.html:44
 msgid "footerFranceCookie"
 msgstr "Made in 🇫🇷 with ✝️ without 🍪"
 
@@ -70,15 +67,42 @@ msgstr "Se connecter"
 msgid "moderationMenu"
 msgstr "Modération"
 
+#: templates/includes/website_card.html:25
+msgid "goToParishSite"
+msgstr "Aller sur le site"
+
+#: templates/includes/website_churches.html:22
+msgid "locateOnMap"
+msgstr "Situer sur la carte"
+
+#: templates/includes/website_sources.html:12
+#: templates/pages/edit_pruning.html:17
+#, python-format
+msgid "BeforeConfessionHTML %(url)s"
+msgstr "Extrait de cette <a href=\"%(url)s\" class=\"link-info\">page</a> : "
+
+#: templates/includes/website_sources.html:32
+msgid "EditPruning"
+msgstr "Corriger"
+
+#: templates/includes/website_sources.html:45
+msgid "EditParsing"
+msgstr "Corriger"
+
 #: templates/layouts/base.html:26 templates/layouts/base.html:28
-#: templates/layouts/base.html:34 templates/layouts/base.html:41
+#: templates/layouts/base.html:40 templates/layouts/base.html:47
 msgid "confessioPageTitle"
 msgstr "Confessio - horaires des confessions"
 
-#: templates/layouts/base.html:29 templates/layouts/base.html:35
-#: templates/layouts/base.html:42 templates/pages/index.html:15
+#: templates/layouts/base.html:29 templates/layouts/base.html:41
+#: templates/layouts/base.html:48 templates/pages/index.html:14
 msgid "confessioDescription"
 msgstr "Un moteur de recherche d'horaires de confession qui cite ses sources."
+
+#: templates/layouts/base.html:30 templates/layouts/base.html:31
+#: templates/pages/index.html:13
+msgid "confessioTitle"
+msgstr "Confessio"
 
 #: templates/pages/contact.html:4 templates/pages/contact.html:5
 msgid "contactPageTitle"
@@ -116,57 +140,47 @@ msgstr "Confessio - Liste des diocèses"
 msgid "diocesesTitle"
 msgstr "Liste des diocèses opérés"
 
-#: templates/pages/edit_pruning.html:17 templates/pages/index.html:132
-#, python-format
-msgid "BeforeConfessionHTML %(url)s"
-msgstr "Extrait de cette <a href=\"%(url)s\" class=\"link-info\">page</a> : "
-
-#: templates/pages/index.html:14
-msgid "confessioTitle"
-msgstr "Confessio"
-
-#: templates/pages/index.html:27
+#: templates/pages/index.html:26
 msgid "searchPlaceHolder"
 msgstr "🔍 Chercher une ville, une paroisse, une église ..."
 
-#: templates/pages/index.html:43
+#: templates/pages/index.html:42
 msgid "tooManyResultsStrong"
 msgstr "Beaucoup d'églises dans cette région !"
 
-#: templates/pages/index.html:43
+#: templates/pages/index.html:42
 msgid "tooManyResults"
 msgstr "Veuillez zoomer et cliquer sur 'Rechercher dans cette zone'."
 
-#: templates/pages/index.html:52
+#: templates/pages/index.html:51
 msgid "noResultsStrong"
 msgstr "Pas de résultats..."
 
-#: templates/pages/index.html:52
+#: templates/pages/index.html:51
 msgid "noResults"
 msgstr ""
-"Confessio est en lancement et n'opère que dans les diocèses de Paris, Lyon, Versailles, Nanterre, "
-"Dijon, et du Havre pour le moment."
+"Confessio est en lancement et n'opère que dans les diocèses de Paris, Lyon, "
+"Versailles, Nanterre, Dijon, et du Havre pour le moment."
 
-#: templates/pages/index.html:66
-msgid "searchInThisArea"
-msgstr "Dans cette zone"
-
-#: templates/pages/index.html:66
+#: templates/pages/index.html:64
 msgid "searchAroundMe"
 msgstr "Autour de moi"
 
-#: templates/pages/index.html:99
-msgid "goToParishSite"
-msgstr "Aller sur le site"
+#: templates/pages/index.html:77
+msgid "searchInThisArea"
+msgstr "Dans cette zone"
 
-#: templates/pages/index.html:121
-msgid "locateOnMap"
-msgstr "Situer sur la carte"
+#: templates/pages/report.html:42
+msgid "report_feedback_good"
+msgstr "👍 Tout semble bon !"
 
-#: templates/pages/index.html:136
-msgid "EditPruning"
-msgstr "Corriger"
+#: templates/pages/report.html:49
+msgid "report_feedback_outdated"
+msgstr "👎 L'analyse est correcte, mais le site de la paroisse n'est pas à jour"
 
-#: templates/pages/index.html:136
-msgid "EditParsing"
-msgstr "Corriger"
+#: templates/pages/report.html:56
+msgid "report_feedback_error"
+msgstr "❌ Il y a une erreur"
+
+msgid "NextEvent"
+msgstr "Prochaine confession"

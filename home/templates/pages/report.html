@@ -38,19 +38,19 @@
         <div class="radio-group">
             <label>
                 <input type="radio" name="feedback_type" value="good" required>
-                👍 Tout semble bon !
+                {% trans 'report_feedback_good' %}
             </label>
         </div>
         <div class="radio-group">
             <label>
                 <input type="radio" name="feedback_type" value="outdated">
-                👎 L'analyse est correcte, mais le site de la paroisse n'est pas à jour
+                {% trans 'report_feedback_outdated' %}
             </label>
         </div>
         <div class="radio-group">
             <label>
                 <input type="radio" name="feedback_type" value="error">
-                ❌ Il y a une erreur
+                {% trans 'report_feedback_error' %}
             </label>
             <label>
                 <select name="error_type">
@@ -69,6 +69,26 @@
             <button type="submit" class="btn rounded btn-secondary">Envoyer !</button>
         </div>
     </form>
+
+    <div class="mt-4">
+        {% for report in website.reports.all %}
+            {% if report.comment %}
+                <blockquote class="blockquote text-left">
+                    <strong>
+                        {% if report.feedback_type == 'error' %}
+                            {% trans 'report_feedback_error' %}
+                        {% elif report.feedback_type == 'good' %}
+                            {% trans 'report_feedback_good' %}
+                        {% elif report.feedback_type == 'outdated' %}
+                            {% trans 'report_feedback_outdated' %}
+                        {% endif %}
+                    </strong>
+                    <div>{{ report.comment }}</div>
+                    <div><small>- le {{ report.created_at|date:"d M Y" }}</small></div>
+                </blockquote>
+            {% endif %}
+        {% endfor %}
+    </div>
 {% endblock card %}
 
 {% block javascripts %}
