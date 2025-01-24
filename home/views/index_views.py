@@ -9,7 +9,7 @@ from home.services.autocomplete_service import get_aggregated_response
 from home.services.events_service import ChurchSchedulesList, get_merged_church_schedules_list
 from home.services.map_service import get_churches_in_box, get_churches_around, prepare_map, \
     get_churches_by_website, get_center, get_churches_by_diocese
-from home.services.page_url_service import get_page_url_with_pointer_at_pruning
+from home.services.page_url_service import get_page_pruning_urls
 
 
 def render_map(request, center, churches, bounds, location, too_many_results: bool):
@@ -53,19 +53,10 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
     for church in churches:
         websites_by_uuid[church.parish.website.uuid] = church.parish.website
         website_churches.setdefault(church.parish.website.uuid, []).append(church)
-    websites = websites_by_uuid.values()
+    websites = list(websites_by_uuid.values())
 
-    # Page url with #:~:text=
-    page_pruning_urls = {}
-    for website in websites:
-        for page in website.get_pages():
-            prunings = page.get_prunings()
-            if not prunings:
-                continue
-
-            for pruning in prunings:
-                url = get_page_url_with_pointer_at_pruning(page, pruning)
-                page_pruning_urls.setdefault(page.uuid, {})[pruning.uuid] = url
+    # Get page url with #:~:text=
+    page_pruning_urls = get_page_pruning_urls(websites)
 
     context = {
         'location': location,

@@ -119,9 +119,7 @@ msgstr "Liste des diocèses opérés"
 #: templates/pages/edit_pruning.html:17 templates/pages/index.html:132
 #, python-format
 msgid "BeforeConfessionHTML %(url)s"
-msgstr ""
-"Voici un extrait de cette <a href=\"%(url)s\" class=\"link-info\">page</a> "
-"concernant les confessions :"
+msgstr "Extrait de cette <a href=\"%(url)s\" class=\"link-info\">page</a> : "
 
 #: templates/pages/index.html:14
 msgid "confessioTitle"

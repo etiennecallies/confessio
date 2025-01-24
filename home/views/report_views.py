@@ -2,6 +2,7 @@ from django.http import HttpResponseNotFound
 from django.shortcuts import render
 
 from home.models import Website
+from home.services.page_url_service import get_page_pruning_urls
 
 
 def report(request, website_uuid):
@@ -16,10 +17,14 @@ def report(request, website_uuid):
             for church in parish.churches.all():
                 website_churches.setdefault(website.uuid, []).append(church)
 
+        # Get page url with #:~:text=
+        page_pruning_urls = get_page_pruning_urls([website])
+
         return render(request, 'pages/report.html', {
             'noindex': True,
             'website': website,
             'website_churches': website_churches,
+            'page_pruning_urls': page_pruning_urls,
         })
     else:
         raise NotImplementedError
