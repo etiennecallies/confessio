@@ -10,9 +10,6 @@
     {% with merged_schedules_list=website_merged_church_schedules_list|get_item:website.uuid %}
         <div>
             {% if merged_schedules_list.church_events %}
-                {% if not website.parsings_have_been_moderated %}
-                    <p class="text-warning">⚠️ Ces horaires n'ont pas encore été vérifiés pour cette paroisse.</p>
-                {% endif %}
                 <h6>Régularité</h6>
                 {% for church_explanation in merged_schedules_list.church_explanations %}
                     <div>

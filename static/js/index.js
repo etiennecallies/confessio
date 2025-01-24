@@ -156,18 +156,3 @@ $( function() {
   $( ".schedules-sources-tabs" ).tabs();
 } );
 
-/**
- * Handle expand/collapse of truncated html.
- */
-$(document).ready(function () {
-  $('.expandable').on('click', function () {
-    $(this).children('.expandable-item').toggle();
-  });
-});
-
-/**
- * Activate tooltips.
- */
-$(window).on("load", function () {
-  $('[data-toggle="tooltip"]').tooltip();
-});

@@ -45,6 +45,9 @@
                                     {% include 'includes/website_churches.html' %}
                                 </div>
                             </div>
+                            {% if not website.unreliability_reason and not website.parsings_have_been_moderated %}
+                                <p class="text-warning mt-2">⚠️ Ces horaires n'ont pas encore été vérifiés pour cette paroisse.</p>
+                            {% endif %}
                         {% else %}
                             {% include 'includes/website_churches.html' %}
                             <div class="mb-0">
