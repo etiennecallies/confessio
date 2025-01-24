@@ -12,4 +12,11 @@
             {{ website.home_url }}
         </a>
     </p>
+    <h4>Églises</h4>
+    {% include 'includes/website_churches.html' %}
 {% endblock card %}
+
+{% block javascripts %}
+    {{ block.super }}
+    <script src="{% static 'js/website_churches.js' %}"></script>
+{% endblock javascripts %}

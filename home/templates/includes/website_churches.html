@@ -14,12 +14,14 @@
             <span class="text-muted">{{ church.address }} {{ church.zipcode }} {{ church.city }}</span>
             <span class="text-muted copy-to-clipboard"><i class="far fa-copy"></i></span>
         </p>
-        <p class="col-md-3">
-            <a href="#map"
-               class="link-info"
-               onclick="return popupChurch('{{ church_marker_names|get_item:church.uuid }}');">
-                {% trans 'locateOnMap' %}
-            </a>
-        </p>
+        {% if church_marker_names %}
+            <p class="col-md-3">
+                <a href="#map"
+                   class="link-info"
+                   onclick="return popupChurch('{{ church_marker_names|get_item:church.uuid }}');">
+                    {% trans 'locateOnMap' %}
+                </a>
+            </p>
+        {% endif %}
     </div>
 {% endfor %}

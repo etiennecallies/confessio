@@ -11,9 +11,15 @@ def report(request, website_uuid):
         except Website.DoesNotExist:
             return HttpResponseNotFound(f'Website with uuid {website_uuid} not found')
 
+        website_churches = {}
+        for parish in website.parishes.all():
+            for church in parish.churches.all():
+                website_churches.setdefault(website.uuid, []).append(church)
+
         return render(request, 'pages/report.html', {
             'noindex': True,
             'website': website,
+            'website_churches': website_churches,
         })
     else:
         raise NotImplementedError
