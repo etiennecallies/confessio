@@ -7,17 +7,56 @@
 
 {% block card %}
     <h1>Revue de la paroisse {{ website.name }}</h1>
+    <h4 class="mt-4">1️⃣ Églises</h4>
+    {% include 'includes/website_churches.html' %}
+
+    <h4 class="mt-2">2️⃣ Paragraphes extraits concernant les confessions</h4>
     <p>Site de la paroisse <i class="fas fa-up-right-from-square"></i>
         <a href="{{ website.home_url }}" target="_blank">
             {{ website.home_url }}
         </a>
     </p>
-    <h4>Églises</h4>
-    {% include 'includes/website_churches.html' %}
-    <h4>Paragraphes extraits concernant les confessions</h4>
     {% include 'includes/website_sources.html' %}
-    <h4 class="mt-2">En résumé</h4>
+
+    <h4 class="mt-3">3️⃣ Horaires repérés</h4>
     {% include 'includes/website_schedules.html' %}
+
+    <h4 class="mt-4">💬 Votre retour</h4>
+    <form id="feedbackForm">
+        <div class="radio-group">
+            <label>
+                <input type="radio" name="feedback" value="good">
+                👍 Tout semble bon !
+            </label>
+        </div>
+        <div class="radio-group">
+            <label>
+                <input type="radio" name="feedback" value="outdated">
+                👎 L'analyse est correcte, mais le site de la paroisse n'est pas à jour
+            </label>
+        </div>
+        <div class="radio-group">
+            <label>
+                <input type="radio" name="feedback" value="error">
+                ❌ Il y a une erreur
+            </label>
+            <label>
+                <select>
+                    <option value="">Sélectionnez le type d'erreur</option>
+                    <option value="churches">1. Dans la liste des églises ou leur positionnement</option>
+                    <option value="paragraphs">2. Dans les paragraphes extraits du site</option>
+                    <option value="schedules">3. Dans les horaires repérés</option>
+                </select>
+            </label>
+        </div>
+        <div class="mt-1">
+            <label for="comment" style="display: none"></label>
+            <textarea placeholder="Commentaire facultatif" class="form-control" id="comment" name="comment" rows="4"></textarea>
+        </div>
+        <div class="mt-3">
+            <button type="submit" class="btn rounded btn-secondary">Envoyer !</button>
+        </div>
+    </form>
 {% endblock card %}
 
 {% block javascripts %}
