@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Optional
+from uuid import UUID
 
 from home.models import Church, Parsing, Website
 from home.utils.date_utils import get_current_year
@@ -132,3 +133,25 @@ def get_merged_church_schedules_list(csl: list[ChurchSchedulesList]
         church_events=church_events,
         church_explanations=church_explanations
     )
+
+
+def get_merged_church_schedules_list_for_website(website: Website
+                                                 ) -> MergedChurchSchedulesList | None:
+    if not website.all_pages_parsed() or website.unreliability_reason:
+        return
+
+    church_schedules_lists = [ChurchSchedulesList.from_parsing(parsing, website)
+                              for parsing in website.get_all_parsings()]
+    return get_merged_church_schedules_list(
+        [csl for csl in church_schedules_lists if csl is not None])
+
+
+def get_website_merged_church_schedules_list(websites: list[Website]
+                                             ) -> dict[UUID, MergedChurchSchedulesList]:
+    website_merged_church_schedules_list = {}
+    for website in websites:
+        merged_church_schedules_list = get_merged_church_schedules_list_for_website(website)
+        if merged_church_schedules_list:
+            website_merged_church_schedules_list[website.uuid] = merged_church_schedules_list
+
+    return website_merged_church_schedules_list

@@ -36,65 +36,7 @@
                                     <li class="nav-item"><a class="nav-link" href="#tab-churches-{{ website.uuid }}">⛪️ Églises</a></li>
                                 </ul>
                                 <div id="tab-schedules-{{ website.uuid }}">
-                                    {% if website.unreliability_reason %}
-                                        <div>
-                                            Nous regrettons de ne pouvoir afficher les horaires de cette paroisse pour des raisons techniques.
-                                        </div>
-                                    {% else %}
-                                        {% with merged_schedules_list=website_merged_church_schedules_list|get_item:website.uuid %}
-                                            <div>
-                                                {% if merged_schedules_list.church_events %}
-                                                    {% if not website.parsings_have_been_moderated %}
-                                                        <p class="text-warning">⚠️ Ces horaires n'ont pas encore été vérifiés pour cette paroisse.</p>
-                                                    {% endif %}
-                                                    <h6>Régularité</h6>
-                                                    {% for church_explanation in merged_schedules_list.church_explanations %}
-                                                        <div>
-                                                            {% if church_explanation.church %}
-                                                                <a href="#map"
-                                                                   class="link-info"
-                                                                   onclick="return popupChurch('{{ church_marker_names|get_item:church_explanation.church.uuid }}');">
-                                                                    {{ church_explanation.church.name }}
-                                                                </a> :
-                                                            {% elif church_explanation.is_church_explicitly_other %}
-                                                                <span class="text-danger">En dehors de cette paroisse :</span>
-                                                            {% endif %}
-                                                            {% for explanation in church_explanation.explanations %}
-                                                                <div>{{ explanation }}</div>
-                                                            {% endfor %}
-                                                        </div>
-                                                    {% endfor %}
-
-                                                    <h6 class="mt-3">Prochains événements</h6>
-                                                    {% for church_event in merged_schedules_list.church_events %}
-                                                        <div>
-                                                            {% if church_event.church %}
-                                                                <a href="#map"
-                                                                   class="link-info"
-                                                                   onclick="return popupChurch('{{ church_marker_names|get_item:church_event.church.uuid }}');">
-                                                                    {{ church_event.church.name }}
-                                                                </a> :
-                                                            {% elif church_event.is_church_explicitly_other %}
-                                                                <span class="text-danger">En dehors de cette paroisse :</span>
-                                                            {% endif %}
-                                                            {% display_event church_event.event %}
-                                                        </div>
-                                                    {% endfor %}
-                                                {% elif not website.has_been_crawled %}
-                                                    {% trans 'NotCrawledYet' %}
-                                                {% else %}
-                                                    Pas de prochaines dates
-                                                {% endif %}
-                                            </div>
-                                            <div>
-                                                <br>
-                                                {% if merged_schedules_list.schedules_list.possible_by_appointment %}
-                                                    <div>🤝 Il est possible de se confesser sur rendez-vous.</div>
-                                                {% endif %}
-                                                {{ merged_schedules_list.schedules_list|has_relation_text }}
-                                            </div>
-                                        {% endwith %}
-                                    {% endif %}
+                                    {% include 'includes/website_schedules.html' %}
                                 </div>
                                 <div id="tab-sources-{{ website.uuid }}">
                                     {% include 'includes/website_sources.html' %}

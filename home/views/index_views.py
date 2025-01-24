@@ -6,28 +6,25 @@ from django.shortcuts import render
 
 from home.models import Website, Diocese
 from home.services.autocomplete_service import get_aggregated_response
-from home.services.events_service import ChurchSchedulesList, get_merged_church_schedules_list
+from home.services.events_service import get_website_merged_church_schedules_list
 from home.services.map_service import get_churches_in_box, get_churches_around, prepare_map, \
     get_churches_by_website, get_center, get_churches_by_diocese
 from home.services.page_url_service import get_page_pruning_urls
 
 
 def render_map(request, center, churches, bounds, location, too_many_results: bool):
-    website_merged_church_schedules_list = {}
+    # We get all websites and their churches
+    websites_by_uuid = {}
+    website_churches = {}
     for church in churches:
-        website = church.parish.website
-        if website in website_merged_church_schedules_list:
-            continue
+        websites_by_uuid[church.parish.website.uuid] = church.parish.website
+        website_churches.setdefault(church.parish.website.uuid, []).append(church)
+    websites = list(websites_by_uuid.values())
 
-        if not website.all_pages_parsed() or website.unreliability_reason:
-            continue
+    # We compute the merged schedules list for each website
+    website_merged_church_schedules_list = get_website_merged_church_schedules_list(websites)
 
-        church_schedules_lists = [ChurchSchedulesList.from_parsing(parsing, website)
-                                  for parsing in website.get_all_parsings()]
-        merged_church_schedules_list = get_merged_church_schedules_list(
-            [csl for csl in church_schedules_lists if csl is not None])
-        website_merged_church_schedules_list[website.uuid] = merged_church_schedules_list
-
+    # We prepare the map
     folium_map, church_marker_names = prepare_map(center, churches, bounds,
                                                   website_merged_church_schedules_list)
 
@@ -46,14 +43,6 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
         '<div style="position:relative;width:100%;height:0;padding-bottom:60%;">',
         '<div class="map-container">'
     )
-
-    # We get all websites and their churches
-    websites_by_uuid = {}
-    website_churches = {}
-    for church in churches:
-        websites_by_uuid[church.parish.website.uuid] = church.parish.website
-        website_churches.setdefault(church.parish.website.uuid, []).append(church)
-    websites = list(websites_by_uuid.values())
 
     # Get page url with #:~:text=
     page_pruning_urls = get_page_pruning_urls(websites)

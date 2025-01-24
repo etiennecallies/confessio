@@ -2,6 +2,7 @@ from django.http import HttpResponseNotFound
 from django.shortcuts import render
 
 from home.models import Website
+from home.services.events_service import get_website_merged_church_schedules_list
 from home.services.page_url_service import get_page_pruning_urls
 
 
@@ -20,11 +21,14 @@ def report(request, website_uuid):
         # Get page url with #:~:text=
         page_pruning_urls = get_page_pruning_urls([website])
 
+        website_merged_church_schedules_list = get_website_merged_church_schedules_list([website])
+
         return render(request, 'pages/report.html', {
             'noindex': True,
             'website': website,
             'website_churches': website_churches,
             'page_pruning_urls': page_pruning_urls,
+            'website_merged_church_schedules_list': website_merged_church_schedules_list
         })
     else:
         raise NotImplementedError
