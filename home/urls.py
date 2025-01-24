@@ -9,6 +9,9 @@ urlpatterns = [
     path('dioceses', views.dioceses_list, name='dioceses_list'),
     path('diocese/<str:diocese_slug>', views.index, name='diocese_view'),
 
+    # report
+    path('report/<uuid:website_uuid>', views.report, name='report'),
+
     # edit
     path('edit/pruning/<uuid:pruning_uuid>', views.edit_pruning, name='edit_pruning'),
     path('edit/parsing/<uuid:parsing_uuid>', views.edit_parsing, name='edit_parsing'),

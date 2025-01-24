@@ -1,0 +1,15 @@
+{% extends 'layouts/single_card.html' %}
+{% load static %}
+
+{% load i18n %}
+
+{% block title %}{{ website.name }} - Revue{% endblock title %}
+
+{% block card %}
+    <h1>Revue de la paroisse {{ website.name }}</h1>
+    <p>Site de la paroisse <i class="fas fa-up-right-from-square"></i>
+        <a href="{{ website.home_url }}" target="_blank">
+            {{ website.home_url }}
+        </a>
+    </p>
+{% endblock card %}

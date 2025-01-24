@@ -30,6 +30,10 @@
     <meta name="application-name" content="{% trans 'confessioTitle' %}">
     <meta name="apple-mobile-web-app-title" content="{% trans 'confessioTitle' %}">
 
+    {% if noindex %}
+        <meta name="robots" content="noindex">
+    {% endif %}
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
