@@ -21,5 +21,6 @@ class Report(TimeStampMixin):
     error_type = models.CharField(max_length=10, choices=ErrorType.choices, null=True)
 
     comment = models.TextField(null=True)
+    user = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
     user_agent = models.TextField(null=True)
     ip_address_hash = models.CharField(max_length=64, null=True)

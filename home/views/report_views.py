@@ -1,3 +1,5 @@
+import os
+
 from django.http import HttpResponseNotFound, HttpResponseBadRequest
 from django.shortcuts import render
 
@@ -5,9 +7,11 @@ from home.models import Website
 from home.models.report_models import Report
 from home.services.events_service import get_website_merged_church_schedules_list
 from home.services.page_url_service import get_page_pruning_urls
+from home.utils.hash_utils import hash_string_to_hex
+from home.utils.web_utils import get_client_ip
 
 
-def report(request, website_uuid):
+def report_page(request, website_uuid):
     try:
         website = Website.objects.get(uuid=website_uuid)
     except Website.DoesNotExist:
@@ -32,11 +36,20 @@ def report(request, website_uuid):
         except ValueError:
             return HttpResponseBadRequest(f'Invalid error type: {error_type_str}')
 
+        user_agent = request.META['HTTP_USER_AGENT']
+        ip_hash_salt = os.environ.get('IP_HASH_SALT')
+        ip_address_hash = hash_string_to_hex(ip_hash_salt + get_client_ip(request))
+
+        user = request.user if request.user.is_authenticated else None
+
         report = Report(
             website=website,
             feedback_type=feedback_type,
             error_type=error_type,
-            comment=comment
+            comment=comment,
+            user_agent=user_agent,
+            ip_address_hash=ip_address_hash,
+            user=user,
         )
         report.save()
 
