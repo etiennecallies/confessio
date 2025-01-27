@@ -65,6 +65,8 @@ def report_page(request, website_uuid):
 
     website_merged_church_schedules_list = get_website_merged_church_schedules_list([website])
 
+    previous_reports = Report.objects.filter(website=website).order_by('-created_at').all()
+
     return render(request, 'pages/report.html', {
         'noindex': True,
         'website': website,
@@ -72,4 +74,5 @@ def report_page(request, website_uuid):
         'page_pruning_urls': page_pruning_urls,
         'website_merged_church_schedules_list': website_merged_church_schedules_list,
         'success_message': success_message,
+        'previous_reports': previous_reports,
     })
