@@ -7,7 +7,7 @@ from django.urls import reverse
 
 from home.models import WebsiteModeration, ChurchModeration, ModerationMixin, \
     BUG_DESCRIPTION_MAX_LENGTH, ParishModeration, ResourceDoesNotExistError, PruningModeration, \
-    SentenceModeration, ParsingModeration
+    SentenceModeration, ParsingModeration, ReportModeration
 from home.services.edit_pruning_service import on_pruning_human_validation
 from home.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 from scraping.parse.schedules import SchedulesList
@@ -245,6 +245,25 @@ def render_parsing_moderation(request, moderation: ParsingModeration, next_url):
         'next_url': next_url,
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
         'back_path': back_path,
+    })
+
+
+@login_required
+@permission_required("home.change_sentence")
+def moderate_report(request, category, is_bug, moderation_uuid=None):
+    return get_moderate_response(request, category, 'report', is_bug, ReportModeration,
+                                 moderation_uuid, render_report_moderation)
+
+
+def render_report_moderation(request, moderation: ReportModeration, next_url):
+    report = moderation.report
+    assert report is not None
+
+    return render(request, f'pages/moderate_report.html', {
+        'report': report,
+        'report_moderation': moderation,
+        'next_url': next_url,
+        'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
     })
 
 

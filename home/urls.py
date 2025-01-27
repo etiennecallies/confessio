@@ -41,6 +41,11 @@ urlpatterns = [
          views.moderate_parsing, name='moderate_next_parsing'),
     path('moderate/parsing/<category>/<str:is_bug>/<uuid:moderation_uuid>',
          views.moderate_parsing, name='moderate_one_parsing'),
+    path('moderate/report/<category>/<str:is_bug>',
+         views.moderate_report, name='moderate_next_report'),
+    path('moderate/report/<category>/<str:is_bug>/<uuid:moderation_uuid>',
+         views.moderate_report, name='moderate_one_report'),
+
     path('moderate/merge_websites/<uuid:website_moderation_uuid>',
          views.moderate_merge_websites, name='moderate_merge_websites'),
     path('moderate/erase_human_by_llm/<uuid:parsing_moderation_uuid>',

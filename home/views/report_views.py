@@ -7,6 +7,7 @@ from home.models import Website
 from home.models.report_models import Report
 from home.services.events_service import get_website_merged_church_schedules_list
 from home.services.page_url_service import get_page_pruning_urls
+from home.services.report_service import add_necessary_moderation_for_report
 from home.utils.hash_utils import hash_string_to_hex
 from home.utils.web_utils import get_client_ip
 
@@ -52,6 +53,7 @@ def report_page(request, website_uuid):
             user=user,
         )
         report.save()
+        add_necessary_moderation_for_report(report)
 
         success_message = 'Merci pour votre retour !'
 

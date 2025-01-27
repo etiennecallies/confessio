@@ -6,7 +6,7 @@ from django.urls import reverse
 
 from home.models import WebsiteModeration, ChurchModeration, ParishModeration, \
     PruningModeration, SentenceModeration, ParsingModeration, ModerationMixin, Pruning, \
-    Page, Parsing
+    Page, Parsing, ReportModeration
 from home.utils.date_utils import get_current_year
 from home.utils.list_utils import enumerate_with_and
 from scraping.parse.rrule_utils import get_events_from_schedule_item
@@ -81,4 +81,5 @@ def get_moderation_stats():
         PruningModeration.get_stats_by_category(),
         SentenceModeration.get_stats_by_category(),
         ParsingModeration.get_stats_by_category(),
+        ReportModeration.get_stats_by_category(),
     ], [])
