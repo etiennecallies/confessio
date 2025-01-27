@@ -28,32 +28,30 @@
                                 </span></span>
                             </h3>
                         </div>
-                        {% if website.all_pages_parsed or website.unreliability_reason %}
-                            <div class="schedules-sources-tabs">
-                                <ul class="nav nav-tabs">
-                                    <li class="nav-item"><a class="nav-link" href="#tab-schedules-{{ website.uuid }}">📆 Dates</a></li>
-                                    <li class="nav-item"><a class="nav-link" href="#tab-sources-{{ website.uuid }}">📖 Sources</a></li>
-                                    <li class="nav-item"><a class="nav-link" href="#tab-churches-{{ website.uuid }}">⛪️ Églises</a></li>
-                                </ul>
-                                <div id="tab-schedules-{{ website.uuid }}">
-                                    {% include 'includes/website_schedules.html' %}
-                                </div>
-                                <div id="tab-sources-{{ website.uuid }}">
-                                    {% include 'includes/website_sources.html' %}
-                                </div>
-                                <div id="tab-churches-{{ website.uuid }}">
-                                    {% include 'includes/website_churches.html' %}
-                                </div>
+                        <div class="schedules-sources-tabs">
+                            <ul class="nav nav-tabs">
+                                <li class="nav-item"><a class="nav-link" href="#tab-schedules-{{ website.uuid }}">📆 Dates</a></li>
+                                <li class="nav-item"><a class="nav-link" href="#tab-sources-{{ website.uuid }}">📖 Sources</a></li>
+                                <li class="nav-item"><a class="nav-link" href="#tab-churches-{{ website.uuid }}">⛪️ Églises</a></li>
+                            </ul>
+                            <div id="tab-schedules-{{ website.uuid }}">
+                                {% include 'includes/website_schedules.html' %}
                             </div>
-                            {% if not website.unreliability_reason and not website.parsings_have_been_moderated %}
-                                <p class="text-warning mt-2">⚠️ Ces horaires n'ont pas encore été vérifiés pour cette paroisse.</p>
-                            {% endif %}
-                        {% else %}
-                            {% include 'includes/website_churches.html' %}
-                            <div class="mb-0">
+                            <div id="tab-sources-{{ website.uuid }}">
                                 {% include 'includes/website_sources.html' %}
                             </div>
-                        {% endif %}
+                            <div id="tab-churches-{{ website.uuid }}">
+                                {% include 'includes/website_churches.html' %}
+                            </div>
+                        </div>
+                        <p class="mt-2">
+                            {% if not website.unreliability_reason and not website.parsings_have_been_moderated %}
+                                <span class="text-warning">⚠️ Ces horaires n'ont pas encore été vérifiés.</span>
+                            {% else %}
+                                <span class="text-success">✅ Source vérifiée.</span>
+                            {% endif %}
+                            <u><a href="{% url 'report' website.uuid %}" rel="nofollow">Donner votre avis.</a></u>
+                        </p>
                     </div>
                 </div>
             </div>
