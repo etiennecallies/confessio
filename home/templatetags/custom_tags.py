@@ -33,7 +33,10 @@ def get_schedule_item_events(schedule_item: ScheduleItem) -> list[Event]:
 
 
 @register.filter
-def has_relation_text(schedules_list: SchedulesList) -> str:
+def has_relation_text(schedules_list: SchedulesList | None) -> str:
+    if not schedules_list:
+        return ''
+
     relations = []
     if schedules_list.is_related_to_mass:
         relations.append('messes')
