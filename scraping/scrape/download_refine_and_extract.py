@@ -31,7 +31,7 @@ def get_fresh_extracted_html_list(url) -> list[str] | None:
 
 
 if __name__ == '__main__':
-    url_ = 'https://www.paroisses-pentes-et-saone.fr/infos-pratiques/'
+    url_ = 'https://paroisselatriniteenbeaujolais.fr/paroisse/horaires/'
     extracted_html_list_ = get_fresh_extracted_html_list(url_)
 
     print()

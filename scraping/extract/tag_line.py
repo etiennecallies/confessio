@@ -12,6 +12,7 @@ CONFESSIONS_MENTIONS = [
     'confessions',
     'confesse',
     'confesser',
+    'confessera',
     'reconciliation',
     'pardon',
     'absolution',
