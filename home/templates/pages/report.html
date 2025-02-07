@@ -69,15 +69,15 @@
                                             {% trans 'report_feedback_outdated' %}
                                         </label>
                                     </div>
-                                    <div class="radio-group">
+                                    <div class="radio-group disable-select-until-check">
                                         <label>
-                                            <input type="radio" name="feedback_type" value="error">
+                                            <input class='check-necessary' type="radio" name="feedback_type" value="error">
                                             {% trans 'report_feedback_error' %}
                                         </label>
                                         <label>
                                             <select name="error_type">
                                                 <option value="">Sélectionnez le type d'erreur</option>
-                                                <option value="churches">1. Dans la liste des églises ou leur positionnement</option>
+                                                <option value="churches">1. Dans la liste des églises</option>
                                                 <option value="paragraphs">2. Dans les paragraphes extraits du site</option>
                                                 <option value="schedules">3. Dans les horaires repérés</option>
                                             </select>

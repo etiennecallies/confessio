@@ -233,3 +233,11 @@ UI widget
 .ui-widget-content a.link-info {
     color: #0d6efd;
 }
+
+/*
+ * Forms
+ */
+.disable-select-until-check:has(input.check-necessary:not(:checked)) select {
+    pointer-events: none;
+    opacity: 0.5;
+}
