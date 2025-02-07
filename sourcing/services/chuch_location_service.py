@@ -50,7 +50,8 @@ def add_church_moderation_if_not_exists(church: Church, category: ChurchModerati
             church=church,
             category=category,
             source=source,
-            location=church.location
+            location=church.location,
+            diocese=church.parish.diocese,
         )
         church_moderation.save()
 
@@ -66,6 +67,7 @@ def add_church_location_conflict(existing_church: Church, church: Church,
         zipcode=church.zipcode,
         city=church.city,
         messesinfo_id=church.messesinfo_id,
+        diocese=existing_church.parish.diocese,
     )
 
     try:

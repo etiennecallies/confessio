@@ -117,6 +117,8 @@ class WebsiteModeration(ModerationMixin):
                                      on_delete=models.SET_NULL, null=True)
     marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
                                          on_delete=models.SET_NULL, null=True)
+    diocese = models.ForeignKey('Diocese', on_delete=models.CASCADE,
+                                related_name=f'{resource}_moderations', null=True)
     history = HistoricalRecords()
     website = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=11, choices=Category)
@@ -166,6 +168,8 @@ class ParishModeration(ModerationMixin):
                                      on_delete=models.SET_NULL, null=True)
     marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
                                          on_delete=models.SET_NULL, null=True)
+    diocese = models.ForeignKey('Diocese', on_delete=models.CASCADE,
+                                related_name=f'{resource}_moderations', null=True)
     history = HistoricalRecords()
     parish = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=16, choices=Category)
@@ -246,6 +250,8 @@ class ChurchModeration(ModerationMixin):
                                      on_delete=models.SET_NULL, null=True)
     marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
                                          on_delete=models.SET_NULL, null=True)
+    diocese = models.ForeignKey('Diocese', on_delete=models.CASCADE,
+                                related_name=f'{resource}_moderations', null=True)
     history = HistoricalRecords()
     church = models.ForeignKey('Church', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=17, choices=Category)
@@ -356,6 +362,8 @@ class PruningModeration(ModerationMixin):
                                      on_delete=models.SET_NULL, null=True)
     marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
                                          on_delete=models.SET_NULL, null=True)
+    diocese = models.ForeignKey('Diocese', on_delete=models.CASCADE,
+                                related_name=f'{resource}_moderations', null=True)
     history = HistoricalRecords()
     pruning = models.ForeignKey('Pruning', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=16, choices=Category)
@@ -378,6 +386,8 @@ class SentenceModeration(ModerationMixin):
                                      on_delete=models.SET_NULL, null=True)
     marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
                                          on_delete=models.SET_NULL, null=True)
+    diocese = models.ForeignKey('Diocese', on_delete=models.CASCADE,
+                                related_name=f'{resource}_moderations', null=True)
     history = HistoricalRecords()
     sentence = models.ForeignKey('Sentence', on_delete=models.CASCADE, related_name='moderations')
     action = models.CharField(max_length=5, choices=Action.choices())
@@ -406,6 +416,8 @@ class ParsingModeration(ModerationMixin):
                                      on_delete=models.SET_NULL, null=True)
     marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
                                          on_delete=models.SET_NULL, null=True)
+    diocese = models.ForeignKey('Diocese', on_delete=models.CASCADE,
+                                related_name=f'{resource}_moderations', null=True)
     history = HistoricalRecords()
     parsing = models.ForeignKey('Parsing', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=16, choices=Category)
@@ -429,6 +441,8 @@ class ReportModeration(ModerationMixin):
                                      on_delete=models.SET_NULL, null=True)
     marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
                                          on_delete=models.SET_NULL, null=True)
+    diocese = models.ForeignKey('Diocese', on_delete=models.CASCADE,
+                                related_name=f'{resource}_moderations', null=True)
     history = HistoricalRecords()
     report = models.ForeignKey('Report', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=16, choices=Category)

@@ -103,6 +103,7 @@ def add_new_moderation(pruning: Pruning, category):
     moderation = PruningModeration(
         pruning=pruning,
         category=category,
+        diocese=pruning.get_diocese(),
     )
     moderation.save()
 

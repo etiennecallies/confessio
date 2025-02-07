@@ -117,7 +117,9 @@ def update_church(church: Church, external_church: Church, church_retriever: Chu
             and all(c.name != external_church.name for c in church.history.all())):
         add_church_moderation_if_not_exists(ChurchModeration(
             church=church, category=ChurchModeration.Category.NAME_DIFFERS,
-            source=church_retriever.source, name=external_church.name), church_retriever)
+            source=church_retriever.source, name=external_church.name,
+            diocese=church.parish.diocese
+        ), church_retriever)
 
     # Check parish
     if (not church_retriever.is_same_parish(church.parish, external_church.parish)
@@ -126,7 +128,9 @@ def update_church(church: Church, external_church: Church, church_retriever: Chu
         external_parish = save_parish(external_church.parish, church_retriever)
         add_church_moderation_if_not_exists(ChurchModeration(
             church=church, category=ChurchModeration.Category.PARISH_DIFFERS,
-            source=church_retriever.source, parish=external_parish), church_retriever)
+            source=church_retriever.source, parish=external_parish,
+            diocese=church.parish.diocese
+        ), church_retriever)
 
     # Location
     if ((church.location != external_church.location or church.address != external_church.address
@@ -138,7 +142,9 @@ def update_church(church: Church, external_church: Church, church_retriever: Chu
             church=church, category=ChurchModeration.Category.LOCATION_DIFFERS,
             source=church_retriever.source, location=external_church.location,
             address=external_church.address, zipcode=external_church.zipcode,
-            city=external_church.city), church_retriever)
+            city=external_church.city,
+            diocese=church.parish.diocese
+        ), church_retriever)
 
 
 def look_for_similar_churches_by_name(external_church: Church,
@@ -231,13 +237,16 @@ def sync_churches(external_churches: list[Church],
                 add_church_moderation_if_not_exists(ChurchModeration(
                     church=external_church,
                     category=church_moderation_category,
-                    source=church_retriever.source), church_retriever)
+                    source=church_retriever.source,
+                    diocese=diocese,
+                ), church_retriever)
 
             if alert_on_new:
                 add_church_moderation_if_not_exists(ChurchModeration(
                     church=external_church,
                     category=ChurchModeration.Category.ADDED_CHURCH,
                     source=church_retriever.source,
+                    diocese=diocese,
                 ), church_retriever, similar_churches=similar_churches)
 
     if alert_on_delete:
@@ -248,6 +257,7 @@ def sync_churches(external_churches: list[Church],
                     church=church,
                     category=ChurchModeration.Category.DELETED_CHURCH,
                     source=church_retriever.source,
+                    diocese=diocese,
                 ), church_retriever)
 
 

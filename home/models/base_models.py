@@ -97,6 +97,12 @@ class Website(TimeStampMixin):
     def parsings_have_been_moderated(self) -> bool:
         return all(parsing.has_been_moderated() for parsing in self.get_all_parsings())
 
+    def get_diocese(self) -> Diocese | None:
+        if not self.parishes.exists():
+            return None
+
+        return self.parishes.first().diocese
+
 
 class Parish(TimeStampMixin):
     name = models.CharField(max_length=100)
@@ -217,6 +223,12 @@ class Pruning(TimeStampMixin):
             return True
 
         return self.get_parsing(website) is not None
+
+    def get_diocese(self) -> Diocese | None:
+        if not self.scrapings.exists():
+            return None
+
+        return self.scrapings.first().page.website.get_diocese()
 
 
 class Sentence(TimeStampMixin):

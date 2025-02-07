@@ -13,5 +13,6 @@ def get_report_moderation_category(report: Report) -> ReportModeration.Category:
 
 def add_necessary_moderation_for_report(report: Report):
     category = get_report_moderation_category(report)
-    report_moderation = ReportModeration(report=report, category=category)
+    report_moderation = ReportModeration(report=report, category=category,
+                                         diocese=report.website.get_diocese())
     report_moderation.save()

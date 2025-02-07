@@ -93,7 +93,7 @@ def get_parsing_schedules_list(parsing: Parsing) -> Optional[SchedulesList]:
 # MODERATION #
 ##############
 
-def add_necessary_parsing_moderation(parsing: Parsing):
+def add_necessary_parsing_moderation(parsing: Parsing, website: Website):
     category = ParsingModeration.Category.LLM_ERROR if parsing.llm_error_detail \
         else ParsingModeration.Category.NEW_SCHEDULES
     needs_moderation = parsing_needs_moderation(parsing)
@@ -102,11 +102,11 @@ def add_necessary_parsing_moderation(parsing: Parsing):
     remove_parsing_moderation_of_other_category(parsing, category)
 
     # 2. we add moderation
-    add_parsing_moderation(parsing, category, needs_moderation)
+    add_parsing_moderation(parsing, category, needs_moderation, website)
 
 
 def add_parsing_moderation(parsing: Parsing, category: ParsingModeration.Category,
-                           needs_moderation: bool):
+                           needs_moderation: bool, website: Website):
     try:
         parsing_moderation = ParsingModeration.objects.filter(parsing=parsing,
                                                               category=category).get()
@@ -119,6 +119,7 @@ def add_parsing_moderation(parsing: Parsing, category: ParsingModeration.Categor
             parsing=parsing,
             category=category,
             validated_at=None if needs_moderation else Now(),
+            diocese=website.get_diocese(),
         )
         parsing_moderation.save()
 
@@ -317,7 +318,7 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
             parsing.prunings.add(pruning)
 
         # Adding necessary moderation if missing
-        add_necessary_parsing_moderation(parsing)
+        add_necessary_parsing_moderation(parsing, website)
 
         print(f'Parsing already exists for pruning {pruning}')
         return
@@ -354,4 +355,4 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
         parsing.save()
 
     parsing.prunings.add(pruning)
-    add_necessary_parsing_moderation(parsing)
+    add_necessary_parsing_moderation(parsing, website)

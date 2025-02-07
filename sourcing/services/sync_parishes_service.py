@@ -94,7 +94,9 @@ def update_parish(parish: Parish,
             and all(p.name != external_parish.name for p in parish.history.all())):
         add_parish_moderation_if_not_exists(ParishModeration(
             parish=parish, category=ParishModeration.Category.NAME_DIFFERS,
-            source=parish_retriever.source, name=external_parish.name), parish_retriever)
+            source=parish_retriever.source, name=external_parish.name,
+            diocese=parish.diocese,
+        ), parish_retriever)
 
     # Check website
     if external_parish.website:
@@ -117,7 +119,9 @@ def update_parish(parish: Parish,
         else:
             add_parish_moderation_if_not_exists(ParishModeration(
                 parish=parish, category=ParishModeration.Category.WEBSITE_DIFFERS,
-                source=parish_retriever.source, website=website), parish_retriever)
+                source=parish_retriever.source, website=website,
+                diocese=parish.diocese,
+            ), parish_retriever)
 
 
 def look_for_similar_parishes_by_name(external_parish: Parish,
@@ -242,6 +246,7 @@ def sync_parishes(external_parishes: list[Parish],
                     parish=external_parish,
                     category=ParishModeration.Category.ADDED_PARISH,
                     source=parish_retriever.source,
+                    diocese=diocese,
                 ), parish_retriever, similar_parishes=similar_parishes)
 
     if alert_on_delete:
@@ -252,6 +257,7 @@ def sync_parishes(external_parishes: list[Parish],
                     parish=parish,
                     category=ParishModeration.Category.DELETED_PARISH,
                     source=parish_retriever.source,
+                    diocese=diocese,
                 ), parish_retriever)
 
 

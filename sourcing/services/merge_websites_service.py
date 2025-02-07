@@ -13,6 +13,7 @@ def add_moderation(website: Website, category: WebsiteModeration.Category):
     website_moderation = WebsiteModeration(
         website=website,
         category=category,
+        diocese=website.get_diocese(),
     )
     website_moderation.save()
 
