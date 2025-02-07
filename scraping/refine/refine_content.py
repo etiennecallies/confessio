@@ -55,10 +55,18 @@ def is_table(element):
     return False
 
 
+def is_html_element(element) -> bool:
+    return element.name is not None
+
+
 def is_link(element):
-    return element.name in [
-        'a',
-    ]
+    if element.name != 'a':
+        return False
+
+    if len(list(filter(is_html_element, element.contents))) > 1:
+        return False
+
+    return True
 
 
 def is_span(element):
