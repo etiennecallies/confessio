@@ -113,19 +113,22 @@ def are_schedules_list_rrules_valid(schedules_list: SchedulesList) -> bool:
                for schedule_item in schedules_list.schedules)
 
 
-def is_schedule_explainable(schedule: ScheduleItem) -> bool:
+def is_schedule_explainable(schedule: ScheduleItem) -> tuple[bool, Optional[str]]:
     try:
         get_explanation_from_schedule(schedule)
-        return True
+        return True, None
     except ValueError as e:
         print(e)
         print(schedule)
-        return False
+        return False, f'schedule: {schedule}, error: {str(e)}'
 
 
-def is_schedules_list_explainable(schedules_list: SchedulesList) -> bool:
-    return all(is_schedule_explainable(schedule_item)
-               for schedule_item in schedules_list.schedules)
+def is_schedules_list_explainable(schedules_list: SchedulesList) -> tuple[bool, Optional[str]]:
+    for schedule_item in schedules_list.schedules:
+        is_explainable, error = is_schedule_explainable(schedule_item)
+        if not is_explainable:
+            return False, error
+    return True, None
 
 
 ##########

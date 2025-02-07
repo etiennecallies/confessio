@@ -1,3 +1,5 @@
+from urllib.parse import quote, unquote
+
 from home.models import Page, Pruning, Website
 from scraping.extract.split_content import split_lines
 from scraping.refine.refine_content import get_text_if_not_table, remove_link_from_html
@@ -32,3 +34,11 @@ def get_page_pruning_urls(websites: list[Website]) -> dict[str, dict[str, str]]:
                 page_pruning_urls.setdefault(page.uuid, {})[pruning.uuid] = url
 
     return page_pruning_urls
+
+
+def quote_path(path: str) -> str:
+    return quote(path, safe='')
+
+
+def unquote_path(path: str) -> str:
+    return unquote(path)

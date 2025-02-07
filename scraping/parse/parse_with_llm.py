@@ -194,8 +194,9 @@ def parse_with_llm(truncated_html: str, church_desc_by_id: dict[int, str],
 
         schedules_list.schedules = filter_unnecessary_schedules(schedules_list.schedules)
 
-        if not is_schedules_list_explainable(schedules_list):
-            return None, "Not explainable"
+        is_explainable, not_explainable_detail = is_schedules_list_explainable(schedules_list)
+        if not is_explainable:
+            return None, f"Not explainable, reason: {not_explainable_detail}"
 
     return schedules_list, llm_error_detail
 
