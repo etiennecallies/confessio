@@ -10,6 +10,7 @@ from home.services.events_service import get_website_merged_church_schedules_lis
 from home.services.map_service import get_churches_in_box, get_churches_around, prepare_map, \
     get_churches_by_website, get_center, get_churches_by_diocese
 from home.services.page_url_service import get_page_pruning_urls
+from home.services.report_service import get_count_and_label
 
 
 def render_map(request, center, churches, bounds, location, too_many_results: bool):
@@ -46,6 +47,10 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
 
     # Get page url with #:~:text=
     page_pruning_urls = get_page_pruning_urls(websites)
+    # Count reports for each website
+    website_reports_count = {}
+    for website in websites:
+        website_reports_count[website.uuid] = get_count_and_label(website)
 
     context = {
         'location': location,
@@ -56,6 +61,7 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
         'website_churches': website_churches,
         'page_pruning_urls': page_pruning_urls,
         'too_many_results': too_many_results,
+        'website_reports_count': website_reports_count,
     }
 
     return render(request, 'pages/index.html', context)

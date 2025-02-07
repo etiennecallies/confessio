@@ -36,8 +36,9 @@
                             <div class="card-body">
                                 <h4>1️⃣ Églises</h4>
                                 {% include 'includes/website_churches.html' %}
+                                <a class="link-info" href="{% url 'index' %}?websiteUuid={{ website.uuid }}">Voir la carte</a>
 
-                                <h4 class="mt-2">2️⃣ Paragraphes extraits concernant les confessions</h4>
+                                <h4 class="mt-3">2️⃣ Paragraphes extraits concernant les confessions</h4>
                                 <p>Site de la paroisse :
                                     <a href="{{ website.home_url }}" class="link-info" target="_blank">
                                         {{ website.home_url }} <i class="fas fa-up-right-from-square"></i>

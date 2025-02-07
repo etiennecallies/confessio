@@ -50,6 +50,11 @@
                             {% else %}
                                 <span class="text-success">✅ Source vérifiée.</span>
                             {% endif %}
+                            {% for count_and_label in website_reports_count|get_item:website.uuid %}
+                                | <span data-toggle="tooltip" data-placement="bottom" title="{{ count_and_label.count }} {{ count_and_label.tooltip }}">
+                                    {{ count_and_label.label }} {{ count_and_label.count }}
+                                </span>
+                            {% endfor %}
                             <u><a href="{% url 'report' website.uuid %}" rel="nofollow">Donner votre avis.</a></u>
                         </p>
                     </div>

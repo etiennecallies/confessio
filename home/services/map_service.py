@@ -26,6 +26,7 @@ def build_church_query() -> 'QuerySet[Church]':
     return Church.objects.select_related('parish__website') \
         .prefetch_related('parish__website__pages__scraping__prunings__parsings') \
         .prefetch_related('parish__website__parishes__churches') \
+        .prefetch_related('parish__website__reports') \
         .filter(is_active=True, parish__website__is_active=True)
 
 
