@@ -7,7 +7,7 @@ from django.urls import reverse
 
 from home.models import WebsiteModeration, ChurchModeration, ModerationMixin, \
     BUG_DESCRIPTION_MAX_LENGTH, ParishModeration, ResourceDoesNotExistError, PruningModeration, \
-    SentenceModeration, ParsingModeration, ReportModeration
+    SentenceModeration, ParsingModeration, ReportModeration, Diocese
 from home.services.edit_pruning_service import on_pruning_human_validation
 from home.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 from scraping.parse.schedules import SchedulesList
@@ -16,18 +16,20 @@ from scraping.services.parse_pruning_service import on_parsing_human_validation,
 from sourcing.services.merge_websites_service import merge_websites
 
 
-def redirect_to_moderation(moderation: ModerationMixin, category: str, resource: str, is_bug: bool):
+def redirect_to_moderation(moderation: ModerationMixin, category: str, resource: str, is_bug: bool,
+                           diocese_slug: str):
     if moderation is None:
         return redirect('index')
     else:
         return redirect(f'moderate_one_' + resource,
                         category=category,
                         is_bug=is_bug,
-                        moderation_uuid=moderation.uuid)
+                        moderation_uuid=moderation.uuid,
+                        diocese_slug=diocese_slug)
 
 
 def get_moderate_response(request, category: str, resource: str, is_bug_as_str: bool,
-                          class_moderation, moderation_uuid, render_moderation):
+                          diocese_slug: str, class_moderation, moderation_uuid, render_moderation):
     if is_bug_as_str not in ['True', 'False']:
         return HttpResponseBadRequest(f"is_bug_as_str {is_bug_as_str} is not valid")
 
@@ -36,14 +38,22 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
     if category not in class_moderation.Category.values:
         return HttpResponseBadRequest(f"category {category} is not valid for {resource}")
 
+    if diocese_slug == 'no_diocese':
+        diocese = None
+    else:
+        try:
+            diocese = Diocese.objects.get(slug=diocese_slug)
+        except Diocese.DoesNotExist:
+            return HttpResponseNotFound(f"diocese {diocese_slug} not found")
+
     if moderation_uuid is None:
         created_after_ts = int(request.GET.get('created_after', '0'))
         created_after = ts_us_to_datetime(created_after_ts)
         next_moderation = class_moderation.objects.filter(
             category=category, validated_at__isnull=True, marked_as_bug_at__isnull=not is_bug,
-            created_at__gt=created_after) \
+            diocese=diocese, created_at__gt=created_after) \
             .order_by('created_at').first()
-        return redirect_to_moderation(next_moderation, category, resource, is_bug)
+        return redirect_to_moderation(next_moderation, category, resource, is_bug, diocese_slug)
 
     try:
         moderation = class_moderation.objects.get(uuid=moderation_uuid)
@@ -51,7 +61,8 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
         print(f"{resource} {moderation_uuid} not found. "
               f"Probably because problem was solved meanwhile. "
               f"Redirecting to first moderation.")
-        return redirect('moderate_next_' + resource, category=category, is_bug=is_bug)
+        return redirect('moderate_next_' + resource, category=category, is_bug=is_bug,
+                        diocese_slug=diocese_slug)
 
     created_at_ts_us = datetime_to_ts_us(moderation.created_at)
     back_path = request.GET.get('backPath', '')
@@ -59,7 +70,8 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
         next_url = back_path
     else:
         next_url = \
-            reverse('moderate_next_' + resource, kwargs={'category': category, 'is_bug': is_bug}) \
+            reverse('moderate_next_' + resource,
+                    kwargs={'category': category, 'is_bug': is_bug, 'diocese_slug': diocese_slug}) \
             + f'?created_after={created_at_ts_us}'
     if request.method == "POST":
         if 'bug_description' in request.POST:
@@ -116,9 +128,9 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
 
 @login_required
 @permission_required("home.change_sentence")
-def moderate_website(request, category, is_bug, moderation_uuid=None):
-    return get_moderate_response(request, category, 'website', is_bug, WebsiteModeration,
-                                 moderation_uuid, render_website_moderation)
+def moderate_website(request, category, is_bug, diocese_slug, moderation_uuid=None):
+    return get_moderate_response(request, category, 'website', is_bug, diocese_slug,
+                                 WebsiteModeration, moderation_uuid, render_website_moderation)
 
 
 def render_website_moderation(request, moderation: WebsiteModeration, next_url):
@@ -133,9 +145,9 @@ def render_website_moderation(request, moderation: WebsiteModeration, next_url):
 
 @login_required
 @permission_required("home.change_sentence")
-def moderate_parish(request, category, is_bug, moderation_uuid=None):
-    return get_moderate_response(request, category, 'parish', is_bug, ParishModeration,
-                                 moderation_uuid, render_parish_moderation)
+def moderate_parish(request, category, is_bug, diocese_slug, moderation_uuid=None):
+    return get_moderate_response(request, category, 'parish', is_bug, diocese_slug,
+                                 ParishModeration, moderation_uuid, render_parish_moderation)
 
 
 def render_parish_moderation(request, moderation: ParishModeration, next_url):
@@ -149,9 +161,9 @@ def render_parish_moderation(request, moderation: ParishModeration, next_url):
 
 @login_required
 @permission_required("home.change_sentence")
-def moderate_church(request, category, is_bug, moderation_uuid=None):
-    return get_moderate_response(request, category, 'church', is_bug, ChurchModeration,
-                                 moderation_uuid, render_church_moderation)
+def moderate_church(request, category, is_bug, diocese_slug, moderation_uuid=None):
+    return get_moderate_response(request, category, 'church', is_bug, diocese_slug,
+                                 ChurchModeration, moderation_uuid, render_church_moderation)
 
 
 def render_church_moderation(request, moderation: ChurchModeration, next_url):
@@ -166,9 +178,9 @@ def render_church_moderation(request, moderation: ChurchModeration, next_url):
 
 @login_required
 @permission_required("home.change_sentence")
-def moderate_pruning(request, category, is_bug, moderation_uuid=None):
-    return get_moderate_response(request, category, 'pruning', is_bug, PruningModeration,
-                                 moderation_uuid, render_pruning_moderation)
+def moderate_pruning(request, category, is_bug, diocese_slug, moderation_uuid=None):
+    return get_moderate_response(request, category, 'pruning', is_bug, diocese_slug,
+                                 PruningModeration, moderation_uuid, render_pruning_moderation)
 
 
 def render_pruning_moderation(request, moderation: PruningModeration, next_url):
@@ -201,9 +213,9 @@ def render_pruning_moderation(request, moderation: PruningModeration, next_url):
 
 @login_required
 @permission_required("home.change_sentence")
-def moderate_sentence(request, category, is_bug, moderation_uuid=None):
-    return get_moderate_response(request, category, 'sentence', is_bug, SentenceModeration,
-                                 moderation_uuid, render_sentence_moderation)
+def moderate_sentence(request, category, is_bug, diocese_slug, moderation_uuid=None):
+    return get_moderate_response(request, category, 'sentence', is_bug, diocese_slug,
+                                 SentenceModeration, moderation_uuid, render_sentence_moderation)
 
 
 def render_sentence_moderation(request, moderation: SentenceModeration, next_url):
@@ -219,9 +231,9 @@ def render_sentence_moderation(request, moderation: SentenceModeration, next_url
 
 @login_required
 @permission_required("home.change_sentence")
-def moderate_parsing(request, category, is_bug, moderation_uuid=None):
-    return get_moderate_response(request, category, 'parsing', is_bug, ParsingModeration,
-                                 moderation_uuid, render_parsing_moderation)
+def moderate_parsing(request, category, is_bug, diocese_slug, moderation_uuid=None):
+    return get_moderate_response(request, category, 'parsing', is_bug, diocese_slug,
+                                 ParsingModeration, moderation_uuid, render_parsing_moderation)
 
 
 def render_parsing_moderation(request, moderation: ParsingModeration, next_url):
@@ -250,9 +262,9 @@ def render_parsing_moderation(request, moderation: ParsingModeration, next_url):
 
 @login_required
 @permission_required("home.change_sentence")
-def moderate_report(request, category, is_bug, moderation_uuid=None):
-    return get_moderate_response(request, category, 'report', is_bug, ReportModeration,
-                                 moderation_uuid, render_report_moderation)
+def moderate_report(request, category, is_bug, diocese_slug, moderation_uuid=None):
+    return get_moderate_response(request, category, 'report', is_bug, diocese_slug,
+                                 ReportModeration, moderation_uuid, render_report_moderation)
 
 
 def render_report_moderation(request, moderation: ReportModeration, next_url):
@@ -283,7 +295,8 @@ def moderate_merge_websites(request, website_moderation_uuid=None):
     merge_websites(website_moderation.website, website_moderation.other_website)
 
     return redirect_to_moderation(website_moderation, website_moderation.category, 'website',
-                                  website_moderation.marked_as_bug_at is not None)
+                                  website_moderation.marked_as_bug_at is not None,
+                                  website_moderation.get_diocese_slug())
 
 
 @login_required
@@ -303,4 +316,5 @@ def moderate_erase_human_by_llm(request, parsing_moderation_uuid=None):
     set_human_json(parsing)
 
     return redirect_to_moderation(parsing_moderation, parsing_moderation.category, 'parsing',
-                                  parsing_moderation.marked_as_bug_at is not None)
+                                  parsing_moderation.marked_as_bug_at is not None,
+                                  parsing_moderation.get_diocese_slug())

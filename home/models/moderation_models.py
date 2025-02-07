@@ -49,6 +49,16 @@ class ModerationMixin(TimeStampMixin):
 
     @property
     @abstractmethod
+    def diocese(self) -> Diocese | None:
+        pass
+
+    @diocese.setter
+    @abstractmethod
+    def diocese(self, diocese: Diocese | None):
+        pass
+
+    @property
+    @abstractmethod
     def category(self):
         pass
 
@@ -56,11 +66,14 @@ class ModerationMixin(TimeStampMixin):
         abstract = True
 
     @classmethod
-    def get_category_stat(cls, stat, is_bug: bool, count: int):
+    def get_category_stat(cls, stat, is_bug: bool, diocese: Diocese | None, count: int):
+        diocese_slug = diocese.slug if diocese else 'no_diocese'
+
         return {
             'resource': cls.resource,
             'url': reverse('moderate_next_' + str(cls.resource),
-                           kwargs={'category': stat['category'], 'is_bug': is_bug}),
+                           kwargs={'category': stat['category'], 'is_bug': is_bug,
+                                   'diocese_slug': diocese_slug}),
             'category': stat['category'],
             'is_bug': is_bug,
             'total': count,
@@ -74,9 +87,10 @@ class ModerationMixin(TimeStampMixin):
             .annotate(total_count=Count('category'), bug_count=Count('marked_as_bug_at'))
         for stat in query_stats:
             if stat['bug_count']:
-                stats.append(cls.get_category_stat(stat, is_bug=True, count=stat['bug_count']))
+                stats.append(cls.get_category_stat(stat, is_bug=True, diocese=diocese,
+                                                   count=stat['bug_count']))
             if stat['total_count'] - stat['bug_count']:
-                stats.append(cls.get_category_stat(stat, is_bug=False,
+                stats.append(cls.get_category_stat(stat, is_bug=False, diocese=diocese,
                                                    count=stat['total_count'] - stat['bug_count']))
 
         return stats
@@ -98,6 +112,9 @@ class ModerationMixin(TimeStampMixin):
         self.marked_as_bug_by = user
         self.bug_description = bug_description
         self.save()
+
+    def get_diocese_slug(self) -> str:
+        return self.diocese.slug if self.diocese else 'no_diocese'
 
 
 class ResourceDoesNotExistError(Exception):

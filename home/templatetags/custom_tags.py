@@ -58,7 +58,8 @@ def get_url(moderation: ModerationMixin):
                    kwargs={
                        'category': moderation.category,
                        'is_bug': moderation.marked_as_bug_at is not None,
-                       'moderation_uuid': moderation.uuid
+                       'moderation_uuid': moderation.uuid,
+                       'diocese_slug': moderation.get_diocese_slug(),
                    })
 
 
