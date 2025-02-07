@@ -55,6 +55,8 @@ SCHEDULES_EXPR = [
     'lors de ',
     'lors des ',
     'aux horaires ',
+    'au cours d',
+    'au cours de',
 ]
 
 DATES_MENTIONS = [
@@ -124,6 +126,8 @@ PERIOD_MENTIONS = [
     'scolaire',
     'scolaires',
     'ete',
+    'noel',
+    'toussaint',
 ]
 
 
