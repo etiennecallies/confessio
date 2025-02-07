@@ -1,6 +1,7 @@
 from typing import Optional, Literal
 
-from home.models import Page, Pruning, Scraping, PruningModeration, ParsingModeration
+from home.models import Page, Scraping
+from scraping.services.prune_scraping_service import remove_pruning_if_orphan
 
 
 ############
@@ -18,24 +19,6 @@ def delete_scraping(scraping: Scraping):
     scraping.delete()
     for pruning in prunings:
         remove_pruning_if_orphan(pruning)
-
-
-def remove_pruning_if_orphan(pruning: Optional[Pruning]):
-    """
-    :return: True if the pruning has been deleted
-    """
-    if not pruning:
-        return True
-
-    if not pruning.scrapings.exists():
-        print(f'deleting not validated moderation for pruning {pruning} since it has no scraping '
-              f'any more')
-        PruningModeration.objects.filter(pruning=pruning, validated_at__isnull=True).delete()
-        ParsingModeration.objects.filter(parsing__prunings=pruning, validated_at__isnull=True)\
-            .delete()
-        return True
-
-    return False
 
 
 ######################

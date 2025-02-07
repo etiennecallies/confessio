@@ -11,7 +11,6 @@ from scraping.extract.extract_content import BaseActionInterface, ExtractMode
 from scraping.extract.extract_content import extract_paragraphs_lines_and_indices
 from scraping.prune.models import Action, Source
 from scraping.services.classify_sentence_service import classify_and_create_sentence
-from scraping.services.page_service import remove_pruning_if_orphan
 from scraping.services.parse_pruning_service import parse_pruning_for_website
 
 
@@ -58,6 +57,23 @@ def reprune_affected_prunings(sentences: list[Sentence], original_pruning: Pruni
 
         print(f'repruning affected pruning {pruning}')
         prune_pruning(pruning)
+
+
+def remove_pruning_if_orphan(pruning: Optional[Pruning]):
+    """
+    :return: True if the pruning has been deleted
+    """
+    if not pruning:
+        return True
+
+    if not pruning.scrapings.exists():
+        print(f'deleting not validated moderation for pruning {pruning} since it has no scraping '
+              f'any more')
+        PruningModeration.objects.filter(pruning=pruning, validated_at__isnull=True).delete()
+        unlink_pruning_from_parsings(pruning)
+        return True
+
+    return False
 
 
 ##############
