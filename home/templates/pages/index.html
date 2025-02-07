@@ -56,7 +56,7 @@
         {% endif %}
         <div class="row text-white mb-3 text-center">
             <div class="col-6 mx-auto" id="search-around-me-col" style="display: none">
-                <form id="search-around-me-form">
+                <form id="search-around-me-form" action="{% url 'around_me_view' %}">
                     <div class="form-group">
                         <input type="hidden" id="position-latitude-input" name="latitude">
                         <input type="hidden" id="position-longitude-input" name="longitude">

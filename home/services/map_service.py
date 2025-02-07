@@ -131,10 +131,17 @@ def get_popup_and_color(church: Church,
 
 
 def prepare_map(center, churches: List[Church], bounds,
-                website_merged_church_schedules_list: dict[UUID, MergedChurchSchedulesList]
+                website_merged_church_schedules_list: dict[UUID, MergedChurchSchedulesList],
+                is_around_me: bool
                 ) -> Tuple[Map, Dict[UUID, str]]:
     # Create Map Object
     folium_map = Map(location=center)
+
+    if is_around_me:
+        marker = Marker(center,
+                        tooltip='Votre position',
+                        icon=Icon(icon='crosshairs', prefix='fa', color='lightred'))
+        marker.add_to(folium_map)
 
     # We save marker_names, they will be displayed in template and used in javascript
     church_marker_names = {}

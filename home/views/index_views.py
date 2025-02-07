@@ -13,7 +13,8 @@ from home.services.page_url_service import get_page_pruning_urls
 from home.services.report_service import get_count_and_label
 
 
-def render_map(request, center, churches, bounds, location, too_many_results: bool):
+def render_map(request, center, churches, bounds, location, too_many_results: bool,
+               is_around_me: bool):
     # We get all websites and their churches
     websites_by_uuid = {}
     website_churches = {}
@@ -27,7 +28,8 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
 
     # We prepare the map
     folium_map, church_marker_names = prepare_map(center, churches, bounds,
-                                                  website_merged_church_schedules_list)
+                                                  website_merged_church_schedules_list,
+                                                  is_around_me)
 
     # Get HTML Representation of Map Object
     map_html = folium_map._repr_html_()
@@ -67,7 +69,7 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
     return render(request, 'pages/index.html', context)
 
 
-def index(request, diocese_slug=None):
+def index(request, diocese_slug=None, is_around_me: bool = False):
     location = request.GET.get('location', '')
     latitude = request.GET.get('latitude', '')
     longitude = request.GET.get('longitude', '')
@@ -126,7 +128,7 @@ def index(request, diocese_slug=None):
         too_many_results = False
         bounds = None
 
-    return render_map(request, center, churches, bounds, location, too_many_results)
+    return render_map(request, center, churches, bounds, location, too_many_results, is_around_me)
 
 
 def autocomplete(request):

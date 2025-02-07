@@ -8,6 +8,7 @@ urlpatterns = [
     path('autocomplete', views.autocomplete, name='autocomplete'),
     path('dioceses', views.dioceses_list, name='dioceses_list'),
     path('diocese/<str:diocese_slug>', views.index, name='diocese_view'),
+    path('around_me', views.index, {'is_around_me': True}, name='around_me_view'),
 
     # report
     path('report/<uuid:website_uuid>', views.report_page, name='report'),
