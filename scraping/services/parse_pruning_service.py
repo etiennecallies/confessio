@@ -94,8 +94,7 @@ def get_parsing_schedules_list(parsing: Parsing) -> Optional[SchedulesList]:
 ##############
 
 def add_necessary_parsing_moderation(parsing: Parsing, website: Website):
-    category = ParsingModeration.Category.LLM_ERROR if parsing.llm_error_detail \
-        else ParsingModeration.Category.NEW_SCHEDULES
+    category = get_category(parsing)
     needs_moderation = parsing_needs_moderation(parsing)
 
     # 1. we remove moderation of other category
@@ -133,17 +132,17 @@ def get_category(parsing: Parsing) -> ParsingModeration.Category:
     if parsing.llm_error_detail:
         return ParsingModeration.Category.LLM_ERROR
 
-    if parsing.llm_json is not None and parsing.human_json != parsing.llm_json:
+    if parsing.human_json is not None and parsing.human_json != parsing.llm_json:
         return ParsingModeration.Category.SCHEDULES_DIFFER
 
     return ParsingModeration.Category.NEW_SCHEDULES
 
 
 def parsing_needs_moderation(parsing: Parsing):
-    if parsing.llm_json is not None and parsing.human_json == parsing.llm_json:
+    if parsing.human_json is not None and parsing.human_json == parsing.llm_json:
         return False
 
-    if parsing.llm_json is not None and parsing.human_json != parsing.llm_json:
+    if parsing.human_json is not None and parsing.human_json != parsing.llm_json:
         if ParsingModeration.objects.filter(
                 parsing=parsing,
                 category=ParsingModeration.Category.SCHEDULES_DIFFER,
