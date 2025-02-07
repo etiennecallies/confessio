@@ -11,6 +11,7 @@ class Command(AbstractCommand):
         counter = 0
         for website_moderation in WebsiteModeration.objects.filter(diocese__isnull=True).all():
             website_moderation.diocese = website_moderation.website.get_diocese()
+            website_moderation.save()
             counter += 1
         self.success(f'Successfully updated {counter} website_moderations.')
 
@@ -20,6 +21,7 @@ class Command(AbstractCommand):
             websites = parsing_moderation.parsing.get_websites()
             if websites:
                 parsing_moderation.diocese = websites[0].get_diocese()
+                parsing_moderation.save()
                 counter += 1
         self.success(f'Successfully updated {counter} parsing_moderations.')
 
@@ -27,6 +29,7 @@ class Command(AbstractCommand):
         counter = 0
         for parish_moderation in ParishModeration.objects.filter(diocese__isnull=True).all():
             parish_moderation.diocese = parish_moderation.parish.diocese
+            parish_moderation.save()
             counter += 1
         self.success(f'Successfully updated {counter} parish_moderations.')
 
@@ -34,6 +37,7 @@ class Command(AbstractCommand):
         counter = 0
         for church_moderation in ChurchModeration.objects.filter(diocese__isnull=True).all():
             church_moderation.diocese = church_moderation.church.parish.diocese
+            church_moderation.save()
             counter += 1
         self.success(f'Successfully updated {counter} church_moderations.')
 
@@ -41,6 +45,7 @@ class Command(AbstractCommand):
         counter = 0
         for pruning_moderation in PruningModeration.objects.filter(diocese__isnull=True).all():
             pruning_moderation.diocese = pruning_moderation.pruning.get_diocese()
+            pruning_moderation.save()
             counter += 1
         self.success(f'Successfully updated {counter} pruning_moderations.')
 
@@ -48,5 +53,6 @@ class Command(AbstractCommand):
         counter = 0
         for report_moderation in ReportModeration.objects.filter(diocese__isnull=True).all():
             report_moderation.diocese = report_moderation.report.website.get_diocese()
+            report_moderation.save()
             counter += 1
         self.success(f'Successfully updated {counter} report_moderations.')

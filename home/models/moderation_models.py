@@ -9,7 +9,7 @@ from django.db.models.functions import Now
 from django.urls import reverse
 from simple_history.models import HistoricalRecords
 
-from home.models.base_models import TimeStampMixin, Church, Parish
+from home.models.base_models import TimeStampMixin, Church, Parish, Diocese
 from scraping.prune.models import Action
 from sourcing.services.church_name_service import sort_by_name_similarity
 
@@ -67,9 +67,10 @@ class ModerationMixin(TimeStampMixin):
         }
 
     @classmethod
-    def get_stats_by_category(cls):
+    def get_stats_by_category(cls, diocese: Diocese | None):
         stats = []
-        query_stats = cls.objects.filter(validated_at__isnull=True).all().values('category')\
+        query_stats = cls.objects.filter(validated_at__isnull=True, diocese=diocese).all()\
+            .values('category')\
             .annotate(total_count=Count('category'), bug_count=Count('marked_as_bug_at'))
         for stat in query_stats:
             if stat['bug_count']:

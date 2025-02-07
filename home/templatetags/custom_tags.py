@@ -6,7 +6,7 @@ from django.urls import reverse
 
 from home.models import WebsiteModeration, ChurchModeration, ParishModeration, \
     PruningModeration, SentenceModeration, ParsingModeration, ModerationMixin, Pruning, \
-    Page, Parsing, ReportModeration
+    Page, Parsing, ReportModeration, Diocese
 from home.utils.date_utils import get_current_year
 from home.utils.list_utils import enumerate_with_and
 from scraping.parse.rrule_utils import get_events_from_schedule_item
@@ -76,13 +76,18 @@ def get_page_parsing_of_pruning(page: Page, pruning: Pruning) -> Optional[Parsin
 
 
 @register.simple_tag
-def get_moderation_stats():
+def get_dioceses() -> list[Diocese | None]:
+    return list(Diocese.objects.all()) + [None]
+
+
+@register.filter
+def get_moderation_stats(diocese: Diocese | None):
     return sum([
-        WebsiteModeration.get_stats_by_category(),
-        ParishModeration.get_stats_by_category(),
-        ChurchModeration.get_stats_by_category(),
-        PruningModeration.get_stats_by_category(),
-        SentenceModeration.get_stats_by_category(),
-        ParsingModeration.get_stats_by_category(),
-        ReportModeration.get_stats_by_category(),
+        WebsiteModeration.get_stats_by_category(diocese),
+        ParishModeration.get_stats_by_category(diocese),
+        ChurchModeration.get_stats_by_category(diocese),
+        PruningModeration.get_stats_by_category(diocese),
+        SentenceModeration.get_stats_by_category(diocese),
+        ParsingModeration.get_stats_by_category(diocese),
+        ReportModeration.get_stats_by_category(diocese),
     ], [])
