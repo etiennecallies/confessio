@@ -1,10 +1,18 @@
 from urllib.parse import quote
 
 import requests
+from pydantic import BaseModel
 from requests import RequestException
 
 
-def geocode(name, address, city, zipcode):
+class GouvFrGeocodingResult(BaseModel):
+    coordinates_latlon: tuple[float, float] | None
+    address: str | None
+    city: str | None
+    zipcode: str | None
+
+
+def geocode(name, address, city, zipcode) -> GouvFrGeocodingResult | None:
     query = f"q={quote(f'{name} {address} {city}')}"
     if zipcode:
         query += f'&postcode={zipcode}'
@@ -30,16 +38,17 @@ def geocode(name, address, city, zipcode):
 
     feature = data['features'][0]
     coordinates = feature.get('geometry', {}).get('coordinates', None)
+    coordinates_latlon = (coordinates[1], coordinates[0]) if coordinates else None
     zipcode = feature.get('properties', {}).get('postcode', None)
     city = feature.get('properties', {}).get('city', None)
     address = feature.get('properties', {}).get('name', None)
 
-    return {
-        'coordinates': coordinates,
-        'zipcode': zipcode,
-        'city': city,
-        'address': address,
-    }
+    return GouvFrGeocodingResult(
+        coordinates_latlon=coordinates_latlon,
+        address=address,
+        city=city,
+        zipcode=zipcode
+    )
 
 
 if __name__ == '__main__':
