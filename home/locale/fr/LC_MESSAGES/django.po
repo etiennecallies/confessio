@@ -160,7 +160,7 @@ msgstr "Pas de résultats..."
 msgid "noResults"
 msgstr ""
 "Confessio est en lancement et n'opère que dans les diocèses de Paris, Lyon, "
-"Versailles, Nanterre, Dijon, et du Havre pour le moment."
+"Versailles, Nanterre, Dijon, Rennes et du Havre pour le moment."
 
 #: templates/pages/index.html:64
 msgid "searchAroundMe"
