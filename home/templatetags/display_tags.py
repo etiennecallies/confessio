@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 from django.contrib.gis.geos import Point
 from django.template.defaulttags import register
@@ -34,6 +35,11 @@ def display_church(church: Church, with_map=True):
 @register.simple_tag
 def display_event(event: Event):
     return render_to_string('partials/event_display.html', {'event': event})
+
+
+@register.simple_tag
+def display_hour(dt: datetime):
+    return render_to_string('partials/hour_display.html', {'dt': dt})
 
 
 @register.simple_tag

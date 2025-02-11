@@ -8,6 +8,7 @@
     </div>
 {% else %}
     {% with merged_schedules_list=website_merged_church_schedules_list|get_item:website.uuid %}
+    {% with church_events_by_day=church_events_by_day_by_website|get_item:website.uuid %}
         <div>
             {% if merged_schedules_list.church_events %}
                 <h6>Régularité</h6>
@@ -24,7 +25,7 @@
                                 {{ church_explanation.church.name }} :
                             {% endif %}
                         {% elif church_explanation.is_church_explicitly_other %}
-                            <span class="text-danger">En dehors de cette paroisse :</span>
+                            <span class="text-danger">{% trans 'OutsideThisParish' %} :</span>
                         {% endif %}
                         {% for explanation in church_explanation.explanations %}
                             <div>{{ explanation }}</div>
@@ -32,25 +33,54 @@
                     </div>
                 {% endfor %}
 
-                <h6 class="mt-3">Prochains événements</h6>
-                {% for church_event in merged_schedules_list.church_events %}
-                    <div>
-                        {% if church_event.church %}
-                            {% if church_marker_names %}
-                                <a href="#map"
-                                   class="link-info"
-                                   onclick="return popupChurch('{{ church_marker_names|get_item:church_event.church.uuid }}');">
-                                    {{ church_event.church.name }}
-                                </a> :
-                            {% else %}
-                                {{ church_event.church.name }} :
-                            {% endif %}
-                        {% elif church_event.is_church_explicitly_other %}
-                            <span class="text-danger">En dehors de cette paroisse :</span>
-                        {% endif %}
-                        {% display_event church_event.event %}
-                    </div>
-                {% endfor %}
+                <div class="row mt-3">
+                    {% for month in months %}
+                        <div class="col-6">
+                        <div class="font-medium text-gray-600">{{ month|date:"F"|upper }}</div>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Lun</th>
+                                    <th>Mar</th>
+                                    <th>Mer</th>
+                                    <th>Jeu</th>
+                                    <th>Ven</th>
+                                    <th>Sam</th>
+                                    <th>Dim</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% with current_month_data=month_data|get_item:month %}
+                                {% for week in current_month_data.weeks %}
+                                <tr>
+                                    {% for day in week %}
+                                        <td class="position-relative{% if day > 0 and current_month_data.current_day == day %} bg-gradient-gray-200{% endif %}" >
+                                            {% if day %}
+                                                <div{% if current_month_data.current_day > day %} class="text-gray-300"{% endif %}>{{ day }}</div>
+                                                {% with church_events=church_events_by_day|get_item:month|get_item:day %}
+                                                    {% for church_event in church_events %}
+                                                        <div>
+                                                            <span class="link-info" data-toggle="tooltip" data-placement="bottom"
+                                                                  title="{% if church_event.church %}{{ church_event.church.name }}{% elif church_event.is_church_explicitly_other %}{% trans 'OutsideThisParish' %}{% else %}Lieu inconnu{% endif %}">
+                                                                {% display_hour church_event.event.start %} -
+                                                                {% if church_event.event.end %}
+                                                                    {% display_hour church_event.event.end %}
+                                                                {% else %}?{% endif %}
+                                                            </span>
+                                                        </div>
+                                                    {% endfor %}
+                                                {% endwith %}
+                                            {% endif %}
+                                        </td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                                {% endwith %}
+                            </tbody>
+                        </table>
+                        </div>
+                    {% endfor %}
+                </div>
             {% elif not website.has_been_crawled %}
                 {% trans 'NotCrawledYet' %}
             {% else %}
@@ -64,5 +94,6 @@
             {% endif %}
             {{ merged_schedules_list.schedules_list|has_relation_text }}
         </div>
+    {% endwith %}
     {% endwith %}
 {% endif %}
