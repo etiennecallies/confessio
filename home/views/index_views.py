@@ -74,6 +74,13 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
             'current_day': today.day if today.month == month.month else 0,
         }
 
+    max_number_of_weeks = max(len(month_data[current_month]['weeks']),
+                              len(month_data[next_month]['weeks']))
+    for month in [current_month, next_month]:
+        if len(month_data[month]['weeks']) < max_number_of_weeks:
+            month_data[month]['weeks'].append([0] * 7)
+    weeks_range = range(max_number_of_weeks)
+
     church_events_by_day_by_website = {}
     for website_uuid, merged_church_schedules_list in website_merged_church_schedules_list.items():
         church_events_by_day = {current_month: {}, next_month: {}}
@@ -97,6 +104,7 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
         'months': [current_month, next_month],
         'month_data': month_data,
         "church_events_by_day_by_website": church_events_by_day_by_website,
+        'weeks_range': weeks_range,
     }
 
     return render(request, 'pages/index.html', context)

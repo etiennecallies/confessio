@@ -1,10 +1,10 @@
 from dataclasses import dataclass
-from datetime import timedelta, date
+from datetime import date
 from typing import Optional
 from uuid import UUID
 
 from home.models import Church, Parsing, Website
-from home.utils.date_utils import get_current_year
+from home.utils.date_utils import get_current_year, get_end_of_next_month
 from scraping.parse.explain_schedule import get_explanations_by_church_id
 from scraping.parse.rrule_utils import get_events_from_schedule_items
 from scraping.parse.schedules import Event, ScheduleItem, SchedulesList, get_merged_schedules_list
@@ -113,15 +113,13 @@ def get_merged_church_schedules_list(csl: list[ChurchSchedulesList]
     church_schedules = [cs for sl in csl for cs in sl.church_schedules]
     schedules_list = get_merged_schedules_list([cs.schedules_list for cs in csl])
 
-    max_events = 7
     start_date = date.today()
-    end_date = start_date + timedelta(days=365)
+    end_date = get_end_of_next_month()
     events = get_events_from_schedule_items(schedules_list.schedules, start_date, end_date,
-                                            get_current_year(), max_events)
+                                            get_current_year(), max_events=None)
 
     church_by_id = {cs.schedule_item.church_id: cs.church for cs in church_schedules}
-    church_events = [ChurchEvent.from_event(event, church_by_id)
-                     for event in events[:max_events]]
+    church_events = [ChurchEvent.from_event(event, church_by_id) for event in events]
 
     explanations_by_church_id = get_explanations_by_church_id(schedules_list.schedules)
     church_explanations = [ChurchExplanations.from_explanations(explanations,

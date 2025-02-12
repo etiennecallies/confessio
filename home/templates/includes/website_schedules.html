@@ -33,53 +33,59 @@
                     </div>
                 {% endfor %}
 
-                <div class="row mt-3">
-                    {% for month in months %}
-                        <div class="col-6">
-                        <div class="font-medium text-gray-600">{{ month|date:"F"|upper }}</div>
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Lun</th>
-                                    <th>Mar</th>
-                                    <th>Mer</th>
-                                    <th>Jeu</th>
-                                    <th>Ven</th>
-                                    <th>Sam</th>
-                                    <th>Dim</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% with current_month_data=month_data|get_item:month %}
-                                {% for week in current_month_data.weeks %}
-                                <tr>
-                                    {% for day in week %}
-                                        <td class="position-relative{% if day > 0 and current_month_data.current_day == day %} bg-gradient-gray-200{% endif %}" >
-                                            {% if day %}
-                                                <div{% if current_month_data.current_day > day %} class="text-gray-300"{% endif %}>{{ day }}</div>
-                                                {% with church_events=church_events_by_day|get_item:month|get_item:day %}
-                                                    {% for church_event in church_events %}
-                                                        <div>
-                                                            <span class="link-info" data-toggle="tooltip" data-placement="bottom"
-                                                                  title="{% if church_event.church %}{{ church_event.church.name }}{% elif church_event.is_church_explicitly_other %}{% trans 'OutsideThisParish' %}{% else %}Lieu inconnu{% endif %}">
-                                                                {% display_hour church_event.event.start %} -
-                                                                {% if church_event.event.end %}
-                                                                    {% display_hour church_event.event.end %}
-                                                                {% else %}?{% endif %}
-                                                            </span>
-                                                        </div>
-                                                    {% endfor %}
-                                                {% endwith %}
-                                            {% endif %}
-                                        </td>
-                                    {% endfor %}
-                                </tr>
-                                {% endfor %}
-                                {% endwith %}
-                            </tbody>
-                        </table>
-                        </div>
-                    {% endfor %}
+                <div class="row mt-4">
+                <table class="table calendar-table">
+                    <thead>
+                        <tr class="month-header">
+                            {% for month in months %}
+                                <th colspan="7" class="text-center font-medium text-gray-600">{{ month|date:"F Y"|upper }}</th>
+                            {% endfor %}
+                        </tr>
+                        <tr class="days-header">
+                            {% for month in months %}
+                                <th>Lun</th>
+                                <th>Mar</th>
+                                <th>Mer</th>
+                                <th>Jeu</th>
+                                <th>Ven</th>
+                                <th>Sam</th>
+                                <th>Dim</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for week_number in weeks_range %}
+                        <tr>
+                        {% for month in months %}
+                        {% with current_month_data=month_data|get_item:month %}
+                        {% with week=current_month_data.weeks|get_ith:week_number %}
+                            {% for day in week %}
+                                <td class="{% if day > 0 and current_month_data.current_day == day %}bg-gradient-gray-200{% elif day == 0 %}no-day{% endif %}" >
+                                    {% if day %}
+                                        <div{% if current_month_data.current_day > day %} class="text-gray-300"{% endif %}>{{ day }}</div>
+                                        {% with church_events=church_events_by_day|get_item:month|get_item:day %}
+                                            {% for church_event in church_events %}
+                                                <div>
+                                                    <span class="link-info" data-toggle="tooltip" data-placement="bottom"
+                                                          title="{% if church_event.church %}{{ church_event.church.name }}{% elif church_event.is_church_explicitly_other %}{% trans 'OutsideThisParish' %}{% else %}Lieu inconnu{% endif %}">
+                                                        {% display_hour church_event.event.start %} -
+                                                        {% if church_event.event.end %}
+                                                            {% display_hour church_event.event.end %}
+                                                        {% else %}?{% endif %}
+                                                    </span>
+                                                </div>
+                                            {% endfor %}
+                                        {% endwith %}
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+                        {% endwith %}
+                        {% endwith %}
+                        {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
                 </div>
             {% elif not website.has_been_crawled %}
                 {% trans 'NotCrawledYet' %}

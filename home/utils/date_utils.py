@@ -1,5 +1,5 @@
 import locale
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 
 from django.utils.timezone import make_aware
 
@@ -22,6 +22,22 @@ def get_year_start(year: int) -> date:
 
 def get_year_end(year: int) -> date:
     return date(year, 12, 31)
+
+
+def get_next_two_month(d: date) -> date:
+    if d.month == 12:
+        return date(d.year + 1, 2, 1)
+
+    if d.month == 11:
+        return date(d.year + 1, 1, 1)
+
+    return date(d.year, d.month + 2, 1)
+
+
+def get_end_of_next_month() -> date:
+    first_of_next_two_months = get_next_two_month(date.today())
+
+    return first_of_next_two_months - timedelta(days=1)
 
 
 def get_current_year() -> int:

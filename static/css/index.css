@@ -251,3 +251,38 @@ UI widget
         overflow-y: scroll;
     }
 }
+
+/**
+ * Calendar
+ */
+
+.calendar-table {
+    white-space: wrap;
+}
+
+.calendar-table .no-day {
+    border: none;
+}
+
+.calendar-table th,
+.calendar-table td {
+    border: 1px solid #ddd;
+    padding: 5px;
+}
+
+/* Add strong border between months */
+.calendar-table .month-header th,
+.calendar-table th:nth-child(7),
+.calendar-table td:nth-child(7) {
+    border-right: 2px solid #333;
+}
+
+.calendar-table thead th {
+    background-color: #f8f9fa;
+}
+
+.calendar-table .month-header,
+.calendar-table .days-header,
+.calendar-table tbody {
+    border: 2px solid #333;
+}

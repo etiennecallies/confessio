@@ -19,6 +19,11 @@ def get_item(dictionary, key):
 
 
 @register.filter
+def get_ith(some_list: list, i):
+    return some_list[i]
+
+
+@register.filter
 def negate(value):
     return not value
 
