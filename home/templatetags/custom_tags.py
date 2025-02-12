@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date
 from typing import Optional
 
 from django.template.defaulttags import register
@@ -25,8 +25,8 @@ def negate(value):
 
 @register.filter
 def get_schedule_item_events(schedule_item: ScheduleItem) -> list[Event]:
-    start_date = datetime(2000, 1, 1)
-    end_date = datetime(2040, 1, 1)
+    start_date = date(2000, 1, 1)
+    end_date = date(2040, 1, 1)
     default_year = get_current_year()
 
     return get_events_from_schedule_item(schedule_item, start_date, end_date, default_year)[:7]

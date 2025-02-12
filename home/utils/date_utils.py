@@ -1,5 +1,5 @@
 import locale
-from datetime import datetime
+from datetime import datetime, date
 
 from django.utils.timezone import make_aware
 
@@ -12,12 +12,16 @@ def ts_us_to_datetime(timestamp_us):
     return make_aware(datetime.fromtimestamp(timestamp_us / 1000000.0))
 
 
-def get_year_start(year: int):
-    return datetime(year, 1, 1)
+def date_to_datetime(d: date) -> datetime:
+    return datetime(d.year, d.month, d.day)
 
 
-def get_year_end(year: int):
-    return datetime(year, 12, 31, 23, 59, 59)
+def get_year_start(year: int) -> date:
+    return date(year, 1, 1)
+
+
+def get_year_end(year: int) -> date:
+    return date(year, 12, 31)
 
 
 def get_current_year() -> int:

@@ -1,9 +1,9 @@
-from datetime import datetime, time
+from datetime import datetime, time, date
 from typing import Optional
 
 from dateutil.rrule import rrule, rruleset, WEEKLY, DAILY, rrulestr
 
-from home.utils.date_utils import get_current_year
+from home.utils.date_utils import get_current_year, date_to_datetime
 from scraping.parse.explain_schedule import get_explanation_from_schedule, Frequency
 from scraping.parse.periods import add_exrules
 from scraping.parse.schedules import ScheduleItem, SchedulesList, Event, RegularRule
@@ -47,7 +47,7 @@ def get_rruleset_from_schedule(schedule: ScheduleItem, default_year: int) -> rru
 
 
 def get_events_from_schedule_item(schedule: ScheduleItem,
-                                  start_date: datetime, end_date: datetime,
+                                  start_date: date, end_date: date,
                                   default_year: int,
                                   max_events: int = None) -> list[Event]:
     if schedule.is_one_off_rule() and not schedule.date_rule.is_valid_date():
@@ -56,11 +56,14 @@ def get_events_from_schedule_item(schedule: ScheduleItem,
     if schedule.get_start_time() is None:
         return []
 
+    start_datetime = date_to_datetime(start_date)
+    end_datetime = date_to_datetime(end_date)
+
     rset = get_rruleset_from_schedule(schedule, default_year)
 
     events = []
-    for one_date in rset.xafter(start_date, count=max_events):
-        if one_date > end_date:
+    for one_date in rset.xafter(start_datetime, count=max_events, inc=True):
+        if one_date > end_datetime:
             break
 
         start_time = schedule.get_start_time()
@@ -81,7 +84,7 @@ def get_events_from_schedule_item(schedule: ScheduleItem,
 
 
 def get_events_from_schedule_items(schedules: list[ScheduleItem],
-                                   start_date: datetime, end_date: datetime,
+                                   start_date: date, end_date: date,
                                    default_year: int,
                                    max_events: int = None) -> list[Event]:
     all_events = sum((get_events_from_schedule_item(schedule, start_date, end_date, default_year,
@@ -171,7 +174,7 @@ def filter_unnecessary_schedules(schedules: list[ScheduleItem]) -> list[Schedule
 ###########
 
 def are_schedules_list_equivalent(sl1: SchedulesList, sl2: SchedulesList,
-                                  start_date: datetime, end_date: datetime
+                                  start_date: date, end_date: date
                                   ) -> tuple[bool, Optional[str]]:
     default_year = start_date.year
 

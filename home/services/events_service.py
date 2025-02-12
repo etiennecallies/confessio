@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import timedelta, date
 from typing import Optional
 from uuid import UUID
 
@@ -114,7 +114,7 @@ def get_merged_church_schedules_list(csl: list[ChurchSchedulesList]
     schedules_list = get_merged_schedules_list([cs.schedules_list for cs in csl])
 
     max_events = 7
-    start_date = datetime.now()
+    start_date = date.today()
     end_date = start_date + timedelta(days=365)
     events = get_events_from_schedule_items(schedules_list.schedules, start_date, end_date,
                                             get_current_year(), max_events)

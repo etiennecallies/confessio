@@ -1,5 +1,5 @@
 import unittest
-from datetime import datetime
+from datetime import datetime, date
 
 from scraping.parse.periods import PeriodEnum
 from scraping.parse.rrule_utils import get_events_from_schedule_items
@@ -25,8 +25,8 @@ class GenerateEventsTests(unittest.TestCase):
                         end_time_iso8601=None
                     )
                 ],
-                datetime(2024, 1, 1),
-                datetime(2025, 1, 1),
+                date(2024, 1, 1),
+                date(2025, 1, 1),
                 2024,
                 [
                     datetime(2024, 1, 6, 16, 0),
@@ -49,8 +49,8 @@ class GenerateEventsTests(unittest.TestCase):
                         end_time_iso8601=None
                     )
                 ],
-                datetime(2024, 1, 1),
-                datetime(2024, 1, 8),
+                date(2024, 1, 1),
+                date(2024, 1, 8),
                 2024,
                 [
                     datetime(2024, 1, 5, 17, 0),
@@ -59,11 +59,11 @@ class GenerateEventsTests(unittest.TestCase):
         ]
 
     def test_generate_events(self):
-        for schedules, start_datetime, end_datetime, default_year, expected_starts \
+        for schedules, start_date, end_date, default_year, expected_starts \
                 in self.get_fixtures():
             with self.subTest():
                 events = get_events_from_schedule_items(schedules,
-                                                        start_datetime, end_datetime,
+                                                        start_date, end_date,
                                                         default_year)
                 expected_events = [Event(church_id=None, start=start, end=None)
                                    for start in expected_starts]
