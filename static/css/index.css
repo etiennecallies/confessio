@@ -258,8 +258,6 @@ UI widget
 
 .calendar-table {
     white-space: wrap;
-    padding-right: 0;
-    padding-left: 0;
     display: table;
 }
 
