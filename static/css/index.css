@@ -234,6 +234,10 @@ UI widget
     color: #0d6efd;
 }
 
+.ui-tabs .ui-tabs-nav .ui-tabs-anchor {
+    padding: .5em .5em;
+}
+
 /*
  * Forms
  */
