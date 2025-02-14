@@ -12,80 +12,72 @@
         <div>
             {% if merged_schedules_list.church_events %}
                 <h6>Régularité</h6>
-                {% for church_explanation in merged_schedules_list.church_explanations %}
+                {% for church_sorted_schedule in merged_schedules_list.church_sorted_schedules %}
                     <div>
-                        {% if church_explanation.church %}
+                        {% if church_sorted_schedule.church %}
                             {% if church_marker_names %}
                                 <a href="#map"
                                    class="link-info"
-                                   onclick="return popupChurch('{{ church_marker_names|get_item:church_explanation.church.uuid }}');">
-                                    {{ church_explanation.church.name }}
+                                   onclick="return popupChurch('{{ church_marker_names|get_item:church_sorted_schedule.church.uuid }}');">
+                                    {{ church_sorted_schedule.church.name }}
                                 </a> :
                             {% else %}
-                                {{ church_explanation.church.name }} :
+                                {{ church_sorted_schedule.church.name }} :
                             {% endif %}
-                        {% elif church_explanation.is_church_explicitly_other %}
+                        {% elif church_sorted_schedule.is_church_explicitly_other %}
                             <span class="text-danger">{% trans 'OutsideThisParish' %} :</span>
                         {% endif %}
-                        {% for explanation in church_explanation.explanations %}
-                            <div>{{ explanation }}</div>
+                        {% for schedule_item in church_sorted_schedule.sorted_schedules %}
+                            <div>{% display_schedule_item_color church_sorted_schedule.church schedule_item %} {{ schedule_item|get_explanation }}</div>
                         {% endfor %}
                     </div>
                 {% endfor %}
 
                 <div class="row mt-4">
-                <table class="table calendar-table">
+                    <div class="col-12 text-center">
+                        <table class="table calendar-table">
                     <thead>
-                        <tr class="month-header">
-                            {% for month in months %}
-                                <th colspan="7" class="text-center font-medium text-gray-600">{{ month|date:"F Y"|upper }}</th>
-                            {% endfor %}
-                        </tr>
-                        <tr class="days-header">
-                            {% for month in months %}
-                                <th>Lun</th>
-                                <th>Mar</th>
-                                <th>Mer</th>
-                                <th>Jeu</th>
-                                <th>Ven</th>
-                                <th>Sam</th>
-                                <th>Dim</th>
-                            {% endfor %}
+                        <tr class="days-header text-gray-700">
+                            <th>Lun</th>
+                            <th>Mar</th>
+                            <th>Mer</th>
+                            <th>Jeu</th>
+                            <th>Ven</th>
+                            <th>Sam</th>
+                            <th>Dim</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for week_number in weeks_range %}
+                        {% for week in weeks_range %}
                         <tr>
-                        {% for month in months %}
-                        {% with current_month_data=month_data|get_item:month %}
-                        {% with week=current_month_data.weeks|get_ith:week_number %}
                             {% for day in week %}
-                                <td class="{% if day > 0 and current_month_data.current_day == day %}bg-gradient-gray-200{% elif day == 0 %}no-day{% endif %}" >
-                                    {% if day %}
-                                        <div{% if current_month_data.current_day > day %} class="text-gray-300"{% endif %}>{{ day }}</div>
-                                        {% with church_events=church_events_by_day|get_item:month|get_item:day %}
-                                            {% for church_event in church_events %}
-                                                <div>
-                                                    <span class="link-info" data-toggle="tooltip" data-placement="bottom"
-                                                          title="{% if church_event.church %}{{ church_event.church.name }}{% elif church_event.is_church_explicitly_other %}{% trans 'OutsideThisParish' %}{% else %}Lieu inconnu{% endif %}">
-                                                        {% display_hour church_event.event.start %} -
-                                                        {% if church_event.event.end %}
-                                                            {% display_hour church_event.event.end %}
-                                                        {% else %}?{% endif %}
-                                                    </span>
-                                                </div>
-                                            {% endfor %}
-                                        {% endwith %}
-                                    {% endif %}
+                                <td{% if day == current_day %} class="bg-gradient-gray-200"{% endif %}>
+                                    <div class="text-center {% if day < current_day %}text-gray-300{% endif %}">
+                                        <p class="mb-0 lh-1"><small>{{ day.day }}</small></p>
+                                        <p class="mb-0 lh-1"><small>{{ day|date:"N" }}</small></p>
+                                    </div>
+                                    {% with church_events=church_events_by_day|get_item:day %}
+                                        {% for church_event in church_events %}
+                                            <div>
+                                                <span class="link-info" data-toggle="tooltip" data-placement="bottom" data-html="true"
+                                                      title="
+{% if church_event.church %}
+    {{ church_event.church.name }}
+{% elif church_event.is_church_explicitly_other %}
+    {% trans 'OutsideThisParish' %}
+{% else %}Lieu inconnu{% endif %}<br>
+{% display_hour church_event.event.start %} - {% if church_event.event.end %}{% display_hour church_event.event.end %}{% else %}?{% endif %}
+">{% display_church_event_color church_event %}</span>
+                                            </div>
+                                        {% endfor %}
+                                    {% endwith %}
                                 </td>
                             {% endfor %}
-                        {% endwith %}
-                        {% endwith %}
-                        {% endfor %}
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
+                    </div>
                 </div>
             {% elif not website.has_been_crawled %}
                 {% trans 'NotCrawledYet' %}

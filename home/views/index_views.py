@@ -1,6 +1,4 @@
-import calendar
 import dataclasses
-from datetime import date
 
 from django.core.exceptions import ValidationError
 from django.http import HttpResponseNotFound, JsonResponse, HttpResponseBadRequest
@@ -14,6 +12,7 @@ from home.services.map_service import get_churches_in_box, get_churches_around, 
     get_churches_by_website, get_center, get_churches_by_diocese
 from home.services.page_url_service import get_page_pruning_urls
 from home.services.report_service import get_count_and_label
+from home.utils.date_utils import get_current_week_and_next_two_weeks, datetime_to_date
 
 
 def render_map(request, center, churches, bounds, location, too_many_results: bool,
@@ -57,38 +56,12 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
     for website in websites:
         website_reports_count[website.uuid] = get_count_and_label(website)
 
-    today = now().date()
-    current_year, current_month = today.year, today.month
-    next_month = current_month + 1 if current_month < 12 else 1
-    next_year = current_year if current_month < 12 else current_year + 1
-
-    current_month = date(current_year, current_month, 1)
-    next_month = date(next_year, next_month, 1)
-
-    # Generate calendar weeks
-    month_data = {}
-    for month in [current_month, next_month]:
-        cal = calendar.Calendar(firstweekday=0)  # Sunday as the first day
-        month_data[month] = {
-            'weeks': cal.monthdayscalendar(month.year, month.month),
-            'current_day': today.day if today.month == month.month else 0,
-        }
-
-    max_number_of_weeks = max(len(month_data[current_month]['weeks']),
-                              len(month_data[next_month]['weeks']))
-    for month in [current_month, next_month]:
-        if len(month_data[month]['weeks']) < max_number_of_weeks:
-            month_data[month]['weeks'].append([0] * 7)
-    weeks_range = range(max_number_of_weeks)
-
     church_events_by_day_by_website = {}
     for website_uuid, merged_church_schedules_list in website_merged_church_schedules_list.items():
-        church_events_by_day = {current_month: {}, next_month: {}}
+        church_events_by_day = {}
         for church_event in merged_church_schedules_list.church_events:
-            month = date(church_event.event.start.year, church_event.event.start.month, 1)
-            church_events_by_day.setdefault(month, {})\
-                .setdefault(church_event.event.start.day, [])\
-                .append(church_event)
+            day = datetime_to_date(church_event.event.start)
+            church_events_by_day.setdefault(day, []).append(church_event)
         church_events_by_day_by_website[website_uuid] = church_events_by_day
 
     context = {
@@ -101,10 +74,9 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
         'page_pruning_urls': page_pruning_urls,
         'too_many_results': too_many_results,
         'website_reports_count': website_reports_count,
-        'months': [current_month, next_month],
-        'month_data': month_data,
         "church_events_by_day_by_website": church_events_by_day_by_website,
-        'weeks_range': weeks_range,
+        'weeks_range': get_current_week_and_next_two_weeks(),
+        'current_day': now().date(),
     }
 
     return render(request, 'pages/index.html', context)

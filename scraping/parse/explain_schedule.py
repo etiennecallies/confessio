@@ -297,11 +297,12 @@ def sort_schedules(schedules: list[ScheduleItem]) -> list[ScheduleItem]:
 # EXPLANATIONS #
 ################
 
-def get_explanations_by_church_id(schedules: list[ScheduleItem]) -> dict[int, list[str]]:
-    explanations_by_church_id = {}
+def get_sorted_schedules_by_church_id(schedules: list[ScheduleItem]
+                                      ) -> dict[int, list[ScheduleItem]]:
+    sorted_schedules_by_church_id = {}
 
     for schedule in sort_schedules(schedules):
-        explanations_by_church_id.setdefault(schedule.church_id, [])\
-            .append(get_explanation_from_schedule(schedule))
+        sorted_schedules_by_church_id.setdefault(schedule.church_id, [])\
+            .append(schedule)
 
-    return explanations_by_church_id
+    return sorted_schedules_by_church_id

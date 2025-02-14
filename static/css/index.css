@@ -258,31 +258,32 @@ UI widget
 
 .calendar-table {
     white-space: wrap;
-}
-
-.calendar-table .no-day {
-    border: none;
+    padding-right: 0;
+    padding-left: 0;
+    display: table;
 }
 
 .calendar-table th,
 .calendar-table td {
     border: 1px solid #ddd;
-    padding: 5px;
+    padding: 2px;
 }
 
-/* Add strong border between months */
-.calendar-table .month-header th,
-.calendar-table th:nth-child(7),
-.calendar-table td:nth-child(7) {
-    border-right: 2px solid #333;
+.calendar-table thead {
+    background-color: #F6F6F6;
 }
 
-.calendar-table thead th {
-    background-color: #f8f9fa;
-}
-
-.calendar-table .month-header,
-.calendar-table .days-header,
+.calendar-table thead,
 .calendar-table tbody {
-    border: 2px solid #333;
+    border: 2px solid #ddd;
+}
+
+/**
+ * Church event dot
+ */
+.church-event-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
 }

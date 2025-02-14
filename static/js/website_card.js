@@ -24,5 +24,7 @@ $(document).ready(function () {
  * Activate tooltips.
  */
 $(window).on("load", function () {
-  $('[data-toggle="tooltip"]').tooltip();
+  $('[data-toggle="tooltip"]').each(function() {
+      $(this).tooltip({html: $(this).data('html') || false});
+  });
 });

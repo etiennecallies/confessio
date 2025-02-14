@@ -16,6 +16,17 @@ def date_to_datetime(d: date) -> datetime:
     return datetime(d.year, d.month, d.day)
 
 
+def datetime_to_date(dt: datetime) -> date:
+    return date(dt.year, dt.month, dt.day)
+
+
+def datetime_to_hour_iso8601(dt: datetime | None) -> str | None:
+    if dt is None:
+        return None
+
+    return dt.strftime('%H:%M:%S')
+
+
 def get_year_start(year: int) -> date:
     return date(year, 1, 1)
 
@@ -38,6 +49,17 @@ def get_end_of_next_month() -> date:
     first_of_next_two_months = get_next_two_month(date.today())
 
     return first_of_next_two_months - timedelta(days=1)
+
+
+def get_current_week_and_next_two_weeks() -> list[list[date]]:
+    today = date.today()
+    current_week_start = today - timedelta(days=today.weekday())
+
+    current_week = [current_week_start + timedelta(days=i) for i in range(7)]
+    next_week = [current_week_start + timedelta(days=7 + i) for i in range(7)]
+    next_two_week = [current_week_start + timedelta(days=14 + i) for i in range(7)]
+
+    return [current_week, next_week, next_two_week]
 
 
 def get_current_year() -> int:
