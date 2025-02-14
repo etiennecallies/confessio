@@ -6,7 +6,7 @@ from uuid import UUID
 from home.models import Church, Parsing, Website, Page, Pruning
 from home.utils.date_utils import get_current_year, get_end_of_next_two_weeks, datetime_to_date
 from home.utils.hash_utils import hash_string_to_hex
-from scraping.parse.explain_schedule import get_sorted_schedules_by_church_id
+from scraping.parse.explain_schedule import schedule_item_sort_key
 from scraping.parse.rrule_utils import get_events_from_schedule_items
 from scraping.parse.schedules import Event, ScheduleItem, SchedulesList, get_merged_schedules_list
 from scraping.services.parse_pruning_service import get_parsing_schedules_list, get_church_by_id, \
@@ -14,25 +14,32 @@ from scraping.services.parse_pruning_service import get_parsing_schedules_list, 
 
 
 @dataclass
+class ParsingScheduleItem:
+    item: ScheduleItem
+    parsing: Parsing
+
+
+@dataclass
 class ChurchScheduleItem:
     church: Optional[Church]
     is_church_explicitly_other: bool
-    schedule_item: ScheduleItem
+    schedule_item: ParsingScheduleItem
 
     @classmethod
-    def from_schedule_item(cls, schedule_item: ScheduleItem,
+    def from_schedule_item(cls, schedule_item: ScheduleItem, parsing: Parsing,
                            church_by_id: dict[int, Church]) -> 'ChurchScheduleItem':
+        parsing_schedule_item = ParsingScheduleItem(schedule_item, parsing)
         if schedule_item.church_id is None or schedule_item.church_id == -1:
             return cls(
                 church=None,
                 is_church_explicitly_other=schedule_item.church_id == -1,
-                schedule_item=schedule_item,
+                schedule_item=parsing_schedule_item,
             )
 
         return cls(
             church=church_by_id[schedule_item.church_id],
             is_church_explicitly_other=False,
-            schedule_item=schedule_item,
+            schedule_item=parsing_schedule_item,
         )
 
 
@@ -70,7 +77,7 @@ class ChurchSchedulesList:
             return None
 
         church_by_id = get_church_by_id(parsing, website)
-        church_schedules = [ChurchScheduleItem.from_schedule_item(schedule, church_by_id)
+        church_schedules = [ChurchScheduleItem.from_schedule_item(schedule, parsing, church_by_id)
                             for schedule in schedules_list.schedules]
 
         return cls(
@@ -83,16 +90,17 @@ class ChurchSchedulesList:
 class ChurchSortedSchedules:
     church: Optional[Church]
     is_church_explicitly_other: bool
-    sorted_schedules: list[ScheduleItem]
+    sorted_schedules: list[ParsingScheduleItem]
 
     @classmethod
-    def from_sorted_schedules(cls, sorted_schedules: list[ScheduleItem],
+    def from_sorted_schedules(cls, church_schedules: list[ChurchScheduleItem],
                               church_id: int | None,
                               church_by_id: dict[int, Church]) -> 'ChurchSortedSchedules':
         return cls(
             church=church_by_id[church_id] if church_id is not None and church_id != -1 else None,
             is_church_explicitly_other=church_id == -1,
-            sorted_schedules=sorted_schedules,
+            sorted_schedules=[church_schedule.schedule_item
+                              for church_schedule in church_schedules],
         )
 
 
@@ -120,13 +128,13 @@ def get_merged_church_schedules_list(csl: list[ChurchSchedulesList]
     events = get_events_from_schedule_items(schedules_list.schedules, start_date, end_date,
                                             get_current_year(), max_events=None)
 
-    church_by_id = {cs.schedule_item.church_id: cs.church for cs in church_schedules}
+    church_by_id = {cs.schedule_item.item.church_id: cs.church for cs in church_schedules}
     church_events = [ChurchEvent.from_event(event, church_by_id) for event in events]
 
-    sorted_schedules_by_church_id = get_sorted_schedules_by_church_id(schedules_list.schedules)
+    church_schedule_items = get_sorted_schedules_by_church_id(church_schedules)
     church_sorted_schedules = [
-        ChurchSortedSchedules.from_sorted_schedules(sorted_schedules, church_id, church_by_id)
-        for church_id, sorted_schedules in sorted_schedules_by_church_id.items()
+        ChurchSortedSchedules.from_sorted_schedules(church_schedules, church_id, church_by_id)
+        for church_id, church_schedules in church_schedule_items.items()
     ]
 
     return MergedChurchSchedulesList(
@@ -263,3 +271,32 @@ def get_church_event_color(church: Church, start: str, end: str | None) -> str:
 
     # Convert to hex color code
     return f"#{r:02x}{g:02x}{b:02x}"
+
+
+###########
+# SORTING #
+###########
+
+def church_schedule_item_sort_key(church_schedule_item: ChurchScheduleItem) -> tuple:
+    return schedule_item_sort_key(church_schedule_item.schedule_item.item)
+
+
+def get_sorted_church_schedules(church_schedule_items: list[ChurchScheduleItem]
+                                ) -> list[ChurchScheduleItem]:
+    church_schedules_by_schedules = {}
+    for church_schedule_item in church_schedule_items:
+        church_schedules_by_schedules[church_schedule_item.schedule_item.item] = \
+            church_schedule_item
+
+    return sorted(list(church_schedules_by_schedules.values()), key=church_schedule_item_sort_key)
+
+
+def get_sorted_schedules_by_church_id(church_schedules: list[ChurchScheduleItem]
+                                      ) -> dict[int, list[ChurchScheduleItem]]:
+    sorted_schedules_by_church_id = {}
+
+    for church_schedule in get_sorted_church_schedules(church_schedules):
+        sorted_schedules_by_church_id.setdefault(church_schedule.schedule_item.item.church_id, [])\
+            .append(church_schedule)
+
+    return sorted_schedules_by_church_id

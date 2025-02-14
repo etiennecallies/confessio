@@ -28,7 +28,15 @@
                             <span class="text-danger">{% trans 'OutsideThisParish' %} :</span>
                         {% endif %}
                         {% for schedule_item in church_sorted_schedule.sorted_schedules %}
-                            <div>{% display_schedule_item_color church_sorted_schedule.church schedule_item %} {{ schedule_item|get_explanation }}</div>
+                            <div>
+                                {% display_schedule_item_color church_sorted_schedule.church schedule_item.item %}
+                                {{ schedule_item.item|get_explanation }}
+                                <a href="#parsing-{{ schedule_item.parsing.uuid }}"
+                                   class="text-muted"
+                                   onclick="return openTab('tab-sources-{{ website.uuid }}');">
+                                    (source)
+                                </a>
+                            </div>
                         {% endfor %}
                     </div>
                 {% endfor %}

@@ -28,3 +28,24 @@ $(window).on("load", function () {
       $(this).tooltip({html: $(this).data('html') || false});
   });
 });
+
+/**
+ * Activate tabs.
+ *
+ * Requires JQuery UI Tabs.
+ */
+$( function() {
+  $( ".schedules-sources-tabs" ).tabs();
+} );
+
+/**
+ * Open tab of given id.
+ */
+function openTab(tabId) {
+  // Open the tab
+  let $tabAnchor = $('.nav-tabs a[href="#' + tabId + '"]');
+  if ($tabAnchor.length === 0) {
+    return
+  }
+  $tabAnchor.trigger('click');
+}

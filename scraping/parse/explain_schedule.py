@@ -287,22 +287,3 @@ def schedule_item_sort_key(item: ScheduleItem) -> tuple:
         item.start_time_iso8601 or '',  # Sort by start time.
         item.end_time_iso8601 or '',  # Sort by end time.
     )
-
-
-def sort_schedules(schedules: list[ScheduleItem]) -> list[ScheduleItem]:
-    return sorted(list(set(schedules)), key=schedule_item_sort_key)
-
-
-################
-# EXPLANATIONS #
-################
-
-def get_sorted_schedules_by_church_id(schedules: list[ScheduleItem]
-                                      ) -> dict[int, list[ScheduleItem]]:
-    sorted_schedules_by_church_id = {}
-
-    for schedule in sort_schedules(schedules):
-        sorted_schedules_by_church_id.setdefault(schedule.church_id, [])\
-            .append(schedule)
-
-    return sorted_schedules_by_church_id

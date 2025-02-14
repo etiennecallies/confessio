@@ -146,13 +146,3 @@ $(document).ready(function () {
     $(this).closest('.alert-dismissible').alert('close');
   });
 });
-
-/**
- * Activate tabs.
- *
- * Requires JQuery UI Tabs.
- */
-$( function() {
-  $( ".schedules-sources-tabs" ).tabs();
-} );
-
