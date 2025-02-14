@@ -1,15 +1,16 @@
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime
 from typing import Optional
 from uuid import UUID
 
-from home.models import Church, Parsing, Website
+from home.models import Church, Parsing, Website, Page, Pruning
 from home.utils.date_utils import get_current_year, get_end_of_next_two_weeks, datetime_to_date
 from home.utils.hash_utils import hash_string_to_hex
 from scraping.parse.explain_schedule import get_sorted_schedules_by_church_id
 from scraping.parse.rrule_utils import get_events_from_schedule_items
 from scraping.parse.schedules import Event, ScheduleItem, SchedulesList, get_merged_schedules_list
-from scraping.services.parse_pruning_service import get_parsing_schedules_list, get_church_by_id
+from scraping.services.parse_pruning_service import get_parsing_schedules_list, get_church_by_id, \
+    has_schedules
 
 
 @dataclass
@@ -155,6 +156,67 @@ def get_website_merged_church_schedules_list(websites: list[Website]
             website_merged_church_schedules_list[website.uuid] = merged_church_schedules_list
 
     return website_merged_church_schedules_list
+
+
+#########################
+# PARSINGS AND PRUNINGS #
+#########################
+
+@dataclass
+class WebsiteParsingsAndPrunings:
+    parsings_by_uuid: dict[UUID, Parsing]
+    page_by_parsing_uuid: dict[UUID, Page]
+    all_pages_by_parsing_uuid: dict[UUID, list[Page]]
+    prunings_by_parsing_uuid: dict[UUID, list[Pruning]]
+    page_scraping_last_created_at_by_parsing_uuid: dict[UUID, Optional[datetime]]
+
+
+def get_website_parsings_and_prunings(website: Website) -> WebsiteParsingsAndPrunings:
+    parsings_by_uuid = {}
+    page_by_parsing_uuid = {}
+    all_pages_by_parsing_uuid = {}
+    prunings_by_parsing_uuid = {}
+    page_scraping_last_created_at_by_parsing_uuid = {}
+    for page in website.get_pages():
+        if page.scraping is None:
+            continue
+
+        for pruning in page.get_prunings():
+            parsing = page.get_parsing(pruning)
+            if parsing is None or not has_schedules(parsing):
+                continue
+
+            parsings_by_uuid[parsing.uuid] = parsing
+
+            page_scraping_last_created_at = page_scraping_last_created_at_by_parsing_uuid.get(
+                parsing.uuid, None)
+            if page_scraping_last_created_at is None \
+                    or page.scraping.created_at > page_scraping_last_created_at:
+                page_scraping_last_created_at_by_parsing_uuid[parsing.uuid] = \
+                    page.scraping.created_at
+                page_by_parsing_uuid[parsing.uuid] = page
+
+            all_pages_by_parsing_uuid.setdefault(parsing.uuid, []).append(page)
+            prunings_by_parsing_uuid.setdefault(parsing.uuid, []).append(pruning)
+
+    return WebsiteParsingsAndPrunings(
+        parsings_by_uuid=parsings_by_uuid,
+        page_by_parsing_uuid=page_by_parsing_uuid,
+        all_pages_by_parsing_uuid=all_pages_by_parsing_uuid,
+        prunings_by_parsing_uuid=prunings_by_parsing_uuid,
+        page_scraping_last_created_at_by_parsing_uuid=page_scraping_last_created_at_by_parsing_uuid
+    )
+
+
+def get_websites_parsings_and_prunings(websites: list[Website]
+                                       ) -> dict[UUID, WebsiteParsingsAndPrunings]:
+    websites_parsings_and_prunings = {}
+    for website in websites:
+        parsings_and_prunings = get_website_parsings_and_prunings(website)
+        if parsings_and_prunings:
+            websites_parsings_and_prunings[website.uuid] = parsings_and_prunings
+
+    return websites_parsings_and_prunings
 
 
 ################

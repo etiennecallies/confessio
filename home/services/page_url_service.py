@@ -30,8 +30,12 @@ def get_page_pruning_urls(websites: list[Website]) -> dict[str, dict[str, str]]:
                 continue
 
             for pruning in prunings:
+                parsing = page.get_parsing(pruning)
+                if not parsing:
+                    continue
+
                 url = get_page_url_with_pointer_at_pruning(page, pruning)
-                page_pruning_urls.setdefault(page.uuid, {})[pruning.uuid] = url
+                page_pruning_urls.setdefault(page.uuid, {})[parsing.uuid] = url
 
     return page_pruning_urls
 

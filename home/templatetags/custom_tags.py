@@ -20,6 +20,11 @@ def get_item(dictionary, key):
 
 
 @register.filter
+def subtract(v1, v2):
+    return v1 - v2
+
+
+@register.filter
 def get_ith(some_list: list, i):
     return some_list[i]
 

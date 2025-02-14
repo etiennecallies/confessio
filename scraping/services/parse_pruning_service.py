@@ -89,6 +89,23 @@ def get_parsing_schedules_list(parsing: Parsing) -> Optional[SchedulesList]:
     return SchedulesList(**schedules_list_as_dict)
 
 
+######################
+# CHECK IF NOT EMPTY #
+######################
+
+def has_schedules(parsing: Parsing) -> bool:
+    schedules_list = get_parsing_schedules_list(parsing)
+    if not schedules_list:
+        return False
+
+    return (schedules_list.schedules
+            or schedules_list.is_related_to_permanence
+            or schedules_list.is_related_to_adoration
+            or schedules_list.is_related_to_mass
+            or schedules_list.possible_by_appointment
+            or schedules_list.will_be_seasonal_events)
+
+
 ##############
 # MODERATION #
 ##############
