@@ -251,3 +251,37 @@ UI widget
         overflow-y: scroll;
     }
 }
+
+/**
+ * Calendar
+ */
+
+.calendar-table {
+    white-space: wrap;
+    display: table;
+}
+
+.calendar-table th,
+.calendar-table td {
+    border: 1px solid #ddd;
+    padding: 2px;
+}
+
+.calendar-table thead {
+    background-color: #F6F6F6;
+}
+
+.calendar-table thead,
+.calendar-table tbody {
+    border: 2px solid #ddd;
+}
+
+/**
+ * Church event dot
+ */
+.church-event-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}

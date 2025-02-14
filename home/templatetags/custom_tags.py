@@ -9,6 +9,7 @@ from home.models import WebsiteModeration, ChurchModeration, ParishModeration, \
     Page, Parsing, ReportModeration, Diocese
 from home.utils.date_utils import get_current_year
 from home.utils.list_utils import enumerate_with_and
+from scraping.parse.explain_schedule import get_explanation_from_schedule
 from scraping.parse.rrule_utils import get_events_from_schedule_item
 from scraping.parse.schedules import ScheduleItem, Event, SchedulesList
 
@@ -16,6 +17,11 @@ from scraping.parse.schedules import ScheduleItem, Event, SchedulesList
 @register.filter
 def get_item(dictionary, key):
     return dictionary.get(key)
+
+
+@register.filter
+def get_ith(some_list: list, i):
+    return some_list[i]
 
 
 @register.filter
@@ -30,6 +36,11 @@ def get_schedule_item_events(schedule_item: ScheduleItem) -> list[Event]:
     default_year = get_current_year()
 
     return get_events_from_schedule_item(schedule_item, start_date, end_date, default_year)[:7]
+
+
+@register.filter
+def get_explanation(schedule_item: ScheduleItem) -> str:
+    return get_explanation_from_schedule(schedule_item)
 
 
 @register.filter

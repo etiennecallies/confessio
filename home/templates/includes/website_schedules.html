@@ -8,49 +8,77 @@
     </div>
 {% else %}
     {% with merged_schedules_list=website_merged_church_schedules_list|get_item:website.uuid %}
+    {% with church_events_by_day=church_events_by_day_by_website|get_item:website.uuid %}
         <div>
             {% if merged_schedules_list.church_events %}
                 <h6>Régularité</h6>
-                {% for church_explanation in merged_schedules_list.church_explanations %}
+                {% for church_sorted_schedule in merged_schedules_list.church_sorted_schedules %}
                     <div>
-                        {% if church_explanation.church %}
+                        {% if church_sorted_schedule.church %}
                             {% if church_marker_names %}
                                 <a href="#map"
                                    class="link-info"
-                                   onclick="return popupChurch('{{ church_marker_names|get_item:church_explanation.church.uuid }}');">
-                                    {{ church_explanation.church.name }}
+                                   onclick="return popupChurch('{{ church_marker_names|get_item:church_sorted_schedule.church.uuid }}');">
+                                    {{ church_sorted_schedule.church.name }}
                                 </a> :
                             {% else %}
-                                {{ church_explanation.church.name }} :
+                                {{ church_sorted_schedule.church.name }} :
                             {% endif %}
-                        {% elif church_explanation.is_church_explicitly_other %}
-                            <span class="text-danger">En dehors de cette paroisse :</span>
+                        {% elif church_sorted_schedule.is_church_explicitly_other %}
+                            <span class="text-danger">{% trans 'OutsideThisParish' %} :</span>
                         {% endif %}
-                        {% for explanation in church_explanation.explanations %}
-                            <div>{{ explanation }}</div>
+                        {% for schedule_item in church_sorted_schedule.sorted_schedules %}
+                            <div>{% display_schedule_item_color church_sorted_schedule.church schedule_item %} {{ schedule_item|get_explanation }}</div>
                         {% endfor %}
                     </div>
                 {% endfor %}
 
-                <h6 class="mt-3">Prochains événements</h6>
-                {% for church_event in merged_schedules_list.church_events %}
-                    <div>
-                        {% if church_event.church %}
-                            {% if church_marker_names %}
-                                <a href="#map"
-                                   class="link-info"
-                                   onclick="return popupChurch('{{ church_marker_names|get_item:church_event.church.uuid }}');">
-                                    {{ church_event.church.name }}
-                                </a> :
-                            {% else %}
-                                {{ church_event.church.name }} :
-                            {% endif %}
-                        {% elif church_event.is_church_explicitly_other %}
-                            <span class="text-danger">En dehors de cette paroisse :</span>
-                        {% endif %}
-                        {% display_event church_event.event %}
+                <div class="row mt-4">
+                    <div class="col-12 text-center">
+                        <table class="table calendar-table">
+                    <thead>
+                        <tr class="days-header text-gray-700">
+                            <th>Lun</th>
+                            <th>Mar</th>
+                            <th>Mer</th>
+                            <th>Jeu</th>
+                            <th>Ven</th>
+                            <th>Sam</th>
+                            <th>Dim</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for week in weeks_range %}
+                        <tr>
+                            {% for day in week %}
+                                <td{% if day == current_day %} class="bg-gradient-gray-200"{% endif %}>
+                                    <div class="text-center {% if day < current_day %}text-gray-300{% endif %}">
+                                        <p class="mb-0 lh-1"><small>{{ day.day }}</small></p>
+                                        <p class="mb-0 lh-1"><small>{{ day|date:"N" }}</small></p>
+                                    </div>
+                                    {% with church_events=church_events_by_day|get_item:day %}
+                                        {% for church_event in church_events %}
+                                            <div>
+                                                <span class="link-info" data-toggle="tooltip" data-placement="bottom" data-html="true"
+                                                      title="
+{% if church_event.church %}
+    {{ church_event.church.name }}
+{% elif church_event.is_church_explicitly_other %}
+    {% trans 'OutsideThisParish' %}
+{% else %}Lieu inconnu{% endif %}<br>
+{% display_hour church_event.event.start %} - {% if church_event.event.end %}{% display_hour church_event.event.end %}{% else %}?{% endif %}
+">{% display_church_event_color church_event %}</span>
+                                            </div>
+                                        {% endfor %}
+                                    {% endwith %}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
                     </div>
-                {% endfor %}
+                </div>
             {% elif not website.has_been_crawled %}
                 {% trans 'NotCrawledYet' %}
             {% else %}
@@ -64,5 +92,6 @@
             {% endif %}
             {{ merged_schedules_list.schedules_list|has_relation_text }}
         </div>
+    {% endwith %}
     {% endwith %}
 {% endif %}

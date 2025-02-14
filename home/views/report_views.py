@@ -5,9 +5,11 @@ from django.shortcuts import render
 
 from home.models import Website
 from home.models.report_models import Report
-from home.services.events_service import get_website_merged_church_schedules_list
+from home.services.events_service import get_website_merged_church_schedules_list, \
+    get_church_events_by_day_by_website
 from home.services.page_url_service import get_page_pruning_urls
 from home.services.report_service import add_necessary_moderation_for_report
+from home.utils.date_utils import get_current_week_and_next_two_weeks, get_current_day
 from home.utils.hash_utils import hash_string_to_hex
 from home.utils.web_utils import get_client_ip
 
@@ -69,6 +71,11 @@ def report_page(request, website_uuid):
 
     previous_reports = Report.objects.filter(website=website).order_by('-created_at').all()
 
+    # We group the church events by website and by day
+    church_events_by_day_by_website = get_church_events_by_day_by_website(
+        website_merged_church_schedules_list
+    )
+
     return render(request, 'pages/report.html', {
         'noindex': True,
         'website': website,
@@ -77,4 +84,7 @@ def report_page(request, website_uuid):
         'website_merged_church_schedules_list': website_merged_church_schedules_list,
         'success_message': success_message,
         'previous_reports': previous_reports,
+        'weeks_range': get_current_week_and_next_two_weeks(),
+        'current_day': get_current_day(),
+        "church_events_by_day_by_website": church_events_by_day_by_website,
     })

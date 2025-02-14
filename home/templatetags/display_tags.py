@@ -1,13 +1,16 @@
 import json
+from datetime import datetime
 
 from django.contrib.gis.geos import Point
 from django.template.defaulttags import register
 from django.template.loader import render_to_string
 
 from home.models import Parish, Church, Website, Pruning
+from home.services.events_service import ChurchEvent, get_church_event_color
 from home.services.map_service import (get_map_with_single_location,
                                        get_map_with_multiple_locations,
                                        get_map_with_alternative_locations)
+from home.utils.date_utils import datetime_to_hour_iso8601
 from home.utils.list_utils import group_consecutive_indices
 from scraping.parse.explain_schedule import get_explanation_from_schedule
 from scraping.parse.schedules import SchedulesList, Event, ScheduleItem
@@ -34,6 +37,11 @@ def display_church(church: Church, with_map=True):
 @register.simple_tag
 def display_event(event: Event):
     return render_to_string('partials/event_display.html', {'event': event})
+
+
+@register.simple_tag
+def display_hour(dt: datetime):
+    return render_to_string('partials/hour_display.html', {'dt': dt})
 
 
 @register.simple_tag
@@ -108,4 +116,23 @@ def explain_schedule(schedule: ScheduleItem, church_desc_by_id_json: str):
     return render_to_string('partials/explained_schedule_display.html', {
         'explained_schedule': explained_schedule,
         'church_desc': church_desc,
+    })
+
+
+@register.simple_tag
+def display_church_event_color(church_event: ChurchEvent):
+    color = get_church_event_color(church_event.church,
+                                   datetime_to_hour_iso8601(church_event.event.start),
+                                   datetime_to_hour_iso8601(church_event.event.end))
+    return render_to_string('partials/color_display.html', {
+        'color': color,
+    })
+
+
+@register.simple_tag
+def display_schedule_item_color(church: Church, schedule_item: ScheduleItem):
+    color = get_church_event_color(church,
+                                   schedule_item.start_time_iso8601, schedule_item.end_time_iso8601)
+    return render_to_string('partials/color_display.html', {
+        'color': color,
     })

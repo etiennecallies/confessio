@@ -184,3 +184,6 @@ msgstr "❌ Il y a une erreur"
 
 msgid "NextEvent"
 msgstr "Prochaine confession"
+
+msgid "OutsideThisParish"
+msgstr "En dehors de cette paroisse"
