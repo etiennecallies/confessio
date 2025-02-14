@@ -4,7 +4,7 @@ from typing import Optional
 from uuid import UUID
 
 from home.models import Church, Parsing, Website
-from home.utils.date_utils import get_current_year, get_end_of_next_month, datetime_to_date
+from home.utils.date_utils import get_current_year, get_end_of_next_two_weeks, datetime_to_date
 from home.utils.hash_utils import hash_string_to_hex
 from scraping.parse.explain_schedule import get_sorted_schedules_by_church_id
 from scraping.parse.rrule_utils import get_events_from_schedule_items
@@ -115,7 +115,7 @@ def get_merged_church_schedules_list(csl: list[ChurchSchedulesList]
     schedules_list = get_merged_schedules_list([cs.schedules_list for cs in csl])
 
     start_date = date.today()
-    end_date = get_end_of_next_month()
+    end_date = get_end_of_next_two_weeks()
     events = get_events_from_schedule_items(schedules_list.schedules, start_date, end_date,
                                             get_current_year(), max_events=None)
 
