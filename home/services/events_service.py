@@ -4,7 +4,7 @@ from typing import Optional
 from uuid import UUID
 
 from home.models import Church, Parsing, Website
-from home.utils.date_utils import get_current_year, get_end_of_next_month
+from home.utils.date_utils import get_current_year, get_end_of_next_month, datetime_to_date
 from home.utils.hash_utils import hash_string_to_hex
 from scraping.parse.explain_schedule import get_sorted_schedules_by_church_id
 from scraping.parse.rrule_utils import get_events_from_schedule_items
@@ -155,6 +155,24 @@ def get_website_merged_church_schedules_list(websites: list[Website]
             website_merged_church_schedules_list[website.uuid] = merged_church_schedules_list
 
     return website_merged_church_schedules_list
+
+
+################
+# EVENT BY DAY #
+################
+
+def get_church_events_by_day_by_website(
+        website_merged_church_schedules_list: dict[UUID, MergedChurchSchedulesList]
+) -> dict[UUID, dict[date, list[ChurchEvent]]]:
+    church_events_by_day_by_website = {}
+    for website_uuid, merged_church_schedules_list in website_merged_church_schedules_list.items():
+        church_events_by_day = {}
+        for church_event in merged_church_schedules_list.church_events:
+            day = datetime_to_date(church_event.event.start)
+            church_events_by_day.setdefault(day, []).append(church_event)
+        church_events_by_day_by_website[website_uuid] = church_events_by_day
+
+    return church_events_by_day_by_website
 
 
 ##########

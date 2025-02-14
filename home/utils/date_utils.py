@@ -62,6 +62,10 @@ def get_current_week_and_next_two_weeks() -> list[list[date]]:
     return [current_week, next_week, next_two_week]
 
 
+def get_current_day() -> date:
+    return date.today()
+
+
 def get_current_year() -> int:
     return datetime.now().year
 

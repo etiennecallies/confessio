@@ -3,16 +3,16 @@ import dataclasses
 from django.core.exceptions import ValidationError
 from django.http import HttpResponseNotFound, JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render
-from django.utils.timezone import now
 
 from home.models import Website, Diocese
 from home.services.autocomplete_service import get_aggregated_response
-from home.services.events_service import get_website_merged_church_schedules_list
+from home.services.events_service import get_website_merged_church_schedules_list, \
+    get_church_events_by_day_by_website
 from home.services.map_service import get_churches_in_box, get_churches_around, prepare_map, \
     get_churches_by_website, get_center, get_churches_by_diocese
 from home.services.page_url_service import get_page_pruning_urls
 from home.services.report_service import get_count_and_label
-from home.utils.date_utils import get_current_week_and_next_two_weeks, datetime_to_date
+from home.utils.date_utils import get_current_week_and_next_two_weeks, get_current_day
 
 
 def render_map(request, center, churches, bounds, location, too_many_results: bool,
@@ -56,13 +56,10 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
     for website in websites:
         website_reports_count[website.uuid] = get_count_and_label(website)
 
-    church_events_by_day_by_website = {}
-    for website_uuid, merged_church_schedules_list in website_merged_church_schedules_list.items():
-        church_events_by_day = {}
-        for church_event in merged_church_schedules_list.church_events:
-            day = datetime_to_date(church_event.event.start)
-            church_events_by_day.setdefault(day, []).append(church_event)
-        church_events_by_day_by_website[website_uuid] = church_events_by_day
+    # We group the church events by website and by day
+    church_events_by_day_by_website = get_church_events_by_day_by_website(
+        website_merged_church_schedules_list
+    )
 
     context = {
         'location': location,
@@ -74,9 +71,9 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
         'page_pruning_urls': page_pruning_urls,
         'too_many_results': too_many_results,
         'website_reports_count': website_reports_count,
-        "church_events_by_day_by_website": church_events_by_day_by_website,
         'weeks_range': get_current_week_and_next_two_weeks(),
-        'current_day': now().date(),
+        'current_day': get_current_day(),
+        "church_events_by_day_by_website": church_events_by_day_by_website,
     }
 
     return render(request, 'pages/index.html', context)
