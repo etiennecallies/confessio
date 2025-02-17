@@ -65,7 +65,7 @@
                                     </div>
                                     {% with church_events=church_events_by_day|get_item:day %}
                                         {% for church_event in church_events %}
-                                            <div>
+                                            <div class="d-inline-block margin-avg">
                                                 <span class="link-info" data-toggle="tooltip" data-placement="bottom" data-html="true"
                                                       title="
 {% if church_event.church %}
