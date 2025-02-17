@@ -235,7 +235,11 @@ UI widget
 }
 
 .ui-tabs .ui-tabs-nav .ui-tabs-anchor {
-    padding: .5em .5em;
+    padding: .3em .3em;
+}
+
+.ui-tabs .ui-tabs-panel {
+    padding: .6em;
 }
 
 /*
