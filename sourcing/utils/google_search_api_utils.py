@@ -9,7 +9,7 @@ class GoogleApiResult(BaseModel):
     link: str
     display_link: str
     formatted_url: str
-    snippet: str
+    snippet: str | None
 
 
 def get_google_search_results(query: str) -> list[GoogleApiResult]:
@@ -35,7 +35,7 @@ def get_google_search_results(query: str) -> list[GoogleApiResult]:
             link=item['link'],
             display_link=item['displayLink'],
             formatted_url=item['formattedUrl'],
-            snippet=item['snippet']
+            snippet=item['snippet'] if 'snippet' in item else None,
         ))
 
     return items

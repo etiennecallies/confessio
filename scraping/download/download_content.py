@@ -4,7 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 from requests import RequestException
 
-from scraping.utils.url_utils import get_domain
+from scraping.utils.url_utils import get_domain, are_similar_urls
 
 TIMEOUT = 20
 MAX_SIZE = 5_000_000
@@ -131,3 +131,11 @@ def get_url_aliases(url) -> tuple[list[tuple[str, str]], Optional[str]]:
             aliases.extend(url_aliases)
 
     return aliases, None
+
+
+def redirects_to_other_url(url1: str, url2: str) -> bool:
+    aliases, _ = get_url_aliases(url1)
+    for url, domain in aliases:
+        if are_similar_urls(url, url2):
+            return True
+    return False

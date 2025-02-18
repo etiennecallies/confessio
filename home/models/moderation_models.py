@@ -129,6 +129,7 @@ class WebsiteModeration(ModerationMixin):
         HOME_URL_NO_CONFESSION = "hu_no_conf"
         HOME_URL_CONFLICT = "hu_conflict"
         HOME_URL_TOO_LONG = "hu_too_long"
+        GOOGLE_SEARCH = "google_search"
 
     resource = 'website'
     validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
@@ -139,7 +140,7 @@ class WebsiteModeration(ModerationMixin):
                                 related_name=f'{resource}_moderations', null=True)
     history = HistoricalRecords()
     website = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='moderations')
-    category = models.CharField(max_length=11, choices=Category)
+    category = models.CharField(max_length=13, choices=Category)
 
     home_url = models.URLField(null=True)
     other_website = models.ForeignKey('Website', on_delete=models.SET_NULL,

@@ -1,8 +1,9 @@
-from home.models import Website, WebsiteModeration
+from home.models import Website, WebsiteModeration, Diocese
 from sourcing.utils.extract_title import get_page_title
 
 
-def add_moderation(website: Website, category: WebsiteModeration.Category):
+def add_website_moderation(website: Website, category: WebsiteModeration.Category,
+                           diocese: Diocese = None):
     try:
         # we need to delete existing moderation first
         existing_category = WebsiteModeration.objects.get(website=website, category=category)
@@ -13,7 +14,7 @@ def add_moderation(website: Website, category: WebsiteModeration.Category):
     website_moderation = WebsiteModeration(
         website=website,
         category=category,
-        diocese=website.get_diocese(),
+        diocese=diocese or website.get_diocese(),
     )
     website_moderation.save()
 
@@ -38,7 +39,7 @@ def update_website_name(website: Website, other_website_name: str):
     website.save()
 
     # We will need to moderate generated website name
-    add_moderation(website, moderation_category)
+    add_website_moderation(website, moderation_category)
 
 
 def merge_websites(website: Website, primary_website: Website):
