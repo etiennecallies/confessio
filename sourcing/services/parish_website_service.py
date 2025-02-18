@@ -16,7 +16,7 @@ def extract_department_from_messesinfo_community_id(messesinfo_community_id: str
 
 
 def is_link_ok(link: str) -> bool:
-    for domain in ['wikipedia.org', 'messesinfo.fr']:
+    for domain in ['wikipedia.org', 'messes.info']:
         if domain in link:
             return False
 
