@@ -54,6 +54,7 @@ SCHEDULES_EXPR = [
     'sur demande',
     'etre demande',
     "s'adresser",
+    "vous adresser",
     'lors de ',
     'lors des ',
     'aux horaires ',

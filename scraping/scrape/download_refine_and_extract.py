@@ -31,7 +31,7 @@ def get_fresh_extracted_html_list(url) -> list[str] | None:
 
 
 if __name__ == '__main__':
-    url_ = 'https://www.paroissemordelles.net/reconciliation/'
+    url_ = 'http://stclementrennes.demtho.fr/accueil/mot-du-cure/le-sacrement-de-reconciliation/'
     extracted_html_list_ = get_fresh_extracted_html_list(url_)
 
     print()
