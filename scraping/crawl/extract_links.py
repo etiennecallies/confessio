@@ -30,6 +30,7 @@ CONFESSIONS_OR_SCHEDULES_MENTIONS = [
     'spirituelle',
     'info',
     'infos',
+    'vivre',
 ]
 
 IGNORED_EXTENSIONS = [
