@@ -12,6 +12,7 @@ CONFESSIONS_OR_SCHEDULES_MENTIONS = [
     'confessions',
     'confesser',
     'reconciliation',
+    'reconcilier',
     'penitence',
     'sacrement',
     'sacrements',
