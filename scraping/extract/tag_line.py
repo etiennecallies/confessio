@@ -60,6 +60,7 @@ SCHEDULES_EXPR = [
     'aux horaires ',
     'au cours d',
     'au cours de',
+    'autour des'
 ]
 
 DATES_MENTIONS = [
