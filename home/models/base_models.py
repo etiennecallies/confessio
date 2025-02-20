@@ -33,6 +33,7 @@ class Diocese(TimeStampMixin):
 class Website(TimeStampMixin):
     class UnreliabilityReason(models.TextChoices):
         SCHEDULE_IN_IMAGE = "schedule_in_image"
+        SCHEDULE_IN_PDF = "schedule_in_pdf"
         JAVASCRIPT_REQUIRED = "javascript_required"
         NOT_RESPONDING_AT_ALL = "not_responding_at_all"
         NOT_RESPONDING_IN_TIME = "not_responding_in_time"
