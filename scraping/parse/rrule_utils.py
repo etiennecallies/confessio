@@ -49,21 +49,29 @@ def get_rruleset_from_schedule(schedule: ScheduleItem, default_year: int) -> rru
 def get_events_from_schedule_item(schedule: ScheduleItem,
                                   start_date: date, end_date: date,
                                   default_year: int,
-                                  max_events: int = None) -> list[Event]:
+                                  max_events: int = None,
+                                  at_least_one_until: date = None) -> list[Event]:
     if schedule.is_one_off_rule() and not schedule.date_rule.is_valid_date():
         return []
 
     if schedule.get_start_time() is None:
         return []
 
+    assert end_date >= start_date
+    assert at_least_one_until is None or at_least_one_until >= end_date
+
     start_datetime = date_to_datetime(start_date)
     end_datetime = date_to_datetime(end_date)
+    at_least_one_until_dt = date_to_datetime(at_least_one_until) if at_least_one_until else None
 
     rset = get_rruleset_from_schedule(schedule, default_year)
 
     events = []
     for one_date in rset.xafter(start_datetime, count=max_events, inc=True):
-        if one_date > end_datetime:
+        if one_date > end_datetime and (events or at_least_one_until_dt is None):
+            break
+
+        if at_least_one_until_dt is not None and one_date > at_least_one_until_dt:
             break
 
         start_time = schedule.get_start_time()
@@ -86,9 +94,10 @@ def get_events_from_schedule_item(schedule: ScheduleItem,
 def get_events_from_schedule_items(schedules: list[ScheduleItem],
                                    start_date: date, end_date: date,
                                    default_year: int,
-                                   max_events: int = None) -> list[Event]:
+                                   max_events: int = None,
+                                   at_least_one_until: date = None) -> list[Event]:
     all_events = sum((get_events_from_schedule_item(schedule, start_date, end_date, default_year,
-                                                    max_events)
+                                                    max_events, at_least_one_until)
                       for schedule in schedules), [])
 
     return list(sorted(list(set(all_events))))

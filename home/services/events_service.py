@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import Optional
 from uuid import UUID
 
@@ -125,8 +125,10 @@ def get_merged_church_schedules_list(csl: list[ChurchSchedulesList]
 
     start_date = date.today()
     end_date = get_end_of_next_two_weeks()
+    at_least_one_until = start_date + timedelta(days=300)
     events = get_events_from_schedule_items(schedules_list.schedules, start_date, end_date,
-                                            get_current_year(), max_events=None)
+                                            get_current_year(), max_events=None,
+                                            at_least_one_until=at_least_one_until)
 
     church_by_id = {cs.schedule_item.item.church_id: cs.church for cs in church_schedules}
     church_events = [ChurchEvent.from_event(event, church_by_id) for event in events]
@@ -147,7 +149,7 @@ def get_merged_church_schedules_list(csl: list[ChurchSchedulesList]
 def get_merged_church_schedules_list_for_website(website: Website
                                                  ) -> MergedChurchSchedulesList | None:
     if not website.all_pages_parsed() or website.unreliability_reason:
-        return
+        return None
 
     church_schedules_lists = [ChurchSchedulesList.from_parsing(parsing, website)
                               for parsing in website.get_all_parsings()]
