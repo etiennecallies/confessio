@@ -6,6 +6,7 @@ from scraping.extract.tag_line import Tag, get_tags_with_regex
 from scraping.prune.action_interfaces import BaseActionInterface
 from scraping.prune.models import Action, Source
 from scraping.refine.refine_content import remove_link_from_html
+from scraping.utils.html_utils import split_lines
 
 
 class LineAndTag(BaseModel):
@@ -15,10 +16,6 @@ class LineAndTag(BaseModel):
     action: Action
     source: Source | None
     sentence_uuid: UUID | None
-
-
-def split_lines(refined_content: str) -> list[str]:
-    return refined_content.split('<br>\n')
 
 
 def split_and_tag(refined_content: str, action_interface: BaseActionInterface

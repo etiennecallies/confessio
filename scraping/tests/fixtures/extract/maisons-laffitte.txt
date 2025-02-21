@@ -88,8 +88,7 @@
    </td>
   </tr>
  </tbody>
-</table>
-<br>
+</table><br>
 <a href="javascript:void(0);"> Confessions </a><br>
 <table>
  <tbody>
@@ -144,8 +143,7 @@
    </td>
   </tr>
  </tbody>
-</table>
-<br>
+</table><br>
 <a href="javascript:void(0);"> Laudes </a><br>
 <table>
  <tbody>
@@ -205,8 +203,7 @@
    </td>
   </tr>
  </tbody>
-</table>
-<br>
+</table><br>
 <a href="javascript:void(0);"> Bibliothèque </a><br>
 <table>
  <tbody>
@@ -242,6 +239,5 @@
    </td>
   </tr>
  </tbody>
-</table>
-<br>
+</table><br>
 Fermeture pendant les vacances scolaires.

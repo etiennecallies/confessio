@@ -41,6 +41,7 @@ class MyTestCase(unittest.TestCase):
             'stgermain',
             'immaculee-conception',
             'sjsc',
+            'madeleine',
         ]
 
     def test_extract(self):

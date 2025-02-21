@@ -6,6 +6,7 @@ from typing import Optional
 from bs4 import BeautifulSoup, NavigableString, Comment, ProcessingInstruction, \
     MarkupResemblesLocatorWarning, PageElement
 
+from scraping.refine.detect_calendar import is_calendar
 from scraping.utils.string_utils import is_below_byte_limit
 
 
@@ -33,9 +34,9 @@ def remove_script(soup: BeautifulSoup):
     return soup
 
 
-###################
-# CONVERT TO TEXT #
-###################
+##################
+# TABLE CLEANING #
+##################
 
 def is_table(element):
     if element.name in [
@@ -54,6 +55,122 @@ def is_table(element):
 
     return False
 
+
+def clear_formatting(element: PageElement):
+    if element.name in ['font', 'strong', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
+        element.name = 'span'
+
+    if hasattr(element, 'attrs'):
+        attrs = dict(element.attrs)
+        for attr in attrs:
+            if attr in ['id', 'class', 'style', 'href', 'width', 'border'] \
+                    or attr.startswith('data-'):
+                del element.attrs[attr]
+
+
+def clear_table_formatting(element: BeautifulSoup):
+    clear_formatting(element)
+
+    for el in element.descendants:
+        clear_formatting(el)
+
+
+def rec_prettify(element: BeautifulSoup):
+    last_prettified_html = None
+    prettified_html = element.prettify()
+
+    max_iterations = 100
+
+    while last_prettified_html is None or prettified_html != last_prettified_html:
+        prettified_bs4 = BeautifulSoup(prettified_html, 'html.parser')
+        last_prettified_html = prettified_html
+        prettified_html = prettified_bs4.prettify()
+
+        max_iterations -= 1
+        if max_iterations <= 0:
+            raise ValueError('too many prettify')
+
+    return prettified_html
+
+
+def refine_table_or_calendar(soup: BeautifulSoup):
+    clear_table_formatting(soup)
+    return clean_paragraph(rec_prettify(soup))
+
+
+##################
+# TEXT CLEANING #
+##################
+
+
+def clear_link_formatting(element: BeautifulSoup):
+    # remove all attributes except "href"
+    attrs = dict(element.attrs)
+    for attr in attrs:
+        if attr not in ['href']:
+            del element.attrs[attr]
+
+    # keeping only text as html
+    element.string = ' '.join(element.stripped_strings)
+
+
+def flatten_string(text: str):
+    text = re.sub(r'^\s*', '', text)
+    text = re.sub(r'\s+', ' ', text)
+    text = re.sub(r'\s*$', '', text)
+
+    return text
+
+
+def clean_text(text: str):
+    text = text.replace("", "")
+    text = text.replace('\u200b', '')
+    text = text.replace('\u00A0', ' ')  # replace non-breaking space by space
+    text = re.sub(r'^\s*', '', text)
+    text = re.sub(r'( )+', r' ', text)
+    text = re.sub(r'\n ', r'\n', text)
+    text = re.sub(r' \n', r'\n', text)
+    text = re.sub(r'(\n)+', r'\n', text)
+    text = re.sub(r'\s*$', '', text)
+    text = text.strip()
+
+    return text
+
+
+def contains_char_or_digits(text):
+    # If text contains character NUL, it's a good hint that this line is not proper text
+    if '\x00' in text:
+        return False
+
+    char_or_digits = set(string.ascii_letters + string.digits)
+    for t in remove_link_from_html(text):
+        if t in char_or_digits:
+            return True
+    return False
+
+
+def line_is_suitable(text: str):
+    return contains_char_or_digits(text) and is_below_byte_limit(remove_link_from_html(text))
+
+
+def clean_paragraph(text: str):
+    text = re.sub(r'<br> ', r'<br>', text)
+    text = re.sub(r' <br>', r'<br>', text)
+    text = re.sub(r'<br>\n +', r'<br>\n', text)
+    text = re.sub(r'(<br>\n)+', r'<br>\n', text)
+    text = re.sub(r'^<br>(\n)?', '', text)
+    text = re.sub(r'<br>(\n)?$', '', text)
+    text = re.sub(r'(\n)+$', '', text)
+
+    # Remove non suitable lines
+    text = '<br>\n'.join(filter(line_is_suitable, text.split('<br>\n')))
+
+    return text
+
+
+###################
+# CONVERT TO TEXT #
+###################
 
 def is_html_element(element) -> bool:
     return element.name is not None
@@ -96,58 +213,9 @@ def get_element_and_text(element):
     return element.contents
 
 
-def clear_link_formatting(element: BeautifulSoup):
-    # remove all attributes except "href"
-    attrs = dict(element.attrs)
-    for attr in attrs:
-        if attr not in ['href']:
-            del element.attrs[attr]
-
-    # keeping only text as html
-    element.string = ' '.join(element.stripped_strings)
-
-
-def clear_formatting(element: PageElement):
-    if element.name in ['font', 'strong', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
-        element.name = 'span'
-
-    if hasattr(element, 'attrs'):
-        attrs = dict(element.attrs)
-        for attr in attrs:
-            if attr in ['id', 'class', 'style', 'href', 'width', 'border'] \
-                    or attr.startswith('data-'):
-                del element.attrs[attr]
-
-
-def clear_table_formatting(element: BeautifulSoup):
-    clear_formatting(element)
-
-    for el in element.descendants:
-        clear_formatting(el)
-
-
-def rec_prettify(element: BeautifulSoup):
-    last_prettified_html = None
-    prettified_html = element.prettify()
-
-    max_iterations = 100
-
-    while last_prettified_html is None or prettified_html != last_prettified_html:
-        prettified_bs4 = BeautifulSoup(prettified_html, 'html.parser')
-        last_prettified_html = prettified_html
-        prettified_html = prettified_bs4.prettify()
-
-        max_iterations -= 1
-        if max_iterations <= 0:
-            raise ValueError('too many prettify')
-
-    return prettified_html
-
-
 def build_text(soup: BeautifulSoup):
     if is_table(soup):
-        clear_table_formatting(soup)
-        return rec_prettify(soup)
+        return refine_table_or_calendar(soup)
 
     results = []
     for element in get_element_and_text(soup):
@@ -169,60 +237,11 @@ def build_text(soup: BeautifulSoup):
 
     results = filter(lambda s: len(s) > 0, results)
 
-    return ' '.join(results)
+    clean_result = clean_paragraph(' '.join(results))
+    if is_calendar(clean_result):
+        return refine_table_or_calendar(soup)
 
-
-def clean_text(text: str):
-    text = text.replace("", "")
-    text = text.replace('\u200b', '')
-    text = text.replace('\u00A0', ' ')  # replace non-breaking space by space
-    text = re.sub(r'^\s*', '', text)
-    text = re.sub(r'( )+', r' ', text)
-    text = re.sub(r'\n ', r'\n', text)
-    text = re.sub(r' \n', r'\n', text)
-    text = re.sub(r'(\n)+', r'\n', text)
-    text = re.sub(r'\s*$', '', text)
-    text = text.strip()
-
-    return text
-
-
-def contains_char_or_digits(text):
-    # If text contains character NUL, it's a good hint that this line is not proper text
-    if '\x00' in text:
-        return False
-
-    char_or_digits = set(string.ascii_letters + string.digits)
-    for t in remove_link_from_html(text):
-        if t in char_or_digits:
-            return True
-    return False
-
-
-def line_is_suitable(text: str):
-    return contains_char_or_digits(text) and is_below_byte_limit(remove_link_from_html(text))
-
-
-def flatten_string(text: str):
-    text = re.sub(r'^\s*', '', text)
-    text = re.sub(r'\s+', ' ', text)
-    text = re.sub(r'\s*$', '', text)
-
-    return text
-
-
-def clean_paragraph(text: str):
-    text = re.sub(r'<br> ', r'<br>', text)
-    text = re.sub(r' <br>', r'<br>', text)
-    text = re.sub(r'<br>\n +', r'<br>\n', text)
-    text = re.sub(r'(<br>\n)+', r'<br>\n', text)
-    text = re.sub(r'^<br>(\n)?', '', text)
-    text = re.sub(r'<br>(\n)?$', '', text)
-
-    # Remove non suitable lines
-    text = '<br>\n'.join(filter(line_is_suitable, text.split('<br>\n')))
-
-    return text
+    return clean_result
 
 
 ###############
@@ -263,6 +282,5 @@ def refine_confession_content(content_html):
     soup = remove_script(soup)
 
     text = build_text(soup)
-    text = clean_paragraph(text)
 
     return text
