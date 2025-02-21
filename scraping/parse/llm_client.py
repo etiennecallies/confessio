@@ -7,6 +7,7 @@ from scraping.parse.schedules import SchedulesList
 
 class LLMProvider(str, Enum):
     OPENAI = "openai"
+    MISTRAL = "mistral"
 
     @classmethod
     def choices(cls):
