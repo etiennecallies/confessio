@@ -1,6 +1,8 @@
 from typing import Optional
 
-from scraping.parse.llm_client import OpenAILLMClient, get_openai_client
+from scraping.parse.llm_client import LLMClientInterface, \
+    LLMProvider
+from scraping.parse.openai_provider import get_openai_llm_client
 from scraping.parse.rrule_utils import are_schedules_list_rrules_valid, \
     is_schedules_list_explainable, filter_unnecessary_schedules
 from scraping.parse.schedules import SchedulesList, ScheduleItem
@@ -169,11 +171,11 @@ def build_input_messages(prompt_template: str,
     ]
 
 
-def get_llm_model():
-    # return "gpt-4o-2024-08-06"  # or "gpt-4o-mini"
-    # TODO get latest fine-tuned model
-    # return 'ft:gpt-4o-2024-08-06:confessio::AHfh95wJ'
-    return 'gpt-4o-2024-08-06'
+def get_llm_client(llm_provider: LLMProvider = LLMProvider.OPENAI) -> LLMClientInterface:
+    if llm_provider == LLMProvider.OPENAI:
+        return get_openai_llm_client()
+
+    raise ValueError(f"Unknown provider: {llm_provider}")
 
 
 def replace_unknown_by_unique_church(schedules: list[ScheduleItem],
@@ -194,14 +196,9 @@ def replace_unknown_by_unique_church(schedules: list[ScheduleItem],
 
 
 def parse_with_llm(truncated_html: str, church_desc_by_id: dict[int, str],
-                   model: str, prompt_template: str,
-                   llm_client: Optional[OpenAILLMClient] = None
+                   prompt_template: str, llm_client: Optional[LLMClientInterface]
                    ) -> tuple[Optional[SchedulesList], Optional[str]]:
-    if llm_client is None:
-        llm_client = OpenAILLMClient(get_openai_client())
-
     schedules_list, llm_error_detail = llm_client.get_completions(
-        model=model,
         messages=build_input_messages(prompt_template, truncated_html, church_desc_by_id),
         temperature=0.0,
     )
@@ -237,7 +234,8 @@ if __name__ == '__main__':
     }
 
     schedules_list_, llm_error_detail_ = parse_with_llm(truncated_html_, church_desc_by_id_,
-                                                        get_llm_model(), get_prompt_template())
+                                                        get_prompt_template(),
+                                                        get_llm_client())
     if schedules_list_:
         for schedule_ in schedules_list_.schedules:
             print(schedule_)

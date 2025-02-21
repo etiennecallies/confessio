@@ -3,7 +3,7 @@ import time
 from datetime import datetime
 from typing import Optional
 
-from scraping.parse.llm_client import get_openai_client
+from scraping.parse.openai_provider import get_openai_client
 from scraping.parse.parse_with_llm import build_input_messages, get_prompt_template
 from scraping.parse.schedules import SchedulesList
 

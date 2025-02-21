@@ -7,39 +7,63 @@ import simple_cache
 from dotenv import load_dotenv
 
 from home.utils.date_utils import get_year_start, get_year_end
-from scraping.parse.llm_client import OpenAILLMClient, get_openai_client
+from scraping.parse.llm_client import LLMClientInterface, \
+    LLMProvider
+from scraping.parse.openai_provider import OpenAILLMClient, get_openai_client
 from scraping.parse.parse_with_llm import parse_with_llm, get_prompt_template
 from scraping.parse.rrule_utils import are_schedules_list_equivalent
 from scraping.parse.schedules import SchedulesList, get_merged_schedules_list
 
 
-class OpenAILLMClientWithCache(OpenAILLMClient):
+class LLMClientWithCache(LLMClientInterface):
+    llm_client: LLMClientInterface
+
+    def __init__(self, llm_client: LLMClientInterface):
+        self.llm_client = llm_client
+
     def get_completions(self,
-                        model: str,
                         messages: list[dict],
                         temperature: float) -> tuple[Optional[SchedulesList], Optional[str]]:
         current_directory = os.path.dirname(os.path.abspath(__file__))
-        cache_filename = f'{current_directory}/fixtures/parse/llm_cache.cache'
+        cache_filename = (f'{current_directory}/fixtures/parse/'
+                          f'llm_cache_{self.get_provider().value}.cache')
 
-        key = (model, json.dumps(messages), json.dumps(SchedulesList.model_json_schema()),
-               temperature)
+        key = (
+            self.get_model(),
+            json.dumps(messages),
+            json.dumps(SchedulesList.model_json_schema()),
+            temperature
+        )
         value = simple_cache.load_key(cache_filename, key)
 
         if value is None:
             print('LLM Cache miss')
-            value = super().get_completions(model, messages, temperature)
+            value = self.llm_client.get_completions(messages, temperature)
             simple_cache.save_key(cache_filename, key, value,
                                   ttl=3600 * 24 * 365 * 100  # 100 years
                                   )
 
         return value
 
+    def get_provider(self) -> LLMProvider:
+        return self.llm_client.get_provider()
+
+    def get_model(self) -> str:
+        return self.llm_client.get_model()
+
 
 class LlmParsingTests(unittest.TestCase):
     def setUp(self):
         load_dotenv()
         openai_api_key = os.getenv("OPENAI_API_KEY") or 'thisIsNotARealKey'
-        self.llm_client = OpenAILLMClientWithCache(get_openai_client(openai_api_key))
+
+        # llm_model = 'ft:gpt-4o-2024-08-06:confessio::AHfh95wJ'
+        llm_model = 'gpt-4o-2024-08-06'
+
+        self.llm_client = LLMClientWithCache(OpenAILLMClient(
+            get_openai_client(openai_api_key),
+            llm_model
+        ))
 
     @staticmethod
     def get_simple_fixtures():
@@ -85,11 +109,8 @@ class LlmParsingTests(unittest.TestCase):
                 expected_schedules_list = SchedulesList(
                     **input_and_output['output']['schedules_list'])
 
-                # fine_tuned_llm_model = 'ft:gpt-4o-2024-08-06:confessio::AHfh95wJ'
-                fine_tuned_llm_model = 'gpt-4o-2024-08-06'
                 prompt_template = get_prompt_template()
                 schedules_list, llm_error_detail = parse_with_llm(truncated_html, church_desc_by_id,
-                                                                  fine_tuned_llm_model,
                                                                   prompt_template,
                                                                   llm_client=self.llm_client)
                 self.assertIsNone(llm_error_detail, file_name)
@@ -127,11 +148,10 @@ class LlmParsingTests(unittest.TestCase):
                     **input_and_output['output']['schedules_list'])
 
                 truncated_html1 = ''.join(lines1)
-                llm_model = 'gpt-4o-2024-08-06'
                 prompt_template = get_prompt_template()
                 schedules_list1, llm_error_detail1 = parse_with_llm(truncated_html1,
                                                                     church_desc_by_id,
-                                                                    llm_model, prompt_template,
+                                                                    prompt_template,
                                                                     llm_client=self.llm_client)
                 self.assertIsNone(llm_error_detail1)
                 self.assertIsNotNone(schedules_list1)
@@ -140,7 +160,7 @@ class LlmParsingTests(unittest.TestCase):
                 truncated_html2 = ''.join(lines2)
                 schedules_list2, llm_error_detail2 = parse_with_llm(truncated_html2,
                                                                     church_desc_by_id,
-                                                                    llm_model, prompt_template,
+                                                                    prompt_template,
                                                                     llm_client=self.llm_client)
                 self.assertIsNone(llm_error_detail2)
                 self.assertIsNotNone(schedules_list2)

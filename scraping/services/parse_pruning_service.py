@@ -7,7 +7,7 @@ from django.utils import timezone
 
 from home.models import Pruning, Website, Parsing, ParsingModeration, Church
 from home.utils.hash_utils import hash_string_to_hex
-from scraping.parse.parse_with_llm import parse_with_llm, get_llm_model, get_prompt_template
+from scraping.parse.parse_with_llm import parse_with_llm, get_prompt_template, get_llm_client
 from scraping.parse.schedules import SchedulesList
 from scraping.refine.refine_content import remove_link_from_html
 
@@ -319,14 +319,15 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
     truncated_html_hash = hash_string_to_hex(truncated_html)
     church_desc_by_id = website.get_church_desc_by_id()
 
-    llm_model = get_llm_model()
+    llm_client = get_llm_client()
     prompt_template = get_prompt_template()
     prompt_template_hash = hash_string_to_hex(prompt_template)
 
     # check the parsing does not already exist
     parsing = get_existing_parsing(truncated_html_hash, church_desc_by_id)
     if not force_parse and parsing \
-            and parsing.llm_model == llm_model \
+            and parsing.llm_provider == llm_client.get_provider() \
+            and parsing.llm_model == llm_client.get_model() \
             and parsing.prompt_template_hash == prompt_template_hash:
 
         # Check if parsing is already linked to the pruning
@@ -345,13 +346,14 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
     else:
         print(f'parsing {pruning} for website {website}')
         schedules_list, llm_error_detail = parse_with_llm(truncated_html, church_desc_by_id,
-                                                          llm_model, prompt_template)
+                                                          prompt_template, llm_client)
 
     llm_json = schedules_list.model_dump() if schedules_list else None
 
     if parsing:
         parsing.llm_json = llm_json
-        parsing.llm_model = llm_model
+        parsing.llm_provider = llm_client.get_provider()
+        parsing.llm_model = llm_client.get_model()
         parsing.prompt_template_hash = prompt_template_hash
         parsing.llm_error_detail = llm_error_detail
         parsing.save()
@@ -364,7 +366,8 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
             truncated_html_hash=truncated_html_hash,
             church_desc_by_id=church_desc_by_id,
             llm_json=llm_json,
-            llm_model=llm_model,
+            llm_provider=llm_client.get_provider(),
+            llm_model=llm_client.get_model(),
             prompt_template_hash=prompt_template_hash,
             llm_error_detail=llm_error_detail,
         )
