@@ -25,6 +25,8 @@
                             {% endif %}
                         {% elif church_sorted_schedule.is_church_explicitly_other %}
                             <span class="text-danger">{% trans 'OutsideThisParish' %} :</span>
+                        {% else %}
+                            Lieu inconnu :
                         {% endif %}
                         {% for schedule_item in church_sorted_schedule.sorted_schedules %}
                             <div>

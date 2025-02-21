@@ -3,7 +3,7 @@ from typing import Optional
 from scraping.parse.llm_client import OpenAILLMClient, get_openai_client
 from scraping.parse.rrule_utils import are_schedules_list_rrules_valid, \
     is_schedules_list_explainable, filter_unnecessary_schedules
-from scraping.parse.schedules import SchedulesList
+from scraping.parse.schedules import SchedulesList, ScheduleItem
 
 
 def get_prompt_template():
@@ -176,6 +176,23 @@ def get_llm_model():
     return 'gpt-4o-2024-08-06'
 
 
+def replace_unknown_by_unique_church(schedules: list[ScheduleItem],
+                                     church_desc_by_id: dict[int, str]) -> list[ScheduleItem]:
+    if len(church_desc_by_id) != 1:
+        return schedules
+
+    unique_church_id = list(church_desc_by_id.keys())[0]
+
+    new_schedules = []
+    for schedule in schedules:
+        if schedule.church_id is None:
+            new_schedules.append(schedule.model_copy(update={'church_id': unique_church_id}))
+        else:
+            new_schedules.append(schedule)
+
+    return new_schedules
+
+
 def parse_with_llm(truncated_html: str, church_desc_by_id: dict[int, str],
                    model: str, prompt_template: str,
                    llm_client: Optional[OpenAILLMClient] = None
@@ -198,6 +215,9 @@ def parse_with_llm(truncated_html: str, church_desc_by_id: dict[int, str],
         if not is_explainable:
             return None, f"Not explainable, reason: {not_explainable_detail}"
 
+        schedules_list.schedules = replace_unknown_by_unique_church(schedules_list.schedules,
+                                                                    church_desc_by_id)
+
     return schedules_list, llm_error_detail
 
 
@@ -219,8 +239,8 @@ if __name__ == '__main__':
     schedules_list_, llm_error_detail_ = parse_with_llm(truncated_html_, church_desc_by_id_,
                                                         get_llm_model(), get_prompt_template())
     if schedules_list_:
-        for schedule in schedules_list_.schedules:
-            print(schedule)
+        for schedule_ in schedules_list_.schedules:
+            print(schedule_)
         print(schedules_list_.model_dump(exclude={'schedules'}))
     print(llm_error_detail_)
 
