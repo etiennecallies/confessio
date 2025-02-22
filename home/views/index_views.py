@@ -1,7 +1,7 @@
 import dataclasses
 
 from django.core.exceptions import ValidationError
-from django.http import HttpResponseNotFound, JsonResponse, HttpResponseBadRequest
+from django.http import HttpResponseNotFound, JsonResponse
 from django.shortcuts import render
 
 from home.models import Website, Diocese
@@ -83,22 +83,23 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
     return render(request, 'pages/index.html', context)
 
 
+def extract_float(key: str, request) -> float | None:
+    value = request.GET.get(key, '')
+    try:
+        return float(value)
+    except ValueError:
+        return None
+
+
 def index(request, diocese_slug=None, is_around_me: bool = False):
     location = request.GET.get('location', '')
-    latitude = request.GET.get('latitude', '')
-    longitude = request.GET.get('longitude', '')
+    latitude = extract_float('latitude', request)
+    longitude = extract_float('longitude', request)
 
-    min_lat = request.GET.get('minLat', '')
-    min_lng = request.GET.get('minLng', '')
-    max_lat = request.GET.get('maxLat', '')
-    max_lng = request.GET.get('maxLng', '')
-
-    if min_lat and min_lng and max_lat and max_lng:
-        try:
-            min_lat, max_lat, min_lng, max_lng = \
-                float(min_lat), float(max_lat), float(min_lng), float(max_lng)
-        except ValueError:
-            return HttpResponseBadRequest("Invalid coordinates")
+    min_lat = extract_float('minLat', request)
+    min_lng = extract_float('minLng', request)
+    max_lat = extract_float('maxLat', request)
+    max_lng = extract_float('maxLng', request)
 
     website_uuid = request.GET.get('websiteUuid', '')
 
@@ -119,7 +120,7 @@ def index(request, diocese_slug=None, is_around_me: bool = False):
         center = get_center(churches)
         bounds = None
     elif latitude and longitude:
-        center = [float(latitude), float(longitude)]
+        center = [latitude, longitude]
         churches, _ = get_churches_around(center)
         too_many_results = False
         bounds = None
