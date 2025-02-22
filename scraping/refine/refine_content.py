@@ -95,7 +95,7 @@ def rec_prettify(element: BeautifulSoup):
 
 def refine_table_or_calendar(soup: BeautifulSoup):
     clear_table_formatting(soup)
-    return clean_paragraph(rec_prettify(soup))
+    return rec_prettify(soup)
 
 
 ##################
@@ -158,6 +158,7 @@ def clean_paragraph(text: str):
     text = re.sub(r' <br>', r'<br>', text)
     text = re.sub(r'<br>\n +', r'<br>\n', text)
     text = re.sub(r'(<br>\n)+', r'<br>\n', text)
+    text = re.sub(r'\n<br>', r'<br>', text)
     text = re.sub(r'^<br>(\n)?', '', text)
     text = re.sub(r'<br>(\n)?$', '', text)
     text = re.sub(r'(\n)+$', '', text)
@@ -237,7 +238,7 @@ def build_text(soup: BeautifulSoup):
 
     results = filter(lambda s: len(s) > 0, results)
 
-    clean_result = clean_paragraph(' '.join(results))
+    clean_result = ' '.join(results)
     if is_calendar(clean_result):
         return refine_table_or_calendar(soup)
 
@@ -282,5 +283,6 @@ def refine_confession_content(content_html):
     soup = remove_script(soup)
 
     text = build_text(soup)
+    text = clean_paragraph(text)
 
     return text

@@ -31,8 +31,12 @@ DATES_REGEX = [
 ]
 
 
+def trim_string(s: str) -> str:
+    return s.strip()
+
+
 def is_calendar_item(line: str) -> bool:
-    normalized_line = normalize_content(line)
+    normalized_line = normalize_content(trim_string(line))
     for regex in DATES_REGEX:
         if re.fullmatch(regex, normalized_line):
             return True
