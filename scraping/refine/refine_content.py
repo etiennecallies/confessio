@@ -239,6 +239,8 @@ def build_text(soup: BeautifulSoup):
     results = filter(lambda s: len(s) > 0, results)
 
     clean_result = ' '.join(results)
+
+    # TODO this check is very heavy, we should detect is_calendar_item on the flow and sum it
     if is_calendar(clean_result):
         return refine_table_or_calendar(soup)
 
