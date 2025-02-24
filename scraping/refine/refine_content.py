@@ -6,7 +6,7 @@ from typing import Optional
 from bs4 import BeautifulSoup, NavigableString, Comment, ProcessingInstruction, \
     MarkupResemblesLocatorWarning, PageElement
 
-from scraping.refine.detect_calendar import is_calendar
+from scraping.refine.detect_calendar import is_calendar_item
 from scraping.utils.string_utils import is_below_byte_limit
 
 
@@ -214,37 +214,58 @@ def get_element_and_text(element):
     return element.contents
 
 
-def build_text(soup: BeautifulSoup):
+def build_text(soup: BeautifulSoup) -> tuple[str, int]:
     if is_table(soup):
-        return refine_table_or_calendar(soup)
+        return refine_table_or_calendar(soup), 0
 
-    results = []
+    result_line = ''
+    current_line = ''
+    total_calendar_items = 0
     for element in get_element_and_text(soup):
         if is_span(element):
-            results.append(clean_text(element.get_text(' ')))
+            cleaned_text = clean_text(element.get_text(' '))
+            if not cleaned_text:
+                continue
+
+            current_line = current_line + (' ' if current_line else '') + cleaned_text
         elif is_text(element):
-            results.append(clean_text(str(element)))
+            cleaned_text = clean_text(str(element))
+            if not cleaned_text:
+                continue
+
+            current_line = current_line + (' ' if current_line else '') + cleaned_text
         elif is_br(element):
-            results.append('<br>\n')
+            if current_line:
+                result_line = result_line + ('<br>\n' if result_line else '') + current_line
+                total_calendar_items += int(is_calendar_item(current_line))
+                current_line = ''
         elif is_comment(element):
             continue
         elif is_link(element):
             clear_link_formatting(element)
-            results.append(flatten_string(element.prettify()))
+            cleaned_text = flatten_string(element.prettify())
+            if not cleaned_text:
+                continue
+
+            current_line = current_line + (' ' if current_line else '') + cleaned_text
         else:
-            text = build_text(element)
+            text, nb_calendar_items = build_text(element)
             if text:
-                results.append('<br>\n' + text + '<br>\n')
+                if current_line:
+                    result_line = result_line + ('<br>\n' if result_line else '') + current_line
+                    total_calendar_items += int(is_calendar_item(current_line))
+                    current_line = ''
+                result_line = result_line + ('<br>\n' if result_line else '') + text
+                total_calendar_items += nb_calendar_items
 
-    results = filter(lambda s: len(s) > 0, results)
+    if current_line:
+        result_line = result_line + ('<br>\n' if result_line else '') + current_line
+        total_calendar_items += int(is_calendar_item(current_line))
 
-    clean_result = ' '.join(results)
+    if total_calendar_items > 1:
+        return refine_table_or_calendar(soup), 0
 
-    # TODO this check is very heavy, we should detect is_calendar_item on the flow and sum it
-    if is_calendar(clean_result):
-        return refine_table_or_calendar(soup)
-
-    return clean_result
+    return result_line, total_calendar_items
 
 
 ###############
@@ -284,7 +305,8 @@ def refine_confession_content(content_html):
     soup = remove_img(soup)
     soup = remove_script(soup)
 
-    text = build_text(soup)
+    text, _ = build_text(soup)
+
     text = clean_paragraph(text)
 
     return text
