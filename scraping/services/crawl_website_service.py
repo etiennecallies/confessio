@@ -42,6 +42,10 @@ def update_home_url(website: Website, new_home_url: str):
                        other_home_url=new_home_url)
         return
 
+    if 'google.com/sorry' in new_home_url:
+        print(f'This url is not eligible to home url update: {new_home_url}')
+        return
+
     # Check that there is not already a Website with this home_url
     try:
         website_with_url = Website.objects.get(home_url=new_home_url)
