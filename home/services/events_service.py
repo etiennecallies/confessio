@@ -251,12 +251,15 @@ def get_church_events_by_day_by_website(
 # COLORS #
 ##########
 
-def get_church_event_color(church: Church, start: str, end: str | None) -> str:
-    # Create a unique string from the inputs
-    unique_string = f"{church.name if church else ''}:{start}:{end or ''}"
+def get_church_color(church: Church | None, is_church_explicitly_other: bool) -> str:
+    if is_church_explicitly_other:
+        return 'red'
+
+    if church is None:
+        return 'gray'
 
     # Generate a hash of the string
-    hash_hex = hash_string_to_hex(unique_string)
+    hash_hex = hash_string_to_hex(str(church.uuid))
 
     # Convert first 3 bytes of hash to RGB values
     r = int(hash_hex[:2], 16)

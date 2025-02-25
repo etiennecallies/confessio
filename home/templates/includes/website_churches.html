@@ -1,10 +1,11 @@
 {% load custom_tags %}
+{% load display_tags %}
 {% load i18n %}
 
 {% for church in website_churches|get_item:website.uuid %}
     <div class="row">
-        <p class="col-md-9">
-            <span class="fw-bold">⛪️ {{ church.name }}</span>
+        <div class="col-md-9">
+            <span class="fw-bold">{% display_church_color church False %} {{ church.name }}</span>
             {% if request.user.is_authenticated and request.user.is_staff %}
                 <a class="text-muted" href="{% url 'admin:home_church_change' church.uuid %}" target="_blank">
                     - Admin <i class="fas fa-up-right-from-square"></i>
@@ -13,7 +14,7 @@
             <br>
             <span class="text-muted">{{ church.address }} {{ church.zipcode }} {{ church.city }}</span>
             <span class="text-muted copy-to-clipboard"><i class="far fa-copy"></i></span>
-        </p>
+        </div>
         {% if church_marker_names %}
             <p class="col-md-3">
                 <a href="#map"

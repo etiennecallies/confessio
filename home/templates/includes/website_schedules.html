@@ -31,7 +31,7 @@
                         {% endif %}
                         {% for schedule_item in church_sorted_schedule.sorted_schedules %}
                             <div>
-                                {% display_schedule_item_color church_sorted_schedule.church schedule_item.item %}
+                                {% display_church_color church_sorted_schedule.church church_sorted_schedule.is_church_explicitly_other %}
                                 {{ schedule_item.item|get_explanation }}
                                 <a href="#parsing-{{ schedule_item.parsing.uuid }}"
                                    class="text-muted"
@@ -78,7 +78,7 @@
     {% trans 'OutsideThisParish' %}
 {% else %}Lieu inconnu{% endif %}<br>
 {% display_hour church_event.event.start %} - {% if church_event.event.end %}{% display_hour church_event.event.end %}{% else %}?{% endif %}
-">{% display_church_event_color church_event %}</span>
+">{% display_church_color church_event.church church_event.is_church_explicitly_other %}</span>
                                             </div>
                                         {% endfor %}
                                     {% endwith %}
