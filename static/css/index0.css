@@ -297,3 +297,24 @@ UI widget
 .margin-avg {
     margin: 0 0.15rem;
 }
+
+/**
+ * Collapse element
+ */
+.collapsable-header {
+  cursor: pointer;
+}
+
+.toggle-symbol {
+    margin-right: 0.4em;
+}
+
+/* Collapsed state (>) */
+.toggle-symbol.collapsed-symbol::before {
+    content: '\25B6'; /* ▶ */
+}
+
+/* Expanded state (V) */
+.toggle-symbol.expanded-symbol::before {
+    content: '\25BC'; /* ▼ */
+}

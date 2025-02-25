@@ -18,6 +18,10 @@ $(document).ready(function () {
   $('.expandable').on('click', function () {
     $(this).children('.expandable-item').toggle();
   });
+
+  $('.collapsable-header').click(function() {
+    $(this).find('.toggle-symbol').toggleClass('collapsed-symbol expanded-symbol');
+  });
 });
 
 /**
@@ -28,15 +32,6 @@ $(window).on("load", function () {
       $(this).tooltip({html: $(this).data('html') || false});
   });
 });
-
-/**
- * Activate tabs.
- *
- * Requires JQuery UI Tabs.
- */
-$( function() {
-  $( ".schedules-sources-tabs" ).tabs();
-} );
 
 /**
  * Open tab of given id.

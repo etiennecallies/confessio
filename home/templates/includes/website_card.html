@@ -28,23 +28,32 @@
                                 </span></span>
                             </h3>
                         </div>
-                        <div class="schedules-sources-tabs" id="tabs-{{ website.uuid }}">
-                            <ul class="nav nav-tabs">
-                                <li class="nav-item"><a class="nav-link" href="#tab-schedules-{{ website.uuid }}">📆 Dates</a></li>
-                                <li class="nav-item"><a class="nav-link" href="#tab-sources-{{ website.uuid }}">📖 Sources</a></li>
-                                <li class="nav-item"><a class="nav-link" href="#tab-churches-{{ website.uuid }}">⛪️ Églises</a></li>
-                            </ul>
-                            <div id="tab-schedules-{{ website.uuid }}">
-                                {% include 'includes/website_schedules.html' %}
+
+                        {% include 'includes/website_schedules.html' %}
+
+                        <div class="mt-3">
+                            <div class="collapsable-header" data-bs-toggle="collapse" data-bs-target="#churches-{{ website.uuid }}" aria-expanded="false">
+                                <h6><span class="toggle-symbol collapsed-symbol text-gray-600"></span>Églises (3) ⛪️</h6>
                             </div>
-                            <div id="tab-sources-{{ website.uuid }}">
-                                {% include 'includes/website_sources.html' %}
-                            </div>
-                            <div id="tab-churches-{{ website.uuid }}">
-                                {% include 'includes/website_churches.html' %}
+                            <div id="churches-{{ website.uuid }}" class="collapse">
+                                <div class="collapsable-body">
+                                    {% include 'includes/website_churches.html' %}
+                                </div>
                             </div>
                         </div>
-                        <p class="mt-2">
+
+                        <div class="mt-3">
+                            <div class="collapsable-header" data-bs-toggle="collapse" data-bs-target="#sources-{{ website.uuid }}" aria-expanded="false">
+                                <h6><span class="toggle-symbol collapsed-symbol text-gray-600"></span>Sources (8) 📖</h6>
+                            </div>
+                            <div id="sources-{{ website.uuid }}" class="collapse">
+                                <div class="collapsable-body">
+                                    {% include 'includes/website_sources.html' %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
                             {% if not website.unreliability_reason %}
                                 {% if website.parsings_have_been_moderated %}
                                     <span class="text-success">✅ Source vérifiée.</span>
@@ -58,7 +67,7 @@
                                 </span>
                             {% endfor %}
                             <u><a href="{% url 'report' website.uuid %}" rel="nofollow">Donner votre avis.</a></u>
-                        </p>
+                        </div>
                     </div>
                 </div>
             </div>

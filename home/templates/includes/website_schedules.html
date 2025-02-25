@@ -11,6 +11,7 @@
     {% with church_events_by_day=church_events_by_day_by_website|get_item:website.uuid %}
         <div>
             {% if merged_schedules_list.church_events %}
+
                 {% for church_sorted_schedule in merged_schedules_list.church_sorted_schedules %}
                     <div>
                         {% if church_sorted_schedule.church %}
@@ -42,7 +43,8 @@
                     </div>
                 {% endfor %}
 
-                <div class="row mt-4">
+                <div>Prochaines confessions</div>
+                <div class="row mt-1">
                     <div class="col-12 text-center">
                         <table class="table calendar-table">
                     <thead>
