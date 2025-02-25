@@ -26,7 +26,8 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
     websites = list(websites_by_uuid.values())
 
     # We compute the merged schedules list for each website
-    website_merged_church_schedules_list = get_website_merged_church_schedules_list(websites)
+    website_merged_church_schedules_list = get_website_merged_church_schedules_list(
+        websites, website_churches)
 
     # We prepare the map
     folium_map, church_marker_names = prepare_map(center, churches, bounds,
@@ -56,6 +57,10 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
     for website in websites:
         website_reports_count[website.uuid] = get_count_and_label(website)
 
+    website_church_count = {}
+    for website in websites:
+        website_church_count[website.uuid] = len(website_churches.get(website.uuid, []))
+
     # We group the church events by website and by day
     church_events_by_day_by_website = get_church_events_by_day_by_website(
         website_merged_church_schedules_list
@@ -64,16 +69,23 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
     # Get parsings and prunings for each website
     websites_parsings_and_prunings = get_websites_parsings_and_prunings(websites)
 
+    website_parsing_count = {}
+    for website in websites:
+        parsing_and_pruning = websites_parsings_and_prunings[website.uuid]
+        website_parsing_count[website.uuid] = len(parsing_and_pruning.parsings_by_uuid) \
+            if parsing_and_pruning else 0
+
     context = {
         'location': location,
         'map_html': map_html,
         'church_marker_names': church_marker_names,
         'websites': websites,
         'website_merged_church_schedules_list': website_merged_church_schedules_list,
-        'website_churches': website_churches,
         'page_pruning_urls': page_pruning_urls,
         'too_many_results': too_many_results,
         'website_reports_count': website_reports_count,
+        'website_church_count': website_church_count,
+        'website_parsing_count': website_parsing_count,
         'weeks_range': get_current_week_and_next_two_weeks(),
         'current_day': get_current_day(),
         "church_events_by_day_by_website": church_events_by_day_by_website,

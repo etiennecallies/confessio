@@ -33,7 +33,7 @@
 
                         <div class="mt-3">
                             <div class="collapsable-header" data-bs-toggle="collapse" data-bs-target="#churches-{{ website.uuid }}" aria-expanded="false">
-                                <h6><span class="toggle-symbol collapsed-symbol text-gray-600"></span>Églises (3) ⛪️</h6>
+                                <h6><span class="toggle-symbol collapsed-symbol text-gray-600"></span>Églises ({{ website_church_count|get_item:website.uuid }}) ⛪️</h6>
                             </div>
                             <div id="churches-{{ website.uuid }}" class="collapse">
                                 <div class="collapsable-body">
@@ -44,7 +44,7 @@
 
                         <div class="mt-3">
                             <div class="collapsable-header" data-bs-toggle="collapse" data-bs-target="#sources-{{ website.uuid }}" aria-expanded="false">
-                                <h6><span class="toggle-symbol collapsed-symbol text-gray-600"></span>Sources (8) 📖</h6>
+                                <h6><span class="toggle-symbol collapsed-symbol text-gray-600"></span>Sources ({{ website_parsing_count|get_item:website.uuid }}) 📖</h6>
                             </div>
                             <div id="sources-{{ website.uuid }}" class="collapse">
                                 <div class="collapsable-body">

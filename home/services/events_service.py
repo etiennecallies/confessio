@@ -118,7 +118,8 @@ class MergedChurchSchedulesList:
         return None
 
 
-def get_merged_church_schedules_list(csl: list[ChurchSchedulesList]
+def get_merged_church_schedules_list(csl: list[ChurchSchedulesList],
+                                     all_website_churches: list[Church]
                                      ) -> MergedChurchSchedulesList:
     church_schedules = [cs for sl in csl for cs in sl.church_schedules]
     schedules_list = get_merged_schedules_list([cs.schedules_list for cs in csl])
@@ -139,6 +140,15 @@ def get_merged_church_schedules_list(csl: list[ChurchSchedulesList]
         for church_id, church_schedules in church_schedule_items.items()
     ]
 
+    churches_with_events = {cs.church for cs in church_schedules}
+    church_sorted_schedules += [
+        ChurchSortedSchedules(
+            church=c,
+            is_church_explicitly_other=False,
+            sorted_schedules=[]
+        ) for c in all_website_churches if c not in churches_with_events
+    ]
+
     return MergedChurchSchedulesList(
         schedules_list=schedules_list,
         church_events=church_events,
@@ -146,7 +156,8 @@ def get_merged_church_schedules_list(csl: list[ChurchSchedulesList]
     )
 
 
-def get_merged_church_schedules_list_for_website(website: Website
+def get_merged_church_schedules_list_for_website(website: Website,
+                                                 website_churches: list[Church]
                                                  ) -> MergedChurchSchedulesList | None:
     if not website.all_pages_parsed() or website.unreliability_reason:
         return None
@@ -154,14 +165,16 @@ def get_merged_church_schedules_list_for_website(website: Website
     church_schedules_lists = [ChurchSchedulesList.from_parsing(parsing, website)
                               for parsing in website.get_all_parsings()]
     return get_merged_church_schedules_list(
-        [csl for csl in church_schedules_lists if csl is not None])
+        [csl for csl in church_schedules_lists if csl is not None], website_churches)
 
 
-def get_website_merged_church_schedules_list(websites: list[Website]
+def get_website_merged_church_schedules_list(websites: list[Website],
+                                             website_churches: dict[UUID, list[Church]]
                                              ) -> dict[UUID, MergedChurchSchedulesList]:
     website_merged_church_schedules_list = {}
     for website in websites:
-        merged_church_schedules_list = get_merged_church_schedules_list_for_website(website)
+        merged_church_schedules_list = get_merged_church_schedules_list_for_website(
+            website, website_churches[website.uuid])
         if merged_church_schedules_list:
             website_merged_church_schedules_list[website.uuid] = merged_church_schedules_list
 

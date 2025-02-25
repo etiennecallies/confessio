@@ -11,38 +11,6 @@
     {% with church_events_by_day=church_events_by_day_by_website|get_item:website.uuid %}
         <div>
             {% if merged_schedules_list.church_events %}
-
-                {% for church_sorted_schedule in merged_schedules_list.church_sorted_schedules %}
-                    <div>
-                        {% if church_sorted_schedule.church %}
-                            {% if church_marker_names %}
-                                <a href="#map"
-                                   class="link-info"
-                                   onclick="return popupChurch('{{ church_marker_names|get_item:church_sorted_schedule.church.uuid }}');">
-                                    {{ church_sorted_schedule.church.name }}
-                                </a> :
-                            {% else %}
-                                {{ church_sorted_schedule.church.name }} :
-                            {% endif %}
-                        {% elif church_sorted_schedule.is_church_explicitly_other %}
-                            <span class="text-danger">{% trans 'OutsideThisParish' %} :</span>
-                        {% else %}
-                            Lieu inconnu :
-                        {% endif %}
-                        {% for schedule_item in church_sorted_schedule.sorted_schedules %}
-                            <div>
-                                {% display_church_color church_sorted_schedule.church church_sorted_schedule.is_church_explicitly_other %}
-                                {{ schedule_item.item|get_explanation }}
-                                <a href="#parsing-{{ schedule_item.parsing.uuid }}"
-                                   class="text-muted"
-                                   onclick="return openTab('tab-sources-{{ website.uuid }}');">
-                                    (source)
-                                </a>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endfor %}
-
                 <div>Prochaines confessions</div>
                 <div class="row mt-1">
                     <div class="col-12 text-center">
