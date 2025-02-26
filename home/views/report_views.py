@@ -9,7 +9,7 @@ from home.services.events_service import get_website_merged_church_schedules_lis
     get_websites_parsings_and_prunings
 from home.services.page_url_service import get_page_pruning_urls
 from home.services.report_service import add_necessary_moderation_for_report
-from home.utils.date_utils import get_current_day
+from home.utils.date_utils import get_current_day, get_current_year
 from home.utils.hash_utils import hash_string_to_hex
 from home.utils.web_utils import get_client_ip
 
@@ -83,5 +83,6 @@ def report_page(request, website_uuid):
         'success_message': success_message,
         'previous_reports': previous_reports,
         'current_day': get_current_day(),
+        'current_year': str(get_current_year()),
         'websites_parsings_and_prunings': websites_parsings_and_prunings,
     })

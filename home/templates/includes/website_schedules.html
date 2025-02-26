@@ -15,9 +15,19 @@
                     <div class="col-12 text-center">
                         <table class="table calendar-table">
                     <thead>
-                        <tr class="days-header text-gray-700">
+                        <tr>
                             {% for day in merged_schedules_list.church_events_by_day %}
-                            <th>{{ day|date:"l" }}</th>
+                                <th {% if day == current_day %} class="bg-gradient-gray-200"{% endif %}>
+                                    {{ day|date:"l" }}
+                                </th>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            {% for day in merged_schedules_list.church_events_by_day %}
+                                <th {% if day == current_day %} class="bg-gradient-gray-200"{% endif %}>
+                                    {{ day.day }}&nbsp;{{ day|date:"N" }}
+                                    {% if day|date:"Y" != current_year %}{{ day|date:"Y" }}{% endif %}
+                                </th>
                             {% endfor %}
                         </tr>
                     </thead>
@@ -25,10 +35,6 @@
                         <tr>
                             {% for day in merged_schedules_list.church_events_by_day %}
                                 <td{% if day == current_day %} class="bg-gradient-gray-200"{% endif %}>
-                                    <div class="text-center {% if day < current_day %}text-gray-300{% endif %}">
-                                        <p class="mb-0 lh-1"><small>{{ day.day }} {{ day|date:"N" }}</small></p>
-                                    </div>
-
                                     {% with church_events=merged_schedules_list.church_events_by_day|get_item:day %}
                                         {% for church_event in church_events %}
                                             <div class="text-center">

@@ -30,7 +30,7 @@ $(document).ready(function () {
 /**
  * Activate tooltips.
  */
-$(document).ready(function () {
+$(window).on("load", function () {
   $('[data-toggle="tooltip"]').each(function() {
       // use data-html="true" to enable html in tooltips
       $(this).tooltip({html: $(this).data('html') || false});

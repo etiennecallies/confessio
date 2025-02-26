@@ -5,7 +5,7 @@
 {% if website.one_page_has_confessions %}
     {% with website_parsings_and_prunings=websites_parsings_and_prunings|get_item:website.uuid %}
     {% for parsing in website_parsings_and_prunings.parsings_by_uuid.values %}
-        <div class="row mt-3 mb-1" id="parsing-{{ website.uuid }}-{{ parsing.uuid }}">
+        <div class="row mt-1 mb-3 margin-left-indent" id="parsing-{{ website.uuid }}-{{ parsing.uuid }}">
             {% with page=website_parsings_and_prunings.page_by_parsing_uuid|get_item:parsing.uuid %}
             <div class="col-md-9 lead">
                 {% blocktrans with url=page_pruning_urls|get_item:page.uuid|get_item:parsing.uuid %}BeforeConfessionHTML {{ url }}{% endblocktrans %}
@@ -51,7 +51,7 @@
                     </div>
                 {% endif %}
             </div>
-            <div>
+            <div class="margin-left-indent">
                 {% display_expandable_pruning website_parsings_and_prunings.prunings_by_parsing_uuid|get_item:parsing.uuid|get_ith:0 %}
             </div>
             {% endwith %}

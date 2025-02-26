@@ -12,7 +12,7 @@ from home.services.map_service import get_churches_in_box, get_churches_around, 
     get_churches_by_website, get_center, get_churches_by_diocese
 from home.services.page_url_service import get_page_pruning_urls
 from home.services.report_service import get_count_and_label
-from home.utils.date_utils import get_current_day
+from home.utils.date_utils import get_current_day, get_current_year
 
 
 def render_map(request, center, churches, bounds, location, too_many_results: bool,
@@ -82,6 +82,7 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
         'website_church_count': website_church_count,
         'website_parsing_count': website_parsing_count,
         'current_day': get_current_day(),
+        'current_year': str(get_current_year()),
         'websites_parsings_and_prunings': websites_parsings_and_prunings,
     }
 

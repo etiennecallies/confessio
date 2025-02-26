@@ -269,19 +269,15 @@ UI widget
     display: table;
 }
 
-.calendar-table th,
-.calendar-table td {
-    border: 1px solid #ddd;
-    padding: 2px;
+.calendar-table thead, .calendar-table tbody,
+.calendar-table tfoot, .calendar-table tr,
+.calendar-table td, .calendar-table th {
+    border: none;
+    font-weight: normal;
 }
 
-.calendar-table thead {
-    background-color: #F6F6F6;
-}
-
-.calendar-table thead,
-.calendar-table tbody {
-    border: 2px solid #ddd;
+.calendar-table th {
+    padding: 0 0.2em;
 }
 
 /**
