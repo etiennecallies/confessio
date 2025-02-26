@@ -8,52 +8,42 @@
     </div>
 {% else %}
     {% with merged_schedules_list=website_merged_church_schedules_list|get_item:website.uuid %}
-    {% with church_events_by_day=church_events_by_day_by_website|get_item:website.uuid %}
         <div>
-            {% if merged_schedules_list.church_events %}
-                <div>Prochaines confessions</div>
+            {% if merged_schedules_list.church_events_by_day %}
+                <div>Prochaines confessions :</div>
                 <div class="row mt-1">
                     <div class="col-12 text-center">
                         <table class="table calendar-table">
                     <thead>
                         <tr class="days-header text-gray-700">
-                            <th>Lun</th>
-                            <th>Mar</th>
-                            <th>Mer</th>
-                            <th>Jeu</th>
-                            <th>Ven</th>
-                            <th>Sam</th>
-                            <th>Dim</th>
+                            {% for day in merged_schedules_list.church_events_by_day %}
+                            <th>{{ day|date:"l" }}</th>
+                            {% endfor %}
                         </tr>
                     </thead>
                     <tbody>
-                        {% for week in weeks_range %}
                         <tr>
-                            {% for day in week %}
+                            {% for day in merged_schedules_list.church_events_by_day %}
                                 <td{% if day == current_day %} class="bg-gradient-gray-200"{% endif %}>
                                     <div class="text-center {% if day < current_day %}text-gray-300{% endif %}">
-                                        <p class="mb-0 lh-1"><small>{{ day.day }}</small></p>
-                                        <p class="mb-0 lh-1"><small>{{ day|date:"N" }}</small></p>
+                                        <p class="mb-0 lh-1"><small>{{ day.day }} {{ day|date:"N" }}</small></p>
                                     </div>
-                                    {% with church_events=church_events_by_day|get_item:day %}
+                                    <div class="text-center">
+                                    {% with church_events=merged_schedules_list.church_events_by_day|get_item:day %}
                                         {% for church_event in church_events %}
-                                            <div class="d-inline-block margin-avg">
-                                                <span class="link-info" data-toggle="tooltip" data-placement="bottom" data-html="true"
-                                                      title="
-{% if church_event.church %}
-    {{ church_event.church.name }}
-{% elif church_event.is_church_explicitly_other %}
-    {% trans 'OutsideThisParish' %}
-{% else %}Lieu inconnu{% endif %}<br>
-{% display_hour church_event.event.start %} - {% if church_event.event.end %}{% display_hour church_event.event.end %}{% else %}?{% endif %}
-">{% display_church_color church_event.church church_event.is_church_explicitly_other %}</span>
+                                            <div class="colored-schedule d-inline-block" data-toggle="tooltip" data-placement="bottom" data-html="true"
+                                                      title="{% if church_event.church %}{{ church_event.church.name }}{% elif church_event.is_church_explicitly_other %}{% trans 'OutsideThisParish' %}{% else %}Lieu inconnu{% endif %}"
+                                                      style="background-color: {% print_church_color church_event.church church_event.is_church_explicitly_other%}"
+                                                >{% display_hour church_event.event.start %} - {% if church_event.event.end %}{% display_hour church_event.event.end %}{% else %}?{% endif %}
                                             </div>
+                                        {% empty %}
+                                            -
                                         {% endfor %}
                                     {% endwith %}
+                                    </div>
                                 </td>
                             {% endfor %}
                         </tr>
-                        {% endfor %}
                     </tbody>
                 </table>
                     </div>
@@ -70,6 +60,5 @@
             {% endif %}
             {{ merged_schedules_list.schedules_list|has_relation_text }}
         </div>
-    {% endwith %}
     {% endwith %}
 {% endif %}

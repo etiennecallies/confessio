@@ -7,12 +7,12 @@ from django.shortcuts import render
 from home.models import Website, Diocese
 from home.services.autocomplete_service import get_aggregated_response
 from home.services.events_service import get_website_merged_church_schedules_list, \
-    get_church_events_by_day_by_website, get_websites_parsings_and_prunings
+    get_websites_parsings_and_prunings
 from home.services.map_service import get_churches_in_box, get_churches_around, prepare_map, \
     get_churches_by_website, get_center, get_churches_by_diocese
 from home.services.page_url_service import get_page_pruning_urls
 from home.services.report_service import get_count_and_label
-from home.utils.date_utils import get_current_week_and_next_two_weeks, get_current_day
+from home.utils.date_utils import get_current_day
 
 
 def render_map(request, center, churches, bounds, location, too_many_results: bool,
@@ -61,11 +61,6 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
     for website in websites:
         website_church_count[website.uuid] = len(website_churches.get(website.uuid, []))
 
-    # We group the church events by website and by day
-    church_events_by_day_by_website = get_church_events_by_day_by_website(
-        website_merged_church_schedules_list
-    )
-
     # Get parsings and prunings for each website
     websites_parsings_and_prunings = get_websites_parsings_and_prunings(websites)
 
@@ -86,9 +81,7 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
         'website_reports_count': website_reports_count,
         'website_church_count': website_church_count,
         'website_parsing_count': website_parsing_count,
-        'weeks_range': get_current_week_and_next_two_weeks(),
         'current_day': get_current_day(),
-        "church_events_by_day_by_website": church_events_by_day_by_website,
         'websites_parsings_and_prunings': websites_parsings_and_prunings,
     }
 

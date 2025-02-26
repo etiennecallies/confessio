@@ -4,7 +4,7 @@ from typing import Optional
 from uuid import UUID
 
 from home.models import Church, Parsing, Website, Page, Pruning
-from home.utils.date_utils import get_current_year, get_end_of_next_two_weeks, datetime_to_date
+from home.utils.date_utils import get_current_year
 from home.utils.hash_utils import hash_string_to_hex
 from scraping.parse.explain_schedule import schedule_item_sort_key
 from scraping.parse.rrule_utils import get_events_from_schedule_items
@@ -107,13 +107,14 @@ class ChurchSortedSchedules:
 @dataclass
 class MergedChurchSchedulesList:
     schedules_list: SchedulesList
-    church_events: list[ChurchEvent]
+    church_events_by_day: dict[date, list[ChurchEvent]]
     church_sorted_schedules: list[ChurchSortedSchedules]
 
     def next_event_in_church(self, church: Church) -> Optional[Event]:
-        for church_event in self.church_events:
-            if church_event.church == church:
-                return church_event.event
+        for church_events in self.church_events_by_day.values():
+            for church_event in church_events:
+                if church_event.church == church:
+                    return church_event.event
 
         return None
 
@@ -125,14 +126,26 @@ def get_merged_church_schedules_list(csl: list[ChurchSchedulesList],
     schedules_list = get_merged_schedules_list([cs.schedules_list for cs in csl])
 
     start_date = date.today()
-    end_date = get_end_of_next_two_weeks()
-    at_least_one_until = start_date + timedelta(days=300)
-    events = get_events_from_schedule_items(schedules_list.schedules, start_date, end_date,
-                                            get_current_year(), max_events=None,
-                                            at_least_one_until=at_least_one_until)
+    end_date = start_date + timedelta(days=300)
+    max_days = 8
+    events = get_events_from_schedule_items(schedules_list.schedules, start_date,
+                                            get_current_year(), end_date, max_events=None,
+                                            max_days=max_days)
 
     church_by_id = {cs.schedule_item.item.church_id: cs.church for cs in church_schedules}
-    church_events = [ChurchEvent.from_event(event, church_by_id) for event in events]
+
+    church_events_by_day = {}
+    if events:
+        first_day = events[0].start.date()
+        for i in range(max_days):
+            day = first_day + timedelta(days=i)
+            church_events_by_day[day] = []
+
+        for event in events:
+            event_date = event.start.date()
+            if event_date in church_events_by_day:
+                church_event = ChurchEvent.from_event(event, church_by_id)
+                church_events_by_day[event_date].append(church_event)
 
     church_schedule_items = get_sorted_schedules_by_church_id(church_schedules)
     church_sorted_schedules = [
@@ -151,7 +164,7 @@ def get_merged_church_schedules_list(csl: list[ChurchSchedulesList],
 
     return MergedChurchSchedulesList(
         schedules_list=schedules_list,
-        church_events=church_events,
+        church_events_by_day=church_events_by_day,
         church_sorted_schedules=church_sorted_schedules
     )
 
@@ -240,24 +253,6 @@ def get_websites_parsings_and_prunings(websites: list[Website]
             websites_parsings_and_prunings[website.uuid] = parsings_and_prunings
 
     return websites_parsings_and_prunings
-
-
-################
-# EVENT BY DAY #
-################
-
-def get_church_events_by_day_by_website(
-        website_merged_church_schedules_list: dict[UUID, MergedChurchSchedulesList]
-) -> dict[UUID, dict[date, list[ChurchEvent]]]:
-    church_events_by_day_by_website = {}
-    for website_uuid, merged_church_schedules_list in website_merged_church_schedules_list.items():
-        church_events_by_day = {}
-        for church_event in merged_church_schedules_list.church_events:
-            day = datetime_to_date(church_event.event.start)
-            church_events_by_day.setdefault(day, []).append(church_event)
-        church_events_by_day_by_website[website_uuid] = church_events_by_day
-
-    return church_events_by_day_by_website
 
 
 ##########
