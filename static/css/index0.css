@@ -80,8 +80,8 @@ table {
     vertical-align: text-top;
 }
 
-/* copy to clipboard */
-.copy-to-clipboard {
+/* clickable element */
+.clickable {
     cursor: pointer;
 }
 
@@ -303,10 +303,6 @@ UI widget
 /**
  * Collapse element
  */
-.collapsable-header {
-  cursor: pointer;
-}
-
 .toggle-symbol {
     margin-right: 0.4em;
 }
@@ -319,4 +315,11 @@ UI widget
 /* Expanded state (V) */
 .toggle-symbol.expanded-symbol::before {
     content: '\25BC'; /* ▼ */
+}
+
+/**
+ * Indentation
+ */
+.margin-left-indent {
+    margin-left: 1em;
 }

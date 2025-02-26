@@ -28,19 +28,20 @@
                                     <div class="text-center {% if day < current_day %}text-gray-300{% endif %}">
                                         <p class="mb-0 lh-1"><small>{{ day.day }} {{ day|date:"N" }}</small></p>
                                     </div>
-                                    <div class="text-center">
+
                                     {% with church_events=merged_schedules_list.church_events_by_day|get_item:day %}
                                         {% for church_event in church_events %}
-                                            <div class="colored-schedule d-inline-block" data-toggle="tooltip" data-placement="bottom" data-html="true"
-                                                      title="{% if church_event.church %}{{ church_event.church.name }}{% elif church_event.is_church_explicitly_other %}{% trans 'OutsideThisParish' %}{% else %}Lieu inconnu{% endif %}"
-                                                      style="background-color: {% print_church_color church_event.church church_event.is_church_explicitly_other%}"
-                                                >{% display_hour church_event.event.start %} - {% if church_event.event.end %}{% display_hour church_event.event.end %}{% else %}?{% endif %}
+                                            <div class="text-center">
+                                                <div class="colored-schedule d-inline-block clickable" onclick="return goToChurch('{{ website.uuid }}', '{{ church_event.church.uuid }}', '{{ church_event.is_church_explicitly_other }}')"
+                                                          title="{% if church_event.church %}{{ church_event.church.name }}{% elif church_event.is_church_explicitly_other %}{% trans 'OutsideThisParish' %}{% else %}Lieu inconnu{% endif %}"
+                                                          style="background-color: {% print_church_color church_event.church church_event.is_church_explicitly_other%}"
+                                                    >{% display_hour church_event.event.start %} - {% if church_event.event.end %}{% display_hour church_event.event.end %}{% else %}?{% endif %}
+                                                </div>
                                             </div>
                                         {% empty %}
                                             -
                                         {% endfor %}
                                     {% endwith %}
-                                    </div>
                                 </td>
                             {% endfor %}
                         </tr>

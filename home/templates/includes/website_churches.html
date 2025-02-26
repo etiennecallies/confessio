@@ -6,44 +6,50 @@
 {% for church_sorted_schedule in merged_schedules_list.church_sorted_schedules %}
     {% with church=church_sorted_schedule.church %}
         {% if church %}
-            <div class="row">
-                <div class="col-md-9">
-                    <span class="fw-bold">{% display_church_color church False %} {{ church.name }}</span>
-                    {% if request.user.is_authenticated and request.user.is_staff %}
-                        <a class="text-muted" href="{% url 'admin:home_church_change' church.uuid %}" target="_blank">
-                            - Admin <i class="fas fa-up-right-from-square"></i>
-                        </a>
+            <div id="church-{{ church.uuid }}" class="margin-left-indent">
+                <div class="row">
+                    <div class="col-md-9">
+                        <span class="fw-bold">{% display_church_color church False %} {{ church.name }}</span>
+                        {% if request.user.is_authenticated and request.user.is_staff %}
+                            <a class="text-muted" href="{% url 'admin:home_church_change' church.uuid %}" target="_blank">
+                                - Admin <i class="fas fa-up-right-from-square"></i>
+                            </a>
+                        {% endif %}
+                        <br>
+                        <span class="text-muted">{{ church.address }} {{ church.zipcode }} {{ church.city }}</span>
+                        <span class="text-muted copy-to-clipboard clickable"><i class="far fa-copy"></i></span>
+                    </div>
+                    {% if church_marker_names %}
+                        <p class="col-md-3">
+                            <a href="#map"
+                               class="link-info"
+                               onclick="return popupChurch('{{ church_marker_names|get_item:church.uuid }}');">
+                                {% trans 'locateOnMap' %}
+                            </a>
+                        </p>
                     {% endif %}
-                    <br>
-                    <span class="text-muted">{{ church.address }} {{ church.zipcode }} {{ church.city }}</span>
-                    <span class="text-muted copy-to-clipboard"><i class="far fa-copy"></i></span>
                 </div>
-                {% if church_marker_names %}
-                    <p class="col-md-3">
-                        <a href="#map"
-                           class="link-info"
-                           onclick="return popupChurch('{{ church_marker_names|get_item:church.uuid }}');">
-                            {% trans 'locateOnMap' %}
-                        </a>
-                    </p>
-                {% endif %}
-            </div>
         {% elif church_sorted_schedule.is_church_explicitly_other %}
-            {% display_church_color church True %}<span class="text-danger">{% trans 'OutsideThisParish' %} :</span>
+            <div id="nochurch-{{ website.uuid }}-true" class="margin-left-indent">
+                <div>
+                    {% display_church_color church True %}<span class="text-danger">{% trans 'OutsideThisParish' %} :</span>
+                </div>
         {% else %}
-            {% display_church_color church False %}Lieu inconnu :
+            <div id="nochurch-{{ website.uuid }}-false" class="margin-left-indent">
+                <div>
+                    {% display_church_color church False %}Lieu inconnu :
+                </div>
         {% endif %}
-
-        {% for schedule_item in church_sorted_schedule.sorted_schedules %}
-            <div>
-                {{ schedule_item.item|get_explanation }}
-                <a href="#parsing-{{ schedule_item.parsing.uuid }}"
-                   class="text-muted"
-                   onclick="return openTab('tab-sources-{{ website.uuid }}');">
-                    (source)
-                </a>
-            </div>
-        {% endfor %}
+            {% for schedule_item in church_sorted_schedule.sorted_schedules %}
+                <div class="margin-left-indent">
+                    {{ schedule_item.item|get_explanation }}
+                    <span class="text-muted clickable"
+                       onclick="return goToParsing('{{ website.uuid }}', '{{ schedule_item.parsing.uuid }}');">
+                        (source)
+                    </span>
+                </div>
+            {% endfor %}
+        </div>
 
 
     {% endwith %}
