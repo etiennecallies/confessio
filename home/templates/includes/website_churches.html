@@ -32,11 +32,11 @@
                 </div>
             {% elif church_sorted_schedule.is_church_explicitly_other %}
                 <div>
-                    {% display_church_color church True %}<span class="text-danger">{% trans 'OutsideThisParish' %} :</span>
+                    {% display_church_color church True %} <span class="text-danger">{% trans 'OutsideThisParish' %} :</span>
                 </div>
             {% else %}
                 <div>
-                    {% display_church_color church False %}Lieu inconnu :
+                    {% display_church_color church False %} Lieu inconnu :
                 </div>
             {% endif %}
             {% for schedule_item in church_sorted_schedule.sorted_schedules %}

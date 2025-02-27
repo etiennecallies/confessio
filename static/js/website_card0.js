@@ -42,16 +42,16 @@ $(window).on("load", function () {
  */
 function goToChurch(websiteUuid, churchUuid, isChurchExplicitlyOther) {
   // Uncollapse the churches section.
-  $('#churches-'+websiteUuid).collapse('show');
-
-  let $churchEl = churchUuid ? $('#church-'+churchUuid) : $('#nochurch-'+websiteUuid+'-'+isChurchExplicitlyOther);
-  // Navigate to the church element
-  if ($churchEl.length > 0) {
-    $churchEl[0].scrollIntoView();
-    animateElement($churchEl.first());
-  } else {
-      console.error('No church found for websiteUuid='+websiteUuid+' and churchUuid='+churchUuid);
-  }
+  $('#churches-'+websiteUuid).collapse('show').on('shown.bs.collapse', function () {
+      let $churchEl = churchUuid ? $('#church-' + churchUuid) : $('#nochurch-' + websiteUuid + '-' + isChurchExplicitlyOther);
+      // Navigate to the church element
+      if ($churchEl.length > 0) {
+          $churchEl[0].scrollIntoView();
+          animateElement($churchEl.first());
+      } else {
+          console.error('No church found for websiteUuid=' + websiteUuid + ' and churchUuid=' + churchUuid);
+      }
+  });
 }
 
 /**
@@ -59,16 +59,16 @@ function goToChurch(websiteUuid, churchUuid, isChurchExplicitlyOther) {
  */
 function goToParsing(websiteUuid, parsingUuid) {
     // Uncollapse the parsing section.
-    $('#sources-'+websiteUuid).collapse('show');
-
-    let $parsingEl = $('#parsing-'+websiteUuid+'-'+parsingUuid);
-    // Navigate to the parsing element
-    if ($parsingEl.length > 0) {
-        $parsingEl[0].scrollIntoView();
-        animateElement($parsingEl.first());
-    } else {
-        console.error('No parsing found for websiteUuid='+websiteUuid+' and parsingUuid='+parsingUuid);
-    }
+    $('#sources-'+websiteUuid).collapse('show').on('shown.bs.collapse', function () {
+        let $parsingEl = $('#parsing-' + websiteUuid + '-' + parsingUuid);
+        // Navigate to the parsing element
+        if ($parsingEl.length > 0) {
+            $parsingEl[0].scrollIntoView();
+            animateElement($parsingEl.first());
+        } else {
+            console.error('No parsing found for websiteUuid=' + websiteUuid + ' and parsingUuid=' + parsingUuid);
+        }
+    });
 }
 
 function animateElement($element) {

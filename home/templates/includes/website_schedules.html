@@ -10,49 +10,55 @@
     {% with merged_schedules_list=website_merged_church_schedules_list|get_item:website.uuid %}
         <div>
             {% if merged_schedules_list.church_events_by_day %}
-                <div>Prochaines confessions :</div>
-                <div class="row mt-1">
-                    <div class="col-12 text-center">
+                <h6>Prochaines confessions :</h6>
+                <div class="row text-center mt-1">
+                    <div class="col-1 align-self-center">
+                        <span><</span>
+                    </div>
+                    <div class="col-10">
                         <table class="table calendar-table">
-                    <thead>
-                        <tr>
-                            {% for day in merged_schedules_list.church_events_by_day %}
-                                <th {% if day == current_day %} class="bg-gradient-gray-200"{% endif %}>
-                                    {{ day|date:"l" }}
-                                </th>
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            {% for day in merged_schedules_list.church_events_by_day %}
-                                <th {% if day == current_day %} class="bg-gradient-gray-200"{% endif %}>
-                                    {{ day.day }}&nbsp;{{ day|date:"N" }}
-                                    {% if day|date:"Y" != current_year %}{{ day|date:"Y" }}{% endif %}
-                                </th>
-                            {% endfor %}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            {% for day in merged_schedules_list.church_events_by_day %}
-                                <td{% if day == current_day %} class="bg-gradient-gray-200"{% endif %}>
-                                    {% with church_events=merged_schedules_list.church_events_by_day|get_item:day %}
-                                        {% for church_event in church_events %}
-                                            <div class="text-center">
-                                                <div class="colored-schedule d-inline-block clickable" onclick="return goToChurch('{{ website.uuid }}', '{{ church_event.church.uuid }}', '{{ church_event.is_church_explicitly_other }}')"
-                                                          title="{% if church_event.church %}{{ church_event.church.name }}{% elif church_event.is_church_explicitly_other %}{% trans 'OutsideThisParish' %}{% else %}Lieu inconnu{% endif %}"
-                                                          style="background-color: {% print_church_color church_event.church church_event.is_church_explicitly_other%}"
-                                                    >{% display_hour church_event.event.start %} - {% if church_event.event.end %}{% display_hour church_event.event.end %}{% else %}?{% endif %}
-                                                </div>
-                                            </div>
-                                        {% empty %}
-                                            -
-                                        {% endfor %}
-                                    {% endwith %}
-                                </td>
-                            {% endfor %}
-                        </tr>
-                    </tbody>
-                </table>
+                            <thead>
+                                <tr>
+                                    {% for day in merged_schedules_list.church_events_by_day %}
+                                        <th {% if day == current_day %} class="bg-gradient-gray-200"{% endif %}>
+                                            {{ day|date:"l" }}
+                                        </th>
+                                    {% endfor %}
+                                </tr>
+                                <tr>
+                                    {% for day in merged_schedules_list.church_events_by_day %}
+                                        <th {% if day == current_day %} class="bg-gradient-gray-200"{% endif %}>
+                                            {{ day.day }}&nbsp;{{ day|date:"N" }}
+                                            {% if day|date:"Y" != current_year %}{{ day|date:"Y" }}{% endif %}
+                                        </th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    {% for day in merged_schedules_list.church_events_by_day %}
+                                        <td{% if day == current_day %} class="bg-gradient-gray-200"{% endif %}>
+                                            {% with church_events=merged_schedules_list.church_events_by_day|get_item:day %}
+                                                {% for church_event in church_events %}
+                                                    <div class="text-center">
+                                                        <div class="colored-schedule d-inline-block clickable" onclick="return goToChurch('{{ website.uuid }}', '{{ church_event.church.uuid }}', '{{ church_event.is_church_explicitly_other }}')"
+                                                                  title="{% if church_event.church %}{{ church_event.church.name }}{% elif church_event.is_church_explicitly_other %}{% trans 'OutsideThisParish' %}{% else %}Lieu inconnu{% endif %}"
+                                                                  style="background-color: {% print_church_color church_event.church church_event.is_church_explicitly_other%}"
+                                                            >{% display_hour church_event.event.start %} - {% if church_event.event.end %}{% display_hour church_event.event.end %}{% else %}?{% endif %}
+                                                        </div>
+                                                    </div>
+                                                {% empty %}
+                                                    -
+                                                {% endfor %}
+                                            {% endwith %}
+                                        </td>
+                                    {% endfor %}
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-1 align-self-center">
+                        <span>></span>
                     </div>
                 </div>
             {% elif not website.has_been_crawled %}
