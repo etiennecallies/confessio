@@ -41,34 +41,38 @@ $(window).on("load", function () {
  * Navigate to the church element.
  */
 function goToChurch(websiteUuid, churchUuid, isChurchExplicitlyOther) {
-  // Uncollapse the churches section.
-  $('#churches-'+websiteUuid).collapse('show').on('shown.bs.collapse', function () {
-      let $churchEl = churchUuid ? $('#church-' + churchUuid) : $('#nochurch-' + websiteUuid + '-' + isChurchExplicitlyOther);
-      // Navigate to the church element
-      if ($churchEl.length > 0) {
-          $churchEl[0].scrollIntoView();
-          animateElement($churchEl.first());
-      } else {
-          console.error('No church found for websiteUuid=' + websiteUuid + ' and churchUuid=' + churchUuid);
-      }
-  });
+    let $websiteSource = $('#churches-'+websiteUuid);
+    let elementId = churchUuid ? ('#church-' + churchUuid) : ('#nochurch-' + websiteUuid + '-' + isChurchExplicitlyOther);
+    uncollapseAndNavigateToElement($websiteSource, elementId);
 }
 
 /**
  * Navigate to the parsing element.
  */
 function goToParsing(websiteUuid, parsingUuid) {
-    // Uncollapse the parsing section.
-    $('#sources-'+websiteUuid).collapse('show').on('shown.bs.collapse', function () {
-        let $parsingEl = $('#parsing-' + websiteUuid + '-' + parsingUuid);
-        // Navigate to the parsing element
-        if ($parsingEl.length > 0) {
-            $parsingEl[0].scrollIntoView();
-            animateElement($parsingEl.first());
-        } else {
-            console.error('No parsing found for websiteUuid=' + websiteUuid + ' and parsingUuid=' + parsingUuid);
-        }
-    });
+    let $websiteSource = $('#sources-'+websiteUuid);
+    let elementId = 'parsing-' + websiteUuid + '-' + parsingUuid;
+    uncollapseAndNavigateToElement($websiteSource, elementId);
+}
+
+function uncollapseAndNavigateToElement($collapseElement, elementId) {
+    if (!$collapseElement.hasClass('show')) {
+        $collapseElement.collapse('show').one('shown.bs.collapse', function () {
+            navigateToElement(elementId);
+        });
+    } else {
+        navigateToElement(elementId);
+    }
+}
+
+function navigateToElement(elementId) {
+    let $element = $('#' + elementId);
+    if ($element.length > 0) {
+        $element[0].scrollIntoView();
+        animateElement($element.first());
+    } else {
+        console.error('No element found with id=' + elementId);
+    }
 }
 
 function animateElement($element) {
