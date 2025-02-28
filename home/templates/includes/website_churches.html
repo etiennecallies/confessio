@@ -6,7 +6,7 @@
 {% for church_sorted_schedule in merged_schedules_list.church_sorted_schedules %}
     {% with church=church_sorted_schedule.church %}
         <div id="{% if church %}church-{{ church.uuid }}{% else %}nochurch-{{ website.uuid }}-{{ church_sorted_schedule.is_church_explicitly_other|lower }}{% endif %}"
-             class="margin-left-indent">
+             class="margin-left-indent mt-1">
             {% if church %}
                 <div class="row mb-1">
                     <div class="col-md-9">
@@ -53,4 +53,10 @@
 
     {% endwith %}
 {% endfor %}
+<div class="margin-left-indent mt-2">
+    {% if merged_schedules_list.schedules_list.possible_by_appointment %}
+        <div>🤝 Il est possible de se confesser sur rendez-vous.</div>
+    {% endif %}
+    {{ merged_schedules_list.schedules_list|has_relation_text }}
+</div>
 {% endwith %}

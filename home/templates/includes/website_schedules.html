@@ -35,11 +35,5 @@
                 Pas de prochaines dates.
             {% endif %}
         </div>
-        <div>
-            {% if merged_schedules_list.schedules_list.possible_by_appointment %}
-                <div>🤝 Il est possible de se confesser sur rendez-vous.</div>
-            {% endif %}
-            {{ merged_schedules_list.schedules_list|has_relation_text }}
-        </div>
     {% endwith %}
 {% endif %}
