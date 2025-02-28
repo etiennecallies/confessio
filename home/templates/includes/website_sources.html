@@ -3,7 +3,6 @@
 {% load i18n %}
 
 {% if website.one_page_has_confessions %}
-    {% with merged_schedules_list=website_merged_church_schedules_list|get_item:website.uuid %}
     {% for parsing in merged_schedules_list.parsings_and_prunings.sources %}
         <div class="row mt-1 mb-3 margin-left-indent" id="parsing-{{ website.uuid }}-{{ parsing.uuid }}">
             {% with page=merged_schedules_list.parsings_and_prunings.page_by_parsing_uuid|get_item:parsing.uuid %}
@@ -58,7 +57,6 @@
             {% endwith %}
         </div>
     {% endfor %}
-    {% endwith %}
 {% elif not website.has_been_crawled %}
     {% trans 'NotCrawledYet' %}
 {% else %}

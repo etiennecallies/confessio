@@ -8,7 +8,7 @@ from home.utils.date_utils import get_current_year
 from home.utils.hash_utils import hash_string_to_hex
 from scraping.parse.explain_schedule import schedule_item_sort_key, get_explanation_from_schedule
 from scraping.parse.rrule_utils import get_events_from_schedule_items
-from scraping.parse.schedules import Event, ScheduleItem, SchedulesList
+from scraping.parse.schedules import Event, ScheduleItem
 from scraping.services.parse_pruning_service import get_parsing_schedules_list, get_church_by_id, \
     has_schedules
 
@@ -25,6 +25,7 @@ class WebsiteParsingsAndPrunings:
     all_pages_by_parsing_uuid: dict[UUID, list[Page]]
     prunings_by_parsing_uuid: dict[UUID, list[Pruning]]
     page_scraping_last_created_at_by_parsing_uuid: dict[UUID, Optional[datetime]]
+    parsings_have_been_moderated: bool
 
 
 def get_website_parsings_and_prunings(website: Website) -> WebsiteParsingsAndPrunings:
@@ -64,7 +65,8 @@ def get_website_parsings_and_prunings(website: Website) -> WebsiteParsingsAndPru
         page_by_parsing_uuid=page_by_parsing_uuid,
         all_pages_by_parsing_uuid=all_pages_by_parsing_uuid,
         prunings_by_parsing_uuid=prunings_by_parsing_uuid,
-        page_scraping_last_created_at_by_parsing_uuid=page_scraping_last_created_at_by_parsing_uuid
+        page_scraping_last_created_at_by_parsing_uuid=page_scraping_last_created_at_by_parsing_uuid,
+        parsings_have_been_moderated=all(parsing.has_been_moderated() for parsing in sources)
     )
 
 
@@ -128,27 +130,6 @@ class ChurchEvent:
 
 
 @dataclass
-class ChurchSchedulesList:
-    church_schedules: list[ChurchScheduleItem]
-    schedules_list: SchedulesList
-
-    @classmethod
-    def from_parsing(cls, parsing: Parsing, website: Website) -> Optional['ChurchSchedulesList']:
-        schedules_list = get_parsing_schedules_list(parsing)
-        if schedules_list is None:
-            return None
-
-        church_by_id = get_church_by_id(parsing, website)
-        church_schedules = [ChurchScheduleItem.from_schedule_item(schedule, parsing, church_by_id)
-                            for schedule in schedules_list.schedules]
-
-        return cls(
-            church_schedules=church_schedules,
-            schedules_list=schedules_list
-        )
-
-
-@dataclass
 class ChurchSortedSchedules:
     church: Optional[Church]
     is_church_explicitly_other: bool
@@ -192,6 +173,7 @@ def get_merged_church_schedules_list(website: Website,
     ################
     # Get parsings #
     ################
+    parsings_and_prunings = get_website_parsings_and_prunings(website)
 
     all_church_schedule_items = []
 
@@ -201,7 +183,7 @@ def get_merged_church_schedules_list(website: Website,
     is_related_to_permanence_parsings = []
     will_be_seasonal_events_parsings = []
 
-    for parsing in website.get_all_parsings():
+    for parsing in parsings_and_prunings.sources:
         church_by_id = get_church_by_id(parsing, website)
 
         schedules_list = get_parsing_schedules_list(parsing)
@@ -278,7 +260,7 @@ def get_merged_church_schedules_list(website: Website,
         is_related_to_adoration_parsings=is_related_to_adoration_parsings,
         is_related_to_permanence_parsings=is_related_to_permanence_parsings,
         will_be_seasonal_events_parsings=will_be_seasonal_events_parsings,
-        parsings_and_prunings=get_website_parsings_and_prunings(website)
+        parsings_and_prunings=parsings_and_prunings
     )
 
 
@@ -310,10 +292,10 @@ def get_website_merged_church_schedules_list(websites: list[Website],
 
 def get_church_color(church: Church | None, is_church_explicitly_other: bool) -> str:
     if is_church_explicitly_other:
-        return 'red'
+        return '#A91E2C'
 
     if church is None:
-        return 'gray'
+        return 'lightgray'
 
     # Generate a hash of the string
     hash_hex = hash_string_to_hex(str(church.uuid))

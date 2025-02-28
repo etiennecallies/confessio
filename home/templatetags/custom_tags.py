@@ -69,7 +69,7 @@ def has_relation_text(merged_church_schedules_list: MergedChurchSchedulesList | 
     if relations:
         relation_text = enumerate_with_and(relations)
 
-        return f'👉 Certaines horaires sont liées aux {relation_text} (voir sources).'
+        return f'👉 Certaines horaires sont liées aux {relation_text}'
 
     return ''
 
