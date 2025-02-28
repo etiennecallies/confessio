@@ -1,5 +1,4 @@
 {% load custom_tags %}
-{% load display_tags %}
 {% load i18n %}
 
 {% if website.unreliability_reason %}
@@ -11,54 +10,23 @@
         <div>
             {% if merged_schedules_list.church_events_by_day %}
                 <h6>Prochaines confessions :</h6>
-                <div class="row text-center mt-1">
+                <div class="row text-center mt-1 calendar-table-container">
                     <div class="col-1 align-self-center">
-                        <span><</span>
+                        <span class="previous-button clickable d-none">
+                            <i class="fas fa-chevron-left"></i>
+                        </span>
                     </div>
                     <div class="col-10">
-                        <table class="table calendar-table">
-                            <thead>
-                                <tr>
-                                    {% for day in merged_schedules_list.church_events_by_day %}
-                                        <th {% if day == current_day %} class="bg-gradient-gray-200"{% endif %}>
-                                            {{ day|date:"l" }}
-                                        </th>
-                                    {% endfor %}
-                                </tr>
-                                <tr>
-                                    {% for day in merged_schedules_list.church_events_by_day %}
-                                        <th {% if day == current_day %} class="bg-gradient-gray-200"{% endif %}>
-                                            {{ day.day }}&nbsp;{{ day|date:"N" }}
-                                            {% if day|date:"Y" != current_year %}{{ day|date:"Y" }}{% endif %}
-                                        </th>
-                                    {% endfor %}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    {% for day in merged_schedules_list.church_events_by_day %}
-                                        <td{% if day == current_day %} class="bg-gradient-gray-200"{% endif %}>
-                                            {% with church_events=merged_schedules_list.church_events_by_day|get_item:day %}
-                                                {% for church_event in church_events %}
-                                                    <div class="text-center">
-                                                        <div class="colored-schedule d-inline-block clickable" onclick="return goToChurch('{{ website.uuid }}', '{{ church_event.church.uuid }}', '{{ church_event.is_church_explicitly_other }}')"
-                                                                  title="{% if church_event.church %}{{ church_event.church.name }}{% elif church_event.is_church_explicitly_other %}{% trans 'OutsideThisParish' %}{% else %}Lieu inconnu{% endif %}"
-                                                                  style="background-color: {% print_church_color church_event.church church_event.is_church_explicitly_other%}"
-                                                            >{% display_hour church_event.event.start %} - {% if church_event.event.end %}{% display_hour church_event.event.end %}{% else %}?{% endif %}
-                                                        </div>
-                                                    </div>
-                                                {% empty %}
-                                                    -
-                                                {% endfor %}
-                                            {% endwith %}
-                                        </td>
-                                    {% endfor %}
-                                </tr>
-                            </tbody>
-                        </table>
+                        {% for range_num in "12"|make_list %}
+                            {% with days=merged_schedules_list|days_of_range:range_num %}
+                                {% include 'includes/schedules_table.html' %}
+                            {% endwith %}
+                        {% endfor %}
                     </div>
                     <div class="col-1 align-self-center">
-                        <span>></span>
+                        <span class="next-button clickable">
+                            <i class="fas fa-chevron-right"></i>
+                        </span>
                     </div>
                 </div>
             {% elif not website.has_been_crawled %}

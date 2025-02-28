@@ -57,18 +57,8 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
     for website in websites:
         website_reports_count[website.uuid] = get_count_and_label(website)
 
-    website_church_count = {}
-    for website in websites:
-        website_church_count[website.uuid] = len(website_churches.get(website.uuid, []))
-
     # Get parsings and prunings for each website
     websites_parsings_and_prunings = get_websites_parsings_and_prunings(websites)
-
-    website_parsing_count = {}
-    for website in websites:
-        parsing_and_pruning = websites_parsings_and_prunings[website.uuid]
-        website_parsing_count[website.uuid] = len(parsing_and_pruning.parsings_by_uuid) \
-            if parsing_and_pruning else 0
 
     context = {
         'location': location,
@@ -79,8 +69,6 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
         'page_pruning_urls': page_pruning_urls,
         'too_many_results': too_many_results,
         'website_reports_count': website_reports_count,
-        'website_church_count': website_church_count,
-        'website_parsing_count': website_parsing_count,
         'current_day': get_current_day(),
         'current_year': str(get_current_year()),
         'websites_parsings_and_prunings': websites_parsings_and_prunings,

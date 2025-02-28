@@ -78,3 +78,36 @@ function animateElement($element) {
       $element.css("background-color", "");
     }, 1000); // Reset after 1000ms
 }
+
+/**
+ * Handle date range selection.
+ */
+$(document).ready(function() {
+  // Handle "Next" button click
+  $(".next-button").click(function() {
+    // Find the parent table-container
+    const container = $(this).closest('.calendar-table-container');
+
+    // Hide range-1 table and show range-2 table in this container
+    container.find('.calendar-table.range-1').addClass('d-none');
+    container.find('.calendar-table.range-2').removeClass('d-none');
+
+    // Hide "Next" button and show "Previous" button in this container
+    $(this).addClass('d-none');
+    container.find('.previous-button').removeClass('d-none');
+  });
+
+  // Handle "Previous" button click
+  $(".previous-button").click(function() {
+    // Find the parent table-container
+    const container = $(this).closest('.calendar-table-container');
+
+    // Hide range-2 table and show range-1 table in this container
+    container.find('.calendar-table.range-2').addClass('d-none');
+    container.find('.calendar-table.range-1').removeClass('d-none');
+
+    // Hide "Previous" button and show "Next" button in this container
+    $(this).addClass('d-none');
+    container.find('.next-button').removeClass('d-none');
+  });
+});

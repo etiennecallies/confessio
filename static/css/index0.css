@@ -267,6 +267,7 @@ UI widget
 .calendar-table {
     white-space: wrap;
     display: table;
+    width: 100%;
 }
 
 .calendar-table thead, .calendar-table tbody,
@@ -278,6 +279,10 @@ UI widget
 
 .calendar-table th {
     padding: 0 0.2em;
+}
+
+.calendar-table td {
+    vertical-align: top;
 }
 
 /**

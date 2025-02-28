@@ -7,7 +7,7 @@ from django.urls import reverse
 from home.models import WebsiteModeration, ChurchModeration, ParishModeration, \
     PruningModeration, SentenceModeration, ParsingModeration, ModerationMixin, Pruning, \
     Page, Parsing, ReportModeration, Diocese, Church
-from home.services.events_service import get_church_color
+from home.services.events_service import get_church_color, MergedChurchSchedulesList
 from home.utils.date_utils import get_current_year
 from home.utils.list_utils import enumerate_with_and
 from scraping.parse.explain_schedule import get_explanation_from_schedule
@@ -18,6 +18,16 @@ from scraping.parse.schedules import ScheduleItem, Event, SchedulesList
 @register.filter
 def get_item(dictionary, key):
     return dictionary.get(key)
+
+
+@register.filter
+def days_of_range(merged_church_schedules_list: MergedChurchSchedulesList,
+                  range_number_as_str: str) -> list[date]:
+    sorted_days = sorted(merged_church_schedules_list.church_events_by_day.keys())
+    nb_days = 4
+    range_number = int(range_number_as_str) - 1
+
+    return sorted_days[range_number * nb_days:(range_number + 1) * nb_days]
 
 
 @register.filter
