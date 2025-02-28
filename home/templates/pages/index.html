@@ -1,6 +1,7 @@
 {% extends 'layouts/base.html' %}
 {% load static %}
 {% load i18n %}
+{% load custom_tags %}
 
 {% block content %}
 
@@ -14,9 +15,9 @@
                 <p>{% trans 'confessioDescription' %}</p>
             </div>
         </div>
-        <div class="row text-white mb-3">
-            <div class="col-12">
-                <form id="search-form">
+        <form id="search-form">
+            <div class="row text-white mb-3">
+                <div class="col-xl-10 col-md-9">
                     <div class="form-group">
                         <div class="input-group">
                             <input class="form-control"
@@ -29,13 +30,23 @@
                                    >
                         </div>
                     </div>
-                    <input type="hidden" id="latitude-input" name="latitude">
-                    <input type="hidden" id="longitude-input" name="longitude">
-                    <input type="hidden" id="website-uuid-input" name="websiteUuid">
-                    <button type="submit" class="d-none" disabled></button>
-                </form>
+                </div>
+                <div class="col-xl-2 col-md-3 col-5 mx-auto mt-2 mt-md-0">
+                    <select class="form-select w-100" name="dateFilter">
+                        <option value="any"{% if filter_days|get_item:'any_day'|get_item:'is_selected' %} selected{% endif %}>Tous les jours</option>
+                        <option value="{{ filter_days|get_item:'current_day'|get_item:'date'|date:"Y-m-d" }}{% if filter_days|get_item:'current_day'|get_item:'is_selected' %} selected{% endif %}">Aujourd'hui</option>
+                        <option value="{{ filter_days|get_item:'tomorrow'|get_item:'date'|date:"Y-m-d" }}"{% if filter_days|get_item:'tomorrow'|get_item:'is_selected' %} selected{% endif %}>Demain</option>
+                        {% for day_dict in filter_days|get_item:'next_days' %}
+                            <option value="{{ day_dict|get_item:'date'|date:"Y-m-d" }}"{% if day_dict|get_item:'is_selected' %} selected{% endif %}>{{ day_dict|get_item:'date'|date:"l"|capfirst }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
             </div>
-        </div>
+            <input type="hidden" id="latitude-input" name="latitude">
+            <input type="hidden" id="longitude-input" name="longitude">
+            <input type="hidden" id="website-uuid-input" name="websiteUuid">
+            <button type="submit" class="d-none" disabled></button>
+        </form>
         {% if too_many_results %}
             <div class="alert alert-warning alert-dismissible fade show" role="alert">
                 <span class="alert-inner--icon"><i class="fas fa-explosion"></i></span>
@@ -55,7 +66,7 @@
             </div>
         {% endif %}
         <div class="row text-white mb-3 text-center">
-            <div class="col-6 mx-auto" id="search-around-me-col" style="display: none">
+            <div class="col-6 mx-auto d-none" id="search-around-me-col">
                 <form id="search-around-me-form" action="{% url 'around_me_view' %}">
                     <div class="form-group">
                         <input type="hidden" id="position-latitude-input" name="latitude">
@@ -66,7 +77,7 @@
                     </div>
                 </form>
             </div>
-            <div class="col-6 mx-auto" id="search-in-this-area-col" style="display: none">
+            <div class="col-6 mx-auto d-none" id="search-in-this-area-col">
                 <form id="search-in-this-area-form">
                     <div class="form-group">
                         <input type="hidden" id="min-lat-input" name="minLat">

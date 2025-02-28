@@ -170,7 +170,8 @@ class MergedChurchSchedulesList:
 
 
 def get_merged_church_schedules_list(website: Website,
-                                     all_website_churches: list[Church]
+                                     all_website_churches: list[Church],
+                                     day_filter: date | None = None
                                      ) -> MergedChurchSchedulesList:
     ################
     # Get parsings #
@@ -185,10 +186,17 @@ def get_merged_church_schedules_list(website: Website,
     is_related_to_permanence_parsings = []
     will_be_seasonal_events_parsings = []
 
-    start_date = date.today()
-    current_year = get_current_year()
-    end_date = start_date + timedelta(days=300)
-    max_days = 8
+    if not day_filter:
+        start_date = date.today()
+        current_year = get_current_year()
+        end_date = start_date + timedelta(days=300)
+        max_days = 8
+        print('no day filter')
+    else:
+        start_date = day_filter
+        current_year = start_date.year
+        end_date = start_date + timedelta(days=1)
+        max_days = 1
 
     for parsing in parsings_and_prunings.sources:
         church_by_id = get_church_by_id(parsing, website)
@@ -272,21 +280,23 @@ def get_merged_church_schedules_list(website: Website,
 
 
 def get_merged_church_schedules_list_for_website(website: Website,
-                                                 website_churches: list[Church]
+                                                 website_churches: list[Church],
+                                                 day_filter: date | None = None
                                                  ) -> MergedChurchSchedulesList | None:
     if not website.all_pages_parsed() or website.unreliability_reason:
         return None
 
-    return get_merged_church_schedules_list(website, website_churches)
+    return get_merged_church_schedules_list(website, website_churches, day_filter)
 
 
 def get_website_merged_church_schedules_list(websites: list[Website],
-                                             website_churches: dict[UUID, list[Church]]
+                                             website_churches: dict[UUID, list[Church]],
+                                             day_filter: date | None = None
                                              ) -> dict[UUID, MergedChurchSchedulesList]:
     website_merged_church_schedules_list = {}
     for website in websites:
         merged_church_schedules_list = get_merged_church_schedules_list_for_website(
-            website, website_churches[website.uuid])
+            website, website_churches[website.uuid], day_filter)
         if merged_church_schedules_list:
             website_merged_church_schedules_list[website.uuid] = merged_church_schedules_list
 
