@@ -3,13 +3,13 @@
 {% load i18n %}
 
 {% if website.one_page_has_confessions %}
-    {% with website_parsings_and_prunings=websites_parsings_and_prunings|get_item:website.uuid %}
-    {% for parsing in website_parsings_and_prunings.parsings_by_uuid.values %}
-        <div class="row mt-3 mb-1" id="parsing-{{ parsing.uuid }}">
-            {% with page=website_parsings_and_prunings.page_by_parsing_uuid|get_item:parsing.uuid %}
+    {% for parsing in merged_schedules_list.parsings_and_prunings.sources %}
+        <div class="row mt-1 mb-3 margin-left-indent" id="parsing-{{ website.uuid }}-{{ parsing.uuid }}">
+            {% with page=merged_schedules_list.parsings_and_prunings.page_by_parsing_uuid|get_item:parsing.uuid %}
             <div class="col-md-9 lead">
+                [{{ forloop.counter }}]
                 {% blocktrans with url=page_pruning_urls|get_item:page.uuid|get_item:parsing.uuid %}BeforeConfessionHTML {{ url }}{% endblocktrans %}
-                {% with page_counter=website_parsings_and_prunings.all_pages_by_parsing_uuid|get_item:parsing.uuid|length %}
+                {% with page_counter=merged_schedules_list.parsings_and_prunings.all_pages_by_parsing_uuid|get_item:parsing.uuid|length %}
                     {% if page_counter > 1 %}<span><small class="text-muted">(et {{ page_counter|subtract:1 }} autres pages)</small></span>{% endif %}
                 {% endwith %}
                 {% if page.has_been_modified_recently %}
@@ -22,7 +22,7 @@
             <div class="col-md-3">
                 {% if request.user.is_authenticated and perms.home.change_sentence %}
                     <div class="row">
-                        {% for pruning in website_parsings_and_prunings.prunings_by_parsing_uuid|get_item:parsing.uuid %}
+                        {% for pruning in merged_schedules_list.parsings_and_prunings.prunings_by_parsing_uuid|get_item:parsing.uuid %}
                             {% with unvalidated_pruning_moderation=pruning|get_unvalidated_pruning_moderation %}
                                 {% if unvalidated_pruning_moderation %}
                                     <div class="col-xl-6">
@@ -51,13 +51,12 @@
                     </div>
                 {% endif %}
             </div>
-            <div>
-                {% display_expandable_pruning website_parsings_and_prunings.prunings_by_parsing_uuid|get_item:parsing.uuid|get_ith:0 %}
+            <div class="margin-left-indent">
+                {% display_expandable_pruning merged_schedules_list.parsings_and_prunings.prunings_by_parsing_uuid|get_item:parsing.uuid|get_ith:0 %}
             </div>
             {% endwith %}
         </div>
     {% endfor %}
-    {% endwith %}
 {% elif not website.has_been_crawled %}
     {% trans 'NotCrawledYet' %}
 {% else %}

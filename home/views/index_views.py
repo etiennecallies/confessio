@@ -6,13 +6,12 @@ from django.shortcuts import render
 
 from home.models import Website, Diocese
 from home.services.autocomplete_service import get_aggregated_response
-from home.services.events_service import get_website_merged_church_schedules_list, \
-    get_church_events_by_day_by_website, get_websites_parsings_and_prunings
+from home.services.events_service import get_website_merged_church_schedules_list
 from home.services.map_service import get_churches_in_box, get_churches_around, prepare_map, \
     get_churches_by_website, get_center, get_churches_by_diocese
 from home.services.page_url_service import get_page_pruning_urls
 from home.services.report_service import get_count_and_label
-from home.utils.date_utils import get_current_week_and_next_two_weeks, get_current_day
+from home.utils.date_utils import get_current_day, get_current_year
 
 
 def render_map(request, center, churches, bounds, location, too_many_results: bool,
@@ -26,7 +25,8 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
     websites = list(websites_by_uuid.values())
 
     # We compute the merged schedules list for each website
-    website_merged_church_schedules_list = get_website_merged_church_schedules_list(websites)
+    website_merged_church_schedules_list = get_website_merged_church_schedules_list(
+        websites, website_churches)
 
     # We prepare the map
     folium_map, church_marker_names = prepare_map(center, churches, bounds,
@@ -56,28 +56,17 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
     for website in websites:
         website_reports_count[website.uuid] = get_count_and_label(website)
 
-    # We group the church events by website and by day
-    church_events_by_day_by_website = get_church_events_by_day_by_website(
-        website_merged_church_schedules_list
-    )
-
-    # Get parsings and prunings for each website
-    websites_parsings_and_prunings = get_websites_parsings_and_prunings(websites)
-
     context = {
         'location': location,
         'map_html': map_html,
         'church_marker_names': church_marker_names,
         'websites': websites,
         'website_merged_church_schedules_list': website_merged_church_schedules_list,
-        'website_churches': website_churches,
         'page_pruning_urls': page_pruning_urls,
         'too_many_results': too_many_results,
         'website_reports_count': website_reports_count,
-        'weeks_range': get_current_week_and_next_two_weeks(),
         'current_day': get_current_day(),
-        "church_events_by_day_by_website": church_events_by_day_by_website,
-        'websites_parsings_and_prunings': websites_parsings_and_prunings,
+        'current_year': str(get_current_year()),
     }
 
     return render(request, 'pages/index.html', context)

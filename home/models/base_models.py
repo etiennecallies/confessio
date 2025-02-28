@@ -78,12 +78,6 @@ class Website(TimeStampMixin):
         if not self.parishes.exists():
             self.delete()
 
-    def get_all_parsings(self) -> list['Parsing']:
-        all_parsings = [page.get_parsing(pruning)
-                        for page in self.get_pages()
-                        for pruning in page.get_prunings()]
-        return [p for p in all_parsings if p is not None]
-
     def get_church_desc_by_id(self) -> dict[int, str]:
         church_descs = []
         for parish in self.parishes.all():
@@ -95,9 +89,6 @@ class Website(TimeStampMixin):
             church_desc_by_id[i] = desc
 
         return church_desc_by_id
-
-    def parsings_have_been_moderated(self) -> bool:
-        return all(parsing.has_been_moderated() for parsing in self.get_all_parsings())
 
     def get_diocese(self) -> Diocese | None:
         if not self.parishes.exists():

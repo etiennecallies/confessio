@@ -1,27 +1,71 @@
 {% load custom_tags %}
+{% load display_tags %}
 {% load i18n %}
 
-{% for church in website_churches|get_item:website.uuid %}
-    <div class="row">
-        <p class="col-md-9">
-            <span class="fw-bold">⛪️ {{ church.name }}</span>
-            {% if request.user.is_authenticated and request.user.is_staff %}
-                <a class="text-muted" href="{% url 'admin:home_church_change' church.uuid %}" target="_blank">
-                    - Admin <i class="fas fa-up-right-from-square"></i>
-                </a>
+{% for church_sorted_schedule in merged_schedules_list.church_sorted_schedules %}
+    {% with church=church_sorted_schedule.church %}
+        <div id="{% if church %}church-{{ church.uuid }}{% else %}nochurch-{{ website.uuid }}-{{ church_sorted_schedule.is_church_explicitly_other|lower }}{% endif %}"
+             class="margin-left-indent mt-1">
+            {% if church %}
+                <div class="row mb-1">
+                    <div class="col-md-9">
+                        <span class="fw-bold">{% display_church_color church False %} {{ church.name }}</span>
+                        {% if request.user.is_authenticated and request.user.is_staff %}
+                            <a class="text-muted" href="{% url 'admin:home_church_change' church.uuid %}" target="_blank">
+                                - Admin <i class="fas fa-up-right-from-square"></i>
+                            </a>
+                        {% endif %}
+                        <br>
+                        <span class="text-muted">{{ church.address }} {{ church.zipcode }} {{ church.city }}</span>
+                        <span class="text-muted copy-to-clipboard clickable"><i class="far fa-copy"></i></span>
+                    </div>
+                    {% if church_marker_names %}
+                        <div class="col-md-3">
+                            <a href="#map"
+                               class="link-info"
+                               onclick="return popupChurch('{{ church_marker_names|get_item:church.uuid }}');">
+                                {% trans 'locateOnMap' %}
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            {% elif church_sorted_schedule.is_church_explicitly_other %}
+                <div>
+                    {% display_church_color church True %}
+                    <span class="text-danger">{% trans 'OutsideThisParish' %} :</span>
+                    <span class="hide-explicitly-other-btn text-muted clickable small">Masquer</span>
+                </div>
+            {% else %}
+                <div>
+                    {% display_church_color church False %}
+                    Lieu inconnu :
+                </div>
             {% endif %}
-            <br>
-            <span class="text-muted">{{ church.address }} {{ church.zipcode }} {{ church.city }}</span>
-            <span class="text-muted copy-to-clipboard"><i class="far fa-copy"></i></span>
-        </p>
-        {% if church_marker_names %}
-            <p class="col-md-3">
-                <a href="#map"
-                   class="link-info"
-                   onclick="return popupChurch('{{ church_marker_names|get_item:church.uuid }}');">
-                    {% trans 'locateOnMap' %}
-                </a>
-            </p>
-        {% endif %}
-    </div>
+            {% for schedule_item in church_sorted_schedule.sorted_schedules %}
+                <div class="margin-left-indent {% if church_sorted_schedule.is_church_explicitly_other %} explicitly-other{% endif %}">
+                    <span>{{ schedule_item.explanation }}</span>
+                    {% for parsing_uuid in schedule_item.parsing_uuids %}
+                        {% include 'includes/source_reference.html' %}
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+
+
+    {% endwith %}
 {% endfor %}
+<div class="margin-left-indent mt-2">
+    {% if merged_schedules_list.possible_by_appointment_parsings %}
+        <div>🤝 Il est possible de se confesser sur rendez-vous.
+            {% for parsing in merged_schedules_list.possible_by_appointment_parsings %}
+                {% with parsing_uuid=parsing.uuid %}
+                    {% include 'includes/source_reference.html' %}
+                {% endwith %}
+            {% endfor %}
+        </div>
+    {% endif %}
+    {{ merged_schedules_list|has_relation_text }}
+    {% for parsing_uuid in merged_schedules_list|relation_parsing_uuids %}
+        {% include 'includes/source_reference.html' %}
+    {% endfor %}
+</div>

@@ -80,8 +80,8 @@ table {
     vertical-align: text-top;
 }
 
-/* copy to clipboard */
-.copy-to-clipboard {
+/* clickable element */
+.clickable {
     cursor: pointer;
 }
 
@@ -267,21 +267,22 @@ UI widget
 .calendar-table {
     white-space: wrap;
     display: table;
+    width: 100%;
 }
 
-.calendar-table th,
+.calendar-table thead, .calendar-table tbody,
+.calendar-table tfoot, .calendar-table tr,
+.calendar-table td, .calendar-table th {
+    border: none;
+    font-weight: normal;
+}
+
+.calendar-table th {
+    padding: 0 0.2em;
+}
+
 .calendar-table td {
-    border: 1px solid #ddd;
-    padding: 2px;
-}
-
-.calendar-table thead {
-    background-color: #F6F6F6;
-}
-
-.calendar-table thead,
-.calendar-table tbody {
-    border: 2px solid #ddd;
+    vertical-align: top;
 }
 
 /**
@@ -294,6 +295,36 @@ UI widget
     border-radius: 50%;
 }
 
-.margin-avg {
-    margin: 0 0.15rem;
+.colored-schedule {
+    border-radius: 0.2em;
+    padding: 0.2em;
+    margin: 0.2em 0.2em;
+}
+
+.website-card.hide-explicitly-other .explicitly-other {
+    display: none;
+}
+
+/**
+ * Collapse element
+ */
+.toggle-symbol {
+    margin-right: 0.4em;
+}
+
+/* Collapsed state (>) */
+.toggle-symbol.collapsed-symbol::before {
+    content: '\25B6'; /* ▶ */
+}
+
+/* Expanded state (V) */
+.toggle-symbol.expanded-symbol::before {
+    content: '\25BC'; /* ▼ */
+}
+
+/**
+ * Indentation
+ */
+.margin-left-indent {
+    margin-left: 1em;
 }

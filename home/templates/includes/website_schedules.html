@@ -1,5 +1,4 @@
 {% load custom_tags %}
-{% load display_tags %}
 {% load i18n %}
 
 {% if website.unreliability_reason %}
@@ -7,99 +6,32 @@
         Nous regrettons de ne pouvoir afficher les horaires de cette paroisse pour des raisons techniques.
     </div>
 {% else %}
-    {% with merged_schedules_list=website_merged_church_schedules_list|get_item:website.uuid %}
-    {% with church_events_by_day=church_events_by_day_by_website|get_item:website.uuid %}
-        <div>
-            {% if merged_schedules_list.church_events %}
-                {% for church_sorted_schedule in merged_schedules_list.church_sorted_schedules %}
-                    <div>
-                        {% if church_sorted_schedule.church %}
-                            {% if church_marker_names %}
-                                <a href="#map"
-                                   class="link-info"
-                                   onclick="return popupChurch('{{ church_marker_names|get_item:church_sorted_schedule.church.uuid }}');">
-                                    {{ church_sorted_schedule.church.name }}
-                                </a> :
-                            {% else %}
-                                {{ church_sorted_schedule.church.name }} :
-                            {% endif %}
-                        {% elif church_sorted_schedule.is_church_explicitly_other %}
-                            <span class="text-danger">{% trans 'OutsideThisParish' %} :</span>
-                        {% else %}
-                            Lieu inconnu :
-                        {% endif %}
-                        {% for schedule_item in church_sorted_schedule.sorted_schedules %}
-                            <div>
-                                {% display_schedule_item_color church_sorted_schedule.church schedule_item.item %}
-                                {{ schedule_item.item|get_explanation }}
-                                <a href="#parsing-{{ schedule_item.parsing.uuid }}"
-                                   class="text-muted"
-                                   onclick="return openTab('tab-sources-{{ website.uuid }}');">
-                                    (source)
-                                </a>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endfor %}
-
-                <div class="row mt-4">
-                    <div class="col-12 text-center">
-                        <table class="table calendar-table">
-                    <thead>
-                        <tr class="days-header text-gray-700">
-                            <th>Lun</th>
-                            <th>Mar</th>
-                            <th>Mer</th>
-                            <th>Jeu</th>
-                            <th>Ven</th>
-                            <th>Sam</th>
-                            <th>Dim</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for week in weeks_range %}
-                        <tr>
-                            {% for day in week %}
-                                <td{% if day == current_day %} class="bg-gradient-gray-200"{% endif %}>
-                                    <div class="text-center {% if day < current_day %}text-gray-300{% endif %}">
-                                        <p class="mb-0 lh-1"><small>{{ day.day }}</small></p>
-                                        <p class="mb-0 lh-1"><small>{{ day|date:"N" }}</small></p>
-                                    </div>
-                                    {% with church_events=church_events_by_day|get_item:day %}
-                                        {% for church_event in church_events %}
-                                            <div class="d-inline-block margin-avg">
-                                                <span class="link-info" data-toggle="tooltip" data-placement="bottom" data-html="true"
-                                                      title="
-{% if church_event.church %}
-    {{ church_event.church.name }}
-{% elif church_event.is_church_explicitly_other %}
-    {% trans 'OutsideThisParish' %}
-{% else %}Lieu inconnu{% endif %}<br>
-{% display_hour church_event.event.start %} - {% if church_event.event.end %}{% display_hour church_event.event.end %}{% else %}?{% endif %}
-">{% display_church_event_color church_event %}</span>
-                                            </div>
-                                        {% endfor %}
-                                    {% endwith %}
-                                </td>
-                            {% endfor %}
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                    </div>
+    <div>
+        {% if merged_schedules_list.church_events_by_day %}
+            <h6>Prochaines confessions :</h6>
+            <div class="row text-center mt-1 calendar-table-container">
+                <div class="col-1 align-self-center">
+                    <span class="previous-button clickable d-none">
+                        <i class="fas fa-chevron-left"></i>
+                    </span>
                 </div>
-            {% elif not website.has_been_crawled %}
-                {% trans 'NotCrawledYet' %}
-            {% else %}
-                Pas de prochaines dates.
-            {% endif %}
-        </div>
-        <div>
-            {% if merged_schedules_list.schedules_list.possible_by_appointment %}
-                <div>🤝 Il est possible de se confesser sur rendez-vous.</div>
-            {% endif %}
-            {{ merged_schedules_list.schedules_list|has_relation_text }}
-        </div>
-    {% endwith %}
-    {% endwith %}
+                <div class="col-10">
+                    {% for range_num in "12"|make_list %}
+                        {% with days=merged_schedules_list|days_of_range:range_num %}
+                            {% include 'includes/schedules_table.html' %}
+                        {% endwith %}
+                    {% endfor %}
+                </div>
+                <div class="col-1 align-self-center">
+                    <span class="next-button clickable">
+                        <i class="fas fa-chevron-right"></i>
+                    </span>
+                </div>
+            </div>
+        {% elif not website.has_been_crawled %}
+            {% trans 'NotCrawledYet' %}
+        {% else %}
+            Pas de prochaines dates.
+        {% endif %}
+    </div>
 {% endif %}

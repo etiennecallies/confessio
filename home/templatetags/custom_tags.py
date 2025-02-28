@@ -6,17 +6,27 @@ from django.urls import reverse
 
 from home.models import WebsiteModeration, ChurchModeration, ParishModeration, \
     PruningModeration, SentenceModeration, ParsingModeration, ModerationMixin, Pruning, \
-    Page, Parsing, ReportModeration, Diocese
+    Page, Parsing, ReportModeration, Diocese, Church
+from home.services.events_service import get_church_color, MergedChurchSchedulesList
 from home.utils.date_utils import get_current_year
 from home.utils.list_utils import enumerate_with_and
-from scraping.parse.explain_schedule import get_explanation_from_schedule
 from scraping.parse.rrule_utils import get_events_from_schedule_item
-from scraping.parse.schedules import ScheduleItem, Event, SchedulesList
+from scraping.parse.schedules import ScheduleItem, Event
 
 
 @register.filter
 def get_item(dictionary, key):
     return dictionary.get(key)
+
+
+@register.filter
+def days_of_range(merged_church_schedules_list: MergedChurchSchedulesList,
+                  range_number_as_str: str) -> list[date]:
+    sorted_days = sorted(merged_church_schedules_list.church_events_by_day.keys())
+    nb_days = 4
+    range_number = int(range_number_as_str) - 1
+
+    return sorted_days[range_number * nb_days:(range_number + 1) * nb_days]
 
 
 @register.filter
@@ -40,32 +50,42 @@ def get_schedule_item_events(schedule_item: ScheduleItem) -> list[Event]:
     end_date = date(2040, 1, 1)
     default_year = get_current_year()
 
-    return get_events_from_schedule_item(schedule_item, start_date, end_date, default_year)[:7]
+    return get_events_from_schedule_item(schedule_item, start_date, default_year, end_date)[:7]
 
 
 @register.filter
-def get_explanation(schedule_item: ScheduleItem) -> str:
-    return get_explanation_from_schedule(schedule_item)
-
-
-@register.filter
-def has_relation_text(schedules_list: SchedulesList | None) -> str:
-    if not schedules_list:
+def has_relation_text(merged_church_schedules_list: MergedChurchSchedulesList | None) -> str:
+    if not merged_church_schedules_list:
         return ''
 
     relations = []
-    if schedules_list.is_related_to_mass:
+    if merged_church_schedules_list.is_related_to_mass_parsings:
         relations.append('messes')
-    if schedules_list.is_related_to_adoration:
+    if merged_church_schedules_list.is_related_to_adoration_parsings:
         relations.append('adorations')
-    if schedules_list.is_related_to_permanence:
+    if merged_church_schedules_list.is_related_to_permanence_parsings:
         relations.append('permanences')
+
     if relations:
         relation_text = enumerate_with_and(relations)
 
-        return f'👉 Certaines horaires sont liées aux {relation_text} (voir sources).'
+        return f'👉 Certaines horaires sont liées aux {relation_text}'
 
     return ''
+
+
+@register.filter
+def relation_parsing_uuids(merged_church_schedules_list: MergedChurchSchedulesList | None
+                           ) -> list[int]:
+    if not merged_church_schedules_list:
+        return []
+
+    return list(set(
+        map(lambda parsing: parsing.uuid,
+            merged_church_schedules_list.is_related_to_mass_parsings
+            + merged_church_schedules_list.is_related_to_adoration_parsings
+            + merged_church_schedules_list.is_related_to_permanence_parsings)
+    ))
 
 
 @register.filter
@@ -77,6 +97,11 @@ def get_url(moderation: ModerationMixin):
                        'moderation_uuid': moderation.uuid,
                        'diocese_slug': moderation.get_diocese_slug(),
                    })
+
+
+@register.simple_tag
+def print_church_color(church: Church, is_church_explicitly_other: bool) -> str:
+    return get_church_color(church, is_church_explicitly_other)
 
 
 @register.filter

@@ -1,4 +1,4 @@
-from datetime import datetime, time, date
+from datetime import datetime, time, date, timedelta
 from typing import Optional
 
 from dateutil.rrule import rrule, rruleset, WEEKLY, DAILY, rrulestr
@@ -47,32 +47,33 @@ def get_rruleset_from_schedule(schedule: ScheduleItem, default_year: int) -> rru
 
 
 def get_events_from_schedule_item(schedule: ScheduleItem,
-                                  start_date: date, end_date: date,
+                                  start_date: date,
                                   default_year: int,
-                                  max_events: int = None,
-                                  at_least_one_until: date = None) -> list[Event]:
+                                  end_date: date | None = None,
+                                  max_events: int | None = None,
+                                  max_days: int | None = None) -> list[Event]:
     if schedule.is_one_off_rule() and not schedule.date_rule.is_valid_date():
         return []
 
     if schedule.get_start_time() is None:
         return []
 
-    assert end_date >= start_date
-    assert at_least_one_until is None or at_least_one_until >= end_date
+    assert end_date is None or end_date >= start_date
+    assert end_date is not None or max_days is not None or max_events is not None
 
     start_datetime = date_to_datetime(start_date)
-    end_datetime = date_to_datetime(end_date)
-    at_least_one_until_dt = date_to_datetime(at_least_one_until) if at_least_one_until else None
+    end_datetime = date_to_datetime(end_date) if end_date else None
 
     rset = get_rruleset_from_schedule(schedule, default_year)
 
     events = []
     for one_date in rset.xafter(start_datetime, count=max_events, inc=True):
-        if one_date > end_datetime and (events or at_least_one_until_dt is None):
+        if end_datetime is not None and one_date > end_datetime:
             break
 
-        if at_least_one_until_dt is not None and one_date > at_least_one_until_dt:
-            break
+        if max_days is not None:
+            end_datetime = one_date + timedelta(days=max_days - 1)
+            max_days = None
 
         start_time = schedule.get_start_time()
         start_dt = one_date.replace(hour=start_time.hour, minute=start_time.minute)
@@ -92,12 +93,13 @@ def get_events_from_schedule_item(schedule: ScheduleItem,
 
 
 def get_events_from_schedule_items(schedules: list[ScheduleItem],
-                                   start_date: date, end_date: date,
+                                   start_date: date,
                                    default_year: int,
+                                   end_date: date | None = None,
                                    max_events: int = None,
-                                   at_least_one_until: date = None) -> list[Event]:
-    all_events = sum((get_events_from_schedule_item(schedule, start_date, end_date, default_year,
-                                                    max_events, at_least_one_until)
+                                   max_days: int = None) -> list[Event]:
+    all_events = sum((get_events_from_schedule_item(schedule, start_date, default_year, end_date,
+                                                    max_events, max_days)
                       for schedule in schedules), [])
 
     return list(sorted(list(set(all_events))))
@@ -205,8 +207,8 @@ def are_schedules_list_equivalent(sl1: SchedulesList, sl2: SchedulesList,
     if set(sl1.schedules) == set(sl2.schedules):
         return True, None
 
-    events1 = get_events_from_schedule_items(sl1.schedules, start_date, end_date, default_year)
-    events2 = get_events_from_schedule_items(sl2.schedules, start_date, end_date, default_year)
+    events1 = get_events_from_schedule_items(sl1.schedules, start_date, default_year, end_date)
+    events2 = get_events_from_schedule_items(sl2.schedules, start_date, default_year, end_date)
 
     if set(events1) == set(events2):
         return True, None

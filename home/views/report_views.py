@@ -5,11 +5,10 @@ from django.shortcuts import render
 
 from home.models import Website
 from home.models.report_models import Report
-from home.services.events_service import get_website_merged_church_schedules_list, \
-    get_church_events_by_day_by_website, get_websites_parsings_and_prunings
+from home.services.events_service import get_website_merged_church_schedules_list
 from home.services.page_url_service import get_page_pruning_urls
 from home.services.report_service import add_necessary_moderation_for_report
-from home.utils.date_utils import get_current_week_and_next_two_weeks, get_current_day
+from home.utils.date_utils import get_current_day, get_current_year
 from home.utils.hash_utils import hash_string_to_hex
 from home.utils.web_utils import get_client_ip
 
@@ -67,28 +66,18 @@ def report_page(request, website_uuid):
     # Get page url with #:~:text=
     page_pruning_urls = get_page_pruning_urls([website])
 
-    website_merged_church_schedules_list = get_website_merged_church_schedules_list([website])
+    website_merged_church_schedules_list = get_website_merged_church_schedules_list(
+        [website], website_churches)
 
     previous_reports = Report.objects.filter(website=website).order_by('-created_at').all()
-
-    # We group the church events by website and by day
-    church_events_by_day_by_website = get_church_events_by_day_by_website(
-        website_merged_church_schedules_list
-    )
-
-    # Get parsings and prunings for each website
-    websites_parsings_and_prunings = get_websites_parsings_and_prunings([website])
 
     return render(request, 'pages/report.html', {
         'noindex': True,
         'website': website,
-        'website_churches': website_churches,
         'page_pruning_urls': page_pruning_urls,
-        'website_merged_church_schedules_list': website_merged_church_schedules_list,
+        'merged_schedules_list': website_merged_church_schedules_list.get(website.uuid, None),
         'success_message': success_message,
         'previous_reports': previous_reports,
-        'weeks_range': get_current_week_and_next_two_weeks(),
         'current_day': get_current_day(),
-        "church_events_by_day_by_website": church_events_by_day_by_website,
-        'websites_parsings_and_prunings': websites_parsings_and_prunings,
+        'current_year': str(get_current_year()),
     })

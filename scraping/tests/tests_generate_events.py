@@ -63,8 +63,8 @@ class GenerateEventsTests(unittest.TestCase):
                 in self.get_fixtures():
             with self.subTest():
                 events = get_events_from_schedule_items(schedules,
-                                                        start_date, end_date,
-                                                        default_year)
+                                                        start_date,
+                                                        default_year, end_date)
                 expected_events = [Event(church_id=None, start=start, end=None)
                                    for start in expected_starts]
                 # print(explanation)
