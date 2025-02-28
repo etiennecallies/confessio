@@ -7,7 +7,7 @@ from home.models import Church, Parsing, Website, Page, Pruning
 from home.utils.date_utils import get_current_year
 from home.utils.hash_utils import hash_string_to_hex
 from scraping.parse.explain_schedule import schedule_item_sort_key, get_explanation_from_schedule
-from scraping.parse.rrule_utils import get_events_from_schedule_items
+from scraping.parse.rrule_utils import get_events_from_schedule_item
 from scraping.parse.schedules import Event, ScheduleItem
 from scraping.services.parse_pruning_service import get_parsing_schedules_list, get_church_by_id, \
     has_schedules
@@ -79,6 +79,7 @@ class ParsingScheduleItem:
     item: ScheduleItem
     explanation: str
     parsing_uuids: list[UUID]
+    events: list[Event]
 
 
 @dataclass
@@ -89,10 +90,11 @@ class ChurchScheduleItem:
 
     @classmethod
     def from_schedule_item(cls, schedule_item: ScheduleItem, parsing: Parsing,
-                           church_by_id: dict[int, Church]) -> 'ChurchScheduleItem':
+                           church_by_id: dict[int, Church], events: list[Event]
+                           ) -> 'ChurchScheduleItem':
         parsing_schedule_item = ParsingScheduleItem(schedule_item,
                                                     get_explanation_from_schedule(schedule_item),
-                                                    [parsing.uuid])
+                                                    [parsing.uuid], events)
         if schedule_item.church_id is None or schedule_item.church_id == -1:
             return cls(
                 church=None,
@@ -183,6 +185,11 @@ def get_merged_church_schedules_list(website: Website,
     is_related_to_permanence_parsings = []
     will_be_seasonal_events_parsings = []
 
+    start_date = date.today()
+    current_year = get_current_year()
+    end_date = start_date + timedelta(days=300)
+    max_days = 8
+
     for parsing in parsings_and_prunings.sources:
         church_by_id = get_church_by_id(parsing, website)
 
@@ -190,9 +197,13 @@ def get_merged_church_schedules_list(website: Website,
         if schedules_list is None:
             continue
 
-        all_church_schedule_items += [
-            ChurchScheduleItem.from_schedule_item(schedule, parsing, church_by_id)
-            for schedule in schedules_list.schedules]
+        for schedule in schedules_list.schedules:
+            events = get_events_from_schedule_item(schedule, start_date,
+                                                   current_year, end_date, max_days=max_days)
+            if events:
+                all_church_schedule_items.append(
+                    ChurchScheduleItem.from_schedule_item(schedule, parsing, church_by_id, events)
+                )
 
         if schedules_list.possible_by_appointment:
             possible_by_appointment_parsings.append(parsing)
@@ -213,22 +224,18 @@ def get_merged_church_schedules_list(website: Website,
     ##############
     # Get events #
     ##############
-    start_date = date.today()
-    end_date = start_date + timedelta(days=300)
-    max_days = 8
-    all_schedules = [cs.schedule_item.item for cs in merged_church_schedule_items]
-    events = get_events_from_schedule_items(all_schedules, start_date,
-                                            get_current_year(), end_date, max_events=None,
-                                            max_days=max_days)
+
+    all_events = list(sorted(list(set(
+        sum((cs.schedule_item.events for cs in merged_church_schedule_items), [])))))
 
     church_events_by_day = {}
-    if events:
-        first_day = events[0].start.date()
+    if all_events:
+        first_day = all_events[0].start.date()
         for i in range(max_days):
             day = first_day + timedelta(days=i)
             church_events_by_day[day] = []
 
-        for event in events:
+        for event in all_events:
             event_date = event.start.date()
             if event_date in church_events_by_day:
                 church_event = ChurchEvent.from_event(event, church_by_id)
@@ -342,7 +349,8 @@ def get_merged_schedule_items(church_schedule_items: list[ChurchScheduleItem]
             schedule_item=ParsingScheduleItem(
                 item=schedules_group[0].schedule_item.item,
                 explanation=schedules_group[0].schedule_item.explanation,
-                parsing_uuids=parsing_uuids
+                parsing_uuids=parsing_uuids,
+                events=schedules_group[0].schedule_item.events
             )
         )
         merged_schedules_items.append(merged_schedule)
