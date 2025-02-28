@@ -10,9 +10,8 @@ from home.models import WebsiteModeration, ChurchModeration, ParishModeration, \
 from home.services.events_service import get_church_color, MergedChurchSchedulesList
 from home.utils.date_utils import get_current_year
 from home.utils.list_utils import enumerate_with_and
-from scraping.parse.explain_schedule import get_explanation_from_schedule
 from scraping.parse.rrule_utils import get_events_from_schedule_item
-from scraping.parse.schedules import ScheduleItem, Event, SchedulesList
+from scraping.parse.schedules import ScheduleItem, Event
 
 
 @register.filter
@@ -55,28 +54,38 @@ def get_schedule_item_events(schedule_item: ScheduleItem) -> list[Event]:
 
 
 @register.filter
-def get_explanation(schedule_item: ScheduleItem) -> str:
-    return get_explanation_from_schedule(schedule_item)
-
-
-@register.filter
-def has_relation_text(schedules_list: SchedulesList | None) -> str:
-    if not schedules_list:
+def has_relation_text(merged_church_schedules_list: MergedChurchSchedulesList | None) -> str:
+    if not merged_church_schedules_list:
         return ''
 
     relations = []
-    if schedules_list.is_related_to_mass:
+    if merged_church_schedules_list.is_related_to_mass_parsings:
         relations.append('messes')
-    if schedules_list.is_related_to_adoration:
+    if merged_church_schedules_list.is_related_to_adoration_parsings:
         relations.append('adorations')
-    if schedules_list.is_related_to_permanence:
+    if merged_church_schedules_list.is_related_to_permanence_parsings:
         relations.append('permanences')
+
     if relations:
         relation_text = enumerate_with_and(relations)
 
         return f'👉 Certaines horaires sont liées aux {relation_text} (voir sources).'
 
     return ''
+
+
+@register.filter
+def relation_parsing_uuids(merged_church_schedules_list: MergedChurchSchedulesList | None
+                           ) -> list[int]:
+    if not merged_church_schedules_list:
+        return []
+
+    return list(set(
+        map(lambda parsing: parsing.uuid,
+            merged_church_schedules_list.is_related_to_mass_parsings
+            + merged_church_schedules_list.is_related_to_adoration_parsings
+            + merged_church_schedules_list.is_related_to_permanence_parsings)
+    ))
 
 
 @register.filter

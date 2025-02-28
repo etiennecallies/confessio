@@ -41,11 +41,10 @@
             {% endif %}
             {% for schedule_item in church_sorted_schedule.sorted_schedules %}
                 <div class="margin-left-indent">
-                    {{ schedule_item.item|get_explanation }}
-                    <span class="text-muted clickable"
-                       onclick="return goToParsing('{{ website.uuid }}', '{{ schedule_item.parsing.uuid }}');">
-                        (source)
-                    </span>
+                    <span>{{ schedule_item.explanation }}</span>
+                    {% for parsing_uuid in schedule_item.parsing_uuids %}
+                        {% include 'includes/source_reference.html' %}
+                    {% endfor %}
                 </div>
             {% endfor %}
         </div>
@@ -54,9 +53,18 @@
     {% endwith %}
 {% endfor %}
 <div class="margin-left-indent mt-2">
-    {% if merged_schedules_list.schedules_list.possible_by_appointment %}
-        <div>🤝 Il est possible de se confesser sur rendez-vous.</div>
+    {% if merged_schedules_list.possible_by_appointment_parsings %}
+        <div>🤝 Il est possible de se confesser sur rendez-vous.
+            {% for parsing in merged_schedules_list.possible_by_appointment_parsings %}
+                {% with parsing_uuid=parsing.uuid %}
+                    {% include 'includes/source_reference.html' %}
+                {% endwith %}
+            {% endfor %}
+        </div>
     {% endif %}
-    {{ merged_schedules_list.schedules_list|has_relation_text }}
+    {{ merged_schedules_list|has_relation_text }}
+    {% for parsing_uuid in merged_schedules_list|relation_parsing_uuids %}
+        {% include 'includes/source_reference.html' %}
+    {% endfor %}
 </div>
 {% endwith %}

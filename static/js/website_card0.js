@@ -41,9 +41,9 @@ $(window).on("load", function () {
  * Navigate to the church element.
  */
 function goToChurch(websiteUuid, churchUuid, isChurchExplicitlyOther) {
-    let $websiteSource = $('#churches-'+websiteUuid);
-    let elementId = churchUuid ? ('#church-' + churchUuid) : ('#nochurch-' + websiteUuid + '-' + isChurchExplicitlyOther);
-    uncollapseAndNavigateToElement($websiteSource, elementId);
+    let $websiteChurches = $('#churches-'+websiteUuid);
+    let elementId = churchUuid ? ('church-' + churchUuid) : ('nochurch-' + websiteUuid + '-' + isChurchExplicitlyOther);
+    uncollapseAndNavigateToElement($websiteChurches, elementId);
 }
 
 /**

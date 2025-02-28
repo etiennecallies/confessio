@@ -6,17 +6,77 @@ from uuid import UUID
 from home.models import Church, Parsing, Website, Page, Pruning
 from home.utils.date_utils import get_current_year
 from home.utils.hash_utils import hash_string_to_hex
-from scraping.parse.explain_schedule import schedule_item_sort_key
+from scraping.parse.explain_schedule import schedule_item_sort_key, get_explanation_from_schedule
 from scraping.parse.rrule_utils import get_events_from_schedule_items
-from scraping.parse.schedules import Event, ScheduleItem, SchedulesList, get_merged_schedules_list
+from scraping.parse.schedules import Event, ScheduleItem, SchedulesList
 from scraping.services.parse_pruning_service import get_parsing_schedules_list, get_church_by_id, \
     has_schedules
 
 
+#########################
+# PARSINGS AND PRUNINGS #
+#########################
+
+@dataclass
+class WebsiteParsingsAndPrunings:
+    sources: list[Parsing]
+    source_index_by_parsing_uuid: dict[UUID, int]
+    page_by_parsing_uuid: dict[UUID, Page]
+    all_pages_by_parsing_uuid: dict[UUID, list[Page]]
+    prunings_by_parsing_uuid: dict[UUID, list[Pruning]]
+    page_scraping_last_created_at_by_parsing_uuid: dict[UUID, Optional[datetime]]
+
+
+def get_website_parsings_and_prunings(website: Website) -> WebsiteParsingsAndPrunings:
+    sources = []
+    source_index_by_parsing_uuid = {}
+    page_by_parsing_uuid = {}
+    all_pages_by_parsing_uuid = {}
+    prunings_by_parsing_uuid = {}
+    page_scraping_last_created_at_by_parsing_uuid = {}
+    for page in website.get_pages():
+        if page.scraping is None:
+            continue
+
+        for pruning in page.get_prunings():
+            parsing = page.get_parsing(pruning)
+            if parsing is None or not has_schedules(parsing):
+                continue
+
+            if parsing.uuid not in source_index_by_parsing_uuid:
+                source_index_by_parsing_uuid[parsing.uuid] = len(sources)
+                sources.append(parsing)
+
+            page_scraping_last_created_at = page_scraping_last_created_at_by_parsing_uuid.get(
+                parsing.uuid, None)
+            if page_scraping_last_created_at is None \
+                    or page.scraping.created_at > page_scraping_last_created_at:
+                page_scraping_last_created_at_by_parsing_uuid[parsing.uuid] = \
+                    page.scraping.created_at
+                page_by_parsing_uuid[parsing.uuid] = page
+
+            all_pages_by_parsing_uuid.setdefault(parsing.uuid, []).append(page)
+            prunings_by_parsing_uuid.setdefault(parsing.uuid, []).append(pruning)
+
+    return WebsiteParsingsAndPrunings(
+        sources=sources,
+        source_index_by_parsing_uuid=source_index_by_parsing_uuid,
+        page_by_parsing_uuid=page_by_parsing_uuid,
+        all_pages_by_parsing_uuid=all_pages_by_parsing_uuid,
+        prunings_by_parsing_uuid=prunings_by_parsing_uuid,
+        page_scraping_last_created_at_by_parsing_uuid=page_scraping_last_created_at_by_parsing_uuid
+    )
+
+
+########################
+# EVENTS AND SCHEDULES #
+########################
+
 @dataclass
 class ParsingScheduleItem:
     item: ScheduleItem
-    parsing: Parsing
+    explanation: str
+    parsing_uuids: list[UUID]
 
 
 @dataclass
@@ -28,7 +88,9 @@ class ChurchScheduleItem:
     @classmethod
     def from_schedule_item(cls, schedule_item: ScheduleItem, parsing: Parsing,
                            church_by_id: dict[int, Church]) -> 'ChurchScheduleItem':
-        parsing_schedule_item = ParsingScheduleItem(schedule_item, parsing)
+        parsing_schedule_item = ParsingScheduleItem(schedule_item,
+                                                    get_explanation_from_schedule(schedule_item),
+                                                    [parsing.uuid])
         if schedule_item.church_id is None or schedule_item.church_id == -1:
             return cls(
                 church=None,
@@ -106,9 +168,14 @@ class ChurchSortedSchedules:
 
 @dataclass
 class MergedChurchSchedulesList:
-    schedules_list: SchedulesList
     church_events_by_day: dict[date, list[ChurchEvent]]
     church_sorted_schedules: list[ChurchSortedSchedules]
+    possible_by_appointment_parsings: list[Parsing]
+    is_related_to_mass_parsings: list[Parsing]
+    is_related_to_adoration_parsings: list[Parsing]
+    is_related_to_permanence_parsings: list[Parsing]
+    will_be_seasonal_events_parsings: list[Parsing]
+    parsings_and_prunings: WebsiteParsingsAndPrunings
 
     def next_event_in_church(self, church: Church) -> Optional[Event]:
         for church_events in self.church_events_by_day.values():
@@ -119,20 +186,58 @@ class MergedChurchSchedulesList:
         return None
 
 
-def get_merged_church_schedules_list(csl: list[ChurchSchedulesList],
+def get_merged_church_schedules_list(website: Website,
                                      all_website_churches: list[Church]
                                      ) -> MergedChurchSchedulesList:
-    church_schedules = [cs for sl in csl for cs in sl.church_schedules]
-    schedules_list = get_merged_schedules_list([cs.schedules_list for cs in csl])
+    ################
+    # Get parsings #
+    ################
 
+    all_church_schedule_items = []
+
+    possible_by_appointment_parsings = []
+    is_related_to_mass_parsings = []
+    is_related_to_adoration_parsings = []
+    is_related_to_permanence_parsings = []
+    will_be_seasonal_events_parsings = []
+
+    for parsing in website.get_all_parsings():
+        church_by_id = get_church_by_id(parsing, website)
+
+        schedules_list = get_parsing_schedules_list(parsing)
+        if schedules_list is None:
+            continue
+
+        all_church_schedule_items += [
+            ChurchScheduleItem.from_schedule_item(schedule, parsing, church_by_id)
+            for schedule in schedules_list.schedules]
+
+        if schedules_list.possible_by_appointment:
+            possible_by_appointment_parsings.append(parsing)
+        if schedules_list.is_related_to_mass:
+            is_related_to_mass_parsings.append(parsing)
+        if schedules_list.is_related_to_adoration:
+            is_related_to_adoration_parsings.append(parsing)
+        if schedules_list.is_related_to_permanence:
+            is_related_to_permanence_parsings.append(parsing)
+        if schedules_list.will_be_seasonal_events:
+            will_be_seasonal_events_parsings.append(parsing)
+
+    merged_church_schedule_items = get_merged_schedule_items(all_church_schedule_items)
+    # TODO we shall make sure the church_id are the same accross all parsings
+    church_by_id = {cs.schedule_item.item.church_id: cs.church
+                    for cs in merged_church_schedule_items}
+
+    ##############
+    # Get events #
+    ##############
     start_date = date.today()
     end_date = start_date + timedelta(days=300)
     max_days = 8
-    events = get_events_from_schedule_items(schedules_list.schedules, start_date,
+    all_schedules = [cs.schedule_item.item for cs in merged_church_schedule_items]
+    events = get_events_from_schedule_items(all_schedules, start_date,
                                             get_current_year(), end_date, max_events=None,
                                             max_days=max_days)
-
-    church_by_id = {cs.schedule_item.item.church_id: cs.church for cs in church_schedules}
 
     church_events_by_day = {}
     if events:
@@ -147,13 +252,16 @@ def get_merged_church_schedules_list(csl: list[ChurchSchedulesList],
                 church_event = ChurchEvent.from_event(event, church_by_id)
                 church_events_by_day[event_date].append(church_event)
 
-    church_schedule_items = get_sorted_schedules_by_church_id(church_schedules)
+    ######################
+    # Get schedule_items #
+    ######################
+    church_schedule_items = get_sorted_schedules_by_church_id(merged_church_schedule_items)
     church_sorted_schedules = [
         ChurchSortedSchedules.from_sorted_schedules(church_schedules, church_id, church_by_id)
         for church_id, church_schedules in church_schedule_items.items()
     ]
 
-    churches_with_events = {cs.church for cs in church_schedules}
+    churches_with_events = {cs.church for cs in merged_church_schedule_items}
     church_sorted_schedules += [
         ChurchSortedSchedules(
             church=c,
@@ -163,9 +271,14 @@ def get_merged_church_schedules_list(csl: list[ChurchSchedulesList],
     ]
 
     return MergedChurchSchedulesList(
-        schedules_list=schedules_list,
         church_events_by_day=church_events_by_day,
-        church_sorted_schedules=church_sorted_schedules
+        church_sorted_schedules=church_sorted_schedules,
+        possible_by_appointment_parsings=possible_by_appointment_parsings,
+        is_related_to_mass_parsings=is_related_to_mass_parsings,
+        is_related_to_adoration_parsings=is_related_to_adoration_parsings,
+        is_related_to_permanence_parsings=is_related_to_permanence_parsings,
+        will_be_seasonal_events_parsings=will_be_seasonal_events_parsings,
+        parsings_and_prunings=get_website_parsings_and_prunings(website)
     )
 
 
@@ -175,10 +288,7 @@ def get_merged_church_schedules_list_for_website(website: Website,
     if not website.all_pages_parsed() or website.unreliability_reason:
         return None
 
-    church_schedules_lists = [ChurchSchedulesList.from_parsing(parsing, website)
-                              for parsing in website.get_all_parsings()]
-    return get_merged_church_schedules_list(
-        [csl for csl in church_schedules_lists if csl is not None], website_churches)
+    return get_merged_church_schedules_list(website, website_churches)
 
 
 def get_website_merged_church_schedules_list(websites: list[Website],
@@ -192,67 +302,6 @@ def get_website_merged_church_schedules_list(websites: list[Website],
             website_merged_church_schedules_list[website.uuid] = merged_church_schedules_list
 
     return website_merged_church_schedules_list
-
-
-#########################
-# PARSINGS AND PRUNINGS #
-#########################
-
-@dataclass
-class WebsiteParsingsAndPrunings:
-    parsings_by_uuid: dict[UUID, Parsing]
-    page_by_parsing_uuid: dict[UUID, Page]
-    all_pages_by_parsing_uuid: dict[UUID, list[Page]]
-    prunings_by_parsing_uuid: dict[UUID, list[Pruning]]
-    page_scraping_last_created_at_by_parsing_uuid: dict[UUID, Optional[datetime]]
-
-
-def get_website_parsings_and_prunings(website: Website) -> WebsiteParsingsAndPrunings:
-    parsings_by_uuid = {}
-    page_by_parsing_uuid = {}
-    all_pages_by_parsing_uuid = {}
-    prunings_by_parsing_uuid = {}
-    page_scraping_last_created_at_by_parsing_uuid = {}
-    for page in website.get_pages():
-        if page.scraping is None:
-            continue
-
-        for pruning in page.get_prunings():
-            parsing = page.get_parsing(pruning)
-            if parsing is None or not has_schedules(parsing):
-                continue
-
-            parsings_by_uuid[parsing.uuid] = parsing
-
-            page_scraping_last_created_at = page_scraping_last_created_at_by_parsing_uuid.get(
-                parsing.uuid, None)
-            if page_scraping_last_created_at is None \
-                    or page.scraping.created_at > page_scraping_last_created_at:
-                page_scraping_last_created_at_by_parsing_uuid[parsing.uuid] = \
-                    page.scraping.created_at
-                page_by_parsing_uuid[parsing.uuid] = page
-
-            all_pages_by_parsing_uuid.setdefault(parsing.uuid, []).append(page)
-            prunings_by_parsing_uuid.setdefault(parsing.uuid, []).append(pruning)
-
-    return WebsiteParsingsAndPrunings(
-        parsings_by_uuid=parsings_by_uuid,
-        page_by_parsing_uuid=page_by_parsing_uuid,
-        all_pages_by_parsing_uuid=all_pages_by_parsing_uuid,
-        prunings_by_parsing_uuid=prunings_by_parsing_uuid,
-        page_scraping_last_created_at_by_parsing_uuid=page_scraping_last_created_at_by_parsing_uuid
-    )
-
-
-def get_websites_parsings_and_prunings(websites: list[Website]
-                                       ) -> dict[UUID, WebsiteParsingsAndPrunings]:
-    websites_parsings_and_prunings = {}
-    for website in websites:
-        parsings_and_prunings = get_website_parsings_and_prunings(website)
-        if parsings_and_prunings:
-            websites_parsings_and_prunings[website.uuid] = parsings_and_prunings
-
-    return websites_parsings_and_prunings
 
 
 ##########
@@ -286,29 +335,48 @@ def get_church_color(church: Church | None, is_church_explicitly_other: bool) ->
     return f"#{r:02x}{g:02x}{b:02x}"
 
 
-###########
-# SORTING #
-###########
+################
+# MERGE & SORT #
+################
+
+def get_merged_schedule_items(church_schedule_items: list[ChurchScheduleItem]
+                              ) -> list[ChurchScheduleItem]:
+    schedules_by_explanation_and_item = {}
+    for church_schedule_item in church_schedule_items:
+        schedules_by_explanation_and_item.setdefault(
+            (
+                church_schedule_item.church,
+                church_schedule_item.is_church_explicitly_other,
+                church_schedule_item.schedule_item.explanation,
+            ), []).append(church_schedule_item)
+
+    merged_schedules_items = []
+    for schedules_group in schedules_by_explanation_and_item.values():
+        parsing_uuids = list(set(sum((cs.schedule_item.parsing_uuids for cs in schedules_group),
+                                     [])))
+        merged_schedule = ChurchScheduleItem(
+            church=schedules_group[0].church,
+            is_church_explicitly_other=schedules_group[0].is_church_explicitly_other,
+            schedule_item=ParsingScheduleItem(
+                item=schedules_group[0].schedule_item.item,
+                explanation=schedules_group[0].schedule_item.explanation,
+                parsing_uuids=parsing_uuids
+            )
+        )
+        merged_schedules_items.append(merged_schedule)
+
+    return merged_schedules_items
+
 
 def church_schedule_item_sort_key(church_schedule_item: ChurchScheduleItem) -> tuple:
     return schedule_item_sort_key(church_schedule_item.schedule_item.item)
-
-
-def get_sorted_church_schedules(church_schedule_items: list[ChurchScheduleItem]
-                                ) -> list[ChurchScheduleItem]:
-    church_schedules_by_schedules = {}
-    for church_schedule_item in church_schedule_items:
-        church_schedules_by_schedules[church_schedule_item.schedule_item.item] = \
-            church_schedule_item
-
-    return sorted(list(church_schedules_by_schedules.values()), key=church_schedule_item_sort_key)
 
 
 def get_sorted_schedules_by_church_id(church_schedules: list[ChurchScheduleItem]
                                       ) -> dict[int, list[ChurchScheduleItem]]:
     sorted_schedules_by_church_id = {}
 
-    for church_schedule in get_sorted_church_schedules(church_schedules):
+    for church_schedule in sorted(church_schedules, key=church_schedule_item_sort_key):
         sorted_schedules_by_church_id.setdefault(church_schedule.schedule_item.item.church_id, [])\
             .append(church_schedule)
 

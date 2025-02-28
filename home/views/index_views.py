@@ -6,8 +6,7 @@ from django.shortcuts import render
 
 from home.models import Website, Diocese
 from home.services.autocomplete_service import get_aggregated_response
-from home.services.events_service import get_website_merged_church_schedules_list, \
-    get_websites_parsings_and_prunings
+from home.services.events_service import get_website_merged_church_schedules_list
 from home.services.map_service import get_churches_in_box, get_churches_around, prepare_map, \
     get_churches_by_website, get_center, get_churches_by_diocese
 from home.services.page_url_service import get_page_pruning_urls
@@ -57,9 +56,6 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
     for website in websites:
         website_reports_count[website.uuid] = get_count_and_label(website)
 
-    # Get parsings and prunings for each website
-    websites_parsings_and_prunings = get_websites_parsings_and_prunings(websites)
-
     context = {
         'location': location,
         'map_html': map_html,
@@ -71,7 +67,6 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
         'website_reports_count': website_reports_count,
         'current_day': get_current_day(),
         'current_year': str(get_current_year()),
-        'websites_parsings_and_prunings': websites_parsings_and_prunings,
     }
 
     return render(request, 'pages/index.html', context)

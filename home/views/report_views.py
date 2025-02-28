@@ -5,8 +5,7 @@ from django.shortcuts import render
 
 from home.models import Website
 from home.models.report_models import Report
-from home.services.events_service import get_website_merged_church_schedules_list, \
-    get_websites_parsings_and_prunings
+from home.services.events_service import get_website_merged_church_schedules_list
 from home.services.page_url_service import get_page_pruning_urls
 from home.services.report_service import add_necessary_moderation_for_report
 from home.utils.date_utils import get_current_day, get_current_year
@@ -72,9 +71,6 @@ def report_page(request, website_uuid):
 
     previous_reports = Report.objects.filter(website=website).order_by('-created_at').all()
 
-    # Get parsings and prunings for each website
-    websites_parsings_and_prunings = get_websites_parsings_and_prunings([website])
-
     return render(request, 'pages/report.html', {
         'noindex': True,
         'website': website,
@@ -84,5 +80,4 @@ def report_page(request, website_uuid):
         'previous_reports': previous_reports,
         'current_day': get_current_day(),
         'current_year': str(get_current_year()),
-        'websites_parsings_and_prunings': websites_parsings_and_prunings,
     })
