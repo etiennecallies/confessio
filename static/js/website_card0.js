@@ -65,7 +65,7 @@ function goToParsing(websiteUuid, parsingUuid) {
 }
 
 function uncollapseAndNavigateToElement($collapseElement, elementId) {
-    if (!$collapseElement.hasClass('show')) {
+    if ($collapseElement.length && !$collapseElement.hasClass('show')) {
         $collapseElement.collapse('show').one('shown.bs.collapse', function () {
             navigateToElement(elementId);
         });

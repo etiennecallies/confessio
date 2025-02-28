@@ -75,7 +75,7 @@ def report_page(request, website_uuid):
         'noindex': True,
         'website': website,
         'page_pruning_urls': page_pruning_urls,
-        'website_merged_church_schedules_list': website_merged_church_schedules_list,
+        'merged_schedules_list': website_merged_church_schedules_list.get(website.uuid, None),
         'success_message': success_message,
         'previous_reports': previous_reports,
         'current_day': get_current_day(),
