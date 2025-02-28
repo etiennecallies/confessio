@@ -301,6 +301,10 @@ UI widget
     margin: 0.2em 0.2em;
 }
 
+.website-card.hide-explicitly-other .explicitly-other {
+    display: none;
+}
+
 /**
  * Collapse element
  */

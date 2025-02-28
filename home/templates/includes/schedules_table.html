@@ -27,8 +27,8 @@
                 <td{% if day == current_day %} class="bg-gradient-gray-200"{% endif %}>
                     {% with church_events=merged_schedules_list.church_events_by_day|get_item:day %}
                         {% for church_event in church_events %}
-                            <div class="text-center">
-                                <div class="colored-schedule d-inline-block clickable {% if church_event.is_church_explicitly_other %}text-white{% endif %}" onclick="return goToChurch('{{ website.uuid }}', '{{ church_event.church.uuid }}', '{{ church_event.is_church_explicitly_other }}')"
+                            <div class="text-center {% if church_event.is_church_explicitly_other %}explicitly-other text-white{% endif %}">
+                                <div class="colored-schedule d-inline-block clickable" onclick="return goToChurch('{{ website.uuid }}', '{{ church_event.church.uuid }}', '{{ church_event.is_church_explicitly_other|lower }}')"
                                           title="{% if church_event.church %}{{ church_event.church.name }}{% elif church_event.is_church_explicitly_other %}{% trans 'OutsideThisParish' %}{% else %}Lieu inconnu{% endif %}"
                                           style="background-color: {% print_church_color church_event.church church_event.is_church_explicitly_other%}"
                                     >{% display_hour church_event.event.start %} - {% if church_event.event.end %}{% display_hour church_event.event.end %}{% else %}?{% endif %}
