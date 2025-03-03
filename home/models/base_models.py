@@ -181,6 +181,7 @@ class Crawling(TimeStampMixin):
     error_detail = models.TextField(null=True)
     nb_visited_links = models.PositiveSmallIntegerField()
     nb_success_links = models.PositiveSmallIntegerField()
+    recrawl_triggered_at = models.DateTimeField(null=True, blank=True)
 
 
 class Scraping(TimeStampMixin):

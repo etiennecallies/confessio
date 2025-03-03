@@ -1,3 +1,5 @@
+from django.db.models.functions import Now
+
 from home.management.abstract_command import AbstractCommand
 from home.models import Website
 from scraping.scrape.download_refine_and_extract import get_fresh_extracted_html_list
@@ -27,6 +29,11 @@ class Command(AbstractCommand):
                 if not extracted_html_list:
                     self.warning(f'No more content for {page.url}, deleting page {page.uuid}')
                     delete_page(page)
+
+                    # Trigger a recrawl to make sure we don't miss anything
+                    if website.crawling:
+                        website.crawling.recrawl_triggered_at = Now()
+                        website.crawling.save()
                     continue
 
                 # Insert or update scraping

@@ -25,9 +25,11 @@ class Command(AbstractCommand):
             websites = Website.objects.filter(is_active=True, name__contains=options['name']).all()
         elif options['in_error']:
             websites = Website.objects.filter(is_active=True).filter(
-                moderations__category__in=[WebsiteModeration.Category.HOME_URL_NO_RESPONSE,
-                                           WebsiteModeration.Category.HOME_URL_NO_CONFESSION],
-                moderations__validated_at__isnull=True).all()
+                Q(moderations__category__in=[
+                    WebsiteModeration.Category.HOME_URL_NO_RESPONSE,
+                    WebsiteModeration.Category.HOME_URL_NO_CONFESSION],
+                    moderations__validated_at__isnull=True)
+                | Q(crawling__recrawl_triggered_at__isnull=False)).all()
         elif options['no_recent']:
             websites = Website.objects.filter(is_active=True) \
                 .filter(Q(crawling__isnull=True)
