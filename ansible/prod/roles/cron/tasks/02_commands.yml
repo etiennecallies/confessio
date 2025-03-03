@@ -22,7 +22,7 @@
       minute: 0
     - name: hourly_scrape_pages
       command: "scrape_pages"
-      hour: "*"
+      hour: "8,10,12,14,16,18,20,22"
       minute: 20
     - name: hourly_crawl_websites_in_error
       command: "crawl_websites --in-error"
