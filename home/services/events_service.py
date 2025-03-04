@@ -172,7 +172,7 @@ class MergedChurchSchedulesList:
 def get_merged_church_schedules_list(website: Website,
                                      all_website_churches: list[Church],
                                      day_filter: date | None = None
-                                     ) -> MergedChurchSchedulesList:
+                                     ) -> MergedChurchSchedulesList | None:
     ################
     # Get parsings #
     ################
@@ -191,11 +191,10 @@ def get_merged_church_schedules_list(website: Website,
         current_year = get_current_year()
         end_date = start_date + timedelta(days=300)
         max_days = 8
-        print('no day filter')
     else:
         start_date = day_filter
         current_year = start_date.year
-        end_date = start_date + timedelta(days=1)
+        end_date = start_date
         max_days = 1
 
     for parsing in parsings_and_prunings.sources:
@@ -223,6 +222,11 @@ def get_merged_church_schedules_list(website: Website,
             is_related_to_permanence_parsings.append(parsing)
         if schedules_list.will_be_seasonal_events:
             will_be_seasonal_events_parsings.append(parsing)
+
+    if day_filter:
+        if not all_church_schedule_items:
+            # If we are filtering on a specific day and no events are found, we return None
+            return None
 
     merged_church_schedule_items = get_merged_schedule_items(all_church_schedule_items)
     # TODO we shall make sure the church_id are the same accross all parsings

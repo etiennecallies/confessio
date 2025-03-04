@@ -30,6 +30,10 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
     website_merged_church_schedules_list = get_website_merged_church_schedules_list(
         websites, website_churches, day_filter)
 
+    if day_filter:
+        # Filter on websites that have actual schedules
+        websites = [w for w in websites if w.uuid in website_merged_church_schedules_list]
+
     # We prepare the map
     folium_map, church_marker_names = prepare_map(center, churches, bounds,
                                                   website_merged_church_schedules_list,

@@ -147,9 +147,13 @@ def prepare_map(center, churches: List[Church], bounds,
     church_marker_names = {}
 
     for church in churches:
-        tootltip_text = f'{church.name}'
         merged_church_schedules_list = \
-            website_merged_church_schedules_list.get(church.parish.website.uuid)
+            website_merged_church_schedules_list.get(church.parish.website.uuid, None)
+        if merged_church_schedules_list is None:
+            # We don't display church without schedules
+            continue
+
+        tootltip_text = f'{church.name}'
         popup_html, color = get_popup_and_color(church, merged_church_schedules_list)
         marker = Marker(get_latitude_longitude(church.location),
                         tooltip=tootltip_text,
