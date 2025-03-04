@@ -152,6 +152,7 @@ class ChurchSortedSchedules:
 @dataclass
 class MergedChurchSchedulesList:
     church_events_by_day: dict[date, list[ChurchEvent]]
+    page_range: str
     church_sorted_schedules: list[ChurchSortedSchedules]
     possible_by_appointment_parsings: list[Parsing]
     is_related_to_mass_parsings: list[Parsing]
@@ -273,6 +274,7 @@ def get_merged_church_schedules_list(website: Website,
 
     return MergedChurchSchedulesList(
         church_events_by_day=church_events_by_day,
+        page_range=get_page_range(church_events_by_day),
         church_sorted_schedules=church_sorted_schedules,
         possible_by_appointment_parsings=possible_by_appointment_parsings,
         is_related_to_mass_parsings=is_related_to_mass_parsings,
@@ -305,6 +307,23 @@ def get_website_merged_church_schedules_list(websites: list[Website],
             website_merged_church_schedules_list[website.uuid] = merged_church_schedules_list
 
     return website_merged_church_schedules_list
+
+
+#########
+# PAGES #
+#########
+
+def get_page_range(church_events_by_day: dict[date, list[ChurchEvent]]) -> str:
+    dates_per_page = 4
+    if len(church_events_by_day) < dates_per_page:
+        return '1'
+
+    first_day = min(church_events_by_day.keys())
+    for i in range(dates_per_page, len(church_events_by_day)):
+        if church_events_by_day[first_day + timedelta(days=i)]:
+            return '12'
+
+    return '1'
 
 
 ##########
