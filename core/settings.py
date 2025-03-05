@@ -249,6 +249,9 @@ REQUEST_IGNORE_USER_AGENTS = (
     r'Uptime Bot',
     r'fr_bot',
     r'Morningscore Bot',
+    r'GPTBot',
+    r'Amazonbot',
+    r'Barkrowler',
 )
 REQUEST_TRAFFIC_MODULES = (
     'request.traffic.UniqueVisitor',
