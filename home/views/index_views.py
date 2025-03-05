@@ -62,6 +62,11 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
     for website in websites:
         website_reports_count[website.uuid] = get_count_and_label(website)
 
+    hidden_inputs = {}
+    for key in request.GET:
+        if key not in ['dateFilter']:
+            hidden_inputs[key] = request.GET[key]
+
     context = {
         'location': location,
         'map_html': map_html,
@@ -74,6 +79,9 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
         'current_day': get_current_day(),
         'current_year': str(get_current_year()),
         'filter_days': get_filter_days(day_filter),
+        'date_filter_value': day_filter.isoformat() if day_filter else '',
+        'action_path': request.path,
+        'hidden_inputs': hidden_inputs,
     }
 
     return render(request, 'pages/index.html', context)
