@@ -289,8 +289,29 @@ def get_merged_church_schedules_list_for_website(website: Website,
                                                  website_churches: list[Church],
                                                  day_filter: date | None = None
                                                  ) -> MergedChurchSchedulesList | None:
-    if not website.all_pages_parsed() or website.unreliability_reason:
-        return None
+    if website.unreliability_reason:
+        if day_filter:
+            return None
+
+        church_sorted_schedules = [
+            ChurchSortedSchedules(
+                church=c,
+                is_church_explicitly_other=False,
+                sorted_schedules=[]
+            ) for c in website_churches
+        ]
+
+        return MergedChurchSchedulesList(
+            church_events_by_day={},
+            page_range='',
+            church_sorted_schedules=church_sorted_schedules,
+            possible_by_appointment_parsings=[],
+            is_related_to_mass_parsings=[],
+            is_related_to_adoration_parsings=[],
+            is_related_to_permanence_parsings=[],
+            will_be_seasonal_events_parsings=[],
+            parsings_and_prunings=get_website_parsings_and_prunings(website),
+        )
 
     return get_merged_church_schedules_list(website, website_churches, day_filter)
 
