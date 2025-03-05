@@ -44,7 +44,7 @@
                     {% endfor %}
                     <select class="form-select w-100" name="dateFilter" onchange="this.form.submit()">
                         <option value="any"{% if filter_days|get_item:'any_day'|get_item:'is_selected' %} selected{% endif %}>Tous les jours</option>
-                        <option value="{{ filter_days|get_item:'current_day'|get_item:'date'|date:"Y-m-d" }}{% if filter_days|get_item:'current_day'|get_item:'is_selected' %} selected{% endif %}">Aujourd'hui</option>
+                        <option value="{{ filter_days|get_item:'current_day'|get_item:'date'|date:"Y-m-d" }}"{% if filter_days|get_item:'current_day'|get_item:'is_selected' %} selected{% endif %}>Aujourd'hui</option>
                         <option value="{{ filter_days|get_item:'tomorrow'|get_item:'date'|date:"Y-m-d" }}"{% if filter_days|get_item:'tomorrow'|get_item:'is_selected' %} selected{% endif %}>Demain</option>
                         {% for day_dict in filter_days|get_item:'next_days' %}
                             <option value="{{ day_dict|get_item:'date'|date:"Y-m-d" }}"{% if day_dict|get_item:'is_selected' %} selected{% endif %}>{{ day_dict|get_item:'date'|date:"l"|capfirst }}</option>
