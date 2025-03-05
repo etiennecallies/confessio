@@ -7,7 +7,7 @@ from home.models import Website
 from home.models.report_models import Report
 from home.services.events_service import get_website_merged_church_schedules_list
 from home.services.page_url_service import get_page_pruning_urls
-from home.services.report_service import add_necessary_moderation_for_report
+from home.services.report_service import add_necessary_moderation_for_report, get_count_and_label
 from home.utils.date_utils import get_current_day, get_current_year
 from home.utils.hash_utils import hash_string_to_hex
 from home.utils.web_utils import get_client_ip
@@ -69,15 +69,20 @@ def report_page(request, website_uuid):
     website_merged_church_schedules_list = get_website_merged_church_schedules_list(
         [website], website_churches)
 
+    # Count reports for each website
+    website_reports_count = {website.uuid: get_count_and_label(website)}
+
     previous_reports = Report.objects.filter(website=website).order_by('-created_at').all()
 
     return render(request, 'pages/report.html', {
         'noindex': True,
         'website': website,
         'page_pruning_urls': page_pruning_urls,
-        'merged_schedules_list': website_merged_church_schedules_list.get(website.uuid, None),
+        'website_merged_church_schedules_list': website_merged_church_schedules_list,
         'success_message': success_message,
         'previous_reports': previous_reports,
         'current_day': get_current_day(),
         'current_year': str(get_current_year()),
+        'website_reports_count': website_reports_count,
+        'display_report_link': False,
     })

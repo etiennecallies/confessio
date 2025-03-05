@@ -67,7 +67,9 @@
                                     {{ count_and_label.label }} {{ count_and_label.count }}
                                 </span>
                             {% endfor %}
-                            <u><a href="{% url 'report' website.uuid %}" rel="nofollow">Donner votre avis.</a></u>
+                            {% if display_report_link %}
+                                <u><a href="{% url 'report' website.uuid %}" rel="nofollow">Donner votre avis.</a></u>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

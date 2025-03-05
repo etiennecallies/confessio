@@ -32,26 +32,7 @@
                 <div class="row justify-content-center">
                     <div class="col-12 col-lg-8">
                         <!-- Display Card -->
-                        <div class="card border-0 mt-4">
-                            <div class="card-body website-card">
-                                <h4>1️⃣ Paragraphes extraits concernant les confessions</h4>
-                                <p>Site de la paroisse :
-                                    <a href="{{ website.home_url }}" class="link-info" target="_blank">
-                                        {{ website.home_url }} <i class="fas fa-up-right-from-square"></i>
-                                    </a>
-                                </p>
-                                {% include 'includes/website_sources.html' %}
-
-                                <h4 class="mt-3">2️⃣ Horaires repérés</h4>
-                                {% include 'includes/website_schedules.html' %}
-
-                                <h4 class="mt-3">3️⃣ Églises</h4>
-                                {% include 'includes/website_churches.html' %}
-                                <div class="mt-2">
-                                    <a class="link-info" href="{% url 'index' %}?websiteUuid={{ website.uuid }}">Voir la carte</a>
-                                </div>
-                            </div>
-                        </div>
+                        {% include 'includes/website_card.html' with website=website %}
                         <!-- End of Display Card -->
 
                         <!-- Form Card -->
@@ -80,9 +61,9 @@
                                         <label>
                                             <select name="error_type">
                                                 <option value="">Sélectionnez le type d'erreur</option>
-                                                <option value="paragraphs">1. Dans les paragraphes extraits du site</option>
-                                                <option value="schedules">2. Dans les horaires repérés</option>
-                                                <option value="churches">3. Dans la liste des églises</option>
+                                                <option value="churches">Dans la liste des églises ou leur position</option>
+                                                <option value="paragraphs">Dans les paragraphes extraits du site</option>
+                                                <option value="schedules">Dans l'analyse des horaires</option>
                                             </select>
                                         </label>
                                     </div>

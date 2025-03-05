@@ -82,6 +82,7 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
         'date_filter_value': day_filter.isoformat() if day_filter else '',
         'action_path': request.path,
         'hidden_inputs': hidden_inputs,
+        'display_report_link': True,
     }
 
     return render(request, 'pages/index.html', context)
