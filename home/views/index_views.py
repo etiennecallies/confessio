@@ -1,4 +1,5 @@
 import dataclasses
+from datetime import date
 
 from django.core.exceptions import ValidationError
 from django.http import HttpResponseNotFound, JsonResponse
@@ -7,6 +8,7 @@ from django.shortcuts import render
 from home.models import Website, Diocese
 from home.services.autocomplete_service import get_aggregated_response
 from home.services.events_service import get_website_merged_church_schedules_list
+from home.services.filter_service import get_filter_days
 from home.services.map_service import get_churches_in_box, get_churches_around, prepare_map, \
     get_churches_by_website, get_center, get_churches_by_diocese
 from home.services.page_url_service import get_page_pruning_urls
@@ -15,7 +17,7 @@ from home.utils.date_utils import get_current_day, get_current_year
 
 
 def render_map(request, center, churches, bounds, location, too_many_results: bool,
-               is_around_me: bool):
+               is_around_me: bool, day_filter: date | None):
     # We get all websites and their churches
     websites_by_uuid = {}
     website_churches = {}
@@ -26,7 +28,11 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
 
     # We compute the merged schedules list for each website
     website_merged_church_schedules_list = get_website_merged_church_schedules_list(
-        websites, website_churches)
+        websites, website_churches, day_filter)
+
+    if day_filter:
+        # Filter on websites that have actual schedules
+        websites = [w for w in websites if w.uuid in website_merged_church_schedules_list]
 
     # We prepare the map
     folium_map, church_marker_names = prepare_map(center, churches, bounds,
@@ -56,6 +62,11 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
     for website in websites:
         website_reports_count[website.uuid] = get_count_and_label(website)
 
+    hidden_inputs = {}
+    for key in request.GET:
+        if key not in ['dateFilter']:
+            hidden_inputs[key] = request.GET[key]
+
     context = {
         'location': location,
         'map_html': map_html,
@@ -67,6 +78,10 @@ def render_map(request, center, churches, bounds, location, too_many_results: bo
         'website_reports_count': website_reports_count,
         'current_day': get_current_day(),
         'current_year': str(get_current_year()),
+        'filter_days': get_filter_days(day_filter),
+        'date_filter_value': day_filter.isoformat() if day_filter else '',
+        'action_path': request.path,
+        'hidden_inputs': hidden_inputs,
     }
 
     return render(request, 'pages/index.html', context)
@@ -80,6 +95,17 @@ def extract_float(key: str, request) -> float | None:
         return None
 
 
+def extract_day_filter(request) -> date | None:
+    date_filter = request.GET.get('dateFilter', '')
+    if date_filter and date_filter != 'any':
+        try:
+            return date.fromisoformat(date_filter)
+        except ValueError:
+            pass
+
+    return None
+
+
 def index(request, diocese_slug=None, is_around_me: bool = False):
     location = request.GET.get('location', '')
     latitude = extract_float('latitude', request)
@@ -91,6 +117,8 @@ def index(request, diocese_slug=None, is_around_me: bool = False):
     max_lng = extract_float('maxLng', request)
 
     website_uuid = request.GET.get('websiteUuid', '')
+
+    day_filter = extract_day_filter(request)
 
     if min_lat and min_lng and max_lat and max_lng:
         bounds = (min_lat, max_lat, min_lng, max_lng)
@@ -132,7 +160,8 @@ def index(request, diocese_slug=None, is_around_me: bool = False):
         too_many_results = False
         bounds = None
 
-    return render_map(request, center, churches, bounds, location, too_many_results, is_around_me)
+    return render_map(request, center, churches, bounds, location, too_many_results, is_around_me,
+                      day_filter)
 
 
 def autocomplete(request):

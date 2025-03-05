@@ -52,6 +52,9 @@ def get_events_from_schedule_item(schedule: ScheduleItem,
                                   end_date: date | None = None,
                                   max_events: int | None = None,
                                   max_days: int | None = None) -> list[Event]:
+    """
+    end_date is inclusive
+    """
     if schedule.is_one_off_rule() and not schedule.date_rule.is_valid_date():
         return []
 

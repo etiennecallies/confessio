@@ -91,7 +91,7 @@ $(document).ready(function () {
       $("#min-lng-input").val(bounds._southWest.lng);
       $("#max-lat-input").val(bounds._northEast.lat);
       $("#max-lng-input").val(bounds._northEast.lng);
-      $("#search-in-this-area-col").show();
+      $("#search-in-this-area-col").removeClass('d-none');
     });
   }
 
@@ -112,7 +112,7 @@ $(document).ready(function () {
  */
 $(document).ready(function () {
   if (navigator.geolocation) {
-    $('#search-around-me-col').show();
+    $('#search-around-me-col').removeClass('d-none');
 
     let $searchAroundMe = $('#search-around-me-btn');
     $searchAroundMe.click(function (e) {

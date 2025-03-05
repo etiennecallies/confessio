@@ -29,6 +29,9 @@ class ResponseTimeMetricsMiddleware:
                 'index',
                 'autocomplete',
                 'diocese_view',
+                'around_place_view',
+                'in_area_view',
+                'around_me_view',
             ]:
                 url_name = 'other'
 

@@ -8,6 +8,8 @@ urlpatterns = [
     path('autocomplete', views.autocomplete, name='autocomplete'),
     path('dioceses', views.dioceses_list, name='dioceses_list'),
     path('diocese/<str:diocese_slug>', views.index, name='diocese_view'),
+    path('around_place', views.index, name='around_place_view'),
+    path('in_area', views.index, name='in_area_view'),
     path('around_me', views.index, {'is_around_me': True}, name='around_me_view'),
 
     # report

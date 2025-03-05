@@ -149,7 +149,11 @@ msgid "tooManyResultsStrong"
 msgstr "Beaucoup d'églises dans cette région !"
 
 #: templates/pages/index.html:42
-msgid "tooManyResults"
+msgid "tooManyResultsWithoutDate"
+msgstr "Veuillez zoomer ou bien préciser le jour souhaité."
+
+#: templates/pages/index.html:42
+msgid "tooManyResultsWithDate"
 msgstr "Veuillez zoomer et cliquer sur 'Rechercher dans cette zone'."
 
 #: templates/pages/index.html:51
@@ -157,10 +161,13 @@ msgid "noResultsStrong"
 msgstr "Pas de résultats..."
 
 #: templates/pages/index.html:51
-msgid "noResults"
+msgid "noResultsWithoutDate"
 msgstr ""
 "Confessio est en lancement et n'opère que dans les diocèses de Paris, Lyon, "
 "Versailles, Nanterre, Dijon, Rennes et du Havre pour le moment."
+
+msgid "noResultsWithDate"
+msgstr "Essayez sans filtre de date."
 
 #: templates/pages/index.html:64
 msgid "searchAroundMe"
