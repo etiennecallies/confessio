@@ -40,7 +40,7 @@
             Open website admin <i class="fas fa-up-right-from-square"></i>
             </a>
             <p>
-                <a class="link-info" href="{% url 'index' %}?websiteUuid={{ scraping.page.website.uuid }}">{{ scraping.page.website.name }}</a>
+                <a class="link-info" href="{% url 'website_view' scraping.page.website.uuid %}">{{ scraping.page.website.name }}</a>
             </p>
         </div>
     {% endfor %}

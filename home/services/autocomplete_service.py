@@ -5,6 +5,7 @@ import requests
 from django.contrib.postgres.lookups import Unaccent
 from django.db.models import Value
 from django.db.models.functions import Replace, Lower
+from django.urls import reverse
 
 from home.models import Parish, Church
 from home.utils.department_utils import get_departments_context
@@ -19,9 +20,9 @@ class AutocompleteResult:
     type: str
     name: str
     context: str
+    url: str
     latitude: Optional[float] = None
     longitude: Optional[float] = None
-    website_uuid: Optional[str] = None
 
     @classmethod
     def from_parish(cls, parish: Parish) -> 'AutocompleteResult':
@@ -45,7 +46,7 @@ class AutocompleteResult:
             type='parish',
             name=parish.name,
             context=context,
-            website_uuid=parish.website.uuid,
+            url=reverse('website_view', kwargs={'website_uuid': parish.website.uuid}),
         )
 
     @classmethod
@@ -61,7 +62,7 @@ class AutocompleteResult:
             type='church',
             name=church.name,
             context=context,
-            website_uuid=church.parish.website.uuid,
+            url=reverse('website_view', kwargs={'website_uuid': church.parish.website.uuid}),
         )
 
 
@@ -93,6 +94,7 @@ def get_data_gouv_response(query) -> list[AutocompleteResult]:
             context=result['properties']['context'],
             latitude=result['geometry']['coordinates'][1],
             longitude=result['geometry']['coordinates'][0],
+            url=reverse('around_place_view'),
         ))
 
     return results

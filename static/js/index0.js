@@ -44,12 +44,10 @@ $( function() {
         });
       },
       select: function( event, ui ) {
+        $("#search-input").val(ui.item.name);
         $("#latitude-input").val(ui.item.latitude);
         $("#longitude-input").val(ui.item.longitude);
-        $("#search-input").val(ui.item.name);
-        $("#website-uuid-input").val(ui.item.website_uuid);
-
-        $("#search-form").submit();
+        $("#search-form").attr('action', ui.item.url).submit();
       }
     }).autocomplete( "instance" )._renderItem = function( ul, item ) {
       let badge =

@@ -11,9 +11,7 @@ urlpatterns = [
     path('around_place', views.index, name='around_place_view'),
     path('in_area', views.index, name='in_area_view'),
     path('around_me', views.index, {'is_around_me': True}, name='around_me_view'),
-
-    # report
-    path('report/<uuid:website_uuid>', views.report_page, name='report'),
+    path('paroisse/<uuid:website_uuid>', views.index, name='website_view'),
 
     # edit
     path('edit/pruning/<uuid:pruning_uuid>', views.edit_pruning, name='edit_pruning'),

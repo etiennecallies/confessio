@@ -12,7 +12,7 @@
                         <div class="row mb-1">
                             <h3 class="col-md-8">
                                 <a class="link-info"
-                                    href="{% url 'index' %}?websiteUuid={{ website.uuid }}">
+                                    href="{% url 'website_view' website.uuid %}">
                                     {{ website.name }}
                                 </a>
                                 {% if request.user.is_authenticated and request.user.is_staff %}
@@ -67,8 +67,8 @@
                                     {{ count_and_label.label }} {{ count_and_label.count }}
                                 </span>
                             {% endfor %}
-                            {% if display_report_link %}
-                                <u><a href="{% url 'report' website.uuid %}" rel="nofollow">Donner votre avis.</a></u>
+                            {% if not is_website_page %}
+                                <u><a href="{% url 'website_view' website.uuid %}#report-form" rel="nofollow">Donner votre avis.</a></u>
                             {% endif %}
                         </div>
                     </div>

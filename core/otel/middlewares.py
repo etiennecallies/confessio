@@ -32,6 +32,7 @@ class ResponseTimeMetricsMiddleware:
                 'around_place_view',
                 'in_area_view',
                 'around_me_view',
+                'website_view',
             ]:
                 url_name = 'other'
 
