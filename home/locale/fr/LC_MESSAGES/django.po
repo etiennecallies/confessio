@@ -97,7 +97,7 @@ msgstr "Confessio - horaires des confessions"
 #: templates/layouts/base.html:29 templates/layouts/base.html:41
 #: templates/layouts/base.html:48 templates/pages/index.html:14
 msgid "confessioDescription"
-msgstr "Un moteur de recherche d'horaires de confession qui cite ses sources."
+msgstr "Planifiez votre prochaine confession !"
 
 #: templates/layouts/base.html:30 templates/layouts/base.html:31
 #: templates/pages/index.html:13
@@ -110,11 +110,11 @@ msgstr "Confessio - Nous contacter"
 
 #: templates/pages/contact.html:27
 msgid "contactTitle"
-msgstr "Prendre contact, signaler une erreur, contribuer au projet ?"
+msgstr "Prendre contact, signaler une erreur, suggérer une amélioration, contribuer au projet ?"
 
 #: templates/pages/contact.html:28
 msgid "contactSubTitle"
-msgstr "Cool! Laissez-nous un message 🙂"
+msgstr "Laissez-nous un message 🙂"
 
 #: templates/pages/contact.html:34
 msgid "contactSuccessStrong"
