@@ -1,8 +1,10 @@
+import re
 from urllib.parse import urlparse, ParseResult, parse_qs, urlencode
 
 from bs4 import BeautifulSoup, SoupStrainer, Comment
 from bs4 import element as el
 
+from home.utils.date_utils import get_current_year
 from scraping.utils.string_search import has_any_of_words
 from scraping.utils.url_utils import is_internal_link, get_clean_full_url, \
     replace_scheme_and_hostname, get_path
@@ -100,6 +102,16 @@ def is_forbidden(url_parsed, home_url: str, forbidden_paths: set[str]):
     return False
 
 
+def is_obsolete_path(path: str) -> bool:
+    current_year = get_current_year()
+    for year in range(2000, current_year):
+        if f'{year}' in path:
+            for w in re.split(r'\D', path):
+                if w == f'{year}':
+                    return True
+    return False
+
+
 def get_links(element: el, home_url: str, aliases_domains: set[str], forbidden_paths: set[str]
               ) -> set[str]:
     results = set()
@@ -140,6 +152,9 @@ def get_links(element: el, home_url: str, aliases_domains: set[str], forbidden_p
         all_strings = link.find_all(text=lambda t: not isinstance(t, Comment),
                                     recursive=True)
         text = ' '.join(all_strings).rstrip()
+
+        if is_obsolete_path(url_parsed.path):
+            continue
 
         if might_be_confession_link(url_parsed.path, text):
             results.add(full_url)

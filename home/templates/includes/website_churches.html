@@ -16,8 +16,10 @@
                             </a>
                         {% endif %}
                         <br>
-                        <span class="text-muted">{{ church.address }} {{ church.zipcode }} {{ church.city }}</span>
-                        <span class="text-muted copy-to-clipboard clickable"><i class="far fa-copy"></i></span>
+                        <small>
+                            <span class="text-muted">{{ church.address }} {{ church.zipcode }} {{ church.city }}</span>
+                            <span class="text-muted copy-to-clipboard clickable"><i class="far fa-copy"></i></span>
+                        </small>
                     </div>
                     {% if church_marker_names %}
                         <div class="col-md-3">
