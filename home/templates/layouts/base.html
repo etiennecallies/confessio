@@ -23,9 +23,9 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <!-- Primary Meta Tags -->
-    <title>{% block title %}{% trans 'confessioPageTitle' %}{% endblock title %}</title>
+    <title>{% if meta_title %}{{ meta_title }}{% else %}{% trans 'confessioPageTitle' %}{% endif %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="title" content="{% block seo_title %}{% trans 'confessioPageTitle' %}{% endblock seo_title %}">
+    <meta name="title" content="{% if meta_title %}{{ meta_title }}{% else %}{% trans 'confessioPageTitle' %}{% endif %}">
     <meta name="description" content="{% trans 'confessioDescription' %}">
     <meta name="application-name" content="{% trans 'confessioTitle' %}">
     <meta name="apple-mobile-web-app-title" content="{% trans 'confessioTitle' %}">
@@ -37,14 +37,14 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
-    <meta property="og:title" content="{% trans 'confessioPageTitle' %}">
+    <meta property="og:title" content="{% if meta_title %}{{ meta_title }}{% else %}{% trans 'confessioPageTitle' %}{% endif %}">
     <meta property="og:description" content="{% trans 'confessioDescription' %}">
     <meta property="og:image" content="{% static 'assets/img/Confessio.png' %}">
     
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="{{ request.build_absolute_uri }}">
-    <meta property="twitter:title" content="{% trans 'confessioPageTitle' %}">
+    <meta property="twitter:title" content="{% if meta_title %}{{ meta_title }}{% else %}{% trans 'confessioPageTitle' %}{% endif %}">
     <meta property="twitter:description" content="{% trans 'confessioDescription' %}">
     <meta property="twitter:image" content="{% static 'assets/img/Confessio.png' %}">
     

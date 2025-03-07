@@ -1,4 +1,5 @@
 import os
+from django.utils.translation import gettext
 
 from django.core.mail import send_mail, BadHeaderError
 from django.http import HttpResponseBadRequest
@@ -15,7 +16,8 @@ def contact(request, message=None, email=None, name_text=None, message_text=None
                       {'message': message, 'form': form,
                        'name_text': unquote_path(name_text or ''),
                        'email': email or '',
-                       'message_text': unquote_path(message_text or '')
+                       'message_text': unquote_path(message_text or ''),
+                       'meta_title': gettext('contactPageTitle'),
                        })
     else:
         name = request.POST.get('name')

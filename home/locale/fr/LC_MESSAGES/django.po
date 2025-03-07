@@ -92,7 +92,7 @@ msgstr "Corriger"
 #: templates/layouts/base.html:26 templates/layouts/base.html:28
 #: templates/layouts/base.html:40 templates/layouts/base.html:47
 msgid "confessioPageTitle"
-msgstr "Confessio - horaires des confessions"
+msgstr "Confessio - Horaires des confessions"
 
 #: templates/layouts/base.html:29 templates/layouts/base.html:41
 #: templates/layouts/base.html:48 templates/pages/index.html:14

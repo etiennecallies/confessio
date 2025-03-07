@@ -215,6 +215,7 @@ def dioceses_list(request):
 
     context = {
         'dioceses': dioceses,
+        'meta_title': gettext('diocesesPageTitle'),
     }
 
     return render(request, 'pages/dioceses.html', context)
