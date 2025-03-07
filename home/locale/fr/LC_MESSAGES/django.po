@@ -71,10 +71,6 @@ msgstr "Modération"
 msgid "goToParishSite"
 msgstr "Aller sur le site"
 
-#: templates/includes/website_churches.html:22
-msgid "locateOnMap"
-msgstr "Situer sur la carte"
-
 #: templates/includes/website_sources.html:12
 #: templates/pages/edit_pruning.html:17
 #, python-format

@@ -5,31 +5,24 @@
 {% for church_sorted_schedule in merged_schedules_list.church_sorted_schedules %}
     {% with church=church_sorted_schedule.church %}
         <div id="{% if church %}church-{{ church.uuid }}{% else %}nochurch-{{ website.uuid }}-{{ church_sorted_schedule.is_church_explicitly_other|lower }}{% endif %}"
-             class="margin-left-indent mt-1">
+             class="margin-left-indent mb-3">
             {% if church %}
-                <div class="row mb-1">
-                    <div class="col-md-9">
+                <div>
+                    <a href="#map"
+                       class="link-info"
+                       onclick="return popupChurch('{{ church_marker_names|get_item:church.uuid }}');">
                         <span class="fw-bold">{% display_church_color church False %} {{ church.name }}</span>
-                        {% if request.user.is_authenticated and request.user.is_staff %}
-                            <a class="text-muted" href="{% url 'admin:home_church_change' church.uuid %}" target="_blank">
-                                - Admin <i class="fas fa-up-right-from-square"></i>
-                            </a>
-                        {% endif %}
-                        <br>
-                        <small>
-                            <span class="text-muted">{{ church.address }} {{ church.zipcode }} {{ church.city }}</span>
-                            <span class="text-muted copy-to-clipboard clickable"><i class="far fa-copy"></i></span>
-                        </small>
-                    </div>
-                    {% if church_marker_names %}
-                        <div class="col-md-3">
-                            <a href="#map"
-                               class="link-info"
-                               onclick="return popupChurch('{{ church_marker_names|get_item:church.uuid }}');">
-                                {% trans 'locateOnMap' %}
-                            </a>
-                        </div>
+                    </a>
+
+                    {% if request.user.is_authenticated and request.user.is_staff %}
+                        <a class="text-muted" href="{% url 'admin:home_church_change' church.uuid %}" target="_blank">
+                            - Admin <i class="fas fa-up-right-from-square"></i>
+                        </a>
                     {% endif %}
+                    <div class="small">
+                        <span class="text-muted">{{ church.address }} {{ church.zipcode }} {{ church.city }}</span>
+                        <span class="text-muted copy-to-clipboard clickable"><i class="far fa-copy"></i></span>
+                    </div>
                 </div>
             {% elif church_sorted_schedule.is_church_explicitly_other %}
                 <div>
@@ -56,7 +49,7 @@
 
     {% endwith %}
 {% endfor %}
-<div class="margin-left-indent mt-2">
+<div class="margin-left-indent mt-1">
     {% if merged_schedules_list.possible_by_appointment_parsings %}
         <div>🤝 Il est possible de se confesser sur rendez-vous.
             {% for parsing in merged_schedules_list.possible_by_appointment_parsings %}
