@@ -90,7 +90,8 @@ def is_forbidden(url_parsed, forbidden_paths: set[str]):
     return False
 
 
-def get_links(element: el, home_url: str, aliases_domains: set[str], forbidden_paths: set[str]):
+def get_links(element: el, home_url: str, aliases_domains: set[str], forbidden_paths: set[str]
+              ) -> set[str]:
     results = set()
 
     for link in element:
@@ -137,7 +138,7 @@ def get_links(element: el, home_url: str, aliases_domains: set[str], forbidden_p
 
 
 def parse_content_links(content, home_url: str, aliases_domains: set[str],
-                        forbidden_paths: set[str]):
+                        forbidden_paths: set[str]) -> set[str]:
     try:
         element = BeautifulSoup(content, 'html.parser', parse_only=SoupStrainer('a'))
     except Exception as e:

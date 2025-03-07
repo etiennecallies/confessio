@@ -22,7 +22,7 @@ def replace_scheme_and_hostname(url_parsed: ParseResult, new_url: str) -> str:
     return url_parsed.geturl()
 
 
-def get_clean_full_url(url):
+def get_clean_full_url(url) -> str:
     url_parsed = urlparse(url)
 
     url_parsed = clean_parsed_url(url_parsed)

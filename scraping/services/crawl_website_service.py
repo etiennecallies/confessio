@@ -1,11 +1,11 @@
 from typing import Tuple, Optional
 
 from home.models import Website, Crawling, Page, WebsiteModeration
-from scraping.crawl.download_and_search_urls import search_for_confession_pages
-from scraping.download.download_content import get_url_aliases
+from scraping.crawl.download_and_search_urls import search_for_confession_pages, \
+    get_new_url_and_aliases, forbid_diocese_home_links
 from scraping.services.page_service import delete_page
 from scraping.services.scrape_page_service import upsert_extracted_html_list
-from scraping.utils.url_utils import get_clean_full_url, get_path, get_domain
+from scraping.utils.url_utils import get_path, get_domain, have_similar_domain
 
 
 def remove_not_validated_moderation(website: Website, category: WebsiteModeration.Category):
@@ -63,17 +63,16 @@ def update_home_url(website: Website, new_home_url: str):
 
 def do_crawl_website(website: Website) -> tuple[dict[str, list[str]], int, Optional[str]]:
     # Get home_url aliases
-    home_url_aliases, error_message = get_url_aliases(website.home_url)
-    if not home_url_aliases:
+    new_home_url, aliases_domains, error_message = get_new_url_and_aliases(website.home_url)
+    if error_message:
         return {}, 0, f'error in get_url_aliases: {error_message}'
-
-    new_home_url = get_clean_full_url(home_url_aliases[-1][0])
 
     # Update home_url if needed
     if website.home_url != new_home_url:
+        domain_has_changed = True
         update_home_url(website, new_home_url)
-
-    aliases_domains = set([alias[1] for alias in home_url_aliases])
+    else:
+        domain_has_changed = False
 
     # Get any other website starting with the same home_url
     forbidden_paths = set()
@@ -84,6 +83,24 @@ def do_crawl_website(website: Website) -> tuple[dict[str, list[str]], int, Optio
         for other_website in same_domain_websites:
             if get_domain(other_website.home_url) in aliases_domains:
                 forbidden_paths.add(get_path(other_website.home_url))
+
+    diocese = website.get_diocese()
+    if diocese and diocese.home_url:
+        if domain_has_changed:
+            print('check if diocese home_url has changed')
+            new_diocese_url, diocese_aliases_domains, error_message = \
+                get_new_url_and_aliases(diocese.home_url)
+            if error_message:
+                print(f'error in get_new_url_and_aliases for diocese with url {diocese.home_url}: '
+                      f'{error_message}')
+            elif new_diocese_url != diocese.home_url:
+                print('it has changed! Replacing it.')
+                diocese.home_url = new_diocese_url
+                diocese.save()
+
+        if have_similar_domain(website.home_url, diocese.home_url):
+            print('Website and diocese have similar domain, forbidding diocese home links')
+            forbidden_paths |= forbid_diocese_home_links(diocese.home_url, aliases_domains)
 
     # Actually crawling website
     return search_for_confession_pages(new_home_url, aliases_domains, forbidden_paths)

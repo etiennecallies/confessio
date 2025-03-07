@@ -28,6 +28,7 @@ class Diocese(TimeStampMixin):
     name = models.CharField(max_length=100, unique=True)
     slug = models.CharField(max_length=100, unique=True)
     messesinfo_network_id = models.CharField(max_length=100, unique=True)
+    home_url = models.URLField(unique=True, null=True, blank=True)
     history = HistoricalRecords()
 
 
