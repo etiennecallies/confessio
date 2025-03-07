@@ -1,9 +1,11 @@
+from datetime import date
 from typing import Tuple, Optional
 
-from home.models import Website, Crawling, Page, WebsiteModeration
+from home.models import Website, Crawling, Page, WebsiteModeration, Church
 from scraping.crawl.download_and_search_urls import search_for_confession_pages, \
     get_new_url_and_aliases, forbid_diocese_home_links
 from scraping.services.page_service import delete_page
+from scraping.services.schedules_conflict_service import website_has_schedules_conflict
 from scraping.services.scrape_page_service import upsert_extracted_html_list
 from scraping.utils.url_utils import get_path, get_domain, have_similar_domain
 
@@ -19,19 +21,26 @@ def remove_not_validated_moderation(website: Website, category: WebsiteModeratio
 
 def add_moderation(website: Website, category: WebsiteModeration.Category,
                    other_website: Optional[Website] = None,
-                   other_home_url: Optional[str] = None):
+                   other_home_url: Optional[str] = None,
+                   conflict_day: date | None = None,
+                   conflict_church: Church | None = None):
     if website.unreliability_reason is not None:
         # we do not add moderation for unreliable website
         return
 
     try:
-        WebsiteModeration.objects.get(website=website, category=category)
+        moderation = WebsiteModeration.objects.get(website=website, category=category)
+        moderation.conflict_day = conflict_day
+        moderation.conflict_church = conflict_church
+        moderation.save()
     except WebsiteModeration.DoesNotExist:
         moderation = WebsiteModeration(
             website=website, category=category,
             other_website=other_website,
             home_url=other_home_url or website.home_url,
             diocese=website.get_diocese(),
+            conflict_day=conflict_day,
+            conflict_church=conflict_church,
         )
         moderation.save()
 
@@ -159,18 +168,30 @@ def crawl_website(website: Website) -> Tuple[bool, bool, Optional[str]]:
         if website.one_page_has_confessions():
             remove_not_validated_moderation(website,
                                             WebsiteModeration.Category.HOME_URL_NO_CONFESSION)
+            conflict = website_has_schedules_conflict(website)
+            if conflict is None:
+                remove_not_validated_moderation(website,
+                                                WebsiteModeration.Category.SCHEDULES_CONFLICT)
+            else:
+                conflict_day, conflict_church = conflict
+                add_moderation(website, WebsiteModeration.Category.SCHEDULES_CONFLICT,
+                               conflict_day=conflict_day, conflict_church=conflict_church)
+
             return True, True, None
 
         add_moderation(website, WebsiteModeration.Category.HOME_URL_NO_CONFESSION)
+        remove_not_validated_moderation(website, WebsiteModeration.Category.SCHEDULES_CONFLICT)
         return False, True, None
 
     elif nb_visited_links > 0:
         remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_NO_RESPONSE)
         add_moderation(website, WebsiteModeration.Category.HOME_URL_NO_CONFESSION)
+        remove_not_validated_moderation(website, WebsiteModeration.Category.SCHEDULES_CONFLICT)
 
         return False, True, None
     else:
         add_moderation(website, WebsiteModeration.Category.HOME_URL_NO_RESPONSE)
         remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_NO_CONFESSION)
+        remove_not_validated_moderation(website, WebsiteModeration.Category.SCHEDULES_CONFLICT)
 
         return False, False, error_detail

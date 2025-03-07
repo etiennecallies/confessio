@@ -172,7 +172,8 @@ class MergedChurchSchedulesList:
 
 def get_merged_church_schedules_list(website: Website,
                                      all_website_churches: list[Church],
-                                     day_filter: date | None = None
+                                     day_filter: date | None = None,
+                                     max_days: int = 8
                                      ) -> MergedChurchSchedulesList | None:
     ################
     # Get parsings #
@@ -191,7 +192,6 @@ def get_merged_church_schedules_list(website: Website,
         start_date = date.today()
         current_year = get_current_year()
         end_date = start_date + timedelta(days=300)
-        max_days = 8
     else:
         start_date = day_filter
         current_year = start_date.year

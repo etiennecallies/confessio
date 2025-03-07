@@ -29,6 +29,16 @@
         </a>
     {% endif %}
 
+    <p>
+        <a class="link-info" href="{% url 'website_view' website.uuid %}">{{ website.name }}</a>
+    </p>
+
+    {% if website_moderation.conflict_day %}
+        <p>
+        Conflicting on day {{ website_moderation.conflict_day }} and church {{ website_moderation.conflict_church.name }}.
+        </p>
+    {% endif %}
+
     <h4>Parishes & Churches</h4>
     {% for parish in website.parishes.all %}
         {% display_parish parish %}
