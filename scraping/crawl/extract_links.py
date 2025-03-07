@@ -5,7 +5,7 @@ from bs4 import element as el
 
 from scraping.utils.string_search import has_any_of_words
 from scraping.utils.url_utils import is_internal_link, get_clean_full_url, \
-    replace_scheme_and_hostname
+    replace_scheme_and_hostname, get_path
 
 CONFESSIONS_OR_SCHEDULES_MENTIONS = [
     'confession',
@@ -82,9 +82,19 @@ def clean_url_query(url_parsed: ParseResult):
     return url_parsed.geturl()
 
 
-def is_forbidden(url_parsed, forbidden_paths: set[str]):
+def is_forbidden(url_parsed, home_url: str, forbidden_paths: set[str]):
     for path in forbidden_paths:
         if url_parsed.path.startswith(path):
+            return True
+
+    home_url_path = get_path(home_url)
+    if url_parsed.path.startswith(home_url_path):
+        return False
+
+    if forbidden_paths:
+        # if we are in a multi-website domain (e.g. diocese), we forbid paths that contains
+        # the words 'paroisse', since it's likely another parish website
+        if 'paroisse' in url_parsed.path:
             return True
 
     return False
@@ -111,7 +121,7 @@ def get_links(element: el, home_url: str, aliases_domains: set[str], forbidden_p
             continue
 
         # We ignore forbidden paths and their children
-        if is_forbidden(url_parsed, forbidden_paths):
+        if is_forbidden(url_parsed, home_url, forbidden_paths):
             continue
 
         full_url = get_clean_full_url(full_url)  # we use standardized url to ensure unicity
