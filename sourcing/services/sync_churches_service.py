@@ -201,7 +201,7 @@ def sync_churches(external_churches: list[Church],
                   alert_on_delete: bool = False,
                   ):
     # get all churches in the diocese
-    diocese_churches = Church.objects.filter(parish__diocese=diocese).all()
+    diocese_churches = list(Church.objects.filter(parish__diocese=diocese).all())
 
     print('looping through external churches')
     for external_church in external_churches:

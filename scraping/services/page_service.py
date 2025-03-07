@@ -15,7 +15,7 @@ def delete_page(page: Page):
 
 
 def delete_scraping(scraping: Scraping):
-    prunings = scraping.prunings.all()
+    prunings = list(scraping.prunings.all())
     scraping.delete()
     for pruning in prunings:
         remove_pruning_if_orphan(pruning)

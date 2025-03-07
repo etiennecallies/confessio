@@ -219,7 +219,7 @@ def sync_parishes(external_parishes: list[Parish],
                   alert_on_delete: bool = False,
                   ):
     # get all parishes in the diocese
-    diocese_parishes = diocese.parishes.all()
+    diocese_parishes = list(diocese.parishes.all())
 
     # get parish barycentre
     parish_barycentre_by_uuid = get_parish_barycentre_by_uuid(diocese_parishes)
