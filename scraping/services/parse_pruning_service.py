@@ -2,6 +2,7 @@ import re
 from datetime import timedelta
 from typing import Optional
 
+from django.db.models import Q
 from django.db.models.functions import Now
 from django.utils import timezone
 
@@ -262,7 +263,8 @@ def is_eligible_to_parsing(website: Website):
 def clean_parsing_moderations() -> int:
     counter = 0
     for parsing_moderation in ParsingModeration.objects.filter(validated_at__isnull=True).all():
-        if not any(is_eligible_to_parsing(w) for w in parsing_moderation.parsing.get_websites()):
+        website = parsing_moderation.parsing.website
+        if not website or not is_eligible_to_parsing(website):
             parsing_moderation.delete()
             counter += 1
 
@@ -273,33 +275,50 @@ def clean_parsing_moderations() -> int:
 # Website & Pruning links #
 ###########################
 
-def has_parsing_a_matching_website(parsing: Parsing) -> bool:
-    for website in parsing.get_websites():
-        if parsing.match_website(website):
-            return True
-
-    return False
-
-
-def unlink_website_from_existing_parsing_for_pruning(pruning: Pruning):
-    parsings = Parsing.objects.filter(prunings=pruning).all()
+def unlink_website_from_parsings_except_church_desc_by_id(website: Website,
+                                                          church_desc_by_id: dict[int, str]):
+    """
+    Handle change of church_desc_by_id for a website
+    """
+    parsings = Parsing.objects.filter(website=website)\
+        .exclude(church_desc_by_id=church_desc_by_id).all()
 
     for parsing in parsings:
-        if not has_parsing_a_matching_website(parsing):
-            print(f'deleting not validated moderation for parsing {parsing} since it has no '
-                  f'website any more')
-            ParsingModeration.objects.filter(parsing=parsing, validated_at__isnull=True).delete()
+        unlink_website_from_parsing(parsing)
 
 
-def unlink_pruning_from_existing_parsing(pruning: Pruning):
-    parsings = Parsing.objects.filter(prunings=pruning).all()
+def unlink_website_from_parsing(parsing: Parsing):
+    parsing.website = None
+    parsing.save()
+    print(f'deleting not validated moderation for parsing {parsing} since it has no '
+          f'website any more')
+    ParsingModeration.objects.filter(parsing=parsing, validated_at__isnull=True).delete()
+
+
+def unlink_pruning_from_parsings_except_truncated_html(pruning: Pruning,
+                                                       truncated_html: str):
+    """
+    Handle change of truncated_html for a pruning
+    """
+    parsings = Parsing.objects.filter(prunings=pruning)\
+        .exclude(truncated_html=truncated_html).all()
 
     for parsing in parsings:
-        if parsing.truncated_html != get_truncated_html(pruning):
-            print(f'deleting not validated moderation for parsing {parsing} since it has no '
-                  f'pruning any more')
-            parsing.prunings.remove(pruning)
-            ParsingModeration.objects.filter(parsing=parsing, validated_at__isnull=True).delete()
+        parsing.prunings.remove(pruning)
+        if not parsing.prunings.exists():
+            unlink_website_from_parsing(parsing)
+
+
+def unlink_pruning_for_website(pruning: Pruning, website: Website):
+    """
+    Handle a pruning that disappeared for a website
+    """
+
+    parsings = Parsing.objects.filter(prunings=pruning)\
+        .filter(Q(website__isnull=True) | Q(website=website)).all()
+
+    for parsing in parsings:
+        unlink_website_from_parsing(parsing)
 
 
 ########
@@ -334,6 +353,11 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
         if not parsing.prunings.filter(pk=pruning.pk).exists():
             parsing.prunings.add(pruning)
 
+        # Check if website is already linked to the pruning
+        if not parsing.website:
+            parsing.website = website
+            parsing.save()
+
         # Adding necessary moderation if missing
         add_necessary_parsing_moderation(parsing, website)
 
@@ -351,6 +375,7 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
     llm_json = schedules_list.model_dump() if schedules_list else None
 
     if parsing:
+        parsing.website = website
         parsing.llm_json = llm_json
         parsing.llm_provider = llm_client.get_provider()
         parsing.llm_model = llm_client.get_model()
@@ -358,10 +383,11 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
         parsing.llm_error_detail = llm_error_detail
         parsing.save()
     else:
-        unlink_website_from_existing_parsing_for_pruning(pruning)
-        unlink_pruning_from_existing_parsing(pruning)
+        unlink_website_from_parsings_except_church_desc_by_id(website, church_desc_by_id)
+        unlink_pruning_from_parsings_except_truncated_html(pruning, truncated_html)
 
         parsing = Parsing(
+            website=website,
             truncated_html=truncated_html,
             truncated_html_hash=truncated_html_hash,
             church_desc_by_id=church_desc_by_id,

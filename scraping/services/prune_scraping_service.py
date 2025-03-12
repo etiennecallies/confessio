@@ -5,7 +5,7 @@ from uuid import UUID
 from django.utils import timezone
 from tqdm import tqdm
 
-from home.models import Pruning, PruningModeration, ParsingModeration, Website
+from home.models import Pruning, PruningModeration, Website
 from home.models import Sentence
 from scraping.extract.extract_content import BaseActionInterface, ExtractMode
 from scraping.extract.extract_content import extract_paragraphs_lines_and_indices
@@ -70,7 +70,6 @@ def remove_pruning_if_orphan(pruning: Optional[Pruning]):
         print(f'deleting not validated moderation for pruning {pruning} since it has no scraping '
               f'any more')
         PruningModeration.objects.filter(pruning=pruning, validated_at__isnull=True).delete()
-        unlink_pruning_from_parsings(pruning)
         return True
 
     return False
@@ -175,17 +174,6 @@ def clean_pruning_moderations() -> int:
 # LINK TO PARSINGS #
 ####################
 
-def unlink_pruning_from_parsings(pruning: Pruning):
-    for parsing in pruning.parsings.all():
-        parsing.prunings.remove(pruning)
-
-        if not parsing.prunings.exists():
-            print(f'deleting not validated moderation for parsing {parsing} since it has no '
-                  f'pruning any more')
-            ParsingModeration.objects.filter(parsing=parsing,
-                                             validated_at__isnull=True).delete()
-
-
 def update_parsings(pruning: Pruning):
     websites = {scraping.page.website for scraping in pruning.scrapings.all()}
     for website in websites:
@@ -212,14 +200,13 @@ def prune_pruning(pruning: Pruning) -> ():
         pruning.save()
 
         add_necessary_moderation(pruning)
-        unlink_pruning_from_parsings(pruning)
 
     update_parsings(pruning)
 
 
 def create_pruning(extracted_html: Optional[str]) -> Optional[Pruning]:
     if not extracted_html:
-        return
+        return None
 
     try:
         pruning = Pruning.objects.get(extracted_html=extracted_html)

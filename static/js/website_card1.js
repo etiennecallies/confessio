@@ -36,6 +36,22 @@ $(document).ready(function () {
   });
 });
 
+function lazyLoadElement($element) {
+    let url = $element.data("lazy-load-url");
+    if (!url) return;
+
+    // Add a loading spinner
+    let loader = $('<div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>');
+    $element.html(loader);
+
+    $.get(url, function(data) {
+        $element.html(data);
+        $element.data("lazy-load-url", '');
+    }).fail(function() {
+        $element.html("<p>Une erreur est survenue...</p>");
+    });
+}
+
 /**
  * Activate tooltips.
  */

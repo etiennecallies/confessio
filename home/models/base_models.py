@@ -260,6 +260,8 @@ class Parsing(TimeStampMixin):
     church_desc_by_id = models.JSONField(editable=False)
 
     prunings = models.ManyToManyField('Pruning', related_name='parsings')
+    website = models.ForeignKey('Website', on_delete=models.SET_NULL, related_name='parsings',
+                                null=True)
 
     llm_json = models.JSONField(null=True, blank=True)
     # TODO: no default
@@ -274,9 +276,6 @@ class Parsing(TimeStampMixin):
 
     class Meta:
         unique_together = ('truncated_html_hash', 'church_desc_by_id')
-
-    def get_websites(self) -> list['Website']:
-        return Website.objects.filter(pages__scraping__prunings__parsings=self).distinct()
 
     def match_website(self, website: Website) -> bool:
         return set(self.church_desc_by_id.values()) == set(website.get_church_desc_by_id().values())

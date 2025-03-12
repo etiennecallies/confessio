@@ -18,9 +18,9 @@ class Command(AbstractCommand):
         # ParsingModeration
         counter = 0
         for parsing_moderation in ParsingModeration.objects.filter(diocese__isnull=True).all():
-            websites = parsing_moderation.parsing.get_websites()
-            if websites:
-                parsing_moderation.diocese = websites[0].get_diocese()
+            website = parsing_moderation.parsing.website
+            if website:
+                parsing_moderation.diocese = website.get_diocese()
                 parsing_moderation.save()
                 counter += 1
         self.success(f'Successfully updated {counter} parsing_moderations.')
