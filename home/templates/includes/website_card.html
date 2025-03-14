@@ -48,8 +48,7 @@
                                 <h6><span class="toggle-symbol collapsed-symbol text-gray-600"></span>Sources 📖</h6>
                             </div>
                             <div id="sources-{{ website.uuid }}" class="collapse">
-                                <div class="collapsable-body">
-                                    {% include 'includes/website_sources.html' %}
+                                <div class="collapsable-body" data-lazy-load-url="{% url 'website_sources' website.uuid %}">
                                 </div>
                             </div>
                         </div>

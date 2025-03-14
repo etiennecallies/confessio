@@ -17,17 +17,17 @@ from scraping.parse.schedules import SchedulesList, Event, ScheduleItem
 
 @register.simple_tag
 def display_website(website: Website):
-    return render_to_string('partials/website_display.html', {'website': website})
+    return render_to_string('displays/website_display.html', {'website': website})
 
 
 @register.simple_tag
 def display_parish(parish: Parish):
-    return render_to_string('partials/parish_display.html', {'parish': parish})
+    return render_to_string('displays/parish_display.html', {'parish': parish})
 
 
 @register.simple_tag
 def display_church(church: Church, with_map=True):
-    return render_to_string('partials/church_display.html', {
+    return render_to_string('displays/church_display.html', {
         'church': church,
         'with_map': with_map,
     })
@@ -35,17 +35,17 @@ def display_church(church: Church, with_map=True):
 
 @register.simple_tag
 def display_event(event: Event):
-    return render_to_string('partials/event_display.html', {'event': event})
+    return render_to_string('displays/event_display.html', {'event': event})
 
 
 @register.simple_tag
 def display_hour(dt: datetime):
-    return render_to_string('partials/hour_display.html', {'dt': dt})
+    return render_to_string('displays/hour_display.html', {'dt': dt})
 
 
 @register.simple_tag
 def display_bool(v: bool):
-    return render_to_string('partials/bool_display.html', {'v': v})
+    return render_to_string('displays/bool_display.html', {'v': v})
 
 
 @register.simple_tag
@@ -53,7 +53,7 @@ def display_location(location: Point):
     folimum_map = get_map_with_single_location(location)
     map_html = folimum_map._repr_html_()
 
-    return render_to_string('partials/location_display.html', {'map_html': map_html})
+    return render_to_string('displays/location_display.html', {'map_html': map_html})
 
 
 @register.simple_tag
@@ -64,7 +64,7 @@ def display_churches_location(churches: list[Church]):
     else:
         map_html = '<div>No churches to display</div>'
 
-    return render_to_string('partials/location_display.html', {'map_html': map_html})
+    return render_to_string('displays/location_display.html', {'map_html': map_html})
 
 
 @register.simple_tag
@@ -72,12 +72,12 @@ def display_similar_churches_location(church: Church, sorted_similar_churches: l
     folimum_map = get_map_with_alternative_locations(church, sorted_similar_churches)
     map_html = folimum_map._repr_html_()
 
-    return render_to_string('partials/location_display.html', {'map_html': map_html})
+    return render_to_string('displays/location_display.html', {'map_html': map_html})
 
 
 @register.simple_tag
 def display_schedules_list(schedules_list: SchedulesList, church_desc_by_id_json: str):
-    return render_to_string('partials/schedules_display.html', {
+    return render_to_string('displays/schedules_display.html', {
         'schedules_list': schedules_list,
         'schedules_list_json': schedules_list.model_dump_json(),
         'church_desc_by_id_json': church_desc_by_id_json,
@@ -97,7 +97,7 @@ def display_expandable_pruning(pruning: Pruning):
             'is_displayed': is_displayed
         })
 
-    return render_to_string('partials/expandable_pruning_display.html', {
+    return render_to_string('displays/expandable_pruning_display.html', {
         'spans': spans,
     })
 
@@ -112,7 +112,7 @@ def explain_schedule(schedule: ScheduleItem, church_desc_by_id_json: str):
     else:
         church_desc = 'Église inconnue'
     explained_schedule = get_explanation_from_schedule(schedule)
-    return render_to_string('partials/explained_schedule_display.html', {
+    return render_to_string('displays/explained_schedule_display.html', {
         'explained_schedule': explained_schedule,
         'church_desc': church_desc,
     })
@@ -121,6 +121,6 @@ def explain_schedule(schedule: ScheduleItem, church_desc_by_id_json: str):
 @register.simple_tag
 def display_church_color(church: Church, is_church_explicitly_other: bool):
     color = get_church_color(church, is_church_explicitly_other)
-    return render_to_string('partials/color_display.html', {
+    return render_to_string('displays/color_display.html', {
         'color': color,
     })

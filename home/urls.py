@@ -6,6 +6,7 @@ urlpatterns = [
     # index
     path('', views.index, name='index'),
     path('autocomplete', views.autocomplete, name='autocomplete'),
+    path('website_sources/<uuid:website_uuid>', views.website_sources, name='website_sources'),
     path('dioceses', views.dioceses_list, name='dioceses_list'),
     path('diocese/<str:diocese_slug>', views.index, name='diocese_view'),
     path('around_place', views.index, name='around_place_view'),

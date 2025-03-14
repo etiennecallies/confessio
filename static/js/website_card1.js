@@ -21,6 +21,11 @@ $(document).ready(function () {
 
   // Listen for Bootstrap collapse events instead of clicks
   $('.collapse').on('shown.bs.collapse hidden.bs.collapse', function() {
+    let $collapsableBody = $(this).find('.collapsable-body');
+    if ($collapsableBody.data('lazy-load-url')) {
+        lazyLoadElement($collapsableBody, null);
+    }
+
     // Find the associated header and toggle the symbol
     $(this).prev('.collapsable-header').find('.toggle-symbol')
       .toggleClass('collapsed-symbol expanded-symbol');
@@ -36,17 +41,21 @@ $(document).ready(function () {
   });
 });
 
-function lazyLoadElement($element) {
+function lazyLoadElement($element, callback) {
     let url = $element.data("lazy-load-url");
-    if (!url) return;
+    if (!url) {
+        if (callback) callback();
+        return;
+    }
 
     // Add a loading spinner
-    let loader = $('<div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>');
+    let loader = $('<div class="spinner-border text-info d-block mx-auto" role="status"><span class="sr-only">Loading...</span></div>');
     $element.html(loader);
 
     $.get(url, function(data) {
         $element.html(data);
         $element.data("lazy-load-url", '');
+        if (callback) callback();
     }).fail(function() {
         $element.html("<p>Une erreur est survenue...</p>");
     });
@@ -76,8 +85,11 @@ function goToChurch(websiteUuid, churchUuid, isChurchExplicitlyOther) {
  */
 function goToParsing(websiteUuid, parsingUuid) {
     let $websiteSource = $('#sources-'+websiteUuid);
+    let $collapsableBody = $websiteSource.find('.collapsable-body');
     let elementId = 'parsing-' + websiteUuid + '-' + parsingUuid;
-    uncollapseAndNavigateToElement($websiteSource, elementId);
+    lazyLoadElement($collapsableBody, function () {
+        uncollapseAndNavigateToElement($websiteSource, elementId);
+    });
 }
 
 function uncollapseAndNavigateToElement($collapseElement, elementId) {

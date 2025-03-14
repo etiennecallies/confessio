@@ -7,7 +7,8 @@ from django.shortcuts import render
 
 from home.models import Website, Diocese
 from home.services.autocomplete_service import get_aggregated_response
-from home.services.events_service import get_website_merged_church_schedules_list
+from home.services.events_service import get_website_merged_church_schedules_list, \
+    get_merged_church_schedules_list_for_website
 from home.services.filter_service import get_filter_days
 from home.services.map_service import get_churches_in_box, get_churches_around, prepare_map, \
     get_churches_by_website, get_center, get_churches_by_diocese
@@ -200,6 +201,28 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
     return render_map(request, center, churches, h1_title, meta_title, display_sub_title, bounds,
                       location, too_many_results, is_around_me, day_filter, website,
                       success_message)
+
+
+def website_sources(request, website_uuid: str):
+    try:
+        website = Website.objects.get(uuid=website_uuid)
+    except Website.DoesNotExist:
+        return HttpResponseNotFound("Website does not exist with this uuid")
+
+    page_pruning_urls = get_page_pruning_urls([website])
+    website_churches = {
+        website.uuid: [c for parish in website.parishes.all() for c in parish.churches.all()]
+    }
+    merged_schedules_list = get_merged_church_schedules_list_for_website(
+        website, website_churches[website.uuid], day_filter=None)
+
+    context = {
+        'website': website,
+        'merged_schedules_list': merged_schedules_list,
+        'page_pruning_urls': page_pruning_urls,
+    }
+
+    return render(request, 'partials/website_sources.html', context)
 
 
 def autocomplete(request):
