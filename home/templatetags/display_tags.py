@@ -40,7 +40,8 @@ def display_event(event: Event):
 
 @register.simple_tag
 def display_hour(dt: datetime):
-    return render_to_string('displays/hour_display.html', {'dt': dt})
+    m = f'{dt.minute:02}' if dt.minute else ''
+    return f'{dt.hour}h{m}'
 
 
 @register.simple_tag
