@@ -65,7 +65,8 @@
         {% if not websites %}
             <div class="alert alert-warning alert-dismissible fade show" role="alert">
                 <span class="alert-inner--icon"><i class="fas fa-face-grin-beam-sweat"></i></span>
-                <span class="alert-inner--text"><strong>{% trans 'noResultsStrong' %}</strong> {% if date_filter_value %}{% trans 'noResultsWithDate' %}{% else %}{% trans 'noResultsWithoutDate' %}{% endif %}</span>
+                <span class="alert-inner--text"><strong>{% trans 'noResultsStrong' %}</strong> {% if date_filter_value %}{% trans 'noResultsWithDate' %}{% else %}{% trans 'noResultsWithoutDate' %}
+                    <a href="{% trans 'donateUrl' %}"><strong>{% trans 'navDonate' %}</strong></a>{% endif %}</span>
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>

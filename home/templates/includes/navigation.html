@@ -27,6 +27,9 @@
                         <a href="{% url 'contact' %}" class="nav-link">{% trans 'navContact' %}</a>
                     </li>
                     <li class="nav-item">
+                        <a href="{% trans 'donateUrl' %}" class="nav-link">{% trans 'navDonate' %}</a>
+                    </li>
+                    <li class="nav-item">
                         {% if request.user.is_authenticated %}
                             <a href="{% url 'logout' %}" class="nav-link">{% trans 'navLogout' %}</a>
                         {% else %}

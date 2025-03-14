@@ -66,6 +66,14 @@ msgstr "Se déconnecter"
 msgid "navLogin"
 msgstr "Se connecter"
 
+#: templates/includes/navigation.html:33
+msgid "navDonate"
+msgstr "Nous soutenir 💙"
+
+#: templates/includes/navigation.html:33
+msgid "donateUrl"
+msgstr "https://www.leetchi.com/fr/c/confessio--participation-aux-frais-de-serveur-3379251"
+
 #: templates/includes/navigation.html:39
 msgid "moderationMenu"
 msgstr "Modération"
@@ -163,7 +171,7 @@ msgstr "Pas de résultats..."
 msgid "noResultsWithoutDate"
 msgstr ""
 "Confessio est en lancement et n'opère que dans les diocèses de Paris, Lyon, "
-"Versailles, Nanterre, Dijon, Rennes et du Havre pour le moment."
+"Versailles, Nanterre, Dijon, Rennes et du Havre pour des raisons financières."
 
 msgid "noResultsWithDate"
 msgstr "Essayez sans filtre de date."
