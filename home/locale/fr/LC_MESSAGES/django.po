@@ -31,6 +31,9 @@ msgstr "Traitement en cours pour cette paroisse"
 msgid "NoConfessionFound"
 msgstr "Pas de confessions trouvées"
 
+msgid "NoConfessionExtractFound"
+msgstr "Pas d'extraits trouvés concernant les confessions."
+
 #: services/map_service.py:122
 msgid "JumpBelow"
 msgstr "Voir ci-dessous"

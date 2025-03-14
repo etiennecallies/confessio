@@ -1,73 +1,16 @@
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from typing import Optional
 from uuid import UUID
 
-from home.models import Church, Parsing, Website, Page, Pruning
+from home.models import Church, Parsing, Website
+from home.services.sources_service import get_website_sorted_parsings
 from home.utils.date_utils import get_current_year
 from home.utils.hash_utils import hash_string_to_hex
 from scraping.parse.explain_schedule import schedule_item_sort_key, get_explanation_from_schedule
 from scraping.parse.rrule_utils import get_events_from_schedule_item
 from scraping.parse.schedules import Event, ScheduleItem
-from scraping.services.parse_pruning_service import get_parsing_schedules_list, get_church_by_id, \
-    has_schedules
-
-
-#########################
-# PARSINGS AND PRUNINGS #
-#########################
-
-@dataclass
-class WebsiteParsingsAndPrunings:
-    sources: list[Parsing]
-    source_index_by_parsing_uuid: dict[UUID, int]
-    page_by_parsing_uuid: dict[UUID, Page]
-    all_pages_by_parsing_uuid: dict[UUID, list[Page]]
-    prunings_by_parsing_uuid: dict[UUID, list[Pruning]]
-    page_scraping_last_created_at_by_parsing_uuid: dict[UUID, Optional[datetime]]
-    parsings_have_been_moderated: bool
-
-
-def get_website_parsings_and_prunings(website: Website) -> WebsiteParsingsAndPrunings:
-    sources = []
-    source_index_by_parsing_uuid = {}
-    page_by_parsing_uuid = {}
-    all_pages_by_parsing_uuid = {}
-    prunings_by_parsing_uuid = {}
-    page_scraping_last_created_at_by_parsing_uuid = {}
-    for page in website.get_pages():
-        if page.scraping is None:
-            continue
-
-        for pruning in page.get_prunings():
-            parsing = page.get_parsing(pruning)
-            if parsing is None or not has_schedules(parsing):
-                continue
-
-            if parsing.uuid not in source_index_by_parsing_uuid:
-                source_index_by_parsing_uuid[parsing.uuid] = len(sources)
-                sources.append(parsing)
-
-            page_scraping_last_created_at = page_scraping_last_created_at_by_parsing_uuid.get(
-                parsing.uuid, None)
-            if page_scraping_last_created_at is None \
-                    or page.scraping.created_at > page_scraping_last_created_at:
-                page_scraping_last_created_at_by_parsing_uuid[parsing.uuid] = \
-                    page.scraping.created_at
-                page_by_parsing_uuid[parsing.uuid] = page
-
-            all_pages_by_parsing_uuid.setdefault(parsing.uuid, []).append(page)
-            prunings_by_parsing_uuid.setdefault(parsing.uuid, []).append(pruning)
-
-    return WebsiteParsingsAndPrunings(
-        sources=sources,
-        source_index_by_parsing_uuid=source_index_by_parsing_uuid,
-        page_by_parsing_uuid=page_by_parsing_uuid,
-        all_pages_by_parsing_uuid=all_pages_by_parsing_uuid,
-        prunings_by_parsing_uuid=prunings_by_parsing_uuid,
-        page_scraping_last_created_at_by_parsing_uuid=page_scraping_last_created_at_by_parsing_uuid,
-        parsings_have_been_moderated=all(parsing.has_been_moderated() for parsing in sources)
-    )
+from scraping.services.parse_pruning_service import get_parsing_schedules_list, get_church_by_id
 
 
 ########################
@@ -159,7 +102,8 @@ class MergedChurchSchedulesList:
     is_related_to_adoration_parsings: list[Parsing]
     is_related_to_permanence_parsings: list[Parsing]
     will_be_seasonal_events_parsings: list[Parsing]
-    parsings_and_prunings: WebsiteParsingsAndPrunings
+    source_index_by_parsing_uuid: dict[UUID, int]
+    parsings_have_been_moderated: bool
 
     def next_event_in_church(self, church: Church) -> Optional[Event]:
         for church_events in self.church_events_by_day.values():
@@ -178,8 +122,6 @@ def get_merged_church_schedules_list(website: Website,
     ################
     # Get parsings #
     ################
-    parsings_and_prunings = get_website_parsings_and_prunings(website)
-
     all_church_schedule_items = []
 
     possible_by_appointment_parsings = []
@@ -198,7 +140,8 @@ def get_merged_church_schedules_list(website: Website,
         end_date = start_date
         max_days = 1
 
-    for parsing in parsings_and_prunings.sources:
+    parsings = get_website_sorted_parsings(website)
+    for i, parsing in enumerate(parsings):
         church_by_id = get_church_by_id(parsing, website)
 
         schedules_list = get_parsing_schedules_list(parsing)
@@ -272,6 +215,9 @@ def get_merged_church_schedules_list(website: Website,
         ) for c in all_website_churches if c not in churches_with_events
     ]
 
+    source_index_by_parsing_uuid = {source.uuid: i for i, source in enumerate(parsings)}
+    parsings_have_been_moderated = all(parsing.has_been_moderated() for parsing in parsings)
+
     return MergedChurchSchedulesList(
         church_events_by_day=church_events_by_day,
         page_range=get_page_range(church_events_by_day),
@@ -281,7 +227,8 @@ def get_merged_church_schedules_list(website: Website,
         is_related_to_adoration_parsings=is_related_to_adoration_parsings,
         is_related_to_permanence_parsings=is_related_to_permanence_parsings,
         will_be_seasonal_events_parsings=will_be_seasonal_events_parsings,
-        parsings_and_prunings=parsings_and_prunings
+        source_index_by_parsing_uuid=source_index_by_parsing_uuid,
+        parsings_have_been_moderated=parsings_have_been_moderated,
     )
 
 
@@ -310,7 +257,8 @@ def get_merged_church_schedules_list_for_website(website: Website,
             is_related_to_adoration_parsings=[],
             is_related_to_permanence_parsings=[],
             will_be_seasonal_events_parsings=[],
-            parsings_and_prunings=get_website_parsings_and_prunings(website),
+            source_index_by_parsing_uuid={},
+            parsings_have_been_moderated=False,
         )
 
     return get_merged_church_schedules_list(website, website_churches, day_filter)

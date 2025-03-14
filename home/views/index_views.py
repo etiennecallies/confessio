@@ -4,20 +4,19 @@ from datetime import date
 from django.core.exceptions import ValidationError
 from django.http import HttpResponseNotFound, JsonResponse
 from django.shortcuts import render
+from django.utils.translation import gettext
 
 from home.models import Website, Diocese
 from home.services.autocomplete_service import get_aggregated_response
-from home.services.events_service import get_website_merged_church_schedules_list, \
-    get_merged_church_schedules_list_for_website
+from home.services.events_service import get_website_merged_church_schedules_list
 from home.services.filter_service import get_filter_days
 from home.services.map_service import get_churches_in_box, get_churches_around, prepare_map, \
     get_churches_by_website, get_center, get_churches_by_diocese
 from home.services.page_url_service import get_page_pruning_urls
 from home.services.report_service import get_count_and_label, new_report, NewReportError, \
     get_previous_reports
+from home.services.sources_service import get_website_parsings_and_prunings
 from home.utils.date_utils import get_current_day, get_current_year
-from django.utils.translation import gettext
-
 from sourcing.utils.string_utils import lower_first, city_and_prefix
 
 
@@ -62,8 +61,6 @@ def render_map(request, center, churches, h1_title: str, meta_title: str, displa
         '<div class="map-container">'
     )
 
-    # Get page url with #:~:text=
-    page_pruning_urls = get_page_pruning_urls(websites)
     # Count reports for each website
     website_reports_count = {}
     for website in websites:
@@ -74,7 +71,7 @@ def render_map(request, center, churches, h1_title: str, meta_title: str, displa
         if key not in ['dateFilter']:
             hidden_inputs[key] = request.GET[key]
 
-    context = {
+    return render(request, 'pages/index.html', {
         'h1_title': h1_title,
         'meta_title': meta_title,
         'display_sub_title': display_sub_title,
@@ -83,7 +80,6 @@ def render_map(request, center, churches, h1_title: str, meta_title: str, displa
         'church_marker_names': church_marker_names,
         'websites': websites,
         'website_merged_church_schedules_list': website_merged_church_schedules_list,
-        'page_pruning_urls': page_pruning_urls,
         'too_many_results': too_many_results,
         'website_reports_count': website_reports_count,
         'current_day': get_current_day(),
@@ -95,9 +91,7 @@ def render_map(request, center, churches, h1_title: str, meta_title: str, displa
         'is_website_page': page_website is not None,
         'success_message': success_message,
         'previous_reports': get_previous_reports(page_website) if page_website else None,
-    }
-
-    return render(request, 'pages/index.html', context)
+    })
 
 
 def extract_float(key: str, request) -> float | None:
@@ -209,20 +203,11 @@ def website_sources(request, website_uuid: str):
     except Website.DoesNotExist:
         return HttpResponseNotFound("Website does not exist with this uuid")
 
-    page_pruning_urls = get_page_pruning_urls([website])
-    website_churches = {
-        website.uuid: [c for parish in website.parishes.all() for c in parish.churches.all()]
-    }
-    merged_schedules_list = get_merged_church_schedules_list_for_website(
-        website, website_churches[website.uuid], day_filter=None)
-
-    context = {
+    return render(request, 'partials/website_sources.html', {
         'website': website,
-        'merged_schedules_list': merged_schedules_list,
-        'page_pruning_urls': page_pruning_urls,
-    }
-
-    return render(request, 'partials/website_sources.html', context)
+        'parsings_and_prunings': get_website_parsings_and_prunings(website),
+        'page_pruning_urls': get_page_pruning_urls([website]),
+    })
 
 
 def autocomplete(request):

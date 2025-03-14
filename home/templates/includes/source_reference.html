@@ -1,4 +1,4 @@
 <span class="text-muted clickable"
    onclick="return goToParsing('{{ website.uuid }}', '{{ parsing_uuid }}');">
-    [{{ merged_schedules_list.parsings_and_prunings.source_index_by_parsing_uuid|get_item:parsing_uuid|add:1 }}]
+    [{{ merged_schedules_list.source_index_by_parsing_uuid|get_item:parsing_uuid|add:1 }}]
 </span>

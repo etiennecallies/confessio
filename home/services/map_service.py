@@ -24,7 +24,7 @@ MAX_CHURCHES_IN_RESULTS = 50
 
 def build_church_query() -> 'QuerySet[Church]':
     return Church.objects.select_related('parish__website') \
-        .prefetch_related('parish__website__pages__scraping__prunings__parsings') \
+        .prefetch_related('parish__website__parsings') \
         .prefetch_related('parish__website__parishes__churches') \
         .prefetch_related('parish__website__reports') \
         .filter(is_active=True, parish__website__is_active=True)
@@ -109,11 +109,10 @@ def get_popup_and_color(church: Church,
             if next_event.start.year != datetime.date.today().year else ''
         wording = f'{_("NextEvent")}<br>le {date_str.lower()}{year_str} à {next_event.start:%H:%M}'
         color = 'darkblue'
-    elif church.parish.website.one_page_has_confessions():
+    elif merged_church_schedules_list.source_index_by_parsing_uuid:
         wording = _("ConfessionsExist")
         color = 'blue'
-    elif not church.parish.website.has_been_crawled() \
-            or not church.parish.website.all_pages_scraped():
+    elif not church.parish.website.has_been_crawled():
         wording = _("NotCrawledYet")
         color = 'beige'
     else:
