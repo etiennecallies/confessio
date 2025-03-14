@@ -271,6 +271,22 @@ def clean_parsing_moderations() -> int:
     return counter
 
 
+#################################
+# WEBSITE <-> PARSING relations #
+#################################
+
+def check_website_parsing_relations(website: Website) -> bool:
+    direct_parsings = {p.uuid for p in Parsing.objects.filter(website=website).all()}
+    indirect_parsings = {
+        parsing.uuid
+        for parsing in [
+            pruning.get_parsing(website)
+            for pruning in Pruning.objects.filter(scrapings__page__website=website).all()
+        ] if parsing
+    }
+    return direct_parsings == indirect_parsings
+
+
 ###########################
 # Website & Pruning links #
 ###########################
@@ -331,12 +347,16 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
         return
 
     truncated_html = get_truncated_html(pruning)
+    unlink_pruning_from_parsings_except_truncated_html(pruning, truncated_html)
+
     if not truncated_html:
         print(f'No truncated html for pruning {pruning}')
         return
 
     truncated_html_hash = hash_string_to_hex(truncated_html)
+
     church_desc_by_id = website.get_church_desc_by_id()
+    unlink_website_from_parsings_except_church_desc_by_id(website, church_desc_by_id)
 
     llm_client = get_llm_client()
     prompt_template = get_prompt_template()
@@ -383,9 +403,6 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
         parsing.llm_error_detail = llm_error_detail
         parsing.save()
     else:
-        unlink_website_from_parsings_except_church_desc_by_id(website, church_desc_by_id)
-        unlink_pruning_from_parsings_except_truncated_html(pruning, truncated_html)
-
         parsing = Parsing(
             website=website,
             truncated_html=truncated_html,
