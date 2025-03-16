@@ -1,12 +1,13 @@
 import json
 from datetime import datetime
+from uuid import UUID
 
 from django.contrib.gis.geos import Point
 from django.template.defaulttags import register
 from django.template.loader import render_to_string
 
 from home.models import Parish, Church, Website, Pruning
-from home.services.events_service import get_church_color
+from home.services.events_service import get_no_church_color
 from home.services.map_service import (get_map_with_single_location,
                                        get_map_with_multiple_locations,
                                        get_map_with_alternative_locations)
@@ -120,8 +121,13 @@ def explain_schedule(schedule: ScheduleItem, church_desc_by_id_json: str):
 
 
 @register.simple_tag
-def display_church_color(church: Church, is_church_explicitly_other: bool):
-    color = get_church_color(church, is_church_explicitly_other)
+def display_church_color(church: Church, is_church_explicitly_other: bool,
+                         church_color_by_uuid: dict[UUID, str]) -> str:
+    if church:
+        color = church_color_by_uuid[church.uuid]
+    else:
+        color = get_no_church_color(is_church_explicitly_other)
+
     return render_to_string('displays/color_display.html', {
         'color': color,
     })

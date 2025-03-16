@@ -11,7 +11,7 @@
                     <a href="#map"
                        class="link-info"
                        onclick="return popupChurch('{{ church_marker_names|get_item:church.uuid }}');">
-                        <span class="fw-bold">{% display_church_color church False %} {{ church.name }}</span>
+                        <span class="fw-bold">{% display_church_color church False merged_schedules_list.church_color_by_uuid %} {{ church.name }}</span>
                     </a>
 
                     {% if request.user.is_authenticated and request.user.is_staff %}
@@ -26,13 +26,13 @@
                 </div>
             {% elif church_sorted_schedule.is_church_explicitly_other %}
                 <div>
-                    {% display_church_color church True %}
+                    {% display_church_color church True merged_schedules_list.church_color_by_uuid %}
                     <span class="text-danger">{% trans 'OutsideThisParish' %} :</span>
                     <span class="hide-explicitly-other-btn text-muted clickable small">Masquer</span>
                 </div>
             {% else %}
                 <div>
-                    {% display_church_color church False %}
+                    {% display_church_color church False merged_schedules_list.church_color_by_uuid %}
                     Lieu inconnu :
                 </div>
             {% endif %}

@@ -104,6 +104,7 @@ class MergedChurchSchedulesList:
     will_be_seasonal_events_parsings: list[Parsing]
     source_index_by_parsing_uuid: dict[UUID, int]
     parsings_have_been_moderated: bool
+    church_color_by_uuid: dict[UUID, str]
 
     def next_event_in_church(self, church: Church) -> Optional[Event]:
         for church_events in self.church_events_by_day.values():
@@ -229,6 +230,7 @@ def get_merged_church_schedules_list(website: Website,
         will_be_seasonal_events_parsings=will_be_seasonal_events_parsings,
         source_index_by_parsing_uuid=source_index_by_parsing_uuid,
         parsings_have_been_moderated=parsings_have_been_moderated,
+        church_color_by_uuid=get_church_color_by_uuid(church_sorted_schedules),
     )
 
 
@@ -259,6 +261,7 @@ def get_merged_church_schedules_list_for_website(website: Website,
             will_be_seasonal_events_parsings=[],
             source_index_by_parsing_uuid={},
             parsings_have_been_moderated=False,
+            church_color_by_uuid=get_church_color_by_uuid(church_sorted_schedules),
         )
 
     return get_merged_church_schedules_list(website, website_churches, day_filter)
@@ -299,15 +302,30 @@ def get_page_range(church_events_by_day: dict[date, list[ChurchEvent]]) -> str:
 # COLORS #
 ##########
 
-def get_church_color(church: Church | None, is_church_explicitly_other: bool) -> str:
-    if is_church_explicitly_other:
-        return '#A91E2C'
+def get_church_color_by_uuid(church_sorted_schedules: list[ChurchSortedSchedules]
+                             ) -> dict[UUID, str]:
+    church_color_by_uuid = {}
+    index = 0
+    for church_schedule in church_sorted_schedules:
+        if church_schedule.church:
+            church_color_by_uuid[church_schedule.church.uuid] = get_church_color(index)
+            index += 1
 
-    if church is None:
-        return 'lightgray'
+    return church_color_by_uuid
+
+
+def get_church_color(church_index: int) -> str:
+    if church_index == 0:
+        return '#C0EDF2'
+
+    if church_index == 1:
+        return '#B7E7CC'
+
+    if church_index == 2:
+        return '#E4D8F3'
 
     # Generate a hash of the string
-    hash_hex = hash_string_to_hex(str(church.uuid))
+    hash_hex = hash_string_to_hex(str(church_index))
 
     # Convert first 3 bytes of hash to RGB values
     r = int(hash_hex[:2], 16)
@@ -324,6 +342,10 @@ def get_church_color(church: Church | None, is_church_explicitly_other: bool) ->
 
     # Convert to hex color code
     return f"#{r:02x}{g:02x}{b:02x}"
+
+
+def get_no_church_color(is_church_explicitly_other: bool) -> str:
+    return '#E8A5B3' if is_church_explicitly_other else 'lightgray'
 
 
 ################

@@ -1,5 +1,6 @@
 from datetime import date
 from typing import Optional
+from uuid import UUID
 
 from django.template.defaulttags import register
 from django.urls import reverse
@@ -7,7 +8,8 @@ from django.urls import reverse
 from home.models import WebsiteModeration, ChurchModeration, ParishModeration, \
     PruningModeration, SentenceModeration, ParsingModeration, ModerationMixin, Pruning, \
     Page, Parsing, ReportModeration, Diocese, Church
-from home.services.events_service import get_church_color, MergedChurchSchedulesList
+from home.services.events_service import MergedChurchSchedulesList, \
+    get_no_church_color
 from home.utils.date_utils import get_current_year
 from home.utils.list_utils import enumerate_with_and
 from scraping.parse.rrule_utils import get_events_from_schedule_item
@@ -100,8 +102,12 @@ def get_url(moderation: ModerationMixin):
 
 
 @register.simple_tag
-def print_church_color(church: Church, is_church_explicitly_other: bool) -> str:
-    return get_church_color(church, is_church_explicitly_other)
+def print_church_color(church: Church, is_church_explicitly_other: bool,
+                       church_color_by_uuid: dict[UUID, str]) -> str:
+    if church:
+        return church_color_by_uuid[church.uuid]
+
+    return get_no_church_color(is_church_explicitly_other)
 
 
 @register.filter
