@@ -64,7 +64,7 @@ msgstr "Se déconnecter"
 
 #: templates/includes/navigation.html:33
 msgid "navLogin"
-msgstr "Se connecter"
+msgstr "Admin"
 
 #: templates/includes/navigation.html:33
 msgid "navDonate"
