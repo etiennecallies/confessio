@@ -27,13 +27,15 @@
             {% elif church_sorted_schedule.is_church_explicitly_other %}
                 <div>
                     {% display_church_color church True merged_schedules_list.church_color_by_uuid %}
+                    {% display_other_church_icon True %}
                     <span class="text-danger">{% trans 'OutsideThisParish' %} :</span>
-                    <span class="hide-explicitly-other-btn text-muted clickable small">Masquer</span>
+                    <span class="hide-explicitly-other-btn text-muted clickable small">{% if merged_schedules_list.display_explicit_other_churches %}Masquer{% else %}Afficher{% endif %}</span>
                 </div>
             {% else %}
                 <div>
                     {% display_church_color church False merged_schedules_list.church_color_by_uuid %}
-                    Lieu inconnu :
+                    {% display_other_church_icon False %}
+                    {% trans 'UnknownChurch' %} :
                 </div>
             {% endif %}
             {% for schedule_item in church_sorted_schedule.sorted_schedules %}

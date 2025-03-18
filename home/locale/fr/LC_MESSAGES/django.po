@@ -200,4 +200,7 @@ msgid "NextEvent"
 msgstr "Prochaine confession"
 
 msgid "OutsideThisParish"
-msgstr "En dehors de cette paroisse"
+msgstr "En dehors de cette paroisse (consulter les sources)"
+
+msgid "UnknownChurch"
+msgstr "Lieu inconnu (consulter les sources)"

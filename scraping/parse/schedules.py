@@ -121,7 +121,8 @@ class Event(BaseModel, frozen=True):
     end: Optional[datetime]
 
     def __lt__(self, other: 'Event'):
-        return self.start.__lt__(other.start)
+        return (self.start, self.church_id if self.church_id else 100) \
+            < (other.start, other.church_id if other.church_id else 100)
 
 
 def get_merged_schedules_list(sls: list[SchedulesList]) -> SchedulesList:

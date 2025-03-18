@@ -3,7 +3,7 @@
 {% load i18n %}
 
 {% with merged_schedules_list=website_merged_church_schedules_list|get_item:website.uuid %}
-<div class="row mt-4 website-card" id="{{ website.uuid }}">
+<div class="row mt-4 website-card{% if not merged_schedules_list.display_explicit_other_churches %} hide-explicitly-other{% endif %}" id="{{ website.uuid }}">
     <div class="col-12">
         <div class="card shadow">
             <div class="card-body px-md-5 py-md-5 text-left">

@@ -105,6 +105,7 @@ class MergedChurchSchedulesList:
     source_index_by_parsing_uuid: dict[UUID, int]
     parsings_have_been_moderated: bool
     church_color_by_uuid: dict[UUID, str]
+    display_explicit_other_churches: bool
 
     def next_event_in_church(self, church: Church) -> Optional[Event]:
         for church_events in self.church_events_by_day.values():
@@ -231,6 +232,7 @@ def get_merged_church_schedules_list(website: Website,
         source_index_by_parsing_uuid=source_index_by_parsing_uuid,
         parsings_have_been_moderated=parsings_have_been_moderated,
         church_color_by_uuid=get_church_color_by_uuid(church_sorted_schedules),
+        display_explicit_other_churches=do_display_explicit_other_churches(church_sorted_schedules),
     )
 
 
@@ -262,6 +264,7 @@ def get_merged_church_schedules_list_for_website(website: Website,
             source_index_by_parsing_uuid={},
             parsings_have_been_moderated=False,
             church_color_by_uuid=get_church_color_by_uuid(church_sorted_schedules),
+            display_explicit_other_churches=False,
         )
 
     return get_merged_church_schedules_list(website, website_churches, day_filter)
@@ -296,6 +299,20 @@ def get_page_range(church_events_by_day: dict[date, list[ChurchEvent]]) -> str:
             return '12'
 
     return '1'
+
+
+#####################################
+# DECIDE ON EXPLICIT OTHER CHURCHES #
+#####################################
+
+def do_display_explicit_other_churches(church_sorted_schedules: list[ChurchSortedSchedules]
+                                       ) -> bool:
+    explicit_other_church_schedule = [c for c in church_sorted_schedules
+                                      if c.is_church_explicitly_other]
+    if not explicit_other_church_schedule:
+        return False
+
+    return len(explicit_other_church_schedule[0].sorted_schedules) <= 1
 
 
 ##########

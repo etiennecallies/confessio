@@ -128,6 +128,11 @@ def display_church_color(church: Church, is_church_explicitly_other: bool,
     else:
         color = get_no_church_color(is_church_explicitly_other)
 
-    return render_to_string('displays/color_display.html', {
+    return (render_to_string('displays/color_display.html', {
         'color': color,
-    })
+    }))
+
+
+@register.simple_tag
+def display_other_church_icon(is_church_explicitly_other: bool) -> str:
+    return '⚠️' if is_church_explicitly_other else '❔'
