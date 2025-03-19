@@ -16,6 +16,7 @@ from home.services.page_url_service import get_page_pruning_urls
 from home.services.report_service import get_count_and_label, new_report, NewReportError, \
     get_previous_reports
 from home.services.sources_service import get_website_parsings_and_prunings
+from home.services.stat_service import new_search_hit
 from home.utils.date_utils import get_current_day, get_current_year
 from sourcing.utils.string_utils import lower_first, city_and_prefix
 
@@ -70,6 +71,9 @@ def render_map(request, center, churches, h1_title: str, meta_title: str, displa
     for key in request.GET:
         if key not in ['dateFilter']:
             hidden_inputs[key] = request.GET[key]
+
+    if request.resolver_match.url_name != 'index':
+        new_search_hit(request, len(websites))
 
     return render(request, 'pages/index.html', {
         'h1_title': h1_title,
