@@ -94,6 +94,9 @@ def is_forbidden(url_parsed: ParseResult, home_url: str, forbidden_paths: set[st
             return True
 
     home_url_path = get_path(home_url)
+    for accepted_home_word in ['accueil', 'home']:
+        if home_url_path.endswith(f'/{accepted_home_word}'):
+            home_url_path = home_url_path[:-len(accepted_home_word) - 1]
     if url_parsed.path.startswith(home_url_path):
         return False
 
