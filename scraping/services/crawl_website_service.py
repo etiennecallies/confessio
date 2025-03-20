@@ -93,6 +93,8 @@ def do_crawl_website(website: Website) -> tuple[dict[str, list[str]], int, Optio
             if get_domain(other_website.home_url) in aliases_domains:
                 forbidden_paths.add(get_path(other_website.home_url))
 
+    path_redirection = {}
+
     diocese = website.get_diocese()
     if diocese and diocese.home_url:
         if domain_has_changed:
@@ -109,10 +111,12 @@ def do_crawl_website(website: Website) -> tuple[dict[str, list[str]], int, Optio
 
         if have_similar_domain(website.home_url, diocese.home_url):
             print('Website and diocese have similar domain, forbidding diocese home links')
-            forbidden_paths |= forbid_diocese_home_links(diocese.home_url, aliases_domains)
+            forbidden_paths |= forbid_diocese_home_links(diocese.home_url, aliases_domains,
+                                                         path_redirection)
 
     # Actually crawling website
-    return search_for_confession_pages(new_home_url, aliases_domains, forbidden_paths)
+    return search_for_confession_pages(new_home_url, aliases_domains, forbidden_paths,
+                                       path_redirection)
 
 
 def crawl_website(website: Website) -> Tuple[bool, bool, Optional[str]]:

@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup, SoupStrainer, Comment
 from bs4 import element as el
 
 from home.utils.date_utils import get_current_year
+from scraping.download.download_content import get_url_redirection
 from scraping.utils.string_search import has_any_of_words
 from scraping.utils.url_utils import is_internal_link, get_clean_full_url, \
     replace_scheme_and_hostname, get_path
@@ -33,6 +34,8 @@ CONFESSIONS_OR_SCHEDULES_MENTIONS = [
     'info',
     'infos',
     'vivre',
+    'demarche',
+    'demarches',
 ]
 
 IGNORED_EXTENSIONS = [
@@ -84,7 +87,8 @@ def clean_url_query(url_parsed: ParseResult):
     return url_parsed.geturl()
 
 
-def is_forbidden(url_parsed, home_url: str, forbidden_paths: set[str]):
+def is_forbidden(url_parsed: ParseResult, home_url: str, forbidden_paths: set[str],
+                 path_redirection: dict[str, str]):
     for path in forbidden_paths:
         if url_parsed.path.startswith(path):
             return True
@@ -97,6 +101,16 @@ def is_forbidden(url_parsed, home_url: str, forbidden_paths: set[str]):
         # if we are in a multi-website domain (e.g. diocese), we forbid paths that contains
         # the words 'paroisse', since it's likely another parish website
         if 'paroisse' in url_parsed.path:
+            if url_parsed.path not in path_redirection:
+                path_redirection[url_parsed.path] = get_url_redirection(url_parsed.geturl())
+
+            new_url = path_redirection[url_parsed.path]
+            new_url_parsed = urlparse(new_url)
+
+            # Get the path with redirection
+            if new_url_parsed.path != url_parsed.path:
+                return is_forbidden(new_url_parsed, home_url, forbidden_paths, path_redirection)
+
             return True
 
     return False
@@ -112,8 +126,8 @@ def is_obsolete_path(path: str) -> bool:
     return False
 
 
-def get_links(element: el, home_url: str, aliases_domains: set[str], forbidden_paths: set[str]
-              ) -> set[str]:
+def get_links(element: el, home_url: str, aliases_domains: set[str], forbidden_paths: set[str],
+              path_redirection: dict[str, str]) -> set[str]:
     results = set()
 
     for link in element:
@@ -133,7 +147,7 @@ def get_links(element: el, home_url: str, aliases_domains: set[str], forbidden_p
             continue
 
         # We ignore forbidden paths and their children
-        if is_forbidden(url_parsed, home_url, forbidden_paths):
+        if is_forbidden(url_parsed, home_url, forbidden_paths, path_redirection):
             continue
 
         full_url = get_clean_full_url(full_url)  # we use standardized url to ensure unicity
@@ -163,7 +177,7 @@ def get_links(element: el, home_url: str, aliases_domains: set[str], forbidden_p
 
 
 def parse_content_links(content, home_url: str, aliases_domains: set[str],
-                        forbidden_paths: set[str]) -> set[str]:
+                        forbidden_paths: set[str], path_redirection: dict[str, str]) -> set[str]:
     try:
         element = BeautifulSoup(content, 'html.parser', parse_only=SoupStrainer('a'))
     except Exception as e:
@@ -171,7 +185,7 @@ def parse_content_links(content, home_url: str, aliases_domains: set[str],
         print(e)
         return set()
 
-    links = get_links(element, home_url, aliases_domains, forbidden_paths)
+    links = get_links(element, home_url, aliases_domains, forbidden_paths, path_redirection)
 
     return links
 

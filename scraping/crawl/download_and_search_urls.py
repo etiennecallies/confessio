@@ -10,13 +10,15 @@ from scraping.utils.url_utils import get_clean_full_url, get_path
 MAX_VISITED_LINKS = 50
 
 
-def forbid_diocese_home_links(diocese_url: str, aliases_domains: set[str]) -> set[str]:
+def forbid_diocese_home_links(diocese_url: str, aliases_domains: set[str],
+                              path_redirection: dict[str, str]) -> set[str]:
     html_content = get_content_from_url(diocese_url)
     if html_content is None:
         print('no content for diocese home url')
         return set()
 
-    new_links = parse_content_links(html_content, diocese_url, aliases_domains, set())
+    new_links = parse_content_links(html_content, diocese_url, aliases_domains, set(),
+                                    path_redirection)
     forbidden_paths = set()
     for link in new_links:
         path = get_path(link)
@@ -38,7 +40,8 @@ def get_new_url_and_aliases(url: str) -> tuple[str, set[str], str | None]:
     return new_url, set([alias[1] for alias in url_aliases]), None
 
 
-def search_for_confession_pages(home_url, aliases_domains: set[str], forbidden_paths: set[str]
+def search_for_confession_pages(home_url, aliases_domains: set[str], forbidden_paths: set[str],
+                                path_redirection: dict[str, str]
                                 ) -> tuple[dict[str, list[str]], int, Optional[str]]:
     visited_links = set()
     links_to_visit = {home_url}
@@ -66,7 +69,8 @@ def search_for_confession_pages(home_url, aliases_domains: set[str], forbidden_p
             extracted_html_seen.update(set(extracted_html_list))
 
         # Looking for new links to visit
-        new_links = parse_content_links(html_content, home_url, aliases_domains, forbidden_paths)
+        new_links = parse_content_links(html_content, home_url, aliases_domains, forbidden_paths,
+                                        path_redirection)
         for new_link in new_links:
             if new_link not in visited_links:
                 links_to_visit.add(new_link)
@@ -86,4 +90,4 @@ if __name__ == '__main__':
     # home_url_ = 'https://www.espace-saint-ignace.fr/'
     # home_url_ = 'https://www.paroisse-st-martin-largentiere.fr'
     home_url_ = 'https://saintetrinite78.fr'
-    print(json.dumps(search_for_confession_pages(home_url_, set('saintetrinite78.fr'), set())))
+    print(json.dumps(search_for_confession_pages(home_url_, set('saintetrinite78.fr'), set(), {})))

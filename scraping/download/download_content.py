@@ -1,10 +1,11 @@
 from typing import Optional
+from urllib.parse import urlparse
 
 import requests
 from bs4 import BeautifulSoup
 from requests import RequestException
 
-from scraping.utils.url_utils import get_domain, are_similar_urls
+from scraping.utils.url_utils import get_domain, are_similar_urls, replace_scheme_and_hostname
 
 TIMEOUT = 20
 MAX_SIZE = 5_000_000
@@ -124,6 +125,12 @@ def get_url_aliases(url) -> tuple[list[tuple[str, str]], Optional[str]]:
         redirect_url = get_meta_refresh_redirect(soup)
 
     if redirect_url:
+        redirect_url_parsed = urlparse(redirect_url)
+
+        # If the link is like "sacrements.html", we build it from the url we have
+        if not redirect_url_parsed.netloc:
+            redirect_url = replace_scheme_and_hostname(redirect_url_parsed, new_url=url)
+
         url_aliases, error_message = get_url_aliases(redirect_url)
         if not url_aliases:
             print(f'tried to follow redirect location {redirect_url} but got error {error_message}')
@@ -139,3 +146,11 @@ def redirects_to_other_url(url1: str, url2: str) -> bool:
         if are_similar_urls(url, url2):
             return True
     return False
+
+
+def get_url_redirection(url: str):
+    aliases, _ = get_url_aliases(url)
+    if not aliases:
+        return None
+
+    return aliases[-1][0]
