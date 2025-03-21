@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 from enum import Enum
 
 from dateutil.rrule import rrulestr
@@ -26,60 +26,47 @@ class LiturgicalDayEnum(str, Enum):
         return [(item.value, item.name) for item in cls]
 
 
-def get_liturgical_date(liturgical_day: LiturgicalDayEnum, year: int) -> date:
+def get_easter_day(year: int) -> date:
     if year == 2024:
-        if liturgical_day == LiturgicalDayEnum.ASH_WEDNESDAY:
-            return date(year, 2, 26)
-        if liturgical_day == LiturgicalDayEnum.PALM_SUNDAY:
-            return date(year, 4, 5)
-        if liturgical_day == LiturgicalDayEnum.HOLY_MONDAY:
-            return date(year, 4, 6)
-        if liturgical_day == LiturgicalDayEnum.HOLY_TUESDAY:
-            return date(year, 4, 7)
-        if liturgical_day == LiturgicalDayEnum.HOLY_WEDNESDAY:
-            return date(year, 4, 8)
-        if liturgical_day == LiturgicalDayEnum.MAUNDY_THURSDAY:
-            return date(year, 4, 9)
-        if liturgical_day == LiturgicalDayEnum.GOOD_FRIDAY:
-            return date(year, 4, 10)
-        if liturgical_day == LiturgicalDayEnum.HOLY_SATURDAY:
-            return date(year, 4, 11)
-        if liturgical_day == LiturgicalDayEnum.EASTER_SUNDAY:
-            return date(year, 4, 12)
-        if liturgical_day == LiturgicalDayEnum.ASCENSION:
-            return date(year, 5, 21)
-        if liturgical_day == LiturgicalDayEnum.PENTECOST:
-            return date(year, 5, 31)
-
-        raise ValueError(f'Liturgical day {liturgical_day} not implemented')
-
+        return date(year, 3, 31)
     if year == 2025:
-        if liturgical_day == LiturgicalDayEnum.ASH_WEDNESDAY:
-            return date(year, 2, 18)
-        if liturgical_day == LiturgicalDayEnum.PALM_SUNDAY:
-            return date(year, 3, 29)
-        if liturgical_day == LiturgicalDayEnum.HOLY_MONDAY:
-            return date(year, 3, 30)
-        if liturgical_day == LiturgicalDayEnum.HOLY_TUESDAY:
-            return date(year, 3, 31)
-        if liturgical_day == LiturgicalDayEnum.HOLY_WEDNESDAY:
-            return date(year, 4, 1)
-        if liturgical_day == LiturgicalDayEnum.MAUNDY_THURSDAY:
-            return date(year, 4, 2)
-        if liturgical_day == LiturgicalDayEnum.GOOD_FRIDAY:
-            return date(year, 4, 3)
-        if liturgical_day == LiturgicalDayEnum.HOLY_SATURDAY:
-            return date(year, 4, 4)
-        if liturgical_day == LiturgicalDayEnum.EASTER_SUNDAY:
-            return date(year, 4, 5)
-        if liturgical_day == LiturgicalDayEnum.ASCENSION:
-            return date(year, 5, 14)
-        if liturgical_day == LiturgicalDayEnum.PENTECOST:
-            return date(year, 5, 24)
+        return date(year, 4, 20)
+    if year == 2026:
+        return date(year, 4, 5)
 
-        raise ValueError(f'Liturgical day {liturgical_day} not implemented')
+    raise ValueError(f'Easter day not implemented for year {year}')
 
-    raise ValueError(f'Liturgical dates not implemented for year {year}')
+
+def get_offset(liturgical_day: LiturgicalDayEnum):
+    if liturgical_day == LiturgicalDayEnum.ASH_WEDNESDAY:
+        return -46
+    if liturgical_day == LiturgicalDayEnum.PALM_SUNDAY:
+        return -7
+    if liturgical_day == LiturgicalDayEnum.HOLY_MONDAY:
+        return -6
+    if liturgical_day == LiturgicalDayEnum.HOLY_TUESDAY:
+        return -5
+    if liturgical_day == LiturgicalDayEnum.HOLY_WEDNESDAY:
+        return -4
+    if liturgical_day == LiturgicalDayEnum.MAUNDY_THURSDAY:
+        return -3
+    if liturgical_day == LiturgicalDayEnum.GOOD_FRIDAY:
+        return -2
+    if liturgical_day == LiturgicalDayEnum.HOLY_SATURDAY:
+        return -1
+    if liturgical_day == LiturgicalDayEnum.EASTER_SUNDAY:
+        return 0
+    if liturgical_day == LiturgicalDayEnum.ASCENSION:
+        return 39
+    if liturgical_day == LiturgicalDayEnum.PENTECOST:
+        return 49
+
+
+def get_liturgical_date(liturgical_day: LiturgicalDayEnum, year: int) -> date:
+    easter_day = get_easter_day(year)
+    offset = get_offset(liturgical_day)
+
+    return easter_day + timedelta(days=offset)
 
 
 ###########
@@ -111,6 +98,13 @@ class PeriodEnum(str, Enum):
     @classmethod
     def choices(cls):
         return [(item.value, item.name) for item in cls]
+
+
+def get_advent_dates(year: int) -> tuple[date, date]:
+    christmas = date(year, 12, 25)
+    # Find the fourth Sunday before Christmas
+    advent_start = christmas - timedelta(days=christmas.weekday() + 22)
+    return advent_start, christmas
 
 
 def intervals_from_period(period: PeriodEnum, year: int) -> list[tuple[date, date]]:
@@ -146,20 +140,11 @@ def intervals_from_period(period: PeriodEnum, year: int) -> list[tuple[date, dat
 
     # Seasons
     if period == PeriodEnum.ADVENT:
-        if year == 2026:
-            return [(date(year, 11, 30), date(year, 12, 24))]
-        elif year == 2025:
-            return [(date(year, 11, 29), date(year, 12, 24))]
-
-        raise ValueError(f'Advent not implemented for year {year}')
+        return [get_advent_dates(year)]
 
     if period == PeriodEnum.LENT:
-        if year == 2026:
-            return [(date(year, 3, 6), date(year, 4, 20))]
-        elif year == 2025:
-            return [(date(year, 2, 26), date(year, 4, 11))]
-
-        raise ValueError(f'Lent not implemented for year {year}')
+        return [(get_liturgical_date(LiturgicalDayEnum.ASH_WEDNESDAY, year),
+                 get_liturgical_date(LiturgicalDayEnum.HOLY_SATURDAY, year))]
 
     # Holidays
     if period == PeriodEnum.SCHOOL_HOLIDAYS:
