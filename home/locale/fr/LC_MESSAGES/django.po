@@ -171,7 +171,7 @@ msgstr "Pas de résultats..."
 msgid "noResultsWithoutDate"
 msgstr ""
 "Confessio est en lancement et n'opère que dans les diocèses de Paris, Lyon, "
-"Versailles, Nanterre, Dijon, Rennes et du Havre pour des raisons financières."
+"Versailles, Nanterre, Dijon, Annecy, Rennes et du Havre pour des raisons financières."
 
 msgid "noResultsWithDate"
 msgstr "Essayez sans filtre de date."
