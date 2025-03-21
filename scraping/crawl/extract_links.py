@@ -90,10 +90,6 @@ def clean_url_query(url_parsed: ParseResult):
 
 def is_forbidden(url_parsed: ParseResult, home_url: str, forbidden_paths: set[str],
                  path_redirection: dict[str, str]):
-    for path in forbidden_paths:
-        if url_parsed.path.startswith(path):
-            return True
-
     home_url_path = get_path(home_url)
     for accepted_home_word in ['accueil', 'home']:
         if home_url_path.endswith(f'/{accepted_home_word}'):
@@ -102,6 +98,10 @@ def is_forbidden(url_parsed: ParseResult, home_url: str, forbidden_paths: set[st
         return False
 
     if forbidden_paths:
+        for path in forbidden_paths:
+            if url_parsed.path.startswith(path):
+                return True
+
         # if we are in a multi-website domain (e.g. diocese), we forbid paths that contains
         # the words 'paroisse', since it's likely another parish website
         if 'paroisse' in url_parsed.path:
