@@ -1,9 +1,11 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 
+from django.db.models.functions import Now
+
 from home.models import Parish, Diocese, Church, ExternalSource, \
     ChurchModeration
-from sourcing.services.chuch_location_service import compute_church_coordinates, \
+from sourcing.services.church_location_service import compute_church_coordinates, \
     get_church_with_same_location
 from sourcing.services.church_name_service import sort_by_name_similarity
 from sourcing.utils.geo_utils import get_geo_distance
@@ -214,7 +216,7 @@ def sync_churches(external_churches: list[Church],
                 # We don't really care if there is a new church whose parish does not have a website
                 continue
 
-            church_moderation_category = None
+            church_moderation_categories = []
             if external_church.location is not None:
                 church_with_same_location = get_church_with_same_location(external_church)
                 if church_with_same_location:
@@ -222,7 +224,7 @@ def sync_churches(external_churches: list[Church],
                     compute_church_coordinates(church_with_same_location, church_retriever.source)
 
                     # Then we re-compute the coordinates of the draft church
-                    new_church, church_moderation_category = compute_church_coordinates(
+                    new_church, church_moderation_categories = compute_church_coordinates(
                         external_church, church_retriever.source, no_save=True)
                     if not new_church:
                         # If church could not have been saved, we stop here
@@ -233,12 +235,13 @@ def sync_churches(external_churches: list[Church],
                                                          church_retriever)
 
             save_church(external_church, church_retriever)
-            if church_moderation_category:
+            for category, validated in church_moderation_categories:
                 add_church_moderation_if_not_exists(ChurchModeration(
                     church=external_church,
-                    category=church_moderation_category,
+                    category=category,
                     source=church_retriever.source,
                     diocese=diocese,
+                    validated_at=Now() if validated else None,
                 ), church_retriever)
 
             if alert_on_new:

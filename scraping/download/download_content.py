@@ -143,6 +143,9 @@ def get_url_aliases(url) -> tuple[list[tuple[str, str]], Optional[str]]:
 
 
 def redirects_to_other_url(url1: str, url2: str) -> bool:
+    if are_similar_urls(url1, url2):
+        return True
+
     aliases, _ = get_url_aliases(url1)
     for url, domain in aliases:
         if are_similar_urls(url, url2):

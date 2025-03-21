@@ -8,9 +8,9 @@ from sourcing.utils.google_maps_api_utils import google_maps_geocode
 from sourcing.utils.wikidata_utils import get_church_by_messesinfo_id
 
 
-def compute_church_coordinates(church: Church, source: ExternalSource,
-                               no_save: bool = False
-                               ) -> tuple[Optional[Church], Optional[ChurchModeration.Category]]:
+def compute_church_coordinates(
+        church: Church, source: ExternalSource, no_save: bool = False
+) -> tuple[Optional[Church], list[tuple[ChurchModeration.Category, bool]]]:
     wikidata_results = get_church_by_messesinfo_id(church.messesinfo_id)
     if wikidata_results and len(wikidata_results) == 1 and wikidata_results[0].coordinates_latlon:
         result = wikidata_results[0]
@@ -18,10 +18,11 @@ def compute_church_coordinates(church: Church, source: ExternalSource,
     else:
         result = google_maps_geocode(church.name, church.city, church.zipcode)
 
+    categories = []
     if not result or not result.coordinates_latlon:
-        category = ChurchModeration.Category.LOCATION_NULL
+        categories.append((ChurchModeration.Category.LOCATION_NULL, False))
     else:
-        category = ChurchModeration.Category.LOCATION_FROM_API
+        categories.append((ChurchModeration.Category.LOCATION_FROM_API, False))
         latitude, longitude = result.coordinates_latlon
         church.location = Point(longitude, latitude)
         if not church.address:
@@ -35,17 +36,17 @@ def compute_church_coordinates(church: Church, source: ExternalSource,
     if church_with_same_location:
         # We can not save church since another church already has the same location
         add_church_location_conflict(church_with_same_location, church, source)
-        return None, None
+        return None, []
 
     if no_save:
-        add_church_moderation_if_not_exists(church, ChurchModeration.Category.LOCATION_DIFFERS,
-                                            source, validated=True)
-        return church, category
+        categories.append((ChurchModeration.Category.LOCATION_DIFFERS, True))
+        return church, categories
 
     church.save()
-    add_church_moderation_if_not_exists(church, category, source)
+    for category, validated in categories:
+        add_church_moderation_if_not_exists(church, category, source, validated=validated)
 
-    return church, category
+    return church, categories
 
 
 def add_church_moderation_if_not_exists(church: Church, category: ChurchModeration.Category,

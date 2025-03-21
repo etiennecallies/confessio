@@ -67,4 +67,4 @@ def google_maps_geocode(name, city, zipcode) -> GoogleMapsGeocodingResult | None
 if __name__ == '__main__':
     from dotenv import load_dotenv
     load_dotenv()
-    print(google_maps_geocode("Chapelle de l'école Saint-Joseph", "Dardilly", 69570))
+    print(google_maps_geocode("Centre Jean XXIII", "Annecy le Vieux", '74940'))
