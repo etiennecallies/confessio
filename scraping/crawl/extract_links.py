@@ -42,6 +42,7 @@ IGNORED_EXTENSIONS = [
     # images
     '.jpg',
     '.jpeg',
+    '.png',
 
     # media
     '.mp3',
