@@ -1,9 +1,10 @@
 from typing import Optional
 
-from home.models import ChurchModeration, Church, ExternalSource
-from sourcing.utils.gouv_fr_utils import geocode
 from django.contrib.gis.geos import Point
+from django.db.models.functions import Now
 
+from home.models import ChurchModeration, Church, ExternalSource
+from sourcing.utils.google_maps_api_utils import google_maps_geocode
 from sourcing.utils.wikidata_utils import get_church_by_messesinfo_id
 
 
@@ -15,7 +16,7 @@ def compute_church_coordinates(church: Church, source: ExternalSource,
         result = wikidata_results[0]
         church.wikidata_id = result.q_number
     else:
-        result = geocode(church.name, church.address, church.city, church.zipcode)
+        result = google_maps_geocode(church.name, church.city, church.zipcode)
 
     if not result or not result.coordinates_latlon:
         category = ChurchModeration.Category.LOCATION_NULL
@@ -37,6 +38,8 @@ def compute_church_coordinates(church: Church, source: ExternalSource,
         return None, None
 
     if no_save:
+        add_church_moderation_if_not_exists(church, ChurchModeration.Category.LOCATION_DIFFERS,
+                                            source, validated=True)
         return church, category
 
     church.save()
@@ -46,7 +49,7 @@ def compute_church_coordinates(church: Church, source: ExternalSource,
 
 
 def add_church_moderation_if_not_exists(church: Church, category: ChurchModeration.Category,
-                                        source: ExternalSource):
+                                        source: ExternalSource, validated: bool = False):
     try:
         ChurchModeration.objects.get(
             church=church,
@@ -60,6 +63,7 @@ def add_church_moderation_if_not_exists(church: Church, category: ChurchModerati
             source=source,
             location=church.location,
             diocese=church.parish.diocese,
+            validated_at=Now() if validated else None,
         )
         church_moderation.save()
 

@@ -12,7 +12,7 @@ class GouvFrGeocodingResult(BaseModel):
     zipcode: str | None
 
 
-def geocode(name, address, city, zipcode) -> GouvFrGeocodingResult | None:
+def geocode_gouv_fr(name, address, city, zipcode) -> GouvFrGeocodingResult | None:
     query = f"q={quote(f'{name} {address} {city}')}"
     if zipcode:
         query += f'&postcode={zipcode}'
@@ -52,4 +52,5 @@ def geocode(name, address, city, zipcode) -> GouvFrGeocodingResult | None:
 
 
 if __name__ == '__main__':
-    print(geocode("Chapelle de l'école Saint-Joseph", "18 route d'Ecully", "Dardilly", 69570))
+    print(geocode_gouv_fr("Chapelle de l'école Saint-Joseph", "18 route d'Ecully",
+                          "Dardilly", 69570))
