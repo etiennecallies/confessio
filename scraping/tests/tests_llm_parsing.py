@@ -7,6 +7,7 @@ import simple_cache
 from dotenv import load_dotenv
 
 from home.utils.date_utils import get_year_start, get_year_end
+from scraping.parse.holidays import HolidayZoneEnum
 from scraping.parse.llm_client import LLMClientInterface, \
     LLMProvider
 from scraping.parse.openai_provider import OpenAILLMClient, get_openai_client
@@ -120,7 +121,8 @@ class LlmParsingTests(unittest.TestCase):
                 year_start = get_year_start(year)
                 year_end = get_year_end(year + 1)
                 are_equivalent, reason = are_schedules_list_equivalent(
-                    schedules_list, expected_schedules_list, year_start, year_end)
+                    schedules_list, expected_schedules_list, year_start, year_end,
+                    HolidayZoneEnum.FR_ZONE_A)
 
                 self.assertTrue(are_equivalent, f'{reason} for {file_name}')
 
@@ -175,7 +177,8 @@ class LlmParsingTests(unittest.TestCase):
                 ])
                 # print(merged_schedules_list.model_dump_json())
                 are_equivalent, reason = are_schedules_list_equivalent(
-                    merged_schedules_list, expected_schedules_list, year_start, year_end)
+                    merged_schedules_list, expected_schedules_list, year_start, year_end,
+                    HolidayZoneEnum.FR_ZONE_A)
 
                 self.assertTrue(are_equivalent, f'{reason} for {file_name}')
 

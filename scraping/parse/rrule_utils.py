@@ -5,6 +5,7 @@ from dateutil.rrule import rrule, rruleset, WEEKLY, DAILY, rrulestr
 
 from home.utils.date_utils import get_current_year, date_to_datetime
 from scraping.parse.explain_schedule import get_explanation_from_schedule, Frequency
+from scraping.parse.holidays import HolidayZoneEnum
 from scraping.parse.periods import add_exrules
 from scraping.parse.schedules import ScheduleItem, SchedulesList, Event, RegularRule
 
@@ -13,7 +14,8 @@ from scraping.parse.schedules import ScheduleItem, SchedulesList, Event, Regular
 # EVENTS GENERATION #
 #####################
 
-def get_rruleset_from_schedule(schedule: ScheduleItem, default_year: int) -> rruleset:
+def get_rruleset_from_schedule(schedule: ScheduleItem, default_year: int,
+                               holiday_zone: HolidayZoneEnum) -> rruleset:
     rset = rruleset()
 
     if schedule.is_one_off_rule():
@@ -39,9 +41,9 @@ def get_rruleset_from_schedule(schedule: ScheduleItem, default_year: int) -> rru
     start_year = default_year
     end_year = default_year + 1
     add_exrules(rset, schedule.date_rule.include_periods, start_year, end_year,
-                use_complementary=not schedule.is_cancellation)
+                use_complementary=not schedule.is_cancellation, holiday_zone=holiday_zone)
     add_exrules(rset, schedule.date_rule.exclude_periods, start_year, end_year,
-                use_complementary=schedule.is_cancellation)
+                use_complementary=schedule.is_cancellation, holiday_zone=holiday_zone)
 
     return rset
 
@@ -49,6 +51,7 @@ def get_rruleset_from_schedule(schedule: ScheduleItem, default_year: int) -> rru
 def get_events_from_schedule_item(schedule: ScheduleItem,
                                   start_date: date,
                                   default_year: int,
+                                  holiday_zone: HolidayZoneEnum,
                                   end_date: date | None = None,
                                   max_events: int | None = None,
                                   max_days: int | None = None) -> list[Event]:
@@ -67,7 +70,7 @@ def get_events_from_schedule_item(schedule: ScheduleItem,
     start_datetime = date_to_datetime(start_date)
     end_datetime = date_to_datetime(end_date) if end_date else None
 
-    rset = get_rruleset_from_schedule(schedule, default_year)
+    rset = get_rruleset_from_schedule(schedule, default_year, holiday_zone)
 
     events = []
     for one_date in rset.xafter(start_datetime, count=max_events, inc=True):
@@ -98,10 +101,12 @@ def get_events_from_schedule_item(schedule: ScheduleItem,
 def get_events_from_schedule_items(schedules: list[ScheduleItem],
                                    start_date: date,
                                    default_year: int,
+                                   holiday_zone: HolidayZoneEnum,
                                    end_date: date | None = None,
                                    max_events: int = None,
                                    max_days: int = None) -> list[Event]:
-    all_events = sum((get_events_from_schedule_item(schedule, start_date, default_year, end_date,
+    all_events = sum((get_events_from_schedule_item(schedule, start_date, default_year,
+                                                    holiday_zone, end_date,
                                                     max_events, max_days)
                       for schedule in schedules), [])
 
@@ -117,7 +122,8 @@ def are_schedule_rrules_valid(schedule: ScheduleItem) -> bool:
         return True
 
     try:
-        get_rruleset_from_schedule(schedule, get_current_year())
+        default_holiday_zone = HolidayZoneEnum.FR_ZONE_A  # We do not need the accurate holiday zone
+        get_rruleset_from_schedule(schedule, get_current_year(), default_holiday_zone)
         return True
     except ValueError as e:
         print(e)
@@ -188,7 +194,7 @@ def filter_unnecessary_schedules(schedules: list[ScheduleItem]) -> list[Schedule
 ###########
 
 def are_schedules_list_equivalent(sl1: SchedulesList, sl2: SchedulesList,
-                                  start_date: date, end_date: date
+                                  start_date: date, end_date: date, holiday_zone: HolidayZoneEnum
                                   ) -> tuple[bool, Optional[str]]:
     default_year = start_date.year
 
@@ -210,8 +216,10 @@ def are_schedules_list_equivalent(sl1: SchedulesList, sl2: SchedulesList,
     if set(sl1.schedules) == set(sl2.schedules):
         return True, None
 
-    events1 = get_events_from_schedule_items(sl1.schedules, start_date, default_year, end_date)
-    events2 = get_events_from_schedule_items(sl2.schedules, start_date, default_year, end_date)
+    events1 = get_events_from_schedule_items(sl1.schedules, start_date, default_year, holiday_zone,
+                                             end_date)
+    events2 = get_events_from_schedule_items(sl2.schedules, start_date, default_year, holiday_zone,
+                                             end_date)
 
     if set(events1) == set(events2):
         return True, None
@@ -255,7 +263,7 @@ if __name__ == '__main__':
         end_time_iso8601=None,
     )
     default_year_ = 2024
-    rset_ = get_rruleset_from_schedule(schedule_, default_year_)
+    rset_ = get_rruleset_from_schedule(schedule_, default_year_, HolidayZoneEnum.FR_ZONE_B)
     print(rset_)
     for occurrence in rset_.between(datetime(2024, 1, 1),
                                     datetime(2024, 12, 31)):

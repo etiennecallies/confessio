@@ -1,6 +1,7 @@
 import unittest
 from datetime import datetime, date
 
+from scraping.parse.holidays import HolidayZoneEnum
 from scraping.parse.periods import PeriodEnum
 from scraping.parse.rrule_utils import get_events_from_schedule_items
 from scraping.parse.schedules import ScheduleItem, \
@@ -64,7 +65,9 @@ class GenerateEventsTests(unittest.TestCase):
             with self.subTest():
                 events = get_events_from_schedule_items(schedules,
                                                         start_date,
-                                                        default_year, end_date)
+                                                        default_year,
+                                                        HolidayZoneEnum.FR_ZONE_A,
+                                                        end_date)
                 expected_events = [Event(church_id=None, start=start, end=None)
                                    for start in expected_starts]
                 # print(explanation)

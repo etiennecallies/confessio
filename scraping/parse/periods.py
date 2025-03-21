@@ -3,6 +3,8 @@ from enum import Enum
 
 from dateutil.rrule import rrulestr
 
+from scraping.parse.holidays import HolidayZoneEnum, HOLIDAY_BY_ZONE
+
 
 ###################
 # LITURGICAL DAYS #
@@ -107,7 +109,12 @@ def get_advent_dates(year: int) -> tuple[date, date]:
     return advent_start, christmas
 
 
-def intervals_from_period(period: PeriodEnum, year: int) -> list[tuple[date, date]]:
+#############
+# INTERVALS #
+#############
+
+def intervals_from_period(period: PeriodEnum, year: int,
+                          holiday_zone: HolidayZoneEnum) -> list[tuple[date, date]]:
     # Months
     if period == PeriodEnum.JANUARY:
         return [(date(year, 1, 1), date(year, 1, 31))]
@@ -148,27 +155,15 @@ def intervals_from_period(period: PeriodEnum, year: int) -> list[tuple[date, dat
 
     # Holidays
     if period == PeriodEnum.SCHOOL_HOLIDAYS:
-        # TODO handle zones
-        if year == 2024:
-            return [(date(year, 2, 10), date(year, 2, 24)),
-                    (date(year, 4, 6), date(year, 4, 22)),
-                    (date(year, 7, 6), date(year, 9, 2)),
-                    (date(year, 10, 19), date(year, 11, 4)),
-                    (date(year, 12, 21), date(year + 1, 1, 6))]
-        elif year == 2025:
-            return [(date(year, 2, 23), date(year, 3, 9)),
-                    (date(year, 4, 19), date(year, 5, 5)),
-                    (date(year, 7, 5), date(year, 8, 31)),
-                    (date(year, 10, 18), date(year, 11, 3)),
-                    (date(year, 12, 20), date(year + 1, 1, 5))]
-        elif year == 2026:
-            return [(date(year, 2, 10), date(year, 2, 24)),
-                    (date(year, 4, 6), date(year, 4, 22)),
-                    (date(year, 7, 6), date(year, 9, 2)),
-                    (date(year, 10, 19), date(year, 11, 4)),
-                    (date(year, 12, 21), date(year + 1, 1, 6))]
+        if holiday_zone not in HOLIDAY_BY_ZONE:
+            raise ValueError(f'School holidays not implemented for zone {holiday_zone}')
 
-        raise ValueError(f'School holidays not implemented for year {year}')
+        period_by_year = HOLIDAY_BY_ZONE[holiday_zone]
+        if year not in period_by_year:
+            raise ValueError(f'School holidays not implemented for year {year} in '
+                             f'zone {holiday_zone}')
+
+        return period_by_year[year]
 
     raise ValueError(f'Period {period} not implemented')
 
@@ -221,14 +216,15 @@ def rrules_from_intervals(intervals: list[tuple[date, date]]) -> list[str]:
             for start, end in intervals]
 
 
-def add_exrules(rset, periods, start_year, end_year, use_complementary: bool):
+def add_exrules(rset, periods, start_year, end_year, use_complementary: bool,
+                holiday_zone: HolidayZoneEnum):
     if not periods:
         return
 
     all_intervals = []
     for period in periods:
         for year in range(start_year, end_year + 1):
-            all_intervals += intervals_from_period(period, year)
+            all_intervals += intervals_from_period(period, year, holiday_zone)
 
     merged_intervals = compute_union_of_all_intervals(all_intervals)
     if use_complementary:

@@ -12,6 +12,7 @@ from home.services.events_service import MergedChurchSchedulesList, \
     get_no_church_color
 from home.utils.date_utils import get_current_year
 from home.utils.list_utils import enumerate_with_and
+from scraping.parse.holidays import HolidayZoneEnum
 from scraping.parse.rrule_utils import get_events_from_schedule_item
 from scraping.parse.schedules import ScheduleItem, Event
 
@@ -51,8 +52,10 @@ def get_schedule_item_events(schedule_item: ScheduleItem) -> list[Event]:
     start_date = date(2000, 1, 1)
     end_date = date(2040, 1, 1)
     default_year = get_current_year()
+    default_holiday_zone = HolidayZoneEnum.FR_ZONE_A
 
-    return get_events_from_schedule_item(schedule_item, start_date, default_year, end_date)[:7]
+    return get_events_from_schedule_item(schedule_item, start_date, default_year,
+                                         default_holiday_zone, end_date)[:7]
 
 
 @register.filter

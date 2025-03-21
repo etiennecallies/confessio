@@ -4,6 +4,7 @@ from typing import Optional
 from uuid import UUID
 
 from home.models import Church, Parsing, Website
+from home.services.holiday_zone_service import get_website_holiday_zone
 from home.services.sources_service import get_website_sorted_parsings
 from home.utils.date_utils import get_current_year
 from home.utils.hash_utils import hash_string_to_hex
@@ -142,6 +143,8 @@ def get_merged_church_schedules_list(website: Website,
         end_date = start_date
         max_days = 1
 
+    holiday_zone = get_website_holiday_zone(website)
+
     parsings = get_website_sorted_parsings(website)
     for i, parsing in enumerate(parsings):
         church_by_id = get_church_by_id(parsing, website)
@@ -152,7 +155,8 @@ def get_merged_church_schedules_list(website: Website,
 
         for schedule in schedules_list.schedules:
             events = get_events_from_schedule_item(schedule, start_date,
-                                                   current_year, end_date, max_days=max_days)
+                                                   current_year, holiday_zone,
+                                                   end_date, max_days=max_days)
             if events:
                 all_church_schedule_items.append(
                     ChurchScheduleItem.from_schedule_item(schedule, parsing, church_by_id, events)
