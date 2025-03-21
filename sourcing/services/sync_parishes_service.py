@@ -278,5 +278,5 @@ def is_same_website(website1: Optional[Website], website2: Optional[Website]):
 
 
 def save_parish(parish: Parish):
-    save_website_of_parish(parish)
+    parish.website = save_website_of_parish(parish)
     parish.save()
