@@ -45,6 +45,8 @@ def get_content_length_by_streaming(url: str) -> int | None:
         print(e)
         return None
 
+    r.raw.decode_content = False
+
     total_size = 0
     for chunk in r.iter_content(chunk_size=8192):
         total_size += len(chunk)
