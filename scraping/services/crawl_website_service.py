@@ -51,9 +51,14 @@ def update_home_url(website: Website, new_home_url: str):
                        other_home_url=new_home_url)
         return
 
-    if 'google.com/sorry' in new_home_url:
-        print(f'This url is not eligible to home url update: {new_home_url}')
-        return
+    not_eligible_urls = [
+        'google.com/sorry',
+        'accounts.google.com',
+    ]
+    for not_eligible_url in not_eligible_urls:
+        if not_eligible_url in new_home_url:
+            print(f'This url is not eligible to home url update: {new_home_url}')
+            return
 
     # Check that there is not already a Website with this home_url
     try:
