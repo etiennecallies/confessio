@@ -1,6 +1,6 @@
 # Used by django
 Django==5.0.13
-gunicorn==22.0.0
+gunicorn==23.0.0
 python-dotenv==1.0.0
 whitenoise==6.6.0
 django-theme-pixel==1.0.3
