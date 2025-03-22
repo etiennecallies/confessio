@@ -37,7 +37,7 @@ def add_moderation(website: Website, category: WebsiteModeration.Category,
         moderation = WebsiteModeration(
             website=website, category=category,
             other_website=other_website,
-            home_url=other_home_url[:200] or website.home_url,
+            home_url=other_home_url[:200] if other_home_url else website.home_url,
             diocese=website.get_diocese(),
             conflict_day=conflict_day,
             conflict_church=conflict_church,
