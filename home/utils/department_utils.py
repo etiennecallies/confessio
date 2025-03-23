@@ -103,16 +103,15 @@ ALL_FRENCH_DEPARTMENTS = {
 }
 
 
-def get_departments(zipcodes: set[str]):
-    departments = set()
-    for zipcode in zipcodes:
-        if zipcode.startswith('97'):
-            department = zipcode[:3]
-        else:
-            department = zipcode[:2]
-        departments.add(department)
+def get_department(zipcode: str):
+    if zipcode.startswith('97'):
+        return zipcode[:3]
+    else:
+        return zipcode[:2]
 
-    return departments
+
+def get_departments(zipcodes: set[str]):
+    return set(get_department(zipcode) for zipcode in zipcodes)
 
 
 def get_department_context(department: str):
