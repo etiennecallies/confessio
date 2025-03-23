@@ -1,8 +1,10 @@
-import datetime
 import pprint
 import re
+from datetime import date, timedelta, datetime
 from enum import Enum
 from typing import List, Dict
+
+from home.utils.date_utils import get_current_day
 
 
 class HolidayZoneEnum(str, Enum):
@@ -30,8 +32,8 @@ def parse_ics(ics_content: str) -> List[Dict]:
         location = re.search(r'LOCATION:(.*?)\n', match)
 
         if name and start_date and end_date and location:
-            start_date = datetime.datetime.strptime(start_date.group(1), "%Y%m%d").date()
-            end_date = datetime.datetime.strptime(end_date.group(1), "%Y%m%d").date()
+            start_date = datetime.strptime(start_date.group(1), "%Y%m%d").date()
+            end_date = datetime.strptime(end_date.group(1), "%Y%m%d").date()
             zones = parse_zones(location.group(1))
 
             events.append({
@@ -416,38 +418,45 @@ def generate_and_print_holiday_by_zone():
 
 
 HOLIDAY_BY_ZONE = {
-    'corsica': {2024: [(datetime.date(2024, 10, 19), datetime.date(2024, 11, 4)),
-                       (datetime.date(2024, 12, 21), datetime.date(2025, 1, 6))],
-                2025: [(datetime.date(2025, 2, 15), datetime.date(2025, 3, 3)),
-                       (datetime.date(2025, 4, 12), datetime.date(2025, 4, 28))]},
-    'fr_zone_a': {2024: [(datetime.date(2024, 10, 19), datetime.date(2024, 11, 4)),
-                         (datetime.date(2024, 12, 21), datetime.date(2025, 1, 6))],
-                  2025: [(datetime.date(2025, 2, 22), datetime.date(2025, 3, 10)),
-                         (datetime.date(2025, 4, 19), datetime.date(2025, 5, 5)),
-                         (datetime.date(2025, 7, 5), datetime.date(2025, 9, 1)),
-                         (datetime.date(2025, 10, 18), datetime.date(2025, 11, 3)),
-                         (datetime.date(2025, 12, 20), datetime.date(2026, 1, 5))],
-                  2026: [(datetime.date(2026, 2, 7), datetime.date(2026, 2, 23)),
-                         (datetime.date(2026, 4, 4), datetime.date(2026, 4, 20))]},
-    'fr_zone_b': {2024: [(datetime.date(2024, 10, 19), datetime.date(2024, 11, 4)),
-                         (datetime.date(2024, 12, 21), datetime.date(2025, 1, 6))],
-                  2025: [(datetime.date(2025, 2, 8), datetime.date(2025, 2, 24)),
-                         (datetime.date(2025, 4, 5), datetime.date(2025, 4, 22)),
-                         (datetime.date(2025, 7, 5), datetime.date(2025, 9, 1)),
-                         (datetime.date(2025, 10, 18), datetime.date(2025, 11, 3)),
-                         (datetime.date(2025, 12, 20), datetime.date(2026, 1, 5))],
-                  2026: [(datetime.date(2026, 2, 14), datetime.date(2026, 3, 2)),
-                         (datetime.date(2026, 4, 11),
-                          datetime.date(2026, 4, 27))]},
-    'fr_zone_c': {2024: [(datetime.date(2024, 10, 19), datetime.date(2024, 11, 4)),
-                         (datetime.date(2024, 12, 21), datetime.date(2025, 1, 6))],
-                  2025: [(datetime.date(2025, 2, 15), datetime.date(2025, 3, 3)),
-                         (datetime.date(2025, 4, 12), datetime.date(2025, 4, 28)),
-                         (datetime.date(2025, 7, 5), datetime.date(2025, 9, 1)),
-                         (datetime.date(2025, 10, 18), datetime.date(2025, 11, 3)),
-                         (datetime.date(2025, 12, 20), datetime.date(2026, 1, 5))],
-                  2026: [(datetime.date(2026, 2, 21), datetime.date(2026, 3, 9)),
-                         (datetime.date(2026, 4, 18), datetime.date(2026, 5, 4))]}}
+    'corsica': {2024: [(date(2024, 10, 19), date(2024, 11, 4)),
+                       (date(2024, 12, 21), date(2025, 1, 6))],
+                2025: [(date(2025, 2, 15), date(2025, 3, 3)),
+                       (date(2025, 4, 12), date(2025, 4, 28))]},
+    'fr_zone_a': {2024: [(date(2024, 10, 19), date(2024, 11, 4)),
+                         (date(2024, 12, 21), date(2025, 1, 6))],
+                  2025: [(date(2025, 2, 22), date(2025, 3, 10)),
+                         (date(2025, 4, 19), date(2025, 5, 5)),
+                         (date(2025, 7, 5), date(2025, 9, 1)),
+                         (date(2025, 10, 18), date(2025, 11, 3)),
+                         (date(2025, 12, 20), date(2026, 1, 5))],
+                  2026: [(date(2026, 2, 7), date(2026, 2, 23)),
+                         (date(2026, 4, 4), date(2026, 4, 20))]},
+    'fr_zone_b': {2024: [(date(2024, 10, 19), date(2024, 11, 4)),
+                         (date(2024, 12, 21), date(2025, 1, 6))],
+                  2025: [(date(2025, 2, 8), date(2025, 2, 24)),
+                         (date(2025, 4, 5), date(2025, 4, 22)),
+                         (date(2025, 7, 5), date(2025, 9, 1)),
+                         (date(2025, 10, 18), date(2025, 11, 3)),
+                         (date(2025, 12, 20), date(2026, 1, 5))],
+                  2026: [(date(2026, 2, 14), date(2026, 3, 2)),
+                         (date(2026, 4, 11),
+                          date(2026, 4, 27))]},
+    'fr_zone_c': {2024: [(date(2024, 10, 19), date(2024, 11, 4)),
+                         (date(2024, 12, 21), date(2025, 1, 6))],
+                  2025: [(date(2025, 2, 15), date(2025, 3, 3)),
+                         (date(2025, 4, 12), date(2025, 4, 28)),
+                         (date(2025, 7, 5), date(2025, 9, 1)),
+                         (date(2025, 10, 18), date(2025, 11, 3)),
+                         (date(2025, 12, 20), date(2026, 1, 5))],
+                  2026: [(date(2026, 2, 21), date(2026, 3, 9)),
+                         (date(2026, 4, 18), date(2026, 5, 4))]}}
+
+
+def check_holiday_by_zone() -> bool:
+    # In september, we should have holidays for the next school year
+    future_date = get_current_day() + timedelta(days=365 + 4 * 30)
+    future_year = future_date.year
+    return future_year in HOLIDAY_BY_ZONE[HolidayZoneEnum.FR_ZONE_A]
 
 
 if __name__ == '__main__':

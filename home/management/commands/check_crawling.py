@@ -5,6 +5,8 @@ from django.utils import timezone
 
 from home.management.abstract_command import AbstractCommand
 from home.models import Website
+from scraping.parse.holidays import check_holiday_by_zone
+from scraping.parse.periods import check_easter_dates
 from scraping.services.parse_pruning_service import check_website_parsing_relations, \
     is_eligible_to_parsing
 
@@ -74,3 +76,22 @@ class Command(AbstractCommand):
             self.success(f'Email sent to admins')
         else:
             self.success(f'All websites have been crawled recently')
+
+        self.info(f'Starting checking future holidays and easter dates')
+        holiday_ok = check_holiday_by_zone()
+        easter_ok = check_easter_dates()
+        if not holiday_ok or not easter_ok:
+            error_message = (f'Holiday failure: future holidays or easter dates are not '
+                             f'implemented')
+            self.error(error_message)
+            message = f"""
+            Holiday failure
+
+            Future holidays or easter dates are not implemented
+            Holiday: {holiday_ok}
+            Easter: {easter_ok}
+            """
+            mail_admins(subject=error_message, message=message)
+            self.success(f'Email sent to admins')
+        else:
+            self.success(f'All future holidays and easter dates are implemented')

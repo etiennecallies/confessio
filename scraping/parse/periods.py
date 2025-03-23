@@ -3,6 +3,7 @@ from enum import Enum
 
 from dateutil.rrule import rrulestr
 
+from home.utils.date_utils import get_current_day
 from scraping.parse.holidays import HolidayZoneEnum, HOLIDAY_BY_ZONE
 
 
@@ -28,15 +29,27 @@ class LiturgicalDayEnum(str, Enum):
         return [(item.value, item.name) for item in cls]
 
 
-def get_easter_day(year: int) -> date:
-    if year == 2024:
-        return date(year, 3, 31)
-    if year == 2025:
-        return date(year, 4, 20)
-    if year == 2026:
-        return date(year, 4, 5)
+# To be filled on year basis
+EASTER_DATES_BY_YEAR = {
+    2024: date(2024, 3, 31),
+    2025: date(2025, 4, 20),
+    2026: date(2026, 4, 5),
+}
 
-    raise ValueError(f'Easter day not implemented for year {year}')
+
+def get_easter_day(year: int) -> date:
+    if year not in EASTER_DATES_BY_YEAR:
+        raise ValueError(f'Easter day not implemented for year {year}')
+
+    return EASTER_DATES_BY_YEAR[year]
+
+
+def check_easter_dates() -> bool:
+    # In september, we should have easter date for the next year
+    future_date = get_current_day() + timedelta(days=365 + 4 * 30)
+    future_year = future_date.year
+
+    return future_year in EASTER_DATES_BY_YEAR
 
 
 def get_offset(liturgical_day: LiturgicalDayEnum):
