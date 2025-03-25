@@ -1,3 +1,5 @@
+import asyncio
+
 from scraping.download.download_content import get_content_from_url
 from scraping.extract.extract_content import extract_paragraphs_lines_and_indices, ExtractMode
 from scraping.prune.action_interfaces import DummyActionInterface
@@ -22,8 +24,8 @@ def get_extracted_html_list(html_content: str) -> list[str] | None:
     return extracted_html_list
 
 
-def get_fresh_extracted_html_list(url) -> list[str] | None:
-    html_content = get_content_from_url(url)
+async def get_fresh_extracted_html_list(url) -> list[str] | None:
+    html_content = await get_content_from_url(url)
     if html_content is None:
         return None
 
@@ -32,7 +34,7 @@ def get_fresh_extracted_html_list(url) -> list[str] | None:
 
 if __name__ == '__main__':
     url_ = 'https://eglise-janze.bzh/se-reconcilier/'
-    extracted_html_list_ = get_fresh_extracted_html_list(url_)
+    extracted_html_list_ = asyncio.run(get_fresh_extracted_html_list(url_))
 
     print()
     print(url_)

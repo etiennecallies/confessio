@@ -1,3 +1,4 @@
+import asyncio
 import time
 from datetime import timedelta
 
@@ -50,7 +51,8 @@ class Command(AbstractCommand):
 
             self.info(f'Starting crawling for website {website.name} {website.uuid}')
 
-            got_pages_with_content, some_pages_visited, error_detail = crawl_website(website)
+            got_pages_with_content, some_pages_visited, error_detail = \
+                asyncio.run(crawl_website(website))
             nb_websites_crawled += 1
 
             if got_pages_with_content:
