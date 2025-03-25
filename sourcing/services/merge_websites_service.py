@@ -1,3 +1,5 @@
+import asyncio
+
 from home.models import Website, WebsiteModeration, Diocese
 from sourcing.utils.extract_title import get_page_title
 
@@ -20,7 +22,7 @@ def add_website_moderation(website: Website, category: WebsiteModeration.Categor
 
 
 def update_website_name(website: Website, other_website_name: str):
-    page_title = get_page_title(website.home_url)
+    page_title = asyncio.run(get_page_title(website.home_url))
 
     if page_title:
         # If home_url's title exists we replace website name by it

@@ -1,8 +1,11 @@
 from typing import Optional
 from urllib.parse import urlparse
 
+import chardet
+import httpx
 import requests
 from bs4 import BeautifulSoup
+from httpx import HTTPError
 from requests import RequestException
 
 from scraping.utils.url_utils import get_domain, are_similar_urls, replace_scheme_and_hostname
@@ -57,7 +60,7 @@ def get_content_length_by_streaming(url: str) -> int | None:
     return total_size
 
 
-def get_content_from_url(url):
+async def get_content_from_url(url):
     # Handle heavy pdf files
     if url.endswith('.pdf'):
         content_length = get_content_length(url)
@@ -75,8 +78,9 @@ def get_content_from_url(url):
 
     headers = get_headers()
     try:
-        r = requests.get(url, headers=headers, timeout=TIMEOUT)
-    except RequestException as e:
+        async with httpx.AsyncClient() as client:
+            r = await client.get(url, headers=headers, timeout=TIMEOUT, follow_redirects=True)
+    except HTTPError as e:
         print(e)
         return None
 
@@ -86,7 +90,8 @@ def get_content_from_url(url):
         return None
 
     # https://stackoverflow.com/a/52615216
-    r.encoding = r.apparent_encoding
+    detected_encoding = chardet.detect(r.content)['encoding']
+    r.encoding = detected_encoding if detected_encoding else r.encoding
 
     return r.text
 
@@ -103,12 +108,13 @@ def get_meta_refresh_redirect(soup: BeautifulSoup) -> Optional[str]:
     return None
 
 
-def get_url_aliases(url) -> tuple[list[tuple[str, str]], Optional[str]]:
+async def get_url_aliases(url) -> tuple[list[tuple[str, str]], Optional[str]]:
     print(f'getting url aliases for {url}')
 
     headers = get_headers()
     try:
-        r = requests.get(url, headers=headers, allow_redirects=False, timeout=TIMEOUT)
+        async with httpx.AsyncClient() as client:
+            r = await client.get(url, headers=headers, follow_redirects=False, timeout=TIMEOUT)
     except RequestException as e:
         return [], str(e)
 
@@ -133,7 +139,7 @@ def get_url_aliases(url) -> tuple[list[tuple[str, str]], Optional[str]]:
         if not redirect_url_parsed.netloc:
             redirect_url = replace_scheme_and_hostname(redirect_url_parsed, new_url=url)
 
-        url_aliases, error_message = get_url_aliases(redirect_url)
+        url_aliases, error_message = await get_url_aliases(redirect_url)
         if not url_aliases:
             print(f'tried to follow redirect location {redirect_url} but got error {error_message}')
         else:
@@ -142,19 +148,19 @@ def get_url_aliases(url) -> tuple[list[tuple[str, str]], Optional[str]]:
     return aliases, None
 
 
-def redirects_to_other_url(url1: str, url2: str) -> bool:
+async def redirects_to_other_url(url1: str, url2: str) -> bool:
     if are_similar_urls(url1, url2):
         return True
 
-    aliases, _ = get_url_aliases(url1)
+    aliases, _ = await get_url_aliases(url1)
     for url, domain in aliases:
         if are_similar_urls(url, url2):
             return True
     return False
 
 
-def get_url_redirection(url: str):
-    aliases, _ = get_url_aliases(url)
+async def get_url_redirection(url: str):
+    aliases, _ = await get_url_aliases(url)
     if not aliases:
         return None
 

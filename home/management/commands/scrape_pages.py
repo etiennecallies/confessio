@@ -1,3 +1,5 @@
+import asyncio
+
 from django.db.models.functions import Now
 
 from home.management.abstract_command import AbstractCommand
@@ -24,7 +26,7 @@ class Command(AbstractCommand):
 
             for page in website.get_pages():
                 # Actually do the scraping
-                extracted_html_list = get_fresh_extracted_html_list(page.url)
+                extracted_html_list = asyncio.run(get_fresh_extracted_html_list(page.url))
 
                 if not extracted_html_list:
                     self.warning(f'No more content for {page.url}, deleting page {page.uuid}')

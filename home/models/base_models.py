@@ -1,6 +1,6 @@
 import uuid
 from datetime import timedelta
-from typing import List, Optional
+from typing import Optional
 
 from django.contrib.gis.db import models as gis_models
 from django.contrib.postgres.fields import ArrayField
@@ -60,8 +60,8 @@ class Website(TimeStampMixin):
     def has_been_crawled(self) -> bool:
         return self.crawling_id is not None
 
-    def get_pages(self) -> List['Page']:
-        return self.pages.all()
+    def get_pages(self) -> list['Page']:
+        return list(self.pages.all())
 
     def has_pages(self) -> bool:
         return len(self.get_pages()) > 0
@@ -96,6 +96,13 @@ class Website(TimeStampMixin):
             return None
 
         return self.parishes.first().diocese
+
+    async def async_get_diocese(self) -> Diocese | None:
+        if not await self.parishes.aexists():
+            return None
+
+        first_parish = await self.parishes.select_related('diocese').afirst()
+        return first_parish.diocese
 
 
 class Parish(TimeStampMixin):
