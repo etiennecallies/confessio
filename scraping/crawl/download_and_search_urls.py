@@ -61,6 +61,7 @@ async def search_for_confession_pages(home_url, aliases_domains: set[str],
         html_content = await get_content_from_url(link)
         if html_content is None:
             # something went wrong (e.g. 404), we just ignore this page
+            print(f'no content for {link}')
             continue
 
         # Looking if new confession part is found

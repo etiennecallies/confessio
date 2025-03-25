@@ -79,7 +79,7 @@ async def get_content_from_url(url):
     headers = get_headers()
     try:
         async with httpx.AsyncClient() as client:
-            r = await client.get(url, headers=headers, timeout=TIMEOUT)
+            r = await client.get(url, headers=headers, timeout=TIMEOUT, follow_redirects=True)
     except HTTPError as e:
         print(e)
         return None

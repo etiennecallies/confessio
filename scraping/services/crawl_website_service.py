@@ -76,27 +76,28 @@ def update_home_url(website: Website, new_home_url: str):
         remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_CONFLICT)
 
 
-def handle_diocese_domain(website: Website, domain_has_changed: bool, aliases_domains: set[str],
-                          forbidden_paths: set[str], path_redirection: dict[str, str]):
-    diocese = website.get_diocese()
+async def handle_diocese_domain(website: Website, domain_has_changed: bool,
+                                aliases_domains: set[str],
+                                forbidden_paths: set[str], path_redirection: dict[str, str]):
+    diocese = await website.async_get_diocese()
     if diocese and diocese.home_url:
         if domain_has_changed:
             print('check if diocese home_url has changed')
             new_diocese_url, diocese_aliases_domains, error_message = \
-                asyncio.run(get_new_url_and_aliases(diocese.home_url))
+                await get_new_url_and_aliases(diocese.home_url)
             if error_message:
                 print(f'error in get_new_url_and_aliases for diocese with url {diocese.home_url}: '
                       f'{error_message}')
             elif new_diocese_url != diocese.home_url:
                 print('it has changed! Replacing it.')
                 diocese.home_url = new_diocese_url
-                diocese.save()
+                await diocese.asave()
 
         if have_similar_domain(website.home_url, diocese.home_url):
             print('Website and diocese have similar domain, forbidding diocese home links')
-            forbidden_paths |= asyncio.run(forbid_diocese_home_links(diocese.home_url,
-                                                                     aliases_domains,
-                                                                     path_redirection))
+            forbidden_paths |= await forbid_diocese_home_links(diocese.home_url,
+                                                               aliases_domains,
+                                                               path_redirection)
 
 
 async def do_crawl_website(website: Website) -> tuple[dict[str, list[str]], int, Optional[str]]:
@@ -108,7 +109,8 @@ async def do_crawl_website(website: Website) -> tuple[dict[str, list[str]], int,
     # Update home_url if needed
     if website.home_url != new_home_url:
         domain_has_changed = True
-        update_home_url(website, new_home_url)
+        loop = asyncio.get_running_loop()
+        await loop.run_in_executor(None, update_home_url, website, new_home_url)
     else:
         domain_has_changed = False
 
@@ -123,10 +125,9 @@ async def do_crawl_website(website: Website) -> tuple[dict[str, list[str]], int,
                 forbidden_paths.add(get_path(other_website.home_url))
 
     path_redirection = {}
-    loop = asyncio.get_running_loop()
-    await loop.run_in_executor(None, handle_diocese_domain, website,
-                               domain_has_changed, aliases_domains, forbidden_paths,
-                               path_redirection)
+    await handle_diocese_domain(website,
+                                domain_has_changed, aliases_domains, forbidden_paths,
+                                path_redirection)
 
     # Actually crawling website
     return await search_for_confession_pages(new_home_url, aliases_domains, forbidden_paths,
@@ -136,7 +137,7 @@ async def do_crawl_website(website: Website) -> tuple[dict[str, list[str]], int,
 async def crawl_website(website: Website) -> tuple[bool, bool, Optional[str]]:
     # check if website has parish
     if not await website.parishes.aexists():
-        website.delete()
+        await website.adelete()
         return False, False, 'website has no parish'
 
     extracted_html_list_by_url, nb_visited_links, error_detail = await do_crawl_website(website)

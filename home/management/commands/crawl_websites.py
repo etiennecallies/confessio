@@ -7,15 +7,23 @@ from django.utils import timezone
 
 from home.management.abstract_command import AbstractCommand
 from home.models import Website, WebsiteModeration
+from home.utils.list_utils import split_list
 from scraping.services.crawl_website_service import crawl_website
 
 
 class Command(AbstractCommand):
     help = "Launch the search of all urls with confessions hours, starting for home url"
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.timeout_reached = False
+        self.start_time = time.time()
+        self.nb_websites_crawled = 0
+
     def add_arguments(self, parser):
         parser.add_argument('-n', '--name', help='name of website to crawl')
         parser.add_argument('-t', '--timeout', help='timeout in seconds', type=int, default=0)
+        parser.add_argument('-p', '--parallel', help='nb of async threads', type=int, default=0)
         parser.add_argument('--in-error', action="store_true",
                             help='only websites with not validated home url moderation')
         parser.add_argument('--no-recent', action="store_true",
@@ -40,31 +48,46 @@ class Command(AbstractCommand):
             websites = Website.objects.filter(is_active=True) \
                 .order_by(F('crawling').asc(nulls_first=True)).all()
 
-        timeout_reached = False
-        start_time = time.time()
-        nb_websites_crawled = 0
+        websites = list(websites)
 
-        for website in websites:
-            if options['timeout'] and time.time() - start_time > options['timeout']:
-                timeout_reached = True
-                break
+        if options['parallel']:
+            asyncio.run(self.handle_websites_in_parallel(websites, options['timeout'],
+                                                         options['parallel']))
+        else:
+            asyncio.run(self.handle_websites(websites, options['timeout']))
 
-            self.info(f'Starting crawling for website {website.name} {website.uuid}')
-
-            got_pages_with_content, some_pages_visited, error_detail = \
-                asyncio.run(crawl_website(website))
-            nb_websites_crawled += 1
-
-            if got_pages_with_content:
-                self.success(f'Successfully crawled website {website.name} {website.uuid}')
-            elif some_pages_visited:
-                self.warning(f'No page found for website {website.name} {website.uuid}')
-            else:
-                self.error(f'Error while crawling website {website.name} {website.uuid}')
-                self.error(error_detail)
-
-        if timeout_reached:
-            self.warning(f'Timeout reached, stopping the command after {nb_websites_crawled} '
+        if self.timeout_reached:
+            self.warning(f'Timeout reached, stopping the command after {self.nb_websites_crawled} '
                          f'websites crawled')
         else:
-            self.success(f'Successfully crawled all {nb_websites_crawled} websites')
+            self.success(f'Successfully crawled all {self.nb_websites_crawled} websites')
+
+    async def handle_websites_in_parallel(self, websites_list: list[Website], timeout: int, n: int):
+        tasks = []
+        for websites in split_list(websites_list, n):
+            tasks.append(self.handle_websites(websites, timeout))
+
+        await asyncio.gather(*tasks)
+
+    async def handle_websites(self, websites: list[Website], timeout: int):
+        for website in websites:
+            if timeout and time.time() - self.start_time > timeout:
+                self.timeout_reached = True
+                break
+
+            await self.handle_website(website)
+
+            self.nb_websites_crawled += 1
+
+    async def handle_website(self, website: Website):
+        self.info(f'Starting crawling for website {website.name} {website.uuid}')
+
+        got_pages_with_content, some_pages_visited, error_detail = await crawl_website(website)
+
+        if got_pages_with_content:
+            self.success(f'Successfully crawled website {website.name} {website.uuid}')
+        elif some_pages_visited:
+            self.warning(f'No page found for website {website.name} {website.uuid}')
+        else:
+            self.error(f'Error while crawling website {website.name} {website.uuid}')
+            self.error(error_detail)
