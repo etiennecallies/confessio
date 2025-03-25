@@ -13,7 +13,7 @@
       hour: "0"
       minute: 30
     - name: daily_crawl_websites
-      command: "crawl_websites -t 3300 --no-recent"
+      command: "crawl_websites -t 3300 --no-recent -p 2"
       hour: "1,2,3,4,5,6,7"
       minute: 0
     - name: daily_check_crawling
