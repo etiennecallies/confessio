@@ -107,6 +107,7 @@ class MergedChurchSchedulesList:
     parsings_have_been_moderated: bool
     church_color_by_uuid: dict[UUID, str]
     display_explicit_other_churches: bool
+    has_unknown_churches: bool
 
     def next_event_in_church(self, church: Church) -> Optional[Event]:
         for church_events in self.church_events_by_day.values():
@@ -237,6 +238,8 @@ def get_merged_church_schedules_list(website: Website,
         parsings_have_been_moderated=parsings_have_been_moderated,
         church_color_by_uuid=get_church_color_by_uuid(church_sorted_schedules),
         display_explicit_other_churches=do_display_explicit_other_churches(church_sorted_schedules),
+        has_unknown_churches=any(c.church is None and not c.is_church_explicitly_other
+                                 for c in church_sorted_schedules)
     )
 
 
@@ -269,6 +272,7 @@ def get_merged_church_schedules_list_for_website(website: Website,
             parsings_have_been_moderated=False,
             church_color_by_uuid=get_church_color_by_uuid(church_sorted_schedules),
             display_explicit_other_churches=False,
+            has_unknown_churches=False,
         )
 
     return get_merged_church_schedules_list(website, website_churches, day_filter)
