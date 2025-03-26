@@ -5,7 +5,7 @@ from django.db.models import Q, Model
 from django.utils import timezone
 
 from home.management.abstract_command import AbstractCommand
-from home.models import Pruning, Sentence, Classifier, Page
+from home.models import Pruning, Sentence, Classifier, Page, ParsingModeration
 from scraping.services.page_service import delete_page
 from scraping.services.parse_pruning_service import clean_parsing_moderations
 from scraping.services.prune_scraping_service import clean_pruning_moderations
@@ -34,6 +34,8 @@ class Command(AbstractCommand):
         self.info(f'Starting cleaning parsing moderations')
         delete_count = clean_parsing_moderations()
         self.success(f'Successfully cleaning {delete_count} parsing moderations')
+
+        self.clean_history(ParsingModeration, ParsingModeration.history.model)
 
         # Prunings
         self.info(f'Starting removing orphan prunings')

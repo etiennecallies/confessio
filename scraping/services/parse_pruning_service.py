@@ -128,9 +128,11 @@ def add_parsing_moderation(parsing: Parsing, category: ParsingModeration.Categor
         parsing_moderation = ParsingModeration.objects.filter(parsing=parsing,
                                                               category=category).get()
         if needs_moderation:
-            parsing_moderation.validated_at = None
-            parsing_moderation.validated_by = None
-            parsing_moderation.save()
+            if parsing_moderation.validated_at is not None \
+                    or parsing_moderation.validated_by is not None:
+                parsing_moderation.validated_at = None
+                parsing_moderation.validated_by = None
+                parsing_moderation.save()
     except ParsingModeration.DoesNotExist:
         parsing_moderation = ParsingModeration(
             parsing=parsing,
