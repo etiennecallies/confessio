@@ -31,7 +31,8 @@ class Command(AbstractCommand):
                             church1_distances.append(
                                 get_geo_distance(church1.location, church2.location))
 
-                        church_slug = f'{diocese.messesinfo_network_id} {church1.name}'
+                        church_slug = (f'{diocese.messesinfo_network_id} {church1.name} '
+                                       f'{church1.city}')
                         avg_parish_distances_by_church[church_slug] = mean(church1_distances)
 
             for i in range(len(diocese_churches)):
