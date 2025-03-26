@@ -115,7 +115,7 @@ async def get_url_aliases(url) -> tuple[list[tuple[str, str]], Optional[str]]:
     try:
         async with httpx.AsyncClient() as client:
             r = await client.get(url, headers=headers, follow_redirects=False, timeout=TIMEOUT)
-    except RequestException as e:
+    except HTTPError as e:
         return [], str(e)
 
     aliases = [(url, get_domain(url))]
