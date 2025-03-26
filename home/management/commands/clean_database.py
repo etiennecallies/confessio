@@ -74,8 +74,8 @@ class Command(AbstractCommand):
 
     def clean_history(self, model: Type[Model], history_model: Type[Model]):
         self.info(f'Starting cleaning {model.__name__} history items')
-        deleted_history_items = history_model.objects.filter(
-            ~Q(uuid__in=model.objects.values_list('uuid', flat=True))
-        )
-        counter = self.delete_objects(deleted_history_items)
+        query = history_model.objects.filter(
+            ~Q(uuid__in=model.objects.values_list('uuid', flat=True)))
+        counter = query.count()
+        query.delete()
         self.success(f'Done removing {counter} orphan {model.__name__} history items')
