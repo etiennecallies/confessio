@@ -44,4 +44,4 @@ def get_google_search_results(query: str) -> list[GoogleApiResult]:
 if __name__ == '__main__':
     from dotenv import load_dotenv
     load_dotenv()
-    print(get_google_search_results("paroisse st michel le havre"))
+    print(get_google_search_results("paroisse Sommières 30"))
