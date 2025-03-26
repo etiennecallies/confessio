@@ -41,7 +41,7 @@ class Command(AbstractCommand):
                     church2 = diocese_churches[j]
                     church1_distances.append(get_geo_distance(church1.location, church2.location))
 
-                church_slug = f'{diocese.messesinfo_network_id} {church1.name}'
+                church_slug = f'{diocese.messesinfo_network_id} {church1.name} {church1.city}'
                 avg_diocese_distances_by_church[church_slug] = mean(church1_distances)
 
         # Diocese sort dict by value
