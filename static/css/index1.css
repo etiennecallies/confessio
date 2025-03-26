@@ -297,9 +297,10 @@ UI widget
 }
 
 .colored-schedule {
-    border-radius: 0.2em;
+    border-radius: 0.3em;
     padding: 0.2em;
     margin: 0.2em 0.2em;
+    box-shadow: inset 0.2em 0.2em 0.2em rgba(255, 255, 255, 0.2), 0.1em 0.1em 0.1em rgba(0, 0, 0, 0.1);
 }
 
 .website-card.hide-explicitly-other .explicitly-other {
