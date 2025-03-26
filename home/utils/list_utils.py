@@ -44,6 +44,5 @@ def enumerate_with_and(items: list[str]) -> str:
     return ', '.join(items[:-1]) + ' et ' + items[-1]
 
 
-def split_list(lst, n):
-    q, r = divmod(len(lst), n)  # Quotient and remainder
-    return [lst[i * q + min(i, r):(i + 1) * q + min(i + 1, r)] for i in range(n)]
+def round_robin(lst, n):
+    return [lst[i::n] for i in range(n)]

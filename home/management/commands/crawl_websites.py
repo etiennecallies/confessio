@@ -7,7 +7,7 @@ from django.utils import timezone
 
 from home.management.abstract_command import AbstractCommand
 from home.models import Website, WebsiteModeration
-from home.utils.list_utils import split_list
+from home.utils.list_utils import round_robin
 from scraping.services.crawl_website_service import crawl_website
 
 
@@ -64,7 +64,7 @@ class Command(AbstractCommand):
 
     async def handle_websites_in_parallel(self, websites_list: list[Website], timeout: int, n: int):
         tasks = []
-        for websites in split_list(websites_list, n):
+        for websites in round_robin(websites_list, n):
             tasks.append(self.handle_websites(websites, timeout))
 
         await asyncio.gather(*tasks)
