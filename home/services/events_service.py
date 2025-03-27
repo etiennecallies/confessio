@@ -107,6 +107,7 @@ class MergedChurchSchedulesList:
     parsings_have_been_moderated: bool
     church_color_by_uuid: dict[UUID, str]
     display_explicit_other_churches: bool
+    has_explicit_other_churches: bool
     has_unknown_churches: bool
     has_different_churches: bool
 
@@ -181,7 +182,7 @@ def get_merged_church_schedules_list(website: Website,
             return None
 
     merged_church_schedule_items = get_merged_schedule_items(all_church_schedule_items)
-    # TODO we shall make sure the church_id are the same accross all parsings
+    # TODO we shall make sure the church_id are the same across all parsings
     church_by_id = {cs.schedule_item.item.church_id: cs.church
                     for cs in merged_church_schedule_items}
 
@@ -208,6 +209,7 @@ def get_merged_church_schedules_list(website: Website,
     ######################
     # Get schedule_items #
     ######################
+
     church_schedule_items = get_sorted_schedules_by_church_id(merged_church_schedule_items)
     church_sorted_schedules = [
         ChurchSortedSchedules.from_sorted_schedules(church_schedules, church_id, church_by_id)
@@ -225,6 +227,13 @@ def get_merged_church_schedules_list(website: Website,
 
     source_index_by_parsing_uuid = {source.uuid: i for i, source in enumerate(parsings)}
     parsings_have_been_moderated = all(parsing.has_been_moderated() for parsing in parsings)
+    display_explicit_other_churches = do_display_explicit_other_churches(church_sorted_schedules)
+    all_church_events = sum(church_events_by_day.values(), [])
+    has_explicit_other_churches = display_explicit_other_churches and \
+        any(c.is_church_explicitly_other for c in all_church_events)
+    has_unknown_churches = any(c.church is None and not c.is_church_explicitly_other
+                               for c in all_church_events)
+    has_different_churches = len(set(c.church for c in all_church_events if c.church)) > 1
 
     return MergedChurchSchedulesList(
         church_events_by_day=church_events_by_day,
@@ -238,11 +247,10 @@ def get_merged_church_schedules_list(website: Website,
         source_index_by_parsing_uuid=source_index_by_parsing_uuid,
         parsings_have_been_moderated=parsings_have_been_moderated,
         church_color_by_uuid=get_church_color_by_uuid(church_sorted_schedules),
-        display_explicit_other_churches=do_display_explicit_other_churches(church_sorted_schedules),
-        has_unknown_churches=any(c.church is None and not c.is_church_explicitly_other
-                                 for c in church_sorted_schedules),
-        has_different_churches=len(set(c.church for c in church_sorted_schedules
-                                       if c.church and c.sorted_schedules)) > 1,
+        display_explicit_other_churches=display_explicit_other_churches,
+        has_explicit_other_churches=has_explicit_other_churches,
+        has_unknown_churches=has_unknown_churches,
+        has_different_churches=has_different_churches,
     )
 
 
@@ -275,6 +283,7 @@ def get_merged_church_schedules_list_for_website(website: Website,
             parsings_have_been_moderated=False,
             church_color_by_uuid=get_church_color_by_uuid(church_sorted_schedules),
             display_explicit_other_churches=False,
+            has_explicit_other_churches=False,
             has_unknown_churches=False,
             has_different_churches=False,
         )
@@ -383,14 +392,22 @@ def get_no_church_color(is_church_explicitly_other: bool) -> str:
 
 def get_merged_schedule_items(church_schedule_items: list[ChurchScheduleItem]
                               ) -> list[ChurchScheduleItem]:
+    church_explanations = set()
+    for church_schedule_item in church_schedule_items:
+        if church_schedule_item.church:
+            church_explanations.add(church_schedule_item.schedule_item.explanation)
+
     schedules_by_explanation_and_item = {}
     for church_schedule_item in church_schedule_items:
-        schedules_by_explanation_and_item.setdefault(
-            (
-                church_schedule_item.church,
-                church_schedule_item.is_church_explicitly_other,
-                church_schedule_item.schedule_item.explanation,
-            ), []).append(church_schedule_item)
+        if church_schedule_item.church or \
+                church_schedule_item.schedule_item.explanation not in church_explanations:
+            # We ignore church_schedule_item with no church and with real-church explanation
+            schedules_by_explanation_and_item.setdefault(
+                (
+                    church_schedule_item.church,
+                    church_schedule_item.is_church_explicitly_other,
+                    church_schedule_item.schedule_item.explanation,
+                ), []).append(church_schedule_item)
 
     merged_schedules_items = []
     for schedules_group in schedules_by_explanation_and_item.values():

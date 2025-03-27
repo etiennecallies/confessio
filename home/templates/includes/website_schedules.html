@@ -32,7 +32,7 @@
                     </div>
                 {% endif %}
             </div>
-            {% if merged_schedules_list.display_explicit_other_churches %}
+            {% if merged_schedules_list.has_explicit_other_churches %}
                 <div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">
                     <span class="alert-inner--text">⚠️ Attention certains horaires ont lieu en dehors de cette paroisse, lire les détails dans les sources.</span>
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
