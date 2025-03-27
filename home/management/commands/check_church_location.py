@@ -1,8 +1,6 @@
-from statistics import mean
-
 from home.management.abstract_command import AbstractCommand
-from home.models import Diocese
-from sourcing.utils.geo_utils import get_geo_distance
+from home.models import Diocese, Church
+from sourcing.utils.geo_utils import get_distances_to_barycenter
 
 
 class Command(AbstractCommand):
@@ -22,43 +20,41 @@ class Command(AbstractCommand):
                     diocese_churches.append(church)
                     parish_churches.append(church)
 
-                if len(parish_churches) > 1:
-                    for i in range(len(parish_churches)):
-                        church1 = parish_churches[i]
-                        church1_distances = []
-                        for j in range(len(parish_churches)):
-                            church2 = parish_churches[j]
-                            church1_distances.append(
-                                get_geo_distance(church1.location, church2.location))
+                avg_parish_distances_by_church.update(
+                    self.get_avg_distances_by_church(parish_churches, diocese)
+                )
 
-                        church_slug = (f'{diocese.messesinfo_network_id} {church1.name} '
-                                       f'{church1.city}')
-                        avg_parish_distances_by_church[church_slug] = mean(church1_distances)
-
-            for i in range(len(diocese_churches)):
-                church1 = diocese_churches[i]
-                church1_distances = []
-                for j in range(len(diocese_churches)):
-                    church2 = diocese_churches[j]
-                    church1_distances.append(get_geo_distance(church1.location, church2.location))
-
-                church_slug = f'{diocese.messesinfo_network_id} {church1.name} {church1.city}'
-                avg_diocese_distances_by_church[church_slug] = mean(church1_distances)
+            avg_diocese_distances_by_church.update(
+                self.get_avg_distances_by_church(diocese_churches, diocese)
+            )
 
         # Diocese sort dict by value
         self.info(f'Sorting diocese churches by average distance')
-        avg_diocese_distances_by_church = sorted(avg_diocese_distances_by_church.items(),
-                                                 key=lambda item: item[1], reverse=True)
-        for church_slug, avg_distance in avg_diocese_distances_by_church[:5]:
-            self.info(f'{church_slug} has an average distance of {round(avg_distance / 1000)} km '
-                      f'with other diocese churches')
+        self.print_outliers(avg_diocese_distances_by_church)
 
         # Parish sort dict by value
         self.info(f'Sorting parish churches by average distance')
-        avg_parish_distances_by_church = sorted(avg_parish_distances_by_church.items(),
-                                                key=lambda item: item[1], reverse=True)
-        for church_slug, avg_distance in avg_parish_distances_by_church[:5]:
-            self.info(f'{church_slug} has an average distance of {round(avg_distance / 1000)} km '
-                      f'with other parish churches')
+        self.print_outliers(avg_parish_distances_by_church)
 
         self.success('Done')
+
+    @staticmethod
+    def get_avg_distances_by_church(churches: list[Church], diocese: Diocese
+                                    ) -> dict[str, float]:
+        points = [c.location for c in churches]
+        distance_by_point = get_distances_to_barycenter(points)
+
+        avg_distances_by_church = {}
+        for church in churches:
+            church_slug = (f'{diocese.messesinfo_network_id} {church.name} '
+                           f'{church.city}')
+            avg_distances_by_church[church_slug] = distance_by_point[church.location]
+
+        return avg_distances_by_church
+
+    def print_outliers(self, avg_distances_by_church: dict[str, float]):
+        avg_distances_by_church = sorted(avg_distances_by_church.items(),
+                                         key=lambda item: item[1], reverse=True)
+        for church_slug, avg_distance in avg_distances_by_church[:5]:
+            self.info(f'{church_slug} has an average distance of {round(avg_distance / 1000)} km '
+                      f'with other churches')
