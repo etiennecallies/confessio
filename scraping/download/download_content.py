@@ -3,15 +3,13 @@ from urllib.parse import urlparse
 
 import chardet
 import httpx
-import requests
 from bs4 import BeautifulSoup
 from httpx import HTTPError
-from requests import RequestException
 
 from scraping.utils.url_utils import get_domain, are_similar_urls, replace_scheme_and_hostname
 
 TIMEOUT = 20
-MAX_SIZE = 5_000_000
+MAX_SIZE = 3_000_000
 
 
 def get_headers():
@@ -21,49 +19,36 @@ def get_headers():
     }
 
 
-def get_content_length(url):
+async def get_content_length(url):
     print(f'getting content length from url {url}')
 
     headers = get_headers()
     try:
-        r = requests.head(url, headers=headers, timeout=TIMEOUT, stream=True)
-    except RequestException as e:
+        async with httpx.AsyncClient() as client:
+            r = await client.get(url, headers=headers, timeout=TIMEOUT)
+            r.raise_for_status()
+    except httpx.HTTPError as e:
         print(e)
         return None
 
     content_length = r.headers.get('Content-Length')
     if not content_length:
-        return get_content_length_by_streaming(url)
+        total_size = 0
+        async for chunk in r.aiter_bytes(chunk_size=8192):
+            total_size += len(chunk)
+            if total_size > MAX_SIZE:
+                print("File size exceeds limit. Download aborted.")
+                return None
+
+        return total_size
 
     return int(content_length)
-
-
-def get_content_length_by_streaming(url: str) -> int | None:
-    print(f'getting content length by streaming from url {url}')
-
-    headers = get_headers()
-    try:
-        r = requests.get(url, headers=headers, timeout=TIMEOUT, stream=True)
-    except RequestException as e:
-        print(e)
-        return None
-
-    r.raw.decode_content = False
-
-    total_size = 0
-    for chunk in r.iter_content(chunk_size=8192):
-        total_size += len(chunk)
-        if total_size > MAX_SIZE:
-            print("File size exceeds limit. Download aborted.")
-            return None
-
-    return total_size
 
 
 async def get_content_from_url(url):
     # Handle heavy pdf files
     if url.endswith('.pdf'):
-        content_length = get_content_length(url)
+        content_length = await get_content_length(url)
         if content_length is None:
             print(f'could not get content length from url {url}')
             return None
