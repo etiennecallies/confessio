@@ -9,7 +9,7 @@ from httpx import HTTPError
 from scraping.utils.url_utils import get_domain, are_similar_urls, replace_scheme_and_hostname
 
 TIMEOUT = 20
-MAX_SIZE = 3_000_000
+MAX_SIZE = 1_000_000
 
 
 def get_headers():
