@@ -9,6 +9,7 @@ from scraping.parse.holidays import check_holiday_by_zone
 from scraping.parse.periods import check_easter_dates
 from scraping.services.parse_pruning_service import check_website_parsing_relations, \
     is_eligible_to_parsing
+from sourcing.services.church_location_service import find_church_geo_outliers
 
 
 class Command(AbstractCommand):
@@ -95,3 +96,7 @@ class Command(AbstractCommand):
             self.success(f'Email sent to admins')
         else:
             self.success(f'All future holidays and easter dates are implemented')
+
+        self.info('Starting checking church location are not absurd')
+        outliers_count = find_church_geo_outliers()
+        self.success(f'{outliers_count} outliers found')

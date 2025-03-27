@@ -3,7 +3,8 @@ from typing import Optional
 from django.contrib.gis.geos import Point
 from django.db.models.functions import Now
 
-from home.models import ChurchModeration, Church, ExternalSource
+from home.models import ChurchModeration, Church, ExternalSource, Diocese
+from sourcing.utils.geo_utils import get_distances_to_barycenter
 from sourcing.utils.google_maps_api_utils import google_maps_geocode
 from sourcing.utils.wikidata_utils import get_church_by_messesinfo_id
 
@@ -101,3 +102,39 @@ def get_church_with_same_location(church: Church) -> Optional[Church]:
         return Church.objects.filter(location=church.location).exclude(pk=church.pk).get()
     except Church.DoesNotExist:
         return None
+
+
+############
+# OUTLIERS #
+############
+
+def find_church_geo_outliers() -> int:
+    outliers_count = 0
+    for diocese in Diocese.objects.all():
+        print(f'Scanning diocese {diocese.name}')
+        diocese_churches = []
+        for parish in diocese.parishes.all():
+            parish_churches = []
+            for church in parish.churches.all():
+                diocese_churches.append(church)
+                parish_churches.append(church)
+
+            outliers_count += check_distances(parish_churches, 40_000)
+
+        outliers_count += check_distances(diocese_churches, 110_000)
+
+    return outliers_count
+
+
+def check_distances(churches: list[Church], max_distance: int) -> int:
+    distance_by_point = get_distances_to_barycenter([c.location for c in churches])
+    outliers_count = 0
+
+    for church in churches:
+        if distance_by_point[church.location] > max_distance:
+            add_church_moderation_if_not_exists(church,
+                                                ChurchModeration.Category.LOCATION_OUTLIER,
+                                                ExternalSource.MESSESINFO)
+            outliers_count += 1
+
+    return outliers_count

@@ -267,6 +267,7 @@ class ChurchModeration(ModerationMixin):
         ADDED_CHURCH = "added_church"
         DELETED_CHURCH = "deleted_church"
         LOCATION_CONFLICT = "location_conflict"
+        LOCATION_OUTLIER = "location_outlier"
 
     resource = 'church'
     validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
