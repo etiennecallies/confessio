@@ -19,6 +19,7 @@ class Command(AbstractCommand):
         self.timeout_reached = False
         self.start_time = time.time()
         self.nb_websites_crawled = 0
+        self.nb_websites_to_crawl = 0
 
     def add_arguments(self, parser):
         parser.add_argument('-n', '--name', help='name of website to crawl')
@@ -49,11 +50,15 @@ class Command(AbstractCommand):
                 .order_by(F('crawling').asc(nulls_first=True)).all()
 
         websites = list(websites)
+        self.nb_websites_to_crawl = len(websites)
 
         if options['parallel']:
+            self.info(f'Starting crawling {self.nb_websites_to_crawl} websites in '
+                      f'{options["parallel"]} threads')
             asyncio.run(self.handle_websites_in_parallel(websites, options['timeout'],
                                                          options['parallel']))
         else:
+            self.info(f'Starting crawling {self.nb_websites_to_crawl} websites')
             asyncio.run(self.handle_websites(websites, options['timeout']))
 
         if self.timeout_reached:
@@ -70,6 +75,9 @@ class Command(AbstractCommand):
         await asyncio.gather(*tasks)
 
     async def handle_websites(self, websites: list[Website], timeout: int):
+        nb_websites = len(websites)
+        nb_websites_crawled_on_thread = 0
+
         for website in websites:
             if timeout and time.time() - self.start_time > timeout:
                 self.timeout_reached = True
@@ -77,7 +85,10 @@ class Command(AbstractCommand):
 
             await self.handle_website(website)
 
+            nb_websites_crawled_on_thread += 1
             self.nb_websites_crawled += 1
+            self.info(f'{nb_websites_crawled_on_thread} / {nb_websites} websites crawled on thread '
+                      f'({self.nb_websites_crawled} / {self.nb_websites_to_crawl} in total)')
 
     async def handle_website(self, website: Website):
         self.info(f'Starting crawling for website {website.name} {website.uuid}')
