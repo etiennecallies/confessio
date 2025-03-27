@@ -54,7 +54,7 @@ async def get_content_from_url(url):
             return None
 
         if content_length > MAX_SIZE:
-            print(f'content length is {content_length}, too large (>5MB)')
+            print(f'content length is {content_length}, too large (>1MB)')
             return None
         else:
             print(f'content length is {content_length}')
