@@ -43,6 +43,9 @@ $( function() {
           response(optionList);
         });
       },
+      open: function() {
+        $("ul.ui-menu").width( $(this).innerWidth());
+      },
       select: function( event, ui ) {
         $("#search-input").val(ui.item.name);
         $("#latitude-input").val(ui.item.latitude);
