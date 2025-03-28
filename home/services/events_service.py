@@ -6,7 +6,7 @@ from uuid import UUID
 from home.models import Church, Parsing, Website
 from home.services.holiday_zone_service import get_website_holiday_zone
 from home.services.sources_service import get_website_sorted_parsings
-from home.utils.date_utils import get_current_year
+from home.utils.date_utils import get_current_year, time_from_minutes
 from home.utils.hash_utils import hash_string_to_hex
 from scraping.parse.explain_schedule import schedule_item_sort_key, get_explanation_from_schedule
 from scraping.parse.rrule_utils import get_events_from_schedule_item
@@ -123,6 +123,8 @@ class MergedChurchSchedulesList:
 def get_merged_church_schedules_list(website: Website,
                                      all_website_churches: list[Church],
                                      day_filter: date | None = None,
+                                     hour_min: int | None = None,
+                                     hour_max: int | None = None,
                                      max_days: int = 8
                                      ) -> MergedChurchSchedulesList | None:
     ################
@@ -146,6 +148,11 @@ def get_merged_church_schedules_list(website: Website,
         end_date = start_date
         max_days = 1
 
+    min_time = max_time = None
+    if hour_min or hour_max:
+        min_time = time_from_minutes(hour_min or 0)
+        max_time = time_from_minutes(hour_max or 24 * 60 - 1)
+
     holiday_zone = get_website_holiday_zone(website)
 
     parsings = get_website_sorted_parsings(website)
@@ -157,6 +164,12 @@ def get_merged_church_schedules_list(website: Website,
             continue
 
         for schedule in schedules_list.schedules:
+            if min_time or max_time:
+                start_time = schedule.get_start_time() or min_time
+                end_time = schedule.get_end_time() or max_time
+                if start_time > max_time or end_time < min_time:
+                    continue
+
             events = get_events_from_schedule_item(schedule, start_date,
                                                    current_year, holiday_zone,
                                                    end_date, max_days=max_days)
@@ -176,7 +189,7 @@ def get_merged_church_schedules_list(website: Website,
         if schedules_list.will_be_seasonal_events:
             will_be_seasonal_events_parsings.append(parsing)
 
-    if day_filter:
+    if day_filter or hour_min or hour_max:
         if not all_church_schedule_items:
             # If we are filtering on a specific day and no events are found, we return None
             return None
@@ -256,10 +269,12 @@ def get_merged_church_schedules_list(website: Website,
 
 def get_merged_church_schedules_list_for_website(website: Website,
                                                  website_churches: list[Church],
-                                                 day_filter: date | None = None
+                                                 day_filter: date | None,
+                                                 hour_min: int | None,
+                                                 hour_max: int | None,
                                                  ) -> MergedChurchSchedulesList | None:
     if website.unreliability_reason:
-        if day_filter:
+        if day_filter or hour_min or hour_max:
             return None
 
         church_sorted_schedules = [
@@ -288,17 +303,20 @@ def get_merged_church_schedules_list_for_website(website: Website,
             has_different_churches=False,
         )
 
-    return get_merged_church_schedules_list(website, website_churches, day_filter)
+    return get_merged_church_schedules_list(website, website_churches, day_filter,
+                                            hour_min, hour_max)
 
 
 def get_website_merged_church_schedules_list(websites: list[Website],
                                              website_churches: dict[UUID, list[Church]],
-                                             day_filter: date | None = None
+                                             day_filter: date | None,
+                                             hour_min: int | None,
+                                             hour_max: int | None,
                                              ) -> dict[UUID, MergedChurchSchedulesList]:
     website_merged_church_schedules_list = {}
     for website in websites:
         merged_church_schedules_list = get_merged_church_schedules_list_for_website(
-            website, website_churches[website.uuid], day_filter)
+            website, website_churches[website.uuid], day_filter, hour_min, hour_max)
         if merged_church_schedules_list:
             website_merged_church_schedules_list[website.uuid] = merged_church_schedules_list
 

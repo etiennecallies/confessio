@@ -91,7 +91,7 @@ class ScheduleItem(BaseModel, frozen=True):
 
     def get_start_time(self) -> time | None:
         if self.start_time_iso8601 is None or self.start_time_iso8601 in ('', 'null'):
-            return
+            return None
 
         return time.fromisoformat(self.start_time_iso8601)
 

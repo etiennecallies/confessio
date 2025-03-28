@@ -63,6 +63,49 @@ $( function() {
 });
 
 /*
+ * noUISlider for hour range.
+ */
+$(function () {
+  let $hourSliderRange = document.getElementById('hour-slider-range');
+  let startHourMin = $("#hour-min").val() || 0;
+  let startHourMax = $("#hour-max").val() || 24 * 60 - 1;
+  noUiSlider.create($hourSliderRange, {
+    start: [startHourMin, startHourMax],
+    connect: true,
+    range: {
+      'min': 0,
+      'max': 24 * 60 - 1
+    },
+    step: 5,
+  });
+  $hourSliderRange.noUiSlider.on('update', function( event ) {
+    formatHourRange(Math.round(event[ 0 ]), Math.round(event[ 1 ]));
+  });
+  $hourSliderRange.noUiSlider.on('change', function( event ) {
+    $("#hour-min").val(Math.round(event[ 0 ]));
+    $("#hour-max").val(Math.round(event[ 1 ]));
+    $("#hour-filter-form").submit();
+  });
+});
+
+function formatHourRange(hourMin, hourMax) {
+    $("#hour-label").text("De " + displayHourFromMinutes(hourMin) + " à "
+        + displayHourFromMinutes(hourMax));
+}
+
+function displayHourFromMinutes(minutes) {
+    let hours = Math.floor(minutes / 60);
+    let minutesLeft = minutes % 60;
+    return hours + "h" + (minutesLeft > 0 ? (minutesLeft < 10 ? '0' + minutesLeft : minutesLeft) : '');
+}
+
+function toggleDisplayFilters(element) {
+  $(element).toggleClass('active');
+  let $filtersContainers = $('#filters-container');
+  $filtersContainers.toggleClass('d-none');
+}
+
+/*
  * Watch map movement.
  *
  * Requires JQuery (to wait for the iframe to be loaded).

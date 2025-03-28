@@ -24,6 +24,7 @@ from sourcing.utils.string_utils import lower_first, city_and_prefix
 def render_map(request, center, churches, h1_title: str, meta_title: str, display_sub_title: bool,
                bounds, location, too_many_results: bool,
                is_around_me: bool, day_filter: date | None,
+               hour_min: int | None, hour_max: int | None,
                page_website: Website | None, success_message: str | None):
     # We get all websites and their churches
     websites_by_uuid = {}
@@ -35,9 +36,9 @@ def render_map(request, center, churches, h1_title: str, meta_title: str, displa
 
     # We compute the merged schedules list for each website
     website_merged_church_schedules_list = get_website_merged_church_schedules_list(
-        websites, website_churches, day_filter)
+        websites, website_churches, day_filter, hour_min, hour_max)
 
-    if day_filter:
+    if day_filter or hour_min or hour_max:
         # Filter on websites that have actual schedules
         websites = [w for w in websites if w.uuid in website_merged_church_schedules_list]
 
@@ -69,7 +70,7 @@ def render_map(request, center, churches, h1_title: str, meta_title: str, displa
 
     hidden_inputs = {}
     for key in request.GET:
-        if key not in ['dateFilter']:
+        if key not in ['dateFilter', 'hourMin', 'hourMax']:
             hidden_inputs[key] = request.GET[key]
 
     if request.resolver_match.url_name != 'index':
@@ -90,6 +91,8 @@ def render_map(request, center, churches, h1_title: str, meta_title: str, displa
         'current_year': str(get_current_year()),
         'filter_days': get_filter_days(day_filter),
         'date_filter_value': day_filter.isoformat() if day_filter else '',
+        'hour_min': hour_min or '',
+        'hour_max': hour_max or '',
         'action_path': request.path,
         'hidden_inputs': hidden_inputs,
         'is_website_page': page_website is not None,
@@ -102,6 +105,17 @@ def extract_float(key: str, request) -> float | None:
     value = request.GET.get(key, '')
     try:
         return float(value)
+    except ValueError:
+        return None
+
+
+def extract_int(key: str, request, default: int) -> int | None:
+    value = request.GET.get(key, '')
+    try:
+        val = int(value)
+        if val == default:
+            return None
+        return val
     except ValueError:
         return None
 
@@ -127,6 +141,8 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
     max_lat = extract_float('maxLat', request)
     max_lng = extract_float('maxLng', request)
     day_filter = extract_day_filter(request)
+    hour_min = extract_int('hourMin', request, 0)
+    hour_max = extract_int('hourMax', request, 24 * 60 - 1)
 
     website = None
     success_message = None
@@ -197,8 +213,8 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
         display_sub_title = True
 
     return render_map(request, center, churches, h1_title, meta_title, display_sub_title, bounds,
-                      location, too_many_results, is_around_me, day_filter, website,
-                      success_message)
+                      location, too_many_results, is_around_me, day_filter, hour_min, hour_max,
+                      website, success_message)
 
 
 def website_sources(request, website_uuid: str):

@@ -17,7 +17,7 @@
             </div>
         </div>
         <div class="row text-white mb-3">
-            <div class="col-xl-10 col-md-9">
+            <div class="col-xl-9 col-md-8">
                 <form id="search-form">
                     <div class="form-group">
                         <div class="input-group">
@@ -34,23 +34,51 @@
                     <input type="hidden" id="latitude-input" name="latitude">
                     <input type="hidden" id="longitude-input" name="longitude">
                     <input type="hidden" name="dateFilter" value="{{ date_filter_value }}">
+                    {% if hour_min %}<input type="hidden" name="hourMin" value="{{ hour_min }}">{% endif %}
+                    {% if hour_max %}<input type="hidden" name="hourMax" value="{{ hour_max }}">{% endif %}
                     <button type="submit" class="d-none" disabled></button>
                 </form>
             </div>
-            <div class="col-xl-2 col-md-3 col-6 mx-auto mt-3 mt-md-0">
-                <form id="date-filter-form" action="{{ action_path }}">
-                    {% for name, value in hidden_inputs.items %}
-                        <input type="hidden" name="{{ name }}" value="{{ value }}">
-                    {% endfor %}
-                    <select class="form-select w-100" name="dateFilter" onchange="this.form.submit()">
-                        <option value="any"{% if filter_days|get_item:'any_day'|get_item:'is_selected' %} selected{% endif %}>Tous les jours</option>
-                        <option value="{{ filter_days|get_item:'current_day'|get_item:'date'|date:"Y-m-d" }}"{% if filter_days|get_item:'current_day'|get_item:'is_selected' %} selected{% endif %}>Aujourd'hui</option>
-                        <option value="{{ filter_days|get_item:'tomorrow'|get_item:'date'|date:"Y-m-d" }}"{% if filter_days|get_item:'tomorrow'|get_item:'is_selected' %} selected{% endif %}>Demain</option>
-                        {% for day_dict in filter_days|get_item:'next_days' %}
-                            <option value="{{ day_dict|get_item:'date'|date:"Y-m-d" }}"{% if day_dict|get_item:'is_selected' %} selected{% endif %}>{{ day_dict|get_item:'date'|date:"l"|capfirst }}</option>
-                        {% endfor %}
-                    </select>
-                </form>
+            <div class="col-xl-3 col-md-4 col-8 mx-auto mt-3 mt-md-0">
+                <div class="row align-items-center">
+                    <div class="col-9">
+                        <form id="date-filter-form" action="{{ action_path }}">
+                            {% for name, value in hidden_inputs.items %}
+                                <input type="hidden" name="{{ name }}" value="{{ value }}">
+                            {% endfor %}
+                            {% if hour_min %}<input type="hidden" name="hourMin" value="{{ hour_min }}">{% endif %}
+                            {% if hour_max %}<input type="hidden" name="hourMax" value="{{ hour_max }}">{% endif %}
+                            <select class="form-select w-100" name="dateFilter" onchange="this.form.submit()">
+                                <option value="any"{% if filter_days|get_item:'any_day'|get_item:'is_selected' %} selected{% endif %}>Tous les jours</option>
+                                <option value="{{ filter_days|get_item:'current_day'|get_item:'date'|date:"Y-m-d" }}"{% if filter_days|get_item:'current_day'|get_item:'is_selected' %} selected{% endif %}>Aujourd'hui</option>
+                                <option value="{{ filter_days|get_item:'tomorrow'|get_item:'date'|date:"Y-m-d" }}"{% if filter_days|get_item:'tomorrow'|get_item:'is_selected' %} selected{% endif %}>Demain</option>
+                                {% for day_dict in filter_days|get_item:'next_days' %}
+                                    <option value="{{ day_dict|get_item:'date'|date:"Y-m-d" }}"{% if day_dict|get_item:'is_selected' %} selected{% endif %}>{{ day_dict|get_item:'date'|date:"l"|capfirst }}</option>
+                                {% endfor %}
+                            </select>
+                        </form>
+                    </div>
+                    <div class="col-3">
+                        <span class="btn btn-gray-300 {% if hour_min or hour_max %}active{% endif %} clickable" onclick="toggleDisplayFilters(this);"><i class="fas fa-sliders"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row text-center text-white mt-3 mb-4 mt-md-4 mb-md-5 {% if not hour_min and not hour_max %}d-none{% endif %}" id="filters-container">
+            <form id="hour-filter-form" action="{{ action_path }}">
+                {% for name, value in hidden_inputs.items %}
+                    <input type="hidden" name="{{ name }}" value="{{ value }}">
+                {% endfor %}
+                <input type="hidden" name="dateFilter" value="{{ date_filter_value }}">
+                <input type="hidden" id="hour-min" name="hourMin" value="{{ hour_min }}">
+                <input type="hidden" id="hour-max" name="hourMax" value="{{ hour_max }}">
+            </form>
+            <div class="col-1"></div>
+            <div class="col-10">
+                <div class="mb-1">
+                    <span id="hour-label"></span>
+                </div>
+                <div id="hour-slider-range"></div>
             </div>
         </div>
         {% if too_many_results %}
@@ -67,9 +95,9 @@
                 <span class="alert-inner--icon"><i class="fas fa-face-grin-beam-sweat"></i></span>
                 <span class="alert-inner--text">
                     <strong>{% trans 'noResultsStrong' %}</strong>
-                    {% if date_filter_value %}
+                    {% if date_filter_value or hour_min or hour_max %}
                         {% trans 'noResultsWithDate' %}
-                        {% else %}
+                    {% else %}
                         Confessio est en lancement et n'opère que dans les diocèses de Paris, Lyon et d'<a href="{% url 'dioceses_list' %}">autres diocèses</a> pour des raisons financières.
                         <a href="{% trans 'donateUrl' %}"><strong>{% trans 'navDonate' %}</strong></a>
                     {% endif %}
@@ -86,6 +114,8 @@
                         <input type="hidden" id="position-latitude-input" name="latitude">
                         <input type="hidden" id="position-longitude-input" name="longitude">
                         <input type="hidden" name="dateFilter" value="{{ date_filter_value }}">
+                        {% if hour_min %}<input type="hidden" name="hourMin" value="{{ hour_min }}">{% endif %}
+                        {% if hour_max %}<input type="hidden" name="hourMax" value="{{ hour_max }}">{% endif %}
                         <button type="submit" class="btn btn-sm btn-tertiary" id="search-around-me-btn">
                             <span class="far fa-dot-circle"></span> {% trans 'searchAroundMe' %}
                         </button>
@@ -100,6 +130,8 @@
                         <input type="hidden" id="max-lat-input" name="maxLat">
                         <input type="hidden" id="max-lng-input" name="maxLng">
                         <input type="hidden" name="dateFilter" value="{{ date_filter_value }}">
+                        {% if hour_min %}<input type="hidden" name="hourMin" value="{{ hour_min }}">{% endif %}
+                        {% if hour_max %}<input type="hidden" name="hourMax" value="{{ hour_max }}">{% endif %}
                         <button type="submit" class="btn btn-sm btn-tertiary" id="search-in-this-area-btn">
                             <span class="fas fa-map-marked-alt"></span> {% trans 'searchInThisArea' %}
                         </button>

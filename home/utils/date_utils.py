@@ -1,5 +1,5 @@
 import locale
-from datetime import datetime, date
+from datetime import datetime, date, time
 
 from django.utils.timezone import make_aware
 
@@ -18,6 +18,11 @@ def ts_us_to_datetime(timestamp_us):
 
 def date_to_datetime(d: date) -> datetime:
     return datetime(d.year, d.month, d.day)
+
+
+def time_from_minutes(minutes: int) -> time:
+    hours, minutes = divmod(minutes, 60)
+    return time(hour=hours, minute=minutes)
 
 
 #################

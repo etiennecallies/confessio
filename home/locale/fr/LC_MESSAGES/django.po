@@ -168,7 +168,7 @@ msgid "noResultsStrong"
 msgstr "Pas de résultats..."
 
 msgid "noResultsWithDate"
-msgstr "Essayez sans filtre de date."
+msgstr "Essayez sans filtre de date et heure."
 
 #: templates/pages/index.html:64
 msgid "searchAroundMe"
