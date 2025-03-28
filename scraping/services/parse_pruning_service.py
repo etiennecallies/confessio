@@ -1,6 +1,7 @@
 import re
 from datetime import timedelta
 from typing import Optional
+from uuid import UUID
 
 from django.db.models import Q
 from django.db.models.functions import Now
@@ -277,7 +278,7 @@ def clean_parsing_moderations() -> int:
 # WEBSITE <-> PARSING relations #
 #################################
 
-def check_website_parsing_relations(website: Website) -> bool:
+def check_website_parsing_relations(website: Website) -> tuple[bool, set[UUID], set[UUID]]:
     direct_parsings = {p.uuid for p in Parsing.objects.filter(website=website).all()}
     indirect_parsings = {
         parsing.uuid
@@ -286,7 +287,7 @@ def check_website_parsing_relations(website: Website) -> bool:
             for pruning in Pruning.objects.filter(scrapings__page__website=website).all()
         ] if parsing
     }
-    return direct_parsings == indirect_parsings
+    return direct_parsings == indirect_parsings, direct_parsings, indirect_parsings
 
 
 ###########################

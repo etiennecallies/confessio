@@ -37,8 +37,13 @@ class Command(AbstractCommand):
             if not website.all_pages_parsed() and not website.unreliability_reason:
                 website_not_parsed.append(website)
 
-            if is_eligible_to_parsing(website) and not check_website_parsing_relations(website):
-                website_badly_linked_to_parsing.append(website)
+            if is_eligible_to_parsing(website):
+                is_ok, direct_parsings, indirect_parsings = check_website_parsing_relations(website)
+                if not is_ok:
+                    website_badly_linked_to_parsing.append(website)
+                    self.error(f'Website {website.name} {website.uuid} has bad parsing links')
+                    self.error(f' - direct parsings: {direct_parsings}')
+                    self.error(f' - indirect parsings: {indirect_parsings}')
 
         if website_not_crawled or website_not_crawled_recently or website_not_parsed \
                 or website_badly_linked_to_parsing:
