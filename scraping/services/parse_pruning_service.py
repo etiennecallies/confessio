@@ -303,6 +303,8 @@ def unlink_website_from_parsings_except_church_desc_by_id(website: Website,
         .exclude(church_desc_by_id=church_desc_by_id).all()
 
     for parsing in parsings:
+        print(f'parsing {parsing.uuid} has no more church_desc_by_id, unlinking website '
+              f'{website.uuid}')
         unlink_website_from_parsing(parsing)
 
 
@@ -314,15 +316,16 @@ def unlink_website_from_parsing(parsing: Parsing):
     ParsingModeration.objects.filter(parsing=parsing, validated_at__isnull=True).delete()
 
 
-def unlink_pruning_from_parsings_except_truncated_html(pruning: Pruning,
-                                                       truncated_html: str):
+def unlink_pruning_from_parsings_except_truncated_html_hash(pruning: Pruning,
+                                                            truncated_html_hash: str):
     """
     Handle change of truncated_html for a pruning
     """
     parsings = Parsing.objects.filter(prunings=pruning)\
-        .exclude(truncated_html=truncated_html).all()
+        .exclude(truncated_html_hash=truncated_html_hash).all()
 
     for parsing in parsings:
+        print(f'parsing {parsing.uuid} has no more truncated html, removing pruning {pruning.uuid}')
         parsing.prunings.remove(pruning)
         if not parsing.prunings.exists():
             unlink_website_from_parsing(parsing)
@@ -350,16 +353,15 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
         return
 
     truncated_html = get_truncated_html(pruning)
-    unlink_pruning_from_parsings_except_truncated_html(pruning, truncated_html)
+    truncated_html_hash = hash_string_to_hex(truncated_html) if truncated_html else None
+    unlink_pruning_from_parsings_except_truncated_html_hash(pruning, truncated_html_hash)
+
+    church_desc_by_id = website.get_church_desc_by_id()
+    unlink_website_from_parsings_except_church_desc_by_id(website, church_desc_by_id)
 
     if not truncated_html:
         print(f'No truncated html for pruning {pruning}')
         return
-
-    truncated_html_hash = hash_string_to_hex(truncated_html)
-
-    church_desc_by_id = website.get_church_desc_by_id()
-    unlink_website_from_parsings_except_church_desc_by_id(website, church_desc_by_id)
 
     llm_client = get_llm_client()
     prompt_template = get_prompt_template()
