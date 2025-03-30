@@ -1,7 +1,6 @@
 from typing import Optional
 from urllib.parse import urlparse
 
-import chardet
 import httpx
 from bs4 import BeautifulSoup
 from httpx import HTTPError
@@ -73,10 +72,6 @@ async def get_content_from_url(url):
         print(f'got status code {r.status_code}')
 
         return None
-
-    # https://stackoverflow.com/a/52615216
-    detected_encoding = chardet.detect(r.content)['encoding']
-    r.encoding = detected_encoding if detected_encoding else r.encoding
 
     return r.text
 
