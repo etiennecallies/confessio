@@ -20,7 +20,7 @@
                         </a>
                     {% endif %}
                     <div class="small">
-                        <span class="text-muted">{{ church.address }} {{ church.zipcode }} {{ church.city }}</span>
+                        <span class="text-muted">{% if church.address %}{{ church.address }} {% endif %}{{ church.zipcode }} {{ church.city }}</span>
                         <span class="text-muted copy-to-clipboard clickable"><i class="far fa-copy"></i></span>
                     </div>
                 </div>
