@@ -21,7 +21,7 @@
 
     Website: {{ report.website.name }}<br>
     Comment: {{ report.comment }}<br>
-    Link: <a href="{% url 'report' report.website.uuid %}" target="_blank">Go to report</a>
+    Link: <a href="{% url 'website_view' report.website.uuid %}" target="_blank">Go to report</a>
 
     {% if not report_moderation.marked_as_bug_at %}
         <div>
