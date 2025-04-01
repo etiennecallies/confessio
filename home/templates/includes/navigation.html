@@ -32,8 +32,6 @@
                     <li class="nav-item">
                         {% if request.user.is_authenticated %}
                             <a href="{% url 'logout' %}" class="nav-link">{% trans 'navLogout' %}</a>
-                        {% else %}
-                            <a href="{% url 'login' %}" class="nav-link">{% trans 'navLogin' %}</a>
                         {% endif %}
                     </li>
                     {% if request.user.is_authenticated and perms.home.change_sentence %}

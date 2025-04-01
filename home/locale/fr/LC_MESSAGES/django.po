@@ -63,10 +63,6 @@ msgid "navLogout"
 msgstr "Se déconnecter"
 
 #: templates/includes/navigation.html:33
-msgid "navLogin"
-msgstr "Admin"
-
-#: templates/includes/navigation.html:33
 msgid "navDonate"
 msgstr "Nous soutenir 💙"
 

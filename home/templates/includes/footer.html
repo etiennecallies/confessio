@@ -4,16 +4,21 @@
 <footer class="footer pt-5 pb-5 bg-secondary text-white">
   <div class="container">
       <div class="row">
-          <div class="col-md-12">
-              <div class="d-flex text-center justify-content-center align-items-center" role="contentinfo">
-                  <p>{% trans 'footerAboutUs' %} <a href="{% url 'contact' %}">{% trans 'contactUs' %}</a></p>
-              </div>
+          <div class="col-md-12 text-center">
+              <div>{% trans 'footerAboutUs' %}</div>
+              <div> <a href="{% url 'contact' %}">{% trans 'contactUs' %}</a></div>
           </div>
       </div>
-      <div class="row">
+      <div class="row mt-3">
+          <div class="col-md-12 text-center">
+              <div><a href="{% url 'dioceses_list' %}">{% trans 'footerDiocesesList' %}</a>.</div>
+              <div><a href="{% trans 'donateUrl' %}">Nous soutenir</a> afin d'étendre Confessio sur d'autres diocèses.</div>
+          </div>
+      </div>
+      <div class="row mt-3">
           <div class="col-md-12">
               <div class="d-flex text-center justify-content-center align-items-center" role="contentinfo">
-                  <p><a href="{% url 'dioceses_list' %}">{% trans 'footerDiocesesList' %}</a>. <a href="{% trans 'donateUrl' %}">Nous soutenir</a> afin d'étendre Confessio sur d'autres diocèses.</p>
+                  <p><a href="{% url 'login' %}">Espace administrateur</a></p>
               </div>
           </div>
       </div>
