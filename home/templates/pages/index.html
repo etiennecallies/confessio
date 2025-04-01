@@ -227,7 +227,7 @@
                                 </strong><small> - </small>
                                 {% for report in reports %}
                                     <small>le {{ report.created_at|date:"d M Y" }}</small>
-                                    <div>{{ report.comment }}</div>
+                                    <div>{{ report.comment|linebreaksbr }}</div>
                                     <hr class="hr" />
                                 {% endfor %}
                                 <form method="POST">
