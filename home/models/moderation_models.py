@@ -459,6 +459,7 @@ class ReportModeration(ModerationMixin):
         GOOD = "good"
         OUTDATED = "outdated"
         ERROR = "error"
+        COMMENT = "comment"
 
     resource = 'report'
     validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',

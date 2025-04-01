@@ -21,6 +21,14 @@ def new_report(request, website: Website) -> str:
     feedback_type_str = request.POST.get('feedback_type')
     error_type_str = request.POST.get('error_type')
     comment = request.POST.get('comment')
+    main_report_uuid = request.POST.get('main_report_uuid')
+
+    main_report = None
+    if main_report_uuid is not None:
+        try:
+            main_report = Report.objects.get(uuid=main_report_uuid)
+        except Report.DoesNotExist:
+            raise NewReportError(HttpResponseBadRequest('Main report does not exist'))
 
     if not feedback_type_str:
         raise NewReportError(HttpResponseBadRequest('Feedback type is None'))
@@ -50,6 +58,7 @@ def new_report(request, website: Website) -> str:
         user_agent=user_agent,
         ip_address_hash=ip_address_hash,
         user=user,
+        main_report=main_report,
     )
     report.save()
     add_necessary_moderation_for_report(report)
@@ -77,6 +86,8 @@ def get_report_moderation_category(report: Report) -> ReportModeration.Category:
         return ReportModeration.Category.OUTDATED
     elif report.feedback_type == Report.FeedbackType.ERROR:
         return ReportModeration.Category.ERROR
+    elif report.feedback_type == Report.FeedbackType.COMMENT:
+        return ReportModeration.Category.COMMENT
 
     raise NotImplementedError
 
@@ -92,8 +103,19 @@ def add_necessary_moderation_for_report(report: Report):
 # PREVIOUS REPORTS #
 ####################
 
-def get_previous_reports(website: Website) -> list[Report]:
-    return list(Report.objects.filter(website=website).order_by('-created_at').all())
+def get_previous_reports(website: Website) -> list[list[Report]]:
+    all_reports = list(Report.objects.filter(website=website).order_by('created_at').all())
+
+    main_reports = []
+    reports_by_main_report = {}
+    for report in all_reports:
+        if report.main_report:
+            reports_by_main_report[report.main_report.uuid].append(report)
+        else:
+            main_reports.append(report)
+            reports_by_main_report[report.uuid] = [report]
+
+    return [reports_by_main_report[main_report.uuid] for main_report in reversed(main_reports)]
 
 
 ##################

@@ -211,23 +211,42 @@
                     <h4 class="text-white mt-5" id="previous-reports">Retours précédents</h4>
                 </div>
 
-                {% for report in previous_reports %}
-                    {% if report.comment %}
+                {% for reports in previous_reports %}
+                    {% with main_report=reports|get_ith:0 %}
+                    {% if main_report.comment %}
                         <div class="card border-0 mt-4">
                             <div class="card-body">
                                 <strong>
-                                    {% if report.feedback_type == 'error' %}
+                                    {% if main_report.feedback_type == 'error' %}
                                         {% trans 'report_feedback_error' %}
-                                    {% elif report.feedback_type == 'good' %}
+                                    {% elif main_report.feedback_type == 'good' %}
                                         {% trans 'report_feedback_good' %}
-                                    {% elif report.feedback_type == 'outdated' %}
+                                    {% elif main_report.feedback_type == 'outdated' %}
                                         {% trans 'report_feedback_outdated' %}
                                     {% endif %}
-                                </strong><small> - le {{ report.created_at|date:"d M Y" }}</small>
-                                <div>{{ report.comment }}</div>
+                                </strong><small> - </small>
+                                {% for report in reports %}
+                                    <small>le {{ report.created_at|date:"d M Y" }}</small>
+                                    <div>{{ report.comment }}</div>
+                                    <hr class="hr" />
+                                {% endfor %}
+                                <form method="POST">
+                                    <input type="hidden" name="main_report_uuid" value="{{ main_report.uuid }}">
+                                    <input type="hidden" name="feedback_type" value="comment">
+                                    {% csrf_token %}
+                                    <div class="row">
+                                        <div class="col-12 col-md-10">
+                                            <textarea placeholder="Commentaire" name='comment' class="form-control" rows="1" required></textarea>
+                                        </div>
+                                        <div class="col-12 mt-2 mt-md-0 col-md-2 text-right">
+                                            <button type="submit" class="btn rounded btn-secondary">Répondre</button>
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     {% endif %}
+                    {% endwith %}
                 {% endfor %}
             {% else %}
                 <div class="text-white mt-5 text-center">
