@@ -1,13 +1,12 @@
 import re
 from datetime import timedelta
 from typing import Optional
-from uuid import UUID
 
 from django.db.models import Q
 from django.db.models.functions import Now
 from django.utils import timezone
 
-from home.models import Pruning, Website, Parsing, ParsingModeration, Church
+from home.models import Pruning, Website, Parsing, ParsingModeration, Church, Page
 from home.utils.hash_utils import hash_string_to_hex
 from scraping.parse.parse_with_llm import parse_with_llm, get_prompt_template, get_llm_client
 from scraping.parse.schedules import SchedulesList
@@ -278,7 +277,7 @@ def clean_parsing_moderations() -> int:
 # WEBSITE <-> PARSING relations #
 #################################
 
-def check_website_parsing_relations(website: Website) -> tuple[bool, set[UUID], set[UUID]]:
+def check_website_parsing_relations(website: Website) -> bool:
     direct_parsings = {p.uuid for p in Parsing.objects.filter(website=website).all()}
     indirect_parsings = {
         parsing.uuid
@@ -287,7 +286,42 @@ def check_website_parsing_relations(website: Website) -> tuple[bool, set[UUID], 
             for pruning in Pruning.objects.filter(scrapings__page__website=website).all()
         ] if parsing
     }
-    return direct_parsings == indirect_parsings, direct_parsings, indirect_parsings
+    return direct_parsings == indirect_parsings
+
+
+def debug_website_parsing_relations(website: Website):
+    print(f'Website {website.name} {website.uuid} parsing relations:')
+    print()
+    print('Direct parsings:')
+    for parsing in Parsing.objects.filter(website=website).all():
+        print(f' - Parsing {parsing.uuid}')
+        for pruning in parsing.prunings.all():
+            print(f'  - Pruning {pruning.uuid}')
+            for scraping in pruning.scrapings.all():
+                print(f'   - Scraping {scraping.uuid}')
+                page = scraping.page
+                print(f'    - Page {page.uuid} {page.url}')
+                website = page.website
+                print(f'     - Website {website.name} {website.uuid}')
+
+    print('Indirect parsings:')
+    for page in Page.objects.filter(website=website).all():
+        print(f' - Page {page.uuid} {page.url}')
+        scraping = page.scraping
+        print(f'  - Scraping {scraping.uuid}')
+        for pruning in scraping.prunings.all():
+            print(f'   - Pruning {pruning.uuid}')
+            parsing = pruning.get_parsing(website)
+            if parsing:
+                print(f'    - Parsing {parsing.uuid}')
+                website = parsing.website
+                if website:
+                    print(f'     - Website {website.name} {website.uuid}')
+                else:
+                    print(f'     - No website for parsing {parsing.uuid}')
+            else:
+                print(f'    - No parsing for pruning {pruning.uuid}')
+    print()
 
 
 ###########################

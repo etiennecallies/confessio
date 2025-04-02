@@ -8,7 +8,7 @@ from home.models import Website
 from scraping.parse.holidays import check_holiday_by_zone
 from scraping.parse.periods import check_easter_dates
 from scraping.services.parse_pruning_service import check_website_parsing_relations, \
-    is_eligible_to_parsing
+    is_eligible_to_parsing, debug_website_parsing_relations
 from sourcing.services.church_location_service import find_church_geo_outliers
 
 
@@ -38,12 +38,10 @@ class Command(AbstractCommand):
                 website_not_parsed.append(website)
 
             if is_eligible_to_parsing(website):
-                is_ok, direct_parsings, indirect_parsings = check_website_parsing_relations(website)
-                if not is_ok:
+                if not check_website_parsing_relations(website):
                     website_badly_linked_to_parsing.append(website)
                     self.error(f'Website {website.name} {website.uuid} has bad parsing links')
-                    self.error(f' - direct parsings: {direct_parsings}')
-                    self.error(f' - indirect parsings: {indirect_parsings}')
+                    debug_website_parsing_relations(website)
 
         if website_not_crawled or website_not_crawled_recently or website_not_parsed \
                 or website_badly_linked_to_parsing:
