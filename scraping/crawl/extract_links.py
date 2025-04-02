@@ -33,6 +33,7 @@ CONFESSIONS_OR_SCHEDULES_MENTIONS = [
     'spirituelle',
     'info',
     'infos',
+    'informations',
     'vivre',
     'demarche',
     'demarches',
