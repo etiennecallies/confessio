@@ -133,7 +133,7 @@ class Church(TimeStampMixin):
 
 
 class Page(TimeStampMixin):
-    url = models.URLField()
+    url = models.URLField(max_length=300)
     website = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='pages')
     scraping = models.OneToOneField('Scraping', on_delete=models.SET_NULL, related_name='page',
                                     null=True)

@@ -160,6 +160,10 @@ async def get_links(element: el, home_url: str, aliases_domains: set[str],
         full_url = get_clean_full_url(full_url)  # we use standardized url to ensure unicity
         url_parsed = urlparse(full_url)
 
+        if len(full_url) > 300:
+            # We ignore links that are too long
+            continue
+
         # If the link contains parameters we remove the non-useful ones
         if url_parsed.query:
             full_url = clean_url_query(url_parsed)
