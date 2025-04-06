@@ -301,8 +301,7 @@ def debug_website_parsing_relations(website: Website):
                 print(f'   - Scraping {scraping.uuid}')
                 page = scraping.page
                 print(f'    - Page {page.uuid} {page.url}')
-                website = page.website
-                print(f'     - Website {website.name} {website.uuid}')
+                print(f'     - Website {page.website.name} {page.website.uuid}')
 
     print('Indirect parsings:')
     for page in Page.objects.filter(website=website).all():
@@ -314,9 +313,8 @@ def debug_website_parsing_relations(website: Website):
             parsing = pruning.get_parsing(website)
             if parsing:
                 print(f'    - Parsing {parsing.uuid}')
-                website = parsing.website
-                if website:
-                    print(f'     - Website {website.name} {website.uuid}')
+                if parsing.website:
+                    print(f'     - Website {parsing.website.name} {parsing.website.uuid}')
                 else:
                     print(f'     - No website for parsing {parsing.uuid}')
             else:
