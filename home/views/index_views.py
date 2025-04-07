@@ -63,6 +63,11 @@ def render_map(request, center, churches, h1_title: str, meta_title: str, displa
         '<div class="map-container">'
     )
 
+    # Hack 4: add border radius to map
+    text_to_find = ('style="position:absolute;width:100%;height:100%;left:0;top:0;'
+                    'border:none !important;')
+    map_html = map_html.replace(text_to_find, text_to_find + 'border-radius:1em;')
+
     # Count reports for each website
     website_reports_count = {}
     for website in websites:
