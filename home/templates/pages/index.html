@@ -226,6 +226,9 @@
                                     {% endif %}
                                 </strong><small> - </small>
                                 {% for report in reports %}
+                                    {% if report.user %}
+                                    <span class="fw-bold text-success">{{ report.user }} <i class="fas fa-user-check"></i></span>
+                                    {% endif %}
                                     <small>le {{ report.created_at|date:"d M Y" }}</small>
                                     <div>{{ report.comment|linebreaksbr }}</div>
                                     <hr class="hr" />

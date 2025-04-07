@@ -61,20 +61,22 @@ def new_report(request, website: Website) -> str:
         main_report=main_report,
     )
     report.save()
-    add_necessary_moderation_for_report(report)
 
-    email_body = (f"New report on website {website.name}\n"
-                  f"feedback_type: {feedback_type}\n"
-                  f"error_type: {error_type}\n\ncomment:\n{comment}")
-    subject = f'New report on confessio for {website.name}'
-    try:
-        send_mail(subject,
-                  email_body,
-                  None,  # Default to DEFAULT_FROM_EMAIL
-                  [os.environ.get('ADMIN_EMAIL')])
-    except BadHeaderError as e:
-        print('Error sending email:')
-        print(e)
+    if not user:
+        add_necessary_moderation_for_report(report)
+
+        email_body = (f"New report on website {website.name}\n"
+                      f"feedback_type: {feedback_type}\n"
+                      f"error_type: {error_type}\n\ncomment:\n{comment}")
+        subject = f'New report on confessio for {website.name}'
+        try:
+            send_mail(subject,
+                      email_body,
+                      None,  # Default to DEFAULT_FROM_EMAIL
+                      [os.environ.get('ADMIN_EMAIL')])
+        except BadHeaderError as e:
+            print('Error sending email:')
+            print(e)
 
     return 'Merci pour votre retour !'
 
