@@ -107,8 +107,8 @@ class Website(TimeStampMixin):
 
 class Parish(TimeStampMixin):
     name = models.CharField(max_length=100)
-    messesinfo_network_id = models.CharField(max_length=100, null=True)
-    messesinfo_community_id = models.CharField(max_length=100, null=True, unique=True)
+    messesinfo_network_id = models.CharField(max_length=100, null=True, blank=True)
+    messesinfo_community_id = models.CharField(max_length=100, null=True, unique=True, blank=True)
     website = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='parishes',
                                 null=True, blank=True)
     diocese = models.ForeignKey('Diocese', on_delete=models.CASCADE, related_name='parishes')
