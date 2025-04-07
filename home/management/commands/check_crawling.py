@@ -4,7 +4,7 @@ from django.core.mail import mail_admins
 from django.utils import timezone
 
 from home.management.abstract_command import AbstractCommand
-from home.models import Website
+from home.models import Website, Crawling
 from scraping.parse.holidays import check_holiday_by_zone
 from scraping.parse.periods import check_easter_dates
 from scraping.services.parse_pruning_service import check_website_parsing_relations, \
@@ -25,12 +25,17 @@ class Command(AbstractCommand):
         website_not_parsed = []
         website_badly_linked_to_parsing = []
         for website in active_websites:
-            if website.crawling is None:
+            try:
+                crawling = website.crawling
+            except Crawling.DoesNotExist:
+                crawling = None
+
+            if crawling is None:
                 website_not_crawled.append(website)
                 continue
 
             # check that latest crawling is no older than 24 hours
-            if website.crawling.created_at < timezone.now() - timedelta(days=1):
+            if crawling.created_at < timezone.now() - timedelta(days=1):
                 website_not_crawled_recently.append(website)
                 continue
 
