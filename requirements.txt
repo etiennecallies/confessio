@@ -18,7 +18,7 @@ folium==0.14.0
 
 # Used by scraping
 Unidecode==1.3.4
-requests==2.28.1
+requests==2.32.3
 httpx==0.27.2
 beautifulsoup4==4.9.3
 fructose==0.0.11
@@ -45,9 +45,3 @@ opentelemetry-api==1.28.2
 opentelemetry-sdk==1.28.2
 opentelemetry-instrumentation-django==0.49b2
 opentelemetry-exporter-otlp==1.28.2
-
-# We need to install pytorch with cpu support only (and not gpu)
-# pytorch is a requirement of sentence_transformers
-# https://github.com/UKPLab/sentence-transformers/issues/1409
---extra-index-url https://download.pytorch.org/whl/cpu
-sentence-transformers==2.5.1
