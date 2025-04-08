@@ -6,6 +6,9 @@ from scraping.refine.refine_content import get_text_if_not_table, remove_link_fr
 
 
 def get_page_url_with_pointer_at_pruning(page: Page, pruning: Pruning):
+    if page.url.endswith('.pdf'):
+        return page.url
+
     pointer_text = None
     if pruning and pruning.pruned_indices:
         first_index = pruning.pruned_indices[0]
