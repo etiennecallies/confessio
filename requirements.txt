@@ -35,6 +35,7 @@ pydantic==2.9.0
 openai==1.56.0
 python-dateutil==2.9.0.post0
 jsonschema==4.23.0
+PyMuPDF==1.25.5
 
 # Used in production
 django-dbbackup==4.0.2

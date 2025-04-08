@@ -3,8 +3,9 @@ from urllib.parse import urlparse
 
 import httpx
 from bs4 import BeautifulSoup
-from httpx import HTTPError
+from httpx import HTTPError, Response
 
+from scraping.refine.pdf_utils import extract_text_from_pdf_bytes
 from scraping.utils.url_utils import get_domain, are_similar_urls, replace_scheme_and_hostname
 
 TIMEOUT = 20
@@ -44,7 +45,7 @@ async def get_content_length(url):
     return int(content_length)
 
 
-async def get_content_from_url(url):
+async def get_content_from_url(url: str) -> str | None:
     # Handle heavy pdf files
     if url.endswith('.pdf'):
         content_length = await get_content_length(url)
@@ -73,6 +74,9 @@ async def get_content_from_url(url):
 
         return None
 
+    if is_pdf(r):
+        return extract_text_from_pdf_bytes(r.content)
+
     return r.text
 
 
@@ -86,6 +90,14 @@ def get_meta_refresh_redirect(soup: BeautifulSoup) -> Optional[str]:
             return parts[1].split('url=')[1].strip()
 
     return None
+
+
+def is_pdf(r: Response) -> bool:
+    content_type = r.headers.get("Content-Type", "")
+    if content_type.lower().startswith("application/pdf"):
+        return True
+
+    return False
 
 
 async def get_url_aliases(url) -> tuple[list[tuple[str, str]], Optional[str]]:
@@ -104,11 +116,14 @@ async def get_url_aliases(url) -> tuple[list[tuple[str, str]], Optional[str]]:
     if r.status_code in [301, 302] and 'location' in r.headers:
         redirect_url = r.headers['location']
     elif r.status_code == 200:
+        if is_pdf(r):
+            # We don't want to parse pdf files
+            return aliases, None
+
         try:
             soup = BeautifulSoup(r.text, 'html.parser')
         except Exception as e:
             print(e)
-            # TODO handle pdf correctly
             return aliases, str(e)
         redirect_url = get_meta_refresh_redirect(soup)
 

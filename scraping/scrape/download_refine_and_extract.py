@@ -33,7 +33,7 @@ async def get_fresh_extracted_html_list(url) -> list[str] | None:
 
 
 if __name__ == '__main__':
-    url_ = 'https://eglise-janze.bzh/se-reconcilier/'
+    url_ = 'https://randol.org/wp-content/uploads/2020/06/horaires-confessions.pdf'
     extracted_html_list_ = asyncio.run(get_fresh_extracted_html_list(url_))
 
     print()

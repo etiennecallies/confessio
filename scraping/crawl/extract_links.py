@@ -125,6 +125,9 @@ async def is_forbidden(url_parsed: ParseResult, home_url: str, forbidden_paths: 
 def is_obsolete_path(path: str) -> bool:
     current_year = get_current_year()
     for year in range(2000, current_year):
+        if f'wp-content/uploads/{year}' in path:
+            path = path.replace(f'wp-content/uploads/{year}', '')
+
         if f'{year}' in path:
             for w in re.split(r'\D', path):
                 if w == f'{year}':
@@ -193,7 +196,6 @@ async def parse_content_links(content, home_url: str, aliases_domains: set[str],
     try:
         element = BeautifulSoup(content, 'html.parser', parse_only=SoupStrainer('a'))
     except Exception as e:
-        # TODO handle pdf properly
         print(e)
         return set()
 
