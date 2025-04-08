@@ -11,6 +11,7 @@ matplotlib==3.9.2
 # Used to investigate performance
 django-silk==5.3.1
 
+# Has to be separated from requirements.txt
 # We need to install pytorch with cpu support only (and not gpu)
 # pytorch is a requirement of sentence_transformers
 # https://github.com/UKPLab/sentence-transformers/issues/1409

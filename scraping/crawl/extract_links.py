@@ -37,6 +37,7 @@ CONFESSIONS_OR_SCHEDULES_MENTIONS = [
     'vivre',
     'demarche',
     'demarches',
+    'agenda',
 ]
 
 IGNORED_EXTENSIONS = [

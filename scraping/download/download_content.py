@@ -6,7 +6,8 @@ from bs4 import BeautifulSoup
 from httpx import HTTPError, Response
 
 from scraping.refine.pdf_utils import extract_text_from_pdf_bytes
-from scraping.utils.url_utils import get_domain, are_similar_urls, replace_scheme_and_hostname
+from scraping.utils.url_utils import get_domain, are_similar_urls, replace_scheme_and_hostname, \
+    replace_http_with_https
 
 TIMEOUT = 20
 MAX_SIZE = 1_000_000
@@ -108,6 +109,11 @@ async def get_url_aliases(url) -> tuple[list[tuple[str, str]], Optional[str]]:
         async with httpx.AsyncClient() as client:
             r = await client.get(url, headers=headers, follow_redirects=False, timeout=TIMEOUT)
     except HTTPError as e:
+        attempt_with_https = replace_http_with_https(url)
+        if attempt_with_https:
+            print(f'error with http, trying https: {e}')
+            return await get_url_aliases(attempt_with_https)
+
         return [], str(e)
 
     aliases = [(url, get_domain(url))]

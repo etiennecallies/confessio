@@ -108,3 +108,12 @@ def are_similar_urls(url1: str, url2: str):
         return True
 
     return False
+
+
+def replace_http_with_https(url: str) -> str | None:
+    url_parsed = urlparse(url)
+    if url_parsed.scheme == 'http':
+        url_parsed = url_parsed._replace(scheme='https')
+        return url_parsed.geturl()
+
+    return None
