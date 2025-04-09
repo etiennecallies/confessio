@@ -8,6 +8,7 @@ from django.utils import timezone
 
 from home.models import Pruning, Website, Parsing, ParsingModeration, Church, Page
 from home.utils.hash_utils import hash_string_to_hex
+from home.utils.log_utils import info
 from scraping.parse.parse_with_llm import parse_with_llm, get_prompt_template, get_llm_client
 from scraping.parse.schedules import SchedulesList
 from scraping.refine.refine_content import remove_link_from_html
@@ -381,7 +382,7 @@ def unlink_pruning_for_website(pruning: Pruning, website: Website):
 
 def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: bool = False):
     if not is_eligible_to_parsing(website):
-        print(f'website {website} not eligible to parsing')
+        info(f'website {website} not eligible to parsing')
         return
 
     truncated_html = get_truncated_html(pruning)
@@ -392,7 +393,7 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
     unlink_website_from_parsings_except_church_desc_by_id(website, church_desc_by_id)
 
     if not truncated_html:
-        print(f'No truncated html for pruning {pruning}')
+        info(f'No truncated html for pruning {pruning}')
         return
 
     llm_client = get_llm_client()
@@ -418,14 +419,14 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
         # Adding necessary moderation if missing
         add_necessary_parsing_moderation(parsing, website)
 
-        print(f'Parsing already exists for pruning {pruning}')
+        info(f'Parsing already exists for pruning {pruning}')
         return
 
     if len(truncated_html) > MAX_LENGTH_FOR_PARSING:
-        print(f'No parsing above {MAX_LENGTH_FOR_PARSING}, got {len(truncated_html)}')
+        info(f'No parsing above {MAX_LENGTH_FOR_PARSING}, got {len(truncated_html)}')
         schedules_list, llm_error_detail = None, "Truncated html too long"
     else:
-        print(f'parsing {pruning} for website {website}')
+        info(f'parsing {pruning} for website {website}')
         schedules_list, llm_error_detail = parse_with_llm(truncated_html, church_desc_by_id,
                                                           prompt_template, llm_client)
 
