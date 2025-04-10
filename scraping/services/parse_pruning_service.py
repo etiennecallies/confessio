@@ -2,7 +2,6 @@ import re
 from datetime import timedelta
 from typing import Optional
 
-from django.db.models import Q
 from django.db.models.functions import Now
 from django.utils import timezone
 
@@ -336,17 +335,27 @@ def unlink_website_from_parsings_except_church_desc_by_id(website: Website,
         .exclude(church_desc_by_id=church_desc_by_id).all()
 
     for parsing in parsings:
-        print(f'parsing {parsing.uuid} has no more church_desc_by_id, unlinking website '
-              f'{website.uuid}')
+        print(f'parsing {parsing.uuid} has changed church_desc_by_id, unlinking website '
+              f'{website.uuid} and all prunings')
+        parsing.prunings.clear()
         unlink_website_from_parsing(parsing)
 
 
 def unlink_website_from_parsing(parsing: Parsing):
+    if not parsing.website:
+        return
+
     parsing.website = None
     parsing.save()
     print(f'deleting not validated moderation for parsing {parsing} since it has no '
           f'website any more')
     ParsingModeration.objects.filter(parsing=parsing, validated_at__isnull=True).delete()
+
+
+def unlink_pruning_from_parsing(parsing: Parsing, pruning: Pruning):
+    parsing.prunings.remove(pruning)
+    if not parsing.prunings.exists():
+        unlink_website_from_parsing(parsing)
 
 
 def unlink_pruning_from_parsings_except_truncated_html_hash(pruning: Pruning,
@@ -358,22 +367,20 @@ def unlink_pruning_from_parsings_except_truncated_html_hash(pruning: Pruning,
         .exclude(truncated_html_hash=truncated_html_hash).all()
 
     for parsing in parsings:
-        print(f'parsing {parsing.uuid} has no more truncated html, removing pruning {pruning.uuid}')
-        parsing.prunings.remove(pruning)
-        if not parsing.prunings.exists():
-            unlink_website_from_parsing(parsing)
+        print(f'unlinking pruning {pruning.uuid} from parsing {parsing.uuid} '
+              f'because of changed truncated html')
+        unlink_pruning_from_parsing(parsing, pruning)
 
 
-def unlink_pruning_for_website(pruning: Pruning, website: Website):
+def unlink_orphan_pruning_for_website(pruning: Pruning, website: Website):
     """
     Handle a pruning that disappeared for a website
     """
-
-    parsings = Parsing.objects.filter(prunings=pruning)\
-        .filter(Q(website__isnull=True) | Q(website=website)).all()
+    parsings = Parsing.objects.filter(prunings=pruning, website=website).all()
 
     for parsing in parsings:
-        unlink_website_from_parsing(parsing)
+        print(f'unlinking parsing {parsing.uuid} from orphan pruning {pruning.uuid}')
+        unlink_pruning_from_parsing(parsing, pruning)
 
 
 ########

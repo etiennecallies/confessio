@@ -1,7 +1,7 @@
 from typing import Optional, Literal
 
 from home.models import Page, Scraping
-from scraping.services.parse_pruning_service import unlink_pruning_for_website
+from scraping.services.parse_pruning_service import unlink_orphan_pruning_for_website
 from scraping.services.prune_scraping_service import remove_pruning_if_orphan
 
 
@@ -19,8 +19,9 @@ def delete_scraping(scraping: Scraping):
     prunings = list(scraping.prunings.all())
     scraping.delete()
     for pruning in prunings:
-        remove_pruning_if_orphan(pruning)
-        unlink_pruning_for_website(pruning, scraping.page.website)
+        is_orphan = remove_pruning_if_orphan(pruning)
+        if is_orphan:
+            unlink_orphan_pruning_for_website(pruning, scraping.page.website)
 
 
 ######################
