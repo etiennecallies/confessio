@@ -44,7 +44,7 @@ def new_report(request, website: Website) -> str:
     except ValueError:
         raise NewReportError(HttpResponseBadRequest(f'Invalid error type: {error_type_str}'))
 
-    user_agent = request.META['HTTP_USER_AGENT']
+    user_agent = request.META.get('HTTP_USER_AGENT', None)
     ip_hash_salt = os.environ.get('IP_HASH_SALT')
     ip_address_hash = hash_string_to_hex(ip_hash_salt + get_client_ip(request))
 
