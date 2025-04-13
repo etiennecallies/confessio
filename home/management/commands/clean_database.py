@@ -5,9 +5,10 @@ from django.db.models import Q, Model
 from django.utils import timezone
 
 from home.management.abstract_command import AbstractCommand
-from home.models import Pruning, Sentence, Classifier, Page, ParsingModeration
+from home.models import Pruning, Sentence, Classifier, Page, ParsingModeration, Parsing
 from scraping.services.page_service import delete_page
-from scraping.services.parse_pruning_service import clean_parsing_moderations
+from scraping.services.parse_pruning_service import clean_parsing_moderations, \
+    unlink_website_from_parsing
 from scraping.services.prune_scraping_service import clean_pruning_moderations
 from scraping.services.scrape_page_service import delete_orphan_scrapings
 
@@ -64,6 +65,17 @@ class Command(AbstractCommand):
         self.success(f'Done removing {counter} draft classifiers')
 
         self.clean_history(Classifier, Classifier.history.model)
+
+        # Parsings links
+        self.info('Starting removing orphan parsing links')
+        parsings = Parsing.objects.filter(website__isnull=False).all()
+        counter = 0
+        for parsing in parsings:
+            if not parsing.prunings.filter(scrapings__page__website=parsing.website).exists():
+                parsing.prunings.clear()
+                unlink_website_from_parsing(parsing)
+                counter += 1
+        self.success(f'Done removing {counter} parsing links')
 
     def delete_objects(self, objects):
         counter = 0

@@ -17,11 +17,12 @@ def delete_page(page: Page):
 
 def delete_scraping(scraping: Scraping):
     prunings = list(scraping.prunings.all())
+    website = scraping.page.website
     scraping.delete()
     for pruning in prunings:
-        is_orphan = remove_pruning_if_orphan(pruning)
-        if is_orphan:
-            unlink_orphan_pruning_for_website(pruning, scraping.page.website)
+        remove_pruning_if_orphan(pruning)
+        if not pruning.scrapings.filter(page__website=website).exists():
+            unlink_orphan_pruning_for_website(pruning, website)
 
 
 ######################
