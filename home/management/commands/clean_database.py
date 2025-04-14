@@ -5,7 +5,7 @@ from django.db.models import Q, Model
 from django.utils import timezone
 
 from home.management.abstract_command import AbstractCommand
-from home.models import Pruning, Sentence, Classifier, Page, ParsingModeration, Parsing
+from home.models import Pruning, Sentence, Classifier, Page, ParsingModeration, Parsing, Log
 from scraping.services.page_service import delete_page
 from scraping.services.parse_pruning_service import clean_parsing_moderations, \
     unlink_website_from_parsing
@@ -76,6 +76,13 @@ class Command(AbstractCommand):
                 unlink_website_from_parsing(parsing)
                 counter += 1
         self.success(f'Done removing {counter} parsing links')
+
+        # Logs
+        self.info(f'Starting removing old logs')
+        old_logs = Log.objects.filter(
+            created_at__lt=timezone.now() - timedelta(days=3)).all()
+        counter = self.delete_objects(old_logs)
+        self.success(f'Done removing {counter} old logs')
 
     def delete_objects(self, objects):
         counter = 0
