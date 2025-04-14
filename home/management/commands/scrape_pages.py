@@ -3,7 +3,8 @@ import asyncio
 from django.db.models.functions import Now
 
 from home.management.abstract_command import AbstractCommand
-from home.models import Website
+from home.models import Website, Log
+from home.utils.log_utils import start_log_buffer, get_log_buffer
 from scraping.scrape.download_refine_and_extract import get_fresh_extracted_html_list
 from scraping.services.page_service import delete_page
 from scraping.services.scrape_page_service import upsert_extracted_html_list
@@ -22,6 +23,7 @@ class Command(AbstractCommand):
             websites = Website.objects.filter(is_active=True).all()
 
         for website in websites:
+            start_log_buffer()
             self.info(f'Starting to scrape website {website.name} {website.uuid}')
 
             for page in website.get_pages():
@@ -43,3 +45,8 @@ class Command(AbstractCommand):
                 self.info(f'Successfully scraped page {page.url} {page.uuid}')
 
             self.success(f'Successfully scraped website {website.name} {website.uuid}')
+            buffer_value = get_log_buffer()
+            log = Log(type=Log.Type.SCRAPING,
+                      website=website,
+                      content=buffer_value)
+            log.save()

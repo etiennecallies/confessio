@@ -2,6 +2,8 @@ from datetime import datetime
 
 from django.core.management import BaseCommand
 
+from home.utils.log_utils import info
+
 
 class AbstractCommand(BaseCommand):
     def handle(self, *args, **options):
@@ -13,17 +15,19 @@ class AbstractCommand(BaseCommand):
             "subclasses of BaseCommand must provide a handle() method"
         )
 
-    def log(self, m):
-        self.stdout.write(f'{datetime.now()} {m}')
+    def log(self, m, modifier):
+        message_to_log = f'{datetime.now()} {m}'
+        self.stdout.write(modifier(message_to_log))
+        info(message_to_log)
 
     def success(self, m):
-        self.log(self.style.SUCCESS(m))
+        self.log(m, self.style.SUCCESS)
 
     def error(self, m):
-        self.log(self.style.ERROR(m))
+        self.log(m, self.style.ERROR)
 
     def warning(self, m):
-        self.log(self.style.WARNING(m))
+        self.log(m, self.style.WARNING)
 
     def info(self, m):
-        self.log(self.style.HTTP_INFO(m))
+        self.log(m, self.style.HTTP_INFO)

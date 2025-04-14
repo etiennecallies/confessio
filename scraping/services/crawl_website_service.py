@@ -1,8 +1,8 @@
-import asyncio
 from datetime import date
 from typing import Optional
 
 from home.models import Website, Crawling, Page, WebsiteModeration, Church
+from home.utils.async_utils import run_in_sync
 from scraping.crawl.download_and_search_urls import search_for_confession_pages, \
     get_new_url_and_aliases, forbid_diocese_home_links
 from scraping.services.page_service import delete_page
@@ -109,8 +109,7 @@ async def do_crawl_website(website: Website) -> tuple[dict[str, list[str]], int,
     # Update home_url if needed
     if website.home_url != new_home_url:
         domain_has_changed = True
-        loop = asyncio.get_running_loop()
-        await loop.run_in_executor(None, update_home_url, website, new_home_url)
+        await run_in_sync(update_home_url, website, new_home_url)
     else:
         domain_has_changed = False
 
@@ -142,9 +141,8 @@ async def crawl_website(website: Website) -> tuple[bool, bool, Optional[str]]:
 
     extracted_html_list_by_url, nb_visited_links, error_detail = await do_crawl_website(website)
 
-    loop = asyncio.get_running_loop()
-    return await loop.run_in_executor(None, insert_crawling, website,
-                                      extracted_html_list_by_url, nb_visited_links, error_detail)
+    return await run_in_sync(insert_crawling, website,
+                             extracted_html_list_by_url, nb_visited_links, error_detail)
 
 
 def insert_crawling(website: Website,

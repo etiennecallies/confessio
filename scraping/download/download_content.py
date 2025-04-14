@@ -5,6 +5,7 @@ import httpx
 from bs4 import BeautifulSoup
 from httpx import HTTPError, Response
 
+from home.utils.log_utils import info
 from scraping.refine.pdf_utils import extract_text_from_pdf_bytes
 from scraping.utils.url_utils import get_domain, are_similar_urls, replace_scheme_and_hostname, \
     replace_http_with_https
@@ -21,7 +22,7 @@ def get_headers():
 
 
 async def get_content_length(url):
-    print(f'getting content length from url {url}')
+    info(f'getting content length from url {url}')
 
     headers = get_headers()
     try:
@@ -29,7 +30,7 @@ async def get_content_length(url):
             r = await client.get(url, headers=headers, timeout=TIMEOUT)
             r.raise_for_status()
     except httpx.HTTPError as e:
-        print(e)
+        info(e)
         return None
 
     content_length = r.headers.get('Content-Length')
@@ -38,7 +39,7 @@ async def get_content_length(url):
         async for chunk in r.aiter_bytes(chunk_size=8192):
             total_size += len(chunk)
             if total_size > MAX_SIZE:
-                print("File size exceeds limit. Download aborted.")
+                info("File size exceeds limit. Download aborted.")
                 return None
 
         return total_size
@@ -51,27 +52,27 @@ async def get_content_from_url(url: str) -> str | None:
     if url.endswith('.pdf'):
         content_length = await get_content_length(url)
         if content_length is None:
-            print(f'could not get content length from url {url}')
+            info(f'could not get content length from url {url}')
             return None
 
         if content_length > MAX_SIZE:
-            print(f'content length is {content_length}, too large (>1MB)')
+            info(f'content length is {content_length}, too large (>1MB)')
             return None
         else:
-            print(f'content length is {content_length}')
+            info(f'content length is {content_length}')
 
-    print(f'getting content from url {url}')
+    info(f'getting content from url {url}')
 
     headers = get_headers()
     try:
         async with httpx.AsyncClient() as client:
             r = await client.get(url, headers=headers, timeout=TIMEOUT, follow_redirects=True)
     except HTTPError as e:
-        print(e)
+        info(e)
         return None
 
     if r.status_code != 200:
-        print(f'got status code {r.status_code}')
+        info(f'got status code {r.status_code}')
 
         return None
 
@@ -102,7 +103,7 @@ def is_pdf(r: Response) -> bool:
 
 
 async def get_url_aliases(url) -> tuple[list[tuple[str, str]], Optional[str]]:
-    print(f'getting url aliases for {url}')
+    info(f'getting url aliases for {url}')
 
     headers = get_headers()
     try:
@@ -111,7 +112,7 @@ async def get_url_aliases(url) -> tuple[list[tuple[str, str]], Optional[str]]:
     except HTTPError as e:
         attempt_with_https = replace_http_with_https(url)
         if attempt_with_https:
-            print(f'error with http, trying https: {e}')
+            info(f'error with http, trying https: {e}')
             return await get_url_aliases(attempt_with_https)
 
         return [], str(e)
@@ -129,7 +130,7 @@ async def get_url_aliases(url) -> tuple[list[tuple[str, str]], Optional[str]]:
         try:
             soup = BeautifulSoup(r.text, 'html.parser')
         except Exception as e:
-            print(e)
+            info(e)
             return aliases, str(e)
         redirect_url = get_meta_refresh_redirect(soup)
 
@@ -142,7 +143,7 @@ async def get_url_aliases(url) -> tuple[list[tuple[str, str]], Optional[str]]:
 
         url_aliases, error_message = await get_url_aliases(redirect_url)
         if not url_aliases:
-            print(f'tried to follow redirect location {redirect_url} but got error {error_message}')
+            info(f'tried to follow redirect location {redirect_url} but got error {error_message}')
         else:
             aliases.extend(url_aliases)
 

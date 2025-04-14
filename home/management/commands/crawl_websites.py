@@ -6,8 +6,9 @@ from django.db.models import F, Q
 from django.utils import timezone
 
 from home.management.abstract_command import AbstractCommand
-from home.models import Website, WebsiteModeration
+from home.models import Website, WebsiteModeration, Log
 from home.utils.list_utils import round_robin
+from home.utils.log_utils import start_log_buffer, get_log_buffer
 from scraping.services.crawl_website_service import crawl_website
 
 
@@ -91,6 +92,7 @@ class Command(AbstractCommand):
                       f'({self.nb_websites_crawled} / {self.nb_websites_to_crawl} in total)')
 
     async def handle_website(self, website: Website):
+        start_log_buffer()
         self.info(f'Starting crawling for website {website.name} {website.uuid}')
 
         got_pages_with_content, some_pages_visited, error_detail = await crawl_website(website)
@@ -102,3 +104,9 @@ class Command(AbstractCommand):
         else:
             self.error(f'Error while crawling website {website.name} {website.uuid}')
             self.error(error_detail)
+
+        buffer_value = get_log_buffer()
+        log = Log(type=Log.Type.CRAWLING,
+                  website=website,
+                  content=buffer_value)
+        await log.asave()

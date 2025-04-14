@@ -290,36 +290,36 @@ def check_website_parsing_relations(website: Website) -> bool:
 
 
 def debug_website_parsing_relations(website: Website):
-    print(f'Website {website.name} {website.uuid} parsing relations:')
-    print()
-    print('Direct parsings:')
+    info(f'Website {website.name} {website.uuid} parsing relations:')
+    info()
+    info('Direct parsings:')
     for parsing in Parsing.objects.filter(website=website).all():
-        print(f' - Parsing {parsing.uuid}')
+        info(f' - Parsing {parsing.uuid}')
         for pruning in parsing.prunings.all():
-            print(f'  - Pruning {pruning.uuid}')
+            info(f'  - Pruning {pruning.uuid}')
             for scraping in pruning.scrapings.all():
-                print(f'   - Scraping {scraping.uuid}')
+                info(f'   - Scraping {scraping.uuid}')
                 page = scraping.page
-                print(f'    - Page {page.uuid} {page.url}')
-                print(f'     - Website {page.website.name} {page.website.uuid}')
+                info(f'    - Page {page.uuid} {page.url}')
+                info(f'     - Website {page.website.name} {page.website.uuid}')
 
-    print('Indirect parsings:')
+    info('Indirect parsings:')
     for page in Page.objects.filter(website=website).all():
-        print(f' - Page {page.uuid} {page.url}')
+        info(f' - Page {page.uuid} {page.url}')
         scraping = page.scraping
-        print(f'  - Scraping {scraping.uuid}')
+        info(f'  - Scraping {scraping.uuid}')
         for pruning in scraping.prunings.all():
-            print(f'   - Pruning {pruning.uuid}')
+            info(f'   - Pruning {pruning.uuid}')
             parsing = pruning.get_parsing(website)
             if parsing:
-                print(f'    - Parsing {parsing.uuid}')
+                info(f'    - Parsing {parsing.uuid}')
                 if parsing.website:
-                    print(f'     - Website {parsing.website.name} {parsing.website.uuid}')
+                    info(f'     - Website {parsing.website.name} {parsing.website.uuid}')
                 else:
-                    print(f'     - No website for parsing {parsing.uuid}')
+                    info(f'     - No website for parsing {parsing.uuid}')
             else:
-                print(f'    - No parsing for pruning {pruning.uuid}')
-    print()
+                info(f'    - No parsing for pruning {pruning.uuid}')
+    info()
 
 
 ###########################
@@ -335,8 +335,8 @@ def unlink_website_from_parsings_except_church_desc_by_id(website: Website,
         .exclude(church_desc_by_id=church_desc_by_id).all()
 
     for parsing in parsings:
-        print(f'parsing {parsing.uuid} has changed church_desc_by_id, unlinking website '
-              f'{website.uuid} and all prunings')
+        info(f'parsing {parsing.uuid} has changed church_desc_by_id, unlinking website '
+             f'{website.uuid} and all prunings')
         parsing.prunings.clear()
         unlink_website_from_parsing(parsing)
 
@@ -347,8 +347,8 @@ def unlink_website_from_parsing(parsing: Parsing):
 
     parsing.website = None
     parsing.save()
-    print(f'deleting not validated moderation for parsing {parsing} since it has no '
-          f'website any more')
+    info(f'deleting not validated moderation for parsing {parsing} since it has no '
+         f'website any more')
     ParsingModeration.objects.filter(parsing=parsing, validated_at__isnull=True).delete()
 
 
@@ -367,8 +367,8 @@ def unlink_pruning_from_parsings_except_truncated_html_hash(pruning: Pruning,
         .exclude(truncated_html_hash=truncated_html_hash).all()
 
     for parsing in parsings:
-        print(f'unlinking pruning {pruning.uuid} from parsing {parsing.uuid} '
-              f'because of changed truncated html')
+        info(f'unlinking pruning {pruning.uuid} from parsing {parsing.uuid} '
+             f'because of changed truncated html')
         unlink_pruning_from_parsing(parsing, pruning)
 
 
@@ -379,7 +379,7 @@ def unlink_orphan_pruning_for_website(pruning: Pruning, website: Website):
     parsings = Parsing.objects.filter(prunings=pruning, website=website).all()
 
     for parsing in parsings:
-        print(f'unlinking parsing {parsing.uuid} from orphan pruning {pruning.uuid}')
+        info(f'unlinking parsing {parsing.uuid} from orphan pruning {pruning.uuid}')
         unlink_pruning_from_parsing(parsing, pruning)
 
 
