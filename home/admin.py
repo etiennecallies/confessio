@@ -4,7 +4,7 @@ from django.forms import ModelChoiceField
 from leaflet.admin import LeafletGeoAdmin, LeafletGeoAdminMixin
 from simple_history.admin import SimpleHistoryAdmin
 
-from .models import Church, Website, Page, Diocese, Parish, Classifier, Sentence
+from .models import Church, Website, Page, Diocese, Parish, Classifier, Sentence, Report
 
 
 @admin.register(Diocese)
@@ -99,3 +99,9 @@ class ClassifierAdmin(ModelAdmin):
 class SentenceAdmin(ModelAdmin):
     list_display = ["line", "action"]
     fields = ["line", 'action']
+
+
+@admin.register(Report)
+class ReportAdmin(ModelAdmin):
+    list_display = ['comment', 'feedback_type', 'error_type', 'created_at']
+    fields = ['comment', 'feedback_type', 'error_type']
