@@ -18,7 +18,7 @@ class AbstractCommand(BaseCommand):
     def log(self, m, modifier):
         message_to_log = f'{datetime.now()} {m}'
         self.stdout.write(modifier(message_to_log))
-        info(message_to_log)
+        info(m)
 
     def success(self, m):
         self.log(m, self.style.SUCCESS)

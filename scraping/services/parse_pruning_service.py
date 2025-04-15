@@ -354,8 +354,10 @@ def unlink_website_from_parsing(parsing: Parsing):
 
 def unlink_pruning_from_parsing(parsing: Parsing, pruning: Pruning):
     parsing.prunings.remove(pruning)
-    if not parsing.prunings.exists():
-        unlink_website_from_parsing(parsing)
+    if parsing.website:
+        if not parsing.prunings.filter(scrapings__page__website=parsing.website).exists():
+            info(f'parsing {parsing.uuid} has no more prunings for website {parsing.website.uuid}')
+            unlink_website_from_parsing(parsing)
 
 
 def unlink_pruning_from_parsings_except_truncated_html_hash(pruning: Pruning,
