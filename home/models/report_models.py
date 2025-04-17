@@ -18,8 +18,8 @@ class Report(TimeStampMixin):
         SCHEDULES = "schedules"
 
     feedback_type = models.CharField(max_length=8, choices=FeedbackType.choices)
-    error_type = models.CharField(max_length=10, choices=ErrorType.choices, null=True)
-    main_report = models.ForeignKey('Report', on_delete=models.CASCADE, null=True)
+    error_type = models.CharField(max_length=10, choices=ErrorType.choices, null=True, blank=True)
+    main_report = models.ForeignKey('Report', on_delete=models.CASCADE, null=True, blank=True)
 
     comment = models.TextField(null=True)
     user = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
