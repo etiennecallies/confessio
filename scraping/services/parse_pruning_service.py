@@ -48,12 +48,12 @@ def get_truncated_html(pruning: Pruning) -> str:
 # CHURCH DESC #
 ###############
 
-def get_id_by_value(church_desc: str, church_desc_by_id: dict[int, str]) -> int:
+def get_id_by_value(church_desc: str, church_desc_by_id: dict[int, str]) -> int | None:
     for index, desc in church_desc_by_id.items():
         if desc == church_desc:
             return int(index)
 
-    raise ValueError(f'Church description {church_desc} not found in church_desc_by_id')
+    return None
 
 
 def get_church_by_id(parsing: Parsing, website: Website) -> dict[int, Church]:
@@ -61,7 +61,10 @@ def get_church_by_id(parsing: Parsing, website: Website) -> dict[int, Church]:
     for parish in website.parishes.all():
         for church in parish.churches.all():
             church_id = get_id_by_value(church.get_desc(), parsing.church_desc_by_id)
-            church_by_id[church_id] = church
+            if church_id is not None:
+                church_by_id[church_id] = church
+            else:
+                info(f'Church {church} not found in church_desc_by_id for parsing {parsing}')
 
     return church_by_id
 
