@@ -36,7 +36,7 @@ def fetch_parish(messesinfo_community_id, diocese: Diocese) -> Optional[Parish]:
         parish_data = parish_raw['O'][0]['P']
         name = parish_data['name']
 
-        if 'url' in parish_data:
+        if 'url' in parish_data and parish_data['url']:
             url = parish_data['url']
             home_url = get_clean_full_url(url)  # we use standardized url to ensure unicity
             website = Website(
