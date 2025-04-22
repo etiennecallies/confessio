@@ -10,23 +10,27 @@
                 <div class="row align-items-center">
                     <div class="col-12">
                         <div class="row mb-1">
-                            <h3 class="col-md-8">
-                                <a class="text-tertiary"
-                                    href="{% url 'website_view' website.uuid %}">
-                                    {{ website.name }}
-                                </a>
-                                {% if request.user.is_authenticated and request.user.is_staff %}
-                                    <a class="text-muted small" href="{% url 'admin:home_website_change' website.uuid %}" target="_blank">
-                                        - Admin <i class="fas fa-up-right-from-square"></i>
+                            <div class="col-md-8">
+                                <h3 class="mb-0">
+                                    <a class="text-tertiary"
+                                        href="{% url 'website_view' website.uuid %}">
+                                        {{ website.name }}
                                     </a>
-                                {% endif %}
-                            </h3>
+                                    {% if request.user.is_authenticated and request.user.is_staff %}
+                                        <a class="text-muted small" href="{% url 'admin:home_website_change' website.uuid %}" target="_blank">
+                                            - Admin <i class="fas fa-up-right-from-square"></i>
+                                        </a>
+                                    {% endif %}
+                                </h3>
+                                <h6 class="text-gray-600 fw-light">{{ website_city_label|get_item:website.uuid }}</h6>
+                            </div>
                             <h3 class="col-md-4 text-md-end">
                                 <span class="small"><span class="small">
                                 <a class="text-muted small" href="{{ website.home_url }}" target="_blank">{% trans 'goToParishSite' %}
                                     <i class="fas fa-up-right-from-square"></i>
                                 </a>
-                                </span></span>
+                                </span>
+                                </span>
                             </h3>
                         </div>
 

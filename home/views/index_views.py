@@ -11,7 +11,7 @@ from home.services.autocomplete_service import get_aggregated_response
 from home.services.events_service import get_website_merged_church_schedules_list
 from home.services.filter_service import get_filter_days
 from home.services.map_service import get_churches_in_box, get_churches_around, prepare_map, \
-    get_churches_by_website, get_center, get_churches_by_diocese
+    get_churches_by_website, get_center, get_churches_by_diocese, get_cities_label
 from home.services.page_url_service import get_page_pruning_urls
 from home.services.report_service import get_count_and_label, new_report, NewReportError, \
     get_previous_reports
@@ -33,6 +33,10 @@ def render_map(request, center, churches, h1_title: str, meta_title: str, displa
         websites_by_uuid[church.parish.website.uuid] = church.parish.website
         website_churches.setdefault(church.parish.website.uuid, []).append(church)
     websites = list(websites_by_uuid.values())
+
+    website_city_label = {}
+    for website_uuid, churches in website_churches.items():
+        website_city_label[website_uuid] = get_cities_label(churches)
 
     # We compute the merged schedules list for each website
     website_merged_church_schedules_list = get_website_merged_church_schedules_list(
@@ -90,6 +94,7 @@ def render_map(request, center, churches, h1_title: str, meta_title: str, displa
         'church_marker_names': church_marker_names,
         'websites': websites,
         'website_merged_church_schedules_list': website_merged_church_schedules_list,
+        'website_city_label': website_city_label,
         'too_many_results': too_many_results,
         'website_reports_count': website_reports_count,
         'current_day': get_current_day(),

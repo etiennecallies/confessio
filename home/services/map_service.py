@@ -8,10 +8,9 @@ from django.contrib.gis.geos import Point, Polygon
 from django.contrib.gis.measure import D
 from django.db.models import Count, Q, QuerySet
 from django.utils.translation import gettext as _
-
-from home.models import Church, Website, Diocese
 from folium import Map, Icon, Popup, Marker
 
+from home.models import Church, Website, Diocese
 from home.services.events_service import MergedChurchSchedulesList
 from home.utils.date_utils import format_datetime_with_locale
 
@@ -236,3 +235,35 @@ def get_map_with_alternative_locations(church: Church, similar_churches: list[Ch
         ])
 
     return folium_map
+
+
+##################
+# WEBSITE CITIES #
+##################
+
+def get_cities_label(churches: list[Church]) -> str:
+    cities_count = {}
+    for church in churches:
+        if not church.city:
+            continue
+
+        church_city = church.city.strip().title()
+
+        cities_count[church_city] = cities_count.get(church_city, 0) + 1
+
+    if len(cities_count) > 4:
+        # too many cities
+        return ''
+
+    if len(cities_count) == 0:
+        # no city
+        return ''
+
+    if len(cities_count) == 1:
+        # only one city
+        return list(cities_count.keys())[0]
+
+    # get city name by order of count
+    cities_names = [name for name, count in
+                    sorted(cities_count.items(), key=lambda item: item[1], reverse=True)]
+    return ' ○ '.join(cities_names)
