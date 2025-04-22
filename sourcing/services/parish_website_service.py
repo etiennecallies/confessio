@@ -1,4 +1,5 @@
 from home.models import Parish, Website, WebsiteModeration
+from scraping.utils.string_search import normalize_content, get_words
 from sourcing.services.merge_websites_service import add_website_moderation
 from sourcing.utils.google_search_api_utils import get_google_search_results
 
@@ -16,8 +17,29 @@ def extract_department_from_messesinfo_community_id(messesinfo_community_id: str
 
 
 def is_link_ok(link: str) -> bool:
-    for domain in ['wikipedia.org', 'messes.info']:
+    for domain in [
+        'wikipedia.org',
+        'messes.info',
+        'infolocale.fr',
+        'theodia.org',
+        'fondation-patrimoine.org',
+        'boulevarddesdecouvertes.com',
+        'actu.fr',
+    ]:
         if domain in link:
+            return False
+
+    return True
+
+
+def is_title_ok(title: str) -> bool:
+    normalized_content = normalize_content(title)
+    words_set = set(get_words(normalized_content))
+
+    for keyword in [
+        'mairie',
+    ]:
+        if keyword in words_set:
             return False
 
     return True
@@ -46,7 +68,7 @@ def save_website_of_parish(parish: Parish) -> Website | None:
 
     google_search_results = get_google_search_results(search_query)
     for result in google_search_results:
-        if is_link_ok(result.link):
+        if is_link_ok(result.link) and is_title_ok(result.title):
             print(f'got result {result.title} {result.link}')
             website = save_website(Website(name=result.title, home_url=result.link))
             parish.website = website
