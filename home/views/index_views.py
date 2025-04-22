@@ -35,8 +35,8 @@ def render_map(request, center, churches, h1_title: str, meta_title: str, displa
     websites = list(websites_by_uuid.values())
 
     website_city_label = {}
-    for website_uuid, churches in website_churches.items():
-        website_city_label[website_uuid] = get_cities_label(churches)
+    for website_uuid, churches_list in website_churches.items():
+        website_city_label[website_uuid] = get_cities_label(churches_list)
 
     # We compute the merged schedules list for each website
     website_merged_church_schedules_list = get_website_merged_church_schedules_list(
