@@ -18,13 +18,20 @@ def extract_department_from_messesinfo_community_id(messesinfo_community_id: str
 
 def is_link_ok(link: str) -> bool:
     for domain in [
-        'wikipedia.org',
         'messes.info',
-        'infolocale.fr',
         'theodia.org',
+        '4paroisses.fr',
+        'horairesmesses.com',
+
+        'wikipedia.org',
         'fondation-patrimoine.org',
         'boulevarddesdecouvertes.com',
+        'infolocale.fr',
         'actu.fr',
+        'lavieb-aile.com',
+        'tourismepaysroimorvan.com',
+        'rochefortenterre-tourisme.bzh',
+        'ouest-france.fr',
     ]:
         if domain in link:
             return False
@@ -38,6 +45,7 @@ def is_title_ok(title: str) -> bool:
 
     for keyword in [
         'mairie',
+        'tourisme',
     ]:
         if keyword in words_set:
             return False
