@@ -95,7 +95,7 @@ class Command(AbstractCommand):
         start_log_buffer()
         self.info(f'Starting crawling for website {website.name} {website.uuid}')
 
-        got_pages_with_content, some_pages_visited, error_detail = await crawl_website(website)
+        got_pages_with_content, some_pages_visited = await crawl_website(website)
 
         if got_pages_with_content:
             self.success(f'Successfully crawled website {website.name} {website.uuid}')
@@ -103,7 +103,10 @@ class Command(AbstractCommand):
             self.warning(f'No page found for website {website.name} {website.uuid}')
         else:
             self.error(f'Error while crawling website {website.name} {website.uuid}')
-            self.error(error_detail)
+            if website.crawling:
+                self.error(website.crawling.error_detail)
+            else:
+                self.error('No crawling found')
 
         buffer_value = get_log_buffer()
         log = Log(type=Log.Type.CRAWLING,

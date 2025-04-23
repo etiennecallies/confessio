@@ -15,9 +15,9 @@ class LLMProvider(str, Enum):
 
 class LLMClientInterface:
     @abstractmethod
-    def get_completions(self,
-                        messages: list[dict],
-                        temperature: float) -> tuple[Optional[SchedulesList], Optional[str]]:
+    async def get_completions(self,
+                              messages: list[dict],
+                              temperature: float) -> tuple[Optional[SchedulesList], Optional[str]]:
         pass
 
     @abstractmethod

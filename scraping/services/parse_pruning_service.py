@@ -6,8 +6,10 @@ from django.db.models.functions import Now
 from django.utils import timezone
 
 from home.models import Pruning, Website, Parsing, ParsingModeration, Church, Page
+from home.utils.async_utils import run_in_sync
 from home.utils.hash_utils import hash_string_to_hex
 from home.utils.log_utils import info
+from scraping.parse.llm_client import LLMClientInterface
 from scraping.parse.parse_with_llm import parse_with_llm, get_prompt_template, get_llm_client
 from scraping.parse.schedules import SchedulesList
 from scraping.refine.refine_content import remove_link_from_html
@@ -392,10 +394,12 @@ def unlink_orphan_pruning_for_website(pruning: Pruning, website: Website):
 # MAIN #
 ########
 
-def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: bool = False):
+def prepare_parsing(
+        pruning: Pruning, website: Website, force_parse: bool = False
+) -> None | tuple[str, str, dict[int, str], LLMClientInterface, str, str, Parsing | None]:
     if not is_eligible_to_parsing(website):
         info(f'website {website} not eligible to parsing')
-        return
+        return None
 
     truncated_html = get_truncated_html(pruning)
     truncated_html_hash = hash_string_to_hex(truncated_html) if truncated_html else None
@@ -406,7 +410,7 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
 
     if not truncated_html:
         info(f'No truncated html for pruning {pruning}')
-        return
+        return None
 
     llm_client = get_llm_client()
     prompt_template = get_prompt_template()
@@ -432,16 +436,39 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
         add_necessary_parsing_moderation(parsing, website)
 
         info(f'Parsing already exists for pruning {pruning}')
+        return None
+
+    return truncated_html, truncated_html_hash, church_desc_by_id, llm_client, prompt_template, \
+        prompt_template_hash, parsing
+
+
+async def parse_pruning_for_website(pruning: Pruning, website: Website,
+                                    force_parse: bool = False):
+    parsing_preparation = await run_in_sync(prepare_parsing, pruning, website, force_parse)
+    if not parsing_preparation:
         return
+
+    truncated_html, truncated_html_hash, church_desc_by_id, llm_client, prompt_template, \
+        prompt_template_hash, parsing = parsing_preparation
 
     if len(truncated_html) > MAX_LENGTH_FOR_PARSING:
         info(f'No parsing above {MAX_LENGTH_FOR_PARSING}, got {len(truncated_html)}')
         schedules_list, llm_error_detail = None, "Truncated html too long"
     else:
         info(f'parsing {pruning} for website {website}')
-        schedules_list, llm_error_detail = parse_with_llm(truncated_html, church_desc_by_id,
-                                                          prompt_template, llm_client)
+        schedules_list, llm_error_detail = await parse_with_llm(truncated_html, church_desc_by_id,
+                                                                prompt_template, llm_client)
 
+    await run_in_sync(save_parsing, parsing, pruning, website, truncated_html,
+                      truncated_html_hash, church_desc_by_id, llm_client, prompt_template_hash,
+                      llm_error_detail, schedules_list)
+
+
+def save_parsing(parsing: Parsing | None, pruning: Pruning, website: Website,
+                 truncated_html: str, truncated_html_hash: str,
+                 church_desc_by_id: dict[int, str], llm_client: LLMClientInterface,
+                 prompt_template_hash: str, llm_error_detail: str | None,
+                 schedules_list: SchedulesList | None):
     llm_json = schedules_list.model_dump() if schedules_list else None
 
     if parsing:

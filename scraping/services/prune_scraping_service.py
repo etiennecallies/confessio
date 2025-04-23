@@ -1,3 +1,4 @@
+import asyncio
 from datetime import timedelta
 from typing import Optional
 from uuid import UUID
@@ -174,10 +175,14 @@ def clean_pruning_moderations() -> int:
 # LINK TO PARSINGS #
 ####################
 
-def update_parsings(pruning: Pruning):
-    websites = {scraping.page.website for scraping in pruning.scrapings.all()}
+async def update_parsings(pruning: Pruning):
+    websites = set()
+    async for scraping in pruning.scrapings.select_related("page").select_related("page__website")\
+            .all():
+        websites.add(scraping.page.website)
+
     for website in websites:
-        parse_pruning_for_website(pruning, website)
+        await parse_pruning_for_website(pruning, website)
 
 
 ########
@@ -185,7 +190,7 @@ def update_parsings(pruning: Pruning):
 ########
 
 
-def prune_pruning(pruning: Pruning) -> ():
+def prune_pruning(pruning: Pruning, no_parsing: bool = False) -> ():
     assert pruning.extracted_html, 'Pruning must have not empty extracted_html'
 
     paragraphs = extract_paragraphs_lines_and_indices(pruning.extracted_html,
@@ -201,7 +206,8 @@ def prune_pruning(pruning: Pruning) -> ():
 
         add_necessary_moderation(pruning)
 
-    update_parsings(pruning)
+    if not no_parsing:
+        asyncio.run(update_parsings(pruning))
 
 
 def create_pruning(extracted_html: Optional[str]) -> Optional[Pruning]:

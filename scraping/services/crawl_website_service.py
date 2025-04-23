@@ -1,11 +1,13 @@
 from datetime import date
 from typing import Optional
 
-from home.models import Website, Crawling, Page, WebsiteModeration, Church
+from home.models import Website, Crawling, Page, WebsiteModeration, Church, Pruning
 from home.utils.async_utils import run_in_sync
+from home.utils.log_utils import info
 from scraping.crawl.download_and_search_urls import search_for_confession_pages, \
     get_new_url_and_aliases, forbid_diocese_home_links
 from scraping.services.page_service import delete_page
+from scraping.services.prune_scraping_service import prune_pruning, update_parsings
 from scraping.services.schedules_conflict_service import website_has_schedules_conflict
 from scraping.services.scrape_page_service import upsert_extracted_html_list
 from scraping.utils.url_utils import get_path, get_domain, have_similar_domain
@@ -133,22 +135,36 @@ async def do_crawl_website(website: Website) -> tuple[dict[str, list[str]], int,
                                              path_redirection)
 
 
-async def crawl_website(website: Website) -> tuple[bool, bool, Optional[str]]:
+async def crawl_website(website: Website) -> tuple[bool, bool]:
     # check if website has parish
     if not await website.parishes.aexists():
         await website.adelete()
-        return False, False, 'website has no parish'
+        info('website has no parish')
+        return False, False
 
     extracted_html_list_by_url, nb_visited_links, error_detail = await do_crawl_website(website)
 
-    return await run_in_sync(insert_crawling, website,
-                             extracted_html_list_by_url, nb_visited_links, error_detail)
+    prunings_to_prune = await run_in_sync(process_extracted_html_and_insert_crawling,
+                                          website,
+                                          extracted_html_list_by_url,
+                                          nb_visited_links,
+                                          error_detail)
+
+    for pruning in prunings_to_prune:
+        await update_parsings(pruning)
+
+    return await run_in_sync(add_moderations,
+                             website,
+                             bool(extracted_html_list_by_url),
+                             nb_visited_links > 0)
 
 
-def insert_crawling(website: Website,
-                    extracted_html_list_by_url: dict[str, list[str]],
-                    nb_visited_links: int,
-                    error_detail: Optional[str]) -> tuple[bool, bool, Optional[str]]:
+def process_extracted_html_and_insert_crawling(
+        website: Website,
+        extracted_html_list_by_url: dict[str, list[str]],
+        nb_visited_links: int,
+        error_detail: Optional[str]
+) -> list[Pruning]:
     # Inserting global statistics
     crawling = Crawling(
         nb_visited_links=nb_visited_links,
@@ -166,13 +182,15 @@ def insert_crawling(website: Website,
     # Removing old pages
     existing_pages = website.get_pages()
     existing_urls = list(map(lambda p: p.url, existing_pages))
+    prunings_to_prune = []
     for page in existing_pages:
         if page.url not in extracted_html_list_by_url:
             # Page did exist but not anymore, we remove it
             delete_page(page)
         else:
             # Page still exists, we update scraping
-            upsert_extracted_html_list(page, extracted_html_list_by_url[page.url])
+            prunings_to_prune += upsert_extracted_html_list(page,
+                                                            extracted_html_list_by_url[page.url])
 
     if extracted_html_list_by_url:
         # Adding new pages
@@ -187,8 +205,20 @@ def insert_crawling(website: Website,
                 new_page.save()
 
                 # Insert or update scraping
-                upsert_extracted_html_list(new_page, extracted_html_list_by_url[url])
+                prunings_to_prune += upsert_extracted_html_list(new_page,
+                                                                extracted_html_list_by_url[url])
 
+    for pruning in prunings_to_prune:
+        prune_pruning(pruning, no_parsing=True)
+
+    return prunings_to_prune
+
+
+def add_moderations(website: Website,
+                    has_results: bool,
+                    has_visited_links: bool,
+                    ) -> tuple[bool, bool]:
+    if has_results:
         remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_NO_RESPONSE)
 
         if website.one_page_has_confessions():
@@ -203,21 +233,21 @@ def insert_crawling(website: Website,
                 add_moderation(website, WebsiteModeration.Category.SCHEDULES_CONFLICT,
                                conflict_day=conflict_day, conflict_church=conflict_church)
 
-            return True, True, None
+            return True, True
 
         add_moderation(website, WebsiteModeration.Category.HOME_URL_NO_CONFESSION)
         remove_not_validated_moderation(website, WebsiteModeration.Category.SCHEDULES_CONFLICT)
-        return False, True, None
+        return False, True
 
-    elif nb_visited_links > 0:
+    elif has_visited_links:
         remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_NO_RESPONSE)
         add_moderation(website, WebsiteModeration.Category.HOME_URL_NO_CONFESSION)
         remove_not_validated_moderation(website, WebsiteModeration.Category.SCHEDULES_CONFLICT)
 
-        return False, True, None
+        return False, True
     else:
         add_moderation(website, WebsiteModeration.Category.HOME_URL_NO_RESPONSE)
         remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_NO_CONFESSION)
         remove_not_validated_moderation(website, WebsiteModeration.Category.SCHEDULES_CONFLICT)
 
-        return False, False, error_detail
+        return False, False

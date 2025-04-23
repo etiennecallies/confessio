@@ -1,3 +1,4 @@
+import asyncio
 from typing import Optional
 
 from scraping.parse.llm_client import LLMClientInterface, \
@@ -195,10 +196,10 @@ def replace_unknown_by_unique_church(schedules: list[ScheduleItem],
     return new_schedules
 
 
-def parse_with_llm(truncated_html: str, church_desc_by_id: dict[int, str],
-                   prompt_template: str, llm_client: Optional[LLMClientInterface]
-                   ) -> tuple[Optional[SchedulesList], Optional[str]]:
-    schedules_list, llm_error_detail = llm_client.get_completions(
+async def parse_with_llm(truncated_html: str, church_desc_by_id: dict[int, str],
+                         prompt_template: str, llm_client: Optional[LLMClientInterface]
+                         ) -> tuple[Optional[SchedulesList], Optional[str]]:
+    schedules_list, llm_error_detail = await llm_client.get_completions(
         messages=build_input_messages(prompt_template, truncated_html, church_desc_by_id),
         temperature=0.0,
     )
@@ -233,9 +234,10 @@ if __name__ == '__main__':
         2: "Saint-Joseph, 456 rue de la Liberté, 75000 Paris",
     }
 
-    schedules_list_, llm_error_detail_ = parse_with_llm(truncated_html_, church_desc_by_id_,
-                                                        get_prompt_template(),
-                                                        get_llm_client())
+    schedules_list_, llm_error_detail_ = asyncio.run(parse_with_llm(truncated_html_,
+                                                                    church_desc_by_id_,
+                                                                    get_prompt_template(),
+                                                                    get_llm_client()))
     if schedules_list_:
         for schedule_ in schedules_list_.schedules:
             print(schedule_)

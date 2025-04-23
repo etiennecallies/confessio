@@ -1,7 +1,6 @@
-from home.models import Page, Scraping
+from home.models import Page, Scraping, Pruning
 from scraping.services.page_service import delete_scraping
-from scraping.services.prune_scraping_service import prune_pruning, \
-    create_pruning
+from scraping.services.prune_scraping_service import create_pruning
 
 
 def is_extracted_html_list_identical_for_scraping(scraping: Scraping,
@@ -16,7 +15,10 @@ def is_extracted_html_list_identical_for_scraping(scraping: Scraping,
     return set(p.extracted_html for p in prunings) == set(extracted_html_list)
 
 
-def upsert_extracted_html_list(page: Page, extracted_html_list: list[str]):
+def upsert_extracted_html_list(page: Page, extracted_html_list: list[str]
+                               ) -> list[Pruning]:
+    prunings_to_prune = []
+
     # Compare result to last scraping
     if (page.scraping is not None
             and is_extracted_html_list_identical_for_scraping(page.scraping,
@@ -26,7 +28,7 @@ def upsert_extracted_html_list(page: Page, extracted_html_list: list[str]):
         page.scraping.save()
 
         for pruning in page.scraping.prunings.all():
-            prune_pruning(pruning)
+            prunings_to_prune.append(pruning)
     else:
         if page.scraping is not None:
             # If a scraping exists and is different from last one, we delete it
@@ -46,7 +48,9 @@ def upsert_extracted_html_list(page: Page, extracted_html_list: list[str]):
 
         for pruning in prunings:
             scraping.prunings.add(pruning)
-            prune_pruning(pruning)
+            prunings_to_prune.append(pruning)
+
+    return prunings_to_prune
 
 
 def delete_orphan_scrapings() -> int:

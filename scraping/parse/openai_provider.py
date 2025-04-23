@@ -1,7 +1,7 @@
 import os
 from typing import Optional
 
-from openai import OpenAI, BadRequestError
+from openai import AsyncOpenAI, BadRequestError
 from pydantic import ValidationError
 
 from scraping.parse.llm_client import LLMClientInterface, LLMProvider
@@ -9,17 +9,17 @@ from scraping.parse.schedules import SchedulesList
 
 
 class OpenAILLMClient(LLMClientInterface):
-    client: OpenAI
+    client: AsyncOpenAI
 
-    def __init__(self, client: OpenAI, model: str):
+    def __init__(self, client: AsyncOpenAI, model: str):
         self.client = client
         self.model = model
 
-    def get_completions(self,
-                        messages: list[dict],
-                        temperature: float) -> tuple[Optional[SchedulesList], Optional[str]]:
+    async def get_completions(self,
+                              messages: list[dict],
+                              temperature: float) -> tuple[Optional[SchedulesList], Optional[str]]:
         try:
-            response = self.client.beta.chat.completions.parse(
+            response = await self.client.beta.chat.completions.parse(
                 model=self.model,
                 messages=messages,
                 response_format=SchedulesList,
@@ -46,11 +46,11 @@ class OpenAILLMClient(LLMClientInterface):
         return self.model
 
 
-def get_openai_client(openai_api_key: Optional[str] = None) -> OpenAI:
+def get_openai_client(openai_api_key: Optional[str] = None) -> AsyncOpenAI:
     if not openai_api_key:
         openai_api_key = os.getenv("OPENAI_API_KEY")
 
-    return OpenAI(api_key=openai_api_key)
+    return AsyncOpenAI(api_key=openai_api_key)
 
 
 def get_openai_llm_client() -> OpenAILLMClient:

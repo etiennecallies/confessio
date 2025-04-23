@@ -1,3 +1,4 @@
+import asyncio
 import json
 import os
 import unittest
@@ -22,9 +23,9 @@ class LLMClientWithCache(LLMClientInterface):
     def __init__(self, llm_client: LLMClientInterface):
         self.llm_client = llm_client
 
-    def get_completions(self,
-                        messages: list[dict],
-                        temperature: float) -> tuple[Optional[SchedulesList], Optional[str]]:
+    async def get_completions(self,
+                              messages: list[dict],
+                              temperature: float) -> tuple[Optional[SchedulesList], Optional[str]]:
         current_directory = os.path.dirname(os.path.abspath(__file__))
         cache_filename = (f'{current_directory}/fixtures/parse/'
                           f'llm_cache_{self.get_provider().value}.cache')
@@ -39,7 +40,7 @@ class LLMClientWithCache(LLMClientInterface):
 
         if value is None:
             print('LLM Cache miss')
-            value = self.llm_client.get_completions(messages, temperature)
+            value = await self.llm_client.get_completions(messages, temperature)
             simple_cache.save_key(cache_filename, key, value,
                                   ttl=3600 * 24 * 365 * 100  # 100 years
                                   )
@@ -111,9 +112,8 @@ class LlmParsingTests(unittest.TestCase):
                     **input_and_output['output']['schedules_list'])
 
                 prompt_template = get_prompt_template()
-                schedules_list, llm_error_detail = parse_with_llm(truncated_html, church_desc_by_id,
-                                                                  prompt_template,
-                                                                  llm_client=self.llm_client)
+                schedules_list, llm_error_detail = asyncio.run(parse_with_llm(
+                    truncated_html, church_desc_by_id, prompt_template, llm_client=self.llm_client))
                 self.assertIsNone(llm_error_detail, file_name)
                 self.assertIsNotNone(schedules_list)
                 # print(schedules_list.model_dump_json())
@@ -151,19 +151,21 @@ class LlmParsingTests(unittest.TestCase):
 
                 truncated_html1 = ''.join(lines1)
                 prompt_template = get_prompt_template()
-                schedules_list1, llm_error_detail1 = parse_with_llm(truncated_html1,
-                                                                    church_desc_by_id,
-                                                                    prompt_template,
-                                                                    llm_client=self.llm_client)
+                schedules_list1, llm_error_detail1 = asyncio.run(parse_with_llm(
+                    truncated_html1,
+                    church_desc_by_id,
+                    prompt_template,
+                    llm_client=self.llm_client))
                 self.assertIsNone(llm_error_detail1)
                 self.assertIsNotNone(schedules_list1)
                 # print(schedules_list1.model_dump_json())
 
                 truncated_html2 = ''.join(lines2)
-                schedules_list2, llm_error_detail2 = parse_with_llm(truncated_html2,
-                                                                    church_desc_by_id,
-                                                                    prompt_template,
-                                                                    llm_client=self.llm_client)
+                schedules_list2, llm_error_detail2 = asyncio.run(parse_with_llm(
+                    truncated_html2,
+                    church_desc_by_id,
+                    prompt_template,
+                    llm_client=self.llm_client))
                 self.assertIsNone(llm_error_detail2)
                 self.assertIsNotNone(schedules_list2)
                 # print(schedules_list2.model_dump_json())
