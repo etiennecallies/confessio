@@ -22,9 +22,11 @@ def is_link_ok(link: str) -> bool:
         'theodia.org',
         '4paroisses.fr',
         'horairesmesses.com',
+        'lejourduseigneur.com',
 
         'wikipedia.org',
         'fondation-patrimoine.org',
+        'pagesjaunes.fr',
         'boulevarddesdecouvertes.com',
         'infolocale.fr',
         'actu.fr',
@@ -32,6 +34,8 @@ def is_link_ok(link: str) -> bool:
         'tourismepaysroimorvan.com',
         'rochefortenterre-tourisme.bzh',
         'ouest-france.fr',
+        'letelegramme.fr',
+        'infobretagne.com',
     ]:
         if domain in link:
             return False
