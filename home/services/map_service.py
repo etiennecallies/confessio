@@ -21,12 +21,21 @@ MAX_CHURCHES_IN_RESULTS = 50
 # SEARCH #
 ##########
 
-def build_church_query() -> 'QuerySet[Church]':
+def build_church_query_legacy() -> 'QuerySet[Church]':
     return Church.objects.select_related('parish__website') \
         .prefetch_related('parish__website__parsings') \
         .prefetch_related('parish__website__parishes__churches') \
         .prefetch_related('parish__website__reports') \
         .filter(is_active=True, parish__website__is_active=True)
+
+
+def build_church_query() -> 'QuerySet[Church]':
+    pass
+    # return ChurchIndexEvent.objects.select_related('church__parish__website__events') \
+    #     .prefetch_related('church__parish__website__parsings') \
+    #     .prefetch_related('church__parish__website__parishes__churches') \
+    #     .prefetch_related('church__parish__website__reports') \
+    #     .filter(is_active=True, church__parish__website__is_active=True)   # TODO remove useless
 
 
 def order_by_nb_page_with_confessions(church_query: 'QuerySet[Church]') -> 'QuerySet[Church]':
@@ -45,7 +54,7 @@ def get_churches_around(center) -> tuple[list[Church], bool]:
     latitude, longitude = center
     center_as_point = Point(x=longitude, y=latitude)
 
-    church_query = build_church_query() \
+    church_query = build_church_query_legacy() \
         .filter(location__dwithin=(center_as_point, D(km=5))) \
         .annotate(distance=Distance('location', center_as_point)) \
         .order_by('distance')
@@ -56,20 +65,20 @@ def get_churches_around(center) -> tuple[list[Church], bool]:
 def get_churches_in_box(min_lat, max_lat, min_long, max_long) -> tuple[list[Church], bool]:
     polygon = Polygon.from_bbox((min_long, min_lat, max_long, max_lat))
 
-    church_query = build_church_query().filter(location__within=polygon)
+    church_query = build_church_query_legacy().filter(location__within=polygon)
     church_query = order_by_nb_page_with_confessions(church_query)
 
     return truncate_results(church_query)
 
 
 def get_churches_by_website(website: Website) -> tuple[list[Church], bool]:
-    church_query = build_church_query().filter(parish__website=website)
+    church_query = build_church_query_legacy().filter(parish__website=website)
 
     return truncate_results(church_query)
 
 
 def get_churches_by_diocese(diocese: Diocese) -> tuple[list[Church], bool]:
-    church_query = build_church_query().filter(parish__diocese=diocese)
+    church_query = build_church_query_legacy().filter(parish__diocese=diocese)
     church_query = order_by_nb_page_with_confessions(church_query)
 
     return truncate_results(church_query)

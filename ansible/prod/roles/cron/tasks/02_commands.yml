@@ -11,7 +11,11 @@
     - name: train_pruning_model
       command: "train_pruning_model --automatic"
       hour: "0"
-      minute: 30
+      minute: 40
+    - name: index_events
+      command: "index_events"
+      hour: "0"
+      minute: 20
     - name: daily_crawl_websites
       command: "crawl_websites -t 3300 --no-recent -p 3"
       hour: "1,2,3,4,5,6,7"

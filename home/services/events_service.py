@@ -11,7 +11,7 @@ from home.utils.hash_utils import hash_string_to_hex
 from scraping.parse.explain_schedule import schedule_item_sort_key, get_explanation_from_schedule
 from scraping.parse.rrule_utils import get_events_from_schedule_item
 from scraping.parse.schedules import Event, ScheduleItem
-from scraping.services.parse_pruning_service import get_parsing_schedules_list, get_church_by_id
+from scraping.services.parsing_service import get_church_by_id, get_parsing_schedules_list
 
 
 ########################

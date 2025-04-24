@@ -4,7 +4,7 @@ from typing import Optional
 from uuid import UUID
 
 from home.models import Website, Parsing, Page, Pruning
-from scraping.services.parse_pruning_service import has_schedules
+from scraping.services.parsing_service import has_schedules
 
 
 #########################

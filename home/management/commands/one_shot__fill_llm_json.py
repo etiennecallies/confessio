@@ -1,6 +1,6 @@
 from home.management.abstract_command import AbstractCommand
 from home.models import Parsing
-from scraping.services.parse_pruning_service import get_parsing_schedules_list
+from scraping.services.parsing_service import get_parsing_schedules_list
 
 
 class Command(AbstractCommand):
