@@ -12,6 +12,7 @@ async def get_page_title(url):
 
     soup = BeautifulSoup(html, 'html.parser')
     title = soup.find('title')
+    title = title.strip() if title else title
     if not title:
         return None
 
