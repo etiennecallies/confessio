@@ -102,7 +102,12 @@ def is_pdf(r: Response) -> bool:
     return False
 
 
-async def get_url_aliases(url) -> tuple[list[tuple[str, str]], Optional[str]]:
+async def get_url_aliases(url, already_seen: set | None = None
+                          ) -> tuple[list[tuple[str, str]], Optional[str]]:
+    if already_seen and url in already_seen:
+        info(f'url {url} already seen, stopping there')
+        return [], f'url {url} already seen'
+
     info(f'getting url aliases for {url}')
 
     headers = get_headers()
@@ -113,7 +118,7 @@ async def get_url_aliases(url) -> tuple[list[tuple[str, str]], Optional[str]]:
         attempt_with_https = replace_http_with_https(url)
         if attempt_with_https:
             info(f'error with http, trying https: {e}')
-            return await get_url_aliases(attempt_with_https)
+            return await get_url_aliases(attempt_with_https, (already_seen or set()) | {url})
 
         return [], str(e)
 
@@ -141,7 +146,8 @@ async def get_url_aliases(url) -> tuple[list[tuple[str, str]], Optional[str]]:
         if not redirect_url_parsed.netloc:
             redirect_url = replace_scheme_and_hostname(redirect_url_parsed, new_url=url)
 
-        url_aliases, error_message = await get_url_aliases(redirect_url)
+        url_aliases, error_message = await get_url_aliases(redirect_url,
+                                                           (already_seen or set()) | {url})
         if not url_aliases:
             info(f'tried to follow redirect location {redirect_url} but got error {error_message}')
         else:

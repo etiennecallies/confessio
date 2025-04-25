@@ -84,19 +84,19 @@ async def handle_diocese_domain(website: Website, domain_has_changed: bool,
     diocese = await website.async_get_diocese()
     if diocese and diocese.home_url:
         if domain_has_changed:
-            print('check if diocese home_url has changed')
+            info('check if diocese home_url has changed')
             new_diocese_url, diocese_aliases_domains, error_message = \
                 await get_new_url_and_aliases(diocese.home_url)
             if error_message:
-                print(f'error in get_new_url_and_aliases for diocese with url {diocese.home_url}: '
-                      f'{error_message}')
+                info(f'error in get_new_url_and_aliases for diocese with url {diocese.home_url}: '
+                     f'{error_message}')
             elif new_diocese_url != diocese.home_url:
-                print('it has changed! Replacing it.')
+                info(f'it has changed! Replacing it. New url: {new_diocese_url}')
                 diocese.home_url = new_diocese_url
                 await diocese.asave()
 
         if have_similar_domain(website.home_url, diocese.home_url):
-            print('Website and diocese have similar domain, forbidding diocese home links')
+            info('Website and diocese have similar domain, forbidding diocese home links')
             forbidden_paths |= await forbid_diocese_home_links(diocese.home_url,
                                                                aliases_domains,
                                                                path_redirection)
