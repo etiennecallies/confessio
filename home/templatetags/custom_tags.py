@@ -23,6 +23,11 @@ def get_item(dictionary, key):
 
 
 @register.filter
+def get_item_str(dictionary, key):
+    return dictionary.get(str(key))
+
+
+@register.filter
 def days_of_range(merged_church_schedules_list: MergedChurchSchedulesList,
                   range_number_as_str: str) -> list[date]:
     sorted_days = sorted(merged_church_schedules_list.church_events_by_day.keys())

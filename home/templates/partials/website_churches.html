@@ -8,11 +8,17 @@
              class="margin-left-indent mb-3">
             {% if church %}
                 <div>
-                    <a href="#map"
-                       class="link-info"
-                       onclick="return popupChurch('{{ church_marker_names|get_item:church.uuid }}');">
+                    {% with church_marker_name=church_marker_names|get_item_str:church.uuid %}
+                        {% if church_marker_name %}
+                            <a href="#map"
+                               class="link-info"
+                               onclick="return popupChurch('{{ church_marker_name }}');">
+                        {% endif %}
                         <span class="fw-bold">{% display_church_color church False merged_schedules_list.church_color_by_uuid %} {{ church.name }}</span>
-                    </a>
+                        {% if church_marker_name %}
+                            </a>
+                        {% endif %}
+                    {% endwith %}
 
                     {% if request.user.is_authenticated and request.user.is_staff %}
                         <a class="text-muted" href="{% url 'admin:home_church_change' church.uuid %}" target="_blank">

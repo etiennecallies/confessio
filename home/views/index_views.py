@@ -1,14 +1,16 @@
 import dataclasses
+import json
 from datetime import date
 
 from django.core.exceptions import ValidationError
-from django.http import HttpResponseNotFound, JsonResponse
+from django.http import HttpResponseNotFound, JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render
 from django.utils.translation import gettext
 
 from home.models import Website, Diocese
 from home.services.autocomplete_service import get_aggregated_response
-from home.services.events_service import get_website_merged_church_schedules_list
+from home.services.events_service import get_website_merged_church_schedules_list, \
+    get_merged_church_schedules_list_for_website
 from home.services.filter_service import get_filter_days
 from home.services.map_service import prepare_map, \
     get_center, get_cities_label, \
@@ -49,9 +51,8 @@ def render_map(request, center, churches, h1_title: str, meta_title: str, displa
         websites = [w for w in websites if w.uuid in website_merged_church_schedules_list]
 
     # We prepare the map
-    folium_map, church_marker_names = prepare_map(center, churches, bounds,
-                                                  website_merged_church_schedules_list,
-                                                  is_around_me)
+    folium_map, church_marker_names_json_by_website = prepare_map(
+        center, churches, bounds, website_merged_church_schedules_list, is_around_me)
 
     # Get HTML Representation of Map Object
     map_html = folium_map._repr_html_()
@@ -93,7 +94,7 @@ def render_map(request, center, churches, h1_title: str, meta_title: str, displa
         'display_sub_title': display_sub_title,
         'location': location,
         'map_html': map_html,
-        'church_marker_names': church_marker_names,
+        'church_marker_names_json_by_website': church_marker_names_json_by_website,
         'websites': websites,
         'website_merged_church_schedules_list': website_merged_church_schedules_list,
         'website_city_label': website_city_label,
@@ -247,6 +248,30 @@ def website_sources(request, website_uuid: str):
         'website': website,
         'parsings_and_prunings': get_website_parsings_and_prunings(website),
         'page_pruning_urls': get_page_pruning_urls([website]),
+    })
+
+
+def partial_website_churches(request, website_uuid: str):
+    try:
+        website = Website.objects.get(uuid=website_uuid)
+    except Website.DoesNotExist:
+        return HttpResponseNotFound("Website does not exist with this uuid")
+
+    church_marker_names_json = request.GET.get('church_marker_names_json', '{}')
+    try:
+        church_marker_names = json.loads(church_marker_names_json)
+    except json.JSONDecodeError:
+        return HttpResponseBadRequest(f"Invalid JSON for church marker names: "
+                                      f"'{church_marker_names_json}'")
+
+    website_churches = [c for p in website.parishes.all() for c in p.churches.all()]
+    merged_schedules_list = get_merged_church_schedules_list_for_website(
+        website, website_churches, None, None, None)
+
+    return render(request, 'partials/website_churches.html', {
+        'website': website,
+        'merged_schedules_list': merged_schedules_list,
+        'church_marker_names': church_marker_names,
     })
 
 

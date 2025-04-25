@@ -1,3 +1,4 @@
+import json
 from datetime import date
 from statistics import mean
 from typing import List, Tuple, Dict, Optional
@@ -243,11 +244,12 @@ def prepare_map(center, churches: List[Church], bounds,
         marker.add_to(folium_map)
 
     # We save marker_names, they will be displayed in template and used in javascript
-    church_marker_names = {}
+    church_marker_names_by_website = {}
 
     for church in churches:
+        website_uuid = church.parish.website.uuid
         merged_church_schedules_list = \
-            website_merged_church_schedules_list.get(church.parish.website.uuid, None)
+            website_merged_church_schedules_list.get(website_uuid, None)
         if merged_church_schedules_list is None:
             # We don't display church without schedules
             continue
@@ -258,7 +260,8 @@ def prepare_map(center, churches: List[Church], bounds,
                         tooltip=tootltip_text,
                         popup=Popup(html=popup_html, max_width=None),
                         icon=Icon(icon='cross', prefix='fa', color=color))
-        church_marker_names[church.uuid] = marker.get_name()
+        church_marker_names_by_website\
+            .setdefault(website_uuid, {})[str(church.uuid)] = marker.get_name()
         marker.add_to(folium_map)
 
     if bounds or len(churches) > 0:
@@ -269,7 +272,12 @@ def prepare_map(center, churches: List[Church], bounds,
         folium_map.fit_bounds([[min_lat, min_long],
                                [max_lat, max_long]])
 
-    return folium_map, church_marker_names
+    church_marker_names_json_by_website = {
+        website_uuid: json.dumps(marker_names)
+        for website_uuid, marker_names in church_marker_names_by_website.items()
+    }
+
+    return folium_map, church_marker_names_json_by_website
 
 
 def get_map_with_single_location(location: Point) -> Map:

@@ -79,8 +79,11 @@ $(window).on("load", function () {
  */
 function goToChurch(websiteUuid, churchUuid, isChurchExplicitlyOther) {
     let $websiteChurches = $('#churches-'+websiteUuid);
+    let $collapsableBody = $websiteChurches.find('.collapsable-body');
     let elementId = churchUuid ? ('church-' + churchUuid) : ('nochurch-' + websiteUuid + '-' + isChurchExplicitlyOther);
-    uncollapseAndNavigateToElement($websiteChurches, elementId);
+    lazyLoadElement($collapsableBody, function () {
+        uncollapseAndNavigateToElement($websiteChurches, elementId);
+    });
 }
 
 /**
