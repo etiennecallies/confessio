@@ -11,7 +11,7 @@ from home.utils.hash_utils import hash_string_to_hex
 from scraping.parse.explain_schedule import schedule_item_sort_key, get_explanation_from_schedule
 from scraping.parse.rrule_utils import get_events_from_schedule_item
 from scraping.parse.schedules import Event, ScheduleItem
-from scraping.services.parse_pruning_service import get_parsing_schedules_list, get_church_by_id
+from scraping.services.parsing_service import get_church_by_id, get_parsing_schedules_list
 
 
 ########################
@@ -153,17 +153,22 @@ def get_merged_church_schedules_list(website: Website,
         min_time = time_from_minutes(hour_min or 0)
         max_time = time_from_minutes(hour_max or 24 * 60 - 1)
 
-    holiday_zone = get_website_holiday_zone(website)
+    holiday_zone = get_website_holiday_zone(website, all_website_churches)
 
     parsings = get_website_sorted_parsings(website)
     for i, parsing in enumerate(parsings):
-        church_by_id = get_church_by_id(parsing, website)
+        church_by_id = get_church_by_id(parsing, all_website_churches)
 
         schedules_list = get_parsing_schedules_list(parsing)
         if schedules_list is None:
             continue
 
         for schedule in schedules_list.schedules:
+            if schedule.church_id is not None and schedule.church_id != -1 \
+                    and schedule.church_id not in church_by_id:
+                # We ignore schedule for out of scope churches
+                continue
+
             if min_time or max_time:
                 start_time = schedule.get_start_time() or min_time
                 end_time = schedule.get_end_time() or max_time

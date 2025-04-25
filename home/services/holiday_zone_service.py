@@ -24,8 +24,7 @@ def get_diocese_holiday_zone(diocese: Diocese) -> HolidayZoneEnum:
     return get_holiday_zone_of_churches(diocese_churches)
 
 
-def get_website_holiday_zone(website: Website) -> HolidayZoneEnum:
-    website_churches = [c for p in website.parishes.all() for c in p.churches.all()]
+def get_website_holiday_zone(website: Website, website_churches: list[Church]) -> HolidayZoneEnum:
     holiday_zone = get_holiday_zone_of_churches(website_churches)
     if holiday_zone:
         return holiday_zone
