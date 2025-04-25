@@ -1,4 +1,4 @@
-from home.models import Parsing, Website, Church
+from home.models import Parsing, Church
 from home.utils.log_utils import info
 from scraping.parse.schedules import SchedulesList
 
@@ -32,15 +32,14 @@ def get_id_by_value(church_desc: str, church_desc_by_id: dict[int, str]) -> int 
     return None
 
 
-def get_church_by_id(parsing: Parsing, website: Website) -> dict[int, Church]:
+def get_church_by_id(parsing: Parsing, website_churches: list[Church]) -> dict[int, Church]:
     church_by_id = {}
-    for parish in website.parishes.all():
-        for church in parish.churches.all():
-            church_id = get_id_by_value(church.get_desc(), parsing.church_desc_by_id)
-            if church_id is not None:
-                church_by_id[church_id] = church
-            else:
-                info(f'Church {church} not found in church_desc_by_id for parsing {parsing}')
+    for church in website_churches:
+        church_id = get_id_by_value(church.get_desc(), parsing.church_desc_by_id)
+        if church_id is not None:
+            church_by_id[church_id] = church
+        else:
+            info(f'Church {church} not found in church_desc_by_id for parsing {parsing}')
 
     return church_by_id
 

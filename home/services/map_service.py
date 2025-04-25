@@ -1,4 +1,4 @@
-import datetime
+from datetime import date
 from statistics import mean
 from typing import List, Tuple, Dict, Optional
 from uuid import UUID
@@ -10,9 +10,9 @@ from django.db.models import Count, Q, QuerySet
 from django.utils.translation import gettext as _
 from folium import Map, Icon, Popup, Marker
 
-from home.models import Church, Website, Diocese
+from home.models import Church, Website, Diocese, ChurchIndexEvent
 from home.services.events_service import MergedChurchSchedulesList
-from home.utils.date_utils import format_datetime_with_locale
+from home.utils.date_utils import format_datetime_with_locale, time_from_minutes
 
 MAX_CHURCHES_IN_RESULTS = 50
 
@@ -29,28 +29,67 @@ def build_church_query_legacy() -> 'QuerySet[Church]':
         .filter(is_active=True, parish__website__is_active=True)
 
 
-def build_church_query() -> 'QuerySet[Church]':
-    pass
-    # return ChurchIndexEvent.objects.select_related('church__parish__website__events') \
-    #     .prefetch_related('church__parish__website__parsings') \
-    #     .prefetch_related('church__parish__website__parishes__churches') \
-    #     .prefetch_related('church__parish__website__reports') \
-    #     .filter(is_active=True, church__parish__website__is_active=True)   # TODO remove useless
+def build_church_query(day_filter: date | None,
+                       hour_min: int | None,
+                       hour_max: int | None) -> 'QuerySet[ChurchIndexEvent]':
+    # TODO remove useless once parsings are removed
+    geo_query = ChurchIndexEvent.objects.select_related('church__parish__website') \
+        .prefetch_related('church__parish__website__parsings') \
+        .prefetch_related('church__parish__website__reports') \
+        .filter(church__is_active=True,
+                church__parish__website__is_active=True)
+
+    if day_filter:
+        geo_query = geo_query.filter(day=day_filter)
+
+    if hour_min is not None or hour_max is not None:
+        hour_min = hour_min or 0
+        hour_max = hour_max or 24
+        geo_query = geo_query.filter(indexed_end_time__gte=time_from_minutes(hour_min),
+                                     start_time__lte=time_from_minutes(hour_max))
+
+    return geo_query
 
 
-def order_by_nb_page_with_confessions(church_query: 'QuerySet[Church]') -> 'QuerySet[Church]':
+def order_by_nb_page_with_confessions_legacy(church_query: 'QuerySet[Church]'
+                                             ) -> 'QuerySet[Church]':
     return church_query.annotate(nb_page_with_confessions=Count(
         'parish__website__pages__scraping',
         filter=Q(parish__website__pages__scraping__prunings__pruned_indices__len__gt=0)), ) \
         .order_by('-nb_page_with_confessions')
 
 
-def truncate_results(church_query: 'QuerySet[Church]') -> tuple[list[Church], bool]:
+def order_by_nb_page_with_confessions(church_query: 'QuerySet[ChurchIndexEvent]'
+                                      ) -> 'QuerySet[ChurchIndexEvent]':
+    return church_query.annotate(nb_page_with_confessions=Count(
+        'church__parish__website__pages__scraping',
+        filter=Q(church__parish__website__pages__scraping__prunings__pruned_indices__len__gt=0)),) \
+        .order_by('-nb_page_with_confessions', 'church__uuid')
+
+
+def truncate_results_legacy(church_query: 'QuerySet[Church]') -> tuple[list[Church], bool]:
     churches = church_query.all()[:MAX_CHURCHES_IN_RESULTS]
     return churches, len(churches) >= MAX_CHURCHES_IN_RESULTS
 
 
-def get_churches_around(center) -> tuple[list[Church], bool]:
+def truncate_results(church_index_query: 'QuerySet[ChurchIndexEvent]'
+                     ) -> tuple[list[ChurchIndexEvent], list[Church], bool]:
+    results = []
+    church_uuids = set()
+    churches = []
+    for church_index_event in church_index_query.all():
+        if church_index_event.church.uuid not in church_uuids:
+            if len(churches) >= MAX_CHURCHES_IN_RESULTS:
+                return results, churches, True
+
+            church_uuids.add(church_index_event.church.uuid)
+            churches.append(church_index_event.church)
+        results.append(church_index_event)
+
+    return results, churches, False
+
+
+def get_churches_around_legacy(center) -> tuple[list[Church], bool]:
     latitude, longitude = center
     center_as_point = Point(x=longitude, y=latitude)
 
@@ -59,26 +98,79 @@ def get_churches_around(center) -> tuple[list[Church], bool]:
         .annotate(distance=Distance('location', center_as_point)) \
         .order_by('distance')
 
+    return truncate_results_legacy(church_query)
+
+
+def get_churches_around(center,
+                        day_filter: date | None,
+                        hour_min: int | None,
+                        hour_max: int | None
+                        ) -> tuple[list[ChurchIndexEvent], list[Church], bool]:
+    latitude, longitude = center
+    center_as_point = Point(x=longitude, y=latitude)
+
+    church_query = build_church_query(day_filter, hour_min, hour_max) \
+        .filter(church__location__dwithin=(center_as_point, D(km=5))) \
+        .annotate(distance=Distance('church__location', center_as_point)) \
+        .order_by('distance')
+
     return truncate_results(church_query)
 
 
-def get_churches_in_box(min_lat, max_lat, min_long, max_long) -> tuple[list[Church], bool]:
+def get_churches_in_box_legacy(min_lat, max_lat, min_long, max_long) -> tuple[list[Church], bool]:
     polygon = Polygon.from_bbox((min_long, min_lat, max_long, max_lat))
 
     church_query = build_church_query_legacy().filter(location__within=polygon)
+    church_query = order_by_nb_page_with_confessions_legacy(church_query)
+
+    return truncate_results_legacy(church_query)
+
+
+def get_churches_in_box(min_lat, max_lat, min_long, max_long,
+                        day_filter: date | None,
+                        hour_min: int | None,
+                        hour_max: int | None
+                        ) -> tuple[list[ChurchIndexEvent], list[Church], bool]:
+    polygon = Polygon.from_bbox((min_long, min_lat, max_long, max_lat))
+
+    church_query = build_church_query(day_filter, hour_min, hour_max)\
+        .filter(church__location__within=polygon)
     church_query = order_by_nb_page_with_confessions(church_query)
 
     return truncate_results(church_query)
 
 
-def get_churches_by_website(website: Website) -> tuple[list[Church], bool]:
+def get_churches_by_website_legacy(website: Website) -> tuple[list[Church], bool]:
     church_query = build_church_query_legacy().filter(parish__website=website)
+
+    return truncate_results_legacy(church_query)
+
+
+def get_churches_by_website(website: Website,
+                            day_filter: date | None,
+                            hour_min: int | None,
+                            hour_max: int | None
+                            ) -> tuple[list[ChurchIndexEvent], list[Church], bool]:
+    church_query = build_church_query(day_filter, hour_min, hour_max)\
+        .filter(church__parish__website=website)
 
     return truncate_results(church_query)
 
 
-def get_churches_by_diocese(diocese: Diocese) -> tuple[list[Church], bool]:
+def get_churches_by_diocese_legacy(diocese: Diocese) -> tuple[list[Church], bool]:
     church_query = build_church_query_legacy().filter(parish__diocese=diocese)
+    church_query = order_by_nb_page_with_confessions_legacy(church_query)
+
+    return truncate_results_legacy(church_query)
+
+
+def get_churches_by_diocese(diocese: Diocese,
+                            day_filter: date | None,
+                            hour_min: int | None,
+                            hour_max: int | None
+                            ) -> tuple[list[ChurchIndexEvent], list[Church], bool]:
+    church_query = build_church_query(day_filter, hour_min, hour_max)\
+        .filter(church__parish__diocese=diocese)
     church_query = order_by_nb_page_with_confessions(church_query)
 
     return truncate_results(church_query)
@@ -114,7 +206,7 @@ def get_popup_and_color(church: Church,
     if next_event is not None:
         date_str = format_datetime_with_locale(next_event.start, "%A %d %B", 'fr_FR.UTF-8')
         year_str = f" {next_event.start.year}" \
-            if next_event.start.year != datetime.date.today().year else ''
+            if next_event.start.year != date.today().year else ''
         wording = f'{_("NextEvent")}<br>le {date_str.lower()}{year_str} à {next_event.start:%H:%M}'
         color = 'darkblue'
     elif merged_church_schedules_list.source_index_by_parsing_uuid:
