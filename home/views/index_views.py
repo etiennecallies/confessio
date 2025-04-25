@@ -12,10 +12,11 @@ from home.services.autocomplete_service import get_aggregated_response
 from home.services.events_service import get_website_merged_church_schedules_list, \
     get_merged_church_schedules_list_for_website
 from home.services.filter_service import get_filter_days
-from home.services.map_service import prepare_map, \
-    get_center, get_cities_label, \
-    get_churches_around_legacy, get_churches_by_diocese_legacy, get_churches_by_website_legacy, \
-    get_churches_in_box_legacy
+from home.services.map_service import (prepare_map,
+                                       get_center, get_cities_label, get_churches_in_box,
+                                       get_churches_by_website,
+                                       get_churches_around,
+                                       get_churches_by_diocese)
 from home.services.page_url_service import get_page_pruning_urls
 from home.services.report_service import get_count_and_label, new_report, NewReportError, \
     get_previous_reports
@@ -166,9 +167,8 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
     if min_lat and min_lng and max_lat and max_lng:
         bounds = (min_lat, max_lat, min_lng, max_lng)
         center = [min_lat + max_lat / 2, min_lng + max_lng / 2]
-        churches, too_many_results = get_churches_in_box_legacy(min_lat, max_lat, min_lng, max_lng)
-        # index_events, churches, too_many_results = get_churches_in_box(
-        #     min_lat, max_lat, min_lng, max_lng, day_filter, hour_min, hour_max)
+        index_events, churches, too_many_results = get_churches_in_box(
+            min_lat, max_lat, min_lng, max_lng, day_filter, hour_min, hour_max)
 
         display_sub_title = False
     elif website_uuid:
@@ -183,9 +183,8 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
             except NewReportError as e:
                 return e.response
 
-        churches, too_many_results = get_churches_by_website_legacy(website)
-        # index_events, churches, too_many_results = get_churches_by_website(
-        #     website, day_filter, hour_min, hour_max)
+        index_events, churches, too_many_results = get_churches_by_website(
+            website, day_filter, hour_min, hour_max)
         if len(churches) == 0:
             return HttpResponseNotFound("No church found for this website")
 
@@ -197,8 +196,7 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
         display_sub_title = False
     elif latitude and longitude:
         center = [latitude, longitude]
-        churches, _ = get_churches_around_legacy(center)
-        # index_events, churches, _ = get_churches_around(center, day_filter, hour_min, hour_max)
+        index_events, churches, _ = get_churches_around(center, day_filter, hour_min, hour_max)
         too_many_results = False
         bounds = None
 
@@ -212,9 +210,8 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
         except Diocese.DoesNotExist:
             return HttpResponseNotFound("Diocese not found")
 
-        churches, too_many_results = get_churches_by_diocese_legacy(diocese)
-        # index_events, churches, too_many_results = get_churches_by_diocese(
-        #     diocese, day_filter, hour_min, hour_max)
+        index_events, churches, too_many_results = get_churches_by_diocese(
+            diocese, day_filter, hour_min, hour_max)
         if len(churches) == 0:
             return HttpResponseNotFound("No church found for this diocese")
         center = get_center(churches)
@@ -226,8 +223,7 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
     else:
         # Default coordinates
         center = [48.859, 2.342]  # Paris
-        churches, _ = get_churches_around_legacy(center)
-        # index_events, churches, _ = get_churches_around(center, day_filter, hour_min, hour_max)
+        index_events, churches, _ = get_churches_around(center, day_filter, hour_min, hour_max)
         too_many_results = False
         bounds = None
 

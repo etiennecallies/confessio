@@ -22,13 +22,6 @@ MAX_CHURCHES_IN_RESULTS = 50
 # SEARCH #
 ##########
 
-def build_church_query_legacy() -> 'QuerySet[Church]':
-    return Church.objects.select_related('parish__website') \
-        .prefetch_related('parish__website__parsings') \
-        .prefetch_related('parish__website__parishes__churches') \
-        .prefetch_related('parish__website__reports') \
-        .filter(is_active=True, parish__website__is_active=True)
-
 
 def build_church_query(day_filter: date | None,
                        hour_min: int | None,
@@ -52,25 +45,12 @@ def build_church_query(day_filter: date | None,
     return geo_query
 
 
-def order_by_nb_page_with_confessions_legacy(church_query: 'QuerySet[Church]'
-                                             ) -> 'QuerySet[Church]':
-    return church_query.annotate(nb_page_with_confessions=Count(
-        'parish__website__pages__scraping',
-        filter=Q(parish__website__pages__scraping__prunings__pruned_indices__len__gt=0)), ) \
-        .order_by('-nb_page_with_confessions')
-
-
 def order_by_nb_page_with_confessions(church_query: 'QuerySet[ChurchIndexEvent]'
                                       ) -> 'QuerySet[ChurchIndexEvent]':
     return church_query.annotate(nb_page_with_confessions=Count(
         'church__parish__website__pages__scraping',
         filter=Q(church__parish__website__pages__scraping__prunings__pruned_indices__len__gt=0)),) \
         .order_by('-nb_page_with_confessions', 'church__uuid')
-
-
-def truncate_results_legacy(church_query: 'QuerySet[Church]') -> tuple[list[Church], bool]:
-    churches = church_query.all()[:MAX_CHURCHES_IN_RESULTS]
-    return churches, len(churches) >= MAX_CHURCHES_IN_RESULTS
 
 
 def truncate_results(church_index_query: 'QuerySet[ChurchIndexEvent]'
@@ -90,18 +70,6 @@ def truncate_results(church_index_query: 'QuerySet[ChurchIndexEvent]'
     return results, churches, False
 
 
-def get_churches_around_legacy(center) -> tuple[list[Church], bool]:
-    latitude, longitude = center
-    center_as_point = Point(x=longitude, y=latitude)
-
-    church_query = build_church_query_legacy() \
-        .filter(location__dwithin=(center_as_point, D(km=5))) \
-        .annotate(distance=Distance('location', center_as_point)) \
-        .order_by('distance')
-
-    return truncate_results_legacy(church_query)
-
-
 def get_churches_around(center,
                         day_filter: date | None,
                         hour_min: int | None,
@@ -118,15 +86,6 @@ def get_churches_around(center,
     return truncate_results(church_query)
 
 
-def get_churches_in_box_legacy(min_lat, max_lat, min_long, max_long) -> tuple[list[Church], bool]:
-    polygon = Polygon.from_bbox((min_long, min_lat, max_long, max_lat))
-
-    church_query = build_church_query_legacy().filter(location__within=polygon)
-    church_query = order_by_nb_page_with_confessions_legacy(church_query)
-
-    return truncate_results_legacy(church_query)
-
-
 def get_churches_in_box(min_lat, max_lat, min_long, max_long,
                         day_filter: date | None,
                         hour_min: int | None,
@@ -141,12 +100,6 @@ def get_churches_in_box(min_lat, max_lat, min_long, max_long,
     return truncate_results(church_query)
 
 
-def get_churches_by_website_legacy(website: Website) -> tuple[list[Church], bool]:
-    church_query = build_church_query_legacy().filter(parish__website=website)
-
-    return truncate_results_legacy(church_query)
-
-
 def get_churches_by_website(website: Website,
                             day_filter: date | None,
                             hour_min: int | None,
@@ -156,13 +109,6 @@ def get_churches_by_website(website: Website,
         .filter(church__parish__website=website)
 
     return truncate_results(church_query)
-
-
-def get_churches_by_diocese_legacy(diocese: Diocese) -> tuple[list[Church], bool]:
-    church_query = build_church_query_legacy().filter(parish__diocese=diocese)
-    church_query = order_by_nb_page_with_confessions_legacy(church_query)
-
-    return truncate_results_legacy(church_query)
 
 
 def get_churches_by_diocese(diocese: Diocese,
