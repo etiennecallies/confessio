@@ -9,8 +9,7 @@ from django.utils.translation import gettext
 
 from home.models import Website, Diocese
 from home.services.autocomplete_service import get_aggregated_response
-from home.services.events_service import get_website_merged_church_schedules_list, \
-    get_merged_church_schedules_list_for_website
+from home.services.events_service import get_merged_church_schedules_list
 from home.services.filter_service import get_filter_days
 from home.services.map_service import (prepare_map,
                                        get_center, get_cities_label, get_churches_in_box,
@@ -44,12 +43,11 @@ def render_map(request, center, churches, h1_title: str, meta_title: str, displa
         website_city_label[website_uuid] = get_cities_label(churches_list)
 
     # We compute the merged schedules list for each website
-    website_merged_church_schedules_list = get_website_merged_church_schedules_list(
-        websites, website_churches, day_filter, hour_min, hour_max)
-
-    if day_filter or hour_min or hour_max:
-        # Filter on websites that have actual schedules
-        websites = [w for w in websites if w.uuid in website_merged_church_schedules_list]
+    website_merged_church_schedules_list = {}
+    for website in websites:
+        website_merged_church_schedules_list[website.uuid] = \
+            get_merged_church_schedules_list(
+                website, website_churches[website.uuid], day_filter, hour_min, hour_max)
 
     # We prepare the map
     folium_map, church_marker_names_json_by_website = prepare_map(
@@ -261,7 +259,7 @@ def partial_website_churches(request, website_uuid: str):
                                       f"'{church_marker_names_json}'")
 
     website_churches = [c for p in website.parishes.all() for c in p.churches.all()]
-    merged_schedules_list = get_merged_church_schedules_list_for_website(
+    merged_schedules_list = get_merged_church_schedules_list(
         website, website_churches, None, None, None)
 
     return render(request, 'partials/website_churches.html', {

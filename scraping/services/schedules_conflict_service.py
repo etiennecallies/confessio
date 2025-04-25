@@ -5,6 +5,9 @@ from home.services.events_service import get_merged_church_schedules_list
 
 
 def website_has_schedules_conflict(website: Website) -> tuple[date, Church] | None:
+    if website.unreliability_reason:
+        return None
+
     website_churches = []
     for parish in website.parishes.all():
         for church in parish.churches.all():

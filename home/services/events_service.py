@@ -126,7 +126,7 @@ def get_merged_church_schedules_list(website: Website,
                                      hour_min: int | None = None,
                                      hour_max: int | None = None,
                                      max_days: int = 8
-                                     ) -> MergedChurchSchedulesList | None:
+                                     ) -> MergedChurchSchedulesList:
     ################
     # Get parsings #
     ################
@@ -155,7 +155,11 @@ def get_merged_church_schedules_list(website: Website,
 
     holiday_zone = get_website_holiday_zone(website, all_website_churches)
 
-    parsings = get_website_sorted_parsings(website)
+    if website.unreliability_reason:
+        parsings = []
+    else:
+        parsings = get_website_sorted_parsings(website)
+
     for i, parsing in enumerate(parsings):
         church_by_id = get_church_by_id(parsing, all_website_churches)
 
@@ -193,11 +197,6 @@ def get_merged_church_schedules_list(website: Website,
             is_related_to_permanence_parsings.append(parsing)
         if schedules_list.will_be_seasonal_events:
             will_be_seasonal_events_parsings.append(parsing)
-
-    if day_filter or hour_min or hour_max:
-        if not all_church_schedule_items:
-            # If we are filtering on a specific day and no events are found, we return None
-            return None
 
     merged_church_schedule_items = get_merged_schedule_items(all_church_schedule_items)
     # TODO we shall make sure the church_id are the same across all parsings
@@ -270,62 +269,6 @@ def get_merged_church_schedules_list(website: Website,
         has_unknown_churches=has_unknown_churches,
         has_different_churches=has_different_churches,
     )
-
-
-def get_merged_church_schedules_list_for_website(website: Website,
-                                                 website_churches: list[Church],
-                                                 day_filter: date | None,
-                                                 hour_min: int | None,
-                                                 hour_max: int | None,
-                                                 ) -> MergedChurchSchedulesList | None:
-    if website.unreliability_reason:
-        if day_filter or hour_min or hour_max:
-            return None
-
-        church_sorted_schedules = [
-            ChurchSortedSchedules(
-                church=c,
-                is_church_explicitly_other=False,
-                sorted_schedules=[]
-            ) for c in website_churches
-        ]
-
-        return MergedChurchSchedulesList(
-            church_events_by_day={},
-            page_range='',
-            church_sorted_schedules=church_sorted_schedules,
-            possible_by_appointment_parsings=[],
-            is_related_to_mass_parsings=[],
-            is_related_to_adoration_parsings=[],
-            is_related_to_permanence_parsings=[],
-            will_be_seasonal_events_parsings=[],
-            source_index_by_parsing_uuid={},
-            parsings_have_been_moderated=False,
-            church_color_by_uuid=get_church_color_by_uuid(church_sorted_schedules),
-            display_explicit_other_churches=False,
-            has_explicit_other_churches=False,
-            has_unknown_churches=False,
-            has_different_churches=False,
-        )
-
-    return get_merged_church_schedules_list(website, website_churches, day_filter,
-                                            hour_min, hour_max)
-
-
-def get_website_merged_church_schedules_list(websites: list[Website],
-                                             website_churches: dict[UUID, list[Church]],
-                                             day_filter: date | None,
-                                             hour_min: int | None,
-                                             hour_max: int | None,
-                                             ) -> dict[UUID, MergedChurchSchedulesList]:
-    website_merged_church_schedules_list = {}
-    for website in websites:
-        merged_church_schedules_list = get_merged_church_schedules_list_for_website(
-            website, website_churches[website.uuid], day_filter, hour_min, hour_max)
-        if merged_church_schedules_list:
-            website_merged_church_schedules_list[website.uuid] = merged_church_schedules_list
-
-    return website_merged_church_schedules_list
 
 
 #########
