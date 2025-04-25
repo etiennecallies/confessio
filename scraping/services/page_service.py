@@ -1,6 +1,7 @@
 from typing import Optional, Literal
 
-from home.models import Page, Scraping
+from home.models import Page, Scraping, Pruning
+from home.utils.log_utils import info
 from scraping.services.parse_pruning_service import unlink_orphan_pruning_for_website
 from scraping.services.prune_scraping_service import remove_pruning_if_orphan
 
@@ -16,13 +17,30 @@ def delete_page(page: Page):
 
 
 def delete_scraping(scraping: Scraping):
+    # save prunings to delete
     prunings = list(scraping.prunings.all())
-    website = scraping.page.website
+
+    # save related website
+    try:
+        website = scraping.page.website
+    except Page.DoesNotExist:
+        website = None
+
     scraping.delete()
     for pruning in prunings:
         remove_pruning_if_orphan(pruning)
-        if not pruning.scrapings.filter(page__website=website).exists():
-            unlink_orphan_pruning_for_website(pruning, website)
+        if website is not None:
+            if not pruning.scrapings.filter(page__website=website).exists():
+                unlink_orphan_pruning_for_website(pruning, website)
+
+
+def clean_scraping_of_pruning(pruning: Pruning):
+    for scraping in pruning.scrapings.all():
+        try:
+            scraping.page
+        except Page.DoesNotExist:
+            info(f'deleting scraping {scraping} since its page does not exist')
+            delete_scraping(scraping)
 
 
 ######################

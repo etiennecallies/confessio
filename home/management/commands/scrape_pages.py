@@ -6,7 +6,7 @@ from home.management.abstract_command import AbstractCommand
 from home.models import Website, Log
 from home.utils.log_utils import start_log_buffer, get_log_buffer
 from scraping.scrape.download_refine_and_extract import get_fresh_extracted_html_list
-from scraping.services.page_service import delete_page
+from scraping.services.page_service import delete_page, clean_scraping_of_pruning
 from scraping.services.prune_scraping_service import prune_pruning
 from scraping.services.scrape_page_service import upsert_extracted_html_list
 
@@ -44,6 +44,7 @@ class Command(AbstractCommand):
                 # Insert or update scraping
                 prunings_to_prune = upsert_extracted_html_list(page, extracted_html_list)
                 for pruning in prunings_to_prune:
+                    clean_scraping_of_pruning(pruning)
                     prune_pruning(pruning)
                 self.info(f'Successfully scraped page {page.url} {page.uuid}')
 
