@@ -26,15 +26,6 @@ $(document).ready(function () {
     $(this).prev('.collapsable-header').find('.toggle-symbol')
       .toggleClass('collapsed-symbol expanded-symbol');
   });
-
-  // Handle mute/display explicitly other church
-  $('.hide-explicitly-other-btn').on('click', function() {
-    let $this = $(this);
-    $this.closest('.website-card').toggleClass('hide-explicitly-other');
-
-    // Toggle text "afficher" / "masquer"
-    $this.text($this.text() === 'Afficher' ? 'Masquer' : 'Afficher');
-  });
 });
 
 function lazyLoadElement($element, callback) {
@@ -52,7 +43,10 @@ function lazyLoadElement($element, callback) {
         $element.html(data);
         $element.data("lazy-load-url", '');
         if (callback) callback();
-        setTimeout(function() {activateExpandable($element)}, 0)
+        setTimeout(function() {
+            activateExpandable($element);
+            activateToggleExplicitlyOther($element);
+        }, 0)
     }).fail(function() {
         $element.html("<p>Une erreur est survenue...</p>");
     });
@@ -61,6 +55,17 @@ function lazyLoadElement($element, callback) {
 function activateExpandable($element) {
     $element.find('.expandable').on('click', function () {
         $(this).children('.expandable-item').toggle();
+    });
+}
+
+function activateToggleExplicitlyOther($element) {
+    // Handle mute/display explicitly other church
+    $element.find('.hide-explicitly-other-btn').on('click', function() {
+      let $this = $(this);
+      $this.closest('.website-card').toggleClass('hide-explicitly-other');
+
+      // Toggle text "afficher" / "masquer"
+      $this.text($this.text() === 'Afficher' ? 'Masquer' : 'Afficher');
     });
 }
 
