@@ -55,7 +55,7 @@ class ChurchScheduleItem:
 
 @dataclass
 class ChurchEvent:
-    church: Optional[Church]
+    church: Church | None
     is_church_explicitly_other: bool
     event: Event
 
@@ -103,6 +103,7 @@ class MergedChurchSchedulesList:
     is_related_to_permanence_parsings: list[Parsing]
     will_be_seasonal_events_parsings: list[Parsing]
     source_index_by_parsing_uuid: dict[UUID, int]
+    parsing_by_uuid: dict[UUID, Parsing]
     parsings_have_been_moderated: bool
     church_color_by_uuid: dict[UUID, str]
     display_explicit_other_churches: bool
@@ -234,6 +235,7 @@ def get_merged_church_schedules_list(website: Website,
     ]
 
     source_index_by_parsing_uuid = {source.uuid: i for i, source in enumerate(parsings)}
+    parsing_by_uuid = {parsing.uuid: parsing for parsing in parsings}
     parsings_have_been_moderated = all(parsing.has_been_moderated() for parsing in parsings)
     display_explicit_other_churches = do_display_explicit_other_churches(church_sorted_schedules)
     all_church_events = sum(church_events_by_day.values(), [])
@@ -252,6 +254,7 @@ def get_merged_church_schedules_list(website: Website,
         is_related_to_permanence_parsings=is_related_to_permanence_parsings,
         will_be_seasonal_events_parsings=will_be_seasonal_events_parsings,
         source_index_by_parsing_uuid=source_index_by_parsing_uuid,
+        parsing_by_uuid=parsing_by_uuid,
         parsings_have_been_moderated=parsings_have_been_moderated,
         church_color_by_uuid=get_church_color_by_uuid(church_sorted_schedules),
         display_explicit_other_churches=display_explicit_other_churches,

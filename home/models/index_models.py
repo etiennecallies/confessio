@@ -10,3 +10,4 @@ class ChurchIndexEvent(TimeStampMixin):
     indexed_end_time = models.TimeField(db_index=True, null=True)
     displayed_end_time = models.TimeField(db_index=False, null=True)
     is_explicitely_other = models.BooleanField(null=True)
+    has_been_moderated = models.BooleanField(null=True)

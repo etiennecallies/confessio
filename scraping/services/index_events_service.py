@@ -1,5 +1,5 @@
-from home.models import Website, ChurchIndexEvent
-from home.services.events_service import get_merged_church_schedules_list
+from home.models import Website, ChurchIndexEvent, Church
+from home.services.events_service import get_merged_church_schedules_list, ChurchEvent
 from home.utils.date_utils import time_plus_hours
 
 
@@ -17,17 +17,14 @@ def index_events_for_website(website: Website):
                 indexed_end_time=None,
                 displayed_end_time=None,
                 is_explicitely_other=None,
+                has_been_moderated=None,
             ))
 
     all_church_events = []
     if not website.unreliability_reason:
-        merged_church_schedules_list = get_merged_church_schedules_list(
-            website, website_churches, day_filter=None, max_days=10
-        )
-        for church_events in merged_church_schedules_list.church_events_by_day.values():
-            all_church_events += church_events
+        all_church_events = get_all_church_events_and_moderation(website, website_churches)
 
-    for church_event in all_church_events:
+    for church_event, has_been_moderated in all_church_events:
         event_day = church_event.event.start.date()
         event_start_time = church_event.event.start.time()
         displayed_end_time = church_event.event.end.time() if church_event.event.end else None
@@ -40,6 +37,7 @@ def index_events_for_website(website: Website):
                 indexed_end_time=indexed_end_time,
                 displayed_end_time=displayed_end_time,
                 is_explicitely_other=None,
+                has_been_moderated=has_been_moderated,
             ))
         else:
             for church in website_churches:
@@ -50,6 +48,7 @@ def index_events_for_website(website: Website):
                     indexed_end_time=indexed_end_time,
                     displayed_end_time=displayed_end_time,
                     is_explicitely_other=church_event.is_church_explicitly_other,
+                    has_been_moderated=has_been_moderated,
                 ))
 
     # Remove existing events
@@ -57,3 +56,30 @@ def index_events_for_website(website: Website):
 
     for website_index_event in church_index_to_add:
         website_index_event.save()
+
+
+def get_all_church_events_and_moderation(website: Website, website_churches: list[Church]
+                                         ) -> list[tuple[ChurchEvent, bool]]:
+    all_church_events = []
+    merged_church_schedules_list = get_merged_church_schedules_list(
+        website, website_churches, day_filter=None, max_days=10
+    )
+    for church_sorted_schedule in merged_church_schedules_list.church_sorted_schedules:
+        has_been_moderated_by_church_event = {}
+        for sorted_schedule in church_sorted_schedule.sorted_schedules:
+            parsings = [merged_church_schedules_list.parsing_by_uuid[parsing_uuid]
+                        for parsing_uuid in sorted_schedule.parsing_uuids]
+            has_been_moderated = any(p.has_been_moderated() for p in parsings)
+            for event in sorted_schedule.events:
+                has_been_moderated_by_church_event[event] = \
+                    has_been_moderated or has_been_moderated_by_church_event.get(event, False)
+
+            for event, has_been_moderated in has_been_moderated_by_church_event.items():
+                church_event = ChurchEvent(
+                    church=church_sorted_schedule.church,
+                    is_church_explicitly_other=church_sorted_schedule.is_church_explicitly_other,
+                    event=event,
+                )
+                all_church_events.append((church_event, has_been_moderated))
+
+    return all_church_events
