@@ -94,7 +94,7 @@ class ChurchSortedSchedules:
 
 
 @dataclass
-class MergedChurchSchedulesList:
+class WebsiteSchedules:
     church_events_by_day: dict[date, list[ChurchEvent]]
     church_sorted_schedules: list[ChurchSortedSchedules]
     possible_by_appointment_parsings: list[Parsing]
@@ -112,13 +112,13 @@ class MergedChurchSchedulesList:
     has_different_churches: bool
 
 
-def get_merged_church_schedules_list(website: Website,
-                                     all_website_churches: list[Church],
-                                     day_filter: date | None = None,
-                                     hour_min: int | None = None,
-                                     hour_max: int | None = None,
-                                     max_days: int = 8
-                                     ) -> MergedChurchSchedulesList:
+def get_website_schedules(website: Website,
+                          all_website_churches: list[Church],
+                          day_filter: date | None = None,
+                          hour_min: int | None = None,
+                          hour_max: int | None = None,
+                          max_days: int = 8
+                          ) -> WebsiteSchedules:
     ################
     # Get parsings #
     ################
@@ -245,7 +245,7 @@ def get_merged_church_schedules_list(website: Website,
                                for c in all_church_events)
     has_different_churches = len(set(c.church for c in all_church_events if c.church)) > 1
 
-    return MergedChurchSchedulesList(
+    return WebsiteSchedules(
         church_events_by_day=church_events_by_day,
         church_sorted_schedules=church_sorted_schedules,
         possible_by_appointment_parsings=possible_by_appointment_parsings,

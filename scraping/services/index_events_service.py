@@ -1,5 +1,5 @@
 from home.models import Website, ChurchIndexEvent, Church
-from home.services.events_service import get_merged_church_schedules_list, ChurchEvent
+from home.services.events_service import get_website_schedules, ChurchEvent
 from home.utils.date_utils import time_plus_hours
 
 
@@ -61,13 +61,13 @@ def index_events_for_website(website: Website):
 def get_all_church_events_and_moderation(website: Website, website_churches: list[Church]
                                          ) -> list[tuple[ChurchEvent, bool]]:
     all_church_events = []
-    merged_church_schedules_list = get_merged_church_schedules_list(
+    website_schedules = get_website_schedules(
         website, website_churches, day_filter=None, max_days=10
     )
-    for church_sorted_schedule in merged_church_schedules_list.church_sorted_schedules:
+    for church_sorted_schedule in website_schedules.church_sorted_schedules:
         has_been_moderated_by_church_event = {}
         for sorted_schedule in church_sorted_schedule.sorted_schedules:
-            parsings = [merged_church_schedules_list.parsing_by_uuid[parsing_uuid]
+            parsings = [website_schedules.parsing_by_uuid[parsing_uuid]
                         for parsing_uuid in sorted_schedule.parsing_uuids]
             has_been_moderated = any(p.has_been_moderated() for p in parsings)
             for event in sorted_schedule.events:

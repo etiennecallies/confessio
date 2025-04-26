@@ -9,7 +9,7 @@ from django.utils.translation import gettext
 
 from home.models import Website, Diocese
 from home.services.autocomplete_service import get_aggregated_response
-from home.services.events_service import get_merged_church_schedules_list
+from home.services.events_service import get_website_schedules
 from home.services.filter_service import get_filter_days
 from home.services.map_service import (prepare_map,
                                        get_center, get_cities_label, get_churches_in_box,
@@ -260,12 +260,12 @@ def partial_website_churches(request, website_uuid: str):
                                       f"'{church_marker_names_json}'")
 
     website_churches = [c for p in website.parishes.all() for c in p.churches.all()]
-    merged_schedules_list = get_merged_church_schedules_list(
+    website_schedules = get_website_schedules(
         website, website_churches, None, None, None)
 
     return render(request, 'partials/website_churches.html', {
         'website': website,
-        'merged_schedules_list': merged_schedules_list,
+        'website_schedules': website_schedules,
         'church_marker_names': church_marker_names,
     })
 

@@ -2,7 +2,7 @@
 {% load display_tags %}
 {% load i18n %}
 
-{% for church_sorted_schedule in merged_schedules_list.church_sorted_schedules %}
+{% for church_sorted_schedule in website_schedules.church_sorted_schedules %}
     {% with church=church_sorted_schedule.church %}
         <div id="{% if church %}church-{{ church.uuid }}{% else %}nochurch-{{ website.uuid }}-{{ church_sorted_schedule.is_church_explicitly_other|lower }}{% endif %}"
              class="margin-left-indent mb-3">
@@ -14,7 +14,7 @@
                                class="link-info"
                                onclick="return popupChurch('{{ church_marker_name }}');">
                         {% endif %}
-                        <span class="fw-bold">{% display_church_color church False merged_schedules_list.church_color_by_uuid %} {{ church.name }}</span>
+                        <span class="fw-bold">{% display_church_color church False website_schedules.church_color_by_uuid %} {{ church.name }}</span>
                         {% if church_marker_name %}
                             </a>
                         {% endif %}
@@ -32,14 +32,14 @@
                 </div>
             {% elif church_sorted_schedule.is_church_explicitly_other %}
                 <div>
-                    {% display_church_color church True merged_schedules_list.church_color_by_uuid %}
+                    {% display_church_color church True website_schedules.church_color_by_uuid %}
                     {% display_other_church_icon True %}
                     <span class="text-danger">{% trans 'OutsideThisParish' %} :</span>
-                    <span class="hide-explicitly-other-btn text-muted clickable small">{% if merged_schedules_list.display_explicit_other_churches %}Masquer{% else %}Afficher{% endif %}</span>
+                    <span class="hide-explicitly-other-btn text-muted clickable small">{% if website_schedules.display_explicit_other_churches %}Masquer{% else %}Afficher{% endif %}</span>
                 </div>
             {% else %}
                 <div>
-                    {% display_church_color church False merged_schedules_list.church_color_by_uuid %}
+                    {% display_church_color church False website_schedules.church_color_by_uuid %}
                     {% display_other_church_icon False %}
                     {% trans 'UnknownChurch' %} :
                 </div>
@@ -58,17 +58,17 @@
     {% endwith %}
 {% endfor %}
 <div class="margin-left-indent mt-1">
-    {% if merged_schedules_list.possible_by_appointment_parsings %}
+    {% if website_schedules.possible_by_appointment_parsings %}
         <div>🤝 Il est possible de se confesser sur rendez-vous.
-            {% for parsing in merged_schedules_list.possible_by_appointment_parsings %}
+            {% for parsing in website_schedules.possible_by_appointment_parsings %}
                 {% with parsing_uuid=parsing.uuid %}
                     {% include 'includes/source_reference.html' %}
                 {% endwith %}
             {% endfor %}
         </div>
     {% endif %}
-    {{ merged_schedules_list|has_relation_text }}
-    {% for parsing_uuid in merged_schedules_list|relation_parsing_uuids %}
+    {{ website_schedules|has_relation_text }}
+    {% for parsing_uuid in website_schedules|relation_parsing_uuids %}
         {% include 'includes/source_reference.html' %}
     {% endfor %}
 </div>

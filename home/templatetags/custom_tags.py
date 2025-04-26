@@ -8,7 +8,7 @@ from django.urls import reverse
 from home.models import WebsiteModeration, ChurchModeration, ParishModeration, \
     PruningModeration, SentenceModeration, ParsingModeration, ModerationMixin, Pruning, \
     Page, Parsing, ReportModeration, Diocese, Church
-from home.services.events_service import MergedChurchSchedulesList, \
+from home.services.events_service import WebsiteSchedules, \
     get_no_church_color
 from home.services.website_events_service import WebsiteEvents
 from home.utils.date_utils import get_current_year
@@ -65,16 +65,16 @@ def get_schedule_item_events(schedule_item: ScheduleItem) -> list[Event]:
 
 
 @register.filter
-def has_relation_text(merged_church_schedules_list: MergedChurchSchedulesList | None) -> str:
-    if not merged_church_schedules_list:
+def has_relation_text(website_schedules: WebsiteSchedules | None) -> str:
+    if not website_schedules:
         return ''
 
     relations = []
-    if merged_church_schedules_list.is_related_to_mass_parsings:
+    if website_schedules.is_related_to_mass_parsings:
         relations.append('messes')
-    if merged_church_schedules_list.is_related_to_adoration_parsings:
+    if website_schedules.is_related_to_adoration_parsings:
         relations.append('adorations')
-    if merged_church_schedules_list.is_related_to_permanence_parsings:
+    if website_schedules.is_related_to_permanence_parsings:
         relations.append('permanences')
 
     if relations:
@@ -86,16 +86,16 @@ def has_relation_text(merged_church_schedules_list: MergedChurchSchedulesList | 
 
 
 @register.filter
-def relation_parsing_uuids(merged_church_schedules_list: MergedChurchSchedulesList | None
+def relation_parsing_uuids(website_schedules: WebsiteSchedules | None
                            ) -> list[int]:
-    if not merged_church_schedules_list:
+    if not website_schedules:
         return []
 
     return list(set(
         map(lambda parsing: parsing.uuid,
-            merged_church_schedules_list.is_related_to_mass_parsings
-            + merged_church_schedules_list.is_related_to_adoration_parsings
-            + merged_church_schedules_list.is_related_to_permanence_parsings)
+            website_schedules.is_related_to_mass_parsings
+            + website_schedules.is_related_to_adoration_parsings
+            + website_schedules.is_related_to_permanence_parsings)
     ))
 
 
