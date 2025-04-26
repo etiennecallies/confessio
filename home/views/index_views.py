@@ -7,7 +7,7 @@ from django.http import HttpResponseNotFound, JsonResponse, HttpResponseBadReque
 from django.shortcuts import render
 from django.utils.translation import gettext
 
-from home.models import Website, Diocese
+from home.models import Website, Diocese, ChurchIndexEvent
 from home.services.autocomplete_service import get_aggregated_response
 from home.services.website_schedules_service import get_website_schedules
 from home.services.filter_service import get_filter_days
@@ -26,7 +26,8 @@ from home.utils.date_utils import get_current_day, get_current_year
 from sourcing.utils.string_utils import lower_first, city_and_prefix
 
 
-def render_map(request, center, churches, h1_title: str, meta_title: str, display_sub_title: bool,
+def render_map(request, center, index_events: list[ChurchIndexEvent], churches, h1_title: str,
+               meta_title: str, display_sub_title: bool,
                bounds, location, too_many_results: bool,
                is_around_me: bool, day_filter: date | None,
                hour_min: int | None, hour_max: int | None,
@@ -43,12 +44,17 @@ def render_map(request, center, churches, h1_title: str, meta_title: str, displa
     for website_uuid, churches_list in website_churches.items():
         website_city_label[website_uuid] = get_cities_label(churches_list)
 
-    # We compute the merged schedules list for each website
+    index_events_by_website = {}
+    for index_event in index_events:
+        index_events_by_website.setdefault(index_event.church.parish.website.uuid, [])\
+            .append(index_event)
+
     events_by_website = {}
     for website in websites:
         events_by_website[website.uuid] = \
             get_website_events(
-                website, website_churches[website.uuid], day_filter, hour_min, hour_max)
+                website, index_events_by_website[website.uuid], website_churches[website.uuid],
+                day_filter, hour_min, hour_max)
 
     # We prepare the map
     folium_map, church_marker_names_json_by_website = prepare_map(
@@ -184,10 +190,16 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
 
         index_events, churches, too_many_results = get_churches_by_website(
             website, day_filter, hour_min, hour_max)
-        if len(churches) == 0:
-            return HttpResponseNotFound("No church found for this website")
 
-        center = get_center(churches)
+        if len(churches) == 0:
+            website_churches = [church for p in website.parishes.all()
+                                for church in p.churches.all()]
+            if len(website_churches) == 0:
+                return HttpResponseNotFound("No church found for this website")
+
+            center = get_center(website_churches)
+        else:
+            center = get_center(churches)
         bounds = None
 
         h1_title = f'{website.name}'
@@ -212,8 +224,14 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
         index_events, churches, too_many_results = get_churches_by_diocese(
             diocese, day_filter, hour_min, hour_max)
         if len(churches) == 0:
-            return HttpResponseNotFound("No church found for this diocese")
-        center = get_center(churches)
+            diocese_churches = [church for p in diocese.parishes.all()
+                                for church in p.churches.all()]
+            if len(diocese_churches) == 0:
+                return HttpResponseNotFound("No church found for this diocese")
+
+            center = get_center(diocese_churches)
+        else:
+            center = get_center(churches)
         bounds = None
 
         h1_title = f'Se confesser au {lower_first(diocese.name)}'
@@ -228,9 +246,9 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
 
         display_sub_title = True
 
-    return render_map(request, center, churches, h1_title, meta_title, display_sub_title, bounds,
-                      location, too_many_results, is_around_me, day_filter, hour_min, hour_max,
-                      website, success_message)
+    return render_map(request, center, index_events, churches, h1_title, meta_title,
+                      display_sub_title, bounds, location, too_many_results, is_around_me,
+                      day_filter, hour_min, hour_max, website, success_message)
 
 
 def website_sources(request, website_uuid: str):

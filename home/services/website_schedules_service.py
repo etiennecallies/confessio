@@ -3,7 +3,7 @@ from datetime import date, timedelta
 from typing import Optional
 from uuid import UUID
 
-from home.models import Church, Parsing, Website
+from home.models import Church, Parsing, Website, ChurchIndexEvent
 from home.services.holiday_zone_service import get_website_holiday_zone
 from home.services.sources_service import get_website_sorted_parsings
 from home.utils.date_utils import get_current_year, time_from_minutes
@@ -11,6 +11,7 @@ from home.utils.hash_utils import hash_string_to_hex
 from scraping.parse.explain_schedule import schedule_item_sort_key, get_explanation_from_schedule
 from scraping.parse.rrule_utils import get_events_from_schedule_item
 from scraping.parse.schedules import Event, ScheduleItem
+from scraping.services.church_index_service import event_from_church_index_event
 from scraping.services.parsing_service import get_church_by_id, get_parsing_schedules_list
 
 
@@ -73,6 +74,24 @@ class ChurchEvent:
             is_church_explicitly_other=False,
             event=event,
         )
+
+    @classmethod
+    def from_index_event(cls, index_event: ChurchIndexEvent) -> 'ChurchEvent':
+        return cls(
+            church=index_event.church if index_event.is_explicitely_other is None else None,
+            is_church_explicitly_other=bool(index_event.is_explicitely_other),
+            event=event_from_church_index_event(index_event),
+        )
+
+    def __lt__(self, other: 'ChurchEvent'):
+        return self.event < other.event
+
+    def __hash__(self):
+        return hash((
+            self.church.uuid if self.church else None,
+            self.is_church_explicitly_other,
+            self.event
+        ))
 
 
 @dataclass

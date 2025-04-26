@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import date, timedelta
 from uuid import UUID
 
-from home.models import Church, Website
+from home.models import Church, Website, ChurchIndexEvent
 from home.services.website_schedules_service import ChurchEvent, ChurchSortedSchedules, \
     ChurchScheduleItem, get_merged_schedule_items, get_sorted_schedules_by_church_id, \
     do_display_explicit_other_churches, get_church_color_by_uuid
@@ -36,6 +36,7 @@ class WebsiteEvents:
 
 
 def get_website_events(website: Website,
+                       index_events: list[ChurchIndexEvent],
                        all_website_churches: list[Church],
                        day_filter: date | None = None,
                        hour_min: int | None = None,
@@ -104,21 +105,21 @@ def get_website_events(website: Website,
     ##############
     # Get events #
     ##############
-
-    all_events = list(sorted(list(set(
-        sum((cs.schedule_item.events for cs in merged_church_schedule_items), [])))))
+    sorted_church_events = list(sorted(list(set(map(
+        lambda index_event: ChurchEvent.from_index_event(index_event),
+        [index_event for index_event in index_events if index_event.day is not None]
+    )))))
 
     church_events_by_day = {}
-    if all_events:
-        first_day = all_events[0].start.date()
+    if sorted_church_events:
+        first_day = sorted_church_events[0].event.start.date()
         for i in range(max_days):
             day = first_day + timedelta(days=i)
             church_events_by_day[day] = []
 
-        for event in all_events:
-            event_date = event.start.date()
+        for church_event in sorted_church_events:
+            event_date = church_event.event.start.date()
             if event_date in church_events_by_day:
-                church_event = ChurchEvent.from_event(event, church_by_id)
                 church_events_by_day[event_date].append(church_event)
 
     ######################
