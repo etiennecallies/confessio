@@ -7,7 +7,7 @@ from django.template.defaulttags import register
 from django.template.loader import render_to_string
 
 from home.models import Parish, Church, Website, Pruning
-from home.services.events_service import get_no_church_color
+from home.services.website_schedules_service import get_no_church_color
 from home.services.map_service import (get_map_with_single_location,
                                        get_map_with_multiple_locations,
                                        get_map_with_alternative_locations)

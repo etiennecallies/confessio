@@ -3,8 +3,8 @@ from datetime import date, timedelta
 from uuid import UUID
 
 from home.models import Church, Website
-from home.services.events_service import ChurchEvent, ChurchSortedSchedules, ChurchScheduleItem, \
-    get_merged_schedule_items, get_sorted_schedules_by_church_id, \
+from home.services.website_schedules_service import ChurchEvent, ChurchSortedSchedules, \
+    ChurchScheduleItem, get_merged_schedule_items, get_sorted_schedules_by_church_id, \
     do_display_explicit_other_churches, get_church_color_by_uuid
 from home.services.holiday_zone_service import get_website_holiday_zone
 from home.services.sources_service import get_website_sorted_parsings

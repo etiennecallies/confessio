@@ -9,7 +9,7 @@ from django.utils.translation import gettext
 
 from home.models import Website, Diocese
 from home.services.autocomplete_service import get_aggregated_response
-from home.services.events_service import get_website_schedules
+from home.services.website_schedules_service import get_website_schedules
 from home.services.filter_service import get_filter_days
 from home.services.map_service import (prepare_map,
                                        get_center, get_cities_label, get_churches_in_box,

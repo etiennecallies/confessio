@@ -8,7 +8,7 @@ from django.urls import reverse
 from home.models import WebsiteModeration, ChurchModeration, ParishModeration, \
     PruningModeration, SentenceModeration, ParsingModeration, ModerationMixin, Pruning, \
     Page, Parsing, ReportModeration, Diocese, Church
-from home.services.events_service import WebsiteSchedules, \
+from home.services.website_schedules_service import WebsiteSchedules, \
     get_no_church_color
 from home.services.website_events_service import WebsiteEvents
 from home.utils.date_utils import get_current_year
