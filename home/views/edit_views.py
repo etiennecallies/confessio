@@ -12,7 +12,8 @@ from jsoneditor.forms import JSONSchemaForm
 from scraping.parse.schedules import SchedulesList
 from scraping.prune.action_interfaces import DummyActionInterface
 from scraping.prune.models import Action
-from scraping.services.parse_pruning_service import reset_counters_of_parsing
+from scraping.services.parse_pruning_service import reset_counters_of_parsing, \
+    re_index_related_website
 from scraping.services.parsing_service import get_parsing_schedules_list
 from scraping.services.prune_scraping_service import SentenceFromDbActionInterface, \
     reprune_affected_prunings, prune_pruning
@@ -93,6 +94,7 @@ def edit_parsing(request, parsing_uuid):
             parsing.human_json = schedules_list.model_dump()
             parsing.save()
             success = True
+            re_index_related_website(parsing)
 
             if schedules_list != previous_schedule_list:
                 # reset page counter

@@ -160,6 +160,12 @@ def on_parsing_human_validation(parsing_moderation: ParsingModeration):
 def set_human_json(parsing: Parsing):
     parsing.human_json = parsing.llm_json
     parsing.save()
+    re_index_related_website(parsing)
+
+
+def re_index_related_website(parsing: Parsing):
+    if parsing.website:
+        index_events_for_website(parsing.website)
 
 
 ############
