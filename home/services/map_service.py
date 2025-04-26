@@ -12,7 +12,7 @@ from django.utils.translation import gettext as _
 from folium import Map, Icon, Popup, Marker
 
 from home.models import Church, Website, Diocese, ChurchIndexEvent
-from home.services.events_service import MergedChurchSchedulesList
+from home.services.website_events_service import WebsiteEvents
 from home.utils.date_utils import format_datetime_with_locale, time_from_minutes
 
 MAX_CHURCHES_IN_RESULTS = 50
@@ -146,17 +146,17 @@ def get_latitude_longitude(point):
 
 
 def get_popup_and_color(church: Church,
-                        merged_church_schedules_list: MergedChurchSchedulesList
+                        website_events: WebsiteEvents
                         ) -> Tuple[str, str]:
-    next_event = merged_church_schedules_list.next_event_in_church(church) \
-        if merged_church_schedules_list else None
+    next_event = website_events.next_event_in_church(church) \
+        if website_events else None
     if next_event is not None:
         date_str = format_datetime_with_locale(next_event.start, "%A %d %B", 'fr_FR.UTF-8')
         year_str = f" {next_event.start.year}" \
             if next_event.start.year != date.today().year else ''
         wording = f'{_("NextEvent")}<br>le {date_str.lower()}{year_str} à {next_event.start:%H:%M}'
         color = 'darkblue'
-    elif merged_church_schedules_list.source_index_by_parsing_uuid:
+    elif website_events.confession_exists:
         wording = _("ConfessionsExist")
         color = 'blue'
     elif not church.parish.website.has_been_crawled():
@@ -177,7 +177,7 @@ def get_popup_and_color(church: Church,
 
 
 def prepare_map(center, churches: List[Church], bounds,
-                website_merged_church_schedules_list: dict[UUID, MergedChurchSchedulesList],
+                events_by_website: dict[UUID, WebsiteEvents],
                 is_around_me: bool
                 ) -> Tuple[Map, Dict[UUID, str]]:
     # Create Map Object
@@ -194,14 +194,10 @@ def prepare_map(center, churches: List[Church], bounds,
 
     for church in churches:
         website_uuid = church.parish.website.uuid
-        merged_church_schedules_list = \
-            website_merged_church_schedules_list.get(website_uuid, None)
-        if merged_church_schedules_list is None:
-            # We don't display church without schedules
-            continue
+        website_events = events_by_website.get(website_uuid, None)
 
         tootltip_text = f'{church.name}'
-        popup_html, color = get_popup_and_color(church, merged_church_schedules_list)
+        popup_html, color = get_popup_and_color(church, website_events)
         marker = Marker(get_latitude_longitude(church.location),
                         tooltip=tootltip_text,
                         popup=Popup(html=popup_html, max_width=None),

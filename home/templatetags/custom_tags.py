@@ -10,6 +10,7 @@ from home.models import WebsiteModeration, ChurchModeration, ParishModeration, \
     Page, Parsing, ReportModeration, Diocese, Church
 from home.services.events_service import MergedChurchSchedulesList, \
     get_no_church_color
+from home.services.website_events_service import WebsiteEvents
 from home.utils.date_utils import get_current_year
 from home.utils.list_utils import enumerate_with_and
 from scraping.parse.holidays import HolidayZoneEnum
@@ -28,9 +29,9 @@ def get_item_str(dictionary, key):
 
 
 @register.filter
-def days_of_range(merged_church_schedules_list: MergedChurchSchedulesList,
+def days_of_range(website_events: WebsiteEvents,
                   range_number_as_str: str) -> list[date]:
-    sorted_days = sorted(merged_church_schedules_list.church_events_by_day.keys())
+    sorted_days = sorted(website_events.church_events_by_day.keys())
     nb_days = 4
     range_number = int(range_number_as_str) - 1
 

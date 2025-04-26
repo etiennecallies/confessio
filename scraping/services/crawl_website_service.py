@@ -8,7 +8,6 @@ from scraping.crawl.download_and_search_urls import search_for_confession_pages,
     get_new_url_and_aliases, forbid_diocese_home_links
 from scraping.services.page_service import delete_page
 from scraping.services.prune_scraping_service import prune_pruning, update_parsings
-from scraping.services.schedules_conflict_service import website_has_schedules_conflict
 from scraping.services.scrape_page_service import upsert_extracted_html_list
 from scraping.utils.url_utils import get_path, get_domain, have_similar_domain
 
@@ -224,14 +223,15 @@ def add_moderations(website: Website,
         if website.one_page_has_confessions():
             remove_not_validated_moderation(website,
                                             WebsiteModeration.Category.HOME_URL_NO_CONFESSION)
-            conflict = website_has_schedules_conflict(website)
-            if conflict is None:
-                remove_not_validated_moderation(website,
-                                                WebsiteModeration.Category.SCHEDULES_CONFLICT)
-            else:
-                conflict_day, conflict_church = conflict
-                add_moderation(website, WebsiteModeration.Category.SCHEDULES_CONFLICT,
-                               conflict_day=conflict_day, conflict_church=conflict_church)
+            # TODO move to reindex events
+            # conflict = website_has_schedules_conflict(website)
+            # if conflict is None:
+            #     remove_not_validated_moderation(website,
+            #                                     WebsiteModeration.Category.SCHEDULES_CONFLICT)
+            # else:
+            #     conflict_day, conflict_church = conflict
+            #     add_moderation(website, WebsiteModeration.Category.SCHEDULES_CONFLICT,
+            #                    conflict_day=conflict_day, conflict_church=conflict_church)
 
             return True, True
 

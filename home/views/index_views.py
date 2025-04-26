@@ -19,6 +19,7 @@ from home.services.map_service import (prepare_map,
 from home.services.page_url_service import get_page_pruning_urls
 from home.services.report_service import get_count_and_label, new_report, NewReportError, \
     get_previous_reports
+from home.services.website_events_service import get_website_events
 from home.services.sources_service import get_website_parsings_and_prunings
 from home.services.stat_service import new_search_hit
 from home.utils.date_utils import get_current_day, get_current_year
@@ -43,15 +44,15 @@ def render_map(request, center, churches, h1_title: str, meta_title: str, displa
         website_city_label[website_uuid] = get_cities_label(churches_list)
 
     # We compute the merged schedules list for each website
-    website_merged_church_schedules_list = {}
+    events_by_website = {}
     for website in websites:
-        website_merged_church_schedules_list[website.uuid] = \
-            get_merged_church_schedules_list(
+        events_by_website[website.uuid] = \
+            get_website_events(
                 website, website_churches[website.uuid], day_filter, hour_min, hour_max)
 
     # We prepare the map
     folium_map, church_marker_names_json_by_website = prepare_map(
-        center, churches, bounds, website_merged_church_schedules_list, is_around_me)
+        center, churches, bounds, events_by_website, is_around_me)
 
     # Get HTML Representation of Map Object
     map_html = folium_map._repr_html_()
@@ -95,7 +96,7 @@ def render_map(request, center, churches, h1_title: str, meta_title: str, displa
         'map_html': map_html,
         'church_marker_names_json_by_website': church_marker_names_json_by_website,
         'websites': websites,
-        'website_merged_church_schedules_list': website_merged_church_schedules_list,
+        'events_by_website': events_by_website,
         'website_city_label': website_city_label,
         'too_many_results': too_many_results,
         'website_reports_count': website_reports_count,
