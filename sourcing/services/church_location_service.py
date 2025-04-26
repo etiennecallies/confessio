@@ -4,7 +4,7 @@ from django.contrib.gis.geos import Point
 from django.db.models.functions import Now
 
 from home.models import ChurchModeration, Church, ExternalSource, Diocese
-from sourcing.utils.geo_utils import get_distances_to_barycenter
+from sourcing.utils.geo_utils import get_distances_to_barycenter, check_coordinates_validity
 from sourcing.utils.google_maps_api_utils import google_maps_geocode
 from sourcing.utils.wikidata_utils import get_church_by_messesinfo_id
 
@@ -127,10 +127,20 @@ def find_church_geo_outliers() -> int:
 
 
 def check_distances(churches: list[Church], max_distance: int) -> int:
-    distance_by_point = get_distances_to_barycenter([c.location for c in churches])
     outliers_count = 0
-
+    valid_churches = []
     for church in churches:
+        if not check_coordinates_validity(church.location):
+            add_church_moderation_if_not_exists(church,
+                                                ChurchModeration.Category.LOCATION_OUTLIER,
+                                                ExternalSource.MESSESINFO)
+            outliers_count += 1
+            continue
+        valid_churches.append(church)
+
+    distance_by_point = get_distances_to_barycenter([c.location for c in valid_churches])
+
+    for church in valid_churches:
         if distance_by_point[church.location] > max_distance:
             add_church_moderation_if_not_exists(church,
                                                 ChurchModeration.Category.LOCATION_OUTLIER,
