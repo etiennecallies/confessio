@@ -51,10 +51,7 @@ def render_map(request, center, index_events: list[ChurchIndexEvent], churches, 
 
     events_by_website = {}
     for website in websites:
-        events_by_website[website.uuid] = \
-            get_website_events(
-                website, index_events_by_website[website.uuid], website_churches[website.uuid],
-                day_filter, hour_min, hour_max)
+        events_by_website[website.uuid] = get_website_events(index_events_by_website[website.uuid])
 
     # We prepare the map
     folium_map, church_marker_names_json_by_website = prepare_map(

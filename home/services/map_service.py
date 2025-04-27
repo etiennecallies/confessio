@@ -26,9 +26,7 @@ MAX_CHURCHES_IN_RESULTS = 50
 def build_church_query(day_filter: date | None,
                        hour_min: int | None,
                        hour_max: int | None) -> 'QuerySet[ChurchIndexEvent]':
-    # TODO remove useless once parsings are removed
     geo_query = ChurchIndexEvent.objects.select_related('church__parish__website') \
-        .prefetch_related('church__parish__website__parsings') \
         .prefetch_related('church__parish__website__reports') \
         .filter(church__is_active=True,
                 church__parish__website__is_active=True)
