@@ -38,7 +38,7 @@ def build_church_query(day_filter: date | None,
 
     if hour_min is not None or hour_max is not None:
         hour_min = hour_min or 0
-        hour_max = hour_max or 24
+        hour_max = hour_max or 24 * 60 - 1
         geo_query = geo_query.filter(indexed_end_time__gte=time_from_minutes(hour_min),
                                      start_time__lte=time_from_minutes(hour_max))
 

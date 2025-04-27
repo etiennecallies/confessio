@@ -59,6 +59,7 @@ class ChurchEvent:
     church: Church | None
     is_church_explicitly_other: bool
     event: Event
+    has_been_moderated: bool | None  # TODO not nullable
 
     @classmethod
     def from_event(cls, event: Event, church_by_id: dict[int, Church]) -> 'ChurchEvent':
@@ -67,12 +68,14 @@ class ChurchEvent:
                 church=None,
                 is_church_explicitly_other=event.church_id == -1,
                 event=event,
+                has_been_moderated=None,
             )
 
         return cls(
             church=church_by_id[event.church_id],
             is_church_explicitly_other=False,
             event=event,
+            has_been_moderated=None,
         )
 
     @classmethod
@@ -81,6 +84,7 @@ class ChurchEvent:
             church=index_event.church if index_event.is_explicitely_other is None else None,
             is_church_explicitly_other=bool(index_event.is_explicitely_other),
             event=event_from_church_index_event(index_event),
+            has_been_moderated=index_event.has_been_moderated,
         )
 
     def __lt__(self, other: 'ChurchEvent'):

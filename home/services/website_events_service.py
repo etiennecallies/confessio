@@ -19,7 +19,7 @@ class WebsiteEvents:
     church_events_by_day: dict[date, list[ChurchEvent]]
     page_range: str
     confession_exists: bool
-    parsings_have_been_moderated: bool  # used but we need to avoid parsing?
+    parsings_have_been_moderated: bool | None
     church_color_by_uuid: dict[UUID, str]  # ok, but we need to be iso with get churches
     display_explicit_other_churches: bool  # ok, but we need to be iso with get churches
     has_explicit_other_churches: bool
@@ -141,9 +141,10 @@ def get_website_events(website: Website,
         ) for c in all_website_churches if c not in churches_with_events
     ]
 
-    parsings_have_been_moderated = all(parsing.has_been_moderated() for parsing in parsings)
     display_explicit_other_churches = do_display_explicit_other_churches(church_sorted_schedules)
     all_church_events = sum(church_events_by_day.values(), [])
+    parsings_have_been_moderated = all(ce.has_been_moderated for ce in all_church_events) \
+        if all_church_events else None
     has_explicit_other_churches = display_explicit_other_churches and \
         any(c.is_church_explicitly_other for c in all_church_events)
     has_unknown_churches = any(c.church is None and not c.is_church_explicitly_other
@@ -153,7 +154,7 @@ def get_website_events(website: Website,
     return WebsiteEvents(
         church_events_by_day=church_events_by_day,
         page_range=get_page_range(church_events_by_day),
-        confession_exists=len(parsings) > 0,
+        confession_exists=len(sorted_church_events) > 0,
         parsings_have_been_moderated=parsings_have_been_moderated,
         church_color_by_uuid=get_church_color_by_uuid(church_sorted_schedules),
         display_explicit_other_churches=display_explicit_other_churches,
