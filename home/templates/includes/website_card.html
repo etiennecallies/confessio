@@ -41,7 +41,7 @@
                                 <h6><span class="toggle-symbol collapsed-symbol text-gray-600"></span>Églises et horaires ⛪️</h6>
                             </div>
                             <div id="churches-{{ website.uuid }}" class="collapse">
-                                <div class="collapsable-body" data-lazy-load-url="{% url 'website_churches' website.uuid %}?church_marker_names_json={{ church_marker_names_json_by_website|get_item:website.uuid }}">
+                                <div class="collapsable-body" data-lazy-load-url="{% url 'website_churches' website.uuid %}?church_marker_names_json={{ church_marker_names_json_by_website|get_item:website.uuid }}&display_explicit_other_churches={{ website_events.display_explicit_other_churches|yesno:"true,false" }}">
                                 </div>
                             </div>
                         </div>

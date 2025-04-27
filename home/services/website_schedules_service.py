@@ -129,10 +129,6 @@ class WebsiteSchedules:
     parsing_by_uuid: dict[UUID, Parsing]
     parsings_have_been_moderated: bool
     church_color_by_uuid: dict[UUID, str]
-    display_explicit_other_churches: bool
-    has_explicit_other_churches: bool
-    has_unknown_churches: bool
-    has_different_churches: bool
 
 
 def get_website_schedules(website: Website,
@@ -260,13 +256,6 @@ def get_website_schedules(website: Website,
     source_index_by_parsing_uuid = {source.uuid: i for i, source in enumerate(parsings)}
     parsing_by_uuid = {parsing.uuid: parsing for parsing in parsings}
     parsings_have_been_moderated = all(parsing.has_been_moderated() for parsing in parsings)
-    display_explicit_other_churches = do_display_explicit_other_churches(church_sorted_schedules)
-    all_church_events = sum(church_events_by_day.values(), [])
-    has_explicit_other_churches = display_explicit_other_churches and \
-        any(c.is_church_explicitly_other for c in all_church_events)
-    has_unknown_churches = any(c.church is None and not c.is_church_explicitly_other
-                               for c in all_church_events)
-    has_different_churches = len(set(c.church for c in all_church_events if c.church)) > 1
 
     return WebsiteSchedules(
         church_events_by_day=church_events_by_day,
@@ -280,25 +269,7 @@ def get_website_schedules(website: Website,
         parsing_by_uuid=parsing_by_uuid,
         parsings_have_been_moderated=parsings_have_been_moderated,
         church_color_by_uuid=get_church_color_by_uuid(church_sorted_schedules),
-        display_explicit_other_churches=display_explicit_other_churches,
-        has_explicit_other_churches=has_explicit_other_churches,
-        has_unknown_churches=has_unknown_churches,
-        has_different_churches=has_different_churches,
     )
-
-
-#####################################
-# DECIDE ON EXPLICIT OTHER CHURCHES #
-#####################################
-
-def do_display_explicit_other_churches(church_sorted_schedules: list[ChurchSortedSchedules]
-                                       ) -> bool:
-    explicit_other_church_schedule = [c for c in church_sorted_schedules
-                                      if c.is_church_explicitly_other]
-    if not explicit_other_church_schedule:
-        return False
-
-    return len(explicit_other_church_schedule[0].sorted_schedules) <= 1
 
 
 ##########

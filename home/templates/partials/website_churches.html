@@ -35,7 +35,7 @@
                     {% display_church_color church True website_schedules.church_color_by_uuid %}
                     {% display_other_church_icon True %}
                     <span class="text-danger">{% trans 'OutsideThisParish' %} :</span>
-                    <span class="hide-explicitly-other-btn text-muted clickable small">{% if website_schedules.display_explicit_other_churches %}Masquer{% else %}Afficher{% endif %}</span>
+                    <span class="hide-explicitly-other-btn text-muted clickable small">{% if display_explicit_other_churches %}Masquer{% else %}Afficher{% endif %}</span>
                 </div>
             {% else %}
                 <div>

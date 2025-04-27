@@ -5,7 +5,7 @@ from uuid import UUID
 from home.models import Church, Website, ChurchIndexEvent
 from home.services.website_schedules_service import ChurchEvent, ChurchSortedSchedules, \
     ChurchScheduleItem, get_merged_schedule_items, get_sorted_schedules_by_church_id, \
-    do_display_explicit_other_churches, get_church_color_by_uuid
+    get_church_color_by_uuid
 from home.services.holiday_zone_service import get_website_holiday_zone
 from home.services.sources_service import get_website_sorted_parsings
 from home.utils.date_utils import get_current_year, time_from_minutes
@@ -105,9 +105,11 @@ def get_website_events(website: Website,
     ##############
     # Get events #
     ##############
+    today = date.today()
     sorted_church_events = list(sorted(list(set(map(
         lambda index_event: ChurchEvent.from_index_event(index_event),
-        [index_event for index_event in index_events if index_event.day is not None]
+        [index_event for index_event in index_events
+         if index_event.day is not None and index_event.day >= today]
     )))))
 
     church_events_by_day = {}
@@ -141,8 +143,8 @@ def get_website_events(website: Website,
         ) for c in all_website_churches if c not in churches_with_events
     ]
 
-    display_explicit_other_churches = do_display_explicit_other_churches(church_sorted_schedules)
     all_church_events = sum(church_events_by_day.values(), [])
+    display_explicit_other_churches = all(ce.is_church_explicitly_other for ce in all_church_events)
     parsings_have_been_moderated = all(ce.has_been_moderated for ce in all_church_events) \
         if all_church_events else None
     has_explicit_other_churches = display_explicit_other_churches and \

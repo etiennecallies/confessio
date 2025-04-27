@@ -150,6 +150,16 @@ def extract_day_filter(request) -> date | None:
     return None
 
 
+def extract_bool(key: str, request) -> bool:
+    value = request.GET.get(key, '')
+    if value == 'true':
+        return True
+    elif value == 'false':
+        return False
+    else:
+        return False
+
+
 def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bool = False):
     location = request.GET.get('location', '')
     latitude = extract_float('latitude', request)
@@ -270,6 +280,7 @@ def partial_website_churches(request, website_uuid: str):
     except Website.DoesNotExist:
         return HttpResponseNotFound("Website does not exist with this uuid")
 
+    display_explicit_other_churches = extract_bool('display_explicit_other_churches', request)
     church_marker_names_json = request.GET.get('church_marker_names_json', '{}')
     try:
         church_marker_names = json.loads(church_marker_names_json)
@@ -285,6 +296,7 @@ def partial_website_churches(request, website_uuid: str):
         'website': website,
         'website_schedules': website_schedules,
         'church_marker_names': church_marker_names,
+        'display_explicit_other_churches': display_explicit_other_churches,
     })
 
 
