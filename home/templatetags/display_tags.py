@@ -7,10 +7,10 @@ from django.template.defaulttags import register
 from django.template.loader import render_to_string
 
 from home.models import Parish, Church, Website, Pruning
-from home.services.website_schedules_service import get_no_church_color
 from home.services.map_service import (get_map_with_single_location,
                                        get_map_with_multiple_locations,
                                        get_map_with_alternative_locations)
+from home.services.website_schedules_service import get_color_of_nullable_church
 from home.utils.list_utils import group_consecutive_indices
 from scraping.parse.explain_schedule import get_explanation_from_schedule
 from scraping.parse.schedules import SchedulesList, Event, ScheduleItem
@@ -123,10 +123,7 @@ def explain_schedule(schedule: ScheduleItem, church_desc_by_id_json: str):
 @register.simple_tag
 def display_church_color(church: Church, is_church_explicitly_other: bool,
                          church_color_by_uuid: dict[UUID, str]) -> str:
-    if church:
-        color = church_color_by_uuid[church.uuid]
-    else:
-        color = get_no_church_color(is_church_explicitly_other)
+    color = get_color_of_nullable_church(church, church_color_by_uuid, is_church_explicitly_other)
 
     return (render_to_string('displays/color_display.html', {
         'color': color,

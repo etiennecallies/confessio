@@ -1,5 +1,6 @@
 from home.models import Website, ChurchIndexEvent, Church
-from home.services.website_schedules_service import get_website_schedules, ChurchEvent
+from home.services.website_schedules_service import get_website_schedules, ChurchEvent, \
+    get_color_of_nullable_church
 from home.utils.date_utils import time_plus_hours
 
 
@@ -18,13 +19,14 @@ def index_events_for_website(website: Website):
                 displayed_end_time=None,
                 is_explicitely_other=None,
                 has_been_moderated=None,
+                church_color=None,
             ))
 
     all_church_events = []
     if not website.unreliability_reason:
         all_church_events = get_all_church_events_and_moderation(website, website_churches)
 
-    for church_event, has_been_moderated in all_church_events:
+    for church_event in all_church_events:
         event_day = church_event.event.start.date()
         event_start_time = church_event.event.start.time()
         displayed_end_time = church_event.event.end.time() if church_event.event.end else None
@@ -37,7 +39,8 @@ def index_events_for_website(website: Website):
                 indexed_end_time=indexed_end_time,
                 displayed_end_time=displayed_end_time,
                 is_explicitely_other=None,
-                has_been_moderated=has_been_moderated,
+                has_been_moderated=church_event.has_been_moderated,
+                church_color=church_event.church_color,
             ))
         else:
             for church in website_churches:
@@ -48,7 +51,8 @@ def index_events_for_website(website: Website):
                     indexed_end_time=indexed_end_time,
                     displayed_end_time=displayed_end_time,
                     is_explicitely_other=church_event.is_church_explicitly_other,
-                    has_been_moderated=has_been_moderated,
+                    has_been_moderated=church_event.has_been_moderated,
+                    church_color=church_event.church_color,
                 ))
 
     # Remove existing events
@@ -59,7 +63,7 @@ def index_events_for_website(website: Website):
 
 
 def get_all_church_events_and_moderation(website: Website, website_churches: list[Church]
-                                         ) -> list[tuple[ChurchEvent, bool]]:
+                                         ) -> list[ChurchEvent]:
     all_church_events = []
     website_schedules = get_website_schedules(
         website, website_churches, day_filter=None, max_days=10
@@ -79,7 +83,13 @@ def get_all_church_events_and_moderation(website: Website, website_churches: lis
                     church=church_sorted_schedule.church,
                     is_church_explicitly_other=church_sorted_schedule.is_church_explicitly_other,
                     event=event,
+                    has_been_moderated=has_been_moderated,
+                    church_color=get_color_of_nullable_church(
+                        church_sorted_schedule.church,
+                        website_schedules.church_color_by_uuid,
+                        church_sorted_schedule.is_church_explicitly_other
+                    )
                 )
-                all_church_events.append((church_event, has_been_moderated))
+                all_church_events.append(church_event)
 
     return all_church_events

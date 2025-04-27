@@ -8,9 +8,9 @@ from django.urls import reverse
 from home.models import WebsiteModeration, ChurchModeration, ParishModeration, \
     PruningModeration, SentenceModeration, ParsingModeration, ModerationMixin, Pruning, \
     Page, Parsing, ReportModeration, Diocese, Church
-from home.services.website_schedules_service import WebsiteSchedules, \
-    get_no_church_color
 from home.services.website_events_service import WebsiteEvents
+from home.services.website_schedules_service import WebsiteSchedules, \
+    get_color_of_nullable_church
 from home.utils.date_utils import get_current_year
 from home.utils.list_utils import enumerate_with_and
 from scraping.parse.holidays import HolidayZoneEnum
@@ -113,10 +113,7 @@ def get_url(moderation: ModerationMixin):
 @register.simple_tag
 def print_church_color(church: Church, is_church_explicitly_other: bool,
                        church_color_by_uuid: dict[UUID, str]) -> str:
-    if church:
-        return church_color_by_uuid[church.uuid]
-
-    return get_no_church_color(is_church_explicitly_other)
+    return get_color_of_nullable_church(church, church_color_by_uuid, is_church_explicitly_other)
 
 
 @register.filter

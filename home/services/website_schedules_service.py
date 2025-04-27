@@ -60,6 +60,7 @@ class ChurchEvent:
     is_church_explicitly_other: bool
     event: Event
     has_been_moderated: bool | None  # TODO not nullable
+    church_color: str | None  # TODO not nullable
 
     @classmethod
     def from_event(cls, event: Event, church_by_id: dict[int, Church]) -> 'ChurchEvent':
@@ -69,6 +70,7 @@ class ChurchEvent:
                 is_church_explicitly_other=event.church_id == -1,
                 event=event,
                 has_been_moderated=None,
+                church_color=None,
             )
 
         return cls(
@@ -76,6 +78,7 @@ class ChurchEvent:
             is_church_explicitly_other=False,
             event=event,
             has_been_moderated=None,
+            church_color=None,
         )
 
     @classmethod
@@ -85,6 +88,7 @@ class ChurchEvent:
             is_church_explicitly_other=bool(index_event.is_explicitely_other),
             event=event_from_church_index_event(index_event),
             has_been_moderated=index_event.has_been_moderated,
+            church_color=index_event.church_color,
         )
 
     def __lt__(self, other: 'ChurchEvent'):
@@ -320,6 +324,15 @@ def get_church_color(church_index: int) -> str:
 
 def get_no_church_color(is_church_explicitly_other: bool) -> str:
     return '#E8A5B3' if is_church_explicitly_other else 'lightgray'
+
+
+def get_color_of_nullable_church(church: Church | None,
+                                 church_color_by_uuid: dict[UUID, str],
+                                 is_church_explicitly_other: bool) -> str:
+    if church:
+        return church_color_by_uuid[church.uuid]
+
+    return get_no_church_color(is_church_explicitly_other)
 
 
 ################
