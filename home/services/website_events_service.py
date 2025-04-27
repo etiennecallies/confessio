@@ -1,13 +1,11 @@
 from dataclasses import dataclass
 from datetime import date, timedelta
-from uuid import UUID
 
 from home.models import Church, Website, ChurchIndexEvent
-from home.services.website_schedules_service import ChurchEvent, ChurchSortedSchedules, \
-    ChurchScheduleItem, get_merged_schedule_items, get_sorted_schedules_by_church_id, \
-    get_church_color_by_uuid
 from home.services.holiday_zone_service import get_website_holiday_zone
 from home.services.sources_service import get_website_sorted_parsings
+from home.services.website_schedules_service import ChurchEvent, ChurchSortedSchedules, \
+    ChurchScheduleItem, get_merged_schedule_items, get_sorted_schedules_by_church_id
 from home.utils.date_utils import get_current_year, time_from_minutes
 from scraping.parse.rrule_utils import get_events_from_schedule_item
 from scraping.parse.schedules import Event
@@ -20,8 +18,7 @@ class WebsiteEvents:
     page_range: str
     confession_exists: bool
     parsings_have_been_moderated: bool | None
-    church_color_by_uuid: dict[UUID, str]  # ok, but we need to be iso with get churches
-    display_explicit_other_churches: bool  # ok, but we need to be iso with get churches
+    display_explicit_other_churches: bool
     has_explicit_other_churches: bool
     has_unknown_churches: bool
     has_different_churches: bool
@@ -158,7 +155,6 @@ def get_website_events(website: Website,
         page_range=get_page_range(church_events_by_day),
         confession_exists=len(sorted_church_events) > 0,
         parsings_have_been_moderated=parsings_have_been_moderated,
-        church_color_by_uuid=get_church_color_by_uuid(church_sorted_schedules),
         display_explicit_other_churches=display_explicit_other_churches,
         has_explicit_other_churches=has_explicit_other_churches,
         has_unknown_churches=has_unknown_churches,
