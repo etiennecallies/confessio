@@ -9,7 +9,6 @@ from django.utils.translation import gettext
 
 from home.models import Website, Diocese, ChurchIndexEvent
 from home.services.autocomplete_service import get_aggregated_response
-from home.services.website_schedules_service import get_website_schedules
 from home.services.filter_service import get_filter_days
 from home.services.map_service import (prepare_map,
                                        get_center, get_cities_label, get_churches_in_box,
@@ -19,9 +18,10 @@ from home.services.map_service import (prepare_map,
 from home.services.page_url_service import get_page_pruning_urls
 from home.services.report_service import get_count_and_label, new_report, NewReportError, \
     get_previous_reports
-from home.services.website_events_service import get_website_events
 from home.services.sources_service import get_website_parsings_and_prunings
 from home.services.stat_service import new_search_hit
+from home.services.website_events_service import get_website_events
+from home.services.website_schedules_service import get_website_schedules
 from home.utils.date_utils import get_current_day, get_current_year
 from sourcing.utils.string_utils import lower_first, city_and_prefix
 

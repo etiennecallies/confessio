@@ -7,7 +7,7 @@ from uuid import UUID
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.geos import Point, Polygon
 from django.contrib.gis.measure import D
-from django.db.models import Count, Q, QuerySet
+from django.db.models import Count, Q, QuerySet, OuterRef, Exists
 from django.utils.translation import gettext as _
 from folium import Map, Icon, Popup, Marker
 
@@ -18,55 +18,78 @@ from home.utils.date_utils import format_datetime_with_locale, time_from_minutes
 MAX_CHURCHES_IN_RESULTS = 50
 
 
-##########
-# SEARCH #
-##########
+###############
+# QUERY UTILS #
+###############
 
 
 def build_church_query(day_filter: date | None,
                        hour_min: int | None,
-                       hour_max: int | None) -> 'QuerySet[ChurchIndexEvent]':
-    geo_query = ChurchIndexEvent.objects.select_related('church__parish__website') \
-        .prefetch_related('church__parish__website__reports') \
-        .filter(church__is_active=True,
-                church__parish__website__is_active=True)
+                       hour_max: int | None) -> QuerySet[Church]:
+    church_query = Church.objects.select_related('parish__website') \
+        .prefetch_related('parish__website__reports') \
+        .filter(is_active=True,
+                parish__website__is_active=True)
 
+    if day_filter or hour_min is not None or hour_max is not None:
+        event_query = ChurchIndexEvent.objects.filter(church_id=OuterRef('pk'))
+        event_query = add_event_filters(event_query, day_filter, hour_min, hour_max)
+
+        church_query = church_query.annotate(has_event=Exists(event_query)).filter(has_event=True)
+
+    return church_query
+
+
+def build_events_query(church_by_uuid: dict[UUID, Church],
+                       day_filter: date | None,
+                       hour_min: int | None,
+                       hour_max: int | None) -> QuerySet[ChurchIndexEvent]:
+    event_query = ChurchIndexEvent.objects \
+        .filter(church__uuid__in=church_by_uuid.keys())
+    event_query = add_event_filters(event_query, day_filter, hour_min, hour_max)
+
+    return event_query
+
+
+def add_event_filters(event_query: QuerySet[ChurchIndexEvent],
+                      day_filter: date | None,
+                      hour_min: int | None,
+                      hour_max: int | None) -> QuerySet[ChurchIndexEvent]:
     if day_filter:
-        geo_query = geo_query.filter(day=day_filter)
+        event_query = event_query.filter(day=day_filter)
 
     if hour_min is not None or hour_max is not None:
         hour_min = hour_min or 0
         hour_max = hour_max or 24 * 60 - 1
-        geo_query = geo_query.filter(indexed_end_time__gte=time_from_minutes(hour_min),
-                                     start_time__lte=time_from_minutes(hour_max))
+        event_query = event_query.filter(indexed_end_time__gte=time_from_minutes(hour_min),
+                                         start_time__lte=time_from_minutes(hour_max))
+    return event_query
 
-    return geo_query
 
-
-def order_by_nb_page_with_confessions(church_query: 'QuerySet[ChurchIndexEvent]'
-                                      ) -> 'QuerySet[ChurchIndexEvent]':
+def order_by_nb_page_with_confessions(church_query: QuerySet[Church]) -> QuerySet[Church]:
     return church_query.annotate(nb_page_with_confessions=Count(
-        'church__parish__website__pages__scraping',
-        filter=Q(church__parish__website__pages__scraping__prunings__pruned_indices__len__gt=0)),) \
-        .order_by('-nb_page_with_confessions', 'church__uuid')
+        'parish__website__pages__scraping',
+        filter=Q(parish__website__pages__scraping__prunings__pruned_indices__len__gt=0)),) \
+        .order_by('-nb_page_with_confessions', 'uuid')
 
 
-def truncate_results(church_index_query: 'QuerySet[ChurchIndexEvent]'
+def truncate_results(church_query: QuerySet[Church],
+                     day_filter: date | None,
+                     hour_min: int | None,
+                     hour_max: int | None
                      ) -> tuple[list[ChurchIndexEvent], list[Church], bool]:
-    results = []
-    church_uuids = set()
-    churches = []
-    for church_index_event in church_index_query.all():
-        if church_index_event.church.uuid not in church_uuids:
-            if len(churches) >= MAX_CHURCHES_IN_RESULTS:
-                return results, churches, True
+    churches = church_query.all()[:MAX_CHURCHES_IN_RESULTS]
+    church_by_uuid = {church.uuid: church for church in churches}
+    events = build_events_query(church_by_uuid, day_filter, hour_min, hour_max).all()
+    for event in events:
+        event.church = church_by_uuid.get(event.church_id)
 
-            church_uuids.add(church_index_event.church.uuid)
-            churches.append(church_index_event.church)
-        results.append(church_index_event)
+    return events, churches, len(churches) == MAX_CHURCHES_IN_RESULTS
 
-    return results, churches, False
 
+###########
+# QUERIES #
+###########
 
 def get_churches_around(center,
                         day_filter: date | None,
@@ -77,11 +100,11 @@ def get_churches_around(center,
     center_as_point = Point(x=longitude, y=latitude)
 
     church_query = build_church_query(day_filter, hour_min, hour_max) \
-        .filter(church__location__dwithin=(center_as_point, D(km=5))) \
-        .annotate(distance=Distance('church__location', center_as_point)) \
+        .filter(location__dwithin=(center_as_point, D(km=5))) \
+        .annotate(distance=Distance('location', center_as_point)) \
         .order_by('distance')
 
-    return truncate_results(church_query)
+    return truncate_results(church_query, day_filter, hour_min, hour_max)
 
 
 def get_churches_in_box(min_lat, max_lat, min_long, max_long,
@@ -92,10 +115,10 @@ def get_churches_in_box(min_lat, max_lat, min_long, max_long,
     polygon = Polygon.from_bbox((min_long, min_lat, max_long, max_lat))
 
     church_query = build_church_query(day_filter, hour_min, hour_max)\
-        .filter(church__location__within=polygon)
+        .filter(location__within=polygon)
     church_query = order_by_nb_page_with_confessions(church_query)
 
-    return truncate_results(church_query)
+    return truncate_results(church_query, day_filter, hour_min, hour_max)
 
 
 def get_churches_by_website(website: Website,
@@ -104,9 +127,9 @@ def get_churches_by_website(website: Website,
                             hour_max: int | None
                             ) -> tuple[list[ChurchIndexEvent], list[Church], bool]:
     church_query = build_church_query(day_filter, hour_min, hour_max)\
-        .filter(church__parish__website=website)
+        .filter(parish__website=website)
 
-    return truncate_results(church_query)
+    return truncate_results(church_query, day_filter, hour_min, hour_max)
 
 
 def get_churches_by_diocese(diocese: Diocese,
@@ -115,10 +138,10 @@ def get_churches_by_diocese(diocese: Diocese,
                             hour_max: int | None
                             ) -> tuple[list[ChurchIndexEvent], list[Church], bool]:
     church_query = build_church_query(day_filter, hour_min, hour_max)\
-        .filter(church__parish__diocese=diocese)
+        .filter(parish__diocese=diocese)
     church_query = order_by_nb_page_with_confessions(church_query)
 
-    return truncate_results(church_query)
+    return truncate_results(church_query, day_filter, hour_min, hour_max)
 
 
 ###########
