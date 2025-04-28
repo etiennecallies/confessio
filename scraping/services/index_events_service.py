@@ -5,27 +5,16 @@ from home.utils.date_utils import time_plus_hours
 
 
 def index_events_for_website(website: Website):
-    church_index_to_add = []
-
     website_churches = []
     for parish in website.parishes.all():
         for church in parish.churches.all():
             website_churches.append(church)
-            church_index_to_add.append(ChurchIndexEvent(
-                church=church,
-                day=None,
-                start_time=None,
-                indexed_end_time=None,
-                displayed_end_time=None,
-                is_explicitely_other=None,
-                has_been_moderated=None,
-                church_color=None,
-            ))
 
     all_church_events = []
     if not website.unreliability_reason:
         all_church_events = get_all_church_events_and_moderation(website, website_churches)
 
+    church_index_to_add = []
     for church_event in all_church_events:
         event_day = church_event.event.start.date()
         event_start_time = church_event.event.start.time()
