@@ -12,7 +12,7 @@ def index_events_for_website(website: Website):
 
     all_church_events = []
     if not website.unreliability_reason:
-        all_church_events = get_all_church_events_and_moderation(website, website_churches)
+        all_church_events = get_all_church_events(website, website_churches)
 
     church_index_to_add = []
     for church_event in all_church_events:
@@ -51,8 +51,8 @@ def index_events_for_website(website: Website):
         website_index_event.save()
 
 
-def get_all_church_events_and_moderation(website: Website, website_churches: list[Church]
-                                         ) -> list[ChurchEvent]:
+def get_all_church_events(website: Website, website_churches: list[Church]
+                          ) -> list[ChurchEvent]:
     all_church_events = []
     website_schedules = get_website_schedules(
         website, website_churches, day_filter=None, max_days=10

@@ -61,8 +61,7 @@ def get_church_events_by_day(index_events: list[ChurchIndexEvent],
     today = date.today()
     sorted_church_events = list(sorted(list(set(map(
         lambda index_event: ChurchEvent.from_index_event(index_event),
-        [index_event for index_event in index_events
-         if index_event.day is not None and index_event.day >= today]
+        [index_event for index_event in index_events if index_event.day >= today]
     )))))
 
     church_events_by_day = {}
