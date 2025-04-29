@@ -16,6 +16,7 @@ from home.services.website_events_service import WebsiteEvents
 from home.utils.date_utils import format_datetime_with_locale, time_from_minutes
 
 MAX_CHURCHES_IN_RESULTS = 50
+MAX_WEBSITES_IN_RESULTS = 50
 
 
 ###############
@@ -77,12 +78,37 @@ def truncate_results(church_query: QuerySet[Church],
                      day_filter: date | None,
                      hour_min: int | None,
                      hour_max: int | None
-                     ) -> tuple[list[ChurchIndexEvent], list[Church], bool]:
+                     ) -> tuple[list[ChurchIndexEvent], list[Church], bool, dict[UUID, bool]]:
     churches = church_query.all()[:MAX_CHURCHES_IN_RESULTS]
-    church_by_uuid = {church.uuid: church for church in churches}
-    events = fetch_events(church_by_uuid, day_filter, hour_min, hour_max)
 
-    return events, churches, len(churches) == MAX_CHURCHES_IN_RESULTS
+    non_truncated_website_uuids = []
+    truncated_website_uuids = []
+    non_truncated_churches = []
+    for church in churches:
+        website_uuid = church.parish.website.uuid
+        if website_uuid in non_truncated_website_uuids:
+            non_truncated_churches.append(church)
+            continue
+
+        if website_uuid in truncated_website_uuids:
+            continue
+
+        if len(non_truncated_website_uuids) >= MAX_WEBSITES_IN_RESULTS:
+            truncated_website_uuids.append(website_uuid)
+        else:
+            non_truncated_website_uuids.append(website_uuid)
+            non_truncated_churches.append(church)
+
+    church_by_uuid = {church.uuid: church for church in non_truncated_churches}
+    events = fetch_events(church_by_uuid, day_filter, hour_min, hour_max)
+    events_truncated_by_website_uuid = {
+        website_uuid: False for website_uuid in non_truncated_website_uuids
+    } | {
+        website_uuid: True for website_uuid in truncated_website_uuids
+    }
+
+    return (events, churches, len(churches) == MAX_CHURCHES_IN_RESULTS,
+            events_truncated_by_website_uuid)
 
 
 def fetch_events(church_by_uuid: dict[UUID, Church],
@@ -104,7 +130,7 @@ def get_churches_around(center,
                         day_filter: date | None,
                         hour_min: int | None,
                         hour_max: int | None
-                        ) -> tuple[list[ChurchIndexEvent], list[Church], bool]:
+                        ) -> tuple[list[ChurchIndexEvent], list[Church], bool, dict[UUID, bool]]:
     latitude, longitude = center
     center_as_point = Point(x=longitude, y=latitude)
 
@@ -120,7 +146,7 @@ def get_churches_in_box(min_lat, max_lat, min_long, max_long,
                         day_filter: date | None,
                         hour_min: int | None,
                         hour_max: int | None
-                        ) -> tuple[list[ChurchIndexEvent], list[Church], bool]:
+                        ) -> tuple[list[ChurchIndexEvent], list[Church], bool, dict[UUID, bool]]:
     polygon = Polygon.from_bbox((min_long, min_lat, max_long, max_lat))
 
     church_query = build_church_query(day_filter, hour_min, hour_max)\
@@ -130,22 +156,24 @@ def get_churches_in_box(min_lat, max_lat, min_long, max_long,
     return truncate_results(church_query, day_filter, hour_min, hour_max)
 
 
-def get_churches_by_website(website: Website,
-                            day_filter: date | None,
-                            hour_min: int | None,
-                            hour_max: int | None
-                            ) -> tuple[list[ChurchIndexEvent], list[Church], bool]:
+def get_churches_by_website(
+        website: Website,
+        day_filter: date | None,
+        hour_min: int | None,
+        hour_max: int | None
+) -> tuple[list[ChurchIndexEvent], list[Church], bool, dict[UUID, bool]]:
     church_query = build_church_query(day_filter, hour_min, hour_max)\
         .filter(parish__website=website)
 
     return truncate_results(church_query, day_filter, hour_min, hour_max)
 
 
-def get_churches_by_diocese(diocese: Diocese,
-                            day_filter: date | None,
-                            hour_min: int | None,
-                            hour_max: int | None
-                            ) -> tuple[list[ChurchIndexEvent], list[Church], bool]:
+def get_churches_by_diocese(
+        diocese: Diocese,
+        day_filter: date | None,
+        hour_min: int | None,
+        hour_max: int | None
+) -> tuple[list[ChurchIndexEvent], list[Church], bool, dict[UUID, bool]]:
     church_query = build_church_query(day_filter, hour_min, hour_max)\
         .filter(parish__diocese=diocese)
     church_query = order_by_nb_page_with_confessions(church_query)

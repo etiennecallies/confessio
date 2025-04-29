@@ -1,6 +1,7 @@
 import dataclasses
 import json
 from datetime import date
+from uuid import UUID
 
 from django.core.exceptions import ValidationError
 from django.http import HttpResponseNotFound, JsonResponse, HttpResponseBadRequest
@@ -26,7 +27,10 @@ from home.utils.date_utils import get_current_day, get_current_year
 from sourcing.utils.string_utils import lower_first, city_and_prefix
 
 
-def render_map(request, center, index_events: list[ChurchIndexEvent], churches, h1_title: str,
+def render_map(request, center,
+               index_events: list[ChurchIndexEvent],
+               events_truncated_by_website_uuid: dict[UUID, bool],
+               churches, h1_title: str,
                meta_title: str, display_sub_title: bool,
                bounds, location, too_many_results: bool,
                is_around_me: bool, day_filter: date | None,
@@ -52,7 +56,9 @@ def render_map(request, center, index_events: list[ChurchIndexEvent], churches, 
     events_by_website = {}
     for website in websites:
         events_by_website[website.uuid] = get_website_events(
-            index_events_by_website.get(website.uuid, []), day_filter is not None
+            index_events_by_website.get(website.uuid, []),
+            events_truncated_by_website_uuid[website.uuid],
+            day_filter is not None
         )
 
     # We prepare the map
@@ -186,8 +192,8 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
     if min_lat and min_lng and max_lat and max_lng:
         bounds = (min_lat, max_lat, min_lng, max_lng)
         center = [min_lat + max_lat / 2, min_lng + max_lng / 2]
-        index_events, churches, too_many_results = get_churches_in_box(
-            min_lat, max_lat, min_lng, max_lng, day_filter, hour_min, hour_max)
+        index_events, churches, too_many_results, events_truncated_by_website_uuid = \
+            get_churches_in_box(min_lat, max_lat, min_lng, max_lng, day_filter, hour_min, hour_max)
 
         display_sub_title = False
     elif website_uuid:
@@ -202,8 +208,8 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
             except NewReportError as e:
                 return e.response
 
-        index_events, churches, too_many_results = get_churches_by_website(
-            website, day_filter, hour_min, hour_max)
+        index_events, churches, too_many_results, events_truncated_by_website_uuid = \
+            get_churches_by_website(website, day_filter, hour_min, hour_max)
 
         if len(churches) == 0:
             website_churches = [church for p in website.parishes.all()
@@ -221,7 +227,8 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
         display_sub_title = False
     elif latitude and longitude:
         center = [latitude, longitude]
-        index_events, churches, _ = get_churches_around(center, day_filter, hour_min, hour_max)
+        index_events, churches, _, events_truncated_by_website_uuid = \
+            get_churches_around(center, day_filter, hour_min, hour_max)
         too_many_results = False
         bounds = None
 
@@ -235,8 +242,8 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
         except Diocese.DoesNotExist:
             return HttpResponseNotFound("Diocese not found")
 
-        index_events, churches, too_many_results = get_churches_by_diocese(
-            diocese, day_filter, hour_min, hour_max)
+        index_events, churches, too_many_results, events_truncated_by_website_uuid = \
+            get_churches_by_diocese(diocese, day_filter, hour_min, hour_max)
         if len(churches) == 0:
             diocese_churches = [church for p in diocese.parishes.all()
                                 for church in p.churches.all()]
@@ -254,14 +261,16 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
     else:
         # Default coordinates
         center = [48.859, 2.342]  # Paris
-        index_events, churches, _ = get_churches_around(center, day_filter, hour_min, hour_max)
+        index_events, churches, _, events_truncated_by_website_uuid = \
+            get_churches_around(center, day_filter, hour_min, hour_max)
         too_many_results = False
         bounds = None
 
         display_sub_title = True
 
-    return render_map(request, center, index_events, churches, h1_title, meta_title,
-                      display_sub_title, bounds, location, too_many_results, is_around_me,
+    return render_map(request, center, index_events, events_truncated_by_website_uuid, churches,
+                      h1_title, meta_title, display_sub_title,
+                      bounds, location, too_many_results, is_around_me,
                       day_filter, hour_min, hour_max, website, success_message)
 
 
@@ -323,7 +332,9 @@ def partial_website_events(request, website_uuid: str):
     church_by_uuid = {c.uuid: c for c in churches}
     day_filter, hour_min, hour_max = extract_temporal_filters(request)
     index_events = fetch_events(church_by_uuid, day_filter, hour_min, hour_max)
-    website_events = get_website_events(index_events, day_filter is not None)
+    website_events = get_website_events(index_events,
+                                        False,
+                                        day_filter is not None)
 
     return render(request, 'partials/website_events.html', {
         'website': website,

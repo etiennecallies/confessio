@@ -16,6 +16,7 @@ class WebsiteEvents:
     has_explicit_other_churches: bool
     has_unknown_churches: bool
     has_different_churches: bool
+    events_truncated: bool
 
     def next_event_in_church(self, church: Church) -> Event | None:
         for church_events in self.church_events_by_day.values():
@@ -27,6 +28,7 @@ class WebsiteEvents:
 
 
 def get_website_events(index_events: list[ChurchIndexEvent],
+                       events_truncated: bool,
                        unique_day: bool) -> WebsiteEvents:
     church_events_by_day = get_church_events_by_day(index_events, unique_day)
 
@@ -50,6 +52,7 @@ def get_website_events(index_events: list[ChurchIndexEvent],
         has_explicit_other_churches=has_explicit_other_churches,
         has_unknown_churches=has_unknown_churches,
         has_different_churches=has_different_churches,
+        events_truncated=events_truncated,
     )
 
 
