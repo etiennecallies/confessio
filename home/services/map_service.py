@@ -80,11 +80,20 @@ def truncate_results(church_query: QuerySet[Church],
                      ) -> tuple[list[ChurchIndexEvent], list[Church], bool]:
     churches = church_query.all()[:MAX_CHURCHES_IN_RESULTS]
     church_by_uuid = {church.uuid: church for church in churches}
+    events = fetch_events(church_by_uuid, day_filter, hour_min, hour_max)
+
+    return events, churches, len(churches) == MAX_CHURCHES_IN_RESULTS
+
+
+def fetch_events(church_by_uuid: dict[UUID, Church],
+                 day_filter: date | None,
+                 hour_min: int | None,
+                 hour_max: int | None) -> list[ChurchIndexEvent]:
     events = build_events_query(church_by_uuid, day_filter, hour_min, hour_max).all()
     for event in events:
         event.church = church_by_uuid.get(event.church_id)
 
-    return events, churches, len(churches) == MAX_CHURCHES_IN_RESULTS
+    return events
 
 
 ###########

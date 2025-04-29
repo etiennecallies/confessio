@@ -7,14 +7,14 @@ from django.http import HttpResponseNotFound, JsonResponse, HttpResponseBadReque
 from django.shortcuts import render
 from django.utils.translation import gettext
 
-from home.models import Website, Diocese, ChurchIndexEvent
+from home.models import Website, Diocese, ChurchIndexEvent, Church
 from home.services.autocomplete_service import get_aggregated_response
 from home.services.filter_service import get_filter_days
 from home.services.map_service import (prepare_map,
                                        get_center, get_cities_label, get_churches_in_box,
                                        get_churches_by_website,
                                        get_churches_around,
-                                       get_churches_by_diocese)
+                                       get_churches_by_diocese, fetch_events)
 from home.services.page_url_service import get_page_pruning_urls
 from home.services.report_service import get_count_and_label, new_report, NewReportError, \
     get_previous_reports
@@ -159,6 +159,13 @@ def extract_bool(key: str, request) -> bool:
         return False
 
 
+def extract_temporal_filters(request) -> tuple[date | None, int | None, int | None]:
+    day_filter = extract_day_filter(request)
+    hour_min = extract_int('hourMin', request, 0)
+    hour_max = extract_int('hourMax', request, 24 * 60 - 1)
+    return day_filter, hour_min, hour_max
+
+
 def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bool = False):
     location = request.GET.get('location', '')
     latitude = extract_float('latitude', request)
@@ -168,9 +175,7 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
     min_lng = extract_float('minLng', request)
     max_lat = extract_float('maxLat', request)
     max_lng = extract_float('maxLng', request)
-    day_filter = extract_day_filter(request)
-    hour_min = extract_int('hourMin', request, 0)
-    hour_max = extract_int('hourMax', request, 24 * 60 - 1)
+    day_filter, hour_min, hour_max = extract_temporal_filters(request)
 
     website = None
     success_message = None
@@ -260,7 +265,7 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
                       day_filter, hour_min, hour_max, website, success_message)
 
 
-def website_sources(request, website_uuid: str):
+def partial_website_sources(request, website_uuid: str):
     try:
         website = Website.objects.get(uuid=website_uuid)
     except Website.DoesNotExist:
@@ -296,6 +301,33 @@ def partial_website_churches(request, website_uuid: str):
         'website_schedules': website_schedules,
         'church_marker_names': church_marker_names,
         'display_explicit_other_churches': display_explicit_other_churches,
+    })
+
+
+def partial_website_events(request, website_uuid: str):
+    try:
+        website = Website.objects.get(uuid=website_uuid)
+    except Website.DoesNotExist:
+        return HttpResponseNotFound("Website does not exist with this uuid")
+
+    church_uuids_json = request.GET.get('church_uuids_json', '[]')
+    try:
+        church_uuids = json.loads(church_uuids_json)
+    except json.JSONDecodeError:
+        return HttpResponseBadRequest(f"Invalid JSON for church uuids: '{church_uuids_json}'")
+
+    churches = Church.objects.filter(uuid__in=church_uuids).all()
+    if len(churches) < len(church_uuids):
+        return HttpResponseNotFound(f"Some churches do not exist with these uuids {church_uuids}")
+
+    church_by_uuid = {c.uuid: c for c in churches}
+    day_filter, hour_min, hour_max = extract_temporal_filters(request)
+    index_events = fetch_events(church_by_uuid, day_filter, hour_min, hour_max)
+    website_events = get_website_events(index_events)
+
+    return render(request, 'partials/website_events.html', {
+        'website': website,
+        'website_events': website_events,
     })
 
 
