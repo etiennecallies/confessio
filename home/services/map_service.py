@@ -7,7 +7,7 @@ from uuid import UUID
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.geos import Point, Polygon
 from django.contrib.gis.measure import D
-from django.db.models import Count, Q, QuerySet, OuterRef, Exists
+from django.db.models import QuerySet, OuterRef, Exists
 from django.utils.translation import gettext as _
 from folium import Map, Icon, Popup, Marker
 
@@ -65,13 +65,6 @@ def add_event_filters(event_query: QuerySet[ChurchIndexEvent],
         event_query = event_query.filter(indexed_end_time__gte=time_from_minutes(hour_min),
                                          start_time__lte=time_from_minutes(hour_max))
     return event_query
-
-
-def order_by_nb_page_with_confessions(church_query: QuerySet[Church]) -> QuerySet[Church]:
-    return church_query.annotate(nb_page_with_confessions=Count(
-        'parish__website__pages__scraping',
-        filter=Q(parish__website__pages__scraping__prunings__pruned_indices__len__gt=0)),) \
-        .order_by('-nb_page_with_confessions', 'uuid')
 
 
 def truncate_results(church_query: QuerySet[Church],
@@ -150,8 +143,8 @@ def get_churches_in_box(min_lat, max_lat, min_long, max_long,
     polygon = Polygon.from_bbox((min_long, min_lat, max_long, max_lat))
 
     church_query = build_church_query(day_filter, hour_min, hour_max)\
-        .filter(location__within=polygon)
-    church_query = order_by_nb_page_with_confessions(church_query)
+        .filter(location__within=polygon)\
+        .order_by('-parish__website__nb_recent_hits')
 
     return truncate_results(church_query, day_filter, hour_min, hour_max)
 
@@ -175,8 +168,8 @@ def get_churches_by_diocese(
         hour_max: int | None
 ) -> tuple[list[ChurchIndexEvent], list[Church], bool, dict[UUID, bool]]:
     church_query = build_church_query(day_filter, hour_min, hour_max)\
-        .filter(parish__diocese=diocese)
-    church_query = order_by_nb_page_with_confessions(church_query)
+        .filter(parish__diocese=diocese)\
+        .order_by('-parish__website__nb_recent_hits')
 
     return truncate_results(church_query, day_filter, hour_min, hour_max)
 
