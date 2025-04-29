@@ -12,3 +12,7 @@ class ChurchIndexEvent(TimeStampMixin):
     is_explicitely_other = models.BooleanField(null=True)
     has_been_moderated = models.BooleanField()
     church_color = models.CharField(max_length=9)
+
+    # class Meta:
+    #     unique_together = ('church', 'day', 'start_time', 'displayed_end_time',
+    #                        'is_explicitely_other')

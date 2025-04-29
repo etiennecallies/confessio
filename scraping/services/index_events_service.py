@@ -67,18 +67,18 @@ def get_all_church_events(website: Website, website_churches: list[Church]
                 has_been_moderated_by_church_event[event] = \
                     has_been_moderated or has_been_moderated_by_church_event.get(event, False)
 
-            for event, has_been_moderated in has_been_moderated_by_church_event.items():
-                church_event = ChurchEvent(
-                    church=church_sorted_schedule.church,
-                    is_church_explicitly_other=church_sorted_schedule.is_church_explicitly_other,
-                    event=event,
-                    has_been_moderated=has_been_moderated,
-                    church_color=get_color_of_nullable_church(
-                        church_sorted_schedule.church,
-                        website_schedules.church_color_by_uuid,
-                        church_sorted_schedule.is_church_explicitly_other
-                    )
+        for event, has_been_moderated in has_been_moderated_by_church_event.items():
+            church_event = ChurchEvent(
+                church=church_sorted_schedule.church,
+                is_church_explicitly_other=church_sorted_schedule.is_church_explicitly_other,
+                event=event,
+                has_been_moderated=has_been_moderated,
+                church_color=get_color_of_nullable_church(
+                    church_sorted_schedule.church,
+                    website_schedules.church_color_by_uuid,
+                    church_sorted_schedule.is_church_explicitly_other
                 )
-                all_church_events.append(church_event)
+            )
+            all_church_events.append(church_event)
 
     return all_church_events
