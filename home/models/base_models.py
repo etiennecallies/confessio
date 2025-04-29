@@ -52,6 +52,8 @@ class Website(TimeStampMixin):
     parsing_validation_counter = models.SmallIntegerField(default=0)
     parsing_last_validated_at = models.DateTimeField(null=True, blank=True)
     unreliability_reason = models.CharField(choices=UnreliabilityReason, null=True, blank=True)
+    nb_recent_hits = models.PositiveSmallIntegerField(default=0)
+    is_best_diocese_hit = models.BooleanField(default=False)
     history = HistoricalRecords()
 
     def __str__(self):
