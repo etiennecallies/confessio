@@ -26,8 +26,9 @@ class WebsiteEvents:
         return None
 
 
-def get_website_events(index_events: list[ChurchIndexEvent]) -> WebsiteEvents:
-    church_events_by_day = get_church_events_by_day(index_events)
+def get_website_events(index_events: list[ChurchIndexEvent],
+                       unique_day: bool) -> WebsiteEvents:
+    church_events_by_day = get_church_events_by_day(index_events, unique_day)
 
     all_church_events = sum(church_events_by_day.values(), [])
     confession_exists = len(all_church_events) > 0
@@ -57,12 +58,14 @@ def get_website_events(index_events: list[ChurchIndexEvent]) -> WebsiteEvents:
 ########################
 
 def get_church_events_by_day(index_events: list[ChurchIndexEvent],
-                             max_days: int = 8) -> dict[date, list[ChurchEvent]]:
+                             unique_day: bool) -> dict[date, list[ChurchEvent]]:
     today = date.today()
     sorted_church_events = list(sorted(list(set(map(
         lambda index_event: ChurchEvent.from_index_event(index_event),
         [index_event for index_event in index_events if index_event.day >= today]
     )))))
+
+    max_days = 1 if unique_day else 8
 
     church_events_by_day = {}
     if sorted_church_events:

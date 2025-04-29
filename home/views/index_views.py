@@ -52,7 +52,7 @@ def render_map(request, center, index_events: list[ChurchIndexEvent], churches, 
     events_by_website = {}
     for website in websites:
         events_by_website[website.uuid] = get_website_events(
-            index_events_by_website.get(website.uuid, [])
+            index_events_by_website.get(website.uuid, []), day_filter is not None
         )
 
     # We prepare the map
@@ -323,7 +323,7 @@ def partial_website_events(request, website_uuid: str):
     church_by_uuid = {c.uuid: c for c in churches}
     day_filter, hour_min, hour_max = extract_temporal_filters(request)
     index_events = fetch_events(church_by_uuid, day_filter, hour_min, hour_max)
-    website_events = get_website_events(index_events)
+    website_events = get_website_events(index_events, day_filter is not None)
 
     return render(request, 'partials/website_events.html', {
         'website': website,
