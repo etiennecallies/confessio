@@ -145,39 +145,24 @@ async def crawl_website(website: Website) -> tuple[bool, bool]:
 
     prunings_to_prune = await run_in_sync(process_extracted_html_and_insert_crawling,
                                           website,
-                                          extracted_html_list_by_url,
-                                          nb_visited_links,
-                                          error_detail)
+                                          extracted_html_list_by_url)
 
     for pruning in prunings_to_prune:
         await update_parsings(pruning)
 
-    return await run_in_sync(add_moderations,
+    return await run_in_sync(save_crawling_and_add_moderation,
+
                              website,
-                             bool(extracted_html_list_by_url),
-                             nb_visited_links > 0)
+                             len(extracted_html_list_by_url),
+                             nb_visited_links,
+                             error_detail,
+                             )
 
 
 def process_extracted_html_and_insert_crawling(
         website: Website,
         extracted_html_list_by_url: dict[str, list[str]],
-        nb_visited_links: int,
-        error_detail: Optional[str]
 ) -> list[Pruning]:
-    # Inserting global statistics
-    crawling = Crawling(
-        nb_visited_links=nb_visited_links,
-        nb_success_links=len(extracted_html_list_by_url),
-        error_detail=error_detail,
-    )
-    crawling.save()
-
-    last_crawling = website.crawling
-    website.crawling = crawling
-    website.save()
-    if last_crawling:
-        last_crawling.delete()
-
     # Removing old pages
     existing_pages = website.get_pages()
     existing_urls = list(map(lambda p: p.url, existing_pages))
@@ -213,11 +198,27 @@ def process_extracted_html_and_insert_crawling(
     return prunings_to_prune
 
 
-def add_moderations(website: Website,
-                    has_results: bool,
-                    has_visited_links: bool,
-                    ) -> tuple[bool, bool]:
-    if has_results:
+def save_crawling_and_add_moderation(website: Website,
+                                     nb_success_links: int,
+                                     nb_visited_links: int,
+                                     error_detail: str | None = None,
+                                     ) -> tuple[bool, bool]:
+    # Inserting global statistics
+    crawling = Crawling(
+        nb_visited_links=nb_visited_links,
+        nb_success_links=nb_success_links,
+        error_detail=error_detail,
+    )
+    crawling.save()
+
+    last_crawling = website.crawling
+    website.crawling = crawling
+    website.save()
+    if last_crawling:
+        last_crawling.delete()
+
+    # Add moderation
+    if nb_success_links > 0:
         remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_NO_RESPONSE)
 
         if website.one_page_has_confessions():
@@ -239,7 +240,7 @@ def add_moderations(website: Website,
         remove_not_validated_moderation(website, WebsiteModeration.Category.SCHEDULES_CONFLICT)
         return False, True
 
-    elif has_visited_links:
+    elif nb_visited_links > 0:
         remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_NO_RESPONSE)
         add_moderation(website, WebsiteModeration.Category.HOME_URL_NO_CONFESSION)
         remove_not_validated_moderation(website, WebsiteModeration.Category.SCHEDULES_CONFLICT)
