@@ -1,3 +1,4 @@
+import threading
 from abc import abstractmethod
 
 
@@ -29,11 +30,14 @@ class CamembertTransformer(TransformerInterface):
 
 
 _transformer = None
+_transformer_lock = threading.Lock()
 
 
 def get_transformer() -> TransformerInterface:
     global _transformer
     if _transformer is None:
-        _transformer = CamembertTransformer()
+        with _transformer_lock:
+            if _transformer is None:
+                _transformer = CamembertTransformer()
 
     return _transformer

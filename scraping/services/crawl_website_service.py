@@ -143,7 +143,7 @@ async def crawl_website(website: Website) -> tuple[bool, bool]:
 
     extracted_html_list_by_url, nb_visited_links, error_detail = await do_crawl_website(website)
 
-    prunings_to_prune = await run_in_sync(process_extracted_html_and_insert_crawling,
+    prunings_to_prune = await run_in_sync(process_extracted_html,
                                           website,
                                           extracted_html_list_by_url)
 
@@ -159,7 +159,7 @@ async def crawl_website(website: Website) -> tuple[bool, bool]:
                              )
 
 
-def process_extracted_html_and_insert_crawling(
+def process_extracted_html(
         website: Website,
         extracted_html_list_by_url: dict[str, list[str]],
 ) -> list[Pruning]:

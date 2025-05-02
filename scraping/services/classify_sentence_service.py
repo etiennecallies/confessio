@@ -1,24 +1,30 @@
+import threading
+
 from home.models import Sentence, Classifier, Pruning
 from scraping.prune.models import Action, Source
 from scraping.prune.train_and_predict import TensorFlowModel
 from scraping.prune.transform_sentence import get_transformer, TransformerInterface
 
 _classifier = None
+_classifier_lock = threading.Lock()
 _model = None
+_model_lock = threading.Lock()
 
 
 def get_classifier(transformer: TransformerInterface) -> Classifier:
     global _classifier
     if _classifier is None:
-        try:
-            _classifier = Classifier.objects \
-                .filter(status=Classifier.Status.PROD) \
-                .latest('updated_at')
-        except Classifier.DoesNotExist:
-            raise ValueError("No classifier in production")
+        with _classifier_lock:
+            if _classifier is None:
+                try:
+                    _classifier = Classifier.objects \
+                        .filter(status=Classifier.Status.PROD) \
+                        .latest('updated_at')
+                except Classifier.DoesNotExist:
+                    raise ValueError("No classifier in production")
 
-        assert _classifier.transformer_name == transformer.get_name(), \
-            "Classifier and transformer are not compatible"
+                assert _classifier.transformer_name == transformer.get_name(), \
+                    "Classifier and transformer are not compatible"
 
     return _classifier
 
@@ -26,8 +32,10 @@ def get_classifier(transformer: TransformerInterface) -> Classifier:
 def get_model(classifier: Classifier) -> TensorFlowModel:
     global _model
     if _model is None:
-        _model = TensorFlowModel()
-        _model.from_pickle(classifier.pickle)
+        with _model_lock:
+            if _model is None:
+                _model = TensorFlowModel()
+                _model.from_pickle(classifier.pickle)
 
     return _model
 
