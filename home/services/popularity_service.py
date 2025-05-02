@@ -1,17 +1,21 @@
 from datetime import datetime, timedelta
 from uuid import UUID
 
+from django.db.models import Q
 from django.utils.timezone import make_aware
 from request.models import Request
 
-from home.models import Website
+from home.models import Website, ChurchIndexEvent
 
 
 def update_popularity_of_websites():
     now_minus_14_days = datetime.now() - timedelta(days=14)
-    all_requests = Request.objects.filter(path__istartswith='/paroisse/',
-                                          time__gt=make_aware(now_minus_14_days),
-                                          ).all()
+    all_requests = Request.objects.filter(
+        Q(path__startswith='/paroisse/')
+        | Q(path__startswith='/website_churches/')
+        | Q(path__startswith='/website_sources/')
+        | Q(path__startswith='/website_events/'),
+        time__gt=make_aware(now_minus_14_days)).all()
 
     count_by_website_uuids = {}
     for request in all_requests:
@@ -40,9 +44,19 @@ def update_popularity_of_websites():
 
     print('Setting is_best_diocese_hit to False for all websites')
     Website.objects.update(is_best_diocese_hit=False)
+    print('Computing best website for each diocese')
     for diocese, count_by_website in count_by_diocese.items():
-        best_website = max(count_by_website, key=count_by_website.get)
-        print(f'Best website for {diocese}: {best_website} '
+        best_website = get_best_wesbite_for_diocese(count_by_website)
+        print(f'Best website for {diocese.name}: {best_website} '
               f'with count {count_by_website[best_website]}')
         best_website.is_best_diocese_hit = True
         best_website.save()
+
+
+def get_best_wesbite_for_diocese(count_by_website: dict[Website, int],) -> Website:
+    for website, count in sorted(count_by_website.items(), key=lambda item: item[1], reverse=True):
+        if ChurchIndexEvent.objects.filter(church__parish__website=website,
+                                           is_explicitely_other__isnull=True).exists():
+            return website
+
+    return max(count_by_website, key=count_by_website.get)
