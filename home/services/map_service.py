@@ -174,6 +174,17 @@ def get_churches_by_diocese(
     return truncate_results(church_query, day_filter, hour_min, hour_max)
 
 
+def get_popular_churches(
+        day_filter: date | None,
+        hour_min: int | None,
+        hour_max: int | None
+) -> tuple[list[ChurchIndexEvent], list[Church], bool, dict[UUID, bool]]:
+    church_query = build_church_query(day_filter, hour_min, hour_max)\
+        .order_by('-parish__website__is_best_diocese_hit', '-parish__website__nb_recent_hits')
+
+    return truncate_results(church_query, day_filter, hour_min, hour_max)
+
+
 ###########
 # DISPLAY #
 ###########

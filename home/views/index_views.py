@@ -15,7 +15,7 @@ from home.services.map_service import (prepare_map,
                                        get_center, get_cities_label, get_churches_in_box,
                                        get_churches_by_website,
                                        get_churches_around,
-                                       get_churches_by_diocese, fetch_events)
+                                       get_churches_by_diocese, fetch_events, get_popular_churches)
 from home.services.page_url_service import get_page_pruning_urls
 from home.services.report_service import get_count_and_label, new_report, NewReportError, \
     get_previous_reports
@@ -259,10 +259,13 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
         meta_title = f"{h1_title} | {gettext('confessioTitle')}"
         display_sub_title = False
     else:
-        # Default coordinates
-        center = [48.859, 2.342]  # Paris
         index_events, churches, _, events_truncated_by_website_uuid = \
-            get_churches_around(center, day_filter, hour_min, hour_max)
+            get_popular_churches(day_filter, hour_min, hour_max)
+        if churches:
+            center = get_center(churches)
+        else:
+            # Default coordinates
+            center = [48.859, 2.342]  # Paris
         too_many_results = False
         bounds = None
 
