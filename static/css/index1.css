@@ -345,3 +345,10 @@ UI widget
 .margin-left-indent {
     margin-left: 1em;
 }
+
+/**
+ * Underline links
+ */
+.text-white a {
+    text-decoration: underline;
+}
