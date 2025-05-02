@@ -16,6 +16,14 @@
                 {% endif %}
             </div>
         </div>
+        {% if welcome_message %}
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                <span class="alert-inner--text">{{ welcome_message }}</span>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endif %}
         <div class="row text-white mb-3">
             <div class="col-xl-9 col-md-8">
                 <form id="search-form">

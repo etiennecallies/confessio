@@ -35,7 +35,8 @@ def render_map(request, center,
                bounds, location, too_many_results: bool,
                is_around_me: bool, day_filter: date | None,
                hour_min: int | None, hour_max: int | None,
-               page_website: Website | None, success_message: str | None):
+               page_website: Website | None, success_message: str | None,
+               welcome_message: str | None):
     # We get all websites and their churches
     websites_by_uuid = {}
     website_churches = {}
@@ -110,6 +111,7 @@ def render_map(request, center,
         'events_by_website': events_by_website,
         'website_city_label': website_city_label,
         'too_many_results': too_many_results,
+        'welcome_message': welcome_message,
         'website_reports_count': website_reports_count,
         'current_day': get_current_day(),
         'current_year': str(get_current_year()),
@@ -188,6 +190,7 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
 
     h1_title = gettext("confessioTitle")
     meta_title = gettext("confessioPageTitle")
+    welcome_message = None
 
     if min_lat and min_lng and max_lat and max_lng:
         bounds = (min_lat, max_lat, min_lng, max_lng)
@@ -258,23 +261,34 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
         h1_title = f'Se confesser au {lower_first(diocese.name)}'
         meta_title = f"{h1_title} | {gettext('confessioTitle')}"
         display_sub_title = False
+        if not day_filter and hour_min is None and hour_max is None:
+            too_many_results = False
+            welcome_message = f"""👋 Voici quelques horaires de confession au
+{lower_first(diocese.name)}. N'hésitez pas à préciser votre recherche grâce aux filtres.
+Merci de nous remonter d'éventuelles erreurs. Bonne confession !"""
+
     else:
-        index_events, churches, _, events_truncated_by_website_uuid = \
+        index_events, churches, too_many_results, events_truncated_by_website_uuid = \
             get_popular_churches(day_filter, hour_min, hour_max)
         if churches:
             center = get_center(churches)
         else:
             # Default coordinates
             center = [48.859, 2.342]  # Paris
-        too_many_results = False
         bounds = None
 
         display_sub_title = True
+        if not day_filter and hour_min is None and hour_max is None:
+            too_many_results = False
+            welcome_message = """👋 Bienvenue ! Confessio vous permet de trouver facilement les
+horaires des confessions indiqués sur les sites webs des paroisses. Ce site est en lancement et sera
+national en décembre 2025. N'hésitez pas à nous remonter d'éventuelles erreurs. Merci et bonne
+confession !"""
 
     return render_map(request, center, index_events, events_truncated_by_website_uuid, churches,
                       h1_title, meta_title, display_sub_title,
                       bounds, location, too_many_results, is_around_me,
-                      day_filter, hour_min, hour_max, website, success_message)
+                      day_filter, hour_min, hour_max, website, success_message, welcome_message)
 
 
 def partial_website_sources(request, website_uuid: str):
