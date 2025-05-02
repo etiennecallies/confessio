@@ -179,8 +179,23 @@ def get_popular_churches(
         hour_min: int | None,
         hour_max: int | None
 ) -> tuple[list[ChurchIndexEvent], list[Church], bool, dict[UUID, bool]]:
-    church_query = build_church_query(day_filter, hour_min, hour_max)\
-        .order_by('-parish__website__is_best_diocese_hit', '-parish__website__nb_recent_hits')
+    church_query = build_church_query(day_filter, hour_min, hour_max)
+
+    if not day_filter and hour_min is None or hour_max is None:
+        event_query = ChurchIndexEvent.objects.filter(church_id=OuterRef('pk'),
+                                                      day__gte=date.today(),
+                                                      is_explicitely_other__isnull=True,
+                                                      )
+        church_query = church_query.annotate(has_event=Exists(event_query)) \
+            .order_by(
+            '-has_event',
+            '-parish__website__is_best_diocese_hit',
+            '-parish__website__nb_recent_hits'
+        )
+    else:
+        church_query = church_query\
+            .order_by('-parish__website__is_best_diocese_hit',
+                      '-parish__website__nb_recent_hits')
 
     return truncate_results(church_query, day_filter, hour_min, hour_max)
 

@@ -8,18 +8,14 @@
     minute: "{{ item.minute }}"
     job: "(tmux has-session -t {{ item.name }} || tmux new-session -d -s {{ item.name }}) && tmux send-keys -t {{ item.name }} 'sudo systemd-run --scope --property=MemoryMax=800M bash -c \". {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py {{ item.command }}\"' C-m"
   with_items:
+    - name: daily_index_events
+      command: "index_events"
+      hour: "0"
+      minute: 20
     - name: train_pruning_model
       command: "train_pruning_model --automatic"
       hour: "0"
       minute: 40
-    - name: daily_update_popularity
-      command: "update_popularity"
-      hour: "0"
-      minute: 20
-    - name: daily_index_events
-      command: "index_events"
-      hour: "0"
-      minute: 30
     - name: daily_crawl_websites
       command: "crawl_websites -t 3300 --no-recent -p 3"
       hour: "1,2,3,4,5,6,7"

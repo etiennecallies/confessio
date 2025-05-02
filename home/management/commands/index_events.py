@@ -2,6 +2,7 @@ from tqdm import tqdm
 
 from home.management.abstract_command import AbstractCommand
 from home.models import Website
+from home.services.popularity_service import update_popularity_of_websites
 from scraping.services.index_events_service import index_events_for_website
 
 
@@ -21,5 +22,8 @@ class Command(AbstractCommand):
         self.info(f'Starting indexing {len(websites)} websites')
         for website in tqdm(websites):
             index_events_for_website(website)
-
         self.success(f'Successfully indexed all {len(websites)} websites')
+
+        self.info(f'Starting computing popularity of websites')
+        update_popularity_of_websites()
+        self.success(f'Finished computing popularity of websites')
