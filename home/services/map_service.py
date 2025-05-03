@@ -17,7 +17,7 @@ from home.services.website_events_service import WebsiteEvents
 from home.utils.date_utils import format_datetime_with_locale, time_from_minutes
 
 MAX_CHURCHES_IN_RESULTS = 50
-MAX_WEBSITES_IN_RESULTS = 50
+MAX_WEBSITES_IN_RESULTS = 10
 
 
 ###############

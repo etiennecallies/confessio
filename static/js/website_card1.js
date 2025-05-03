@@ -69,6 +69,11 @@ function activateToggleExplicitlyOther($element) {
     });
 }
 
+function loadMoreEvents($element) {
+    let $eventContainer = $element.closest('.website-event-container');
+    lazyLoadElement($($eventContainer), null);
+}
+
 /**
  * Activate tooltips.
  */

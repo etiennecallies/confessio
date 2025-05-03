@@ -30,7 +30,7 @@ class WebsiteEvents:
 def get_website_events(index_events: list[ChurchIndexEvent],
                        events_truncated: bool,
                        unique_day: bool) -> WebsiteEvents:
-    church_events_by_day = get_church_events_by_day(index_events, unique_day)
+    church_events_by_day = get_church_events_by_day(index_events, unique_day or events_truncated)
 
     all_church_events = sum(church_events_by_day.values(), [])
     confession_exists = len(all_church_events) > 0

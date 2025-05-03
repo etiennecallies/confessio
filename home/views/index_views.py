@@ -46,8 +46,11 @@ def render_map(request, center,
     websites = list(websites_by_uuid.values())
 
     website_city_label = {}
+    church_uuids_json_by_website = {}
     for website_uuid, churches_list in website_churches.items():
         website_city_label[website_uuid] = get_cities_label(churches_list)
+        church_uuids_json_by_website[website_uuid] = \
+            json.dumps([str(church.uuid) for church in churches_list])
 
     index_events_by_website = {}
     for index_event in index_events:
@@ -107,6 +110,7 @@ def render_map(request, center,
         'location': location,
         'map_html': map_html,
         'church_marker_names_json_by_website': church_marker_names_json_by_website,
+        'church_uuids_json_by_website': church_uuids_json_by_website,
         'websites': websites,
         'events_by_website': events_by_website,
         'website_city_label': website_city_label,
