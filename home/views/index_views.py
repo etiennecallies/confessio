@@ -283,7 +283,7 @@ Merci de nous remonter d'éventuelles erreurs. Bonne confession !"""
         if not day_filter and hour_min is None and hour_max is None:
             too_many_results = False
             welcome_message = """👋 Bienvenue ! Confessio affiche les horaires des confessions
-indiqués sur les sites webs des paroisses, et sera national en décembre 2025. N'hésitez pas à
+indiqués sur les sites web des paroisses, et sera national en décembre 2025. N'hésitez pas à
 remonter d'éventuelles erreurs. Merci et bonne confession !"""
             display_quick_search_cities = True
 
