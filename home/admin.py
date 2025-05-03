@@ -50,11 +50,10 @@ class ParishAdmin(SimpleHistoryAdmin):
 class ChurchAdmin(LeafletGeoAdmin, SimpleHistoryAdmin):
     list_display = ["name"]
     search_fields = ["name"]
+    autocomplete_fields = ["parish"]
     display_raw = True
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == 'parish':
-            return ParishChoiceField(queryset=Parish.objects.all())
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
