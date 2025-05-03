@@ -39,7 +39,15 @@ def build_church_query(day_filter: date | None,
         .annotate(next_event_uuid=Subquery(event_query.values('uuid')
                                            .order_by('day', 'start_time')[:1])) \
         .filter(is_active=True,
-                parish__website__is_active=True)
+                parish__website__is_active=True)\
+        .only("name",
+              "city",
+              "location",
+              "parish__website__uuid",
+              "parish__website__name",
+              "parish__website__home_url",
+              "parish__website__unreliability_reason",
+              )
 
     if day_filter or hour_min is not None or hour_max is not None:
         church_query = church_query.filter(next_event_uuid__isnull=False)
