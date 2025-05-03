@@ -7,7 +7,8 @@ from uuid import UUID
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.geos import Point, Polygon
 from django.contrib.gis.measure import D
-from django.db.models import QuerySet, OuterRef, Exists
+from django.db.models import QuerySet, OuterRef, Subquery, ExpressionWrapper, Q, \
+    BooleanField
 from django.utils.translation import gettext as _
 from folium import Map, Icon, Popup, Marker
 
@@ -27,16 +28,21 @@ MAX_WEBSITES_IN_RESULTS = 50
 def build_church_query(day_filter: date | None,
                        hour_min: int | None,
                        hour_max: int | None) -> QuerySet[Church]:
+    event_query = ChurchIndexEvent.objects.filter(church_id=OuterRef('pk'),
+                                                  day__gte=date.today())
+
+    if day_filter or hour_min is not None or hour_max is not None:
+        event_query = add_event_filters(event_query, day_filter, hour_min, hour_max)
+
     church_query = Church.objects.select_related('parish__website') \
         .prefetch_related('parish__website__reports') \
+        .annotate(next_event_uuid=Subquery(event_query.values('uuid')
+                                           .order_by('day', 'start_time')[:1])) \
         .filter(is_active=True,
                 parish__website__is_active=True)
 
     if day_filter or hour_min is not None or hour_max is not None:
-        event_query = ChurchIndexEvent.objects.filter(church_id=OuterRef('pk'))
-        event_query = add_event_filters(event_query, day_filter, hour_min, hour_max)
-
-        church_query = church_query.annotate(has_event=Exists(event_query)).filter(has_event=True)
+        church_query = church_query.filter(next_event_uuid__isnull=False)
 
     return church_query
 
@@ -74,31 +80,29 @@ def truncate_results(church_query: QuerySet[Church],
                      ) -> tuple[list[ChurchIndexEvent], list[Church], bool, dict[UUID, bool]]:
     churches = church_query.all()[:MAX_CHURCHES_IN_RESULTS]
 
-    non_truncated_website_uuids = []
-    truncated_website_uuids = []
+    non_truncated_count = 0
     non_truncated_churches = []
+    truncated_churches = []
+
+    events_truncated_by_website_uuid = {}
     for church in churches:
         website_uuid = church.parish.website.uuid
-        if website_uuid in non_truncated_website_uuids:
-            non_truncated_churches.append(church)
-            continue
+        if website_uuid not in events_truncated_by_website_uuid:
+            if non_truncated_count >= MAX_WEBSITES_IN_RESULTS:
+                events_truncated_by_website_uuid[website_uuid] = True
+            else:
+                events_truncated_by_website_uuid[website_uuid] = False
+                non_truncated_count += 1
 
-        if website_uuid in truncated_website_uuids:
-            continue
-
-        if len(non_truncated_website_uuids) >= MAX_WEBSITES_IN_RESULTS:
-            truncated_website_uuids.append(website_uuid)
+        if events_truncated_by_website_uuid[website_uuid]:
+            truncated_churches.append(church)
         else:
-            non_truncated_website_uuids.append(website_uuid)
             non_truncated_churches.append(church)
 
-    church_by_uuid = {church.uuid: church for church in non_truncated_churches}
-    events = fetch_events(church_by_uuid, day_filter, hour_min, hour_max)
-    events_truncated_by_website_uuid = {
-        website_uuid: False for website_uuid in non_truncated_website_uuids
-    } | {
-        website_uuid: True for website_uuid in truncated_website_uuids
-    }
+    non_truncated_church_by_uuid = {church.uuid: church for church in non_truncated_churches}
+    truncated_church_by_uuid = {church.uuid: church for church in truncated_churches}
+    events = fetch_events(non_truncated_church_by_uuid, day_filter, hour_min, hour_max) \
+        + fetch_next_event(truncated_church_by_uuid)
 
     return (events, churches, len(churches) == MAX_CHURCHES_IN_RESULTS,
             events_truncated_by_website_uuid)
@@ -112,7 +116,18 @@ def fetch_events(church_by_uuid: dict[UUID, Church],
     for event in events:
         event.church = church_by_uuid.get(event.church_id)
 
-    return events
+    return list(events)
+
+
+def fetch_next_event(church_by_uuid: dict[UUID, Church]) -> list[ChurchIndexEvent]:
+    events_uuid = [church.next_event_uuid for church in church_by_uuid.values()
+                   if church.next_event_uuid]
+    events = ChurchIndexEvent.objects.filter(uuid__in=events_uuid)
+
+    for event in events:
+        event.church = church_by_uuid.get(event.church_id)
+
+    return list(events)
 
 
 ###########
@@ -182,12 +197,12 @@ def get_popular_churches(
     church_query = build_church_query(day_filter, hour_min, hour_max)
 
     if not day_filter and hour_min is None or hour_max is None:
-        event_query = ChurchIndexEvent.objects.filter(church_id=OuterRef('pk'),
-                                                      day__gte=date.today(),
-                                                      is_explicitely_other__isnull=True,
-                                                      )
-        church_query = church_query.annotate(has_event=Exists(event_query)) \
-            .order_by(
+        church_query = church_query.annotate(
+            has_event=ExpressionWrapper(
+                Q(next_event_uuid__isnull=False),
+                output_field=BooleanField()
+            )
+        ).order_by(
             '-has_event',
             '-parish__website__is_best_diocese_hit',
             '-parish__website__nb_recent_hits'
