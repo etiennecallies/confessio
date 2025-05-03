@@ -116,6 +116,9 @@ class Parish(TimeStampMixin):
     diocese = models.ForeignKey('Diocese', on_delete=models.CASCADE, related_name='parishes')
     history = HistoricalRecords()
 
+    def __str__(self):
+        return self.name
+
 
 class Church(TimeStampMixin):
     name = models.CharField(max_length=100)
