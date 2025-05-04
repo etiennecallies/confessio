@@ -4,6 +4,17 @@ A search engine for confession hours by scraping parish websites.
 This is the codebase of the [confessio.fr](https://confessio.fr) project.
 
 ---
+## 📄 Licenses
+
+- The **source code** is released under the **GNU GPL v3 License** ([see LICENSE](./LICENSE)).  
+  → This is a strong copyleft license that allows reuse and modification, but requires that any derivative work also be released under the GPL and remain open-source.
+
+- The **data provided through the API** is released under the **ODbL v1.0 license** ([see LICENSE_ODBL](./LICENSE_ODBL)).  
+  → This license allows free use, sharing, and adaptation of the database, provided you attribute the source and share any improvements under the same terms.
+
+Please make sure to **credit the source** when using the data, and if possible, add a “Report an error” link near each displayed piece of data, including Confessio brand name and its logo. We encourage you to **get in touch with the maintainer** to ensure proper usage and collaboration.
+
+---
 
 # Dev environment
 
