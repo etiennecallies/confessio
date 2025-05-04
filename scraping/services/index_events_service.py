@@ -14,6 +14,11 @@ def index_events_for_website(website: Website):
     if not website.unreliability_reason:
         all_church_events = get_all_church_events(website, website_churches)
 
+    start_end_with_churches = set()
+    for church_event in all_church_events:
+        if church_event.church:
+            start_end_with_churches.add((church_event.event.start, church_event.event.end))
+
     church_index_to_add = []
     for church_event in all_church_events:
         event_day = church_event.event.start.date()
@@ -32,6 +37,10 @@ def index_events_for_website(website: Website):
                 church_color=church_event.church_color,
             ))
         else:
+            if (church_event.event.start, church_event.event.end) in start_end_with_churches:
+                # We ignore church_event with no church and with real-church event
+                continue
+
             for church in website_churches:
                 church_index_to_add.append(ChurchIndexEvent(
                     church=church,
