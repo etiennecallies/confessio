@@ -326,8 +326,7 @@ def partial_website_churches(request, website_uuid: str):
                                       f"'{church_marker_names_json}'")
 
     website_churches = [c for p in website.parishes.all() for c in p.churches.all()]
-    website_schedules = get_website_schedules(
-        website, website_churches, None, None, None)
+    website_schedules = get_website_schedules(website, website_churches)
 
     return render(request, 'partials/website_churches.html', {
         'website': website,

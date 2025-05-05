@@ -6,7 +6,7 @@ from uuid import UUID
 from home.models import Church, Parsing, Website
 from home.services.holiday_zone_service import get_website_holiday_zone
 from home.services.sources_service import get_website_sorted_parsings
-from home.utils.date_utils import get_current_year, time_from_minutes
+from home.utils.date_utils import get_current_year
 from home.utils.hash_utils import hash_string_to_hex
 from scraping.parse.explain_schedule import schedule_item_sort_key, get_explanation_from_schedule
 from scraping.parse.rrule_utils import get_events_from_schedule_item
@@ -86,9 +86,6 @@ class WebsiteSchedules:
 
 def get_website_schedules(website: Website,
                           all_website_churches: list[Church],
-                          day_filter: date | None = None,
-                          hour_min: int | None = None,
-                          hour_max: int | None = None,
                           max_days: int = 8
                           ) -> WebsiteSchedules:
     ################
@@ -102,20 +99,9 @@ def get_website_schedules(website: Website,
     is_related_to_permanence_parsings = []
     will_be_seasonal_events_parsings = []
 
-    if not day_filter:
-        start_date = date.today()
-        current_year = get_current_year()
-        end_date = start_date + timedelta(days=300)
-    else:
-        start_date = day_filter
-        current_year = start_date.year
-        end_date = start_date
-        max_days = 1
-
-    min_time = max_time = None
-    if hour_min or hour_max:
-        min_time = time_from_minutes(hour_min or 0)
-        max_time = time_from_minutes(hour_max or 24 * 60 - 1)
+    start_date = date.today()
+    current_year = get_current_year()
+    end_date = start_date + timedelta(days=300)
 
     holiday_zone = get_website_holiday_zone(website, all_website_churches)
 
@@ -136,12 +122,6 @@ def get_website_schedules(website: Website,
                     and schedule.church_id not in church_by_id:
                 # We ignore schedule for out of scope churches
                 continue
-
-            if min_time or max_time:
-                start_time = schedule.get_start_time() or min_time
-                end_time = schedule.get_end_time() or max_time
-                if start_time > max_time or end_time < min_time:
-                    continue
 
             events = get_events_from_schedule_item(schedule, start_date,
                                                    current_year, holiday_zone,

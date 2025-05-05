@@ -65,7 +65,7 @@ def get_all_church_events(website: Website, website_churches: list[Church]
                           ) -> list[ChurchEvent]:
     all_church_events = []
     website_schedules = get_website_schedules(
-        website, website_churches, day_filter=None, max_days=10
+        website, website_churches, max_days=10
     )
     for church_sorted_schedule in website_schedules.church_sorted_schedules:
         has_been_moderated_by_church_event = {}
