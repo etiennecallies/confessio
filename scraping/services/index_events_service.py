@@ -1,5 +1,6 @@
 from home.models import Website, ChurchIndexEvent, Church
-from home.services.website_schedules_service import get_website_schedules, ChurchEvent, \
+from home.services.website_events_service import ChurchEvent
+from home.services.website_schedules_service import get_website_schedules, \
     get_color_of_nullable_church
 from home.utils.date_utils import time_plus_hours
 

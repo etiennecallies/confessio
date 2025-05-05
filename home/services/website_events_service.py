@@ -2,8 +2,37 @@ from dataclasses import dataclass
 from datetime import date, timedelta
 
 from home.models import Church, ChurchIndexEvent
-from home.services.website_schedules_service import ChurchEvent
 from scraping.parse.schedules import Event
+from scraping.services.church_index_service import event_from_church_index_event
+
+
+@dataclass
+class ChurchEvent:
+    church: Church | None
+    is_church_explicitly_other: bool
+    event: Event
+    has_been_moderated: bool
+    church_color: str
+
+    @classmethod
+    def from_index_event(cls, index_event: ChurchIndexEvent) -> 'ChurchEvent':
+        return cls(
+            church=index_event.church if index_event.is_explicitely_other is None else None,
+            is_church_explicitly_other=bool(index_event.is_explicitely_other),
+            event=event_from_church_index_event(index_event),
+            has_been_moderated=index_event.has_been_moderated,
+            church_color=index_event.church_color,
+        )
+
+    def __lt__(self, other: 'ChurchEvent'):
+        return self.event < other.event
+
+    def __hash__(self):
+        return hash((
+            self.church.uuid if self.church else None,
+            self.is_church_explicitly_other,
+            self.event
+        ))
 
 
 @dataclass

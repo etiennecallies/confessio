@@ -3,7 +3,7 @@ from datetime import date, timedelta
 from typing import Optional
 from uuid import UUID
 
-from home.models import Church, Parsing, Website, ChurchIndexEvent
+from home.models import Church, Parsing, Website
 from home.services.holiday_zone_service import get_website_holiday_zone
 from home.services.sources_service import get_website_sorted_parsings
 from home.utils.date_utils import get_current_year, time_from_minutes
@@ -11,13 +11,12 @@ from home.utils.hash_utils import hash_string_to_hex
 from scraping.parse.explain_schedule import schedule_item_sort_key, get_explanation_from_schedule
 from scraping.parse.rrule_utils import get_events_from_schedule_item
 from scraping.parse.schedules import Event, ScheduleItem
-from scraping.services.church_index_service import event_from_church_index_event
 from scraping.services.parsing_service import get_church_by_id, get_parsing_schedules_list
 
 
-########################
-# EVENTS AND SCHEDULES #
-########################
+#############
+# SCHEDULES #
+#############
 
 @dataclass
 class ParsingScheduleItem:
@@ -55,54 +54,6 @@ class ChurchScheduleItem:
 
 
 @dataclass
-class ChurchEvent:
-    church: Church | None
-    is_church_explicitly_other: bool
-    event: Event
-    has_been_moderated: bool | None  # TODO not nullable
-    church_color: str | None  # TODO not nullable
-
-    @classmethod
-    def from_event(cls, event: Event, church_by_id: dict[int, Church]) -> 'ChurchEvent':
-        if event.church_id is None or event.church_id == -1:
-            return cls(
-                church=None,
-                is_church_explicitly_other=event.church_id == -1,
-                event=event,
-                has_been_moderated=None,
-                church_color=None,
-            )
-
-        return cls(
-            church=church_by_id[event.church_id],
-            is_church_explicitly_other=False,
-            event=event,
-            has_been_moderated=None,
-            church_color=None,
-        )
-
-    @classmethod
-    def from_index_event(cls, index_event: ChurchIndexEvent) -> 'ChurchEvent':
-        return cls(
-            church=index_event.church if index_event.is_explicitely_other is None else None,
-            is_church_explicitly_other=bool(index_event.is_explicitely_other),
-            event=event_from_church_index_event(index_event),
-            has_been_moderated=index_event.has_been_moderated,
-            church_color=index_event.church_color,
-        )
-
-    def __lt__(self, other: 'ChurchEvent'):
-        return self.event < other.event
-
-    def __hash__(self):
-        return hash((
-            self.church.uuid if self.church else None,
-            self.is_church_explicitly_other,
-            self.event
-        ))
-
-
-@dataclass
 class ChurchSortedSchedules:
     church: Optional[Church]
     is_church_explicitly_other: bool
@@ -122,7 +73,6 @@ class ChurchSortedSchedules:
 
 @dataclass
 class WebsiteSchedules:
-    church_events_by_day: dict[date, list[ChurchEvent]]
     church_sorted_schedules: list[ChurchSortedSchedules]
     possible_by_appointment_parsings: list[Parsing]
     is_related_to_mass_parsings: list[Parsing]
@@ -131,7 +81,6 @@ class WebsiteSchedules:
     will_be_seasonal_events_parsings: list[Parsing]
     source_index_by_parsing_uuid: dict[UUID, int]
     parsing_by_uuid: dict[UUID, Parsing]
-    parsings_have_been_moderated: bool
     church_color_by_uuid: dict[UUID, str]
 
 
@@ -218,26 +167,6 @@ def get_website_schedules(website: Website,
     church_by_id = {cs.schedule_item.item.church_id: cs.church
                     for cs in merged_church_schedule_items}
 
-    ##############
-    # Get events #
-    ##############
-
-    all_events = list(sorted(list(set(
-        sum((cs.schedule_item.events for cs in merged_church_schedule_items), [])))))
-
-    church_events_by_day = {}
-    if all_events:
-        first_day = all_events[0].start.date()
-        for i in range(max_days):
-            day = first_day + timedelta(days=i)
-            church_events_by_day[day] = []
-
-        for event in all_events:
-            event_date = event.start.date()
-            if event_date in church_events_by_day:
-                church_event = ChurchEvent.from_event(event, church_by_id)
-                church_events_by_day[event_date].append(church_event)
-
     ######################
     # Get schedule_items #
     ######################
@@ -259,10 +188,8 @@ def get_website_schedules(website: Website,
 
     source_index_by_parsing_uuid = {source.uuid: i for i, source in enumerate(parsings)}
     parsing_by_uuid = {parsing.uuid: parsing for parsing in parsings}
-    parsings_have_been_moderated = all(parsing.has_been_moderated() for parsing in parsings)
 
     return WebsiteSchedules(
-        church_events_by_day=church_events_by_day,
         church_sorted_schedules=church_sorted_schedules,
         possible_by_appointment_parsings=possible_by_appointment_parsings,
         is_related_to_mass_parsings=is_related_to_mass_parsings,
@@ -271,7 +198,6 @@ def get_website_schedules(website: Website,
         will_be_seasonal_events_parsings=will_be_seasonal_events_parsings,
         source_index_by_parsing_uuid=source_index_by_parsing_uuid,
         parsing_by_uuid=parsing_by_uuid,
-        parsings_have_been_moderated=parsings_have_been_moderated,
         church_color_by_uuid=get_church_color_by_uuid(church_sorted_schedules),
     )
 
