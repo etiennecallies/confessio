@@ -15,7 +15,8 @@ from home.services.map_service import (prepare_map,
                                        get_center, get_cities_label, get_churches_in_box,
                                        get_churches_by_website,
                                        get_churches_around,
-                                       get_churches_by_diocese, fetch_events, get_popular_churches)
+                                       get_churches_by_diocese, fetch_events, get_popular_churches,
+                                       TimeFilter)
 from home.services.page_url_service import get_page_pruning_urls
 from home.services.report_service import get_count_and_label, new_report, NewReportError, \
     get_previous_reports
@@ -33,8 +34,7 @@ def render_map(request, center,
                churches, h1_title: str,
                meta_title: str, display_sub_title: bool,
                bounds, location, too_many_results: bool,
-               is_around_me: bool, day_filter: date | None,
-               hour_min: int | None, hour_max: int | None,
+               is_around_me: bool, time_filter: TimeFilter,
                page_website: Website | None, success_message: str | None,
                welcome_message: str | None, display_quick_search_cities: bool):
     # We get all websites and their churches
@@ -62,7 +62,7 @@ def render_map(request, center,
         events_by_website[website.uuid] = get_website_events(
             index_events_by_website.get(website.uuid, []),
             events_truncated_by_website_uuid[website.uuid],
-            day_filter is not None
+            time_filter.day_filter is not None
         )
 
     # We prepare the map
@@ -120,10 +120,10 @@ def render_map(request, center,
         'website_reports_count': website_reports_count,
         'current_day': get_current_day(),
         'current_year': str(get_current_year()),
-        'filter_days': get_filter_days(day_filter),
-        'date_filter_value': day_filter.isoformat() if day_filter else '',
-        'hour_min': hour_min or '',
-        'hour_max': hour_max or '',
+        'filter_days': get_filter_days(time_filter.day_filter),
+        'date_filter_value': time_filter.day_filter.isoformat() if time_filter.day_filter else '',
+        'hour_min': time_filter.hour_min or '',
+        'hour_max': time_filter.hour_max or '',
         'action_path': request.path,
         'hidden_inputs': hidden_inputs,
         'is_website_page': page_website is not None,
@@ -172,11 +172,12 @@ def extract_bool(key: str, request) -> bool:
         return False
 
 
-def extract_temporal_filters(request) -> tuple[date | None, int | None, int | None]:
-    day_filter = extract_day_filter(request)
-    hour_min = extract_int('hourMin', request, 0)
-    hour_max = extract_int('hourMax', request, 24 * 60 - 1)
-    return day_filter, hour_min, hour_max
+def extract_temporal_filters(request) -> TimeFilter:
+    return TimeFilter(
+        day_filter=extract_day_filter(request),
+        hour_min=extract_int('hourMin', request, 0),
+        hour_max=extract_int('hourMax', request, 24 * 60 - 1),
+    )
 
 
 def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bool = False):
@@ -188,7 +189,7 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
     min_lng = extract_float('minLng', request)
     max_lat = extract_float('maxLat', request)
     max_lng = extract_float('maxLng', request)
-    day_filter, hour_min, hour_max = extract_temporal_filters(request)
+    time_filter = extract_temporal_filters(request)
 
     website = None
     success_message = None
@@ -202,7 +203,7 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
         bounds = (min_lat, max_lat, min_lng, max_lng)
         center = [min_lat + max_lat / 2, min_lng + max_lng / 2]
         index_events, churches, too_many_results, events_truncated_by_website_uuid = \
-            get_churches_in_box(min_lat, max_lat, min_lng, max_lng, day_filter, hour_min, hour_max)
+            get_churches_in_box(min_lat, max_lat, min_lng, max_lng, time_filter)
 
         display_sub_title = False
     elif website_uuid:
@@ -218,7 +219,7 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
                 return e.response
 
         index_events, churches, too_many_results, events_truncated_by_website_uuid = \
-            get_churches_by_website(website, day_filter, hour_min, hour_max)
+            get_churches_by_website(website, time_filter)
 
         if len(churches) == 0:
             website_churches = [church for p in website.parishes.all()
@@ -237,7 +238,7 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
     elif latitude and longitude:
         center = [latitude, longitude]
         index_events, churches, _, events_truncated_by_website_uuid = \
-            get_churches_around(center, day_filter, hour_min, hour_max)
+            get_churches_around(center, time_filter)
         too_many_results = False
         bounds = None
 
@@ -252,7 +253,7 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
             return HttpResponseNotFound("Diocese not found")
 
         index_events, churches, too_many_results, events_truncated_by_website_uuid = \
-            get_churches_by_diocese(diocese, day_filter, hour_min, hour_max)
+            get_churches_by_diocese(diocese, time_filter)
         if len(churches) == 0:
             diocese_churches = [church for p in diocese.parishes.all()
                                 for church in p.churches.all()]
@@ -267,7 +268,7 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
         h1_title = f'Se confesser au {lower_first(diocese.name)}'
         meta_title = f"{h1_title} | {gettext('confessioTitle')}"
         display_sub_title = False
-        if not day_filter and hour_min is None and hour_max is None:
+        if time_filter.is_null():
             too_many_results = False
             welcome_message = f"""👋 Voici quelques horaires de confession au
 {lower_first(diocese.name)}. N'hésitez pas à préciser votre recherche grâce aux filtres.
@@ -275,7 +276,7 @@ Merci de nous remonter d'éventuelles erreurs. Bonne confession !"""
 
     else:
         index_events, churches, too_many_results, events_truncated_by_website_uuid = \
-            get_popular_churches(day_filter, hour_min, hour_max)
+            get_popular_churches(time_filter)
         if churches:
             center = get_center(churches)
         else:
@@ -284,7 +285,7 @@ Merci de nous remonter d'éventuelles erreurs. Bonne confession !"""
         bounds = None
 
         display_sub_title = True
-        if not day_filter and hour_min is None and hour_max is None:
+        if time_filter.is_null():
             too_many_results = False
             welcome_message = """👋 Bienvenue ! Confessio affiche les horaires des confessions
 indiqués sur les sites web des paroisses, et sera national en décembre 2025. N'hésitez pas à
@@ -294,7 +295,7 @@ remonter d'éventuelles erreurs. Merci et bonne confession !"""
     return render_map(request, center, index_events, events_truncated_by_website_uuid, churches,
                       h1_title, meta_title, display_sub_title,
                       bounds, location, too_many_results, is_around_me,
-                      day_filter, hour_min, hour_max, website, success_message, welcome_message,
+                      time_filter, website, success_message, welcome_message,
                       display_quick_search_cities)
 
 
@@ -353,11 +354,11 @@ def partial_website_events(request, website_uuid: str):
         return HttpResponseNotFound(f"Some churches do not exist with these uuids {church_uuids}")
 
     church_by_uuid = {c.uuid: c for c in churches}
-    day_filter, hour_min, hour_max = extract_temporal_filters(request)
-    index_events = fetch_events(church_by_uuid, day_filter, hour_min, hour_max)
+    time_filter = extract_temporal_filters(request)
+    index_events = fetch_events(church_by_uuid, time_filter)
     website_events = get_website_events(index_events,
                                         False,
-                                        day_filter is not None)
+                                        time_filter.day_filter is not None)
 
     return render(request, 'partials/website_events.html', {
         'website': website,
