@@ -86,7 +86,7 @@ class WebsiteSchedules:
 
 def get_website_schedules(website: Website,
                           all_website_churches: list[Church],
-                          max_days: int = 8
+                          max_days: int = 1
                           ) -> WebsiteSchedules:
     ################
     # Get parsings #
