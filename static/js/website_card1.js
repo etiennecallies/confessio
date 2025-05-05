@@ -1,17 +1,4 @@
 /**
- * Copy to clipboard.
- */
-$(document).ready(function () {
-    $('.copy-to-clipboard').each(function () {
-        $(this).click(function () {
-            let content = $(this).prev().text();
-            navigator.clipboard.writeText(content);
-            $('<span> Copié!</span>').insertAfter(this).delay(2000).fadeOut();
-        });
-    });
-});
-
-/**
  * Handle expand/collapse of truncated html.
  */
 $(document).ready(function () {
@@ -46,6 +33,9 @@ function lazyLoadElement($element, callback) {
         setTimeout(function() {
             activateExpandable($element);
             activateToggleExplicitlyOther($element);
+            activateCopyToClipboard($element);
+            activateNextButton($element);
+            activatePreviousButton($element);
         }, 0)
     }).fail(function() {
         $element.html("<p>Une erreur est survenue...</p>");
@@ -67,6 +57,56 @@ function activateToggleExplicitlyOther($element) {
       // Toggle text "afficher" / "masquer"
       $this.text($this.text() === 'Afficher' ? 'Masquer' : 'Afficher');
     });
+}
+
+function activateCopyToClipboard($element) {
+    $element.find('.copy-to-clipboard').each(function () {
+        $(this).click(function () {
+            let content = $(this).prev().text();
+            navigator.clipboard.writeText(content);
+            $('<span> Copié!</span>').insertAfter(this).delay(2000).fadeOut();
+        });
+    });
+}
+
+function activateNextButton($element) {
+    let $nextButton = $element.find('.next-button');
+    if ($nextButton.length) {
+        $nextButton.on('click', addEventOnNextButton);
+    }
+}
+
+function activatePreviousButton($element) {
+    let $previousButton = $element.find('.previous-button');
+    if ($previousButton.length) {
+        $previousButton.on('click', addEventOnPreviousButton);
+    }
+}
+
+function addEventOnNextButton() {
+    // Find the parent table-container
+    const container = $(this).closest('.calendar-table-container');
+
+    // Hide range-1 table and show range-2 table in this container
+    container.find('.calendar-table.range-1').addClass('d-none');
+    container.find('.calendar-table.range-2').removeClass('d-none');
+
+    // Hide "Next" button and show "Previous" button in this container
+    $(this).addClass('d-none');
+    container.find('.previous-button').removeClass('d-none');
+  }
+
+function addEventOnPreviousButton() {
+    // Find the parent table-container
+    const container = $(this).closest('.calendar-table-container');
+
+    // Hide range-2 table and show range-1 table in this container
+    container.find('.calendar-table.range-2').addClass('d-none');
+    container.find('.calendar-table.range-1').removeClass('d-none');
+
+    // Hide "Previous" button and show "Next" button in this container
+    $(this).addClass('d-none');
+    container.find('.next-button').removeClass('d-none');
 }
 
 function loadMoreEvents($element) {
@@ -141,30 +181,8 @@ function animateElement($element) {
  */
 $(document).ready(function() {
   // Handle "Next" button click
-  $(".next-button").click(function() {
-    // Find the parent table-container
-    const container = $(this).closest('.calendar-table-container');
-
-    // Hide range-1 table and show range-2 table in this container
-    container.find('.calendar-table.range-1').addClass('d-none');
-    container.find('.calendar-table.range-2').removeClass('d-none');
-
-    // Hide "Next" button and show "Previous" button in this container
-    $(this).addClass('d-none');
-    container.find('.previous-button').removeClass('d-none');
-  });
+  $(".next-button").click(addEventOnNextButton);
 
   // Handle "Previous" button click
-  $(".previous-button").click(function() {
-    // Find the parent table-container
-    const container = $(this).closest('.calendar-table-container');
-
-    // Hide range-2 table and show range-1 table in this container
-    container.find('.calendar-table.range-2').addClass('d-none');
-    container.find('.calendar-table.range-1').removeClass('d-none');
-
-    // Hide "Previous" button and show "Next" button in this container
-    $(this).addClass('d-none');
-    container.find('.next-button').removeClass('d-none');
-  });
+  $(".previous-button").click(addEventOnPreviousButton);
 });

@@ -363,6 +363,8 @@ def partial_website_events(request, website_uuid: str):
     return render(request, 'partials/website_events.html', {
         'website': website,
         'website_events': website_events,
+        'current_day': get_current_day(),
+        'current_year': str(get_current_year()),
     })
 
 
