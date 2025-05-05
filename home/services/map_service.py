@@ -7,8 +7,7 @@ from uuid import UUID
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.geos import Point, Polygon
 from django.contrib.gis.measure import D
-from django.db.models import QuerySet, OuterRef, Subquery, ExpressionWrapper, Q, \
-    BooleanField
+from django.db.models import QuerySet, OuterRef, Subquery, Exists
 from django.utils.translation import gettext as _
 from folium import Map, Icon, Popup, Marker
 from pydantic import BaseModel
@@ -38,13 +37,18 @@ class TimeFilter(BaseModel):
 # QUERY UTILS #
 ###############
 
-
-def build_church_query(time_filter: TimeFilter) -> QuerySet[Church]:
+def build_event_subquery(time_filter: TimeFilter):
     event_query = ChurchIndexEvent.objects.filter(church_id=OuterRef('pk'),
                                                   day__gte=date.today())
 
     if not time_filter.is_null():
         event_query = add_event_filters(event_query, time_filter)
+
+    return event_query
+
+
+def build_church_query(time_filter: TimeFilter) -> QuerySet[Church]:
+    event_query = build_event_subquery(time_filter)
 
     church_query = Church.objects.select_related('parish__website') \
         .prefetch_related('parish__website__reports') \
@@ -193,23 +197,13 @@ def get_churches_by_diocese(
 
 def get_popular_churches(time_filter: TimeFilter,
                          ) -> tuple[list[ChurchIndexEvent], list[Church], bool, dict[UUID, bool]]:
-    church_query = build_church_query(time_filter)
-
-    if not time_filter.is_null():
-        church_query = church_query.annotate(
-            has_event=ExpressionWrapper(
-                Q(next_event_uuid__isnull=False),
-                output_field=BooleanField()
-            )
-        ).order_by(
-            '-has_event',
-            '-parish__website__is_best_diocese_hit',
-            '-parish__website__nb_recent_hits'
-        )
-    else:
-        church_query = church_query\
-            .order_by('-parish__website__is_best_diocese_hit',
-                      '-parish__website__nb_recent_hits')
+    event_query = build_event_subquery(time_filter).filter(is_explicitely_other__isnull=True)
+    church_query = build_church_query(time_filter).annotate(has_event=Exists(event_query))\
+        .order_by(
+        '-has_event',
+        '-parish__website__is_best_diocese_hit',
+        '-parish__website__nb_recent_hits',
+    )
 
     return truncate_results(church_query, time_filter)
 
