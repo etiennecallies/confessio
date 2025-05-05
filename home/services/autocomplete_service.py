@@ -6,6 +6,7 @@ from django.contrib.postgres.lookups import Unaccent
 from django.db.models import Value
 from django.db.models.functions import Replace, Lower
 from django.urls import reverse
+from requests.exceptions import RequestException
 
 from home.models import Parish, Church
 from home.utils.department_utils import get_departments_context
@@ -68,12 +69,19 @@ class AutocompleteResult:
 
 def get_data_gouv_response(query) -> list[AutocompleteResult]:
     url = f'https://api-adresse.data.gouv.fr/search/'
-    response = requests.get(url, params={
-        'q': query,
-        'limit': MAX_AUTOCOMPLETE_RESULTS,
-        'autocomplete': 1,
-        'type': 'municipality',
-    })
+
+    try:
+        response = requests.get(url, params={
+            'q': query,
+            'limit': MAX_AUTOCOMPLETE_RESULTS,
+            'autocomplete': 1,
+            'type': 'municipality',
+        })
+    except RequestException as e:
+        print(f'Exception in get_data_gouv_response: {e}')
+        from core.otel.metrics_service import metrics_service
+        metrics_service.increment_warning_counter('data_gouv_error')
+        return []
 
     if response.status_code != 200:
         print(f'Error in get_data_gouv_response: {response.status_code}')
