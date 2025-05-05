@@ -18,13 +18,13 @@ def index_events_for_website(website: Website):
     start_end_with_churches = set()
     for church_event in all_church_events:
         if church_event.church:
-            start_end_with_churches.add((church_event.event.start, church_event.event.end))
+            start_end_with_churches.add((church_event.start, church_event.end))
 
     church_index_to_add = []
     for church_event in all_church_events:
-        event_day = church_event.event.start.date()
-        event_start_time = church_event.event.start.time()
-        displayed_end_time = church_event.event.end.time() if church_event.event.end else None
+        event_day = church_event.start.date()
+        event_start_time = church_event.start.time()
+        displayed_end_time = church_event.end.time() if church_event.end else None
         indexed_end_time = displayed_end_time or time_plus_hours(event_start_time, 4)
         if church_event.church:
             church_index_to_add.append(ChurchIndexEvent(
@@ -38,7 +38,7 @@ def index_events_for_website(website: Website):
                 church_color=church_event.church_color,
             ))
         else:
-            if (church_event.event.start, church_event.event.end) in start_end_with_churches:
+            if (church_event.start, church_event.end) in start_end_with_churches:
                 # We ignore church_event with no church and with real-church event
                 continue
 
@@ -81,7 +81,8 @@ def get_all_church_events(website: Website, website_churches: list[Church]
             church_event = ChurchEvent(
                 church=church_sorted_schedule.church,
                 is_church_explicitly_other=church_sorted_schedule.is_church_explicitly_other,
-                event=event,
+                start=event.start,
+                end=event.end,
                 has_been_moderated=has_been_moderated,
                 church_color=get_color_of_nullable_church(
                     church_sorted_schedule.church,

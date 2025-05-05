@@ -1,37 +1,41 @@
 from dataclasses import dataclass
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 
 from home.models import Church, ChurchIndexEvent
-from scraping.parse.schedules import Event
-from scraping.services.church_index_service import event_from_church_index_event
 
 
 @dataclass
 class ChurchEvent:
     church: Church | None
     is_church_explicitly_other: bool
-    event: Event
+    start: datetime
+    end: datetime | None
     has_been_moderated: bool
     church_color: str
 
     @classmethod
     def from_index_event(cls, index_event: ChurchIndexEvent) -> 'ChurchEvent':
+        start = datetime.combine(index_event.day, index_event.start_time)
+        end = datetime.combine(index_event.day, index_event.displayed_end_time) \
+            if index_event.displayed_end_time else None
+
         return cls(
             church=index_event.church if index_event.is_explicitely_other is None else None,
             is_church_explicitly_other=bool(index_event.is_explicitely_other),
-            event=event_from_church_index_event(index_event),
+            start=start,
+            end=end,
             has_been_moderated=index_event.has_been_moderated,
             church_color=index_event.church_color,
         )
 
     def __lt__(self, other: 'ChurchEvent'):
-        return self.event < other.event
+        return (self.start, self.church_color) < (other.start, other.church_color)
 
     def __hash__(self):
         return hash((
-            self.church.uuid if self.church else None,
-            self.is_church_explicitly_other,
-            self.event
+            self.start,
+            self.end,
+            self.church_color
         ))
 
 
@@ -47,11 +51,11 @@ class WebsiteEvents:
     has_different_churches: bool
     events_truncated: bool
 
-    def next_event_in_church(self, church: Church) -> Event | None:
+    def next_event_in_church(self, church: Church) -> ChurchEvent | None:
         for church_events in self.church_events_by_day.values():
             for church_event in church_events:
                 if church_event.church == church:
-                    return church_event.event
+                    return church_event
 
         return None
 
@@ -101,13 +105,13 @@ def get_church_events_by_day(index_events: list[ChurchIndexEvent],
 
     church_events_by_day = {}
     if sorted_church_events:
-        first_day = sorted_church_events[0].event.start.date()
+        first_day = sorted_church_events[0].start.date()
         for i in range(max_days):
             day = first_day + timedelta(days=i)
             church_events_by_day[day] = []
 
         for church_event in sorted_church_events:
-            event_date = church_event.event.start.date()
+            event_date = church_event.start.date()
             if event_date in church_events_by_day:
                 church_events_by_day[event_date].append(church_event)
 

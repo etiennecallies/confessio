@@ -31,7 +31,7 @@
                                 <div class="colored-schedule d-inline-block clickable" onclick="return goToChurch('{{ website.uuid }}', '{{ church_event.church.uuid }}', '{{ church_event.is_church_explicitly_other|lower }}')"
                                           title="{% if church_event.church %}{{ church_event.church.name }}{% elif church_event.is_church_explicitly_other %}{% trans 'OutsideThisParish' %}{% else %}{% trans 'UnknownChurch' %}{% endif %}"
                                           style="background-color: {{ church_event.church_color }}"
-                                    >{% display_hour church_event.event.start %} - {% if church_event.event.end %}{% display_hour church_event.event.end %}{% else %}?{% endif %}
+                                    >{% display_hour church_event.start %} - {% if church_event.end %}{% display_hour church_event.end %}{% else %}?{% endif %}
                                     {% if not church_event.church %}<br>{% display_other_church_icon church_event.is_church_explicitly_other %}{% endif %}
                                 </div>
                             </div>
