@@ -4,7 +4,8 @@ from django.core.mail import mail_admins
 from django.utils import timezone
 
 from home.management.abstract_command import AbstractCommand
-from home.models import Website, Crawling
+from home.models import Website, Crawling, ChurchIndexEvent
+from home.utils.date_utils import get_current_day
 from scraping.parse.holidays import check_holiday_by_zone
 from scraping.parse.periods import check_easter_dates
 from scraping.services.parse_pruning_service import check_website_parsing_relations, \
@@ -108,3 +109,18 @@ class Command(AbstractCommand):
         self.info('Starting checking church location are not absurd')
         outliers_count = find_church_geo_outliers()
         self.success(f'{outliers_count} outliers found')
+
+        self.info(f'Starting checking index events')
+        yesterday = get_current_day() - timedelta(days=1)
+        if ChurchIndexEvent.objects.filter(day__lt=yesterday).exists():
+            error_message = f'Index events exist from yesterday or before'
+            self.error(error_message)
+            message = f"""
+            Index events exist from yesterday or before
+
+            You shall check the index_events job.
+            """
+            mail_admins(subject=error_message, message=message)
+            self.success(f'Email sent to admins')
+        else:
+            self.success(f'All index events are up to date')
