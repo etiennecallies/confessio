@@ -1,36 +1,37 @@
 from datetime import date
 
-from home.models import Website, Church
+from home.models import Church, ChurchIndexEvent, Website, WebsiteModeration
+from scraping.services.website_moderation_service import remove_not_validated_moderation, \
+    add_moderation
 
 
-def website_has_schedules_conflict(website: Website) -> tuple[date, Church] | None:
-    if website.unreliability_reason:
-        return None
+def website_has_schedules_conflict(church_index_events: list[ChurchIndexEvent]
+                                   ) -> tuple[date, Church] | None:
+    events_by_church_and_day = {}
+    for church_event in church_index_events:
+        if church_event.is_explicitely_other is not None:
+            continue
 
-    website_churches = []
-    for parish in website.parishes.all():
-        for church in parish.churches.all():
-            website_churches.append(church)
+        if church_event.displayed_end_time is None:
+            continue
 
-    # TODO fix this
+        for event in events_by_church_and_day.get((church_event.church.uuid, church_event.day), []):
+            if event.start_time < church_event.displayed_end_time \
+                    and event.displayed_end_time > church_event.start_time:
+                return church_event.day, church_event.church
 
-    # merged_church_schedules_list = get_merged_church_schedules_list(
-    #     website, website_churches, day_filter=None, max_days=300
-    # )
-    # for day, church_events in merged_church_schedules_list.church_events_by_day.items():
-    #     events_by_church_id = {}
-    #     for church_event in church_events:
-    #         if not church_event.church:
-    #             continue
-    #
-    #         if not church_event.event.end:
-    #             continue
-    #
-    #         for event in events_by_church_id.get(church_event.event.church_id, []):
-    #             if event.start < church_event.event.end and event.end > church_event.event.start:
-    #                 return day, church_event.church
-    #
-    #         events_by_church_id.setdefault(church_event.event.church_id, [])\
-    #             .append(church_event.event)
+        events_by_church_and_day.setdefault((church_event.church.uuid, church_event.day), [])\
+            .append(church_event)
 
     return None
+
+
+def look_for_conflict(website: Website, church_index_events: list[ChurchIndexEvent]):
+    conflict = website_has_schedules_conflict(church_index_events)
+    if conflict is None:
+        remove_not_validated_moderation(website,
+                                        WebsiteModeration.Category.SCHEDULES_CONFLICT)
+    else:
+        conflict_day, conflict_church = conflict
+        add_moderation(website, WebsiteModeration.Category.SCHEDULES_CONFLICT,
+                       conflict_day=conflict_day, conflict_church=conflict_church)

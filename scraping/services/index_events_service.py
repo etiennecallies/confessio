@@ -3,6 +3,7 @@ from home.services.website_events_service import ChurchEvent
 from home.services.website_schedules_service import get_website_schedules, \
     get_color_of_nullable_church
 from home.utils.date_utils import time_plus_hours
+from scraping.services.schedules_conflict_service import look_for_conflict
 
 
 def index_events_for_website(website: Website):
@@ -57,8 +58,12 @@ def index_events_for_website(website: Website):
     # Remove existing events
     ChurchIndexEvent.objects.filter(church__in=website_churches).delete()
 
+    # Add new events
     for website_index_event in church_index_to_add:
         website_index_event.save()
+
+    # check for conflicting events
+    look_for_conflict(website, church_index_to_add)
 
 
 def get_all_church_events(website: Website, website_churches: list[Church]

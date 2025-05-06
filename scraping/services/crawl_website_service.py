@@ -1,7 +1,6 @@
-from datetime import date
 from typing import Optional
 
-from home.models import Website, Crawling, Page, WebsiteModeration, Church, Pruning
+from home.models import Website, Crawling, Page, WebsiteModeration, Pruning
 from home.utils.async_utils import run_in_sync
 from home.utils.log_utils import info
 from scraping.crawl.download_and_search_urls import search_for_confession_pages, \
@@ -9,42 +8,9 @@ from scraping.crawl.download_and_search_urls import search_for_confession_pages,
 from scraping.services.page_service import delete_page
 from scraping.services.prune_scraping_service import prune_pruning, update_parsings
 from scraping.services.scrape_page_service import upsert_extracted_html_list
+from scraping.services.website_moderation_service import remove_not_validated_moderation, \
+    add_moderation
 from scraping.utils.url_utils import get_path, get_domain, have_similar_domain
-
-
-def remove_not_validated_moderation(website: Website, category: WebsiteModeration.Category):
-    try:
-        moderation = WebsiteModeration.objects.get(website=website, category=category,
-                                                   validated_at__isnull=True)
-        moderation.delete()
-    except WebsiteModeration.DoesNotExist:
-        pass
-
-
-def add_moderation(website: Website, category: WebsiteModeration.Category,
-                   other_website: Optional[Website] = None,
-                   other_home_url: Optional[str] = None,
-                   conflict_day: date | None = None,
-                   conflict_church: Church | None = None):
-    if website.unreliability_reason is not None:
-        # we do not add moderation for unreliable website
-        return
-
-    try:
-        moderation = WebsiteModeration.objects.get(website=website, category=category)
-        moderation.conflict_day = conflict_day
-        moderation.conflict_church = conflict_church
-        moderation.save()
-    except WebsiteModeration.DoesNotExist:
-        moderation = WebsiteModeration(
-            website=website, category=category,
-            other_website=other_website,
-            home_url=other_home_url[:200] if other_home_url else website.home_url,
-            diocese=website.get_diocese(),
-            conflict_day=conflict_day,
-            conflict_church=conflict_church,
-        )
-        moderation.save()
 
 
 def update_home_url(website: Website, new_home_url: str):
@@ -224,31 +190,19 @@ def save_crawling_and_add_moderation(website: Website,
         if website.one_page_has_confessions():
             remove_not_validated_moderation(website,
                                             WebsiteModeration.Category.HOME_URL_NO_CONFESSION)
-            # TODO move to reindex events
-            # conflict = website_has_schedules_conflict(website)
-            # if conflict is None:
-            #     remove_not_validated_moderation(website,
-            #                                     WebsiteModeration.Category.SCHEDULES_CONFLICT)
-            # else:
-            #     conflict_day, conflict_church = conflict
-            #     add_moderation(website, WebsiteModeration.Category.SCHEDULES_CONFLICT,
-            #                    conflict_day=conflict_day, conflict_church=conflict_church)
 
             return True, True
 
         add_moderation(website, WebsiteModeration.Category.HOME_URL_NO_CONFESSION)
-        remove_not_validated_moderation(website, WebsiteModeration.Category.SCHEDULES_CONFLICT)
         return False, True
 
     elif nb_visited_links > 0:
         remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_NO_RESPONSE)
         add_moderation(website, WebsiteModeration.Category.HOME_URL_NO_CONFESSION)
-        remove_not_validated_moderation(website, WebsiteModeration.Category.SCHEDULES_CONFLICT)
 
         return False, True
     else:
         add_moderation(website, WebsiteModeration.Category.HOME_URL_NO_RESPONSE)
         remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_NO_CONFESSION)
-        remove_not_validated_moderation(website, WebsiteModeration.Category.SCHEDULES_CONFLICT)
 
         return False, False
