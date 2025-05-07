@@ -2,7 +2,7 @@ from datetime import datetime
 from uuid import UUID
 
 from django.db.models import Exists, OuterRef
-from ninja import NinjaAPI, Schema
+from ninja import NinjaAPI, Schema, Field
 
 from home.models import Church, ChurchModeration
 
@@ -22,8 +22,12 @@ class ChurchOut(Schema):
     is_active: bool
     created_at: datetime
     updated_at: datetime
-    has_validated_moderation: bool
-    has_unvalidated_moderation: bool
+    has_validated_moderation: bool = Field(
+        description="whether it has been moderated by a human"
+    )
+    has_unvalidated_moderation: bool = Field(
+        description="whether there is pending moderation for human"
+    )
 
     @classmethod
     def from_church(cls, church: Church):
@@ -45,7 +49,7 @@ class ChurchOut(Schema):
         )
 
 
-@api.get("/churches")
+@api.get("/churches", response=list[ChurchOut])
 def add(request, limit: int = 10, offset: int = 0, updated_from: datetime = None
         ) -> list[ChurchOut]:
     limit = max(0, min(100, limit))
@@ -53,7 +57,7 @@ def add(request, limit: int = 10, offset: int = 0, updated_from: datetime = None
 
     church_query = Church.objects.annotate(
         has_validated_moderation=Exists(
-            ChurchModeration.objects.filter(church=OuterRef('pk'), validated_by__isnull=False)
+            ChurchModeration.history.filter(church=OuterRef('pk'), history_user_id__isnull=False)
         ),
         has_unvalidated_moderation=Exists(
             ChurchModeration.objects.filter(church=OuterRef('pk'), validated_at__isnull=True)
