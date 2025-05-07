@@ -25,14 +25,18 @@ class ResponseTimeMetricsMiddleware:
             url_name = request.resolver_match.url_name or "unknown"
 
             # Avoid too many metrics
-            if url_name not in [
-                'index',
-                'autocomplete',
-                'diocese_view',
+            if url_name in [
                 'around_place_view',
                 'in_area_view',
                 'around_me_view',
+            ]:
+                url_name = 'search_view'
+            elif url_name not in [
+                'index',
+                'autocomplete',
+                'diocese_view',
                 'website_view',
+                'api_churches',
             ]:
                 url_name = 'other'
 

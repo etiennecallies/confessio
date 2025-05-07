@@ -50,8 +50,8 @@ class ChurchOut(Schema):
 
 
 @api.get("/churches", response=list[ChurchOut])
-def add(request, limit: int = 10, offset: int = 0, updated_from: datetime = None
-        ) -> list[ChurchOut]:
+def api_churches(request, limit: int = 10, offset: int = 0, updated_from: datetime = None
+                 ) -> list[ChurchOut]:
     limit = max(0, min(100, limit))
     offset = max(0, offset)
 
