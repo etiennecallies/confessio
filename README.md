@@ -1,7 +1,8 @@
 # Confessio
 A search engine for confession hours by scraping parish websites.
 
-This is the codebase of the [confessio.fr](https://confessio.fr) project.
+This is the codebase of the [confessio.fr](https://confessio.fr) project,
+and its [API](https://confessio.fr/api/docs).
 
 ---
 ## 📄 Licenses

@@ -1,6 +1,7 @@
 from django.urls import path
 
 from . import views
+from .api import api
 
 urlpatterns = [
     # index
@@ -64,4 +65,7 @@ urlpatterns = [
     path('contact/<message>', views.contact, name='contact_success'),
     path('contact/<message>/<email>/<path:name_text>/<path:message_text>', views.contact,
          name='contact_failure'),
+
+    # api
+    path("api/", api.urls),
 ]
