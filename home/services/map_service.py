@@ -188,9 +188,10 @@ def get_churches_by_diocese(
         diocese: Diocese,
         time_filter: TimeFilter,
 ) -> tuple[list[ChurchIndexEvent], list[Church], bool, dict[UUID, bool]]:
-    church_query = build_church_query(time_filter)\
+    event_query = build_event_subquery(time_filter).filter(is_explicitely_other__isnull=True)
+    church_query = build_church_query(time_filter).annotate(has_event=Exists(event_query))\
         .filter(parish__diocese=diocese)\
-        .order_by('-parish__website__nb_recent_hits')
+        .order_by('-has_event', '-parish__website__nb_recent_hits')
 
     return truncate_results(church_query, time_filter)
 
