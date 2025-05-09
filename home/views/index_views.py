@@ -11,15 +11,12 @@ from django.utils.translation import gettext
 from home.models import Website, Diocese, ChurchIndexEvent, Church
 from home.services.autocomplete_service import get_aggregated_response
 from home.services.filter_service import get_filter_days
-from home.services.map_service import (prepare_map,
-                                       get_center, get_cities_label, get_churches_in_box,
-                                       get_churches_by_website,
-                                       get_churches_around,
-                                       get_churches_by_diocese, fetch_events, get_popular_churches,
-                                       TimeFilter)
+from home.services.map_service import prepare_map, get_center, get_cities_label
 from home.services.page_url_service import get_page_pruning_urls
 from home.services.report_service import get_count_and_label, new_report, NewReportError, \
     get_previous_reports
+from home.services.search_service import TimeFilter, get_churches_in_box, get_churches_by_website, \
+    get_churches_around, get_churches_by_diocese, get_popular_churches, fetch_events
 from home.services.sources_service import get_website_parsings_and_prunings
 from home.services.stat_service import new_search_hit
 from home.services.website_events_service import get_website_events
