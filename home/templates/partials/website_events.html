@@ -17,10 +17,7 @@
                     </span>
                 </div>
                 {% endif %}
-                {% if website_events.events_truncated %}
-                    <div class="col-1"></div>
-                {% endif %}
-                <div class="{% if website_events.page_range == "12" %}col-10{% elif website_events.events_truncated %}col-4{% else %}col-12{% endif %} mx-0 px-0">
+                <div class="{% if website_events.page_range == "12" %}col-10{% else %}col-12{% endif %} mx-0 px-0">
                     {% for range_num in website_events.page_range|make_list %}
                         {% with days=website_events|days_of_range:range_num %}
                             {% include 'includes/schedules_table.html' %}
@@ -34,13 +31,20 @@
                         </span>
                     </div>
                 {% endif %}
-                {% if website_events.events_truncated %}
-                    <div class="col-7 align-self-center">
-                        <a class="link-info" onclick="loadMoreEvents(this);">Afficher plus d'horaires ...</a>
+            </div>
+            {% if website_events.events_truncated %}
+                <div class="text-center mt-1">
+                    <a class="link-info" onclick="loadMoreEvents(this);">Afficher plus d'horaires ...</a>
+                </div>
+            {% else %}
+                {% if website_events.has_explicit_same_churches %}
+                    <div class="alert alert-info alert-dismissible fade show mt-3" role="alert">
+                        <span class="alert-inner--text">ℹ️ Tous les horaires de confession sont dans la même église.</span>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
                 {% endif %}
-            </div>
-            {% if not website_events.events_truncated %}
                 {% if website_events.has_explicit_other_churches %}
                     <div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">
                         <span class="alert-inner--text">⚠️ Attention certains horaires ont lieu en dehors de cette paroisse, lire les détails dans les sources.</span>

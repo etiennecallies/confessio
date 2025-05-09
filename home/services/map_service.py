@@ -7,7 +7,8 @@ from uuid import UUID
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.geos import Point, Polygon
 from django.contrib.gis.measure import D
-from django.db.models import QuerySet, OuterRef, Subquery, Exists
+from django.db.models import QuerySet, OuterRef, Subquery, Exists, ExpressionWrapper, Q, \
+    BooleanField
 from django.utils.translation import gettext as _
 from folium import Map, Icon, Popup, Marker
 from pydantic import BaseModel
@@ -48,12 +49,18 @@ def build_event_subquery(time_filter: TimeFilter):
 
 
 def build_church_query(time_filter: TimeFilter) -> QuerySet[Church]:
-    event_query = build_event_subquery(time_filter)
+    event_query = build_event_subquery(time_filter).annotate(
+        located_event=ExpressionWrapper(Q(is_explicitely_other__isnull=True),
+                                        output_field=BooleanField())
+    ).order_by(
+        '-located_event',
+        'day',
+        'start_time'
+    ).values('uuid')
 
     church_query = Church.objects.select_related('parish__website') \
         .prefetch_related('parish__website__reports') \
-        .annotate(next_event_uuid=Subquery(event_query.values('uuid')
-                                           .order_by('day', 'start_time')[:1])) \
+        .annotate(next_event_uuid=Subquery(event_query[:1])) \
         .filter(is_active=True,
                 parish__website__is_active=True)\
         .only("name",
