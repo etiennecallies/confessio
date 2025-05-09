@@ -206,3 +206,28 @@ def save_crawling_and_add_moderation(website: Website,
         remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_NO_CONFESSION)
 
         return False, False
+
+
+##################
+# SPLIT WEBSITES #
+##################
+
+def split_websites_for_crawling(websites: list[Website], n: int) -> list[list[Website]]:
+    chunks = [[] for _ in range(n)]
+    length_by_chunk_index = {i: 0 for i in range(n)}
+    chunk_index_by_hostname = {}
+
+    for website in websites:
+        website_hostname = get_domain(website.home_url)
+        if website_hostname in chunk_index_by_hostname:
+            chunk_index = chunk_index_by_hostname[website_hostname]
+        else:
+            min_size = min(length_by_chunk_index.values())
+            chunk_index = min(chunk_index for chunk_index, size in length_by_chunk_index.items()
+                              if size == min_size)
+            chunk_index_by_hostname[website_hostname] = chunk_index
+
+        chunks[chunk_index].append(website)
+        length_by_chunk_index[chunk_index] += 1
+
+    return chunks
