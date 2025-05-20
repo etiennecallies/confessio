@@ -34,8 +34,9 @@ def get_model(classifier: Classifier) -> TensorFlowModel:
     if _model is None:
         with _model_lock:
             if _model is None:
-                _model = TensorFlowModel()
-                _model.from_pickle(classifier.pickle)
+                tmp_model = TensorFlowModel()
+                tmp_model.from_pickle(classifier.pickle)
+                _model = tmp_model
 
     return _model
 
