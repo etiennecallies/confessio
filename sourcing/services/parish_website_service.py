@@ -1,6 +1,9 @@
+import asyncio
+
 from home.models import Parish, Website, WebsiteModeration
 from scraping.utils.string_search import normalize_content, get_words
 from sourcing.services.merge_websites_service import add_website_moderation
+from sourcing.utils.extract_title import get_page_title
 from sourcing.utils.google_search_api_utils import get_google_search_results
 
 
@@ -36,6 +39,8 @@ def is_link_ok(link: str) -> bool:
         'ouest-france.fr',
         'letelegramme.fr',
         'infobretagne.com',
+
+        'facebook.com',
     ]:
         if domain in link:
             return False
@@ -82,7 +87,13 @@ def save_website_of_parish(parish: Parish) -> Website | None:
     for result in google_search_results:
         if is_link_ok(result.link) and is_title_ok(result.title):
             print(f'got result {result.title} {result.link}')
-            website = save_website(Website(name=result.title, home_url=result.link))
+            # We can not take result.title since it's truncated by google
+            website_title = asyncio.run(get_page_title(result.link))
+            if not website_title:
+                print(f'got no title for {result.link} (Google said "{result.title}")')
+                continue
+
+            website = save_website(Website(name=website_title, home_url=result.link))
             parish.website = website
 
             add_website_moderation(website, WebsiteModeration.Category.GOOGLE_SEARCH,
