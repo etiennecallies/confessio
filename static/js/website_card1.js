@@ -34,6 +34,7 @@ function lazyLoadElement($element, callback) {
             activateExpandable($element);
             activateToggleExplicitlyOther($element);
             activateCopyToClipboard($element);
+            activateSeeChurchOnMap($element);
             activateNextButton($element);
             activatePreviousButton($element);
         }, 0)
@@ -66,6 +67,19 @@ function activateCopyToClipboard($element) {
             navigator.clipboard.writeText(content);
             $('<span> Copié!</span>').insertAfter(this).delay(2000).fadeOut();
         });
+    });
+}
+
+function activateSeeChurchOnMap($element) {
+    $element.find('.church-container').each(function () {
+        let churchMarkerNames = $(this).closest('.churches-container').data('church-marker-names-json');
+        let churchUuid = $(this).data('church-uuid');
+        if (churchUuid in churchMarkerNames) {
+            let churchMarkerName = churchMarkerNames[churchUuid];
+            let $span = $(this).find('.church-name');
+            let $newAnchor = $('<a href="#map" class="link-info" onclick="return popupChurch(\''+ churchMarkerName +'\');"></a>');
+            $span.replaceWith($newAnchor.append($span.clone()));
+        }
     });
 }
 

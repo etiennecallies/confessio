@@ -316,12 +316,6 @@ def partial_website_churches(request, website_uuid: str):
         return HttpResponseNotFound("Website does not exist with this uuid")
 
     display_explicit_other_churches = extract_bool('display_explicit_other_churches', request)
-    church_marker_names_json = request.GET.get('church_marker_names_json', '{}')
-    try:
-        church_marker_names = json.loads(church_marker_names_json)
-    except json.JSONDecodeError:
-        return HttpResponseBadRequest(f"Invalid JSON for church marker names: "
-                                      f"'{church_marker_names_json}'")
 
     website_churches = [c for p in website.parishes.all() for c in p.churches.all()]
     website_schedules = get_website_schedules(website, website_churches)
@@ -329,7 +323,6 @@ def partial_website_churches(request, website_uuid: str):
     return render(request, 'partials/website_churches.html', {
         'website': website,
         'website_schedules': website_schedules,
-        'church_marker_names': church_marker_names,
         'display_explicit_other_churches': display_explicit_other_churches,
     })
 

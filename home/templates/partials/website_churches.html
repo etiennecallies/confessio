@@ -5,20 +5,11 @@
 {% for church_sorted_schedule in website_schedules.church_sorted_schedules %}
     {% with church=church_sorted_schedule.church %}
         <div id="{% if church %}church-{{ church.uuid }}{% else %}nochurch-{{ website.uuid }}-{{ church_sorted_schedule.is_church_explicitly_other|lower }}{% endif %}"
-             class="margin-left-indent mb-3">
+             class="{% if church %}church-container {% endif %}margin-left-indent mb-3"
+             {% if church %}data-church-uuid="{{ church.uuid }}"{% endif %}>
             {% if church %}
                 <div>
-                    {% with church_marker_name=church_marker_names|get_item_str:church.uuid %}
-                        {% if church_marker_name %}
-                            <a href="#map"
-                               class="link-info"
-                               onclick="return popupChurch('{{ church_marker_name }}');">
-                        {% endif %}
-                        <span class="fw-bold">{% display_church_color church False website_schedules.church_color_by_uuid %} {{ church.name }}</span>
-                        {% if church_marker_name %}
-                            </a>
-                        {% endif %}
-                    {% endwith %}
+                    <span class="church-name fw-bold">{% display_church_color church False website_schedules.church_color_by_uuid %} {{ church.name }}</span>
 
                     {% if request.user.is_authenticated and request.user.is_staff %}
                         <a class="text-muted" href="{% url 'admin:home_church_change' church.uuid %}" target="_blank">
