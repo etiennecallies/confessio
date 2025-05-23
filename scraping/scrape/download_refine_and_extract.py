@@ -33,7 +33,8 @@ async def get_fresh_extracted_html_list(url) -> list[str] | None:
 
 
 if __name__ == '__main__':
-    url_ = 'https://randol.org/wp-content/uploads/2020/06/horaires-confessions.pdf'
+    url_ = ('https://www.bjmm.fr/DCLV/FR/'
+            'agenda-paroisse-date.wb?P1=bienheureuse_jeanne_marie_de_maille-20250523')
     extracted_html_list_ = asyncio.run(get_fresh_extracted_html_list(url_))
 
     print()
@@ -41,3 +42,5 @@ if __name__ == '__main__':
     if extracted_html_list_ is not None:
         for extracted_html_ in extracted_html_list_:
             print(extracted_html_)
+    else:
+        print('Empty extracted html list')

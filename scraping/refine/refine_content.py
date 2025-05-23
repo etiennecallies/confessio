@@ -301,6 +301,12 @@ def refine_confession_content(content_html: str) -> str | None:
         print(e)
         return None
 
+    # This is hack to handle broken html
+    pretty_content = soup.prettify()
+    # Remove multiple consecutive spaces
+    pretty_content = re.sub(r'\n\s*', ' ', pretty_content)
+    soup = BeautifulSoup(pretty_content, 'html.parser')
+
     soup = remove_img(soup)
     soup = remove_script(soup)
 

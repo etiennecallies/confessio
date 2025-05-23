@@ -82,14 +82,23 @@ async def get_content_from_url(url: str) -> str | None:
     return r.text
 
 
+def get_meta_refresh_tag_content(soup: BeautifulSoup) -> Optional[str]:
+    for meta_tag in soup.find_all('meta'):
+        if meta_tag.get('http-equiv', '').lower() == 'refresh':
+            return meta_tag.get('content', '')
+
+    return None
+
+
 def get_meta_refresh_redirect(soup: BeautifulSoup) -> Optional[str]:
-    meta_refresh = soup.find('meta', attrs={'http-equiv': 'refresh'})
-    if meta_refresh:
-        content = meta_refresh.get('content', '')
+    meta_refresh_content = get_meta_refresh_tag_content(soup)
+    if meta_refresh_content:
         # The content usually looks like "0; url=http://example.com"
-        parts = content.split(';')
-        if len(parts) > 1 and 'url=' in parts[1]:
-            return parts[1].split('url=')[1].strip()
+        parts = meta_refresh_content.split(';')
+        if len(parts) > 1:
+            second_part = parts[1].replace('URL=', 'url=')
+            if 'url=' in second_part:
+                return second_part.split('url=')[1].strip()
 
     return None
 
