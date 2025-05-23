@@ -14,6 +14,7 @@ class TestExtractLinks(unittest.TestCase):
             ('https://www.eglise-saintgermaindespres.fr/', 'st-germain-des-pres'),
             ('https://paroissesaintbruno.pagesperso-orange.fr/', 'st-bruno-des-chartreux'),
             ('https://saintleusaintgilles.fr/', 'st-leu-st-gilles'),
+            ('http://paroisse.ndchoisille.free.fr/', 'ndchoisille'),
         ]
 
     def test_parse_content_links(self):

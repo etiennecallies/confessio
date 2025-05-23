@@ -136,12 +136,24 @@ def is_obsolete_path(path: str) -> bool:
     return False
 
 
+def get_a_tags(element: el) -> list[el.Tag]:
+    a_tags = []
+    for item in element:
+        inner_a_tags = item.find_all('a')
+        if inner_a_tags:
+            a_tags.extend(inner_a_tags)
+        else:
+            a_tags.append(item)
+
+    return a_tags
+
+
 async def get_links(element: el, home_url: str, aliases_domains: set[str],
                     forbidden_paths: set[str],
                     path_redirection: dict[str, str]) -> set[str]:
     results = set()
 
-    for link in element:
+    for link in get_a_tags(element):
         if not link.has_attr('href'):
             continue
 
