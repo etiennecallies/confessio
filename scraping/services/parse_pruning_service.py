@@ -16,7 +16,7 @@ from scraping.services.index_events_service import index_events_for_website
 from scraping.services.parsing_service import get_existing_parsing
 
 TRUNCATION_LENGTH = 32
-MAX_LENGTH_FOR_PARSING = 5000
+MAX_LENGTH_FOR_PARSING = 8000
 
 
 ##############
