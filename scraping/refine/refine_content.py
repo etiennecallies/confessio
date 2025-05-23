@@ -70,6 +70,10 @@ def clean_tag(tag: Tag):
         tag.decompose()
         return
 
+    # Rule 1bis: Remove tables that are empty (no text)
+    if tag.name == 'table' and tag.get_text(' ').strip() == '':
+        tag.decompose()
+
     # Rule 2: If a tag has a single child and it's a tag of the same name
     # -> replace the parent with the child
     children_tags = [c for c in tag.contents if isinstance(c, Tag)]

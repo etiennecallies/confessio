@@ -2,14 +2,6 @@
  <tr>
   <td>
    <div>
-    <div>
-     <table>
-      <tr>
-       <td>
-       </td>
-      </tr>
-     </table>
-    </div>
     <aside>
      <table>
       <tr>
@@ -264,14 +256,6 @@
       </tr>
      </table>
     </aside>
-    <div>
-     <table>
-      <tr>
-       <td>
-       </td>
-      </tr>
-     </table>
-    </div>
    </div>
   </td>
  </tr>
@@ -351,54 +335,24 @@
           <tr>
            <td>
             <div>
-             <div>
-              <table>
-               <tr>
-                <td>
-                 <table>
-                  <tr>
-                   <td>
-                    <table>
-                     <tr>
-                      <td>
-                       <div>
-                        <table>
-                         <tr>
-                          <td>
-                          </td>
-                         </tr>
-                        </table>
-                       </div>
-                      </td>
-                     </tr>
-                    </table>
-                   </td>
-                  </tr>
-                 </table>
-                </td>
-               </tr>
-              </table>
-             </div>
-             <div>
-              <table>
-               <tr>
-                <td>
-                 <p>
-                  <span>
-                   vendredi 23 mai
-                  </span>
-                 </p>
-                 <p>
-                  <span>
-                   <a>
-                    Saint Didier
-                   </a>
-                  </span>
-                 </p>
-                </td>
-               </tr>
-              </table>
-             </div>
+             <table>
+              <tr>
+               <td>
+                <p>
+                 <span>
+                  vendredi 23 mai
+                 </span>
+                </p>
+                <p>
+                 <span>
+                  <a>
+                   Saint Didier
+                  </a>
+                 </span>
+                </p>
+               </td>
+              </tr>
+             </table>
             </div>
            </td>
           </tr>
@@ -522,12 +476,6 @@
     <tr>
      <td>
      </td>
-    </tr>
-   </table>
-   <table>
-    <tr>
-     <td>
-     </td>
      <td>
      </td>
      <td>
@@ -544,56 +492,26 @@
           <tr>
            <td>
             <div>
-             <div>
-              <table>
-               <tr>
-                <td>
-                 <table>
-                  <tr>
-                   <td>
-                    <table>
-                     <tr>
-                      <td>
-                       <div>
-                        <table>
-                         <tr>
-                          <td>
-                          </td>
-                         </tr>
-                        </table>
-                       </div>
-                      </td>
-                     </tr>
-                    </table>
-                   </td>
-                  </tr>
-                 </table>
-                </td>
-               </tr>
-              </table>
-             </div>
-             <div>
-              <table>
-               <tr>
-                <td>
-                 <p>
-                  <span>
-                   samedi 24 mai
-                  </span>
-                 </p>
-                 <p>
-                  <span>
-                   <a>
-                    Notre-Dame de Sheshan
-                    <br/>
-                    Saints Donatien et Rogatien
-                   </a>
-                  </span>
-                 </p>
-                </td>
-               </tr>
-              </table>
-             </div>
+             <table>
+              <tr>
+               <td>
+                <p>
+                 <span>
+                  samedi 24 mai
+                 </span>
+                </p>
+                <p>
+                 <span>
+                  <a>
+                   Notre-Dame de Sheshan
+                   <br/>
+                   Saints Donatien et Rogatien
+                  </a>
+                 </span>
+                </p>
+               </td>
+              </tr>
+             </table>
             </div>
            </td>
           </tr>
@@ -717,12 +635,6 @@
     <tr>
      <td>
      </td>
-    </tr>
-   </table>
-   <table>
-    <tr>
-     <td>
-     </td>
      <td>
      </td>
      <td>
@@ -739,61 +651,31 @@
           <tr>
            <td>
             <div>
-             <div>
-              <table>
-               <tr>
-                <td>
-                 <table>
-                  <tr>
-                   <td>
-                    <table>
-                     <tr>
-                      <td>
-                       <div>
-                        <table>
-                         <tr>
-                          <td>
-                          </td>
-                         </tr>
-                        </table>
-                       </div>
-                      </td>
-                     </tr>
-                    </table>
-                   </td>
-                  </tr>
-                 </table>
-                </td>
-               </tr>
-              </table>
-             </div>
-             <div>
-              <table>
-               <tr>
-                <td>
-                 <p>
-                  <span>
-                   dimanche 25 mai
-                  </span>
-                 </p>
-                 <p>
-                  <span>
-                   6ème Dimanche de Pâques (semaine II du Psautier)
-                  </span>
-                 </p>
-                 <p>
-                  <span>
-                   <a>
-                    Sainte Madeleine-Sophie Barat
-                    <br/>
-                    Sainte Nadège
-                   </a>
-                  </span>
-                 </p>
-                </td>
-               </tr>
-              </table>
-             </div>
+             <table>
+              <tr>
+               <td>
+                <p>
+                 <span>
+                  dimanche 25 mai
+                 </span>
+                </p>
+                <p>
+                 <span>
+                  6ème Dimanche de Pâques (semaine II du Psautier)
+                 </span>
+                </p>
+                <p>
+                 <span>
+                  <a>
+                   Sainte Madeleine-Sophie Barat
+                   <br/>
+                   Sainte Nadège
+                  </a>
+                 </span>
+                </p>
+               </td>
+              </tr>
+             </table>
             </div>
            </td>
           </tr>
@@ -884,12 +766,6 @@
     <tr>
      <td>
      </td>
-    </tr>
-   </table>
-   <table>
-    <tr>
-     <td>
-     </td>
      <td>
      </td>
      <td>
@@ -906,69 +782,39 @@
           <tr>
            <td>
             <div>
-             <div>
-              <table>
-               <tr>
-                <td>
-                 <table>
-                  <tr>
-                   <td>
-                    <table>
-                     <tr>
-                      <td>
-                       <div>
-                        <table>
-                         <tr>
-                          <td>
-                          </td>
-                         </tr>
-                        </table>
-                       </div>
-                      </td>
-                     </tr>
-                    </table>
-                   </td>
-                  </tr>
-                 </table>
-                </td>
-               </tr>
-              </table>
-             </div>
-             <div>
-              <table>
-               <tr>
-                <td>
-                 <p>
-                  <span>
-                   lundi 26 mai
-                  </span>
-                 </p>
-                 <p>
-                  <span>
-                   lundi, 6ème Semaine du Temps Pascal
-                  </span>
-                 </p>
-                 <p>
-                  <span>
-                   S. Philippe Néri, prêtre
-                  </span>
-                 </p>
-                 <p>
-                  <span>
-                   Mémoire
-                  </span>
-                 </p>
-                 <p>
-                  <span>
-                   <a>
-                    Saint Philippe Neri
-                   </a>
-                  </span>
-                 </p>
-                </td>
-               </tr>
-              </table>
-             </div>
+             <table>
+              <tr>
+               <td>
+                <p>
+                 <span>
+                  lundi 26 mai
+                 </span>
+                </p>
+                <p>
+                 <span>
+                  lundi, 6ème Semaine du Temps Pascal
+                 </span>
+                </p>
+                <p>
+                 <span>
+                  S. Philippe Néri, prêtre
+                 </span>
+                </p>
+                <p>
+                 <span>
+                  Mémoire
+                 </span>
+                </p>
+                <p>
+                 <span>
+                  <a>
+                   Saint Philippe Neri
+                  </a>
+                 </span>
+                </p>
+               </td>
+              </tr>
+             </table>
             </div>
            </td>
           </tr>
@@ -1026,12 +872,6 @@
     <tr>
      <td>
      </td>
-    </tr>
-   </table>
-   <table>
-    <tr>
-     <td>
-     </td>
      <td>
      </td>
      <td>
@@ -1048,64 +888,34 @@
           <tr>
            <td>
             <div>
-             <div>
-              <table>
-               <tr>
-                <td>
-                 <table>
-                  <tr>
-                   <td>
-                    <table>
-                     <tr>
-                      <td>
-                       <div>
-                        <table>
-                         <tr>
-                          <td>
-                          </td>
-                         </tr>
-                        </table>
-                       </div>
-                      </td>
-                     </tr>
-                    </table>
-                   </td>
-                  </tr>
-                 </table>
-                </td>
-               </tr>
-              </table>
-             </div>
-             <div>
-              <table>
-               <tr>
-                <td>
-                 <p>
-                  <span>
-                   mardi 27 mai
-                  </span>
-                 </p>
-                 <p>
-                  <span>
-                   S. Augustin de Cantorbéry, prêtre
-                  </span>
-                 </p>
-                 <p>
-                  <span>
-                   Mémoire facultative
-                  </span>
-                 </p>
-                 <p>
-                  <span>
-                   <a>
-                    Saint Augustin de Cantorbéry
-                   </a>
-                  </span>
-                 </p>
-                </td>
-               </tr>
-              </table>
-             </div>
+             <table>
+              <tr>
+               <td>
+                <p>
+                 <span>
+                  mardi 27 mai
+                 </span>
+                </p>
+                <p>
+                 <span>
+                  S. Augustin de Cantorbéry, prêtre
+                 </span>
+                </p>
+                <p>
+                 <span>
+                  Mémoire facultative
+                 </span>
+                </p>
+                <p>
+                 <span>
+                  <a>
+                   Saint Augustin de Cantorbéry
+                  </a>
+                 </span>
+                </p>
+               </td>
+              </tr>
+             </table>
             </div>
            </td>
           </tr>
@@ -1328,12 +1138,6 @@
     <tr>
      <td>
      </td>
-    </tr>
-   </table>
-   <table>
-    <tr>
-     <td>
-     </td>
      <td>
      </td>
      <td>
@@ -1350,54 +1154,24 @@
           <tr>
            <td>
             <div>
-             <div>
-              <table>
-               <tr>
-                <td>
-                 <table>
-                  <tr>
-                   <td>
-                    <table>
-                     <tr>
-                      <td>
-                       <div>
-                        <table>
-                         <tr>
-                          <td>
-                          </td>
-                         </tr>
-                        </table>
-                       </div>
-                      </td>
-                     </tr>
-                    </table>
-                   </td>
-                  </tr>
-                 </table>
-                </td>
-               </tr>
-              </table>
-             </div>
-             <div>
-              <table>
-               <tr>
-                <td>
-                 <p>
-                  <span>
-                   mercredi 28 mai
-                  </span>
-                 </p>
-                 <p>
-                  <span>
-                   <a>
-                    Saint Germain de Paris
-                   </a>
-                  </span>
-                 </p>
-                </td>
-               </tr>
-              </table>
-             </div>
+             <table>
+              <tr>
+               <td>
+                <p>
+                 <span>
+                  mercredi 28 mai
+                 </span>
+                </p>
+                <p>
+                 <span>
+                  <a>
+                   Saint Germain de Paris
+                  </a>
+                 </span>
+                </p>
+               </td>
+              </tr>
+             </table>
             </div>
            </td>
           </tr>
@@ -1488,12 +1262,6 @@
     <tr>
      <td>
      </td>
-    </tr>
-   </table>
-   <table>
-    <tr>
-     <td>
-     </td>
      <td>
      </td>
      <td>
@@ -1510,66 +1278,36 @@
           <tr>
            <td>
             <div>
-             <div>
-              <table>
-               <tr>
-                <td>
-                 <table>
-                  <tr>
-                   <td>
-                    <table>
-                     <tr>
-                      <td>
-                       <div>
-                        <table>
-                         <tr>
-                          <td>
-                          </td>
-                         </tr>
-                        </table>
-                       </div>
-                      </td>
-                     </tr>
-                    </table>
-                   </td>
-                  </tr>
-                 </table>
-                </td>
-               </tr>
-              </table>
-             </div>
-             <div>
-              <table>
-               <tr>
-                <td>
-                 <p>
-                  <span>
-                   jeudi 29 mai
-                  </span>
-                 </p>
-                 <p>
-                  <span>
-                   Ascension
-                  </span>
-                 </p>
-                 <p>
-                  <span>
-                   Solennité du Seigneur
-                  </span>
-                 </p>
-                 <p>
-                  <span>
-                   <a>
-                    Sainte Ursule Ledochowska
-                    <br/>
-                    Saint Paul VI
-                   </a>
-                  </span>
-                 </p>
-                </td>
-               </tr>
-              </table>
-             </div>
+             <table>
+              <tr>
+               <td>
+                <p>
+                 <span>
+                  jeudi 29 mai
+                 </span>
+                </p>
+                <p>
+                 <span>
+                  Ascension
+                 </span>
+                </p>
+                <p>
+                 <span>
+                  Solennité du Seigneur
+                 </span>
+                </p>
+                <p>
+                 <span>
+                  <a>
+                   Sainte Ursule Ledochowska
+                   <br/>
+                   Saint Paul VI
+                  </a>
+                 </span>
+                </p>
+               </td>
+              </tr>
+             </table>
             </div>
            </td>
           </tr>
@@ -1693,12 +1431,6 @@
     <tr>
      <td>
      </td>
-    </tr>
-   </table>
-   <table>
-    <tr>
-     <td>
-     </td>
      <td>
      </td>
      <td>
@@ -1715,64 +1447,34 @@
           <tr>
            <td>
             <div>
-             <div>
-              <table>
-               <tr>
-                <td>
-                 <table>
-                  <tr>
-                   <td>
-                    <table>
-                     <tr>
-                      <td>
-                       <div>
-                        <table>
-                         <tr>
-                          <td>
-                          </td>
-                         </tr>
-                        </table>
-                       </div>
-                      </td>
-                     </tr>
-                    </table>
-                   </td>
-                  </tr>
-                 </table>
-                </td>
-               </tr>
-              </table>
-             </div>
-             <div>
-              <table>
-               <tr>
-                <td>
-                 <p>
-                  <span>
-                   vendredi 30 mai
-                  </span>
-                 </p>
-                 <p>
-                  <span>
-                   Ste Jeanne d’Arc, vierge, patronne secondaire de la France
-                  </span>
-                 </p>
-                 <p>
-                  <span>
-                   Mémoire
-                  </span>
-                 </p>
-                 <p>
-                  <span>
-                   <a>
-                    Sainte Jeanne d’Arc
-                   </a>
-                  </span>
-                 </p>
-                </td>
-               </tr>
-              </table>
-             </div>
+             <table>
+              <tr>
+               <td>
+                <p>
+                 <span>
+                  vendredi 30 mai
+                 </span>
+                </p>
+                <p>
+                 <span>
+                  Ste Jeanne d’Arc, vierge, patronne secondaire de la France
+                 </span>
+                </p>
+                <p>
+                 <span>
+                  Mémoire
+                 </span>
+                </p>
+                <p>
+                 <span>
+                  <a>
+                   Sainte Jeanne d’Arc
+                  </a>
+                 </span>
+                </p>
+               </td>
+              </tr>
+             </table>
             </div>
            </td>
           </tr>
@@ -1823,12 +1525,6 @@
         </tr>
        </table>
       </div>
-     </td>
-    </tr>
-   </table>
-   <table>
-    <tr>
-     <td>
      </td>
     </tr>
    </table>
