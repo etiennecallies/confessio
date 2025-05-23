@@ -13,14 +13,12 @@ L’église, ouverte tous les jours, permet aux milliers de visiteurs annuels de
 <div>
  <div>
   <div>
-   <div>
-    <span>
-     Mar
-    </span>
-    <span>
-     05
-    </span>
-   </div>
+   <span>
+    Mar
+   </span>
+   <span>
+    05
+   </span>
   </div>
   <div>
    <div>
@@ -29,8 +27,6 @@ L’église, ouverte tous les jours, permet aux milliers de visiteurs annuels de
     </a>
    </div>
    <div>
-    <i>
-    </i>
     <span>
      12h30 - 13h30
     </span>
@@ -39,14 +35,12 @@ L’église, ouverte tous les jours, permet aux milliers de visiteurs annuels de
  </div>
  <div>
   <div>
-   <div>
-    <span>
-     Avr
-    </span>
-    <span>
-     10
-    </span>
-   </div>
+   <span>
+    Avr
+   </span>
+   <span>
+    10
+   </span>
   </div>
   <div>
    <div>
@@ -55,8 +49,6 @@ L’église, ouverte tous les jours, permet aux milliers de visiteurs annuels de
     </a>
    </div>
    <div>
-    <i>
-    </i>
     <span>
      9h30 - 19h00
     </span>
@@ -65,14 +57,12 @@ L’église, ouverte tous les jours, permet aux milliers de visiteurs annuels de
  </div>
  <div>
   <div>
-   <div>
-    <span>
-     Avr
-    </span>
-    <span>
-     13
-    </span>
-   </div>
+   <span>
+    Avr
+   </span>
+   <span>
+    13
+   </span>
   </div>
   <div>
    <div>
@@ -81,8 +71,6 @@ L’église, ouverte tous les jours, permet aux milliers de visiteurs annuels de
     </a>
    </div>
    <div>
-    <i>
-    </i>
     <span>
      avril 13 - avril 19
     </span>
@@ -100,14 +88,12 @@ Samedi 28 septembre 2024 Esperance et Paix, par Mgr Patrick Chauvet « Pèlerins
 <div>
  <div>
   <div>
-   <div>
-    <span>
-     Mar
-    </span>
-    <span>
-     05
-    </span>
-   </div>
+   <span>
+    Mar
+   </span>
+   <span>
+    05
+   </span>
   </div>
   <div>
    <div>
@@ -116,8 +102,6 @@ Samedi 28 septembre 2024 Esperance et Paix, par Mgr Patrick Chauvet « Pèlerins
     </a>
    </div>
    <div>
-    <i>
-    </i>
     <span>
      12h30 - 13h30
     </span>
@@ -126,14 +110,12 @@ Samedi 28 septembre 2024 Esperance et Paix, par Mgr Patrick Chauvet « Pèlerins
  </div>
  <div>
   <div>
-   <div>
-    <span>
-     Avr
-    </span>
-    <span>
-     10
-    </span>
-   </div>
+   <span>
+    Avr
+   </span>
+   <span>
+    10
+   </span>
   </div>
   <div>
    <div>
@@ -142,8 +124,6 @@ Samedi 28 septembre 2024 Esperance et Paix, par Mgr Patrick Chauvet « Pèlerins
     </a>
    </div>
    <div>
-    <i>
-    </i>
     <span>
      9h30 - 19h00
     </span>
@@ -152,14 +132,12 @@ Samedi 28 septembre 2024 Esperance et Paix, par Mgr Patrick Chauvet « Pèlerins
  </div>
  <div>
   <div>
-   <div>
-    <span>
-     Avr
-    </span>
-    <span>
-     13
-    </span>
-   </div>
+   <span>
+    Avr
+   </span>
+   <span>
+    13
+   </span>
   </div>
   <div>
    <div>
@@ -168,8 +146,6 @@ Samedi 28 septembre 2024 Esperance et Paix, par Mgr Patrick Chauvet « Pèlerins
     </a>
    </div>
    <div>
-    <i>
-    </i>
     <span>
      avril 13 - avril 19
     </span>
@@ -181,14 +157,12 @@ Concerts à la Madeleine<br>
 <div>
  <div>
   <div>
-   <div>
-    <span>
-     Fév
-    </span>
-    <span>
-     21
-    </span>
-   </div>
+   <span>
+    Fév
+   </span>
+   <span>
+    21
+   </span>
   </div>
   <div>
    <div>
@@ -197,8 +171,6 @@ Concerts à la Madeleine<br>
     </a>
    </div>
    <div>
-    <i>
-    </i>
     <span>
      20h00 - 21h00
     </span>
@@ -207,14 +179,12 @@ Concerts à la Madeleine<br>
  </div>
  <div>
   <div>
-   <div>
-    <span>
-     Fév
-    </span>
-    <span>
-     22
-    </span>
-   </div>
+   <span>
+    Fév
+   </span>
+   <span>
+    22
+   </span>
   </div>
   <div>
    <div>
@@ -223,8 +193,6 @@ Concerts à la Madeleine<br>
     </a>
    </div>
    <div>
-    <i>
-    </i>
     <span>
      20h45 - 21h45
     </span>
@@ -233,14 +201,12 @@ Concerts à la Madeleine<br>
  </div>
  <div>
   <div>
-   <div>
-    <span>
-     Fév
-    </span>
-    <span>
-     23
-    </span>
-   </div>
+   <span>
+    Fév
+   </span>
+   <span>
+    23
+   </span>
   </div>
   <div>
    <div>
@@ -249,8 +215,6 @@ Concerts à la Madeleine<br>
     </a>
    </div>
    <div>
-    <i>
-    </i>
     <span>
      16h00 - 17h00
     </span>
@@ -259,14 +223,12 @@ Concerts à la Madeleine<br>
  </div>
  <div>
   <div>
-   <div>
-    <span>
-     Fév
-    </span>
-    <span>
-     26
-    </span>
-   </div>
+   <span>
+    Fév
+   </span>
+   <span>
+    26
+   </span>
   </div>
   <div>
    <div>
@@ -275,8 +237,6 @@ Concerts à la Madeleine<br>
     </a>
    </div>
    <div>
-    <i>
-    </i>
     <span>
      20h00 - 21h00
     </span>

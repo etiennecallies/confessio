@@ -3,8 +3,6 @@ Un temps pour se ressourcer<br>
  <p>
   Un dimanche par mois, un temps d'adoration du Saint-Sacrement est proposé, de 16h à 17h, dans l'église Sainte-Bernadette. Un ou deux prêtres se tiendront disponibles pour vous donner le sacrement du Pardon.
  </p>
- <p>
- </p>
  <span>
   Dates 2023/2024
  </span>
@@ -35,6 +33,4 @@ Un temps pour se ressourcer<br>
  <span>
   16/06
  </span>
- <p>
- </p>
 </div>

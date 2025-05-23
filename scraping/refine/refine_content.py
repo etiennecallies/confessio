@@ -4,15 +4,15 @@ import warnings
 from typing import Optional
 
 from bs4 import BeautifulSoup, NavigableString, Comment, ProcessingInstruction, \
-    MarkupResemblesLocatorWarning, PageElement
+    MarkupResemblesLocatorWarning, PageElement, Tag
 
 from scraping.refine.detect_calendar import is_calendar_item
 from scraping.utils.string_utils import is_below_byte_limit
 
 
-##############
-# REMOVE IMG #
-##############
+###################
+# REMOVING THINGS #
+###################
 
 def remove_img(soup: BeautifulSoup):
     for s in soup.select('img'):
@@ -56,15 +56,41 @@ def is_table(element):
     return False
 
 
+def clean_tag(tag: Tag):
+    # Make a copy of children to avoid modifying list while iterating
+    children = list(tag.children)
+
+    for child in children:
+        if isinstance(child, Tag):
+            clean_tag(child)
+
+    # Rule 1: Remove tags that are empty (no children and no text)
+    if tag.name not in ['br', 'tr', 'th', 'td']\
+            and all(isinstance(c, str) and not c.strip() for c in tag.contents):
+        tag.decompose()
+        return
+
+    # Rule 2: If a tag has a single child and it's a tag of the same name
+    # -> replace the parent with the child
+    children_tags = [c for c in tag.contents if isinstance(c, Tag)]
+    if len(children_tags) == 1 and all(isinstance(c, Tag) or (isinstance(c, str) and not c.strip())
+                                       for c in tag.contents):
+        child = children_tags[0]
+        if tag.name == child.name:
+            tag.replace_with(child)
+
+
 def clear_formatting(element: PageElement):
-    if element.name in ['font', 'strong', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
+    if element.name in ['font', 'strong', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'button']:
         element.name = 'span'
 
     if hasattr(element, 'attrs'):
         attrs = dict(element.attrs)
         for attr in attrs:
-            if attr in ['id', 'class', 'style', 'href', 'width', 'border'] \
-                    or attr.startswith('data-'):
+            if attr in [
+                'id', 'class', 'style', 'href', 'width', 'border', 'onclick', 'target',
+                'role', 'tabindex',
+            ] or attr.startswith('data-') or attr.startswith('aria-'):
                 del element.attrs[attr]
 
 
@@ -95,6 +121,7 @@ def rec_prettify(element: BeautifulSoup):
 
 def refine_table_or_calendar(soup: BeautifulSoup):
     clear_table_formatting(soup)
+    clean_tag(soup)
     return rec_prettify(soup)
 
 
