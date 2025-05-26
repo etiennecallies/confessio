@@ -1,5 +1,6 @@
 import asyncio
 import time
+import traceback
 from datetime import timedelta
 
 from django.db.models import F, Q
@@ -94,7 +95,17 @@ class Command(AbstractCommand):
         start_log_buffer()
         self.info(f'Starting crawling for website {website.name} {website.uuid}')
 
-        got_pages_with_content, some_pages_visited = await crawl_website(website)
+        try:
+            got_pages_with_content, some_pages_visited = await crawl_website(website)
+        except Exception:
+            self.error(f'Exception while crawling website {website.name} {website.uuid}')
+            stack_trace = traceback.format_exc()
+            if len(stack_trace) > 4000:
+                print(stack_trace[:2000] + '...')
+                print('...' + stack_trace[-2000:])
+            else:
+                print(stack_trace)
+            return
 
         if got_pages_with_content:
             self.success(f'Successfully crawled website {website.name} {website.uuid}')
