@@ -1,4 +1,5 @@
 import asyncio
+import time
 
 from django.db.models.functions import Now
 
@@ -16,6 +17,7 @@ class Command(AbstractCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('-n', '--name', help='name of website to crawl')
+        parser.add_argument('-t', '--timeout', help='timeout in seconds', type=int, default=0)
 
     def handle(self, *args, **options):
         if options['name']:
@@ -23,7 +25,13 @@ class Command(AbstractCommand):
         else:
             websites = Website.objects.filter(is_active=True).all()
 
+        start_time = time.time()
+
         for website in websites:
+            if options['timeout'] and time.time() - start_time > options['timeout']:
+                self.warning(f'Timeout reached, stopping the command')
+                return
+
             start_log_buffer()
             self.info(f'Starting to scrape website {website.name} {website.uuid}')
 
