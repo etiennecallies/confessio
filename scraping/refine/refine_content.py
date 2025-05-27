@@ -318,6 +318,21 @@ def get_text_if_not_table(html: str) -> Optional[str]:
     return element.text
 
 
+##############
+# HTML FIXER #
+##############
+
+def fix_html(soup: BeautifulSoup) -> BeautifulSoup:
+    try:
+        # This is hack to handle broken html
+        pretty_content = soup.prettify()
+        # Remove multiple consecutive spaces
+        pretty_content = re.sub(r'\n\s*', ' ', pretty_content)
+        return BeautifulSoup(pretty_content, 'html.parser')
+    except RecursionError:
+        return soup
+
+
 ########
 # MAIN #
 ########
@@ -332,11 +347,7 @@ def refine_confession_content(content_html: str) -> str | None:
         print(e)
         return None
 
-    # This is hack to handle broken html
-    pretty_content = soup.prettify()
-    # Remove multiple consecutive spaces
-    pretty_content = re.sub(r'\n\s*', ' ', pretty_content)
-    soup = BeautifulSoup(pretty_content, 'html.parser')
+    soup = fix_html(soup)
 
     soup = remove_img(soup)
     soup = remove_script(soup)

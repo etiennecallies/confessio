@@ -33,8 +33,7 @@ async def get_fresh_extracted_html_list(url) -> list[str] | None:
 
 
 if __name__ == '__main__':
-    url_ = ('https://www.bjmm.fr/DCLV/FR/'
-            'agenda-paroisse-date.wb?P1=bienheureuse_jeanne_marie_de_maille-20250523')
+    url_ = 'http://www.strochcanner.com/index.php/horaires-des-messes'
     extracted_html_list_ = asyncio.run(get_fresh_extracted_html_list(url_))
 
     print()

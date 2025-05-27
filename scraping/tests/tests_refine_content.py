@@ -24,6 +24,7 @@ class TestExtractLinks(unittest.TestCase):
             'montesson',
             'bellecombe2',
             'pouilly',
+            'st-roch',
         ]
 
     def test_parse_content_links(self):
