@@ -15,13 +15,14 @@ def convert_text_to_html(raw_text: str) -> str:
             lines.append('<br>')
             continue
 
-        if line[0] in string.punctuation or line[0].isdigit():
+        has_digit = any(map(lambda c: c.isdigit(), line))
+        if line[0] in string.punctuation or has_digit:
             lines.append('<br>')
 
         lines.append(' ')
         lines.append(line)
 
-        if line[-1] in string.punctuation:
+        if line[-1] in string.punctuation or has_digit:
             lines.append('<br>')
 
     return ''.join(lines)

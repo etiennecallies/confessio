@@ -10,6 +10,7 @@ class MyTestCase(unittest.TestCase):
     def get_paragraphs_fixtures():
         return [
             'randol',
+            'st-marc',
         ]
 
     def test_extract_pdf(self):
