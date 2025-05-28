@@ -6,7 +6,7 @@ from ninja import NinjaAPI, Schema, Field
 
 from home.models import Church, ChurchModeration
 
-api = NinjaAPI()
+api = NinjaAPI(urls_namespace='main_api')
 
 
 class ChurchOut(Schema):
