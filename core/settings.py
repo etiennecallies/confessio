@@ -39,6 +39,8 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 # Add here your deployment HOSTS
 CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://localhost:5085']
 
+CORS_ALLOW_ALL_ORIGINS = True
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -56,6 +58,7 @@ INSTALLED_APPS = [
     'dbbackup',  # nightly backups
     'simple_history',  # object versioning
     'captcha',  # captcha
+    "corsheaders",  # used to allow CORS requests
     'theme_pixel',
     'jsoneditor',  # json form
     "home",
@@ -64,6 +67,8 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'core.otel.middlewares.RequestStartTimeMiddleware',
     "django.middleware.security.SecurityMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
