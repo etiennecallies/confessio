@@ -64,6 +64,8 @@ class AutocompleteResult:
             name=church.name,
             context=context,
             url=reverse('website_view', kwargs={'website_uuid': church.parish.website.uuid}),
+            latitude=church.location.y,
+            longitude=church.location.x,
         )
 
 
