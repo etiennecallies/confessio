@@ -25,7 +25,7 @@
       hour: "8"
       minute: 0
     - name: hourly_scrape_pages
-      command: "scrape_pages -t 5700"
+      command: "scrape_pages -t 4500"
       hour: "8,10,12,14,16,18,20,22"
       minute: 20
     - name: hourly_crawl_websites_in_error
