@@ -10,6 +10,7 @@ from django.urls import reverse
 from simple_history.models import HistoricalRecords
 
 from home.models.base_models import TimeStampMixin, Church, Parish, Diocese
+from home.utils.color_utils import get_color_from_string
 from scraping.prune.models import Action
 from sourcing.services.church_name_service import sort_by_name_similarity
 
@@ -77,6 +78,7 @@ class ModerationMixin(TimeStampMixin):
             'category': stat['category'],
             'is_bug': is_bug,
             'total': count,
+            'color': get_color_from_string(f"{cls.resource}{stat['category']}"),
         }
 
     @classmethod
@@ -177,6 +179,7 @@ class WebsiteModeration(ModerationMixin):
 class ExternalSource(models.TextChoices):
     MESSESINFO = "messesinfo"
     LEHAVRE = "lehavre"
+    TROUVERUNEMESSE = "trouverunemesse"
 
 
 class ParishModeration(ModerationMixin):
@@ -196,7 +199,7 @@ class ParishModeration(ModerationMixin):
     history = HistoricalRecords()
     parish = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=16, choices=Category)
-    source = models.CharField(max_length=10, choices=ExternalSource)
+    source = models.CharField(max_length=16, choices=ExternalSource)
 
     name = models.CharField(max_length=100, null=True)
     website = models.ForeignKey('Website', on_delete=models.CASCADE,
@@ -279,7 +282,7 @@ class ChurchModeration(ModerationMixin):
     history = HistoricalRecords()
     church = models.ForeignKey('Church', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=17, choices=Category)
-    source = models.CharField(max_length=10, choices=ExternalSource)
+    source = models.CharField(max_length=16, choices=ExternalSource)
 
     name = models.CharField(max_length=100, null=True)
     location = gis_models.PointField(geography=True, null=True)

@@ -13,6 +13,7 @@ from home.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 from scraping.parse.schedules import SchedulesList
 from scraping.services.parse_pruning_service import on_parsing_human_validation, \
     set_human_json, ParsingValidationError
+from sourcing.services.church_human_service import on_church_human_validation
 from sourcing.services.merge_websites_service import merge_websites
 
 
@@ -114,6 +115,8 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
                     on_parsing_human_validation(moderation)
                 except ParsingValidationError as e:
                     return HttpResponseBadRequest(str(e))
+            elif class_moderation == ChurchModeration:
+                on_church_human_validation(moderation)
 
             moderation.validate(request.user)
 
