@@ -45,7 +45,7 @@
                 <div>
                     {% if church_moderation.location and church_moderation.location != church.location %}
                         <label>
-                            <input type="checkbox" name="replace_location">
+                            <input type="checkbox" name="replace_location" checked>
                             Location : {% display_location church_moderation.location %}
                         </label>
                     {% else %}
@@ -55,7 +55,7 @@
                 <div>
                     {% if church_moderation.address != church.address %}
                         <label>
-                            <input type="checkbox" name="replace_address">
+                            <input type="checkbox" name="replace_address" checked>
                             Address : {{ church_moderation.address }}
                         </label>
                     {% else %}
@@ -65,7 +65,7 @@
                 <div>
                     {% if church_moderation.zipcode != church.zipcode %}
                         <label>
-                            <input type="checkbox" name="replace_zipcode">
+                            <input type="checkbox" name="replace_zipcode" checked>
                             Zipcode : {{ church_moderation.zipcode }}
                         </label>
                     {% else %}
@@ -75,7 +75,7 @@
                 <div>
                     {% if church_moderation.city != church.city %}
                         <label>
-                            <input type="checkbox" name="replace_city">
+                            <input type="checkbox" name="replace_city" checked>
                             City : {{ church_moderation.city }}
                         </label>
                     {% else %}
