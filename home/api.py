@@ -10,6 +10,7 @@ api = NinjaAPI(urls_namespace='main_api')
 
 
 class ChurchOut(Schema):
+    uuid: UUID
     name: str
     latitude: float
     longitude: float
@@ -18,6 +19,8 @@ class ChurchOut(Schema):
     city: str | None
     messesinfo_id: str | None
     wikidata_id: str | None
+    trouverunemesse_id: UUID | None
+    trouverunemesse_slug: str | None
     parish_uuid: UUID
     is_active: bool
     created_at: datetime
@@ -32,6 +35,7 @@ class ChurchOut(Schema):
     @classmethod
     def from_church(cls, church: Church):
         return cls(
+            uuid=church.uuid,
             name=church.name,
             latitude=church.location.y,
             longitude=church.location.x,
@@ -40,6 +44,8 @@ class ChurchOut(Schema):
             city=church.city,
             messesinfo_id=church.messesinfo_id,
             wikidata_id=church.wikidata_id,
+            trouverunemesse_id=church.trouverunemesse_id,
+            trouverunemesse_slug=church.trouverunemesse_slug,
             parish_uuid=church.parish_id,
             is_active=church.is_active,
             created_at=church.created_at,
