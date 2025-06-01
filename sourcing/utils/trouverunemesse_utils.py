@@ -35,7 +35,8 @@ def fetch_trouverunemesse(url: str) -> dict | None:
         return data
 
     except httpx.HTTPStatusError as e:
-        print(f"HTTP error occurred: {e}")
+        print(f"Trouverunemesse GET API HTTP error: {e}")
+        return None
 
 
 def fetch_trouverunemesse_by_messesinfo_id(messesinfo_id: str) -> TrouverUneMesseChurch | None:
@@ -61,6 +62,28 @@ def fetch_trouverunemesse_by_slug(trouverunemesse_slug: str) -> TrouverUneMesseC
         return None
 
     return TrouverUneMesseChurch(**data)
+
+
+def post_new_update_on_trouverunemesse(trouverunemesse_church: TrouverUneMesseChurch,
+                                       comments: str) -> None:
+    trouverunemesse_api_key = os.getenv("TROUVERUNEMESSE_API_KEY")
+    url = 'https://api.trouverunemesse.fr/locality-update-requests/'
+
+    headers = {'X-API-Key': trouverunemesse_api_key}
+    try:
+        response = httpx.post(url, headers=headers, json={
+            "locality_id": trouverunemesse_church.id,
+            "name": trouverunemesse_church.name,
+            "location": {
+                "latitude": trouverunemesse_church.location.latitude,
+                "longitude": trouverunemesse_church.location.longitude
+            },
+            "complement": None,
+            "comments": comments
+        })
+        response.raise_for_status()
+    except httpx.HTTPStatusError as e:
+        print(f"Trouverunemesse POST API HTTP error: {e}")
 
 
 if __name__ == '__main__':
