@@ -64,3 +64,5 @@ google_maps_api_key: "{{ lookup('ansible.builtin.env', 'PROD_GOOGLE_MAPS_API_KEY
 
 # TrouverUneMesse API key
 trouverunemesse_api_key: "{{ lookup('ansible.builtin.env', 'TROUVERUNEMESSE_API_KEY') }}"
+trouverunemesse_username: "{{ lookup('ansible.builtin.env', 'TROUVERUNEMESSE_USERNAME') }}"
+trouverunemesse_password: "{{ lookup('ansible.builtin.env', 'TROUVERUNEMESSE_PASSWORD') }}"

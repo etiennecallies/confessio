@@ -99,7 +99,8 @@ def on_church_human_validation(church_moderation: ChurchModeration) -> None:
             return
 
         trouverunemesse_church.name = church_moderation.church.name
-    if church_moderation.category == ChurchModeration.Category.LOCATION_DIFFERS:
+        comments = 'Automatic update from Confessio about name'
+    elif church_moderation.category == ChurchModeration.Category.LOCATION_DIFFERS:
         if trouverunemesse_church.location.latitude != church_moderation.location.y \
                 or trouverunemesse_church.location.longitude != church_moderation.location.x \
                 or trouverunemesse_church.street != church_moderation.address \
@@ -114,5 +115,8 @@ def on_church_human_validation(church_moderation: ChurchModeration) -> None:
         trouverunemesse_church.street = church_moderation.church.address
         trouverunemesse_church.code_postal = church_moderation.church.zipcode
         trouverunemesse_church.commune = church_moderation.church.city
+        comments = 'Automatic update from Confessio about location'
+    else:
+        raise ValueError('Unexpected church moderation category: ', church_moderation.category)
 
-    post_new_update_on_trouverunemesse(trouverunemesse_church)
+    post_new_update_on_trouverunemesse(trouverunemesse_church, comments)

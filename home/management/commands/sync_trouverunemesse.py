@@ -16,13 +16,13 @@ class Command(AbstractCommand):
         nb_name_differs = 0
         nb_name_moderation = 0
 
-        for church in Church.objects.all()[:100]:
+        for church in Church.objects.all()[:200]:
+            self.info(f'Processing church: {church.name} ({church.uuid})')
             nb_churches += 1
             result = sync_trouverunemesse_for_church(church)
 
             if result is None:
                 nb_no_result += 1
-                self.info(f'No result for church {church.name} ({church.uuid})')
             else:
                 location_moderation_added, name_moderation_added = result
                 if location_moderation_added is not None:

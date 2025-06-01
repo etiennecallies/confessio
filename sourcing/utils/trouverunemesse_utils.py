@@ -20,12 +20,19 @@ class TrouverUneMesseChurch(BaseModel):
     location: TrouverUneMesseLocation
 
 
-def fetch_trouverunemesse(url: str) -> dict | None:
+def get_headers() -> dict:
     trouverunemesse_api_key = os.getenv("TROUVERUNEMESSE_API_KEY")
+    return {'X-API-Key': trouverunemesse_api_key}
 
-    headers = {'X-API-Key': trouverunemesse_api_key}
+
+def fetch_trouverunemesse(url: str) -> dict | None:
     try:
-        response = httpx.get(url, headers=headers)
+        response = httpx.get(url, headers=get_headers())
+
+        if response.status_code == 404:
+            print(f'Found 404 for URL: {url}')
+            return None
+
         response.raise_for_status()
         data = response.json()
 
@@ -64,12 +71,40 @@ def fetch_trouverunemesse_by_slug(trouverunemesse_slug: str) -> TrouverUneMesseC
     return TrouverUneMesseChurch(**data)
 
 
+def authenticate_trouverunemesse() -> str | None:
+    trouverunemesse_username = os.getenv("TROUVERUNEMESSE_USERNAME")
+    trouverunemesse_password = os.getenv("TROUVERUNEMESSE_PASSWORD")
+    print(f"Authenticating with trouverunemesse.fr as {trouverunemesse_username}")
+    url = 'https://api.trouverunemesse.fr/auth/token'
+
+    try:
+        response = httpx.post(url, headers=get_headers(), json={
+            "username": trouverunemesse_username,
+            "password": trouverunemesse_password
+        })
+
+        if response.status_code != 200:
+            print(response.status_code, response.text)
+
+        response.raise_for_status()
+        response_data = response.json()
+        token = response_data['token']
+        return token
+    except httpx.HTTPStatusError as e:
+        print(f"Trouverunemesse POST API HTTP error: {e}")
+        return None
+
+
 def post_new_update_on_trouverunemesse(trouverunemesse_church: TrouverUneMesseChurch,
                                        comments: str) -> None:
-    trouverunemesse_api_key = os.getenv("TROUVERUNEMESSE_API_KEY")
-    url = 'https://api.trouverunemesse.fr/locality-update-requests/'
+    token = authenticate_trouverunemesse()
+    if not token:
+        print("Authentication failed, cannot post update.")
+        return
 
-    headers = {'X-API-Key': trouverunemesse_api_key}
+    headers = get_headers()
+    headers['Authorization'] = f'Bearer {token}'
+    url = 'https://api.trouverunemesse.fr/locality-update-requests/'
     try:
         response = httpx.post(url, headers=headers, json={
             "locality_id": trouverunemesse_church.id,
@@ -82,6 +117,7 @@ def post_new_update_on_trouverunemesse(trouverunemesse_church: TrouverUneMesseCh
             "comments": comments
         })
         response.raise_for_status()
+        print(f"Successfully posted update for {trouverunemesse_church.name} on trouverunemesse.fr")
     except httpx.HTTPStatusError as e:
         print(f"Trouverunemesse POST API HTTP error: {e}")
 
