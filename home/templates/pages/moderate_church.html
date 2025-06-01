@@ -23,6 +23,9 @@
         </div>
     </div>
 
+    {% if church_moderation.source %}
+        <p>External source : {{ church_moderation.source }}</p>
+    {% endif %}
     {% display_church church similar_churches|negate %}
     {% display_parish church.parish %}
 

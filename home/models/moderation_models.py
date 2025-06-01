@@ -10,6 +10,7 @@ from django.urls import reverse
 from simple_history.models import HistoricalRecords
 
 from home.models.base_models import TimeStampMixin, Church, Parish, Diocese
+from home.utils.color_utils import get_color_from_string
 from scraping.prune.models import Action
 from sourcing.services.church_name_service import sort_by_name_similarity
 
@@ -77,6 +78,7 @@ class ModerationMixin(TimeStampMixin):
             'category': stat['category'],
             'is_bug': is_bug,
             'total': count,
+            'color': get_color_from_string(f"{cls.resource}{stat['category']}"),
         }
 
     @classmethod
