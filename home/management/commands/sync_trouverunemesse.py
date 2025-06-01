@@ -16,7 +16,7 @@ class Command(AbstractCommand):
         nb_name_differs = 0
         nb_name_moderation = 0
 
-        for church in Church.objects.all()[:200]:
+        for church in Church.objects.all():
             self.info(f'Processing church: {church.name} ({church.uuid})')
             nb_churches += 1
             result = sync_trouverunemesse_for_church(church)
