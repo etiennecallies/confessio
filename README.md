@@ -4,6 +4,10 @@ A search engine for confession hours by scraping parish websites.
 This is the codebase of the [confessio.fr](https://confessio.fr) project,
 and its [API](https://confessio.fr/api/docs).
 
+Please open an issue if you find a bug, or if you have any question or suggestion.
+You can also reach us through the [contact form](https://confessio.fr/contact).
+Also, you might want to check our [status page](https://status.confessio.fr/).
+
 ---
 ## 📄 Licenses
 
