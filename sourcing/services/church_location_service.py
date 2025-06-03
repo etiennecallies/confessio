@@ -142,9 +142,17 @@ def check_distances(churches: list[Church], max_distance: int) -> int:
 
     for church in valid_churches:
         if distance_by_point[church.location] > max_distance:
+            print(f'Church {church.name} ({church.city}, {church.uuid}) is an outlier, '
+                  f'distance: {distance_by_point[church.location]} m')
             add_church_moderation_if_not_exists(church,
                                                 ChurchModeration.Category.LOCATION_OUTLIER,
                                                 ExternalSource.MESSESINFO)
             outliers_count += 1
+        else:
+            ChurchModeration.objects.filter(
+                church=church,
+                category=ChurchModeration.Category.LOCATION_OUTLIER,
+                validated_at__isnull=True,
+            ).delete()
 
     return outliers_count
