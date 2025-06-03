@@ -2,6 +2,7 @@ from django.contrib.gis.geos import Point
 
 from home.models import Church, ChurchModeration, ExternalSource
 from sourcing.services.church_human_service import church_location_has_been_checked_by_human
+from sourcing.utils.geo_utils import get_geo_distance
 from sourcing.utils.trouverunemesse_utils import fetch_trouverunemesse_by_messesinfo_id
 
 
@@ -54,7 +55,10 @@ def sync_trouverunemesse_for_church(church: Church):
             validated_at__isnull=True,
         ).delete()
 
-        if church_location_has_been_checked_by_human(church):
+        trouverunemesse_point = Point(trouverunemesse_church.location.longitude,
+                                      trouverunemesse_church.location.latitude)
+        if church_location_has_been_checked_by_human(church) \
+                or get_geo_distance(church.location, trouverunemesse_point) > 1000:
             add_church_moderation_if_not_exists(
                 ChurchModeration(
                     church=church,
@@ -63,15 +67,13 @@ def sync_trouverunemesse_for_church(church: Church):
                     address=trouverunemesse_church.street,
                     zipcode=trouverunemesse_church.code_postal,
                     city=trouverunemesse_church.commune,
-                    location=Point(trouverunemesse_church.location.longitude,
-                                   trouverunemesse_church.location.latitude),
+                    location=trouverunemesse_point,
                     diocese=church.parish.diocese
                 )
             )
             location_moderation_added = True
         else:
-            church.location = Point(trouverunemesse_church.location.longitude,
-                                    trouverunemesse_church.location.latitude)
+            church.location = trouverunemesse_point
             church.address = trouverunemesse_church.street
             church.zipcode = trouverunemesse_church.code_postal
             church.city = trouverunemesse_church.commune
