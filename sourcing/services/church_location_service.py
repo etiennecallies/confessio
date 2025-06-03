@@ -119,7 +119,7 @@ def find_church_geo_outliers() -> int:
                 diocese_churches.append(church)
                 parish_churches.append(church)
 
-            outliers_count += check_distances(parish_churches, 40_000)
+            outliers_count += check_distances(parish_churches, 45_000)
 
         outliers_count += check_distances(diocese_churches, 110_000)
 
