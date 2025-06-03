@@ -113,46 +113,53 @@ def find_church_geo_outliers() -> int:
     for diocese in Diocese.objects.all():
         print(f'Scanning diocese {diocese.name}')
         diocese_churches = []
+        outliers_churches = []
         for parish in diocese.parishes.all():
             parish_churches = []
             for church in parish.churches.all():
                 diocese_churches.append(church)
                 parish_churches.append(church)
 
-            outliers_count += check_distances(parish_churches, 45_000)
+            outliers_churches += check_distances(parish_churches, 45_000)
 
-        outliers_count += check_distances(diocese_churches, 110_000)
+        for church in check_distances(diocese_churches, 110_000):
+            if church not in outliers_churches:
+                outliers_churches.append(church)
+
+        for church in diocese_churches:
+            if church in outliers_churches:
+                add_church_moderation_if_not_exists(church,
+                                                    ChurchModeration.Category.LOCATION_OUTLIER,
+                                                    ExternalSource.MESSESINFO)
+            else:
+                ChurchModeration.objects.filter(
+                    church=church,
+                    category=ChurchModeration.Category.LOCATION_OUTLIER,
+                    validated_at__isnull=True,
+                ).delete()
+
+        outliers_count += len(outliers_churches)
 
     return outliers_count
 
 
-def check_distances(churches: list[Church], max_distance: int) -> int:
-    outliers_count = 0
+def check_distances(churches: list[Church], max_distance: int) -> list[Church]:
     valid_churches = []
     for church in churches:
         if not check_coordinates_validity(church.location):
             add_church_moderation_if_not_exists(church,
                                                 ChurchModeration.Category.LOCATION_OUTLIER,
                                                 ExternalSource.MESSESINFO)
-            outliers_count += 1
             continue
         valid_churches.append(church)
 
     distance_by_point = get_distances_to_barycenter([c.location for c in valid_churches])
 
+    outliers_churches = []
     for church in valid_churches:
         if distance_by_point[church.location] > max_distance:
             print(f'Church {church.name} ({church.city}, {church.uuid}) is an outlier, '
-                  f'distance: {distance_by_point[church.location]} m')
-            add_church_moderation_if_not_exists(church,
-                                                ChurchModeration.Category.LOCATION_OUTLIER,
-                                                ExternalSource.MESSESINFO)
-            outliers_count += 1
-        else:
-            ChurchModeration.objects.filter(
-                church=church,
-                category=ChurchModeration.Category.LOCATION_OUTLIER,
-                validated_at__isnull=True,
-            ).delete()
+                  f'distance: {int(distance_by_point[church.location])} m (max: {max_distance} m)')
+            outliers_churches.append(church)
 
-    return outliers_count
+    return outliers_churches
