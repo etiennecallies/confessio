@@ -5,6 +5,7 @@ from django.db.models.functions import Now
 
 from home.models import Parish, Diocese, Church, ExternalSource, \
     ChurchModeration
+from sourcing.services.church_city_service import lower_church_city
 from sourcing.services.church_location_service import compute_church_coordinates, \
     get_church_with_same_location
 from sourcing.services.church_name_service import sort_by_name_similarity
@@ -286,6 +287,9 @@ def save_church(church: Church, church_retriever: ChurchRetriever):
 
     # Sync with trouverunemesse if applicable
     sync_trouverunemesse_for_church(church)
+
+    # Lower city name if needed
+    lower_church_city(church)
 
     # Compute coordinates if null
     if not church.location.x or not church.location.y:

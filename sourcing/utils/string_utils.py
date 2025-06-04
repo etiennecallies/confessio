@@ -1,3 +1,4 @@
+import re
 from difflib import SequenceMatcher
 
 
@@ -20,3 +21,7 @@ def city_and_prefix(city: str) -> str:
         return f'au {city[3:]}'
 
     return f'à {city}'
+
+
+def has_two_consecutive_uppercase(s):
+    return bool(re.search(r'[A-Z]{2}', s))

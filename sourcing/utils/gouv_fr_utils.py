@@ -13,7 +13,7 @@ class GouvFrGeocodingResult(BaseModel):
 
 
 def geocode_gouv_fr(name, address, city, zipcode) -> GouvFrGeocodingResult | None:
-    query = f"q={quote(f'{name} {address} {city}')}"
+    query = f"q={quote(' '.join(filter(lambda s: s is not None and s, [name, address, city])))}"
     if zipcode:
         query += f'&postcode={zipcode}'
 
@@ -52,5 +52,6 @@ def geocode_gouv_fr(name, address, city, zipcode) -> GouvFrGeocodingResult | Non
 
 
 if __name__ == '__main__':
-    print(geocode_gouv_fr("Chapelle de l'école Saint-Joseph", "18 route d'Ecully",
-                          "Dardilly", 69570))
+    # print(geocode_gouv_fr("Chapelle de l'école Saint-Joseph", "18 route d'Ecully",
+    #                       "Dardilly", 69570))
+    print(geocode_gouv_fr("", "", "Boulogne", 92100))
