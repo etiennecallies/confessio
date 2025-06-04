@@ -1,6 +1,7 @@
 import asyncio
 
 from home.models import Website, WebsiteModeration, Diocese
+from sourcing.services.website_name_service import clean_website_name
 from sourcing.utils.extract_title import get_page_title
 
 
@@ -39,6 +40,7 @@ def update_website_name(website: Website, other_website_name: str):
 
     # We update website
     website.save()
+    clean_website_name(website)
 
     # We will need to moderate generated website name
     add_website_moderation(website, moderation_category)

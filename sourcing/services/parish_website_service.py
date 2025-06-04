@@ -3,6 +3,7 @@ import asyncio
 from home.models import Parish, Website, WebsiteModeration
 from scraping.utils.string_search import normalize_content, get_words
 from sourcing.services.merge_websites_service import add_website_moderation
+from sourcing.services.website_name_service import clean_website_name
 from sourcing.utils.extract_title import get_page_title
 from sourcing.utils.google_search_api_utils import get_google_search_results
 
@@ -111,4 +112,5 @@ def save_website(website: Website) -> Website:
         return Website.objects.get(home_url=website.home_url)
     except Website.DoesNotExist:
         website.save()
+        clean_website_name(website)
         return website
