@@ -3,7 +3,8 @@ from typing import Optional
 
 import requests
 from django.contrib.postgres.lookups import Unaccent
-from django.db.models import Value
+from django.contrib.postgres.search import TrigramSimilarity
+from django.db.models import Value, F, ExpressionWrapper, FloatField
 from django.db.models.functions import Replace, Lower
 from django.urls import reverse
 from requests.exceptions import RequestException
@@ -122,9 +123,15 @@ def get_parish_by_name_response(query) -> list[AutocompleteResult]:
 def get_church_by_name_response(query) -> list[AutocompleteResult]:
     query_term = unhyphen_content(normalize_content(query))
     churches = Church.objects.annotate(
-        search_name=Replace(Unaccent(Lower('name')), Value('-'), Value(' '))
+        name_similarity=TrigramSimilarity('name_search', query_term),
+        city_similarity=TrigramSimilarity('city_search', query_term),
+    ).annotate(
+        total_similarity=ExpressionWrapper(
+            F('name_similarity') + F('city_similarity'),
+            output_field=FloatField()
+        )
     ).filter(is_active=True, parish__website__is_active=True,
-             search_name__contains=query_term)[:MAX_AUTOCOMPLETE_RESULTS]
+             name_similarity__gt=0.2).order_by('-total_similarity')[:MAX_AUTOCOMPLETE_RESULTS]
 
     return list(map(AutocompleteResult.from_church, churches))
 

@@ -12,6 +12,7 @@ from simple_history.models import HistoricalRecords
 from home.utils.hash_utils import hash_string_to_hex
 from scraping.parse.llm_client import LLMProvider
 from scraping.prune.models import Action, Source
+from scraping.utils.string_search import unhyphen_content, normalize_content
 
 
 class TimeStampMixin(models.Model):
@@ -123,10 +124,12 @@ class Parish(TimeStampMixin):
 
 class Church(TimeStampMixin):
     name = models.CharField(max_length=100)
+    name_search = models.CharField(max_length=100, null=True, blank=True)
     location = gis_models.PointField(geography=True, null=True)
     address = models.CharField(max_length=100, null=True, blank=True)
     zipcode = models.CharField(max_length=5, null=True)
     city = models.CharField(max_length=50, null=True)
+    city_search = models.CharField(max_length=50, null=True, blank=True)
     messesinfo_id = models.CharField(max_length=100, null=True, unique=True, blank=True)
     wikidata_id = models.CharField(max_length=100, null=True, unique=True, blank=True)
     trouverunemesse_id = models.UUIDField(null=True, unique=True, blank=True)
@@ -138,6 +141,12 @@ class Church(TimeStampMixin):
 
     def get_desc(self) -> str:
         return f'{self.name} {self.city}'
+
+    def save(self, *args, **kwargs):
+        self.name_search = unhyphen_content(normalize_content(self.name))
+        if self.city:
+            self.city_search = unhyphen_content(normalize_content(self.city))
+        super().save(*args, **kwargs)
 
 
 class Page(TimeStampMixin):
