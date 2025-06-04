@@ -28,6 +28,9 @@ DATES_REGEX = [
     r'oct \d\d',
     r'nov \d\d',
     r'dec \d\d',
+    r"(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche) "
+    r"(janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre) "
+    r"([1-9]|[12][0-9]|3[01])"
 ]
 
 
