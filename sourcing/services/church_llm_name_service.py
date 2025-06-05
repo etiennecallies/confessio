@@ -15,7 +15,7 @@ BATCH_SIZE = 20
 PARALLELING_SIZE = 20
 
 
-def get_prompt_template():
+def get_prompt_template_for_name():
     return """\
 Corrige les noms de lieux de culte suivants en fonction des règles de nommage ci-dessous.
 
@@ -97,9 +97,9 @@ def build_input_messages(prompt_template: str,
     ]
 
 
-async def get_completions(original_church_name_by_id: dict[int, str],
-                          prompt_template: str, client: AsyncOpenAI
-                          ) -> tuple[LLMOutput | None, str | None]:
+async def get_completions_for_name(original_church_name_by_id: dict[int, str],
+                                   prompt_template: str, client: AsyncOpenAI
+                                   ) -> tuple[LLMOutput | None, str | None]:
     messages = build_input_messages(prompt_template, original_church_name_by_id)
 
     try:
@@ -125,7 +125,7 @@ async def compute_churches_llm_name_by_batch(churches: list[Church], prompt_temp
     for i, church in enumerate(churches):
         original_church_name_by_id[i] = church.name
 
-    llm_output, llm_error_detail = await get_completions(
+    llm_output, llm_error_detail = await get_completions_for_name(
         original_church_name_by_id, prompt_template, client
     )
     if llm_output:
@@ -168,7 +168,7 @@ def compute_churches_llm_name(prompt_template: str | None = None, max_churches: 
     # return
 
     if prompt_template is None:
-        prompt_template = get_prompt_template()
+        prompt_template = get_prompt_template_for_name()
 
     prompt_template_hash = hash_string_to_hex(prompt_template)
     already_computed_churches_uuids = Church.objects.filter(
