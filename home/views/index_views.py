@@ -17,7 +17,7 @@ from home.services.report_service import get_count_and_label, new_report, NewRep
     get_previous_reports
 from home.services.search_service import TimeFilter, get_churches_in_box, get_churches_by_website, \
     get_churches_around, get_churches_by_diocese, get_popular_churches, fetch_events
-from home.services.sources_service import get_website_parsings_and_prunings
+from home.services.sources_service import get_website_parsings_and_prunings, get_empty_sources
 from home.services.stat_service import new_search_hit
 from home.services.website_events_service import get_website_events
 from home.services.website_schedules_service import get_website_schedules
@@ -302,10 +302,15 @@ def partial_website_sources(request, website_uuid: str):
     except Website.DoesNotExist:
         return HttpResponseNotFound("Website does not exist with this uuid")
 
+    empty_sources = None
+    if request.user.is_authenticated and request.user.has_perm("home.change_sentence"):
+        empty_sources = get_empty_sources(website)
+
     return render(request, 'partials/website_sources.html', {
         'website': website,
         'parsings_and_prunings': get_website_parsings_and_prunings(website),
         'page_pruning_urls': get_page_pruning_urls([website]),
+        'empty_sources': empty_sources,
     })
 
 

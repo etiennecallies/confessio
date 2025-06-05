@@ -33,8 +33,7 @@ async def get_fresh_extracted_html_list(url) -> list[str] | None:
 
 
 if __name__ == '__main__':
-    url_ = ('https://paroissesaintmarc.fr/onewebmedia/Lettres%20Paroissiales/'
-            'Lettre%20Paroissiale%20Saint%20Marc.pdf')
+    url_ = ('https://www.croixglorieuse68.com/')
     extracted_html_list_ = asyncio.run(get_fresh_extracted_html_list(url_))
 
     print()

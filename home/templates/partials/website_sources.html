@@ -62,3 +62,49 @@
 {% else %}
     {% trans 'NoConfessionExtractFound' %}
 {% endif %}
+
+{% if empty_sources %}
+    <div class="margin-left-indent">
+        <h5>Empty sources</h5>
+        {% for page in empty_sources.pages %}
+            <div>Page <a href="{{ page.url }}">{{ page.url }}</a></div>
+            {% for pruning in empty_sources.prunings_by_page_uuid|get_item:page.uuid %}
+                <div class="margin-left-indent">
+                    <div class="row">
+                        {% with unvalidated_pruning_moderation=pruning|get_unvalidated_pruning_moderation %}
+                            {% if unvalidated_pruning_moderation %}
+                                <div class="col-xl-6">
+                                    <a href="{{ unvalidated_pruning_moderation|get_url }}" class="link-info">
+                                        <i class="fas fa-tags"></i> Valider
+                                    </a>
+                                </div>
+                            {% else %}
+                                <div class="col-xl-6">
+                                    <a href="{% url 'edit_pruning' pruning.uuid %}" class="link-info"><i class="fas fa-tags"></i> {% trans 'EditPruning' %}</a>
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+                        {% for parsing in empty_sources.parsings_by_pruning_uuid|get_item:pruning.uuid %}
+                            <div class="col-xl-6">
+                                {% with parsing_moderation=parsing.moderations.first %}
+                                    {% if parsing_moderation %}
+                                        <a href="{{ parsing_moderation|get_url }}" class="link-info">
+                                            <i class="fas fa-code"></i> Modérer
+                                        </a>
+                                    {% else %}
+                                        <a href="{% url 'edit_parsing' parsing.uuid %}" class="link-info"><i class="fas fa-code"></i> {% trans 'EditParsing' %}</a>
+                                    {% endif %}
+                                {% endwith %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% display_expandable_pruning pruning %}
+                </div>
+            {% empty %}
+                <div class="margin-left-indent">No pruning found for this page.</div>
+            {% endfor %}
+        {% empty %}
+            No empty sources.
+        {% endfor %}
+    </div>
+{% endif %}

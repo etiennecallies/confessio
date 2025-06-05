@@ -59,3 +59,46 @@ def get_website_sorted_parsings(website: Website) -> list[Parsing]:
     # TODO find a relevant sorting
     return list(sorted([p for p in website.parsings.all() if has_schedules(p)],
                        key=lambda p: p.created_at))
+
+
+#################
+# EMPTY SOURCES #
+#################
+
+@dataclass
+class WebsiteEmptySources:
+    pages: list[Page]
+    prunings_by_page_uuid: dict[UUID, Pruning]
+    parsings_by_pruning_uuid: dict[UUID, list[Parsing]]
+
+
+def get_empty_sources(website: Website) -> WebsiteEmptySources:
+    pages = []
+    prunings_by_page_uuid = {}
+    parsings_by_pruning_uuid = {}
+    for page in website.get_pages():
+        if page.scraping is None:
+            continue
+
+        prunings = page.get_prunings()
+        if not prunings:
+            pages.append(page)
+            continue
+
+        is_page_to_add = False
+        for pruning in page.get_prunings():
+            parsing = page.get_parsing(pruning)
+            if parsing is None or not has_schedules(parsing):
+                is_page_to_add = True
+                prunings_by_page_uuid.setdefault(page.uuid, []).append(pruning)
+                if parsing:
+                    parsings_by_pruning_uuid.setdefault(pruning.uuid, []).append(parsing)
+
+        if is_page_to_add:
+            pages.append(page)
+
+    return WebsiteEmptySources(
+        pages=pages,
+        prunings_by_page_uuid=prunings_by_page_uuid,
+        parsings_by_pruning_uuid=parsings_by_pruning_uuid,
+    )

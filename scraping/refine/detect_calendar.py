@@ -6,31 +6,13 @@ from scraping.utils.string_search import normalize_content
 DATES_REGEX = [
     r'(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])',
     r'\d\d\/\d\d/\d\d\d\d',
-    r'\d\d jan',
-    r'\d\d fev',
-    r'\d\d mar',
-    r'\d\d avr',
-    r'\d\d mai',
-    r'\d\d jui',
-    r'\d\d aou',
-    r'\d\d sep',
-    r'\d\d oct',
-    r'\d\d nov',
-    r'\d\d dec',
-    r'jan \d\d',
-    r'fev \d\d',
-    r'mar \d\d',
-    r'avr \d\d',
-    r'mai \d\d',
-    r'jui \d\d',
-    r'aou \d\d',
-    r'sep \d\d',
-    r'oct \d\d',
-    r'nov \d\d',
-    r'dec \d\d',
+    r'\d\d (jan|fev|mar|avr|mai|jui|aou|sep|oct|nov|dec)',
+    r'(jan|fev|mar|avr|mai|jui|aou|sep|oct|nov|dec) \d\d',
     r"(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche) "
     r"(janvier|février|mars|avril|mai|juin|juillet|août|septembre|octobre|novembre|décembre) "
-    r"([1-9]|[12][0-9]|3[01])"
+    r"([1-9]|[12][0-9]|3[01])",
+    r"([1-9]|[12][0-9]|3[01])",
+    r"(lun|mar|mer|jeu|ven|sam|dim)",
 ]
 
 
