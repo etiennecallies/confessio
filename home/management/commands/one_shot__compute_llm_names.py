@@ -8,7 +8,7 @@ from home.management.abstract_command import AbstractCommand
 from home.models import ChurchTrouverUneMesse, ChurchTrouverUneMesseLLMName
 from home.utils.hash_utils import hash_string_to_hex
 from sourcing.services.church_llm_name_service import get_prompt_template_for_name, \
-    get_completions_for_name
+    get_completions_for_name, compute_churches_llm_name
 
 
 class Command(AbstractCommand):
@@ -16,8 +16,8 @@ class Command(AbstractCommand):
 
     def handle(self, *args, **options):
         self.info('Starting one shot command to compute church llm name...')
-        # compute_churches_llm_name(max_churches=15000)
-        trouverunemesse_compute_churches_llm_name(max_churches=16000)
+        compute_churches_llm_name(max_churches=15000)
+        # trouverunemesse_compute_churches_llm_name(max_churches=16000)
         self.success(f'Successfully computed church llm names.')
 
 
