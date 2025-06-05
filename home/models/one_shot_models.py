@@ -10,3 +10,9 @@ class ChurchLLMName(TimeStampMixin):
 
     class Meta:
         unique_together = ('church', 'prompt_template_hash')
+
+
+class ChurchTrouverUneMesse(TimeStampMixin):
+    trouverunemesse_id = models.UUIDField(unique=True)
+    trouverunemesse_slug = models.CharField(max_length=200, unique=True)
+    original_name = models.CharField(max_length=255)

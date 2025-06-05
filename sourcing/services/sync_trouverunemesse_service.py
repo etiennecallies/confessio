@@ -32,7 +32,7 @@ def sync_trouverunemesse_for_church(church: Church):
         return None
 
     church.trouverunemesse_id = trouverunemesse_church.id
-    church.trouverunemesse_slug = trouverunemesse_church.canonical_slug
+    church.trouverunemesse_slug = trouverunemesse_church.slug
     church.save()
 
     location_moderation_added = None

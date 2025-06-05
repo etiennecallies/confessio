@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 import httpx
 from dotenv import load_dotenv
@@ -13,10 +14,10 @@ class TrouverUneMesseLocation(BaseModel):
 class TrouverUneMesseChurch(BaseModel):
     id: str
     name: str
-    canonical_slug: str
+    slug: str
     commune: str | None
     code_postal: str | None
-    street: str | None
+    street: str | None = None
     location: TrouverUneMesseLocation
 
 
@@ -68,7 +69,22 @@ def fetch_trouverunemesse_by_slug(trouverunemesse_slug: str) -> TrouverUneMesseC
     if not data:
         return None
 
+    if 'canonical_slug' in data:
+        data['slug'] = data.pop('canonical_slug')
+
     return TrouverUneMesseChurch(**data)
+
+
+def fetch_by_last_update(min_last_update: datetime | None = None, page: int = 1
+                         ) -> list[TrouverUneMesseChurch]:
+    url = f'https://api.trouverunemesse.fr/localities/by_last_update_date?page={page}'
+    if min_last_update:
+        url += f'&min_last_update={min_last_update.isoformat()}'
+    data = fetch_trouverunemesse(url)
+    if not data:
+        return []
+
+    return [TrouverUneMesseChurch(**item) for item in data['data']]
 
 
 def authenticate_trouverunemesse() -> str | None:
