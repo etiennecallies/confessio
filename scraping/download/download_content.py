@@ -32,9 +32,6 @@ async def get_content_length(url):
     except httpx.HTTPError as e:
         info(e)
         return None
-    finally:
-        if client:
-            await client.aclose()
 
     content_length = r.headers.get('Content-Length')
     if not content_length:
@@ -73,9 +70,6 @@ async def get_content_from_url(url: str) -> str | None:
     except HTTPError as e:
         info(e)
         return None
-    finally:
-        if client:
-            await client.aclose()
 
     if r.status_code != 200:
         info(f'got status code {r.status_code}')
@@ -136,9 +130,6 @@ async def get_url_aliases(url, already_seen: set | None = None
             return await get_url_aliases(attempt_with_https, (already_seen or set()) | {url})
 
         return [], str(e)
-    finally:
-        if client:
-            await client.aclose()
 
     aliases = [(url, get_domain(url))]
     redirect_url = None

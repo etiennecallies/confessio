@@ -1,6 +1,7 @@
 import asyncio
 import time
 
+from django.db.models import F
 from django.db.models.functions import Now
 
 from home.management.abstract_command import AbstractCommand
@@ -23,7 +24,8 @@ class Command(AbstractCommand):
         if options['name']:
             websites = Website.objects.filter(is_active=True, name__contains=options['name']).all()
         else:
-            websites = Website.objects.filter(is_active=True).all()
+            websites = Website.objects.filter(is_active=True, pages__isnull=False)\
+                .order_by(F('pages__scraping__updated_at').asc(nulls_first=True)).all()
 
         start_time = time.time()
 
@@ -37,7 +39,8 @@ class Command(AbstractCommand):
 
             for page in website.get_pages():
                 # Actually do the scraping
-                extracted_html_list = asyncio.run(get_fresh_extracted_html_list(page.url))
+                with asyncio.Runner() as runner:
+                    extracted_html_list = runner.run(get_fresh_extracted_html_list(page.url))
 
                 if not extracted_html_list:
                     self.warning(f'No more content for {page.url}, deleting page {page.uuid}')
