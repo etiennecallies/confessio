@@ -12,34 +12,63 @@ from home.models.one_shot_models import ChurchLLMName
 from home.utils.hash_utils import hash_string_to_hex
 
 BATCH_SIZE = 20
+PARALLELING_SIZE = 20
 
 
 def get_prompt_template():
-    return """Corrige les noms de lieux de culte suivants en fonction des règles de nommage
-    ci-dessous.
+    return """\
+Corrige les noms de lieux de culte suivants en fonction des règles de nommage ci-dessous.
 
-Liste des types d'établissements : Basilique, Cathédrale, Chapelle, Église, Abbatiale,
-    Maison de retraite, Maison paroissiale, Maison diocésaine, Ehpad
+Liste des types d'établissements :
+Basilique
+Cathédrale
+Chapelle
+Église
+Abbatiale
+Maison de retraite
+Maison paroissiale
+Maison diocésaine
+Ehpad
 
 Règles de nommage :
-1. Si le type de bâtiment n'est pas au début du nom, ajoute le avec une majuscule initiale.
-2. Si il y a un nom entre parenthèse à la fin, c'est un lieu dit. Retire les paranthèses
-    et ajoute un mot de liaison pour le lier au reste du nom3. Transforme les "œ" et en "oe".
-4. Mets des majuscules aux mots significatifs, mais les mots de liaison (comme "et", "de", "ou")
-    doivent être en minuscules.
-5. Le nom de l'église doit respecter la règle suivante : entre "Saint" et le nom du saint, il y a
-    un tiret, mais entre plusieurs saints, il ne doit pas y avoir de tiret
-    (exemple : "Église Saint-Denis et Saint-Blaise").
-7. Aéroport, Maison de retraite,... Garder ce genre d'information dans le nom
-8. Si le nom est un nom de saint seul (comme Saint Aubin), ajouter le type d'établissement Église
-    est suffisant
-9. Ne jamais ajouter d'information au nom, sauf si cela découle explicitement d’une règle ci-dessus
-    (notamment la règle 8).
+1. Si le type de bâtiment n'est pas au début du nom, ajoute-le avec une majuscule initiale.
+
+2. S'il y a un nom entre parenthèse à la fin, c'est un lieu dit.
+Retire les parenthèses et ajoute un mot de liaison pour le lier au reste du nom.
+
+3. Transforme les "œ" et en "oe", mais n'omets pas les accents.
+
+4. Mets des majuscules aux mots significatifs,
+mais les mots de liaison (comme "et", "de", "ou") doivent être en minuscules.
+
+5. Le nom de l'église doit respecter la règle suivante :
+entre "Saint" et le nom du saint, il y a un tiret,
+mais entre plusieurs saints, il ne doit pas y avoir de tiret
+(exemple : "Église Saint-Denis et Saint-Blaise").
+Il n'y a pas de tiret avant un chiffre romain.
+
+7. Aéroport, Maison de retraite,... Garder ce genre d'information dans le nom.
+
+8. Si le nom est un nom de saint seul (comme Saint Aubin),
+ajouter le type d'établissement Église est suffisant.
+
+9. Ne jamais ajouter d'information au nom,
+sauf si cela découle explicitement d’une règle ci-dessus (notamment la règle 8).
+
+Exemples :
+"Saint Irénée" -> "Église Saint-Irénée"
+"La Rédemption" -> "Église de la Rédemption"
+"Nativité de la Vierge Marie" -> "Église de la Nativité de la Vierge Marie"
+"Saint Jean Baptiste" -> "Église Saint-Jean-Baptiste"
+"Chapelle Valpré (centre Assomptionniste)" -> "Chapelle Valpré du Centre Assomptionniste"
+"Chapelle des Jésuites (Chapelle St Ignace)" -> "Chapelle des Jésuites dite Chapelle Saint-Ignace"
+"Assomption (Colombier)" -> "Église de l'Assomption à Colombier"
+
 
 Voici les noms des lieux de culte à corriger :
 {original_church_name_by_id_pretty_json}
 
-Retourne une liste de dictionnaire avec les id et name, le nom corrigé de chaque lieu de culte.
+Retourne une liste de dictionnaires avec les id et name (le nom corrigé) de chaque lieu de culte.
 """
 
 
@@ -121,6 +150,19 @@ async def compute_churches_llm_name_by_batch(churches: list[Church], prompt_temp
             print("No LLM output received, but no error detail provided.")
 
 
+async def compute_in_parallel(chunks: list[list[Church]], prompt_template: str,
+                              client: AsyncOpenAI):
+    chunk_of_chunks = [chunks[i: i + PARALLELING_SIZE]
+                       for i in range(0, len(chunks), PARALLELING_SIZE)]
+    for chunks in tqdm(chunk_of_chunks):
+        tasks = [
+            compute_churches_llm_name_by_batch(
+                chunk, prompt_template, client
+            ) for chunk in chunks
+        ]
+        await asyncio.gather(*tasks)
+
+
 def compute_churches_llm_name(prompt_template: str | None = None, max_churches: int = 100) -> None:
     # print(json.dumps(LLMOutput.model_json_schema(), indent=2))
     # return
@@ -140,7 +182,7 @@ def compute_churches_llm_name(prompt_template: str | None = None, max_churches: 
 
     not_computed_churches = Church.objects.exclude(
         llm_names__prompt_template_hash=prompt_template_hash
-    ).all()[:max_churches - len(already_computed_churches_uuids)]
+    ).distinct()[:max_churches - len(already_computed_churches_uuids)]
     print(f'will compute {len(not_computed_churches)} churches')
 
     load_dotenv()
@@ -149,5 +191,4 @@ def compute_churches_llm_name(prompt_template: str | None = None, max_churches: 
 
     chunks = [not_computed_churches[i:i + BATCH_SIZE]
               for i in range(0, len(not_computed_churches), BATCH_SIZE)]
-    for chunk in tqdm(chunks):
-        asyncio.run(compute_churches_llm_name_by_batch(chunk, prompt_template, client))
+    asyncio.run(compute_in_parallel(chunks, prompt_template, client))

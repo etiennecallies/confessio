@@ -7,5 +7,5 @@ class Command(AbstractCommand):
 
     def handle(self, *args, **options):
         self.info('Starting one shot command to compute church llm name...')
-        compute_churches_llm_name(max_churches=300)
+        compute_churches_llm_name(max_churches=15000)
         self.success(f'Successfully computed church llm names.')
