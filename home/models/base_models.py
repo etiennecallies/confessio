@@ -122,7 +122,7 @@ class Parish(TimeStampMixin):
 
 
 class Church(TimeStampMixin):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=120)
     location = gis_models.PointField(geography=True, null=True)
     address = models.CharField(max_length=100, null=True, blank=True)
     zipcode = models.CharField(max_length=5, null=True)
