@@ -24,9 +24,13 @@
     {% display_website website %}
 
     {% if website_moderation.home_url and website.home_url != website_moderation.home_url %}
-        Other home_url: <a class="btn btn-info" role="button" href="{{ website_moderation.home_url }}">
-            {{ website_moderation.home_url }}
-        </a>
+        Other home_url:
+        <a href="{{ website_moderation.home_url }}" target="_blank">{{ website_moderation.home_url }}</a>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="replace_home_url" />
+            <button type="submit" class="btn btn-warning">Replace home url</button>
+        </form>
     {% endif %}
 
     <p>

@@ -175,6 +175,10 @@ class WebsiteModeration(ModerationMixin):
         # in other cases we keep this moderation
         return False
 
+    def replace_home_url(self):
+        self.website.home_url = self.home_url
+        self.website.save()
+
 
 class ExternalSource(models.TextChoices):
     MESSESINFO = "messesinfo"

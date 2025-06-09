@@ -84,6 +84,8 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
         elif 'delete_moderation' in request.POST:
             moderation.delete()
         else:
+            if 'replace_home_url' in request.POST:
+                moderation.replace_home_url()
             if 'replace_name' in request.POST:
                 moderation.replace_name()
             if 'replace_website' in request.POST:

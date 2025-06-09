@@ -23,6 +23,7 @@ def add_moderation(website: Website, category: WebsiteModeration.Category,
 
     try:
         moderation = WebsiteModeration.objects.get(website=website, category=category)
+        moderation.home_url = other_home_url[:200] if other_home_url else website.home_url
         moderation.conflict_day = conflict_day
         moderation.conflict_church = conflict_church
         moderation.save()

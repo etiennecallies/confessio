@@ -64,10 +64,7 @@ def is_title_ok(title: str) -> bool:
     return True
 
 
-def save_website_of_parish(parish: Parish) -> Website | None:
-    if parish.website:
-        return save_website(parish.website)
-
+def get_new_website_for_parish(parish: Parish) -> Website | None:
     # Possibilities to give context to the search:
     # - diocese name or department (we don't have it)
     # - department name from messesinfo_community_id
@@ -95,13 +92,24 @@ def save_website_of_parish(parish: Parish) -> Website | None:
                 print(f'got no title for {result.link} (Google said "{result.title}")')
                 continue
 
-            website = save_website(Website(name=website_title, home_url=result.link))
-            parish.website = website
+            return Website(name=website_title, home_url=result.link)
 
-            add_website_moderation(website, WebsiteModeration.Category.GOOGLE_SEARCH,
-                                   parish.diocese)
+    return None
 
-            return website
+
+def save_website_of_parish(parish: Parish) -> Website | None:
+    if parish.website:
+        return save_website(parish.website)
+
+    new_website = get_new_website_for_parish(parish)
+    if new_website:
+        website = save_website(new_website)
+        parish.website = website
+
+        add_website_moderation(website, WebsiteModeration.Category.GOOGLE_SEARCH,
+                               parish.diocese)
+
+        return website
 
     print(f'no results')
     return None

@@ -11,6 +11,7 @@ from scraping.services.scrape_page_service import upsert_extracted_html_list
 from scraping.services.website_moderation_service import remove_not_validated_moderation, \
     add_moderation
 from scraping.utils.url_utils import get_path, get_domain, have_similar_domain
+from sourcing.services.website_url_service import get_alternative_website_url
 
 
 def update_home_url(website: Website, new_home_url: str):
@@ -202,7 +203,9 @@ def save_crawling_and_add_moderation(website: Website,
 
         return False, True
     else:
-        add_moderation(website, WebsiteModeration.Category.HOME_URL_NO_RESPONSE)
+        alternative_website = get_alternative_website_url(website)
+        add_moderation(website, WebsiteModeration.Category.HOME_URL_NO_RESPONSE,
+                       other_home_url=alternative_website.home_url if alternative_website else None)
         remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_NO_CONFESSION)
 
         return False, False
