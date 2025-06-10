@@ -4,6 +4,7 @@ from django.core.mail import mail_admins
 from django.utils import timezone
 
 from home.management.abstract_command import AbstractCommand
+from home.management.utils.heartbeat_utils import ping_heartbeat
 from home.models import Website, Crawling, ChurchIndexEvent
 from home.utils.date_utils import get_current_day
 from scraping.parse.holidays import check_holiday_by_zone
@@ -124,3 +125,5 @@ class Command(AbstractCommand):
             self.success(f'Email sent to admins')
         else:
             self.success(f'All index events are up to date')
+
+        ping_heartbeat("HEARTBEAT_CHECK_CRAWLING_URL")
