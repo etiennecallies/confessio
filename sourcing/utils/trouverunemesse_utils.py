@@ -19,6 +19,8 @@ class TrouverUneMesseChurch(BaseModel):
     code_postal: str | None
     street: str | None = None
     location: TrouverUneMesseLocation
+    messesinfo_id: str | None = None
+    last_update: datetime | None = None
 
 
 def get_headers() -> dict:
@@ -63,7 +65,8 @@ def fetch_trouverunemesse_by_slug(trouverunemesse_slug: str) -> TrouverUneMesseC
     """
     https://api.trouverunemesse.fr/redoc#tag/localities/operation/get_locality_details_locality_slugs__slug__get
     """
-    url = f'https://api.trouverunemesse.fr/locality-slugs/{trouverunemesse_slug}?fields=location'
+    url = (f'https://api.trouverunemesse.fr/locality-slugs/{trouverunemesse_slug}?'
+           f'fields=location,messes_info')
 
     data = fetch_trouverunemesse(url)
     if not data:
@@ -72,14 +75,20 @@ def fetch_trouverunemesse_by_slug(trouverunemesse_slug: str) -> TrouverUneMesseC
     if 'canonical_slug' in data:
         data['slug'] = data.pop('canonical_slug')
 
+    if 'messes_info' in data:
+        data['messesinfo_id'] = data.pop('messes_info', {}).get('path')
+
     return TrouverUneMesseChurch(**data)
 
 
 def fetch_by_last_update(min_last_update: datetime | None = None, page: int = 1
                          ) -> list[TrouverUneMesseChurch]:
+    """
+    https://api.trouverunemesse.fr/redoc#tag/localities/operation/get_localities_by_last_update_date_localities_by_last_update_date_get
+    """
     url = f'https://api.trouverunemesse.fr/localities/by_last_update_date?page={page}'
     if min_last_update:
-        url += f'&min_last_update={min_last_update.isoformat()}'
+        url += f'&min_last_update={min_last_update.isoformat().replace('+00:00', 'Z')}'
     data = fetch_trouverunemesse(url)
     if not data:
         return []

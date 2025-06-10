@@ -36,3 +36,7 @@
       command: "clean_database"
       hour: "23"
       minute: 0
+    - name: daily_sync_trouverunemesse
+      command: "sync_trouverunemesse -t 2400"
+      hour: "23"
+      minute: 15

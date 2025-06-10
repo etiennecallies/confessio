@@ -131,6 +131,7 @@ class Church(TimeStampMixin):
     wikidata_id = models.CharField(max_length=100, null=True, unique=True, blank=True)
     trouverunemesse_id = models.UUIDField(null=True, unique=True, blank=True)
     trouverunemesse_slug = models.CharField(max_length=200, null=True, unique=True, blank=True)
+    trouverunemesse_updated_at = models.DateTimeField(null=True, blank=True)
     parish = models.ForeignKey('Parish', on_delete=models.CASCADE,
                                related_name='churches')
     is_active = models.BooleanField(default=True)

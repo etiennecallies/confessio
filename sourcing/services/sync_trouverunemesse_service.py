@@ -3,7 +3,8 @@ from django.contrib.gis.geos import Point
 from home.models import Church, ChurchModeration, ExternalSource
 from sourcing.services.church_human_service import church_location_has_been_checked_by_human
 from sourcing.utils.geo_utils import get_geo_distance
-from sourcing.utils.trouverunemesse_utils import fetch_trouverunemesse_by_messesinfo_id
+from sourcing.utils.trouverunemesse_utils import fetch_trouverunemesse_by_messesinfo_id, \
+    TrouverUneMesseChurch, fetch_trouverunemesse_by_slug
 
 
 def add_church_moderation_if_not_exists(church_moderation: ChurchModeration):
@@ -17,7 +18,8 @@ def add_church_moderation_if_not_exists(church_moderation: ChurchModeration):
         church_moderation.save()
 
 
-def sync_trouverunemesse_for_church(church: Church):
+def sync_trouverunemesse_for_church(church: Church
+                                    ) -> tuple[bool | None, bool | None]:
     if church.trouverunemesse_slug:
         print(f"Church {church.name} already has a trouverunemesse_slug, skipping sync.")
         return None
@@ -34,6 +36,16 @@ def sync_trouverunemesse_for_church(church: Church):
     church.trouverunemesse_id = trouverunemesse_church.id
     church.trouverunemesse_slug = trouverunemesse_church.slug
     church.save()
+
+    return sync_trouverunemesse_location_and_name(church, trouverunemesse_church)
+
+
+def sync_trouverunemesse_location_and_name(church: Church,
+                                           trouverunemesse_church: TrouverUneMesseChurch
+                                           ) -> tuple[bool | None, bool | None]:
+    if trouverunemesse_church.street is None:
+        print(f"Church {church.name} has no street in trouverunemesse, reloading it.")
+        trouverunemesse_church = fetch_trouverunemesse_by_slug(trouverunemesse_church.slug)
 
     location_moderation_added = None
     name_moderation_added = None
