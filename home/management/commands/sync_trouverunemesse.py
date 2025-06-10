@@ -3,6 +3,7 @@ import time
 from django.db.models import Max
 
 from home.management.abstract_command import AbstractCommand
+from home.management.utils.heartbeat_utils import ping_heartbeat
 from home.models import Church
 from sourcing.services.sync_trouverunemesse_service import sync_trouverunemesse_for_church, \
     sync_trouverunemesse_location_and_name
@@ -131,4 +132,6 @@ class Command(AbstractCommand):
                     pass
 
             page += 1
+
+        ping_heartbeat("HEARTBEAT_TROUVERUNEMESSE_URL")
         self.success(f'Successfully imported churches from trouverunemesse.')

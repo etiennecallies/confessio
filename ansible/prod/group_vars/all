@@ -66,3 +66,6 @@ google_maps_api_key: "{{ lookup('ansible.builtin.env', 'PROD_GOOGLE_MAPS_API_KEY
 trouverunemesse_api_key: "{{ lookup('ansible.builtin.env', 'TROUVERUNEMESSE_API_KEY') }}"
 trouverunemesse_username: "{{ lookup('ansible.builtin.env', 'TROUVERUNEMESSE_USERNAME') }}"
 trouverunemesse_password: "{{ lookup('ansible.builtin.env', 'TROUVERUNEMESSE_PASSWORD') }}"
+
+# Heartbeats
+heartbeat_trouverunemesse_url: "{{ lookup('ansible.builtin.env', 'HEARTBEAT_TROUVERUNEMESSE_URL') }}"
