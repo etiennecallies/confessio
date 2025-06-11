@@ -4,10 +4,14 @@ from uuid import UUID
 from django.db.models import Exists, OuterRef
 from ninja import NinjaAPI, Schema, Field
 
-from home.models import Church, ChurchModeration
+from home.models import Church, ChurchModeration, Parish, Website
 
 api = NinjaAPI(urls_namespace='main_api')
 
+
+############
+# CHURCHES #
+############
 
 class ChurchOut(Schema):
     uuid: UUID
@@ -74,3 +78,77 @@ def api_churches(request, limit: int = 10, offset: int = 0, updated_from: dateti
     churches = church_query.order_by('updated_at').all()[offset:offset + limit]
 
     return list(map(ChurchOut.from_church, churches))
+
+
+############
+# PARISHES #
+############
+
+class ParishOut(Schema):
+    uuid: UUID
+    name: str
+    messesinfo_id: str | None
+    website_uuid: UUID | None
+    created_at: datetime
+    updated_at: datetime
+
+    @classmethod
+    def from_parish(cls, parish: Parish):
+        return cls(
+            uuid=parish.uuid,
+            name=parish.name,
+            messesinfo_id=parish.messesinfo_community_id,
+            website_uuid=parish.website.uuid if parish.website else None,
+            created_at=parish.created_at,
+            updated_at=parish.updated_at,
+        )
+
+
+@api.get("/parishes", response=list[ParishOut])
+def api_parishes(request, limit: int = 10, offset: int = 0, updated_from: datetime = None
+                 ) -> list[ParishOut]:
+    limit = max(0, min(100, limit))
+    offset = max(0, offset)
+
+    parish_query = Parish.objects
+    if updated_from:
+        parish_query = parish_query.filter(updated_at__gte=updated_from)
+    parishes = parish_query.order_by('updated_at').all()[offset:offset + limit]
+
+    return list(map(ParishOut.from_parish, parishes))
+
+
+############
+# WEBSITES #
+############
+
+class WebsiteOut(Schema):
+    uuid: UUID
+    name: str
+    home_url: str
+    created_at: datetime
+    updated_at: datetime
+
+    @classmethod
+    def from_website(cls, website: Website):
+        return cls(
+            uuid=website.uuid,
+            name=website.name,
+            home_url=website.home_url,
+            created_at=website.created_at,
+            updated_at=website.updated_at,
+        )
+
+
+@api.get("/websites", response=list[WebsiteOut])
+def api_websites(request, limit: int = 10, offset: int = 0, updated_from: datetime = None
+                 ) -> list[WebsiteOut]:
+    limit = max(0, min(100, limit))
+    offset = max(0, offset)
+
+    website_query = Website.objects
+    if updated_from:
+        website_query = website_query.filter(updated_at__gte=updated_from)
+    websites = website_query.order_by('updated_at').all()[offset:offset + limit]
+
+    return list(map(WebsiteOut.from_website, websites))
