@@ -15,8 +15,8 @@ class ExplainSchedulesTests(unittest.TestCase):
                     church_id=None,
                     date_rule=RegularRule(
                         rrule='DTSTART:20240102\nRRULE:FREQ=WEEKLY;BYDAY=TU,WE,TH,FR',
-                        include_periods=[],
-                        exclude_periods=[PeriodEnum.JULY, PeriodEnum.AUGUST]
+                        only_in_periods=[],
+                        not_in_periods=[PeriodEnum.JULY, PeriodEnum.AUGUST]
                     ),
                     is_cancellation=False,
                     start_time_iso8601='17:30:00',
@@ -78,8 +78,8 @@ class ExplainSchedulesTests(unittest.TestCase):
                     church_id=None,
                     date_rule=RegularRule(
                         rrule='DTSTART:20240105T210000\nRRULE:FREQ=MONTHLY;BYDAY=FR;BYSETPOS=1',
-                        include_periods=[],
-                        exclude_periods=[]
+                        only_in_periods=[],
+                        not_in_periods=[]
                     ),
                     is_cancellation=False,
                     start_time_iso8601='21:00:00',
@@ -92,8 +92,8 @@ class ExplainSchedulesTests(unittest.TestCase):
                     church_id=None,
                     date_rule=RegularRule(
                         rrule='DTSTART:20240616T160000\nRRULE:FREQ=MONTHLY;BYMONTHDAY=16',
-                        include_periods=[],
-                        exclude_periods=[]
+                        only_in_periods=[],
+                        not_in_periods=[]
                     ),
                     is_cancellation=False,
                     start_time_iso8601='16:00:00',
@@ -122,8 +122,8 @@ class ExplainSchedulesTests(unittest.TestCase):
                     church_id=None,
                     date_rule=RegularRule(
                         rrule='DTSTART:20000101\nRRULE:FREQ=MONTHLY;BYDAY=1SA,3SA,5SA',
-                        include_periods=[],
-                        exclude_periods=[PeriodEnum.SCHOOL_HOLIDAYS]
+                        only_in_periods=[],
+                        not_in_periods=[PeriodEnum.SCHOOL_HOLIDAYS]
                     ),
                     is_cancellation=False,
                     start_time_iso8601=None,

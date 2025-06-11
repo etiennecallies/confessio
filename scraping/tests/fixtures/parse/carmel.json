@@ -13,8 +13,8 @@
           "is_cancellation": false,
           "date_rule": {
             "rrule": "DTSTART:20240105\nRRULE:FREQ=WEEKLY;BYDAY=FR",
-            "include_periods": [],
-            "exclude_periods": []
+            "only_in_periods": [],
+            "not_in_periods": []
           },
           "start_time_iso8601": "17:00:00",
           "end_time_iso8601": "18:30:00"
@@ -24,8 +24,8 @@
           "is_cancellation": false,
           "date_rule": {
             "rrule": "DTSTART:20240106\nRRULE:FREQ=WEEKLY;BYDAY=SA",
-            "include_periods": [],
-            "exclude_periods": []
+            "only_in_periods": [],
+            "not_in_periods": []
           },
           "start_time_iso8601": "11:00:00",
           "end_time_iso8601": "12:30:00"

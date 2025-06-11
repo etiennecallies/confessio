@@ -91,11 +91,11 @@ Here is the regular date rule format:
     "rrule": str,  # the recurrence rule for the confession. For example "DTSTART:20000101
 RRULE:FREQ=WEEKLY;BYDAY=WE" for "confession les mercredis de 10h30 à 11h30".
         By default, set 2000 as the year.
-    "include_periods": list[PeriodEnum],  # the year periods when the rrule applied. For
+    "only_in_periods": list[PeriodEnum],  # the year periods when the rrule applied. For
         example, if the confession is only during the school holidays, the list would be
         ['school_holidays']. If the expression says "durant l'été", the list would be
         ['july', 'august'].
-    "exclude_periods": list[PeriodEnum]  # the year periods excluded. For example, if the
+    "not_in_periods": list[PeriodEnum]  # the year periods excluded. For example, if the
         confession is only during the school terms, the list would be ['school_holidays']. If the
         expression says "sauf pendant le carême", the list would be ['lent'].
 }}
@@ -109,14 +109,14 @@ For example, for "tous les jours sauf en août de 10h à 10h30", the regular dat
 {{
     "rrule": "DTSTART:20000101
 RRULE:FREQ=DAILY",
-    "include_periods": [],
-    "exclude_periods": ["august"]
+    "only_in_periods": [],
+    "not_in_periods": ["august"]
 }}
 For "tous les jours sauf en août" without any time, do not return a schedule item dictionary.
 
 Some details:
 - EXDATE is not accepted in python rrule, so please do not include it in the rrule, use
-    the "exclude_periods" field instead
+    the "not_in_periods" field instead
 - rrule must start with "DTSTART:some date", e.g. "DTSTART:20000101"
 - if a recurring event description is vague (e.g. "une fois par mois") and is followed by a list of
 dates, prefer to return a list of one-off date rules instead of a regular date rule.
@@ -248,8 +248,8 @@ if __name__ == '__main__':
     # church_id=1
     # rrule='DTSTART:20240101T170000\nRRULE:FREQ=DAILY;BYHOUR=17;BYMINUTE=0'
     # duration_in_minutes=60
-    # include_periods=[]
-    # exclude_periods=[<PeriodEnum.AUGUST: 'august'>]
+    # only_in_periods=[]
+    # not_in_periods=[<PeriodEnum.AUGUST: 'august'>]
     # {'possible_by_appointment': True, 'is_related_to_mass': False,
     # 'is_related_to_adoration': False, 'is_related_to_permanence': False,
     # 'will_be_seasonal_events': False}

@@ -13,8 +13,8 @@
           "is_cancellation": false,
           "date_rule": {
             "rrule": "DTSTART:20240102T110000\nRRULE:FREQ=WEEKLY;BYDAY=TU",
-            "include_periods": [],
-            "exclude_periods": []
+            "only_in_periods": [],
+            "not_in_periods": []
           },
           "start_time_iso8601": "11:00:00",
           "end_time_iso8601": "12:15:00"
@@ -24,8 +24,8 @@
           "is_cancellation": false,
           "date_rule": {
             "rrule": "DTSTART:20240104T170000\nRRULE:FREQ=WEEKLY;BYDAY=TH",
-            "include_periods": [],
-            "exclude_periods": []
+            "only_in_periods": [],
+            "not_in_periods": []
           },
           "start_time_iso8601": "17:00:00",
           "end_time_iso8601": "18:00:00"
@@ -35,8 +35,8 @@
           "is_cancellation": false,
           "date_rule": {
             "rrule": "DTSTART:20240106T170000\nRRULE:FREQ=WEEKLY;BYDAY=SA",
-            "include_periods": [],
-            "exclude_periods": []
+            "only_in_periods": [],
+            "not_in_periods": []
           },
           "start_time_iso8601": "17:00:00",
           "end_time_iso8601": "18:00:00"
@@ -46,8 +46,8 @@
           "is_cancellation": false,
           "date_rule": {
             "rrule": "DTSTART:20240103T110000\nRRULE:FREQ=WEEKLY;BYDAY=WE,FR",
-            "include_periods": [],
-            "exclude_periods": []
+            "only_in_periods": [],
+            "not_in_periods": []
           },
           "start_time_iso8601": "11:00:00",
           "end_time_iso8601": "12:15:00"
@@ -57,8 +57,8 @@
           "is_cancellation": false,
           "date_rule": {
             "rrule": "DTSTART:20240103T170000\nRRULE:FREQ=WEEKLY;BYDAY=WE,FR",
-            "include_periods": [],
-            "exclude_periods": []
+            "only_in_periods": [],
+            "not_in_periods": []
           },
           "start_time_iso8601": "17:00:00",
           "end_time_iso8601": "19:00:00"
@@ -68,8 +68,8 @@
           "is_cancellation": false,
           "date_rule": {
             "rrule": "DTSTART:20240102T100000\nRRULE:FREQ=WEEKLY;BYDAY=TU,WE,TH,FR",
-            "include_periods": [],
-            "exclude_periods": []
+            "only_in_periods": [],
+            "not_in_periods": []
           },
           "start_time_iso8601": "10:00:00",
           "end_time_iso8601": "12:00:00"
@@ -79,8 +79,8 @@
           "is_cancellation": false,
           "date_rule": {
             "rrule": "DTSTART:20240101T143000\nRRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR",
-            "include_periods": [],
-            "exclude_periods": []
+            "only_in_periods": [],
+            "not_in_periods": []
           },
           "start_time_iso8601": "14:30:00",
           "end_time_iso8601": "16:00:00"
@@ -90,8 +90,8 @@
           "is_cancellation": false,
           "date_rule": {
             "rrule": "DTSTART:20240101T170000\nRRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR",
-            "include_periods": [],
-            "exclude_periods": []
+            "only_in_periods": [],
+            "not_in_periods": []
           },
           "start_time_iso8601": "17:00:00",
           "end_time_iso8601": "19:00:00"
@@ -101,8 +101,8 @@
           "is_cancellation": false,
           "date_rule": {
             "rrule": "DTSTART:20240106T100000\nRRULE:FREQ=WEEKLY;BYDAY=SA",
-            "include_periods": [],
-            "exclude_periods": []
+            "only_in_periods": [],
+            "not_in_periods": []
           },
           "start_time_iso8601": "10:00:00",
           "end_time_iso8601": "12:00:00"
@@ -112,8 +112,8 @@
           "is_cancellation": false,
           "date_rule": {
             "rrule": "DTSTART:20240105T090000\nRRULE:FREQ=WEEKLY;BYDAY=FR",
-            "include_periods": [],
-            "exclude_periods": []
+            "only_in_periods": [],
+            "not_in_periods": []
           },
           "start_time_iso8601": "09:00:00",
           "end_time_iso8601": "09:30:00"
@@ -123,8 +123,8 @@
           "is_cancellation": false,
           "date_rule": {
             "rrule": "DTSTART:20240102T170000\nRRULE:FREQ=WEEKLY;BYDAY=TU,WE,TH,FR",
-            "include_periods": [],
-            "exclude_periods": []
+            "only_in_periods": [],
+            "not_in_periods": []
           },
           "start_time_iso8601": "17:00:00",
           "end_time_iso8601": "19:00:00"
@@ -134,8 +134,8 @@
           "is_cancellation": false,
           "date_rule": {
             "rrule": "DTSTART:20240106T100000\nRRULE:FREQ=WEEKLY;BYDAY=SA",
-            "include_periods": [],
-            "exclude_periods": []
+            "only_in_periods": [],
+            "not_in_periods": []
           },
           "start_time_iso8601": "10:00:00",
           "end_time_iso8601": "12:00:00"
@@ -145,8 +145,8 @@
           "is_cancellation": false,
           "date_rule": {
             "rrule": "DTSTART:20240107T170000\nRRULE:FREQ=WEEKLY;BYDAY=SU",
-            "include_periods": [],
-            "exclude_periods": []
+            "only_in_periods": [],
+            "not_in_periods": []
           },
           "start_time_iso8601": "17:00:00",
           "end_time_iso8601": "18:00:00"
@@ -156,8 +156,8 @@
           "is_cancellation": false,
           "date_rule": {
             "rrule": "DTSTART:20240107T183000\nRRULE:FREQ=WEEKLY;BYDAY=SU",
-            "include_periods": [],
-            "exclude_periods": []
+            "only_in_periods": [],
+            "not_in_periods": []
           },
           "start_time_iso8601": "18:30:00",
           "end_time_iso8601": "20:00:00"
@@ -167,8 +167,8 @@
           "is_cancellation": false,
           "date_rule": {
             "rrule": "DTSTART:20240101T173000\nRRULE:FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR",
-            "include_periods": [],
-            "exclude_periods": []
+            "only_in_periods": [],
+            "not_in_periods": []
           },
           "start_time_iso8601": "17:30:00",
           "end_time_iso8601": "18:15:00"
@@ -178,8 +178,8 @@
           "is_cancellation": false,
           "date_rule": {
             "rrule": "DTSTART:20240108T094500\nRRULE:FREQ=WEEKLY;BYDAY=SA",
-            "include_periods": [],
-            "exclude_periods": []
+            "only_in_periods": [],
+            "not_in_periods": []
           },
           "start_time_iso8601": "09:45:00",
           "end_time_iso8601": "10:45:00"
@@ -189,8 +189,8 @@
           "is_cancellation": false,
           "date_rule": {
             "rrule": "DTSTART:20240101T090000\nRRULE:FREQ=DAILY",
-            "include_periods": [],
-            "exclude_periods": []
+            "only_in_periods": [],
+            "not_in_periods": []
           },
           "start_time_iso8601": "09:00:00",
           "end_time_iso8601": "11:00:00"
@@ -200,8 +200,8 @@
           "is_cancellation": false,
           "date_rule": {
             "rrule": "DTSTART:20240101T153000\nRRULE:FREQ=DAILY",
-            "include_periods": [],
-            "exclude_periods": []
+            "only_in_periods": [],
+            "not_in_periods": []
           },
           "start_time_iso8601": "15:30:00",
           "end_time_iso8601": "17:30:00"

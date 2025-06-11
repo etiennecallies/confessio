@@ -17,8 +17,8 @@
           "church_id": null,
           "date_rule": {
             "rrule": "DTSTART:20000101\nRRULE:FREQ=MONTHLY;BYDAY=1SA,3SA,5SA",
-            "include_periods": [],
-            "exclude_periods": [
+            "only_in_periods": [],
+            "not_in_periods": [
               "school_holidays"
             ]
           },

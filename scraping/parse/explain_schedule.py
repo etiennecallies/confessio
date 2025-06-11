@@ -1,46 +1,10 @@
 from datetime import datetime
-from enum import Enum
-
-from dateutil.rrule import rrulestr, rrule
 
 from home.utils.date_utils import format_datetime_with_locale
 from home.utils.list_utils import enumerate_with_and
 from scraping.parse.periods import PeriodEnum, get_liturgical_date, LiturgicalDayEnum
-from scraping.parse.schedules import ScheduleItem, OneOffRule, RegularRule
-
-
-#########
-# ENUMS #
-#########
-
-class Frequency(Enum):
-    YEARLY = 0
-    MONTHLY = 1
-    WEEKLY = 2
-    DAILY = 3
-    HOURLY = 4
-    MINUTELY = 5
-    SECONDLY = 6
-
-
-class Weekday(Enum):
-    MONDAY = 0
-    TUESDAY = 1
-    WEDNESDAY = 2
-    THURSDAY = 3
-    FRIDAY = 4
-    SATURDAY = 5
-    SUNDAY = 6
-
-
-class Position(Enum):
-    FIRST = 1
-    SECOND = 2
-    THIRD = 3
-    FOURTH = 4
-    FIFTH = 5
-    LAST = -1
-
+from scraping.parse.schedules import (ScheduleItem, OneOffRule, RegularRule, Weekday, Position,
+                                      WeeklyRule, MonthlyRule)
 
 ################
 # TRANSLATIONS #
@@ -121,10 +85,10 @@ def get_name_by_period(period: PeriodEnum) -> str:
     return f'en {NAME_BY_MONTH[period]}'
 
 
-def get_weekly_explanation(rstr: rrule) -> str:
+def get_weekly_explanation(weekly_rule: WeeklyRule) -> str:
     prefix = "toutes les semaines"
 
-    weekdays = [NAME_BY_WEEKDAY[Weekday(w)] for w in rstr._byweekday]
+    weekdays = [NAME_BY_WEEKDAY[w] for w in weekly_rule.by_weekdays]
 
     if not weekdays:
         raise ValueError("No weekday in weekly rrule")
@@ -134,45 +98,20 @@ def get_weekly_explanation(rstr: rrule) -> str:
     return f"{prefix} {article} {enumerate_with_and(weekdays)}"
 
 
-def get_daily_explanation(rstr: rrule) -> str:
-    if rstr._until:
-        raise ValueError("Until date in daily rrule not implemented yet")
-
+def get_daily_explanation() -> str:
     return "tous les jours"
 
 
-def get_monthly_explanation(rstr: rrule) -> str:
-    if rstr._bymonthday:
-        if len(rstr._bymonthday) > 1:
-            raise ValueError("Multiple month days in monthly rrule not implemented yet")
+def get_monthly_explanation(monthly_rule: MonthlyRule) -> str:
+    if not monthly_rule.by_nweekdays:
+        raise ValueError("No nweekday in monthly rule")
 
-        return f"le {rstr._bymonthday[0]} du mois"
+    items = []
+    for nweekday in monthly_rule.by_nweekdays:
+        items.append(f"le {NAME_BY_POSITION[nweekday.position]} "
+                     f"{NAME_BY_WEEKDAY[nweekday.weekday]}")
 
-    if rstr._bynweekday:
-        items = []
-        for weekday, position in rstr._bynweekday:
-            if position == 0:
-                raise ValueError("Position 0 in monthly rrule not implemented yet")
-
-            items.append(f"le {NAME_BY_POSITION[Position(position)]} "
-                         f"{NAME_BY_WEEKDAY[Weekday(weekday)]}")
-
-        return f"{enumerate_with_and(items)} du mois"
-
-    if not rstr._byweekday:
-        raise ValueError("No weekday in monthly rrule")
-    by_days = [Weekday(w) for w in rstr._byweekday]
-
-    if len(by_days) > 1:
-        raise ValueError("Multiple weekdays in monthly rrule not implemented yet")
-
-    if not rstr._bysetpos:
-        raise ValueError("No set position in monthly rrule")
-    by_set_positions = [NAME_BY_POSITION[Position(p)] for p in rstr._bysetpos]
-
-    article = "le" if len(by_set_positions) == 1 else "les"
-
-    return f"{article} {enumerate_with_and(by_set_positions)} {NAME_BY_WEEKDAY[by_days[0]]} du mois"
+    return f"{enumerate_with_and(items)} du mois"
 
 
 def get_one_off_explanation(one_off_rule: OneOffRule) -> str:
@@ -222,20 +161,14 @@ def get_explanation_from_schedule(schedule: ScheduleItem) -> str:
         explanation += "pas de confessions "
 
     if schedule.is_regular_rule():
-        rstr = rrulestr(schedule.date_rule.rrule)
-
-        if not rstr._dtstart:
-            raise ValueError("No start date in rrule")
-
-        frequency = Frequency(rstr._freq)
-        if frequency == Frequency.WEEKLY or (frequency == Frequency.DAILY and rstr._byweekday):
-            explanation += get_weekly_explanation(rstr)
-        elif frequency == Frequency.DAILY:
-            explanation += get_daily_explanation(rstr)
-        elif frequency == Frequency.MONTHLY:
-            explanation += get_monthly_explanation(rstr)
+        if schedule.date_rule.is_weekly_rule():
+            explanation += get_weekly_explanation(schedule.date_rule.rule)
+        elif schedule.date_rule.is_daily_rule():
+            explanation += get_daily_explanation()
+        elif schedule.date_rule.is_monthly_rule():
+            explanation += get_monthly_explanation(schedule.date_rule.rule)
         else:
-            raise ValueError(f"Frequency {frequency} not implemented yet")
+            raise ValueError(f"Frequency not implemented yet")
 
     elif schedule.is_one_off_rule():
         explanation += get_one_off_explanation(schedule.date_rule)
@@ -243,13 +176,17 @@ def get_explanation_from_schedule(schedule: ScheduleItem) -> str:
     explanation += get_time_explanation(schedule)
 
     if schedule.is_regular_rule():
-        if schedule.date_rule.include_periods:
-            periods = [get_name_by_period(p) for p in schedule.date_rule.include_periods]
+        if schedule.date_rule.only_in_periods:
+            periods = [get_name_by_period(p) for p in schedule.date_rule.only_in_periods]
             explanation = f"{enumerate_with_and(periods)}, {explanation}"
 
-        if schedule.date_rule.exclude_periods:
-            periods = [get_name_by_period(p) for p in schedule.date_rule.exclude_periods]
+        if schedule.date_rule.not_in_periods:
+            periods = [get_name_by_period(p) for p in schedule.date_rule.not_in_periods]
             explanation += f", sauf {enumerate_with_and(periods)}"
+
+        if schedule.date_rule.not_on_dates:
+            not_on_dates = [get_one_off_explanation(d) for d in schedule.date_rule.not_on_dates]
+            explanation += f", sauf {enumerate_with_and(not_on_dates)}"
 
     return f"{explanation.capitalize()}."
 
@@ -258,12 +195,40 @@ def get_explanation_from_schedule(schedule: ScheduleItem) -> str:
 # SORTING #
 ###########
 
+def get_frequency_key(regular_rule: RegularRule) -> int:
+    if regular_rule.is_daily_rule():
+        return 0
+    if regular_rule.is_weekly_rule():
+        return 1
+    if regular_rule.is_monthly_rule():
+        return 2
+
+    raise ValueError(f"Frequency not implemented yet")
+
+
+POSITION_BY_WEEKDAY = {
+    Weekday.MONDAY: 0,
+    Weekday.TUESDAY: 1,
+    Weekday.WEDNESDAY: 2,
+    Weekday.THURSDAY: 3,
+    Weekday.FRIDAY: 4,
+    Weekday.SATURDAY: 5,
+    Weekday.SUNDAY: 6,
+}
+
+
+def get_weekdays_key(regular_rule: RegularRule) -> tuple:
+    if isinstance(regular_rule, WeeklyRule):
+        return tuple(POSITION_BY_WEEKDAY[w] for w in regular_rule.by_weekdays)
+
+    return tuple()
+
+
 def regular_rule_sort_key(regular_rule: RegularRule) -> tuple:
-    rstr = rrulestr(regular_rule.rrule)
     return (
-        Frequency(rstr._freq).value,
-        len(rstr._byweekday) if rstr._byweekday else 0,
-        tuple(Weekday(w).value for w in rstr._byweekday) if rstr._byweekday else (),
+        get_frequency_key(regular_rule),
+        len(regular_rule.by_weekdays) if isinstance(regular_rule, WeeklyRule) else 0,
+        get_weekdays_key(regular_rule),
     )
 
 

@@ -104,6 +104,10 @@ class PeriodEnum(str, Enum):
     DECEMBER = 'december'
 
     # Seasons
+    SUMMER = 'summer'
+    WINTER = 'winter'
+
+    # Liturgical seasons
     ADVENT = 'advent'
     LENT = 'lent'
 

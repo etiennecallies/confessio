@@ -14,8 +14,8 @@
           "is_cancellation": false,
           "date_rule": {
             "rrule": "DTSTART:20240106\nRRULE:FREQ=WEEKLY;BYDAY=SA",
-            "include_periods": [],
-            "exclude_periods": []
+            "only_in_periods": [],
+            "not_in_periods": []
           },
           "start_time_iso8601": "09:30:00",
           "end_time_iso8601": "11:30:00"

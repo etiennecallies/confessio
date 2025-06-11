@@ -14,8 +14,8 @@
           "is_cancellation": false,
           "date_rule": {
             "rrule": "DTSTART:20240101\nRRULE:FREQ=DAILY",
-            "include_periods": [],
-            "exclude_periods": [
+            "only_in_periods": [],
+            "not_in_periods": [
               "august"
             ]
           },

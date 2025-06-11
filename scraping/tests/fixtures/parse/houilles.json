@@ -16,8 +16,8 @@
           "church_id": 5,
           "date_rule": {
             "rrule": "DTSTART:20000101\nRRULE:FREQ=WEEKLY;BYDAY=WE",
-            "include_periods": [],
-            "exclude_periods": [
+            "only_in_periods": [],
+            "not_in_periods": [
               "school_holidays",
               "lent"
             ]
@@ -30,8 +30,8 @@
           "church_id": 5,
           "date_rule": {
             "rrule": "DTSTART:20000101\nRRULE:FREQ=WEEKLY;BYDAY=FR",
-            "include_periods": [],
-            "exclude_periods": [
+            "only_in_periods": [],
+            "not_in_periods": [
               "school_holidays",
               "lent"
             ]
@@ -44,8 +44,8 @@
           "church_id": 5,
           "date_rule": {
             "rrule": "DTSTART:20000101\nRRULE:FREQ=WEEKLY;BYDAY=SA",
-            "include_periods": [],
-            "exclude_periods": [
+            "only_in_periods": [],
+            "not_in_periods": [
               "school_holidays",
               "lent"
             ]

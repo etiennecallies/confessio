@@ -18,8 +18,8 @@ class GenerateEventsTests(unittest.TestCase):
                         church_id=None,
                         date_rule=RegularRule(
                             rrule='DTSTART:20000101\nRRULE:FREQ=MONTHLY;BYDAY=1SA,3SA,5SA',
-                            include_periods=[PeriodEnum.JANUARY, PeriodEnum.FEBRUARY],
-                            exclude_periods=[]
+                            only_in_periods=[PeriodEnum.JANUARY, PeriodEnum.FEBRUARY],
+                            not_in_periods=[]
                         ),
                         is_cancellation=False,
                         start_time_iso8601='16:00:00',
@@ -42,8 +42,8 @@ class GenerateEventsTests(unittest.TestCase):
                         church_id=None,
                         date_rule=RegularRule(
                             rrule='DTSTART:20000101\r\nRRULE:FREQ=WEEKLY;BYDAY=FR',
-                            include_periods=[],
-                            exclude_periods=[]
+                            only_in_periods=[],
+                            not_in_periods=[]
                         ),
                         is_cancellation=False,
                         start_time_iso8601='17:00:00',

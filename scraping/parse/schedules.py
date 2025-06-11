@@ -1,4 +1,5 @@
 from datetime import datetime, time, date
+from enum import Enum
 from typing import Optional
 
 from pydantic import BaseModel, model_validator, Field
@@ -53,20 +54,68 @@ class OneOffRule(BaseModel, frozen=True):
         return date(year, self.month, self.day)
 
 
+###############
+# RRULE ENUMS #
+###############
+
+class Weekday(Enum):
+    MONDAY = 'monday'
+    TUESDAY = 'tuesday'
+    WEDNESDAY = 'wednesday'
+    THURSDAY = 'thursday'
+    FRIDAY = 'friday'
+    SATURDAY = 'saturday'
+    SUNDAY = 'sunday'
+
+
+class Position(Enum):
+    FIRST = 1
+    SECOND = 2
+    THIRD = 3
+    FOURTH = 4
+    FIFTH = 5
+    LAST = -1
+
+
+class NWeekday(BaseModel, frozen=True):
+    weekday: Weekday
+    position: Position
+
+
+class DailyRule(BaseModel, frozen=True):
+    pass
+
+
+class WeeklyRule(BaseModel, frozen=True):
+    by_weekdays: list[Weekday] = Field(..., description='table')
+
+
+class MonthlyRule(BaseModel, frozen=True):
+    by_nweekdays: list[NWeekday]
+
+
 class RegularRule(BaseModel, frozen=True):
-    rrule: str = Field(..., description='textarea')
-    include_periods: list[PeriodEnum] = Field(...,
-                                              description='table')
-    exclude_periods: list[PeriodEnum] = Field(...,
-                                              description='table')
+    rule: DailyRule | WeeklyRule | MonthlyRule
+    only_in_periods: list[PeriodEnum] = Field(..., description='table')
+    not_in_periods: list[PeriodEnum] = Field(..., description='table')
+    not_on_dates: list[OneOffRule] = Field(..., description='table')
 
     def __hash__(self):
-        """It would have been simpler to use tuple instead of list for include_periods and
-        exclude_periods, but openapi schema generation does not support tuple (for now)."""
+        """It would have been simpler to use tuple instead of list for only_in_periods and
+        not_in_periods, but openapi schema generation does not support tuple (for now)."""
         return hash((
-            tuple(sorted(self.model_dump(exclude={'include_periods', 'exclude_periods'}).items())),
-            tuple(self.include_periods), tuple(self.exclude_periods)
+            tuple(sorted(self.model_dump(exclude={'only_in_periods', 'not_in_periods'}).items())),
+            tuple(self.only_in_periods), tuple(self.not_in_periods)
         ))
+
+    def is_daily_rule(self) -> bool:
+        return isinstance(self.rule, DailyRule)
+
+    def is_weekly_rule(self) -> bool:
+        return isinstance(self.rule, WeeklyRule)
+
+    def is_monthly_rule(self) -> bool:
+        return isinstance(self.rule, MonthlyRule)
 
 
 class ScheduleItem(BaseModel, frozen=True):
