@@ -10,9 +10,9 @@ from scraping.parse.periods import add_exrules
 from scraping.parse.schedules import ScheduleItem, SchedulesList, Event, RegularRule, WeeklyRule, \
     Weekday, MonthlyRule
 
-#####################
-# EVENTS GENERATION #
-#####################
+####################
+# RRULE GENERATION #
+####################
 
 BYDAY_BY_WEEKDAY = {
     Weekday.MONDAY: 'MO',
@@ -75,6 +75,10 @@ def get_rruleset_from_schedule(schedule: ScheduleItem, default_year: int,
 
     return rset
 
+
+#####################
+# EVENTS GENERATION #
+#####################
 
 def get_events_from_schedule_item(schedule: ScheduleItem,
                                   start_date: date,
