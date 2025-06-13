@@ -1,9 +1,9 @@
 from datetime import datetime
 
-from home.utils.date_utils import format_datetime_with_locale
+from home.utils.date_utils import format_datetime_with_locale, Weekday
 from home.utils.list_utils import enumerate_with_and
 from scraping.parse.periods import PeriodEnum, get_liturgical_date, LiturgicalDayEnum
-from scraping.parse.schedules import (ScheduleItem, OneOffRule, RegularRule, Weekday, Position,
+from scraping.parse.schedules import (ScheduleItem, OneOffRule, RegularRule, Position,
                                       WeeklyRule, MonthlyRule)
 
 ################
@@ -128,9 +128,8 @@ def get_one_off_explanation(one_off_rule: OneOffRule) -> str:
         full_date = NAME_BY_LITURGICAL_DAY[one_off_rule.liturgical_day]
     else:
         full_date = ''
-        if one_off_rule.weekday_iso8601:
-            weekday_python = one_off_rule.weekday_iso8601 - 1
-            full_date += f"{NAME_BY_WEEKDAY[Weekday(weekday_python)]} "
+        if one_off_rule.weekday:
+            full_date += f"{NAME_BY_WEEKDAY[one_off_rule.weekday]} "
         full_date += f"{one_off_rule.day} {NAME_BY_MONTH[PERIOD_BY_MONTH[one_off_rule.month]]}"
         if one_off_rule.year:
             full_date += f" {one_off_rule.year} (⚠️ date impossible)"

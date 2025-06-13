@@ -49,7 +49,7 @@
             "year": null,
             "month": 12,
             "day": 8,
-            "weekday_iso8601": 3,
+            "weekday": "wednesday",
             "liturgical_day": null
           },
           "is_cancellation": false,
@@ -62,7 +62,7 @@
             "year": null,
             "month": 4,
             "day": 6,
-            "weekday_iso8601": 3,
+            "weekday": "wednesday",
             "liturgical_day": null
           },
           "is_cancellation": false,

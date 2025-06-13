@@ -6,7 +6,7 @@ from typing import Optional
 from dateutil.rrule import rrulestr
 from pydantic import BaseModel, model_validator, Field
 
-from home.utils.date_utils import guess_year_from_weekday
+from home.utils.date_utils import guess_year_from_weekday, Weekday, get_python_weekday
 from scraping.parse.periods import PeriodEnum, LiturgicalDayEnum, get_liturgical_date
 
 
@@ -18,7 +18,7 @@ class OneOffRule(BaseModel, frozen=True):
     year: int | None
     month: int | None  # only nullable when liturgical_day is given
     day: int | None  # only nullable when liturgical_day is given
-    weekday_iso8601: int | None
+    weekday: Weekday | None
     liturgical_day: LiturgicalDayEnum | None
 
     def is_valid_date(self) -> bool:
@@ -35,8 +35,8 @@ class OneOffRule(BaseModel, frozen=True):
                     datetime(self.year, self.month, self.day)
 
                 # Check year and weekday
-                if self.year and self.weekday_iso8601 is not None:
-                    python_weekday = self.weekday_iso8601 - 1
+                if self.year and self.weekday is not None:
+                    python_weekday = get_python_weekday(self.weekday)
                     if datetime(self.year, self.month, self.day).weekday() != python_weekday:
                         raise ValueError(f'Invalid weekday for {self}')
 
@@ -49,9 +49,8 @@ class OneOffRule(BaseModel, frozen=True):
             return get_liturgical_date(self.liturgical_day, self.year or default_year)
 
         if not self.year:
-            if self.weekday_iso8601 is not None:
-                year = guess_year_from_weekday(default_year, self.month, self.day,
-                                               self.weekday_iso8601)
+            if self.weekday is not None:
+                year = guess_year_from_weekday(default_year, self.month, self.day, self.weekday)
             else:
                 year = default_year
         else:
@@ -63,16 +62,6 @@ class OneOffRule(BaseModel, frozen=True):
 ################
 # REGULAR RULE #
 ################
-
-class Weekday(Enum):
-    MONDAY = 'monday'
-    TUESDAY = 'tuesday'
-    WEDNESDAY = 'wednesday'
-    THURSDAY = 'thursday'
-    FRIDAY = 'friday'
-    SATURDAY = 'saturday'
-    SUNDAY = 'sunday'
-
 
 class Position(Enum):
     FIRST = 1
@@ -284,6 +273,10 @@ def temp_convert_date_rule_dict(old_dict: dict) -> OneOffRule | RegularRule:
         else:
             return RegularRule(**old_dict)
     else:
+        if 'weekday_iso8601' in old_dict:
+            weekday_iso8601 = old_dict.pop('weekday_iso8601')
+            old_dict['weekday'] = WEEKDAY_BY_INT[weekday_iso8601 - 1] \
+                if weekday_iso8601 is not None else None
         return OneOffRule(**old_dict)
 
 

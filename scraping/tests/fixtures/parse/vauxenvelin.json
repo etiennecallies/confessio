@@ -35,7 +35,7 @@
             "year": 2023,
             "month": 3,
             "day": 26,
-            "weekday_iso8601": 4,
+            "weekday": "thursday",
             "liturgical_day": null
           },
           "is_cancellation": false,

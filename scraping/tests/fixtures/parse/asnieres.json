@@ -16,7 +16,7 @@
             "year": null,
             "month": null,
             "day": null,
-            "weekday_iso8601": 5,
+            "weekday": "friday",
             "liturgical_day": "good_friday"
           },
           "is_cancellation": false,
@@ -29,7 +29,7 @@
             "year": null,
             "month": null,
             "day": null,
-            "weekday_iso8601": 5,
+            "weekday": "friday",
             "liturgical_day": "good_friday"
           },
           "is_cancellation": false,
@@ -42,7 +42,7 @@
             "year": null,
             "month": null,
             "day": null,
-            "weekday_iso8601": 6,
+            "weekday": "saturday",
             "liturgical_day": "holy_saturday"
           },
           "is_cancellation": false,
@@ -55,7 +55,7 @@
             "year": null,
             "month": null,
             "day": null,
-            "weekday_iso8601": 6,
+            "weekday": "saturday",
             "liturgical_day": "holy_saturday"
           },
           "is_cancellation": false,

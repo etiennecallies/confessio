@@ -11,9 +11,14 @@
         {
           "church_id": 0,
           "date_rule": {
-            "rrule": "DTSTART:20000101\nRRULE:FREQ=WEEKLY;BYDAY=TU",
+            "rule": {
+              "by_weekdays": [
+                "tuesday"
+              ]
+            },
             "only_in_periods": [],
-            "not_in_periods": []
+            "not_in_periods": [],
+            "not_on_dates": []
           },
           "is_cancellation": false,
           "start_time_iso8601": "18:00:00",
@@ -22,9 +27,14 @@
         {
           "church_id": -1,
           "date_rule": {
-            "rrule": "DTSTART:20000101\nRRULE:FREQ=WEEKLY;BYDAY=TH",
+            "rule": {
+              "by_weekdays": [
+                "thursday"
+              ]
+            },
             "only_in_periods": [],
-            "not_in_periods": []
+            "not_in_periods": [],
+            "not_on_dates": []
           },
           "is_cancellation": false,
           "start_time_iso8601": "18:00:00",
@@ -33,9 +43,15 @@
         {
           "church_id": 0,
           "date_rule": {
-            "rrule": "DTSTART:20000101\nRRULE:FREQ=WEEKLY;BYDAY=TU,TH",
+            "rule": {
+              "by_weekdays": [
+                "tuesday",
+                "thursday"
+              ]
+            },
             "only_in_periods": [],
-            "not_in_periods": []
+            "not_in_periods": [],
+            "not_on_dates": []
           },
           "is_cancellation": false,
           "start_time_iso8601": "09:15:00",
@@ -44,9 +60,15 @@
         {
           "church_id": -1,
           "date_rule": {
-            "rrule": "DTSTART:20000101\nRRULE:FREQ=WEEKLY;BYDAY=WE,FR",
+            "rule": {
+              "by_weekdays": [
+                "wednesday",
+                "friday"
+              ]
+            },
             "only_in_periods": [],
-            "not_in_periods": []
+            "not_in_periods": [],
+            "not_on_dates": []
           },
           "is_cancellation": false,
           "start_time_iso8601": "09:15:00",

@@ -14,7 +14,7 @@
             "year": null,
             "month": 10,
             "day": 10,
-            "weekday_iso8601": 4,
+            "weekday": "thursday",
             "liturgical_day": null
           },
           "is_cancellation": false,
@@ -27,7 +27,7 @@
             "year": null,
             "month": 11,
             "day": 14,
-            "weekday_iso8601": 4,
+            "weekday": "thursday",
             "liturgical_day": null
           },
           "is_cancellation": false,
@@ -40,7 +40,7 @@
             "year": null,
             "month": 12,
             "day": 12,
-            "weekday_iso8601": 4,
+            "weekday": "thursday",
             "liturgical_day": null
           },
           "is_cancellation": false,
@@ -53,7 +53,7 @@
             "year": null,
             "month": 1,
             "day": 16,
-            "weekday_iso8601": 4,
+            "weekday": "thursday",
             "liturgical_day": null
           },
           "is_cancellation": false,
@@ -66,7 +66,7 @@
             "year": null,
             "month": 2,
             "day": 13,
-            "weekday_iso8601": 4,
+            "weekday": "thursday",
             "liturgical_day": null
           },
           "is_cancellation": false,
@@ -79,7 +79,7 @@
             "year": null,
             "month": 3,
             "day": 13,
-            "weekday_iso8601": 4,
+            "weekday": "thursday",
             "liturgical_day": null
           },
           "is_cancellation": false,
@@ -92,7 +92,7 @@
             "year": null,
             "month": 4,
             "day": 10,
-            "weekday_iso8601": 4,
+            "weekday": "thursday",
             "liturgical_day": null
           },
           "is_cancellation": false,
@@ -105,7 +105,7 @@
             "year": null,
             "month": 5,
             "day": 15,
-            "weekday_iso8601": 4,
+            "weekday": "thursday",
             "liturgical_day": null
           },
           "is_cancellation": false,
@@ -118,7 +118,7 @@
             "year": null,
             "month": 6,
             "day": 12,
-            "weekday_iso8601": 4,
+            "weekday": "thursday",
             "liturgical_day": null
           },
           "is_cancellation": false,

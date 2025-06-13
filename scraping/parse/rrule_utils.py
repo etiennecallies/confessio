@@ -3,12 +3,12 @@ from typing import Optional
 
 from dateutil.rrule import rrule, rruleset, WEEKLY, DAILY, rrulestr
 
-from home.utils.date_utils import get_current_year, date_to_datetime
+from home.utils.date_utils import get_current_year, date_to_datetime, Weekday
 from scraping.parse.explain_schedule import get_explanation_from_schedule
 from scraping.parse.holidays import HolidayZoneEnum
 from scraping.parse.periods import add_exrules
 from scraping.parse.schedules import ScheduleItem, SchedulesList, Event, RegularRule, WeeklyRule, \
-    Weekday, MonthlyRule
+    MonthlyRule
 
 ####################
 # RRULE GENERATION #

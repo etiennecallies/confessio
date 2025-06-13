@@ -16,7 +16,7 @@
             "year": null,
             "month": 1,
             "day": 26,
-            "weekday_iso8601": null,
+            "weekday": null,
             "liturgical_day": null
           },
           "is_cancellation": false,

@@ -1,5 +1,6 @@
 import locale
 from datetime import datetime, date, time
+from enum import Enum
 
 from django.utils.timezone import make_aware
 
@@ -66,9 +67,34 @@ def format_datetime_with_locale(dt: datetime, dt_format: str, locale_name: str) 
     return formatted_date
 
 
-#########
-# OTHER #
-#########
+###########
+# WEEKDAY #
+###########
+
+class Weekday(Enum):
+    MONDAY = 'monday'
+    TUESDAY = 'tuesday'
+    WEDNESDAY = 'wednesday'
+    THURSDAY = 'thursday'
+    FRIDAY = 'friday'
+    SATURDAY = 'saturday'
+    SUNDAY = 'sunday'
+
+
+PYTHON_WEEKDAY = {
+    Weekday.MONDAY: 0,
+    Weekday.TUESDAY: 1,
+    Weekday.WEDNESDAY: 2,
+    Weekday.THURSDAY: 3,
+    Weekday.FRIDAY: 4,
+    Weekday.SATURDAY: 5,
+    Weekday.SUNDAY: 6,
+}
+
+
+def get_python_weekday(weekday: Weekday) -> int:
+    return PYTHON_WEEKDAY[weekday]
+
 
 def is_29th_february(month: int, day: int) -> bool:
     return month == 2 and day == 29
@@ -78,9 +104,9 @@ def is_leap_year(year: int) -> bool:
     return year % 4 == 0 and (year % 100 != 0 or year % 400 == 0)
 
 
-def guess_year_from_weekday(default_year: int, month: int, day: int, weekday_iso8601: int) -> int:
+def guess_year_from_weekday(default_year: int, month: int, day: int, weekday: Weekday) -> int:
     start_date = datetime(2000, month, day)  # 2000 is a leap year
-    weekday_python = weekday_iso8601 - 1
+    weekday_python = get_python_weekday(weekday)
 
     for year in [default_year, default_year + 1]:
         if is_29th_february(month, day) and not is_leap_year(year):
@@ -99,7 +125,7 @@ def guess_year_from_weekday(default_year: int, month: int, day: int, weekday_iso
 
     raise ValueError(f"Could not find a date between year {default_year - max_count} "
                      f"and year {default_year + 1} "
-                     f"for month {month}, day {day}, weekday {weekday_iso8601}")
+                     f"for month {month}, day {day}, weekday {weekday}")
 
 
 if __name__ == '__main__':
