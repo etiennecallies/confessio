@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'theme_pixel',
     'jsoneditor',  # json form
     "home",
+    'sourcing',
 ]
 
 MIDDLEWARE = [
