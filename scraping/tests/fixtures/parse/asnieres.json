@@ -11,60 +11,56 @@
     "schedules_list": {
       "schedules": [
         {
-            "church_id": 1,
-            "date_rule":
-            {
-                "year": null,
-                "month": null,
-                "day": null,
-                "weekday_iso8601": 5,
-                "liturgical_day": "good_friday"
-            },
-            "is_cancellation": false,
-            "start_time_iso8601": "16:00:00",
-            "end_time_iso8601": null
+          "church_id": 1,
+          "date_rule": {
+            "year": null,
+            "month": null,
+            "day": null,
+            "weekday_iso8601": 5,
+            "liturgical_day": "good_friday"
+          },
+          "is_cancellation": false,
+          "start_time_iso8601": "16:00:00",
+          "end_time_iso8601": null
         },
         {
-            "church_id": 3,
-            "date_rule":
-            {
-                "year": null,
-                "month": null,
-                "day": null,
-                "weekday_iso8601": 5,
-                "liturgical_day": "good_friday"
-            },
-            "is_cancellation": false,
-            "start_time_iso8601": "16:00:00",
-            "end_time_iso8601": null
+          "church_id": 3,
+          "date_rule": {
+            "year": null,
+            "month": null,
+            "day": null,
+            "weekday_iso8601": 5,
+            "liturgical_day": "good_friday"
+          },
+          "is_cancellation": false,
+          "start_time_iso8601": "16:00:00",
+          "end_time_iso8601": null
         },
         {
-            "church_id": 1,
-            "date_rule":
-            {
-                "year": null,
-                "month": null,
-                "day": null,
-                "weekday_iso8601": 6,
-                "liturgical_day": "holy_saturday"
-            },
-            "is_cancellation": false,
-            "start_time_iso8601": "10:00:00",
-            "end_time_iso8601": null
+          "church_id": 1,
+          "date_rule": {
+            "year": null,
+            "month": null,
+            "day": null,
+            "weekday_iso8601": 6,
+            "liturgical_day": "holy_saturday"
+          },
+          "is_cancellation": false,
+          "start_time_iso8601": "10:00:00",
+          "end_time_iso8601": null
         },
         {
-            "church_id": 2,
-            "date_rule":
-            {
-                "year": null,
-                "month": null,
-                "day": null,
-                "weekday_iso8601": 6,
-                "liturgical_day": "holy_saturday"
-            },
-            "is_cancellation": false,
-            "start_time_iso8601": "10:00:00",
-            "end_time_iso8601": null
+          "church_id": 2,
+          "date_rule": {
+            "year": null,
+            "month": null,
+            "day": null,
+            "weekday_iso8601": 6,
+            "liturgical_day": "holy_saturday"
+          },
+          "is_cancellation": false,
+          "start_time_iso8601": "10:00:00",
+          "end_time_iso8601": null
         }
       ],
       "possible_by_appointment": false,

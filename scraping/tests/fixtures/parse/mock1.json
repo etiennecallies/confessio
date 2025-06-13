@@ -11,14 +11,15 @@
       "schedules": [
         {
           "church_id": 1,
-          "is_cancellation": false,
           "date_rule": {
-            "rrule": "DTSTART:20240101\nRRULE:FREQ=DAILY",
+            "rule": {},
             "only_in_periods": [],
             "not_in_periods": [
               "august"
-            ]
+            ],
+            "not_on_dates": []
           },
+          "is_cancellation": false,
           "start_time_iso8601": "17:00:00",
           "end_time_iso8601": "18:00:00"
         }

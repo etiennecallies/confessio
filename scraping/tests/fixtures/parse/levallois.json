@@ -12,7 +12,6 @@
       "schedules": [
         {
           "church_id": 1,
-          "is_cancellation": false,
           "date_rule": {
             "year": 2024,
             "month": 3,
@@ -20,6 +19,7 @@
             "weekday_iso8601": null,
             "liturgical_day": null
           },
+          "is_cancellation": false,
           "start_time_iso8601": "20:30:00",
           "end_time_iso8601": null
         }

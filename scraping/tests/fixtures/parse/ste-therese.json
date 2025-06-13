@@ -11,9 +11,17 @@
         {
           "church_id": 0,
           "date_rule": {
-            "rrule": "DTSTART:20000101\nRRULE:FREQ=WEEKLY;BYDAY=TU,WE,TH,FR",
+            "rule": {
+              "by_weekdays": [
+                "tuesday",
+                "wednesday",
+                "thursday",
+                "friday"
+              ]
+            },
             "only_in_periods": [],
-            "not_in_periods": []
+            "not_in_periods": [],
+            "not_on_dates": []
           },
           "is_cancellation": false,
           "start_time_iso8601": "17:00:00",
@@ -22,9 +30,14 @@
         {
           "church_id": 0,
           "date_rule": {
-            "rrule": "DTSTART:20000101\nRRULE:FREQ=WEEKLY;BYDAY=SA",
+            "rule": {
+              "by_weekdays": [
+                "saturday"
+              ]
+            },
             "only_in_periods": [],
-            "not_in_periods": []
+            "not_in_periods": [],
+            "not_on_dates": []
           },
           "is_cancellation": false,
           "start_time_iso8601": "10:00:00",

@@ -28,12 +28,17 @@
       "schedules": [
         {
           "church_id": 11,
-          "is_cancellation": false,
           "date_rule": {
-            "rrule": "DTSTART:20240105\nRRULE:FREQ=WEEKLY;BYDAY=FR",
+            "rule": {
+              "by_weekdays": [
+                "friday"
+              ]
+            },
             "only_in_periods": [],
-            "not_in_periods": []
+            "not_in_periods": [],
+            "not_on_dates": []
           },
+          "is_cancellation": false,
           "start_time_iso8601": "17:30:00",
           "end_time_iso8601": null
         }
