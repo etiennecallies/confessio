@@ -25,7 +25,9 @@ class TimeFilter(BaseModel):
     hour_max: int | None
 
     def is_null(self):
-        return self.day_filter is None and self.hour_min is None and self.hour_max is None
+        return self.day_filter is None \
+            and (self.hour_min is None or self.hour_min == 0) \
+            and (self.hour_max is None or self.hour_max == 24 * 60 - 1)
 
 
 ###############
