@@ -30,7 +30,7 @@ def get_headers() -> dict:
 
 def fetch_trouverunemesse(url: str) -> dict | None:
     try:
-        response = httpx.get(url, headers=get_headers())
+        response = httpx.get(url, headers=get_headers(), timeout=5.0)
 
         if response.status_code == 404:
             print(f'Found 404 for URL: {url}')
@@ -46,6 +46,10 @@ def fetch_trouverunemesse(url: str) -> dict | None:
 
     except httpx.HTTPStatusError as e:
         print(f"Trouverunemesse GET API HTTP error: {e}")
+        return None
+
+    except httpx.ReadTimeout as e:
+        print(f"Trouverunemesse GET API ReadTimeout error: {e}")
         return None
 
 
