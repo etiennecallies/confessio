@@ -1,9 +1,10 @@
+import json
 import os
 from datetime import datetime
 
 import httpx
 from dotenv import load_dotenv
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
 
 class TrouverUneMesseLocation(BaseModel):
@@ -97,7 +98,12 @@ def fetch_by_last_update(min_last_update: datetime | None = None, page: int = 1
     if not data:
         return []
 
-    return [TrouverUneMesseChurch(**item) for item in data['data']]
+    try:
+        return [TrouverUneMesseChurch(**item) for item in data['data']]
+    except ValidationError as e:
+        print(f"Validation error while parsing trouverunemesse data: {e}")
+        print(json.dumps(data))
+        return []
 
 
 def authenticate_trouverunemesse() -> str | None:
