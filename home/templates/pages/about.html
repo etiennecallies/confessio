@@ -10,10 +10,10 @@
                <div class="row justify-content-between align-items-center">
                   <div class="col-12 col-md-9 col-lg-8 text-center text-md-left">
                         <h1 class="display-2 mb-4">Des horaires de sacrements<br class="d-none d-md-inline"> à jour grâce à l'IA !</h1>
-                        <p class="lead mb-4 text-muted">Confessio extrait les horaires de confession, et bientôt plus, directement sur les sites web des paroisses. Cela est rendu possible grâce à l'intelligence artificielle.</p>
+                        <p class="lead mb-4 text-muted">Confessio extrait les horaires de confession, et bientôt plus, directement depuis les sites web des paroisses. Cela est rendu possible grâce à l'intelligence artificielle.</p>
                         <a href="{% url 'index' %}" class="btn btn-tertiary me-3 animate-up-2">Voir les confessions autour de moi<span class="ms-2"><span class="fas fa-arrow-right"></span></span></a>
                     </div>
-                  <div class="col-12 col-md-3 col-lg-4 d-none d-md-block text-center"><img src="{% static 'assets/img/confessio_graph.svg' %}" alt=""></div>
+                  <div class="col-12 col-md-3 col-lg-4 d-none d-md-block text-center p-lg-4"><img src="{% static 'assets/img/confessio_graph.svg' %}" alt=""></div>
                </div>
             </div>
         </section>
@@ -23,13 +23,17 @@
             <div class="container">
                 <div class="row align-items-center justify-content-around">
                     <div class="col-md-6 col-xl-6 mb-5">
-                        <img class="organic-radius img-fluid" src="{% static 'assets/img/sections/about-us-1.jpg' %}" alt="Office Desk">
+                        <img class="organic-radius img-fluid" src="{% static 'assets/img/S4-E2-Confessions-The-Chosen.png' %}" alt="Confessions - The Chosen">
                     </div>
                     <div class="col-md-6 col-xl-5 text-center text-md-left">
-                        <h2 class="h1 mb-5">Nos engagements</h2>
-                        <p class="lead">Themesberg is an experienced and passionate group of designers, developers, project managers, writers and artists. Every client we work with becomes a part of the team. Together we face the challenges and celebrate the victories.</p>
-                        <p class="lead">With a culture of collaboration, a roster of talent, and several office pooches, the Themesberg team is active in the creative community, endlessly interested in what’s next, and generally pleasant to be around.</p>
-                        <img src="{% static 'assets/img/signature.svg' %}" alt="signature" class="mt-4" width="150">
+                        <h2 class="h1 mb-5">Nos 7 engagements</h2>
+                        <p class="lead"><span class="fw-bold">Renforcer</span> la maîtrise des paroisses sur leurs propres horaires en n'affichant que ce qui est visible sur leur site web.</p>
+                        <p class="lead"><span class="fw-bold">Sourcer</span> systématiquement les horaires pour permettre de vérifier leur provenance.</p>
+                        <p class="lead"><span class="fw-bold">Automatiser</span> la collecte des horaires afin qu'ils soient à jour sur l'ensemble du territoire.</p>
+                        <p class="lead"><span class="fw-bold">Contrôler</span> la qualité des données dans une démarche d'amélioration continue.</p>
+                        <p class="lead"><span class="fw-bold">Collecter</span> les retours des utilisateurs et mettre tout en œuvre pour corriger les bugs.</p>
+                        <p class="lead"><span class="fw-bold">Partager</span> largement et gratuitement les <a href="{% url 'main_api:openapi-view' %}">données</a> afin de promouvoir d'autres services liés aux sacrements.</p>
+                        <p class="lead"><span class="fw-bold">Publier</span> le <a href="https://github.com/etiennecallies/confessio">code</a> en totale transparence afin d'éviter une situation de monopole abusif sur un service d'Église.</p>
                     </div>
                 </div>
             </div>
@@ -39,36 +43,36 @@
         <section class="section section-lg pt-0">
             <div class="container">
                 <div class="row">
-                    <div class="col-md-4 col-lg-4 text-center">
+                    <div class="col-md-4 col-lg-4 text-center mt-5">
                         <!-- Visit Box -->
                         <div class="icon-box mb-4">
                             <div class="icon icon-primary mb-4">
                                 <span class="fas fa-church"></span>
                             </div>
-                            <h3 class="h5">Églises</h3>
-                            <span class="counter display-3 text-gray d-block">18345</span>
+                            <h3 class="h5">Diocèses de France<br>opérés par Confessio</h3>
+                            <span class="counter display-3 text-gray d-block">33 / 99</span>
                         </div>
                         <!-- End of Visit Box -->
                     </div>
-                    <div class="col-md-4 col-lg-4 text-center">
+                    <div class="col-md-4 col-lg-4 text-center mt-5">
                         <!-- Call Box -->
                         <div class="icon-box mb-4">
                             <div class="icon icon-primary mb-4">
                                 <span class="fas fa-globe"></span>
                             </div>
-                            <h3 class="h5">Sites paroissiaux analysés</h3>
-                            <span class="counter display-3 text-gray d-block">2417</span>
+                            <h3 class="h5">Sites paroissiaux analysés quotidiennement</h3>
+                            <span class="counter display-3 text-gray d-block">1686</span>
                         </div>
                         <!-- End of Call Box -->
                     </div>
-                    <div class="col-md-4 col-lg-4 text-center">
+                    <div class="col-md-4 col-lg-4 text-center mt-5">
                         <!-- Email Box -->
                         <div class="icon-box mb-4">
                             <div class="icon icon-primary mb-4">
                                 <span class="fas fa-calendar-days"></span>
                             </div>
-                            <h3 class="h5">Horaires cette semaine</h3>
-                            <span class="counter display-3 text-gray d-block">1380</span>
+                            <h3 class="h5">Horaires de confession<br>cette semaine</h3>
+                            <span class="counter display-3 text-gray d-block">9635</span>
                         </div>
                         <!-- End of Email Box -->
                     </div>
@@ -95,38 +99,35 @@
                             <div class="timeline timeline-one dark px-3 px-sm-0">
                                 <!-- Timeline Item 1 -->
                                 <div class="timeline-item">
-                                    <h3 class="h4 mb-4">Une idée chez Hozana</h3>
-                                    <p>L'idée de Confessio a émergé lors du passage d'Etienne chez Hozana en 2018, où, au cours d'un HozanHackathon, il a été question d'une base de données open-data d'horaires de paroisses (messes, confessions), réflexion qui à l'époque avait donné naissance à<br>
-                                        <a href="https://open-church.io/">Open-Church</a>. </p>
+                                    <h3 class="h4 mb-4">L'idée du web-scraping 🤔</h3>
+                                    <p>L'idée de Confessio a émergé lors du passage d'Etienne chez Hozana en 2018, où, au cours d'un HozanHackathon, il a été question d'une base de données open-data d'horaires de paroisses (messes, confessions), réflexion qui à l'époque avait donné naissance à <a href="https://open-church.io/">Open&#8209;Church</a>.<br>
+                                        Comment collecter la donnée automatiquement ? Il faudrait un robot qui puisse visiter les sites web des paroisses et en extraire les horaires. Mais comment gérer les horaires écrits en langage naturel, ou bien dans des tableaux voire des images ?<br>
+                                    </p>
                                 </div>
                                 <!-- Timeline Item 2 -->
                                 <div class="timeline-item">
-                                    <h3 class="h4 mb-4">Our first products</h3>
-                                    <div class="my-3">
-                                        <span class="icon icon-sm icon-purple me-2"><span class="fab fa-bootstrap"></span></span>
-                                        <span class="icon icon-sm icon-info me-2"><span class="fab fa-react"></span></span>
-                                        <span class="icon icon-sm icon-success me-2"><span class="fab fa-vuejs"></span></span>
-                                        <span class="icon icon-sm icon-danger"><span class="fab fa-angular"></span></span>
+                                    <h3 class="h4 mb-4">Premières lignes de code 🧑‍💻</h3>
+                                    <div>
+                                        <img class="me-2" src="{% static 'assets/img/logo/django-logo.svg' %}" alt="Django" style="height: 1em">
+                                        <img class="me-2" src="{% static 'assets/img/logo/postgresql-logo.svg' %}" alt="PostgreSQL" style="height: 1em">
+                                        <img class="me-2" src="{% static 'assets/img/logo/openai-logo.svg' %}" alt="OpenAI" style="height: 1em">
                                     </div>
-                                    <p>Bootstrap. Build responsive, mobile-first projects on the web with the world's most popular front-end component library. Bootstrap is an open source toolkit for developing with HTML, CSS, and JS. Quickly prototype your
-                                        ideas.
+                                    <p>Quelques années plus tard, c’est l’émergence des modèles de langage (LLM) qui a rendu possible le développement technique du projet. La première ligne de
+                                        <a href="https://github.com/etiennecallies/confessio">code</a> de Confessio a ainsi été écrite en janvier 2023, marquant le début d’une aventure enthousiaste mais non moins rigoureuse et innovante !
                                     </p>
                                 </div>
                                 <!-- Timeline Item 3 -->
                                 <div class="timeline-item">
-                                    <h3 class="h4 mb-4">Our office</h3>
-                                    <img class="mt-2" src="{% static 'assets/img/office.png' %}" alt="Themesberg workspace" width="300">
-                                    <p>AngularJS is a JavaScript-based open-source front-end web application framework mainly maintained by Google and by a community of individuals and corporations to address many of the challenges encountered in developing
-                                        single-page applications.
-                                    </p>
+                                    <h3 class="h4 mb-2">Confessio en prod 🚀</h3>
+                                    <img src="{% static 'assets/img/logo-dark-blue.svg' %}" alt="Logo de Confessio" width="80">
+                                    <p>Après un an de mise au point des premiers algorithmes, en janvier 2024, Confessio est lancé sur internet sous le nom de domaine <a href="https://confessio.fr">confessio.fr</a></p>
                                 </div>
                                 <!-- Timeline Item 4 -->
                                 <div class="timeline-item">
-                                    <h3 class="h4 mb-4">An ideea becomes a business</h3>
-                                    <p>AngularJS is a JavaScript-based open-source front-end web application framework mainly maintained by Google and by a community of individuals and corporations to address many of the challenges encountered in developing
-                                        single-page applications.
+                                    <h3 class="h4 mb-4">Soutien d'Hozana et arrivée de Pierre 🔥</h3>
+                                    <img src="{% static 'assets/img/hozana-logo.png' %}" alt="Hozana" width="120">
+                                    <p>En juin 2025, l’association <a href="https://www.hozana.org/">Hozana</a>, qui a pour mission de promouvoir la prière et la vie spirituelle en ligne, devient sponsor de Confessio, afin d'accélérer son développement et sa diffusion. <a href="https://github.com/DarkPitoune">Pierre</a>, un développeur talentueux rejoint <a href="http://github.com/etiennecallies">Etienne</a> pour réinventer l'expérience utilisateur et propulser le frontend vers une nouvelle ère.</p>
                                     </p>
-                                    <img class="mt-2" src="{% static 'assets/img/signature.svg' %}" alt="signature" width="100">
                                 </div>
                             </div>
                         </div>
@@ -142,118 +143,13 @@
         <!-- Section -->
         <section class="section section-lg">
             <div class="container">
-                <div class="row mb-5 mb-lg-6">
-                    <div class="col-12 col-md-9 col-lg-8 text-center mx-auto">
-                        <h2 class="h1 mb-4">Funny &amp; Creative Team</h2>
-                        <p class="lead">We have developed a multi-discipline portfolio as a digital marketing agency, we also have roots in print media and even photography.
-                        </p>
-                    </div>
-                </div>
-                <div class="row mb-5 mb-lg-6">
-                    <div class="col-12 col-md-6 col-lg-4 mb-5 mb-lg-0">
-                        <div class="card shadow border-gray-300">
-                            <img src="{% static 'assets/img/team/profile-picture-1.jpg' %}" class="card-img-top rounded-top" alt="Joseph Portrait">
-                            <div class="card-body">
-                                <h3 class="h4 card-title mb-2">Joseph Garth</h3>
-                                <span class="card-subtitle text-gray fw-normal">Co-Founder</span>
-                                <p class="card-text my-3">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                <ul class="list-unstyled d-flex mt-3 mb-0">
-                                    <li>
-                                        <a href="#" target="_blank" aria-label="facebook social link" class="icon-facebook me-3">
-                                            <span class="fab fa-facebook-f"></span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#" target="_blank" aria-label="twitter social link" class="icon-twitter me-3">
-                                            <span class="fab fa-twitter"></span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#" target="_blank" aria-label="slack social link" class="icon-slack me-3">
-                                            <span class="fab fa-slack-hash"></span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#" target="_blank" aria-label="dribbble social link" class="icon-dribbble me-3">
-                                            <span class="fab fa-dribbble"></span>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-6 col-lg-4 mb-5 mb-lg-0">
-                        <div class="card shadow border-gray-300">
-                            <img src="{% static 'assets/img/team/profile-picture-3.jpg' %}" class="card-img-top rounded-top" alt="Bonnie portrait">
-                            <div class="card-body">
-                                <h3 class="h4 card-title mb-2">Bonnie Green</h3>
-                                <span class="card-subtitle text-gray fw-normal">Web Developer</span>
-                                <p class="card-text my-3">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                <ul class="list-unstyled d-flex mt-3 mb-0">
-                                    <li>
-                                        <a href="#" target="_blank" aria-label="facebook social link" class="icon-facebook me-3">
-                                            <span class="fab fa-facebook-f"></span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#" target="_blank" aria-label="twitter social link" class="icon-twitter me-3">
-                                            <span class="fab fa-twitter"></span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#" target="_blank" aria-label="slack social link" class="icon-slack me-3">
-                                            <span class="fab fa-slack-hash"></span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#" target="_blank" aria-label="dribbble social link" class="icon-dribbble me-3">
-                                            <span class="fab fa-dribbble"></span>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-6 col-lg-4">
-                        <div class="card shadow border-gray-300">
-                            <img src="{% static 'assets/img/team/profile-picture-4.jpg' %}" class="card-img-top rounded-top" alt="Jose Avatar">
-                            <div class="card-body">
-                                <h3 class="h4 card-title mb-2">Jose Leos</h3>
-                                <span class="card-subtitle text-gray fw-normal">Web publications designer</span>
-                                <p class="card-text my-3">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                                <ul class="list-unstyled d-flex mt-3 mb-0">
-                                    <li>
-                                        <a href="#" target="_blank" aria-label="facebook social link" class="icon-facebook me-3">
-                                            <span class="fab fa-facebook-f"></span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#" target="_blank" aria-label="twitter social link" class="icon-twitter me-3">
-                                            <span class="fab fa-twitter"></span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#" target="_blank" aria-label="slack social link" class="icon-slack me-3">
-                                            <span class="fab fa-slack-hash"></span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#" target="_blank" aria-label="dribbble social link" class="icon-dribbble me-3">
-                                            <span class="fab fa-dribbble"></span>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 <div class="row justify-content-center">
                     <div class="col-12 col-lg-8">
                         <!-- Contact Card -->
                         <div class="card border-0 p-2 p-md-3 p-lg-5">
                             <div class="card-header bg-white border-0 text-center">
-                                <h2>Envie de rejoindre l'aventure Confessio?</h2>
-                                <p>N'hésitez surtout pas à <a href="{% url 'contact' %}">nous contacter</a> !</p>
+                                <h2> 🫵 La suite de l'aventure Confessio s'écrit avec vous !</h2>
+                                <p>N'hésitez surtout pas à <a href="{% url 'contact' %}">nous contacter</a>.</p>
                             </div>
                         </div>
                         <!-- End of Contact Card -->
