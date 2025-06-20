@@ -12,27 +12,27 @@
       "schedules": [
         {
           "church_id": 1,
-          "is_cancellation": false,
           "date_rule": {
             "year": null,
             "month": 4,
             "day": 5,
-            "weekday_iso8601": 2,
+            "weekday": "tuesday",
             "liturgical_day": null
           },
+          "is_cancellation": false,
           "start_time_iso8601": "20:15:00",
           "end_time_iso8601": null
         },
         {
           "church_id": 1,
-          "is_cancellation": false,
           "date_rule": {
             "year": null,
             "month": 4,
             "day": 6,
-            "weekday_iso8601": 5,
+            "weekday": "friday",
             "liturgical_day": null
           },
+          "is_cancellation": false,
           "start_time_iso8601": "14:00:00",
           "end_time_iso8601": "19:00:00"
         }

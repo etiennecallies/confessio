@@ -3,16 +3,45 @@ from typing import Optional
 
 from dateutil.rrule import rrule, rruleset, WEEKLY, DAILY, rrulestr
 
-from home.utils.date_utils import get_current_year, date_to_datetime
-from scraping.parse.explain_schedule import get_explanation_from_schedule, Frequency
+from home.utils.date_utils import get_current_year, date_to_datetime, Weekday
+from scraping.parse.explain_schedule import get_explanation_from_schedule
 from scraping.parse.holidays import HolidayZoneEnum
 from scraping.parse.periods import add_exrules
-from scraping.parse.schedules import ScheduleItem, SchedulesList, Event, RegularRule
+from scraping.parse.schedules import ScheduleItem, SchedulesList, Event, RegularRule, WeeklyRule, \
+    MonthlyRule
+
+####################
+# RRULE GENERATION #
+####################
+
+BYDAY_BY_WEEKDAY = {
+    Weekday.MONDAY: 'MO',
+    Weekday.TUESDAY: 'TU',
+    Weekday.WEDNESDAY: 'WE',
+    Weekday.THURSDAY: 'TH',
+    Weekday.FRIDAY: 'FR',
+    Weekday.SATURDAY: 'SA',
+    Weekday.SUNDAY: 'SU',
+}
 
 
-#####################
-# EVENTS GENERATION #
-#####################
+def get_rrule_of_rule(regular_rule: RegularRule) -> str:
+    if regular_rule.is_daily_rule():
+        return 'FREQ=DAILY'
+    if isinstance(regular_rule.rule, WeeklyRule):
+        return 'FREQ=WEEKLY;BYDAY=' + ','.join(map(lambda w: BYDAY_BY_WEEKDAY[w],
+                                                   regular_rule.rule.by_weekdays))
+    if isinstance(regular_rule.rule, MonthlyRule):
+        return 'FREQ=MONTHLY;BYDAY=' + ','.join(map(
+            lambda nw: f'{nw.position.value}{BYDAY_BY_WEEKDAY[nw.weekday]}',
+            regular_rule.rule.by_nweekdays))
+
+    raise ValueError(f"Frequency not implemented for rule: {regular_rule}")
+
+
+def get_rrule_from_regular_rule(regular_rule: RegularRule, default_year: int) -> str:
+    return f"DTSTART:{default_year}0101\nRRULE:{get_rrule_of_rule(regular_rule)}"
+
 
 def get_rruleset_from_schedule(schedule: ScheduleItem, default_year: int,
                                holiday_zone: HolidayZoneEnum) -> rruleset:
@@ -30,8 +59,7 @@ def get_rruleset_from_schedule(schedule: ScheduleItem, default_year: int,
         return rset
 
     if schedule.is_regular_rule():
-        rrule_at_default_year = schedule.date_rule.rrule.replace(
-            'DTSTART:2000', f'DTSTART:{default_year}')
+        rrule_at_default_year = get_rrule_from_regular_rule(schedule.date_rule, default_year)
         rrule_str = rrulestr(rrule_at_default_year)
         if schedule.is_cancellation:
             rset.exrule(rrule_str)
@@ -40,13 +68,17 @@ def get_rruleset_from_schedule(schedule: ScheduleItem, default_year: int,
 
     start_year = default_year
     end_year = default_year + 1
-    add_exrules(rset, schedule.date_rule.include_periods, start_year, end_year,
+    add_exrules(rset, schedule.date_rule.only_in_periods, start_year, end_year,
                 use_complementary=not schedule.is_cancellation, holiday_zone=holiday_zone)
-    add_exrules(rset, schedule.date_rule.exclude_periods, start_year, end_year,
+    add_exrules(rset, schedule.date_rule.not_in_periods, start_year, end_year,
                 use_complementary=schedule.is_cancellation, holiday_zone=holiday_zone)
 
     return rset
 
+
+#####################
+# EVENTS GENERATION #
+#####################
 
 def get_events_from_schedule_item(schedule: ScheduleItem,
                                   start_date: date,
@@ -171,17 +203,6 @@ def is_necessary_schedule(schedule: ScheduleItem) -> bool:
             # we ignore one-off schedules without date
             return False
 
-    if schedule.is_regular_rule():
-        rstr = rrulestr(schedule.date_rule.rrule)
-        frequency = Frequency(rstr._freq)
-        if frequency == Frequency.MONTHLY \
-                and not rstr._bymonthday \
-                and not rstr._bynweekday \
-                and (not rstr._byweekday or not rstr._bysetpos):
-            # we ignore monthly schedules with no precise week position
-            # ex: DTSTART:20000101\nRRULE:FREQ=MONTHLY;BYDAY=SU
-            return False
-
     return True
 
 
@@ -255,8 +276,8 @@ if __name__ == '__main__':
             rrule='DTSTART:20000101\nRRULE:FREQ=MONTHLY;BYDAY=SU',
             # rrule='DTSTART:20240101T170000\nRRULE:FREQ=DAILY;BYHOUR=17;BYMINUTE=0',
             # rrule='DTSTART:20000101\nRRULE:FREQ=DAILY',
-            include_periods=[],
-            exclude_periods=[]
+            only_in_periods=[],
+            not_in_periods=[]
         ),
         is_cancellation=False,
         start_time_iso8601='16:00:00',

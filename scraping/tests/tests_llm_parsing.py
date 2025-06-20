@@ -28,10 +28,9 @@ class LLMClientWithCache(LLMClientInterface):
                               temperature: float) -> tuple[Optional[SchedulesList], Optional[str]]:
         current_directory = os.path.dirname(os.path.abspath(__file__))
         cache_filename = (f'{current_directory}/fixtures/parse/'
-                          f'llm_cache_{self.get_provider().value}.cache')
+                          f'llm_cache_{self.get_provider().value}_{self.get_model()}.cache')
 
         key = (
-            self.get_model(),
             json.dumps(messages),
             json.dumps(SchedulesList.model_json_schema()),
             temperature
@@ -60,7 +59,7 @@ class LlmParsingTests(unittest.TestCase):
         openai_api_key = os.getenv("OPENAI_API_KEY") or 'thisIsNotARealKey'
 
         # llm_model = 'ft:gpt-4o-2024-08-06:confessio::AHfh95wJ'
-        llm_model = 'gpt-4o-2024-08-06'
+        llm_model = 'o3'
 
         self.llm_client = LLMClientWithCache(OpenAILLMClient(
             get_openai_client(openai_api_key),
@@ -71,7 +70,7 @@ class LlmParsingTests(unittest.TestCase):
     def get_simple_fixtures():
         return [
             'mock1',
-            # 'st-georges',  # Not working, too long
+            'st-georges',
             'paroisse2lyon',
             'azergues',
             'garches',
@@ -82,11 +81,11 @@ class LlmParsingTests(unittest.TestCase):
             'levallois2',
             'ndlumieres',
             'carmel',
-            # 'stnizier',  # Not working, too long
+            # 'stnizier',  # very long
             'bron',
             'pierresdorees',
             'ste-therese',
-            # 'chambourcy',  # an item is missing
+            'chambourcy',
             'vauxenvelin',
             'bonnieres',
             'gennevilliers',

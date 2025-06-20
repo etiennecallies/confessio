@@ -15,12 +15,17 @@
         {
           "church_id": 5,
           "date_rule": {
-            "rrule": "DTSTART:20000101\nRRULE:FREQ=WEEKLY;BYDAY=WE",
-            "include_periods": [],
-            "exclude_periods": [
+            "rule": {
+              "by_weekdays": [
+                "wednesday"
+              ]
+            },
+            "only_in_periods": [],
+            "not_in_periods": [
               "school_holidays",
               "lent"
-            ]
+            ],
+            "not_on_dates": []
           },
           "is_cancellation": false,
           "start_time_iso8601": "18:30:00",
@@ -29,12 +34,17 @@
         {
           "church_id": 5,
           "date_rule": {
-            "rrule": "DTSTART:20000101\nRRULE:FREQ=WEEKLY;BYDAY=FR",
-            "include_periods": [],
-            "exclude_periods": [
+            "rule": {
+              "by_weekdays": [
+                "friday"
+              ]
+            },
+            "only_in_periods": [],
+            "not_in_periods": [
               "school_holidays",
               "lent"
-            ]
+            ],
+            "not_on_dates": []
           },
           "is_cancellation": false,
           "start_time_iso8601": "18:30:00",
@@ -43,12 +53,17 @@
         {
           "church_id": 5,
           "date_rule": {
-            "rrule": "DTSTART:20000101\nRRULE:FREQ=WEEKLY;BYDAY=SA",
-            "include_periods": [],
-            "exclude_periods": [
+            "rule": {
+              "by_weekdays": [
+                "saturday"
+              ]
+            },
+            "only_in_periods": [],
+            "not_in_periods": [
               "school_holidays",
               "lent"
-            ]
+            ],
+            "not_on_dates": []
           },
           "is_cancellation": false,
           "start_time_iso8601": "09:30:00",

@@ -2,7 +2,7 @@
   "input": {
     "church_desc_by_id": {
       "0": "Notre-Dame des Agnettes GENNEVILLIERS",
-      "1": "Saint Jean des Grésillons GENNEVILLIERS",
+      "1": "Saint Jean des Gr\u00e9sillons GENNEVILLIERS",
       "2": "Sainte Marie Madeleine GENNEVILLIERS"
     },
     "year": 2025
@@ -16,7 +16,7 @@
             "year": null,
             "month": 1,
             "day": 26,
-            "weekday_iso8601": null,
+            "weekday": null,
             "liturgical_day": null
           },
           "is_cancellation": false,

@@ -1,17 +1,17 @@
 {
   "input": {
     "church_desc_by_id": {
-      "0": "Assomption de la Très Sainte Vierge (Notre Dame de la Mer) NOTRE DAME DE LA MER",
-      "1": "Le Prieuré de Béthanie (Blaru) BLARU",
-      "2": "Nativité (Cravent) CRAVENT",
-      "3": "Nativité (Méricourt) MERICOURT",
-      "4": "Nativité de la Très Sainte Vierge (Bonnières sur Seine) BONNIERES SUR SEINE",
-      "5": "Saint Crépin et Saint Crépinien (Gommecourt) GOMMECOURT",
+      "0": "Assomption de la Tr\u00e8s Sainte Vierge (Notre Dame de la Mer) NOTRE DAME DE LA MER",
+      "1": "Le Prieur\u00e9 de B\u00e9thanie (Blaru) BLARU",
+      "2": "Nativit\u00e9 (Cravent) CRAVENT",
+      "3": "Nativit\u00e9 (M\u00e9ricourt) MERICOURT",
+      "4": "Nativit\u00e9 de la Tr\u00e8s Sainte Vierge (Bonni\u00e8res sur Seine) BONNIERES SUR SEINE",
+      "5": "Saint Cr\u00e9pin et Saint Cr\u00e9pinien (Gommecourt) GOMMECOURT",
       "6": "Saint Hilaire (Blaru) BLARU",
       "7": "Saint Jean Baptiste (Rosny sur Seine) ROSNY SUR SEINE",
-      "8": "Saint Léger (Lommoye) LOMMOYE",
-      "9": "Saint Léger (Moisson) MOISSON",
-      "10": "Saint Léger (Mousseaux) MOUSSEAUX SUR SEINE",
+      "8": "Saint L\u00e9ger (Lommoye) LOMMOYE",
+      "9": "Saint L\u00e9ger (Moisson) MOISSON",
+      "10": "Saint L\u00e9ger (Mousseaux) MOUSSEAUX SUR SEINE",
       "11": "Saint Martin (Freneuse) FRENEUSE",
       "12": "Saint Martin (Perdreauville) PERDREAUVILLE",
       "13": "Saint Michel (Rolleboise ) ROLLEBOISE",
@@ -21,7 +21,7 @@
       "17": "Saint Pierre (Port Villez) PORT VILLEZ",
       "18": "Saint Sulpice (Limetz Villez) LIMETZ VILLEZ",
       "19": "Sainte Foi (Jouy Mauvoisin) JOUY MAUVOISIN",
-      "20": "Transfiguration de Notre Seigneur (Chaufour les Bonnières) CHAUFOUR LES BONNIERES"
+      "20": "Transfiguration de Notre Seigneur (Chaufour les Bonni\u00e8res) CHAUFOUR LES BONNIERES"
     },
     "year": 2024
   },

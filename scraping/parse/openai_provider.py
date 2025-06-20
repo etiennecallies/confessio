@@ -19,11 +19,12 @@ class OpenAILLMClient(LLMClientInterface):
                               messages: list[dict],
                               temperature: float) -> tuple[Optional[SchedulesList], Optional[str]]:
         try:
+            temperature_args = {'temperature': temperature} if self.model != 'o3' else {}
             response = await self.client.beta.chat.completions.parse(
                 model=self.model,
                 messages=messages,
                 response_format=SchedulesList,
-                temperature=temperature,
+                **temperature_args
             )
         except BadRequestError as e:
             print(e)
@@ -56,6 +57,6 @@ def get_openai_client(openai_api_key: Optional[str] = None) -> AsyncOpenAI:
 def get_openai_llm_client() -> OpenAILLMClient:
     # TODO get latest fine-tuned model
     # openai_model = 'ft:gpt-4o-2024-08-06:confessio::AHfh95wJ'
-    openai_model = 'gpt-4o-2024-08-06'  # or "gpt-4o-mini"
+    openai_model = 'o3'  # or "gpt-4o-mini"
 
     return OpenAILLMClient(get_openai_client(), openai_model)

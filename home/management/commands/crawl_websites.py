@@ -100,9 +100,9 @@ class Command(AbstractCommand):
         except Exception:
             self.error(f'Exception while crawling website {website.name} {website.uuid}')
             stack_trace = traceback.format_exc()
-            if len(stack_trace) > 4000:
-                print(stack_trace[:2000] + '...')
-                print('...' + stack_trace[-2000:])
+            if len(stack_trace) > 8000:
+                print(stack_trace[:4000] + '...')
+                print('...' + stack_trace[-4000:])
             else:
                 print(stack_trace)
             return

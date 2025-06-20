@@ -1,9 +1,9 @@
 {
   "input": {
     "church_desc_by_id": {
-      "0": "Chapelle de l'Oasis (Maison d'église Oasis) Fécamp",
+      "0": "Chapelle de l'Oasis (Maison d'\u00e9glise Oasis) F\u00e9camp",
       "1": "Notre Dame du Salut FECAMP",
-      "2": "Sacré Coeur FECAMP",
+      "2": "Sacr\u00e9 Coeur FECAMP",
       "3": "Saint Etienne FECAMP",
       "4": "Saint Louis du Ramponneau FECAMP",
       "5": "Sainte Trinite FECAMP"
@@ -16,18 +16,34 @@
         {
           "church_id": null,
           "date_rule": {
-            "rrule": "DTSTART:20000101\nRRULE:FREQ=MONTHLY;BYDAY=1SA,3SA,5SA",
-            "include_periods": [],
-            "exclude_periods": [
+            "rule": {
+              "by_nweekdays": [
+                {
+                  "weekday": "saturday",
+                  "position": 1
+                },
+                {
+                  "weekday": "saturday",
+                  "position": 3
+                },
+                {
+                  "weekday": "saturday",
+                  "position": 5
+                }
+              ]
+            },
+            "only_in_periods": [],
+            "not_in_periods": [
               "school_holidays"
-            ]
+            ],
+            "not_on_dates": []
           },
           "is_cancellation": false,
           "start_time_iso8601": "10:00:00",
           "end_time_iso8601": "11:00:00"
         }
       ],
-      "possible_by_appointment": true,
+      "possible_by_appointment": false,
       "is_related_to_mass": false,
       "is_related_to_adoration": false,
       "is_related_to_permanence": true,
