@@ -20,6 +20,12 @@ Also, you might want to check our [status page](https://status.confessio.fr/).
 Please make sure to **credit the source** when using the data, and if possible, add a “Report an error” link near each displayed piece of data, including Confessio brand name and its logo. We encourage you to **get in touch with the maintainer** to ensure proper usage and collaboration.
 
 ---
+## 🧡 Sponsors
+We'd like to thank our sponsor [Hozana](https://hozana.org/) for their continuous support.
+
+![Hozana](static/assets/img/logo/hozana-logo-medium.png)
+
+---
 
 # Dev environment
 

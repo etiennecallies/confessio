@@ -65,6 +65,7 @@ urlpatterns = [
     path('contact/<message>', views.contact, name='contact_success'),
     path('contact/<message>/<email>/<path:name_text>/<path:message_text>', views.contact,
          name='contact_failure'),
+    path('about', views.about, name='about'),
 
     # api
     path("api/", api.urls),

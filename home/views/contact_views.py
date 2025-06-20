@@ -49,3 +49,9 @@ def contact(request, message=None, email=None, name_text=None, message_text=None
             return redirect("contact_failure", message='failure',
                             name_text=name_text, email=from_email, message_text=message_text)
         return redirect("contact_success", message='success')
+
+
+def about(request):
+    return render(request, 'pages/about.html', {
+        'meta_title': 'Qui sommes-nous ?',
+    })

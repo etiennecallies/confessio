@@ -1,9 +1,10 @@
+import json
 import os
 from datetime import datetime
 
 import httpx
 from dotenv import load_dotenv
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
 
 class TrouverUneMesseLocation(BaseModel):
@@ -30,7 +31,7 @@ def get_headers() -> dict:
 
 def fetch_trouverunemesse(url: str) -> dict | None:
     try:
-        response = httpx.get(url, headers=get_headers())
+        response = httpx.get(url, headers=get_headers(), timeout=5.0)
 
         if response.status_code == 404:
             print(f'Found 404 for URL: {url}')
@@ -46,6 +47,10 @@ def fetch_trouverunemesse(url: str) -> dict | None:
 
     except httpx.HTTPStatusError as e:
         print(f"Trouverunemesse GET API HTTP error: {e}")
+        return None
+
+    except httpx.ReadTimeout as e:
+        print(f"Trouverunemesse GET API ReadTimeout error: {e}")
         return None
 
 
@@ -93,7 +98,12 @@ def fetch_by_last_update(min_last_update: datetime | None = None, page: int = 1
     if not data:
         return []
 
-    return [TrouverUneMesseChurch(**item) for item in data['data']]
+    try:
+        return [TrouverUneMesseChurch(**item) for item in data['data']]
+    except ValidationError as e:
+        print(f"Validation error while parsing trouverunemesse data: {e}")
+        print(json.dumps(data))
+        return []
 
 
 def authenticate_trouverunemesse() -> str | None:
