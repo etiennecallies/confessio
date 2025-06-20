@@ -56,7 +56,7 @@ Here is the one-off date rule format:
     "year": Optional[int],  # the year as written in the text, let null if not explicit
     "month": Optional[int],  # month, let null if not explicit
     "day": Optional[int],  # day of month, let null if not explicit
-    "weekday_iso8601": Optional[int],  # the week day, 1 for Monday to 7, null if not explicit
+    "weekday": Weekday | null,  # the week day, let null if not explicit
     "liturgical_day": LiturgicalDayEnum | null,  # the liturgical day, let null if not explicit
 }}
 
@@ -65,21 +65,21 @@ For example, for "Vendredi 30 août", the one-off date rule would be:
     "year": null,
     "month": 8,
     "day": 30,
-    "weekday_iso8601": 5,
+    "weekday": "friday",
     "liturgical_day": null
 }}, and for "30 août", the one-off date rule would be:
 {{
     "year": null,
     "month": 8,
     "day": 30,
-    "weekday_iso8601": null,
+    "weekday": null,
     "liturgical_day": null
 }}, for no date at all:
 {{
     "year": null,
     "month": null,
     "day": null,
-    "weekday_iso8601": null,
+    "weekday": null,
     "liturgical_day": null
 }}
 
@@ -88,9 +88,7 @@ The accepted LiturgicalDayEnum values are 'ash_wednesday', from 'palms_sunday' t
 
 Here is the regular date rule format:
 {{
-    "rrule": str,  # the recurrence rule for the confession. For example "DTSTART:20000101
-RRULE:FREQ=WEEKLY;BYDAY=WE" for "confession les mercredis de 10h30 à 11h30".
-        By default, set 2000 as the year.
+    "rule": DailyRule | WeeklyRule | MonthlyRule,  # the recurrence rule for the confession.
     "only_in_periods": list[PeriodEnum],  # the year periods when the rrule applied. For
         example, if the confession is only during the school holidays, the list would be
         ['school_holidays']. If the expression says "durant l'été", the list would be
@@ -98,6 +96,25 @@ RRULE:FREQ=WEEKLY;BYDAY=WE" for "confession les mercredis de 10h30 à 11h30".
     "not_in_periods": list[PeriodEnum]  # the year periods excluded. For example, if the
         confession is only during the school terms, the list would be ['school_holidays']. If the
         expression says "sauf pendant le carême", the list would be ['lent'].
+    "not_on_dates": list[OneOffRule]  # the one-off dates excluded from the rrule.
+}}
+
+DailyRule is an empty dictionary, WeeklyRule is a dictionary with the following format:
+{{
+    "by_weekdays": list[Weekday]  # the weekdays when the confession is held, e.g. ['monday',
+        'wednesday', 'friday']
+}}
+
+MonthlyRule is a dictionary with the following format:
+{{
+    "by_nweekdays": list[NWeekday]  # the weekdays in a month when the confession is held,
+        e.g. [{{'weekday': 'monday', 'position': 1}}, {{'weekday': 'friday', 'position': -1}}]
+}}
+
+NWeekday is a dictionary with the following format:
+{{
+    "weekday": Weekday,  # the weekday, e.g. 'monday'
+    "position": Position  # the position of the weekday in a month, e.g. 1, 2, 3, 4, 5 or -1
 }}
 
 The accepted PeriodEnum values are:
@@ -107,23 +124,18 @@ The accepted PeriodEnum values are:
 
 For example, for "tous les jours sauf en août de 10h à 10h30", the regular date rule would be:
 {{
-    "rrule": "DTSTART:20000101
-RRULE:FREQ=DAILY",
+    "rule": {{}},
     "only_in_periods": [],
     "not_in_periods": ["august"]
 }}
 For "tous les jours sauf en août" without any time, do not return a schedule item dictionary.
 
 Some details:
-- EXDATE is not accepted in python rrule, so please do not include it in the rrule, use
-    the "not_in_periods" field instead
-- rrule must start with "DTSTART:some date", e.g. "DTSTART:20000101"
 - if a recurring event description is vague (e.g. "une fois par mois") and is followed by a list of
 dates, prefer to return a list of one-off date rules instead of a regular date rule.
 - If there is no explicit date in the text (e.g. "avant Noël", "avant Pâques", "une fois par mois",
 "la semaine précédant les grandes fêtes religieuses" or no date at all), you can skip this schedule
-or return a one off rule with all fields null. FREQ=YEARLY is not accepted in rrule, since it is
-often too vague.
+or return a one off rule with all fields null.
 - If there is no explicit time in the text (e.g. "dans la matinée", "dans l'après-midi",
 "dans la soirée", "après la messe" or no time at all), you can skip this schedule or
 set start_time_iso8601 and end_time_iso8601 to null.

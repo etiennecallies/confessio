@@ -58,6 +58,10 @@ class OneOffRule(BaseModel, frozen=True):
 
         return date(year, self.month, self.day)
 
+    def __lt__(self, other: 'OneOffRule') -> bool:
+        """Compare OneOffRule objects based on their start date."""
+        return self.model_dump() < other.model_dump()
+
 
 ################
 # REGULAR RULE #
@@ -76,17 +80,27 @@ class NWeekday(BaseModel, frozen=True):
     weekday: Weekday
     position: Position
 
+    def __lt__(self, other: 'NWeekday') -> bool:
+        return (self.weekday, self.position) < (other.weekday, other.position)
+
 
 class DailyRule(BaseModel, frozen=True):
-    pass
+    def __hash__(self):
+        return hash('')
 
 
 class WeeklyRule(BaseModel, frozen=True):
     by_weekdays: list[Weekday] = Field(..., description='table')
 
+    def __hash__(self):
+        return hash(tuple(sorted(map(lambda w: w.value, self.by_weekdays))))
+
 
 class MonthlyRule(BaseModel, frozen=True):
     by_nweekdays: list[NWeekday]
+
+    def __hash__(self):
+        return hash(tuple(sorted(self.by_nweekdays)))
 
 
 class RegularRule(BaseModel, frozen=True):
@@ -99,8 +113,10 @@ class RegularRule(BaseModel, frozen=True):
         """It would have been simpler to use tuple instead of list for only_in_periods and
         not_in_periods, but openapi schema generation does not support tuple (for now)."""
         return hash((
-            tuple(sorted(self.model_dump(exclude={'only_in_periods', 'not_in_periods'}).items())),
-            tuple(self.only_in_periods), tuple(self.not_in_periods)
+            hash(self.rule),
+            tuple(sorted(self.only_in_periods)),
+            tuple(sorted(self.not_in_periods)),
+            tuple(sorted(self.not_on_dates)),
         ))
 
     def is_daily_rule(self) -> bool:
@@ -294,3 +310,8 @@ def temp_convert_schedules_list_dict(old_dict: dict) -> SchedulesList:
 def temp_convert_schedules_list_json(old_json: str) -> str:
     old_dict = json.loads(old_json)
     return temp_convert_schedules_list_dict(old_dict).model_dump_json()
+
+
+if __name__ == '__main__':
+    nweekday = NWeekday(weekday=Weekday.MONDAY, position=Position.FIRST)
+    print(nweekday.model_dump_json())
