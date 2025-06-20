@@ -70,7 +70,7 @@ class LlmParsingTests(unittest.TestCase):
     def get_simple_fixtures():
         return [
             'mock1',
-            # 'st-georges',  # Not working, too long
+            'st-georges',
             'paroisse2lyon',
             'azergues',
             'garches',
@@ -81,11 +81,11 @@ class LlmParsingTests(unittest.TestCase):
             'levallois2',
             'ndlumieres',
             'carmel',
-            # 'stnizier',  # Not working, too long
+            # 'stnizier',  # very long
             'bron',
             'pierresdorees',
             'ste-therese',
-            # 'chambourcy',  # an item is missing
+            'chambourcy',
             'vauxenvelin',
             'bonnieres',
             'gennevilliers',

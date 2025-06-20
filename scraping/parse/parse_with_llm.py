@@ -196,7 +196,7 @@ def replace_unknown_by_unique_church(schedules: list[ScheduleItem],
     if len(church_desc_by_id) != 1:
         return schedules
 
-    unique_church_id = list(church_desc_by_id.keys())[0]
+    unique_church_id = int(list(church_desc_by_id.keys())[0])
 
     new_schedules = []
     for schedule in schedules:
