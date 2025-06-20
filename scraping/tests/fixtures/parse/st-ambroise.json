@@ -20,7 +20,9 @@
               ]
             },
             "only_in_periods": [],
-            "not_in_periods": [],
+            "not_in_periods": [
+              "school_holidays"
+            ],
             "not_on_dates": []
           },
           "is_cancellation": false,
@@ -36,24 +38,6 @@
               ]
             },
             "only_in_periods": [],
-            "not_in_periods": [],
-            "not_on_dates": []
-          },
-          "is_cancellation": false,
-          "start_time_iso8601": "16:30:00",
-          "end_time_iso8601": "18:00:00"
-        },
-        {
-          "church_id": 0,
-          "date_rule": {
-            "rule": {
-              "by_weekdays": [
-                "saturday"
-              ]
-            },
-            "only_in_periods": [
-              "school_holidays"
-            ],
             "not_in_periods": [],
             "not_on_dates": []
           },

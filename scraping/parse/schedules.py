@@ -81,7 +81,8 @@ class NWeekday(BaseModel, frozen=True):
     position: Position
 
     def __lt__(self, other: 'NWeekday') -> bool:
-        return (self.weekday, self.position) < (other.weekday, other.position)
+        return (self.weekday.value, self.position.value) < \
+            (other.weekday.value, other.position.value)
 
 
 class DailyRule(BaseModel, frozen=True):
@@ -310,8 +311,3 @@ def temp_convert_schedules_list_dict(old_dict: dict) -> SchedulesList:
 def temp_convert_schedules_list_json(old_json: str) -> str:
     old_dict = json.loads(old_json)
     return temp_convert_schedules_list_dict(old_dict).model_dump_json()
-
-
-if __name__ == '__main__':
-    nweekday = NWeekday(weekday=Weekday.MONDAY, position=Position.FIRST)
-    print(nweekday.model_dump_json())

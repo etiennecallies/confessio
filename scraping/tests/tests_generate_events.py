@@ -1,11 +1,12 @@
 import unittest
 from datetime import datetime, date
 
+from home.utils.date_utils import Weekday
 from scraping.parse.holidays import HolidayZoneEnum
 from scraping.parse.periods import PeriodEnum
 from scraping.parse.rrule_utils import get_events_from_schedule_items
 from scraping.parse.schedules import ScheduleItem, \
-    RegularRule, Event
+    RegularRule, Event, MonthlyRule, NWeekday, Position, WeeklyRule
 
 
 class GenerateEventsTests(unittest.TestCase):
@@ -17,9 +18,25 @@ class GenerateEventsTests(unittest.TestCase):
                     ScheduleItem(
                         church_id=None,
                         date_rule=RegularRule(
-                            rrule='DTSTART:20000101\nRRULE:FREQ=MONTHLY;BYDAY=1SA,3SA,5SA',
+                            rule=MonthlyRule(
+                                by_nweekdays=[
+                                    NWeekday(
+                                        weekday=Weekday.SATURDAY,
+                                        position=Position.FIRST,
+                                    ),
+                                    NWeekday(
+                                        weekday=Weekday.SATURDAY,
+                                        position=Position.THIRD,
+                                    ),
+                                    NWeekday(
+                                        weekday=Weekday.SATURDAY,
+                                        position=Position.FIFTH,
+                                    )
+                                ]
+                            ),
                             only_in_periods=[PeriodEnum.JANUARY, PeriodEnum.FEBRUARY],
-                            not_in_periods=[]
+                            not_in_periods=[],
+                            not_on_dates=[],
                         ),
                         is_cancellation=False,
                         start_time_iso8601='16:00:00',
@@ -41,9 +58,14 @@ class GenerateEventsTests(unittest.TestCase):
                     ScheduleItem(
                         church_id=None,
                         date_rule=RegularRule(
-                            rrule='DTSTART:20000101\r\nRRULE:FREQ=WEEKLY;BYDAY=FR',
+                            rule=WeeklyRule(
+                                by_weekdays=[
+                                    Weekday.FRIDAY
+                                ]
+                            ),
                             only_in_periods=[],
-                            not_in_periods=[]
+                            not_in_periods=[],
+                            not_on_dates=[],
                         ),
                         is_cancellation=False,
                         start_time_iso8601='17:00:00',
