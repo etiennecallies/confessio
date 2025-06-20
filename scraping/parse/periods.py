@@ -163,6 +163,19 @@ def intervals_from_period(period: PeriodEnum, year: int,
         return [(date(year, 12, 1), date(year, 12, 31))]
 
     # Seasons
+    if period == PeriodEnum.SUMMER:
+        return sum([intervals_from_period(m, year, holiday_zone) for m in [
+            PeriodEnum.JULY, PeriodEnum.AUGUST
+        ]], [])
+    if period == PeriodEnum.WINTER:
+        return sum([intervals_from_period(m, year, holiday_zone) for m in [
+            PeriodEnum.JANUARY, PeriodEnum.FEBRUARY, PeriodEnum.MARCH,
+            PeriodEnum.APRIL, PeriodEnum.MAY, PeriodEnum.JUNE,
+            PeriodEnum.SEPTEMBER, PeriodEnum.OCTOBER, PeriodEnum.NOVEMBER,
+            PeriodEnum.DECEMBER
+        ]], [])
+
+    # Liturgical seasons
     if period == PeriodEnum.ADVENT:
         return [get_advent_dates(year)]
 

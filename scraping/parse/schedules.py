@@ -59,7 +59,6 @@ class OneOffRule(BaseModel, frozen=True):
         return date(year, self.month, self.day)
 
     def __lt__(self, other: 'OneOffRule') -> bool:
-        """Compare OneOffRule objects based on their start date."""
         return self.model_dump() < other.model_dump()
 
 

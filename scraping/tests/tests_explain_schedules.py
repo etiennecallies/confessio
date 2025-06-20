@@ -151,6 +151,25 @@ class ExplainSchedulesTests(unittest.TestCase):
                 'Le premier samedi, le troisième samedi et le cinquième samedi du mois, '
                 'sauf pendant les vacances scolaires.'
             ),
+            (
+                ScheduleItem(
+                    church_id=None,
+                    date_rule=RegularRule(
+                        rule=WeeklyRule(
+                            by_weekdays=[
+                                Weekday.THURSDAY,
+                            ]
+                        ),
+                        only_in_periods=[PeriodEnum.SUMMER],
+                        not_in_periods=[],
+                        not_on_dates=[],
+                    ),
+                    is_cancellation=False,
+                    start_time_iso8601='17:30:00',
+                    end_time_iso8601=None,
+                ),
+                'En été, toutes les semaines le jeudi à partir de 17:30.'
+            ),
         ]
 
     def test_explain_schedules(self):

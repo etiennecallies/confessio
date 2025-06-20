@@ -81,6 +81,10 @@ def get_name_by_period(period: PeriodEnum) -> str:
         return 'pendant le carême'
     if period == PeriodEnum.SCHOOL_HOLIDAYS:
         return 'pendant les vacances scolaires'
+    if period == PeriodEnum.SUMMER:
+        return 'en été'
+    if period == PeriodEnum.WINTER:
+        return 'en hiver'
 
     return f'en {NAME_BY_MONTH[period]}'
 
