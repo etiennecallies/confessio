@@ -418,7 +418,7 @@ def save_parsing(parsing: Parsing | None, pruning: Pruning, website: Website,
                  church_desc_by_id: dict[int, str], llm_client: LLMClientInterface,
                  prompt_template_hash: str, llm_error_detail: str | None,
                  schedules_list: SchedulesList | None):
-    llm_json = schedules_list.model_dump() if schedules_list else None
+    llm_json = schedules_list.model_dump(mode="json") if schedules_list else None
 
     if parsing:
         parsing.website = website
