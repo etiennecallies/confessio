@@ -21,7 +21,7 @@ Please make sure to **credit the source** when using the data, and if possible, 
 
 ---
 ## 🧡 Sponsors
-We'd like to thank our sponsor [Hozana](https://hozana.org/) for their support.
+We'd like to thank our sponsor [Hozana](https://hozana.org/) for their continuous support.
 
 ![Hozana](static/assets/img/logo/hozana-logo-small.png)
 
