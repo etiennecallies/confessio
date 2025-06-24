@@ -1,4 +1,7 @@
+from datetime import datetime, timedelta
 from urllib.parse import urlparse, parse_qs
+
+from django.utils.timezone import make_aware
 
 from home.management.abstract_command import AbstractCommand
 from home.models import SearchHit
@@ -12,7 +15,9 @@ class Command(AbstractCommand):
         count_per_location = {}
         count_per_coordinates = {}
 
-        all_empty_searches = SearchHit.objects.filter(nb_websites=0).all()
+        now_minus_14_days = datetime.now() - timedelta(days=14)
+        all_empty_searches = SearchHit.objects.filter(created_at__gt=make_aware(now_minus_14_days),
+                                                      nb_websites=0).all()
         for hit in all_empty_searches:
             query = hit.query
 
