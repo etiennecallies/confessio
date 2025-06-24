@@ -32,10 +32,11 @@ def church_pre_save(sender, instance, update_fields=None, **kwargs):
 
 @receiver(post_save, sender=Church)
 def church_post_save(sender, instance, created, update_fields=None, **kwargs):
-    print(f'Church post_save signal triggered for church {instance.name}')
     if instance._name_changed or instance._city_changed:
         website = instance.parish.website
         if website:
+            print(f'Church post_save signal triggered for church {instance.name},'
+                  f' website {website.name}')
             transaction.on_commit(lambda: reparse_website(website))
 
 
