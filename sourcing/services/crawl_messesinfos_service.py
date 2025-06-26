@@ -91,6 +91,10 @@ def get_parishes_and_churches(messesinfo_network_id: str,
             if filtered_community_id and messesinfo_community_id != filtered_community_id:
                 continue
 
+            if not church_data['name'] or not church_data['name'].strip():
+                print(f'no name for church {church_messesinfo_id}, ignoring this church')
+                continue
+
             parish = parish_by_community_id.get(messesinfo_community_id, None)
             if not parish:
                 parish = fetch_parish(messesinfo_community_id, diocese)
