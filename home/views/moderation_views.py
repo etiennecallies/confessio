@@ -50,10 +50,13 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
     if moderation_uuid is None:
         created_after_ts = int(request.GET.get('created_after', '0'))
         created_after = ts_us_to_datetime(created_after_ts)
-        next_moderation = class_moderation.objects.filter(
-            category=category, validated_at__isnull=True, marked_as_bug_at__isnull=not is_bug,
-            diocese=diocese, created_at__gt=created_after) \
-            .order_by('created_at').first()
+        objects_filter = class_moderation.objects.filter(category=category,
+                                                         validated_at__isnull=True,
+                                                         marked_as_bug_at__isnull=not is_bug,
+                                                         created_at__gt=created_after)
+        if diocese:
+            objects_filter = objects_filter.filter(diocese=diocese)
+        next_moderation = objects_filter.order_by('created_at').first()
         return redirect_to_moderation(next_moderation, category, resource, is_bug, diocese_slug)
 
     try:

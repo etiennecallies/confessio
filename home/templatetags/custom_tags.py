@@ -123,7 +123,7 @@ def get_page_parsing_of_pruning(page: Page, pruning: Pruning) -> Optional[Parsin
 
 @register.simple_tag
 def get_dioceses() -> list[Diocese | None]:
-    return list(Diocese.objects.all()) + [None]
+    return [None] + list(Diocese.objects.all())
 
 
 @register.filter

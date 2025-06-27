@@ -84,7 +84,10 @@ class ModerationMixin(TimeStampMixin):
     @classmethod
     def get_stats_by_category(cls, diocese: Diocese | None):
         stats = []
-        query_stats = cls.objects.filter(validated_at__isnull=True, diocese=diocese).all()\
+        objects_filter = cls.objects.filter(validated_at__isnull=True)
+        if diocese:
+            objects_filter = objects_filter.filter(diocese=diocese)
+        query_stats = objects_filter.all()\
             .values('category')\
             .annotate(total_count=Count('category'), bug_count=Count('marked_as_bug_at'))
         for stat in query_stats:
@@ -181,6 +184,7 @@ class WebsiteModeration(ModerationMixin):
 
 
 class ExternalSource(models.TextChoices):
+    MANUAL = "manual"
     MESSESINFO = "messesinfo"
     LEHAVRE = "lehavre"
     TROUVERUNEMESSE = "trouverunemesse"

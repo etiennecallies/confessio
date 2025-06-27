@@ -9,9 +9,21 @@ from sourcing.utils.google_maps_api_utils import google_maps_geocode
 from sourcing.utils.wikidata_utils import get_church_by_messesinfo_id
 
 
+def get_church_external_source(church: Church) -> ExternalSource:
+    if church.trouverunemesse_id:
+        return ExternalSource.TROUVERUNEMESSE
+    elif church.messesinfo_id:
+        return ExternalSource.MESSESINFO
+    else:
+        return ExternalSource.MANUAL
+
+
 def compute_church_coordinates(
-        church: Church, source: ExternalSource, no_save: bool = False
-) -> tuple[Optional[Church], list[tuple[ChurchModeration.Category, bool]]]:
+        church: Church, source: ExternalSource | None = None, no_save: bool = False
+) -> list[tuple[ChurchModeration.Category, bool]] | None:
+    if source is None:
+        source = get_church_external_source(church)
+
     wikidata_results = get_church_by_messesinfo_id(church.messesinfo_id)
     if wikidata_results and len(wikidata_results) == 1 and wikidata_results[0].coordinates_latlon:
         result = wikidata_results[0]
@@ -23,7 +35,8 @@ def compute_church_coordinates(
     if not result or not result.coordinates_latlon:
         categories.append((ChurchModeration.Category.LOCATION_NULL, False))
     else:
-        categories.append((ChurchModeration.Category.LOCATION_FROM_API, False))
+        if church.wikidata_id is None:
+            categories.append((ChurchModeration.Category.LOCATION_FROM_API, False))
         latitude, longitude = result.coordinates_latlon
         church.location = Point(longitude, latitude)
         if not church.address:
@@ -37,33 +50,54 @@ def compute_church_coordinates(
     if church_with_same_location:
         # We can not save church since another church already has the same location
         add_church_location_conflict(church_with_same_location, church, source)
-        return None, []
+        return None
+
+    if source != ExternalSource.MANUAL:
+        categories.append((ChurchModeration.Category.LOCATION_DIFFERS, True))
 
     if no_save:
-        categories.append((ChurchModeration.Category.LOCATION_DIFFERS, True))
-        return church, categories
+        return categories
 
     church.save()
     for category, validated in categories:
         add_church_moderation_if_not_exists(church, category, source, validated=validated)
 
-    return church, categories
+    return None
 
 
-def add_church_moderation_if_not_exists(church: Church, category: ChurchModeration.Category,
-                                        source: ExternalSource, validated: bool = False):
+def get_church_moderation(church: Church, category: ChurchModeration.Category,
+                          source: ExternalSource | None = None):
+    if source is None:
+        source = get_church_external_source(church)
     try:
-        ChurchModeration.objects.get(
+        return ChurchModeration.objects.get(
             church=church,
             category=category,
             source=source
         )
     except ChurchModeration.DoesNotExist:
+        return None
+
+
+def add_church_moderation_if_not_exists(church: Church, category: ChurchModeration.Category,
+                                        source: ExternalSource | None = None,
+                                        validated: bool = False):
+    if source is None:
+        source = get_church_external_source(church)
+    church_moderation = get_church_moderation(church, category, source)
+    if church_moderation:
+        if validated and church_moderation.validated_at is None:
+            church_moderation.validated_at = Now()
+            church_moderation.save()
+    else:
         church_moderation = ChurchModeration(
             church=church,
             category=category,
             source=source,
             location=church.location,
+            address=church.address,
+            zipcode=church.zipcode,
+            city=church.city,
             diocese=church.parish.diocese,
             validated_at=Now() if validated else None,
         )
@@ -128,9 +162,12 @@ def find_church_geo_outliers() -> int:
 
         for church in diocese_churches:
             if church in outliers_churches:
+                church_moderation = get_church_moderation(
+                    church, ChurchModeration.Category.LOCATION_OUTLIER)
+                if not church_moderation:
+                    compute_church_coordinates(church, no_save=True)
                 add_church_moderation_if_not_exists(church,
-                                                    ChurchModeration.Category.LOCATION_OUTLIER,
-                                                    ExternalSource.MESSESINFO)
+                                                    ChurchModeration.Category.LOCATION_OUTLIER)
             else:
                 ChurchModeration.objects.filter(
                     church=church,
@@ -147,9 +184,7 @@ def check_distances(churches: list[Church], max_distance: int) -> list[Church]:
     valid_churches = []
     for church in churches:
         if not check_coordinates_validity(church.location):
-            add_church_moderation_if_not_exists(church,
-                                                ChurchModeration.Category.LOCATION_OUTLIER,
-                                                ExternalSource.MESSESINFO)
+            compute_church_coordinates(church)
             continue
         valid_churches.append(church)
 

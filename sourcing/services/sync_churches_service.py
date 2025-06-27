@@ -104,7 +104,9 @@ def add_church_moderation_if_not_exists(church_moderation: ChurchModeration,
                 or not church_retriever.is_same_parish(existing_moderation.parish,
                                                        church_moderation.parish) \
                 or not church_retriever.is_same_church_set(
-                    set(existing_moderation.similar_churches.all()), similar_churches):
+                    set(existing_moderation.similar_churches.all()), similar_churches) \
+                or (existing_moderation.validated_at is None
+                    and church_moderation.validated_at is not None):
             existing_moderation.delete()
             church_moderation.save()
             if similar_churches:
@@ -226,9 +228,9 @@ def sync_churches(external_churches: list[Church],
                     compute_church_coordinates(church_with_same_location, church_retriever.source)
 
                     # Then we re-compute the coordinates of the draft church
-                    new_church, church_moderation_categories = compute_church_coordinates(
+                    church_moderation_categories = compute_church_coordinates(
                         external_church, church_retriever.source, no_save=True)
-                    if not new_church:
+                    if church_moderation_categories is None:
                         # If church could not have been saved, we stop here
                         continue
 
