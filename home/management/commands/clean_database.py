@@ -5,7 +5,8 @@ from django.db.models import Q, Model
 from django.utils import timezone
 
 from home.management.abstract_command import AbstractCommand
-from home.models import Pruning, Sentence, Classifier, Page, ParsingModeration, Parsing, Log
+from home.models import Pruning, Sentence, Classifier, Page, ParsingModeration, Parsing, Log, \
+    ChurchModeration
 from scraping.services.page_service import delete_page
 from scraping.services.parse_pruning_service import clean_parsing_moderations, \
     unlink_website_from_parsing
@@ -83,6 +84,18 @@ class Command(AbstractCommand):
             created_at__lt=timezone.now() - timedelta(days=3)).all()
         counter = self.delete_objects(old_logs)
         self.success(f'Done removing {counter} old logs')
+
+        # Church moderation
+        self.info(f'Starting cleaning church moderation items')
+        counter = 0
+        for church_moderation in ChurchModeration.objects.filter(
+            category=ChurchModeration.Category.LOCATION_DIFFERS,
+            validated_at__isnull=True,
+        ).all():
+            if not church_moderation.location_desc_differs():
+                church_moderation.delete()
+                counter += 1
+        self.success(f'Done removing {counter} church moderation items')
 
     def delete_objects(self, objects):
         counter = 0
