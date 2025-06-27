@@ -44,6 +44,12 @@
         <p><a class="btn btn-gray-500" href="{% url 'edit_pruning' pruning.uuid %}" target="_blank" role="button">
         Edit pruning <i class="fas fa-up-right-from-square"></i>
         </a></p>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="reparse_parsing" />
+            <input type="hidden" name="pruning_uuid" value="{{ pruning.uuid }}"/>
+            <button type="submit" class="btn btn-warning">Re-parse</button>
+        </form>
     {% endfor %}
 
 

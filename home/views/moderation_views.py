@@ -7,12 +7,12 @@ from django.urls import reverse
 
 from home.models import WebsiteModeration, ChurchModeration, ModerationMixin, \
     BUG_DESCRIPTION_MAX_LENGTH, ParishModeration, ResourceDoesNotExistError, PruningModeration, \
-    SentenceModeration, ParsingModeration, ReportModeration, Diocese
+    SentenceModeration, ParsingModeration, ReportModeration, Diocese, Pruning
 from home.services.edit_pruning_service import on_pruning_human_validation
 from home.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 from scraping.parse.schedules import SchedulesList
 from scraping.services.parse_pruning_service import on_parsing_human_validation, \
-    set_human_json, ParsingValidationError
+    set_human_json, ParsingValidationError, force_reparse_parsing_for_pruning
 from sourcing.services.church_human_service import on_church_human_validation
 from sourcing.services.merge_websites_service import merge_websites
 
@@ -86,6 +86,14 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
             moderation.mark_as_bug(request.user, bug_description)
         elif 'delete_moderation' in request.POST:
             moderation.delete()
+        elif 'reparse_parsing' in request.POST:
+            pruning_uuid = request.POST.get('pruning_uuid')
+            try:
+                pruning = Pruning.objects.get(uuid=pruning_uuid)
+                force_reparse_parsing_for_pruning(moderation.parsing, pruning)
+            except Pruning.DoesNotExist:
+                return HttpResponseNotFound(
+                    f"pruning not found with uuid {pruning_uuid}")
         else:
             if 'replace_home_url' in request.POST:
                 moderation.replace_home_url()

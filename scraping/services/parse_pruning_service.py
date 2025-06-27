@@ -1,3 +1,4 @@
+import asyncio
 import re
 from datetime import timedelta
 
@@ -336,6 +337,16 @@ def unlink_orphan_pruning_for_website(pruning: Pruning, website: Website):
     for parsing in parsings:
         info(f'unlinking parsing {parsing.uuid} from orphan pruning {pruning.uuid}')
         unlink_pruning_from_parsing(parsing, pruning)
+
+
+############
+# RE-PARSE #
+############
+
+def force_reparse_parsing_for_pruning(parsing: Parsing, pruning: Pruning):
+    website = parsing.website
+    if website:
+        asyncio.run(parse_pruning_for_website(pruning, website, force_parse=True))
 
 
 ########
