@@ -133,7 +133,7 @@ def add_church_location_conflict(existing_church: Church, church: Church,
 
 def get_church_with_same_location(church: Church) -> Optional[Church]:
     try:
-        return Church.objects.filter(location=church.location).exclude(pk=church.pk).get()
+        return Church.objects.filter(location=church.location).exclude(pk=church.pk).first()
     except Church.DoesNotExist:
         return None
 
