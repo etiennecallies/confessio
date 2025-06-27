@@ -93,7 +93,7 @@ def clear_formatting(element: PageElement):
         for attr in attrs:
             if attr in [
                 'id', 'class', 'style', 'href', 'width', 'border', 'onclick', 'target',
-                'role', 'tabindex',
+                'role', 'tabindex', 'itemscope', 'itemtype', 'itemprop', 'content'
             ] or attr.startswith('data-') or attr.startswith('aria-'):
                 del element.attrs[attr]
 
