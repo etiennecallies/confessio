@@ -1,10 +1,10 @@
 import asyncio
 
 from django.db import transaction
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import post_save, pre_save, post_delete
 from django.dispatch import receiver
 
-from home.models import Church, Pruning, Website
+from home.models import Church, Pruning, Website, Parish
 from scraping.services.parse_pruning_service import parse_pruning_for_website
 
 
@@ -38,6 +38,19 @@ def church_post_save(sender, instance, created, update_fields=None, **kwargs):
             print(f'Church post_save signal triggered for church {instance.name},'
                   f' website {website.name}')
             transaction.on_commit(lambda: reparse_website(website))
+
+
+@receiver(post_delete, sender=Church)
+def church_post_delete(sender, instance, origin, **kwargs):
+    if origin and isinstance(origin, Website) or isinstance(origin, Parish):
+        print(f'Church post_delete signal triggered by {type(origin)}. Ignoring signal.')
+        return
+
+    website = instance.parish.website
+    if website:
+        print(f'Church post_delete signal triggered for church {instance.name},'
+              f' website {website.name}')
+        transaction.on_commit(lambda: reparse_website(website))
 
 
 def reparse_website(website: Website):
