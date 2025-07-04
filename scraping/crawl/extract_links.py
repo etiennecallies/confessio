@@ -125,13 +125,11 @@ async def is_forbidden(url_parsed: ParseResult, home_url: str, forbidden_paths: 
 
 
 def is_obsolete_path(path: str) -> bool:
+    last_segment = path.rstrip('/').split('/')[-1]
     current_year = get_current_year()
     for year in range(2000, current_year):
-        if f'wp-content/uploads/{year}' in path:
-            path = path.replace(f'wp-content/uploads/{year}', '')
-
-        if f'{year}' in path:
-            for w in re.split(r'\D', path):
+        if f'{year}' in last_segment:
+            for w in re.split(r'\D', last_segment):
                 if w == f'{year}':
                     return True
     return False
