@@ -32,7 +32,7 @@ def extract_text_from_doc(doc) -> str | None:
     text = ''
     for page_num in range(len(doc)):
         page = doc[page_num]
-        text += page.get_text('text', sort=True)
+        text += page.get_text('text', sort=True) + '\n'
 
     doc.close()
 
