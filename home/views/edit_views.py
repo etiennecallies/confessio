@@ -91,7 +91,7 @@ def edit_parsing(request, parsing_uuid):
         previous_schedule_list = get_parsing_schedules_list(parsing)
         try:
             schedules_list = SchedulesList(**schedules_list_as_dict)
-            parsing.human_json = schedules_list.model_dump()
+            parsing.human_json = schedules_list.model_dump(mode='json')
             parsing.save()
             success = True
             re_index_related_website(parsing)
