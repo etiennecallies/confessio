@@ -88,7 +88,7 @@ class DailyRule(BaseModel, frozen=True):
 
 
 class WeeklyRule(BaseModel, frozen=True):
-    by_weekdays: list[Weekday] = Field(..., description='table')
+    by_weekdays: list[Weekday] = Field(..., description='uniqueItems')
 
     def __hash__(self):
         return hash(tuple(sorted(map(lambda w: w.value, self.by_weekdays))))
@@ -103,8 +103,8 @@ class MonthlyRule(BaseModel, frozen=True):
 
 class RegularRule(BaseModel, frozen=True):
     rule: DailyRule | WeeklyRule | MonthlyRule
-    only_in_periods: list[PeriodEnum] = Field(..., description='table')
-    not_in_periods: list[PeriodEnum] = Field(..., description='table')
+    only_in_periods: list[PeriodEnum] = Field(..., description='uniqueItems')
+    not_in_periods: list[PeriodEnum] = Field(..., description='uniqueItems')
     not_on_dates: list[OneOffRule] = Field(..., description='table')
 
     def __hash__(self):

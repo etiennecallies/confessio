@@ -76,6 +76,8 @@ def get_offset(liturgical_day: LiturgicalDayEnum):
     if liturgical_day == LiturgicalDayEnum.PENTECOST:
         return 49
 
+    raise NotImplementedError(f'Liturgical day {liturgical_day} not implemented for offset')
+
 
 def get_liturgical_date(liturgical_day: LiturgicalDayEnum, year: int) -> date:
     easter_day = get_easter_day(year)

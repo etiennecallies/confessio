@@ -109,6 +109,7 @@ def edit_parsing(request, parsing_uuid):
     # This is a ugly hack since openai doesn't support format in the schema
     json_schema = json.loads(
         json.dumps(SchedulesList.model_json_schema())
+        .replace('"description": "uniqueItems"', '"uniqueItems": true')
         .replace('description', 'format')
     )
     form = JSONSchemaForm(
