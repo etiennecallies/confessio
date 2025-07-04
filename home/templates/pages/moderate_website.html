@@ -33,6 +33,12 @@
         </form>
     {% endif %}
 
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="suggest_alternative_website" />
+        <button type="submit" class="btn btn-info">Suggest alternative url</button>
+    </form>
+
     <p>
         <a class="link-info" href="{% url 'website_view' website.uuid %}">{{ website.name }}</a>
     </p>

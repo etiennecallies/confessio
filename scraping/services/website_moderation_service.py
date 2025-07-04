@@ -1,6 +1,7 @@
 from datetime import date
 
 from home.models import WebsiteModeration, Website, Church
+from sourcing.services.website_url_service import get_alternative_website_url
 
 
 def remove_not_validated_moderation(website: Website, category: WebsiteModeration.Category):
@@ -37,3 +38,10 @@ def add_moderation(website: Website, category: WebsiteModeration.Category,
             conflict_church=conflict_church,
         )
         moderation.save()
+
+
+def suggest_alternative_website(website_moderation: WebsiteModeration):
+    alternative_website = get_alternative_website_url(website_moderation.website)
+    if alternative_website:
+        website_moderation.home_url = alternative_website.home_url[:200]
+        website_moderation.save()

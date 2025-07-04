@@ -13,6 +13,7 @@ from home.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 from scraping.parse.schedules import SchedulesList
 from scraping.services.parse_pruning_service import on_parsing_human_validation, \
     set_human_json, ParsingValidationError, force_reparse_parsing_for_pruning
+from scraping.services.website_moderation_service import suggest_alternative_website
 from sourcing.services.church_human_service import on_church_human_validation
 from sourcing.services.merge_websites_service import merge_websites
 
@@ -94,6 +95,8 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
             except Pruning.DoesNotExist:
                 return HttpResponseNotFound(
                     f"pruning not found with uuid {pruning_uuid}")
+        elif 'suggest_alternative_website' in request.POST:
+            suggest_alternative_website(moderation)
         else:
             if 'replace_home_url' in request.POST:
                 moderation.replace_home_url()
