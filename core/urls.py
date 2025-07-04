@@ -21,7 +21,4 @@ urlpatterns = [
     path('front/', include('front.urls')),
     path("admin/", admin.site.urls),
     path("", include('theme_pixel.urls')),
-
-    # captcha
-    path('captcha/', include('captcha.urls')),
 ]

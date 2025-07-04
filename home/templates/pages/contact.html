@@ -65,9 +65,7 @@
 
                                     <div class="mb-4">
                                         <label for="captcha">Votre humanité</label>
-                                        <div>
-                                            {{ form.captcha }}  <!-- Captcha field -->
-                                        </div>
+                                        <div class="cf-turnstile" data-sitekey="{{ cloudflare_turnstile_site_key }}" data-theme="light"></div>
                                     </div>
 
                                     <div class="d-grid">
@@ -85,3 +83,8 @@
     </main>
 
 {% endblock content %}
+
+  {% block javascripts %}
+      {% include 'includes/scripts.html' %}
+      <script src="https://challenges.cloudflare.com/turnstile/v0/api.js"></script>
+  {% endblock javascripts %}

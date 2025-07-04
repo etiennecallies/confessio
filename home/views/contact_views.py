@@ -5,20 +5,21 @@ from django.core.mail import send_mail, BadHeaderError
 from django.http import HttpResponseBadRequest
 from django.shortcuts import render, redirect
 
-from home.forms.captcha_form import CaptchaForm
 from home.models import Diocese, Website, ChurchIndexEvent
 from home.services.page_url_service import quote_path, unquote_path
+from home.utils.cloudflare_utils import verify_token
 
 
 def contact(request, message=None, email=None, name_text=None, message_text=None):
     if request.method == "GET":
-        form = CaptchaForm()
+        cloudflare_turnstile_site_key = os.environ.get('CLOUDFLARE_TURNSTILE_SITE_KEY', '')
         return render(request, 'pages/contact.html',
-                      {'message': message, 'form': form,
+                      {'message': message,
                        'name_text': unquote_path(name_text or ''),
                        'email': email or '',
                        'message_text': unquote_path(message_text or ''),
                        'meta_title': gettext('contactPageTitle'),
+                       'cloudflare_turnstile_site_key': cloudflare_turnstile_site_key
                        })
     else:
         name = request.POST.get('name')
@@ -28,9 +29,8 @@ def contact(request, message=None, email=None, name_text=None, message_text=None
         if not name or not from_email or not message:
             return HttpResponseBadRequest("Missing required fields")
 
-        form = CaptchaForm(request.POST)
-        if not form.is_valid():
-            print(form.errors)
+        cloudflare_token = request.POST.get('cf-turnstile-response')
+        if not verify_token(cloudflare_token):
             name_text = quote_path(name)
             message_text = quote_path(message)
             return redirect("contact_failure", message='failure',

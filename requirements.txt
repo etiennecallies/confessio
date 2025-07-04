@@ -8,7 +8,6 @@ django-ses==3.5.2
 psycopg2-binary==2.9.6
 django-request==1.6.3
 django-simple-history==3.7.0
-django-simple-captcha==0.6.0
 django-ninja==1.4.1
 django-cors-headers==4.7.0
 
