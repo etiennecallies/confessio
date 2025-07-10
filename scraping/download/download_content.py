@@ -104,8 +104,10 @@ def get_meta_refresh_redirect(soup: BeautifulSoup) -> Optional[str]:
 
 
 def is_pdf(r: Response) -> bool:
-    content_type = r.headers.get("Content-Type", "")
-    if content_type.lower().startswith("application/pdf"):
+    content_type = r.headers.get("Content-Type", r.headers.get("content-type", ""))
+    content_disposition = r.headers.get("content-disposition", "")
+    if content_type.lower().startswith("application/pdf") or \
+            content_disposition.lower().endswith(".pdf"):
         return True
 
     return False
