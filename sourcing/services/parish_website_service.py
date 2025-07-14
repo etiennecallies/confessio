@@ -25,6 +25,7 @@ def is_link_ok(link: str) -> bool:
         'messes.info',
         'theodia.org',
         '4paroisses.fr',
+        '4clochers.fr',
         'horairesmesses.com',
         'lejourduseigneur.com',
 
