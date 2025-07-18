@@ -6,13 +6,15 @@ from home.models import Website, Image
 
 def upload_image(document, website: Website, comment: str) -> tuple[bool, str | None]:
     # Generate unique filename
+    image_name = document.name.replace(' ', '_').replace('/', '_')
+
     image = Image(
         website=website,
-        name=document.name,
+        name=image_name,
         comment=comment,
     )
     image.save()
-    unique_filename = f"{image.uuid}/{document.name}"
+    unique_filename = f"{image.uuid}/{image_name}"
 
     s3_success = upload_to_s3(document, unique_filename)
     if s3_success:

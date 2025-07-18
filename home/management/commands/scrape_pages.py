@@ -10,6 +10,7 @@ from home.utils.log_utils import start_log_buffer, get_log_buffer
 from scraping.scrape.download_refine_and_extract import get_fresh_extracted_html_list
 from scraping.services.page_service import delete_page, clean_scraping_of_pruning
 from scraping.services.prune_scraping_service import prune_pruning
+from scraping.services.recognize_image_service import recognize_image
 from scraping.services.scrape_page_service import upsert_extracted_html_list
 
 
@@ -58,6 +59,9 @@ class Command(AbstractCommand):
                     clean_scraping_of_pruning(pruning)
                     prune_pruning(pruning)
                 self.info(f'Successfully scraped page {page.url} {page.uuid}')
+
+            for image in website.images.all():
+                recognize_image(image)
 
             self.success(f'Successfully scraped website {website.name} {website.uuid}')
             buffer_value = get_log_buffer()
