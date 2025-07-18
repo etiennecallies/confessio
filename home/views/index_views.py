@@ -8,9 +8,11 @@ from django.http import HttpResponseNotFound, JsonResponse, HttpResponseBadReque
 from django.shortcuts import render
 from django.utils.translation import gettext
 
+from home.forms.image_upload_form import ImageUploadForm
 from home.models import Website, Diocese, ChurchIndexEvent, Church
 from home.services.autocomplete_service import get_aggregated_response
 from home.services.filter_service import get_filter_days
+from home.services.image_service import upload_image
 from home.services.map_service import prepare_map, get_center, get_cities_label
 from home.services.page_url_service import get_page_pruning_urls
 from home.services.report_service import get_count_and_label, new_report, NewReportError, \
@@ -22,6 +24,7 @@ from home.services.stat_service import new_search_hit
 from home.services.website_events_service import get_website_events
 from home.services.website_schedules_service import get_website_schedules
 from home.utils.date_utils import get_current_day, get_current_year
+from home.utils.web_utils import redirect_with_url_params
 from sourcing.utils.string_utils import lower_first, city_and_prefix
 
 
@@ -34,6 +37,12 @@ def render_map(request, center,
                is_around_me: bool, time_filter: TimeFilter,
                page_website: Website | None, success_message: str | None,
                welcome_message: str | None, display_quick_search_cities: bool):
+    upload_success = extract_bool('upload_success', request)
+    upload_error_message = request.GET.get('upload_error_message', None)
+    success_message = success_message or (
+        "L'image a été chargée avec succès !" if upload_success else None
+    )
+
     # We get all websites and their churches
     websites_by_uuid = {}
     website_churches = {}
@@ -97,7 +106,7 @@ def render_map(request, center,
         if key not in ['dateFilter', 'hourMin', 'hourMax']:
             hidden_inputs[key] = request.GET[key]
 
-    if request.resolver_match.url_name != 'index':
+    if request.resolver_match.url_name != 'index' and upload_success is None:
         new_search_hit(request, len(websites))
 
     return render(request, 'pages/index.html', {
@@ -123,9 +132,12 @@ def render_map(request, center,
         'hour_max': time_filter.hour_max or '',
         'action_path': request.path,
         'hidden_inputs': hidden_inputs,
-        'is_website_page': page_website is not None,
+        'page_website': page_website,
         'success_message': success_message,
         'previous_reports': get_previous_reports(page_website) if page_website else None,
+        'image_upload_form': ImageUploadForm() if page_website else None,
+        'upload_error_message': upload_error_message,
+        'website_images': page_website.images.all() if page_website else None,
     })
 
 
@@ -159,14 +171,14 @@ def extract_day_filter(request) -> date | None:
     return None
 
 
-def extract_bool(key: str, request) -> bool:
+def extract_bool(key: str, request) -> bool | None:
     value = request.GET.get(key, '')
-    if value == 'true':
+    if value.lower() == 'true':
         return True
-    elif value == 'false':
+    elif value.lower() == 'false':
         return False
     else:
-        return False
+        return None
 
 
 def extract_temporal_filters(request) -> TimeFilter:
@@ -380,3 +392,32 @@ def dioceses_list(request):
     }
 
     return render(request, 'pages/dioceses.html', context)
+
+
+def website_upload_image(request, website_uuid: str):
+    try:
+        website = Website.objects.get(uuid=website_uuid)
+    except Website.DoesNotExist:
+        return HttpResponseNotFound("Website does not exist with this uuid")
+
+    if request.method == 'POST':
+        form = ImageUploadForm(request.POST, request.FILES)
+        comment = request.POST.get('comment', None)
+        if form.is_valid():
+            image = form.cleaned_data['image']
+            success, error_message = upload_image(image, website, comment)
+
+            return redirect_with_url_params(
+                "website_view", website_uuid=website_uuid,
+                query_params={
+                    'upload_success': success,
+                    'upload_error_message': error_message if error_message else '',
+                })
+
+        return redirect_with_url_params("website_view", website_uuid=website_uuid,
+                                        query_params={
+                                            'upload_success': False,
+                                            'upload_error_message': str(form.errors)
+                                        })
+
+    return HttpResponseBadRequest("Invalid request method")

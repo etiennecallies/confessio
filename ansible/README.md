@@ -13,10 +13,15 @@ Buy a domain and link DNS to your instance IP.
 
 ## AWS S3
 
-We use S3 to backup postgresql daily and weekly.
+We use S3 to backup postgresql daily and weekly, as well as to store uploaded documents.
 
-Create two S3 buckets and an IAM user ([tutorial](https://kinsta.com/knowledgebase/amazon-s3-backups/)).
-For security reasons, we don't want the IAM user to be able to delete backups.
+Create three S3 buckets and an IAM user ([tutorial](https://kinsta.com/knowledgebase/amazon-s3-backups/)).
+The S3 buckets to create are:
+- `confessio-dbbackup-daily`
+- `confessio-dbbackup-weekly`
+- `confessio-uploaded-documents`
+
+For security reasons, we don't want the IAM user to be able to delete any elements in them.
 
 Here is the policy:
 ```json
@@ -38,7 +43,9 @@ Here is the policy:
                 "arn:aws:s3:::confessio-dbbackup-daily",
                 "arn:aws:s3:::confessio-dbbackup-daily/*",
                 "arn:aws:s3:::confessio-dbbackup-weekly",
-                "arn:aws:s3:::confessio-dbbackup-weekly/*"
+                "arn:aws:s3:::confessio-dbbackup-weekly/*",
+                "arn:aws:s3:::confessio-uploaded-documents",
+                "arn:aws:s3:::confessio-uploaded-documents/*"
             ]
         },
         {
@@ -50,6 +57,22 @@ Here is the policy:
             "Resource": "*"
         }
     ]
+}
+```
+
+Also, to enable public download of uploaded documents, you need to set the bucket policy for `confessio-uploaded-documents` to allow public read access:
+```json
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Sid": "PublicReadAllObjects",
+			"Effect": "Allow",
+			"Principal": "*",
+			"Action": "s3:GetObject",
+			"Resource": "arn:aws:s3:::confessio-uploaded-documents/*"
+		}
+	]
 }
 ```
 

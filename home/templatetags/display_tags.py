@@ -6,7 +6,8 @@ from django.contrib.gis.geos import Point
 from django.template.defaulttags import register
 from django.template.loader import render_to_string
 
-from home.models import Parish, Church, Website, Pruning
+from home.models import Parish, Church, Website, Pruning, Image
+from home.services.image_service import get_image_public_url
 from home.services.map_service import (get_map_with_single_location,
                                        get_map_with_multiple_locations,
                                        get_map_with_alternative_locations)
@@ -133,3 +134,11 @@ def display_church_color(church: Church, is_church_explicitly_other: bool,
 @register.simple_tag
 def display_other_church_icon(is_church_explicitly_other: bool) -> str:
     return '⚠️' if is_church_explicitly_other else '❔'
+
+
+@register.simple_tag
+def display_image(image: Image) -> str:
+    return render_to_string('displays/image_display.html', {
+        'image': image,
+        'image_url': get_image_public_url(image),
+    })

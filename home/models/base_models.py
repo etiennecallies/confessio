@@ -297,3 +297,9 @@ class Parsing(TimeStampMixin):
 
     def has_been_moderated(self) -> bool:
         return self.human_json is not None
+
+
+class Image(TimeStampMixin):
+    website = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='images')
+    name = models.CharField(max_length=256)
+    comment = models.TextField(null=True, blank=True)
