@@ -5,7 +5,7 @@ from datetime import timedelta
 from django.db.models.functions import Now
 from django.utils import timezone
 
-from home.models import Pruning, Website, Parsing, ParsingModeration, Page
+from home.models import Pruning, Website, Parsing, ParsingModeration, Page, Image
 from home.utils.async_utils import run_in_sync
 from home.utils.hash_utils import hash_string_to_hex
 from home.utils.log_utils import info
@@ -232,6 +232,12 @@ def check_website_parsing_relations(website: Website) -> bool:
             pruning.get_parsing(website)
             for pruning in Pruning.objects.filter(scrapings__page__website=website).all()
         ] if parsing
+    } | {
+        parsing.uuid
+        for parsing in [
+            pruning.get_parsing(website)
+            for pruning in Pruning.objects.filter(images__website=website).all()
+        ]
     }
     return direct_parsings == indirect_parsings
 
@@ -249,24 +255,36 @@ def debug_website_parsing_relations(website: Website):
                 page = scraping.page
                 info(f'    - Page {page.uuid} {page.url}')
                 info(f'     - Website {page.website.name} {page.website.uuid}')
+            for image in pruning.images.all():
+                info(f'   - Image {image.uuid}')
+                info(f'    - Website {image.website.name} {image.website.uuid}')
 
-    info('Indirect parsings:')
+    info('Indirect parsings (page):')
     for page in Page.objects.filter(website=website).all():
         info(f' - Page {page.uuid} {page.url}')
         scraping = page.scraping
         info(f'  - Scraping {scraping.uuid}')
         for pruning in scraping.prunings.all():
-            info(f'   - Pruning {pruning.uuid}')
-            parsing = pruning.get_parsing(website)
-            if parsing:
-                info(f'    - Parsing {parsing.uuid}')
-                if parsing.website:
-                    info(f'     - Website {parsing.website.name} {parsing.website.uuid}')
-                else:
-                    info(f'     - No website for parsing {parsing.uuid}')
-            else:
-                info(f'    - No parsing for pruning {pruning.uuid}')
+            debug_pruning(pruning, website)
+    info('Indirect parsings (image):')
+    for image in Image.objects.filter(website=website).all():
+        info(f' - Image {image.uuid}')
+        for pruning in image.prunings.all():
+            debug_pruning(pruning, website)
     info()
+
+
+def debug_pruning(pruning: Pruning, website: Website) -> None:
+    info(f'   - Pruning {pruning.uuid}')
+    parsing = pruning.get_parsing(website)
+    if parsing:
+        info(f'    - Parsing {parsing.uuid}')
+        if parsing.website:
+            info(f'     - Website {parsing.website.name} {parsing.website.uuid}')
+        else:
+            info(f'     - No website for parsing {parsing.uuid}')
+    else:
+        info(f'    - No parsing for pruning {pruning.uuid}')
 
 
 ###########################
