@@ -402,10 +402,9 @@ def website_upload_image(request, website_uuid: str):
 
     if request.method == 'POST':
         form = ImageUploadForm(request.POST, request.FILES)
-        comment = request.POST.get('comment', None)
         if form.is_valid():
             image = form.cleaned_data['image']
-            success, error_message = upload_image(image, website, comment)
+            success, error_message = upload_image(image, website, request)
 
             return redirect_with_url_params(
                 "website_view", website_uuid=website_uuid,

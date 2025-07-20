@@ -2,16 +2,22 @@ import boto3
 from django.conf import settings
 
 from home.models import Website, Image
+from home.utils.web_utils import get_user_user_agent_and_ip
 
 
-def upload_image(document, website: Website, comment: str) -> tuple[bool, str | None]:
+def upload_image(document, website: Website, request) -> tuple[bool, str | None]:
     # Generate unique filename
     image_name = document.name.replace(' ', '_').replace('/', '_')
+    comment = request.POST.get('comment', None)
+    user, user_agent, ip_address_hash = get_user_user_agent_and_ip(request)
 
     image = Image(
         website=website,
         name=image_name,
         comment=comment,
+        user=user,
+        user_agent=user_agent,
+        ip_address_hash=ip_address_hash,
     )
     image.save()
     unique_filename = f"{image.uuid}/{image_name}"

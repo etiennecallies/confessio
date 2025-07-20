@@ -310,3 +310,6 @@ class Image(TimeStampMixin):
     llm_error_detail = models.TextField(null=True, blank=True)
     human_html = models.TextField(null=True, blank=True)
     prunings = models.ManyToManyField('Pruning', related_name='images')
+    user = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
+    user_agent = models.TextField(null=True, blank=True)
+    ip_address_hash = models.CharField(max_length=64, null=True, blank=True)
