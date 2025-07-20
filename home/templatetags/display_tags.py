@@ -137,8 +137,9 @@ def display_other_church_icon(is_church_explicitly_other: bool) -> str:
 
 
 @register.simple_tag
-def display_image(image: Image) -> str:
+def display_image(image: Image, request) -> str:
     return render_to_string('displays/image_display.html', {
         'image': image,
         'image_url': get_image_public_url(image),
+        'request': request,
     })

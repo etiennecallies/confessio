@@ -28,7 +28,7 @@
                     {% with image_counter=parsings_and_prunings.all_images_by_parsing_uuid|get_item:parsing.uuid|length %}
                         {% if image_counter > 1 %}<span><small class="text-muted">(et {{ image_counter|subtract:1 }} autres images)</small></span>{% endif %}
                     {% endwith %}:
-                    {% display_image image %}
+                    {% display_image image request %}
                     {% endwith %}
                 </div>
             {% endif %}

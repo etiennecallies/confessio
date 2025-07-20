@@ -67,9 +67,9 @@ def remove_pruning_if_orphan(pruning: Optional[Pruning]):
     if not pruning:
         return True
 
-    if not pruning.scrapings.exists():
+    if not pruning.scrapings.exists() and not pruning.images.exists():
         print(f'deleting not validated moderation for pruning {pruning} since it has no scraping '
-              f'any more')
+              f'nor image any more')
         PruningModeration.objects.filter(pruning=pruning, validated_at__isnull=True).delete()
         return True
 

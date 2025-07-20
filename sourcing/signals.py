@@ -1,6 +1,7 @@
 import asyncio
 
 from django.db import transaction
+from django.db.models import Q
 from django.db.models.signals import post_save, pre_save, post_delete
 from django.dispatch import receiver
 
@@ -54,7 +55,9 @@ def church_post_delete(sender, instance, origin, **kwargs):
 
 
 def reparse_website(website: Website):
-    prunings = Pruning.objects.filter(scrapings__page__website=website).all()
+    prunings = Pruning.objects.filter(
+        Q(scrapings__page__website=website) | Q(image__website=website)
+    ).all()
     for pruning in prunings:
         with asyncio.Runner() as runner:
             runner.run(parse_pruning_for_website(pruning, website))

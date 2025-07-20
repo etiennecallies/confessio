@@ -327,7 +327,8 @@ def unlink_website_from_parsing(parsing: Parsing):
 def unlink_pruning_from_parsing(parsing: Parsing, pruning: Pruning):
     parsing.prunings.remove(pruning)
     if parsing.website:
-        if not parsing.prunings.filter(scrapings__page__website=parsing.website).exists():
+        if not parsing.prunings.filter(scrapings__page__website=parsing.website).exists()\
+                and not parsing.prunings.filter(images__website=parsing.website).exists():
             info(f'parsing {parsing.uuid} has no more prunings for website {parsing.website.uuid}')
             unlink_website_from_parsing(parsing)
 
