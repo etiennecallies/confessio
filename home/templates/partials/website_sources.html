@@ -6,19 +6,32 @@
     {% for parsing in parsings_and_prunings.sources %}
         <div class="row mt-1 mb-3 margin-left-indent" id="parsing-{{ website.uuid }}-{{ parsing.uuid }}">
             {% with page=parsings_and_prunings.page_by_parsing_uuid|get_item:parsing.uuid %}
-            <div class="col-md-9 lead">
-                [{{ forloop.counter }}]
-                {% blocktrans with url=page_pruning_urls|get_item:page.uuid|get_item:parsing.uuid %}BeforeConfessionHTML {{ url }}{% endblocktrans %}
-                {% with page_counter=parsings_and_prunings.all_pages_by_parsing_uuid|get_item:parsing.uuid|length %}
-                    {% if page_counter > 1 %}<span><small class="text-muted">(et {{ page_counter|subtract:1 }} autres pages)</small></span>{% endif %}
-                {% endwith %}
-                {% if page.has_been_modified_recently %}
-                    <button type="button" class="btn btn-success btn-sm" data-toggle="tooltip" data-placement="bottom"
-                            title="Contenu modifié le {{ page.scraping.created_at|date:"d M" }}">
-                        À jour
-                    </button>
-                {% endif %}
-            </div>
+            {% if page %}
+                <div class="col-md-9 lead">
+                    [{{ forloop.counter }}]
+                    {% blocktrans with url=page_pruning_urls|get_item:page.uuid|get_item:parsing.uuid %}BeforeConfessionHTML {{ url }}{% endblocktrans %}
+                    {% with page_counter=parsings_and_prunings.all_pages_by_parsing_uuid|get_item:parsing.uuid|length %}
+                        {% if page_counter > 1 %}<span><small class="text-muted">(et {{ page_counter|subtract:1 }} autres pages)</small></span>{% endif %}
+                    {% endwith %}
+                    {% if page.has_been_modified_recently %}
+                        <button type="button" class="btn btn-success btn-sm" data-toggle="tooltip" data-placement="bottom"
+                                title="Contenu modifié le {{ page.scraping.created_at|date:"d M" }}">
+                            À jour
+                        </button>
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="col-md-9 lead">
+                    [{{ forloop.counter }}]
+                    {% with image=parsings_and_prunings.image_by_parsing_uuid|get_item:parsing.uuid %}
+                    Extrait de cette image
+                    {% with image_counter=parsings_and_prunings.all_images_by_parsing_uuid|get_item:parsing.uuid|length %}
+                        {% if image_counter > 1 %}<span><small class="text-muted">(et {{ image_counter|subtract:1 }} autres images)</small></span>{% endif %}
+                    {% endwith %}:
+                    {% display_image image %}
+                    {% endwith %}
+                </div>
+            {% endif %}
             <div class="col-md-3">
                 {% if request.user.is_authenticated and perms.home.change_sentence %}
                     <div class="row">

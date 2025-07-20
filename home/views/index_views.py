@@ -12,7 +12,7 @@ from home.forms.image_upload_form import ImageUploadForm
 from home.models import Website, Diocese, ChurchIndexEvent, Church
 from home.services.autocomplete_service import get_aggregated_response
 from home.services.filter_service import get_filter_days
-from home.services.image_service import upload_image
+from home.services.upload_image_service import upload_image
 from home.services.map_service import prepare_map, get_center, get_cities_label
 from home.services.page_url_service import get_page_pruning_urls
 from home.services.report_service import get_count_and_label, new_report, NewReportError, \

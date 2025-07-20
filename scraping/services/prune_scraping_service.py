@@ -177,9 +177,15 @@ def clean_pruning_moderations() -> int:
 
 async def update_parsings(pruning: Pruning):
     websites = set()
+
+    # Add scrapings' websites
     async for scraping in pruning.scrapings.select_related("page").select_related("page__website")\
             .all():
         websites.add(scraping.page.website)
+
+    # Add images' websites
+    async for image in pruning.images.select_related("website").all():
+        websites.add(image.website)
 
     for website in websites:
         await parse_pruning_for_website(pruning, website)

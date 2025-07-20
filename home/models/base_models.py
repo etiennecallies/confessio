@@ -309,3 +309,4 @@ class Image(TimeStampMixin):
     prompt_hash = models.CharField(max_length=32, null=True, blank=True)
     llm_error_detail = models.TextField(null=True, blank=True)
     human_html = models.TextField(null=True, blank=True)
+    prunings = models.ManyToManyField('Pruning', related_name='images')

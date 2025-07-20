@@ -1,9 +1,8 @@
 from dataclasses import dataclass
-from datetime import datetime
-from typing import Optional
 from uuid import UUID
 
-from home.models import Website, Parsing, Page, Pruning
+from home.models import Website, Parsing, Page, Pruning, Image
+from scraping.services.image_service import get_image_html
 from scraping.services.parsing_service import has_schedules
 
 
@@ -16,15 +15,18 @@ class WebsiteParsingsAndPrunings:
     sources: list[Parsing]
     page_by_parsing_uuid: dict[UUID, Page]
     all_pages_by_parsing_uuid: dict[UUID, list[Page]]
+    image_by_parsing_uuid: dict[UUID, Image]
+    all_images_by_parsing_uuid: dict[UUID, list[Image]]
     prunings_by_parsing_uuid: dict[UUID, list[Pruning]]
-    page_scraping_last_created_at_by_parsing_uuid: dict[UUID, Optional[datetime]]
 
 
 def get_website_parsings_and_prunings(website: Website) -> WebsiteParsingsAndPrunings:
     sources = get_website_sorted_parsings(website)
+    prunings_by_parsing_uuid = {}
+
+    # Pages
     page_by_parsing_uuid = {}
     all_pages_by_parsing_uuid = {}
-    prunings_by_parsing_uuid = {}
     page_scraping_last_created_at_by_parsing_uuid = {}
     for page in website.get_pages():
         if page.scraping is None:
@@ -46,12 +48,36 @@ def get_website_parsings_and_prunings(website: Website) -> WebsiteParsingsAndPru
             all_pages_by_parsing_uuid.setdefault(parsing.uuid, []).append(page)
             prunings_by_parsing_uuid.setdefault(parsing.uuid, []).append(pruning)
 
+    # Images
+    image_by_parsing_uuid = {}
+    all_images_by_parsing_uuid = {}
+    image_last_created_at_by_parsing_uuid = {}
+    for image in website.images.all():
+        if get_image_html(image) is None:
+            continue
+
+        for pruning in image.prunings.all():
+            parsing = pruning.get_parsing(website)
+            if parsing is None or not has_schedules(parsing):
+                continue
+
+            image_last_created_at = image_last_created_at_by_parsing_uuid.get(parsing.uuid, None)
+            if image_last_created_at is None or image.created_at > image_last_created_at:
+                image_last_created_at_by_parsing_uuid[parsing.uuid] = image.created_at
+                image_by_parsing_uuid[parsing.uuid] = image
+
+            all_images_by_parsing_uuid.setdefault(parsing.uuid, []).append(image)
+            prunings_of_parsing = prunings_by_parsing_uuid.setdefault(parsing.uuid, [])
+            if pruning not in prunings_of_parsing:
+                prunings_of_parsing.append(pruning)
+
     return WebsiteParsingsAndPrunings(
         sources=sources,
         page_by_parsing_uuid=page_by_parsing_uuid,
         all_pages_by_parsing_uuid=all_pages_by_parsing_uuid,
+        image_by_parsing_uuid=image_by_parsing_uuid,
+        all_images_by_parsing_uuid=all_images_by_parsing_uuid,
         prunings_by_parsing_uuid=prunings_by_parsing_uuid,
-        page_scraping_last_created_at_by_parsing_uuid=page_scraping_last_created_at_by_parsing_uuid,
     )
 
 
