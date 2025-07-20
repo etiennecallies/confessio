@@ -20,10 +20,10 @@ class ImageUploadForm(forms.Form):
         image = cleaned_data.get('image')
 
         if not image:
-            raise forms.ValidationError("Please select a file or take a picture.")
+            raise forms.ValidationError("Merci de sélectionner une image ou de prendre une photo.")
 
         # Validate file size
         if image.size > IMAGE_SIZE_LIMIT:
-            raise forms.ValidationError("File size cannot exceed 10MB.")
+            raise forms.ValidationError("Les fichiers ne doivent pas dépasser 10 Mo.")
 
         return cleaned_data

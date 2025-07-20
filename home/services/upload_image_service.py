@@ -18,12 +18,12 @@ def upload_image(document, website: Website, comment: str) -> tuple[bool, str | 
 
     s3_success = upload_to_s3(document, unique_filename)
     if s3_success:
-        print(f'Document uploaded successfully! URL: {unique_filename}')
+        print(f'Document uploaded successfully! unique_filename: {unique_filename}')
         return True, None
 
     image.delete()
 
-    return False, 'Failed to upload document to S3.'
+    return False, 'Une erreur est survenue lors du chargement du fichier.'
 
 
 def upload_to_s3(file, filename) -> bool:

@@ -414,10 +414,13 @@ def website_upload_image(request, website_uuid: str):
                     'upload_error_message': error_message if error_message else '',
                 })
 
+        upload_error_message = ' '.join([
+            error for field_errors in form.errors.values() for error in field_errors
+        ])
         return redirect_with_url_params("website_view", website_uuid=website_uuid,
                                         query_params={
                                             'upload_success': False,
-                                            'upload_error_message': str(form.errors)
+                                            'upload_error_message': upload_error_message
                                         })
 
     return HttpResponseBadRequest("Invalid request method")
