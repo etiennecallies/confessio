@@ -56,6 +56,7 @@ whitelisted_user1: "{{ lookup('ansible.builtin.env', 'WHITELISTED_USER1') }}"
 
 # API keys
 openai_api_key: "{{ lookup('ansible.builtin.env', 'PROD_OPENAI_API_KEY') }}"
+openai_api_key_recognize: "{{ lookup('ansible.builtin.env', 'PROD_OPENAI_API_KEY_RECOGNIZE') }}"
 
 # Google API creds
 google_api_key: "{{ lookup('ansible.builtin.env', 'PROD_GOOGLE_API_KEY') }}"

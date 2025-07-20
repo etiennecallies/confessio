@@ -5,9 +5,6 @@ from openai import BadRequestError
 
 from scraping.parse.llm_client import LLMProvider
 
-# Load your OpenAI API key from env or set it directly
-openai.api_key = os.getenv("OPENAI_API_KEY")
-
 
 def get_prompt() -> str:
     return """Convert this image to HTML. Just output a valid HTML. Do not include any additional
@@ -27,7 +24,7 @@ def remove_triple_quotes(text: str) -> str:
 def get_html_from_image(image_url: str, prompt: str, llm_provider: LLMProvider,
                         llm_model: str) -> tuple[str | None, str | None]:
     assert llm_provider == LLMProvider.OPENAI
-    openai_client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    openai_client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY_RECOGNIZE"))
 
     try:
         response = openai_client.responses.create(
