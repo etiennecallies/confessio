@@ -1,7 +1,9 @@
 import boto3
 from django.conf import settings
+from django.urls import reverse
 
 from home.models import Website, Image
+from home.services.admin_email_service import send_email_to_admin
 from home.utils.web_utils import get_user_user_agent_and_ip
 
 
@@ -25,6 +27,17 @@ def upload_image(document, website: Website, request) -> tuple[bool, str | None]
     s3_success = upload_to_s3(document, unique_filename)
     if s3_success:
         print(f'Document uploaded successfully! unique_filename: {unique_filename}')
+
+        if not user:
+            website_url = request.build_absolute_uri(
+                reverse('website_view', kwargs={'website_uuid': website.uuid})
+            )
+            email_body = (f"New image on website {website.name}\n"
+                          f"url: {website_url}\n"
+                          f"\n\ncomment:\n{comment}")
+            subject = f'New image on confessio for {website.name}'
+            send_email_to_admin(subject, email_body)
+
         return True, None
 
     image.delete()

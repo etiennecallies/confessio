@@ -16,7 +16,6 @@ class ImageUploadForm(forms.Form):
 
     def clean(self):
         cleaned_data = super().clean()
-        print(cleaned_data)
         image = cleaned_data.get('image')
 
         if not image:
