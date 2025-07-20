@@ -1,12 +1,9 @@
-import os
-
-from django.core.mail import send_mail, BadHeaderError
 from django.http import HttpResponse, HttpResponseBadRequest
 
 from home.models import ReportModeration, Website
 from home.models.report_models import Report
-from home.utils.hash_utils import hash_string_to_hex
-from home.utils.web_utils import get_client_ip
+from home.services.admin_email_service import send_email_to_admin
+from home.utils.web_utils import get_user_user_agent_and_ip
 
 
 ##############
@@ -44,11 +41,7 @@ def new_report(request, website: Website) -> str:
     except ValueError:
         raise NewReportError(HttpResponseBadRequest(f'Invalid error type: {error_type_str}'))
 
-    user_agent = request.META.get('HTTP_USER_AGENT', None)
-    ip_hash_salt = os.environ.get('IP_HASH_SALT')
-    ip_address_hash = hash_string_to_hex(ip_hash_salt + get_client_ip(request))
-
-    user = request.user if request.user.is_authenticated else None
+    user, user_agent, ip_address_hash = get_user_user_agent_and_ip(request)
 
     report = Report(
         website=website,
@@ -69,14 +62,7 @@ def new_report(request, website: Website) -> str:
                       f"feedback_type: {feedback_type}\n"
                       f"error_type: {error_type}\n\ncomment:\n{comment}")
         subject = f'New report on confessio for {website.name}'
-        try:
-            send_mail(subject,
-                      email_body,
-                      None,  # Default to DEFAULT_FROM_EMAIL
-                      [os.environ.get('ADMIN_EMAIL')])
-        except BadHeaderError as e:
-            print('Error sending email:')
-            print(e)
+        send_email_to_admin(subject, email_body)
 
     return 'Merci pour votre retour !'
 

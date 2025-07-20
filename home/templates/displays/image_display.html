@@ -1,0 +1,5 @@
+<div>
+    <div><img src="{{ image_url }}" alt="{{ image.name }}" class="img-fluid"></div>
+    <div>Ajouté le {{ image.created_at|date:"d F Y à H:i" }}</div>
+    <div>{{ image.comment|urlize|linebreaksbr }}</div>
+</div>
