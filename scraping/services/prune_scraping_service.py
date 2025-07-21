@@ -6,7 +6,7 @@ from uuid import UUID
 from django.utils import timezone
 from tqdm import tqdm
 
-from home.models import Pruning, PruningModeration, Website
+from home.models import Pruning, PruningModeration
 from home.models import Sentence
 from scraping.extract.extract_content import BaseActionInterface, ExtractMode
 from scraping.extract.extract_content import extract_paragraphs_lines_and_indices
@@ -92,10 +92,6 @@ def pruning_needs_moderation(pruning: Pruning):
     for scraping in pruning.scrapings.all():
         page = scraping.page
 
-        # If website has been marked as unreliable, we don't want to moderate it
-        if page.website.unreliability_reason:
-            break
-
         # if page has been validated less than three times or more than one year ago
         # and if website has been validated less than seven times or more than one year ago
         if (
@@ -125,9 +121,6 @@ def add_new_moderation(pruning: Pruning, category):
 
 
 def add_necessary_moderation(pruning: Pruning):
-    if not is_eligible_to_pruning_moderation(pruning):
-        return
-
     category = PruningModeration.Category.NEW_PRUNED_HTML
     current_moderation = get_current_moderation(pruning, category)
 
@@ -146,29 +139,6 @@ def add_necessary_moderation(pruning: Pruning):
         current_moderation.delete()
 
     add_new_moderation(pruning, category)
-
-
-####################
-# MODERATION CLEAN #
-####################
-
-def is_eligible_to_pruning_moderation(pruning: Pruning):
-    for scraping in pruning.scrapings.all():
-        if scraping.page.website.unreliability_reason \
-                != Website.UnreliabilityReason.SCHEDULE_IN_IMAGE:
-            return True
-
-    return False
-
-
-def clean_pruning_moderations() -> int:
-    counter = 0
-    for pruning_moderation in PruningModeration.objects.filter(validated_at__isnull=True).all():
-        if not is_eligible_to_pruning_moderation(pruning_moderation.pruning):
-            pruning_moderation.delete()
-            counter += 1
-
-    return counter
 
 
 ####################

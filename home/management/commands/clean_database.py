@@ -10,7 +10,6 @@ from home.models import Pruning, Sentence, Classifier, Page, ParsingModeration, 
 from scraping.services.page_service import delete_page
 from scraping.services.parse_pruning_service import clean_parsing_moderations, \
     unlink_website_from_parsing
-from scraping.services.prune_scraping_service import clean_pruning_moderations
 from scraping.services.scrape_page_service import delete_orphan_scrapings
 
 
@@ -28,10 +27,6 @@ class Command(AbstractCommand):
         self.info(f'Starting cleaning orphan scrapings')
         delete_count = delete_orphan_scrapings()
         self.success(f'Successfully cleaning {delete_count} orphan scrapings')
-
-        self.info(f'Starting cleaning pruning moderations')
-        delete_count = clean_pruning_moderations()
-        self.success(f'Successfully cleaning {delete_count} pruning moderations')
 
         self.info(f'Starting cleaning parsing moderations')
         delete_count = clean_parsing_moderations()

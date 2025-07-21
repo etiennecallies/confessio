@@ -39,16 +39,19 @@ class Command(AbstractCommand):
             self.info(f'Starting to scrape website {website.name} {website.uuid}')
 
             for page in website.get_pages():
-                # Actually do the scraping
-                with asyncio.Runner() as runner:
-                    extracted_html_list = runner.run(get_fresh_extracted_html_list(page.url))
+                if website.enabled_for_crawling:
+                    # Actually do the scraping
+                    with asyncio.Runner() as runner:
+                        extracted_html_list = runner.run(get_fresh_extracted_html_list(page.url))
+                else:
+                    extracted_html_list = []
 
                 if not extracted_html_list:
                     self.warning(f'No more content for {page.url}, deleting page {page.uuid}')
                     delete_page(page)
 
                     # Trigger a recrawl to make sure we don't miss anything
-                    if website.crawling:
+                    if website.crawling and website.enabled_for_crawling:
                         website.crawling.recrawl_triggered_at = Now()
                         website.crawling.save()
                     continue

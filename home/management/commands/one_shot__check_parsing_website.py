@@ -8,11 +8,11 @@ class Command(AbstractCommand):
 
     def handle(self, *args, **options):
         counter = 0
-        for website in Website.objects\
-                .exclude(unreliability_reason=Website.UnreliabilityReason.SCHEDULE_IN_IMAGE).all():
+        for website in Website.objects.filter(enabled_for_crawling=True).all():
             counter += 1
             if not check_website_parsing_relations(website):
                 self.warning(f'Website {website.name} ({website.uuid}) has a parsing issue. '
+                             f'enabled_for_crawling: {website.enabled_for_crawling}, '
                              f'unreliability_reason: {website.unreliability_reason}, '
                              f'is_active: {website.is_active}')
 

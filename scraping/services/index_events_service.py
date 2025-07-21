@@ -12,9 +12,7 @@ def index_events_for_website(website: Website):
         for church in parish.churches.all():
             website_churches.append(church)
 
-    all_church_events = []
-    if not website.unreliability_reason:
-        all_church_events = get_all_church_events(website, website_churches)
+    all_church_events = get_all_church_events(website, website_churches)
 
     start_end_with_churches = set()
     for church_event in all_church_events:

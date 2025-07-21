@@ -57,12 +57,10 @@
                         </div>
 
                         <div class="mt-3">
-                            {% if not website.unreliability_reason %}
-                                {% if website_events.parsings_have_been_moderated %}
-                                    <span class="text-success">✅ Source vérifiée.</span> |
-                                {% elif website_events.parsings_have_been_moderated == False %}
-                                    <span class="text-warning">⚠️ Ces horaires n'ont pas encore été vérifiés.</span> |
-                                {% endif %}
+                            {% if website_events.parsings_have_been_moderated %}
+                                <span class="text-success">✅ Source vérifiée.</span> |
+                            {% elif website_events.parsings_have_been_moderated == False %}
+                                <span class="text-warning">⚠️ Ces horaires n'ont pas encore été vérifiés.</span> |
                             {% endif %}
                             {% for count_and_label in website_reports_count|get_item:website.uuid %}
                                 <span data-toggle="tooltip" data-placement="bottom" title="{{ count_and_label.count }} {{ count_and_label.tooltip }}">

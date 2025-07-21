@@ -18,10 +18,6 @@ def add_moderation(website: Website, category: WebsiteModeration.Category,
                    other_home_url: str | None = None,
                    conflict_day: date | None = None,
                    conflict_church: Church | None = None):
-    if website.unreliability_reason is not None:
-        # we do not add moderation for unreliable website
-        return
-
     try:
         moderation = WebsiteModeration.objects.get(website=website, category=category)
         moderation.home_url = other_home_url[:200] if other_home_url else website.home_url

@@ -10,7 +10,7 @@ from home.utils.date_utils import get_current_day
 from scraping.parse.holidays import check_holiday_by_zone
 from scraping.parse.periods import check_easter_dates
 from scraping.services.parse_pruning_service import check_website_parsing_relations, \
-    is_eligible_to_parsing, debug_website_parsing_relations
+    debug_website_parsing_relations
 from sourcing.services.church_location_service import find_church_geo_outliers
 
 
@@ -41,14 +41,13 @@ class Command(AbstractCommand):
                 website_not_crawled_recently.append(website)
                 continue
 
-            if not website.all_pages_parsed() and not website.unreliability_reason:
+            if not website.all_pages_parsed() and website.enabled_for_crawling:
                 website_not_parsed.append(website)
 
-            if is_eligible_to_parsing(website):
-                if not check_website_parsing_relations(website):
-                    website_badly_linked_to_parsing.append(website)
-                    self.error(f'Website {website.name} {website.uuid} has bad parsing links')
-                    debug_website_parsing_relations(website)
+            if not check_website_parsing_relations(website):
+                website_badly_linked_to_parsing.append(website)
+                self.error(f'Website {website.name} {website.uuid} has bad parsing links')
+                debug_website_parsing_relations(website)
 
         if website_not_crawled or website_not_crawled_recently or website_not_parsed \
                 or website_badly_linked_to_parsing:

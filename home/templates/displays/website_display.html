@@ -1,6 +1,9 @@
 <div style="color: darkgreen">
     <p>Name : {{ website.name }}</p>
     <p>Home url : <a href="{{ website.home_url }}" target="_blank">{{ website.home_url }}</a></p>
+    {% if not website.enabled_for_crawling %}
+        <p class="text-danger">This website is not enabled for crawling.</p>
+    {% endif %}
     {% if website.unreliability_reason %}
         <p>Unreliability reason : {{ website.unreliability_reason }}</p>
     {% endif %}

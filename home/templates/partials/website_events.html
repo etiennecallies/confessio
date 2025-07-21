@@ -1,79 +1,73 @@
 {% load custom_tags %}
 {% load i18n %}
 
-{% if website.unreliability_reason %}
-    <div>
-        Nous regrettons de ne pouvoir afficher les horaires de cette paroisse pour des raisons techniques.
-    </div>
-{% else %}
-    <div class="website-event-container"{% if website_events.events_truncated %} data-lazy-load-url="{% url 'website_events' website.uuid %}?church_uuids_json={{ church_uuids_json_by_website|get_item:website.uuid }}&dateFilter={{ date_filter_value }}&hourMin={{ hour_min }}&hourMax={{ hour_max }}"{% endif %}>
-        {% if website_events.church_events_by_day %}
-            <h6>Prochaines confessions :</h6>
-            <div class="row text-center mt-1 calendar-table-container">
-                {% if website_events.page_range == "12" %}
+<div class="website-event-container"{% if website_events.events_truncated %} data-lazy-load-url="{% url 'website_events' website.uuid %}?church_uuids_json={{ church_uuids_json_by_website|get_item:website.uuid }}&dateFilter={{ date_filter_value }}&hourMin={{ hour_min }}&hourMax={{ hour_max }}"{% endif %}>
+    {% if website_events.church_events_by_day %}
+        <h6>Prochaines confessions :</h6>
+        <div class="row text-center mt-1 calendar-table-container">
+            {% if website_events.page_range == "12" %}
+            <div class="col-1 align-self-center mx-0 px-0">
+                <span class="previous-button clickable d-none">
+                    <i class="fas fa-chevron-left"></i>
+                </span>
+            </div>
+            {% endif %}
+            <div class="{% if website_events.page_range == "12" %}col-10{% else %}col-12{% endif %} mx-0 px-0">
+                {% for range_num in website_events.page_range|make_list %}
+                    {% with days=website_events|days_of_range:range_num %}
+                        {% include 'includes/schedules_table.html' %}
+                    {% endwith %}
+                {% endfor %}
+            </div>
+            {% if website_events.page_range == "12" %}
                 <div class="col-1 align-self-center mx-0 px-0">
-                    <span class="previous-button clickable d-none">
-                        <i class="fas fa-chevron-left"></i>
+                    <span class="next-button clickable">
+                        <i class="fas fa-chevron-right"></i>
                     </span>
                 </div>
-                {% endif %}
-                <div class="{% if website_events.page_range == "12" %}col-10{% else %}col-12{% endif %} mx-0 px-0">
-                    {% for range_num in website_events.page_range|make_list %}
-                        {% with days=website_events|days_of_range:range_num %}
-                            {% include 'includes/schedules_table.html' %}
-                        {% endwith %}
-                    {% endfor %}
-                </div>
-                {% if website_events.page_range == "12" %}
-                    <div class="col-1 align-self-center mx-0 px-0">
-                        <span class="next-button clickable">
-                            <i class="fas fa-chevron-right"></i>
-                        </span>
-                    </div>
-                {% endif %}
-            </div>
-            {% if website_events.events_truncated %}
-                <div class="text-center mt-1">
-                    <a class="link-info" onclick="loadMoreEvents(this);">Afficher plus d'horaires ...</a>
-                </div>
-            {% else %}
-                {% if website_events.has_explicit_same_churches %}
-                    <div class="alert alert-info alert-dismissible fade show mt-3" role="alert">
-                        <span class="alert-inner--text">ℹ️ Tous les horaires de confession sont dans la même église.</span>
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                {% endif %}
-                {% if website_events.has_explicit_other_churches %}
-                    <div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">
-                        <span class="alert-inner--text">⚠️ Attention certains horaires ont lieu en dehors de cette paroisse, lire les détails dans les sources.</span>
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                {% endif %}
-                {% if website_events.has_unknown_churches %}
-                    <div class="alert alert-gray-500 alert-dismissible fade show mt-3" role="alert">
-                        <span class="alert-inner--text">❔ Certains horaires ne spécifient pas explicitement le lieu de la confession, consulter le site de la paroisse.</span>
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                {% endif %}
-                {% if website_events.has_different_churches %}
-                    <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
-                        <span class="alert-inner--text">💡 Cliquer sur l'horaire pour connaître le lieu de la confession.</span>
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                {% endif %}
             {% endif %}
-        {% elif not website.has_been_crawled %}
-            {% trans 'NotCrawledYet' %}
+        </div>
+        {% if website_events.events_truncated %}
+            <div class="text-center mt-1">
+                <a class="link-info" onclick="loadMoreEvents(this);">Afficher plus d'horaires ...</a>
+            </div>
         {% else %}
-            Pas de prochaines dates.
+            {% if website_events.has_explicit_same_churches %}
+                <div class="alert alert-info alert-dismissible fade show mt-3" role="alert">
+                    <span class="alert-inner--text">ℹ️ Tous les horaires de confession sont dans la même église.</span>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endif %}
+            {% if website_events.has_explicit_other_churches %}
+                <div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">
+                    <span class="alert-inner--text">⚠️ Attention certains horaires ont lieu en dehors de cette paroisse, lire les détails dans les sources.</span>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endif %}
+            {% if website_events.has_unknown_churches %}
+                <div class="alert alert-gray-500 alert-dismissible fade show mt-3" role="alert">
+                    <span class="alert-inner--text">❔ Certains horaires ne spécifient pas explicitement le lieu de la confession, consulter le site de la paroisse.</span>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endif %}
+            {% if website_events.has_different_churches %}
+                <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                    <span class="alert-inner--text">💡 Cliquer sur l'horaire pour connaître le lieu de la confession.</span>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endif %}
         {% endif %}
-    </div>
-{% endif %}
+    {% elif not website.has_been_crawled %}
+        {% trans 'NotCrawledYet' %}
+    {% else %}
+        Pas de prochaines dates.
+    {% endif %}
+</div>

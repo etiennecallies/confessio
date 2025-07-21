@@ -163,7 +163,7 @@ class WebsiteModeration(ModerationMixin):
         if self.category in [self.Category.HOME_URL_NO_RESPONSE,
                              self.Category.HOME_URL_NO_CONFESSION]\
                 and (self.home_url != self.website.home_url
-                     or self.website.unreliability_reason is not None):
+                     or not self.website.enabled_for_crawling):
             return True
 
         # If other_website has been merged, we can delete this moderation

@@ -68,6 +68,9 @@ async def handle_diocese_domain(website: Website, domain_has_changed: bool,
 
 
 async def do_crawl_website(website: Website) -> tuple[dict[str, list[str]], int, Optional[str]]:
+    if not website.enabled_for_crawling:
+        return {}, 0, None
+
     # Get home_url aliases
     new_home_url, aliases_domains, error_message = await get_new_url_and_aliases(website.home_url)
     if error_message:
@@ -117,7 +120,6 @@ async def crawl_website(website: Website) -> tuple[bool, bool]:
         await update_parsings(pruning)
 
     return await run_in_sync(save_crawling_and_add_moderation,
-
                              website,
                              len(extracted_html_list_by_url),
                              nb_visited_links,
@@ -169,6 +171,9 @@ def save_crawling_and_add_moderation(website: Website,
                                      nb_visited_links: int,
                                      error_detail: str | None = None,
                                      ) -> tuple[bool, bool]:
+    if not website.enabled_for_crawling:
+        return False, False
+
     # Inserting global statistics
     crawling = Crawling(
         nb_visited_links=nb_visited_links,

@@ -107,7 +107,9 @@ class Command(AbstractCommand):
                 print(stack_trace)
             return
 
-        if got_pages_with_content:
+        if not website.enabled_for_crawling:
+            self.warning(f'Website {website.name} {website.uuid} is not enabled for crawling.')
+        elif got_pages_with_content:
             self.success(f'Successfully crawled website {website.name} {website.uuid}')
         elif some_pages_visited:
             self.warning(f'No page found for website {website.name} {website.uuid}')

@@ -38,6 +38,7 @@ class Website(TimeStampMixin):
         SCHEDULE_IN_IMAGE = "schedule_in_image"
         SCHEDULE_IN_PDF = "schedule_in_pdf"
         JAVASCRIPT_REQUIRED = "javascript_required"
+        TOO_NOISY_HTML = "too_noisy_html"
         NOT_RESPONDING_AT_ALL = "not_responding_at_all"
         NOT_RESPONDING_IN_TIME = "not_responding_in_time"
         NOT_RESPONDING_200 = "not_responding_200"
@@ -46,6 +47,7 @@ class Website(TimeStampMixin):
     name = models.CharField(max_length=300)
     home_url = models.URLField(unique=True)
     is_active = models.BooleanField(default=True)
+    enabled_for_crawling = models.BooleanField(default=True)
     crawling = models.OneToOneField('Crawling', on_delete=models.SET_NULL,
                                     related_name='website', null=True, blank=True)
     pruning_validation_counter = models.SmallIntegerField(default=0)

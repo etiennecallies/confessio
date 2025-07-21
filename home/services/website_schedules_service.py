@@ -105,10 +105,7 @@ def get_website_schedules(website: Website,
 
     holiday_zone = get_website_holiday_zone(website, all_website_churches)
 
-    if website.unreliability_reason:
-        parsings = []
-    else:
-        parsings = get_website_sorted_parsings(website)
+    parsings = get_website_sorted_parsings(website)
 
     for i, parsing in enumerate(parsings):
         church_by_id = get_church_by_id(parsing, all_website_churches)

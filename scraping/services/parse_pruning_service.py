@@ -117,10 +117,6 @@ def parsing_needs_moderation(parsing: Parsing):
         for scraping in pruning.scrapings.all():
             page = scraping.page
 
-            # If website has been marked as unreliable, we don't want to moderate it
-            if page.website.unreliability_reason:
-                break
-
             # if page has been validated less than three times or more than one year ago
             # and if website has been validated less than seven times or more than one year ago
             if (
@@ -205,15 +201,10 @@ def increment_counters_of_parsing(parsing: Parsing):
 # MODERATION CLEAN #
 ####################
 
-def is_eligible_to_parsing(website: Website):
-    return website.unreliability_reason != Website.UnreliabilityReason.SCHEDULE_IN_IMAGE
-
-
 def clean_parsing_moderations() -> int:
     counter = 0
     for parsing_moderation in ParsingModeration.objects.filter(validated_at__isnull=True).all():
-        website = parsing_moderation.parsing.website
-        if not website or not is_eligible_to_parsing(website):
+        if not parsing_moderation.parsing.website:
             parsing_moderation.delete()
             counter += 1
 
@@ -375,10 +366,6 @@ def force_reparse_parsing_for_pruning(parsing: Parsing, pruning: Pruning):
 def prepare_parsing(
         pruning: Pruning, website: Website, force_parse: bool = False
 ) -> None | tuple[str, str, dict[int, str], LLMClientInterface, str, str, Parsing | None]:
-    if not is_eligible_to_parsing(website):
-        info(f'website {website} not eligible to parsing')
-        return None
-
     truncated_html = get_truncated_html(pruning)
     truncated_html_hash = hash_string_to_hex(truncated_html) if truncated_html else None
     unlink_pruning_from_parsings_except_truncated_html_hash(pruning, truncated_html_hash)

@@ -73,7 +73,6 @@ def build_church_query(time_filter: TimeFilter) -> QuerySet[Church]:
               "parish__website__uuid",
               "parish__website__name",
               "parish__website__home_url",
-              "parish__website__unreliability_reason",
               )
 
     if not time_filter.is_null():
