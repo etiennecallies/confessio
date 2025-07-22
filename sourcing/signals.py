@@ -56,7 +56,7 @@ def church_post_delete(sender, instance, origin, **kwargs):
 
 def reparse_website(website: Website):
     prunings = Pruning.objects.filter(
-        Q(scrapings__page__website=website) | Q(image__website=website)
+        Q(scrapings__page__website=website) | Q(images__website=website)
     ).all()
     for pruning in prunings:
         with asyncio.Runner() as runner:
