@@ -1,4 +1,4 @@
-from home.models import Image
+from home.models import Image, Website
 from home.services.upload_image_service import get_image_public_url
 from home.utils.hash_utils import hash_string_to_hex
 from scraping.parse.llm_client import LLMProvider
@@ -7,6 +7,11 @@ from scraping.recognize.recognize_image_with_llm import (get_html_from_image, ge
 from scraping.scrape.download_refine_and_extract import get_extracted_html_list
 from scraping.services.image_service import get_image_html
 from scraping.services.prune_scraping_service import create_pruning, prune_pruning
+
+
+def recognize_images_for_website(website: Website):
+    for image in website.images.all():
+        recognize_and_parse_image(image)
 
 
 def recognize_and_parse_image(image: Image):
