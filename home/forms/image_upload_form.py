@@ -11,7 +11,7 @@ class ImageUploadForm(forms.Form):
             'class': 'form-control',
             'accept': 'image/*',
             'id': 'file-input',
-            'capture': 'environment',
+            # 'capture': 'environment', # is not opening the "gallery" on mobile devices
         })
     )
 
