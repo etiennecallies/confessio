@@ -10,6 +10,7 @@ from home.management.abstract_command import AbstractCommand
 from home.models import Website, WebsiteModeration, Log
 from home.utils.log_utils import start_log_buffer, get_log_buffer
 from scraping.services.crawl_website_service import crawl_website, split_websites_for_crawling
+from scraping.services.recognize_image_service import recognize_and_parse_image
 
 
 class Command(AbstractCommand):
@@ -119,6 +120,9 @@ class Command(AbstractCommand):
                 self.error(website.crawling.error_detail)
             else:
                 self.error('No crawling found')
+
+        for image in website.images.all():
+            recognize_and_parse_image(image)
 
         buffer_value = get_log_buffer()
         log = Log(type=Log.Type.CRAWLING,

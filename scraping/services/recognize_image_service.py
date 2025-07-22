@@ -10,12 +10,7 @@ from scraping.services.prune_scraping_service import create_pruning, prune_pruni
 
 
 def recognize_and_parse_image(image: Image):
-    recognize_image(image)
-    extract_and_prune_image(image)
-
-
-def recognize_image(image: Image):
-    if image.llm_html is not None:
+    if image.llm_provider is not None:
         return
 
     print(f'Recognizing image {image.uuid} with LLM')
