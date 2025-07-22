@@ -122,7 +122,7 @@ class Command(AbstractCommand):
                 self.error('No crawling found')
 
         for image in website.images.all():
-            recognize_and_parse_image(image)
+            asyncio.run(recognize_and_parse_image(image))
 
         buffer_value = get_log_buffer()
         log = Log(type=Log.Type.CRAWLING,
