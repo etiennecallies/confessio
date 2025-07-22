@@ -10,7 +10,8 @@ class ImageUploadForm(forms.Form):
         widget=forms.FileInput(attrs={
             'class': 'form-control',
             'accept': 'image/*',
-            'id': 'file-input'
+            'id': 'file-input',
+            'capture': 'environment',
         })
     )
 
