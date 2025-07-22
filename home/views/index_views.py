@@ -402,6 +402,8 @@ def website_upload_image(request, website_uuid: str):
         return HttpResponseNotFound("Website does not exist with this uuid")
 
     if request.method == 'POST':
+        print(request.POST)
+        print(request.FILES)
         form = ImageUploadForm(request.POST, request.FILES)
         if form.is_valid():
             image = form.cleaned_data['image']

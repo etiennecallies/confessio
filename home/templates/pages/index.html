@@ -224,8 +224,8 @@
                         <div id="file-upload-section">
                             <div class="form-group">
                                 <label for="file-input">Ajouter une image</label>
-                                {{ image_upload_form.image }}
-                                <small>Sélectionner une image au format .png, .jpg, .jpeg ou .webp (max 10 Mo)</small>
+                                <input type="file" class="filepond" name="file-input" id="file-input" accept="image/*" capture="environment" data-max-file-size="10MB" data-max-files="1" />
+{#                                <small>Sélectionner une image au format .png, .jpg, .jpeg ou .webp (max 10 Mo)</small>#}
                             </div>
                         </div>
 
@@ -347,4 +347,15 @@
     {{ block.super }}
     <script src="{% static 'js/index0.js' %}"></script>
     <script src="{% static 'js/website_card1.js' %}"></script>
+    {% if page_website %}
+        <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script>
+        <script>
+            // Turn all file input elements into ponds
+            FilePond.create(document.querySelector('.filepond'), {
+              allowMultiple: false,   // single file
+              instantUpload: false,   // don't upload automatically
+              storeAsFile: true,
+            });
+        </script>
+    {% endif %}
 {% endblock javascripts %}
