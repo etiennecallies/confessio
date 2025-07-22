@@ -8,6 +8,7 @@ from django.utils import timezone
 
 from home.management.abstract_command import AbstractCommand
 from home.models import Website, WebsiteModeration, Log
+from home.utils.async_utils import run_in_sync
 from home.utils.log_utils import start_log_buffer, get_log_buffer
 from scraping.services.crawl_website_service import crawl_website, split_websites_for_crawling
 from scraping.services.recognize_image_service import recognize_and_parse_image
@@ -122,7 +123,7 @@ class Command(AbstractCommand):
                 self.error('No crawling found')
 
         for image in website.images.all():
-            asyncio.run(recognize_and_parse_image(image))
+            await run_in_sync(recognize_and_parse_image, image)
 
         buffer_value = get_log_buffer()
         log = Log(type=Log.Type.CRAWLING,
