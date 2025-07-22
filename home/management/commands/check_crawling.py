@@ -37,11 +37,12 @@ class Command(AbstractCommand):
                 continue
 
             # check that latest crawling is no older than 24 hours
-            if crawling.created_at < timezone.now() - timedelta(days=1):
+            if crawling.created_at < timezone.now() - timedelta(days=1) \
+                    and website.enabled_for_crawling:
                 website_not_crawled_recently.append(website)
                 continue
 
-            if not website.all_pages_parsed() and website.enabled_for_crawling:
+            if not website.all_pages_parsed():
                 website_not_parsed.append(website)
 
             if not check_website_parsing_relations(website):
