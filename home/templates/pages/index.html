@@ -347,10 +347,12 @@
     <script src="{% static 'js/index0.js' %}"></script>
     <script src="{% static 'js/website_card1.js' %}"></script>
     {% if page_website %}
+        <script src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
         <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
         <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script>
         <script>
-            // Register the plugin
+            // Register plugins
+            FilePond.registerPlugin(FilePondPluginFileValidateType);
             FilePond.registerPlugin(FilePondPluginImagePreview);
 
             // Turn all file input elements into ponds
@@ -359,6 +361,8 @@
                 instantUpload: false,
                 storeAsFile: true,
                 required: true,
+                acceptedFileTypes: ['image/*'],
+                labelFileTypeNotAllowed: 'Seules les images au format .png, .jpg, .jpeg ou .webp sont acceptées.',
                 // captureMethod: 'environment', // Is actually skipping the gallery
                 credits: ['', ''],
                 dropOnPage: true,
