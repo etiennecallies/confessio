@@ -45,7 +45,7 @@ function setupCustomListeners() {
 
             // Set capture to null for gallery browsing
             pond.setOptions({
-                capture: null
+                captureMethod: null
             });
 
             // Use FilePond's built-in browse method
@@ -58,7 +58,7 @@ function setupCustomListeners() {
 
             // Set capture to environment for camera
             pond.setOptions({
-                capture: 'environment'
+                captureMethod: 'environment'
             });
 
             // Use FilePond's built-in browse method
