@@ -40,7 +40,7 @@ def render_map(request, center,
     upload_success = extract_bool('upload_success', request)
     upload_error_message = request.GET.get('upload_error_message', None)
     success_message = success_message or (
-        "L'image a été chargée avec succès ! Elle sera analysée dans les 2h."
+        "L'image a été chargée avec succès ! Elle sera analysée dans les deux heures."
         if upload_success else None
     )
 
