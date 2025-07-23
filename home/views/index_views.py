@@ -8,11 +8,10 @@ from django.http import HttpResponseNotFound, JsonResponse, HttpResponseBadReque
 from django.shortcuts import render
 from django.utils.translation import gettext
 
-from home.forms.image_upload_form import ImageUploadForm
 from home.models import Website, Diocese, ChurchIndexEvent, Church
 from home.services.autocomplete_service import get_aggregated_response
 from home.services.filter_service import get_filter_days
-from home.services.upload_image_service import upload_image
+from home.services.upload_image_service import upload_image, find_error_in_document_to_upload
 from home.services.map_service import prepare_map, get_center, get_cities_label
 from home.services.page_url_service import get_page_pruning_urls
 from home.services.report_service import get_count_and_label, new_report, NewReportError, \
@@ -136,7 +135,6 @@ def render_map(request, center,
         'page_website': page_website,
         'success_message': success_message,
         'previous_reports': get_previous_reports(page_website) if page_website else None,
-        'image_upload_form': ImageUploadForm() if page_website else None,
         'upload_error_message': upload_error_message,
         'website_images': page_website.images.all() if page_website else None,
     })
@@ -402,9 +400,9 @@ def website_upload_image(request, website_uuid: str):
         return HttpResponseNotFound("Website does not exist with this uuid")
 
     if request.method == 'POST':
-        form = ImageUploadForm(request.POST, request.FILES)
-        if form.is_valid():
-            image = form.cleaned_data['image']
+        image = request.FILES.get('file-input', None)
+        upload_error_message = find_error_in_document_to_upload(image)
+        if not upload_error_message:
             success, error_message = upload_image(image, website, request)
 
             return redirect_with_url_params(
@@ -414,9 +412,6 @@ def website_upload_image(request, website_uuid: str):
                     'upload_error_message': error_message if error_message else '',
                 })
 
-        upload_error_message = ' '.join([
-            error for field_errors in form.errors.values() for error in field_errors
-        ])
         return redirect_with_url_params("website_view", website_uuid=website_uuid,
                                         query_params={
                                             'upload_success': False,

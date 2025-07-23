@@ -7,6 +7,21 @@ from home.services.admin_email_service import send_email_to_admin
 from home.utils.web_utils import get_user_user_agent_and_ip
 
 
+IMAGE_SIZE_LIMIT = 10 * 1024 * 1024  # 10MB limit for uploaded images
+
+
+def find_error_in_document_to_upload(document) -> str | None:
+    # validate that the document is not empty
+    if not document or document.size == 0:
+        return "Merci de sélectionner une image ou de prendre une photo."
+
+    # Validate file size
+    if document.size > IMAGE_SIZE_LIMIT:
+        return "Le fichier ne doit pas dépasser 10 Mo."
+
+    return None
+
+
 def upload_image(document, website: Website, request) -> tuple[bool, str | None]:
     # Generate unique filename
     image_name = document.name.replace(' ', '_').replace('/', '_')
