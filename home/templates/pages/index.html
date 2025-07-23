@@ -224,8 +224,7 @@
                         <div id="file-upload-section">
                             <div class="form-group">
                                 <label for="file-input">Ajouter une image</label>
-                                <input type="file" class="filepond" name="file-input" id="file-input" accept="image/*" capture="environment" data-max-file-size="10MB" data-max-files="1" />
-{#                                <small>Sélectionner une image au format .png, .jpg, .jpeg ou .webp (max 10 Mo)</small>#}
+                                <input type="file" class="filepond" name="file-input" id="file-input" accept="image/*" capture="environment" data-max-file-size="10MB" />
                             </div>
                         </div>
 
@@ -352,9 +351,14 @@
         <script>
             // Turn all file input elements into ponds
             FilePond.create(document.querySelector('.filepond'), {
-              allowMultiple: false,   // single file
-              instantUpload: false,   // don't upload automatically
-              storeAsFile: true,
+                allowMultiple: false,   // single file
+                instantUpload: false,   // don't upload automatically
+                storeAsFile: true,
+                required: true,
+                captureMethod: 'environment',
+                credits: ['', ''],
+                dropOnPage: true,
+                labelIdle: 'Déposez une image ou <span class="filepond--label-action">Parcourir</span>',
             });
         </script>
     {% endif %}
