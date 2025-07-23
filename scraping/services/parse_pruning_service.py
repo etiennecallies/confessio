@@ -228,7 +228,7 @@ def check_website_parsing_relations(website: Website) -> bool:
         for parsing in [
             pruning.get_parsing(website)
             for pruning in Pruning.objects.filter(images__website=website).all()
-        ]
+        ] if parsing
     }
     return direct_parsings == indirect_parsings
 
