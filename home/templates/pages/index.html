@@ -347,18 +347,22 @@
     <script src="{% static 'js/index0.js' %}"></script>
     <script src="{% static 'js/website_card1.js' %}"></script>
     {% if page_website %}
+        <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
         <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script>
         <script>
+            // Register the plugin
+            FilePond.registerPlugin(FilePondPluginImagePreview);
+
             // Turn all file input elements into ponds
             FilePond.create(document.querySelector('.filepond'), {
-                allowMultiple: false,   // single file
-                instantUpload: false,   // don't upload automatically
+                allowMultiple: false,
+                instantUpload: false,
                 storeAsFile: true,
                 required: true,
                 captureMethod: 'environment',
                 credits: ['', ''],
                 dropOnPage: true,
-                labelIdle: 'Déposez une image ou <span class="filepond--label-action">Parcourir</span>',
+                labelIdle: 'Déposer une image ou <span class="filepond--label-action">Parcourir</span>',
             });
         </script>
     {% endif %}
