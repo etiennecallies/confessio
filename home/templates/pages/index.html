@@ -224,7 +224,7 @@
                         <div id="file-upload-section">
                             <div class="form-group">
                                 <label for="file-input">Ajouter une image</label>
-                                <input type="file" class="filepond" name="file-input" id="file-input" accept="image/*" capture="environment" data-max-file-size="10MB" />
+                                <input type="file" class="filepond" name="file-input" id="file-input" accept="image/*" data-max-file-size="10MB" />
                             </div>
                         </div>
 
@@ -359,7 +359,7 @@
                 instantUpload: false,
                 storeAsFile: true,
                 required: true,
-                captureMethod: 'environment',
+                // captureMethod: 'environment', // Is actually skipping the gallery
                 credits: ['', ''],
                 dropOnPage: true,
                 labelIdle: 'Déposer une image ou <span class="filepond--label-action">Parcourir</span>',
