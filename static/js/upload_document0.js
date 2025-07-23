@@ -30,6 +30,23 @@ pond.on('updatefiles', () => {
 // Also setup listeners immediately in case the pond is already ready
 setTimeout(setupCustomListeners, 100);
 
+function browseWithCaptureMethod(captureMethod) {
+    if (pond.captureMethod !== captureMethod) {
+        // Set capture to null for gallery browsing
+        pond.setOptions({
+            captureMethod: captureMethod
+        });
+
+        // Use requestAnimationFrame to ensure DOM is updated
+        requestAnimationFrame(() => {
+            pond.browse();
+        });
+    } else {
+        // If already in gallery mode, just open the browse dialog
+        pond.browse();
+    }
+}
+
 function setupCustomListeners() {
     const pondElement = pond.element;
 
@@ -43,26 +60,14 @@ function setupCustomListeners() {
             e.preventDefault();
             e.stopPropagation();
 
-            // Set capture to null for gallery browsing
-            pond.setOptions({
-                captureMethod: null
-            });
-
-            // Use FilePond's built-in browse method
-            pond.browse();
+            browseWithCaptureMethod(null);
         });
 
         $(takeSpan).off('click').on('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
 
-            // Set capture to environment for camera
-            pond.setOptions({
-                captureMethod: 'environment'
-            });
-
-            // Use FilePond's built-in browse method
-            pond.browse();
+            browseWithCaptureMethod('environment');
         });
     }
 }
