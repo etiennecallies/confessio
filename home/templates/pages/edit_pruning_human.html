@@ -1,0 +1,33 @@
+{% extends 'layouts/single_card.html' %}
+{% load static %}
+
+{% load i18n %}
+
+{% block card %}
+
+    <div class="col-12">
+        {% for scraping in pruning.scrapings.all %}
+            <h2 class="mb-3">
+                <a class="link-info"
+                    href="{{ scraping.page.website.home_url }}">
+                    {{ scraping.page.website.name }}
+                </a>
+            </h2>
+            <p class="col-md-9 lead">
+                {% blocktrans with url=scraping.page.url %}BeforeConfessionHTML {{ url }}{% endblocktrans %}
+            </p>
+        {% endfor %}
+        <form action="{% url 'edit_pruning' pruning.uuid %}" method="post">
+            {% csrf_token %}
+            {% for pruning_human_piece in pruning_human_pieces %}
+                <div class="form-check form-switch">
+                  <input class="form-check-input human-edit-pruning" type="checkbox" id="line-{{ pruning_human_piece.id }}"
+                                   name="line-{{ pruning_human_piece.id }}" {% if pruning_human_piece.do_show %}checked{% endif %}>
+                  <label class="form-check-label" for="line-{{ pruning_human_piece.id }}">{{ pruning_human_piece.text_without_link|safe }}</label>
+                </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-primary mt-4">Submit</button>
+        </form>
+    </div>
+
+{% endblock card %}

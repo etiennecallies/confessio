@@ -25,7 +25,6 @@ class ColoredPiece(BaseModel):
     id: str
     do_show: bool
     text: str
-    text_without_link: str
     color: str
     action: Action
     tags: list[ColoredTag]
@@ -65,7 +64,6 @@ def get_colored_pieces(extracted_html: str, action_interface: BaseActionInterfac
             id=f'{i}',
             do_show=do_show,
             text=lines_and_tag.line,
-            text_without_link=lines_and_tag.line_without_link,
             color='' if do_show else 'text-warning',
             action=lines_and_tag.action,
             tags=new_tags,

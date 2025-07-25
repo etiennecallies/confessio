@@ -23,17 +23,17 @@ class SentenceFromDbActionInterface(BaseActionInterface):
     def __init__(self, pruning: Pruning):
         self.pruning = pruning
 
-    def get_action(self, line_without_link: str) -> tuple[Action, Source, UUID]:
-        sentence = self.get_sentence(line_without_link)
+    def get_action(self, stringified_line: str) -> tuple[Action, Source, UUID]:
+        sentence = self.get_sentence(stringified_line)
         sentence.prunings.add(self.pruning)
 
         return Action(sentence.action), Source(sentence.source), sentence.uuid
 
-    def get_sentence(self, line_without_link: str) -> Sentence:
+    def get_sentence(self, stringified_line: str) -> Sentence:
         try:
-            return Sentence.objects.get(line=line_without_link)
+            return Sentence.objects.get(line=stringified_line)
         except Sentence.DoesNotExist:
-            return classify_and_create_sentence(line_without_link, self.pruning)
+            return classify_and_create_sentence(stringified_line, self.pruning)
 
 
 ##############################

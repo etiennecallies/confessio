@@ -41,11 +41,11 @@ def get_model(classifier: Classifier) -> TensorFlowModel:
     return _model
 
 
-def classify_line(line_without_link: str
+def classify_line(stringified_line: str
                   ) -> tuple[Action, Classifier, list, TransformerInterface]:
     # 1. Get transformer
     transformer = get_transformer()
-    embedding = transformer.transform(line_without_link)
+    embedding = transformer.transform(stringified_line)
 
     # 2. Get classifier
     classifier = get_classifier(transformer)
@@ -75,14 +75,14 @@ def classify_existing_sentence(sentence: Sentence) -> Action:
     return action
 
 
-def classify_and_create_sentence(line_without_link: str,
+def classify_and_create_sentence(stringified_line: str,
                                  pruning: Pruning) -> Sentence:
     # Classify line
-    action, classifier, embedding, transformer = classify_line(line_without_link)
+    action, classifier, embedding, transformer = classify_line(stringified_line)
 
     # Save sentence
     sentence = Sentence(
-        line=line_without_link,
+        line=stringified_line,
         action=action,
         source=Source.ML,
         updated_on_pruning=pruning,

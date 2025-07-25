@@ -24,6 +24,8 @@ urlpatterns = [
 
     # edit
     path('edit/pruning/<uuid:pruning_uuid>', views.edit_pruning, name='edit_pruning'),
+    path('edit/pruning/human/<uuid:pruning_uuid>', views.edit_pruning_human,
+         name='edit_pruning_human'),
     path('edit/parsing/<uuid:parsing_uuid>', views.edit_parsing, name='edit_parsing'),
 
     # moderation

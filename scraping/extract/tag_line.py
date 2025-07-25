@@ -175,18 +175,18 @@ class Tag(str, Enum):
 # MAIN #
 ########
 
-def get_tags_with_regex(line_without_link: str) -> Set[Tag]:
+def get_tags_with_regex(stringified_line: str) -> Set[Tag]:
     tags = set()
-    if is_confession_mentions(line_without_link):
+    if is_confession_mentions(stringified_line):
         tags.add(Tag.CONFESSION)
 
-    if is_schedule_description(line_without_link):
+    if is_schedule_description(stringified_line):
         tags.add(Tag.SCHEDULE)
 
-    if is_date_description(line_without_link):
+    if is_date_description(stringified_line):
         tags.add(Tag.DATE)
 
-    if is_period_description(line_without_link):
+    if is_period_description(stringified_line):
         tags.add(Tag.PERIOD)
 
     return tags

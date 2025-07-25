@@ -174,14 +174,14 @@ def contains_char_or_digits(text):
         return False
 
     char_or_digits = set(string.ascii_letters + string.digits)
-    for t in remove_link_from_html(text):
+    for t in stringify_html(text):
         if t in char_or_digits:
             return True
     return False
 
 
 def line_is_suitable(text: str):
-    return contains_char_or_digits(text) and is_below_byte_limit(remove_link_from_html(text))
+    return contains_char_or_digits(text) and is_below_byte_limit(stringify_html(text))
 
 
 def clean_paragraph(text: str):
@@ -303,11 +303,21 @@ def build_text(soup: BeautifulSoup) -> tuple[str, int]:
 # REMOVE LINK #
 ###############
 
-def remove_link_from_html(html: str) -> str:
+def stringify_html(html: str) -> str:
     # https://stackoverflow.com/a/41496131
     warnings.filterwarnings("ignore", category=MarkupResemblesLocatorWarning, module='bs4')
 
     return clean_text(BeautifulSoup(html, 'html.parser').text)
+
+
+def replace_link_by_their_content(html: str) -> str:
+    soup = BeautifulSoup(html, 'html.parser')
+    for a in soup.find_all('a'):
+        if a.string:
+            a.replace_with(a.string)
+        else:
+            a.decompose()  # Remove the link if it has no text
+    return str(soup)
 
 
 def get_text_if_not_table(html: str) -> Optional[str]:

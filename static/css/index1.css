@@ -352,3 +352,14 @@ UI widget
 .text-white a {
     text-decoration: underline;
 }
+
+/**
+ * Color of text selection
+ */
+input.human-edit-pruning[type="checkbox"] + label {
+  color: #ffc107;
+}
+
+input.human-edit-pruning[type="checkbox"]:checked + label {
+  color: inherit;
+}

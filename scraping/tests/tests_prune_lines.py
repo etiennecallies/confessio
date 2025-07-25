@@ -28,10 +28,10 @@ class TestPruneLines(unittest.TestCase):
                 with open(f'{tests_dir}/fixtures/prune/{file_name}.html') as f:
                     lines_output = f.readlines()
                 lines_and_tags = []
-                for line, line_without_link, tags, action, source in lines_and_tags_as_dict:
+                for line, stringified_line, tags, action, source in lines_and_tags_as_dict:
                     lines_and_tags.append(LineAndTag(
                         line=line,
-                        line_without_link=line_without_link,
+                        stringified_line=stringified_line,
                         tags=set(tags),
                         action=Action(action),
                         source=Source(source) if source else None,

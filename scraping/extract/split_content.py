@@ -5,13 +5,13 @@ from pydantic import BaseModel
 from scraping.extract.tag_line import Tag, get_tags_with_regex
 from scraping.prune.action_interfaces import BaseActionInterface
 from scraping.prune.models import Action, Source
-from scraping.refine.refine_content import remove_link_from_html
+from scraping.refine.refine_content import stringify_html
 from scraping.utils.html_utils import split_lines
 
 
 class LineAndTag(BaseModel):
     line: str
-    line_without_link: str
+    stringified_line: str
     tags: set[Tag]
     action: Action
     source: Source | None
@@ -24,13 +24,13 @@ def split_and_tag(refined_content: str, action_interface: BaseActionInterface
 
     # Split into lines (or <table>)
     for line in split_lines(refined_content):
-        line_without_link = remove_link_from_html(line)
+        stringified_line = stringify_html(line)
 
-        tags = get_tags_with_regex(line_without_link)
-        action, source, sentence_uuid = action_interface.get_action(line_without_link)
+        tags = get_tags_with_regex(stringified_line)
+        action, source, sentence_uuid = action_interface.get_action(stringified_line)
         results.append(LineAndTag(
             line=line,
-            line_without_link=line_without_link,
+            stringified_line=stringified_line,
             tags=tags,
             action=action,
             source=source,

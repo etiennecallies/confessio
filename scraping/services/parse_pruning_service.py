@@ -12,7 +12,7 @@ from home.utils.log_utils import info
 from scraping.parse.llm_client import LLMClientInterface
 from scraping.parse.parse_with_llm import parse_with_llm, get_prompt_template, get_llm_client
 from scraping.parse.schedules import SchedulesList
-from scraping.refine.refine_content import remove_link_from_html
+from scraping.refine.refine_content import stringify_html
 from scraping.services.index_events_service import index_events_for_website
 from scraping.services.parsing_service import get_existing_parsing
 
@@ -25,7 +25,7 @@ MAX_LENGTH_FOR_PARSING = 15000
 ##############
 
 def get_truncated_line(line: str) -> str:
-    truncated_line = remove_link_from_html(line)[:TRUNCATION_LENGTH]
+    truncated_line = stringify_html(line)[:TRUNCATION_LENGTH]
     return f'[{truncated_line}...]'
 
 

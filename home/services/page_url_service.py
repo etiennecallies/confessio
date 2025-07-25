@@ -2,7 +2,7 @@ from urllib.parse import quote, unquote
 
 from home.models import Page, Pruning, Website
 from scraping.extract.split_content import split_lines
-from scraping.refine.refine_content import get_text_if_not_table, remove_link_from_html
+from scraping.refine.refine_content import get_text_if_not_table
 
 
 def get_page_url_with_pointer_at_pruning(page: Page, pruning: Pruning):
@@ -15,8 +15,7 @@ def get_page_url_with_pointer_at_pruning(page: Page, pruning: Pruning):
         lines = split_lines(pruning.extracted_html)
         assert len(lines) > first_index, f'Index {first_index} out of range'
         first_line = lines[first_index]
-        first_line_without_link = remove_link_from_html(first_line)
-        pointer_text = get_text_if_not_table(first_line_without_link)
+        pointer_text = get_text_if_not_table(first_line)
 
     if pointer_text is None:
         return page.url

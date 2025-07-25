@@ -1,11 +1,13 @@
 import json
 
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponseNotFound
 from django.shortcuts import render
 from pydantic import ValidationError
 
 from home.models import Page, Pruning, Sentence, Parsing
+from home.services.edit_pruning_human_service import get_pruning_human_pieces
 from home.services.edit_pruning_service import get_colored_pieces, update_sentence_action, \
     reset_pages_counter_of_pruning, set_human_indices
 from jsoneditor.forms import JSONSchemaForm
@@ -70,6 +72,22 @@ def edit_pruning(request, pruning_uuid):
         'pruning': pruning,
         'colored_pieces': colored_pieces,
         'action_colors': action_colors,
+    })
+
+
+@login_required
+@staff_member_required
+def edit_pruning_human(request, pruning_uuid):
+    try:
+        pruning = Pruning.objects.get(uuid=pruning_uuid)
+    except Page.DoesNotExist:
+        return HttpResponseNotFound("Pruning not found")
+
+    pruning_human_pieces = get_pruning_human_pieces(pruning)
+
+    return render(request, 'pages/edit_pruning_human.html', {
+        'pruning': pruning,
+        'pruning_human_pieces': pruning_human_pieces,
     })
 
 
