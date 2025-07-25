@@ -15,6 +15,11 @@ def recognize_images_for_website(website: Website):
 
 
 def recognize_and_parse_image(image: Image):
+    recognize_image(image)
+    extract_and_prune_image(image)
+
+
+def recognize_image(image: Image):
     if image.llm_provider is not None:
         return
 
@@ -35,8 +40,6 @@ def recognize_and_parse_image(image: Image):
     image.llm_provider = llm_provider
     image.llm_model = llm_model
     image.save()
-
-    extract_and_prune_image(image)
 
 
 def extract_and_prune_image(image: Image):
