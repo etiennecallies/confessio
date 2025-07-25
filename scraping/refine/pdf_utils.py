@@ -32,11 +32,36 @@ def extract_text_from_doc(doc) -> str | None:
     text = ''
     for page_num in range(len(doc)):
         page = doc[page_num]
-        text += page.get_text('text', sort=True) + '\n'
+        text += extract_text_from_pdf_page(page) + '\n'
 
     doc.close()
 
     return convert_text_to_html(text)
+
+
+def blocks_are_in_natural_order(blocks):
+    coords = [b[:2] for b in blocks]
+
+    max_x = coords[0][0]
+    max_y = coords[0][1]
+    for i in range(len(coords) - 1):
+        x1, y1 = coords[i]
+        x2, y2 = coords[i + 1]
+
+        if not (y2 > y1 or x2 > x1) or not (x2 > max_x or y2 > max_y):
+            return False
+
+        max_x = max(max_x, x2)
+        max_y = max(max_y, y2)
+
+    return True
+
+
+def extract_text_from_pdf_page(page) -> str | None:
+    non_empty_text_blocks = [b for b in page.get_text("blocks") if b[6] == 0 and b[4].strip()]
+    sort = not blocks_are_in_natural_order(non_empty_text_blocks)
+
+    return page.get_text('text', sort=sort)
 
 
 def extract_text_from_pdf_file(pdf_file: str) -> str | None:

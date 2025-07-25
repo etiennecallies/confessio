@@ -12,6 +12,7 @@ class MyTestCase(unittest.TestCase):
             'randol',
             'st-marc',
             'charlesdefoucauld',
+            'st-sauveur',
         ]
 
     def test_extract_pdf(self):
