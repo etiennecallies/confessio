@@ -37,7 +37,8 @@ class Command(AbstractCommand):
         # Prunings
         self.info(f'Starting removing orphan prunings')
         orphan_prunings = Pruning.objects.filter(scrapings__isnull=True,
-                                                 human_indices__isnull=True).all()
+                                                 human_indices__isnull=True,
+                                                 images__isnull=True).all()
         counter = self.delete_objects(orphan_prunings)
         self.success(f'Done removing {counter} orphan prunings')
 
