@@ -28,7 +28,7 @@ class PreBuffer:
         if self.buffer is None:
             self.buffer = []
         self.buffer.append(index_line)
-        self.remaining_attempts = MAX_PRE_BUFFERING_ATTEMPTS
+        self.reset_remaining_attempts()
 
     def decrement(self) -> 'Optional[PreBuffer]':
         if self.remaining_attempts == 0:
@@ -37,6 +37,9 @@ class PreBuffer:
         self.remaining_attempts -= 1
 
         return self
+
+    def reset_remaining_attempts(self):
+        self.remaining_attempts = MAX_PRE_BUFFERING_ATTEMPTS
 
 
 @dataclass
@@ -58,21 +61,30 @@ class PostBuffer:
     def add_line(self, index_line: IndexLine, paragraph_indices: list[int]):
         self.buffer.append(index_line.index)
         self.is_post_schedule = self.is_post_schedule or TagV2.SCHEDULE in index_line.tags
-        self.remaining_attempts = MAX_POST_BUFFERING_ATTEMPTS
+        if is_resetting_attempts(index_line):
+            self.reset_remaining_attempts()
         if self.is_post_schedule:
             paragraph_indices.extend(self.buffer)
             self.buffer = []
 
-    def decrement(self, i: int, index_line: IndexLine,
+    def reset_remaining_attempts(self):
+        self.remaining_attempts = MAX_POST_BUFFERING_ATTEMPTS
+
+    def decrement(self, index_line: IndexLine, paragraph_indices: list[int],
                   ) -> 'Optional[PostBuffer]':
         if self.remaining_attempts == 0:
             return None
 
-        if not index_line.tags and index_line.event_motion != EventMotion.START:
-            self.remaining_attempts -= 1
-            self.buffer.append(i)
+        self.remaining_attempts -= 1
+
+        if index_line.tags or index_line.event_motion in (EventMotion.START, EventMotion.SHOW):
+            self.add_line(index_line, paragraph_indices)
 
         return self
+
+
+def is_resetting_attempts(index_line: IndexLine) -> bool:
+    return index_line.tags or index_line.event_motion == EventMotion.START
 
 
 def flush_results(paragraph_indices: list[int], results: list[list[int]]) -> list[int]:
@@ -93,9 +105,9 @@ def get_pruned_lines_indices(lines_and_tags: list[LineAndTagV2]) -> list[list[in
         tags = line_and_tag.tags
         event_motion = line_and_tag.event_motion
 
-        # print(line, tags, event_motion)
+        # print(line_and_tag.line, tags, event_motion)
 
-        # If we encounter a START, then we start a post_buffer
+        # If we encounter a START, we complete or create the post_buffer
         if event_motion == EventMotion.START:
             if post_buffer is None:
                 post_buffer = PostBuffer.from_pre_buffer(pre_buffer, paragraph_indices)
@@ -107,10 +119,14 @@ def get_pruned_lines_indices(lines_and_tags: list[LineAndTagV2]) -> list[list[in
             post_buffer = None
             paragraph_indices = flush_results(paragraph_indices, results)
 
-        # If we encounter a START or SHOW we add the line to the post_buffer
-        elif post_buffer is not None \
-                and event_motion in (EventMotion.START, EventMotion.SHOW):
-            post_buffer.add_line(index_line, paragraph_indices)
+        # If there is a post_buffer, we add the line to it or decrement it
+        elif post_buffer is not None:
+            if is_resetting_attempts(index_line):
+                post_buffer.add_line(index_line, paragraph_indices)
+            else:
+                post_buffer = post_buffer.decrement(index_line, paragraph_indices)
+                if post_buffer is None:
+                    paragraph_indices = flush_results(paragraph_indices, results)
 
         # If we encounter a SPECIFIER, we complete or create the pre_buffer
         elif TagV2.SPECIFIER in tags:
@@ -118,16 +134,12 @@ def get_pruned_lines_indices(lines_and_tags: list[LineAndTagV2]) -> list[list[in
                 pre_buffer = PreBuffer()
             pre_buffer.from_index_line(index_line)
 
-        # If we have another line in pre_buffer context, we decrement it
-        elif pre_buffer is not None \
-                and TagV2.SCHEDULE not in tags \
-                and TagV2.SPECIFIER not in tags \
-                and event_motion != EventMotion.START:
-            pre_buffer = pre_buffer.decrement()
-        elif post_buffer is not None:
-            post_buffer = post_buffer.decrement(i, index_line)
-            if post_buffer is None:
-                paragraph_indices = flush_results(paragraph_indices, results)
+        # If there is a pre_buffer, we add the line to it or decrement it
+        elif pre_buffer is not None:
+            if is_resetting_attempts(index_line):
+                pre_buffer.reset_remaining_attempts()
+            else:
+                pre_buffer = pre_buffer.decrement()
 
     flush_results(paragraph_indices, results)
 
