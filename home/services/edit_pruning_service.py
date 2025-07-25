@@ -1,3 +1,4 @@
+import asyncio
 from typing import Optional
 from uuid import UUID
 
@@ -5,16 +6,54 @@ from django.contrib.auth.models import User
 from django.db.models.functions import Now
 from pydantic import BaseModel
 
-from home.models import Sentence, Pruning
+from home.models import Pruning, Sentence
 from scraping.extract.extract_content import split_and_tag, BaseActionInterface
 from scraping.extract.tag_line import Tag
 from scraping.prune.models import Action, Source
 from scraping.prune.prune_lines import get_pruned_lines_indices
+from scraping.refine.refine_content import replace_link_by_their_content
+from scraping.services.prune_scraping_service import update_parsings
+from scraping.utils.html_utils import split_lines
 
 
-############################
-# ADD ID AND COLOR TO TAGS #
-############################
+#################
+# HUMAN INDICES #
+#################
+
+class PruningHumanPiece(BaseModel):
+    id: str
+    do_show: bool
+    text_without_link: str
+
+
+def get_pruning_human_pieces(pruning: Pruning) -> list[PruningHumanPiece]:
+    indices = pruning.human_indices if pruning.human_indices is not None \
+        else pruning.ml_indices
+
+    pruning_human_pieces = []
+    for i, line in enumerate(split_lines(pruning.extracted_html)):
+        text_without_link = replace_link_by_their_content(line)
+        pruning_human_pieces.append(PruningHumanPiece(
+            id=f'{i}',
+            do_show=i in indices,
+            text_without_link=text_without_link
+        ))
+
+    return pruning_human_pieces
+
+
+def set_human_indices(pruning: Pruning, indices: list[int]):
+    pruning.human_indices = indices
+    pruning.pruned_indices = indices
+    pruning.save()
+    if pruning.ml_indices != indices:
+        reset_pages_counter_of_pruning(pruning)
+        asyncio.run(update_parsings(pruning))
+
+
+#################
+# ML INDICES V1 #
+#################
 
 class ColoredTag(BaseModel):
     name: str
@@ -74,10 +113,6 @@ def get_colored_pieces(extracted_html: str, action_interface: BaseActionInterfac
     return colored_pieces
 
 
-###################
-# UPDATE SENTENCE #
-###################
-
 def update_sentence_action(sentence: Sentence, pruning: Pruning, user: User, action: Action):
     sentence.action = action
     sentence.updated_by = user
@@ -87,7 +122,7 @@ def update_sentence_action(sentence: Sentence, pruning: Pruning, user: User, act
     sentence.save()
 
 
-def set_human_indices(pruning: Pruning):
+def set_ml_indices_as_human(pruning: Pruning):
     pruning.human_indices = pruning.ml_indices
     pruning.pruned_indices = pruning.ml_indices
     pruning.save()
@@ -98,7 +133,7 @@ def set_human_indices(pruning: Pruning):
 ######################
 
 def on_pruning_human_validation(pruning: Pruning):
-    set_human_indices(pruning)
+    set_ml_indices_as_human(pruning)
     increment_counters_of_pruning(pruning)
 
 

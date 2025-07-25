@@ -7,9 +7,9 @@ from django.shortcuts import render
 from pydantic import ValidationError
 
 from home.models import Page, Pruning, Sentence, Parsing
-from home.services.edit_pruning_human_service import get_pruning_human_pieces
 from home.services.edit_pruning_service import get_colored_pieces, update_sentence_action, \
-    reset_pages_counter_of_pruning, set_human_indices
+    reset_pages_counter_of_pruning, set_ml_indices_as_human, set_human_indices, \
+    get_pruning_human_pieces
 from jsoneditor.forms import JSONSchemaForm
 from scraping.parse.schedules import SchedulesList
 from scraping.prune.action_interfaces import DummyActionInterface
@@ -19,6 +19,7 @@ from scraping.services.parse_pruning_service import reset_counters_of_parsing, \
 from scraping.services.parsing_service import get_parsing_schedules_list
 from scraping.services.prune_scraping_service import SentenceFromDbActionInterface, \
     reprune_affected_prunings, prune_pruning
+from scraping.utils.html_utils import split_lines
 
 
 @login_required
@@ -49,7 +50,7 @@ def edit_pruning(request, pruning_uuid):
         prune_pruning(pruning)
 
         # Set human indices
-        set_human_indices(pruning)
+        set_ml_indices_as_human(pruning)
 
         if modified_sentences:
             # reset page counter
@@ -82,6 +83,14 @@ def edit_pruning_human(request, pruning_uuid):
         pruning = Pruning.objects.get(uuid=pruning_uuid)
     except Page.DoesNotExist:
         return HttpResponseNotFound("Pruning not found")
+
+    if request.method == "POST":
+        new_indices = []
+        for i in range(len(split_lines(pruning.extracted_html))):
+            if request.POST.get(f"line-{i}", False):
+                new_indices.append(i)
+
+        set_human_indices(pruning, new_indices)
 
     pruning_human_pieces = get_pruning_human_pieces(pruning)
 
