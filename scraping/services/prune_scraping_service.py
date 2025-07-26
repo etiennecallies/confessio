@@ -6,7 +6,7 @@ from uuid import UUID
 from django.utils import timezone
 from tqdm import tqdm
 
-from home.models import Pruning, PruningModeration
+from home.models import Pruning, PruningModeration, Page
 from home.models import Sentence
 from scraping.extract.extract_content import BaseActionInterface, ExtractMode
 from scraping.extract.extract_content import extract_paragraphs_lines_and_indices
@@ -151,7 +151,11 @@ async def update_parsings(pruning: Pruning):
     # Add scrapings' websites
     async for scraping in pruning.scrapings.select_related("page").select_related("page__website")\
             .all():
-        websites.add(scraping.page.website)
+        try:
+            websites.add(scraping.page.website)
+        except Page.DoesNotExist:
+            print(f'Warning: scraping {scraping} has no page, skipping it for parsing')
+            # TODO delete this scraping?
 
     # Add images' websites
     async for image in pruning.images.select_related("website").all():
