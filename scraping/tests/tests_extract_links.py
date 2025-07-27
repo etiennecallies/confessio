@@ -27,7 +27,7 @@ class TestExtractLinks(unittest.TestCase):
                     expected_links = json.load(f)
                 content = ''.join(lines)
                 links = asyncio.run(parse_content_links(content, home_url, {get_domain(home_url)},
-                                                        set(), {}))
+                                                        set(), {}, set()))
                 # print(json.dumps(list(links), indent=2))
                 self.assertSetEqual(links, set(expected_links), f'Failed for {file_name}')
 

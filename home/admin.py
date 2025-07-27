@@ -4,7 +4,8 @@ from django.forms import ModelChoiceField
 from leaflet.admin import LeafletGeoAdmin, LeafletGeoAdminMixin
 from simple_history.admin import SimpleHistoryAdmin
 
-from .models import Church, Website, Page, Diocese, Parish, Classifier, Sentence, Report, Image
+from .models import Church, Website, Page, Diocese, Parish, Classifier, Sentence, Report, Image, \
+    WebsiteForbiddenPath
 
 
 @admin.register(Diocese)
@@ -17,12 +18,17 @@ class ParishInline(admin.StackedInline):
     show_change_link = True
 
 
+class WebsiteForbiddenPathInline(admin.StackedInline):
+    model = WebsiteForbiddenPath
+
+
 @admin.register(Website)
 class WebsiteAdmin(SimpleHistoryAdmin):
     list_display = ["name"]
     search_fields = ["name"]
     inlines = [
         ParishInline,
+        WebsiteForbiddenPathInline,
     ]
 
 

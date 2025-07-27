@@ -91,8 +91,12 @@ def clean_url_query(url_parsed: ParseResult):
     return url_parsed.geturl()
 
 
-async def is_forbidden(url_parsed: ParseResult, home_url: str, forbidden_paths: set[str],
-                       path_redirection: dict[str, str]):
+async def is_forbidden(url_parsed: ParseResult, home_url: str, forbidden_outer_paths: set[str],
+                       path_redirection: dict[str, str], forbidden_paths: set[str]) -> bool:
+    for path in forbidden_paths:
+        if url_parsed.path.startswith(path):
+            return True
+
     home_url_path = get_path(home_url)
     for accepted_home_word in ['accueil', 'home']:
         if home_url_path.endswith(f'/{accepted_home_word}'):
@@ -100,8 +104,8 @@ async def is_forbidden(url_parsed: ParseResult, home_url: str, forbidden_paths: 
     if url_parsed.path.startswith(home_url_path):
         return False
 
-    if forbidden_paths:
-        for path in forbidden_paths:
+    if forbidden_outer_paths:
+        for path in forbidden_outer_paths:
             if url_parsed.path.startswith(path):
                 return True
 
@@ -116,8 +120,8 @@ async def is_forbidden(url_parsed: ParseResult, home_url: str, forbidden_paths: 
 
             # Get the path with redirection
             if new_url_parsed.path != url_parsed.path:
-                return await is_forbidden(new_url_parsed, home_url, forbidden_paths,
-                                          path_redirection)
+                return await is_forbidden(new_url_parsed, home_url, forbidden_outer_paths,
+                                          path_redirection, forbidden_paths)
 
             return True
 
@@ -148,8 +152,10 @@ def get_a_tags(element: el) -> list[el.Tag]:
 
 
 async def get_links(element: el, home_url: str, aliases_domains: set[str],
-                    forbidden_paths: set[str],
-                    path_redirection: dict[str, str]) -> set[str]:
+                    forbidden_outer_paths: set[str],
+                    path_redirection: dict[str, str],
+                    forbidden_paths: set[str]
+                    ) -> set[str]:
     results = set()
 
     for link in get_a_tags(element):
@@ -169,7 +175,8 @@ async def get_links(element: el, home_url: str, aliases_domains: set[str],
             continue
 
         # We ignore forbidden paths and their children
-        if await is_forbidden(url_parsed, home_url, forbidden_paths, path_redirection):
+        if await is_forbidden(url_parsed, home_url, forbidden_outer_paths, path_redirection,
+                              forbidden_paths):
             continue
 
         full_url = get_clean_full_url(full_url)  # we use standardized url to ensure unicity
@@ -203,7 +210,8 @@ async def get_links(element: el, home_url: str, aliases_domains: set[str],
 
 
 async def parse_content_links(content, home_url: str, aliases_domains: set[str],
-                              forbidden_paths: set[str], path_redirection: dict[str, str]
+                              forbidden_outer_paths: set[str], path_redirection: dict[str, str],
+                              forbidden_paths: set[str]
                               ) -> set[str]:
     try:
         element = BeautifulSoup(content, 'html.parser', parse_only=SoupStrainer('a'))
@@ -211,7 +219,8 @@ async def parse_content_links(content, home_url: str, aliases_domains: set[str],
         print(e)
         return set()
 
-    links = await get_links(element, home_url, aliases_domains, forbidden_paths, path_redirection)
+    links = await get_links(element, home_url, aliases_domains, forbidden_outer_paths,
+                            path_redirection, forbidden_paths)
 
     return links
 

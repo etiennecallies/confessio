@@ -19,7 +19,7 @@ async def forbid_diocese_home_links(diocese_url: str, aliases_domains: set[str],
         return set()
 
     new_links = await parse_content_links(html_content, diocese_url, aliases_domains, set(),
-                                          path_redirection)
+                                          path_redirection, set())
     forbidden_paths = set()
     for link in new_links:
         path = get_path(link)
@@ -42,8 +42,9 @@ async def get_new_url_and_aliases(url: str) -> tuple[str, set[str], str | None]:
 
 
 async def search_for_confession_pages(home_url, aliases_domains: set[str],
-                                      forbidden_paths: set[str],
-                                      path_redirection: dict[str, str]
+                                      forbidden_outer_paths: set[str],
+                                      path_redirection: dict[str, str],
+                                      forbidden_paths: set[str]
                                       ) -> tuple[dict[str, list[str]], int, Optional[str]]:
     visited_links = set()
     links_to_visit = {home_url}
@@ -73,7 +74,8 @@ async def search_for_confession_pages(home_url, aliases_domains: set[str],
 
         # Looking for new links to visit
         new_links = await parse_content_links(html_content, home_url, aliases_domains,
-                                              forbidden_paths, path_redirection)
+                                              forbidden_outer_paths, path_redirection,
+                                              forbidden_paths)
         for new_link in new_links:
             if new_link not in visited_links:
                 links_to_visit.add(new_link)
@@ -95,5 +97,5 @@ if __name__ == '__main__':
     home_url_ = 'https://saintetrinite78.fr'
     confession_pages = asyncio.run(search_for_confession_pages(home_url_,
                                                                set('saintetrinite78.fr'),
-                                                               set(), {}))
+                                                               set(), {}, set()))
     print(json.dumps(confession_pages))

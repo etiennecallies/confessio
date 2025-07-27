@@ -85,23 +85,28 @@ async def do_crawl_website(website: Website) -> tuple[dict[str, list[str]], int,
         domain_has_changed = False
 
     # Get any other website starting with the same home_url
-    forbidden_paths = set()
+    forbidden_outer_paths = set()
     for alias_domain in aliases_domains:
         same_domain_websites = Website.objects\
             .filter(home_url__contains=alias_domain, is_active=True)\
             .exclude(uuid=website.uuid).all()
         async for other_website in same_domain_websites:
             if get_domain(other_website.home_url) in aliases_domains:
-                forbidden_paths.add(get_path(other_website.home_url))
+                forbidden_outer_paths.add(get_path(other_website.home_url))
 
     path_redirection = {}
     await handle_diocese_domain(website,
-                                domain_has_changed, aliases_domains, forbidden_paths,
+                                domain_has_changed, aliases_domains, forbidden_outer_paths,
                                 path_redirection)
 
+    forbidden_paths = set()
+    async for forbidden_path in website.forbidden_paths.all():
+        print(f'Adding forbidden path {forbidden_path.path} for website {website.name}')
+        forbidden_paths.add(forbidden_path.path)
+
     # Actually crawling website
-    return await search_for_confession_pages(new_home_url, aliases_domains, forbidden_paths,
-                                             path_redirection)
+    return await search_for_confession_pages(new_home_url, aliases_domains, forbidden_outer_paths,
+                                             path_redirection, forbidden_paths)
 
 
 async def crawl_website(website: Website) -> tuple[bool, bool]:

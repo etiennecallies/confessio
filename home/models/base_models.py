@@ -143,6 +143,15 @@ class Church(TimeStampMixin):
         return f'{self.name} {self.city}'
 
 
+class WebsiteForbiddenPath(TimeStampMixin):
+    website = models.ForeignKey('Website', on_delete=models.CASCADE,
+                                related_name='forbidden_paths')
+    path = models.CharField(max_length=300)
+
+    class Meta:
+        unique_together = ('website', 'path')
+
+
 class Page(TimeStampMixin):
     url = models.URLField(max_length=300)
     website = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='pages')
