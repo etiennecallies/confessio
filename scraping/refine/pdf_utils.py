@@ -28,7 +28,7 @@ def convert_text_to_html(raw_text: str) -> str:
     return ''.join(lines)
 
 
-def extract_text_from_doc(doc) -> str | None:
+def extract_text_from_doc(doc) -> str:
     text = ''
     for page_num in range(len(doc)):
         page = doc[page_num]
@@ -57,18 +57,21 @@ def blocks_are_in_natural_order(blocks):
     return True
 
 
-def extract_text_from_pdf_page(page) -> str | None:
+def extract_text_from_pdf_page(page) -> str:
     non_empty_text_blocks = [b for b in page.get_text("blocks") if b[6] == 0 and b[4].strip()]
+    if not non_empty_text_blocks:
+        return ''
+
     sort = not blocks_are_in_natural_order(non_empty_text_blocks)
 
     return page.get_text('text', sort=sort)
 
 
-def extract_text_from_pdf_file(pdf_file: str) -> str | None:
+def extract_text_from_pdf_file(pdf_file: str) -> str:
     doc = pymupdf.open(pdf_file)
     return extract_text_from_doc(doc)
 
 
-def extract_text_from_pdf_bytes(raw_content: bytes) -> str | None:
+def extract_text_from_pdf_bytes(raw_content: bytes) -> str:
     doc = pymupdf.open(stream=raw_content, filetype="pdf")
     return extract_text_from_doc(doc)
