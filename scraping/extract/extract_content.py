@@ -1,5 +1,4 @@
-from enum import Enum
-
+from scraping.extract.extract_interface import ExtractMode, BaseExtractInterface
 from scraping.extract.split_content import LineAndTag, split_and_tag
 from scraping.prune.action_interfaces import BaseActionInterface
 from scraping.prune.prune_lines import get_pruned_lines_indices
@@ -8,10 +7,6 @@ from scraping.prune.prune_lines import get_pruned_lines_indices
 ###########
 # EXTRACT #
 ###########
-
-class ExtractMode(str, Enum):
-    EXTRACT = 'extract'
-    PRUNE = 'prune'
 
 
 def extract_lines_and_indices(lines_and_tags: list[LineAndTag],
@@ -42,3 +37,15 @@ def extract_paragraphs_lines_and_indices(refined_content: str,
     lines_and_tags = split_and_tag(refined_content, action_interface)
 
     return extract_lines_and_indices(lines_and_tags, extract_mode)
+
+
+class ExtractV1Interface(BaseExtractInterface):
+    def __init__(self, action_interface: BaseActionInterface):
+        self.action_interface = action_interface
+
+    def extract_paragraphs_lines_and_indices(self, refined_content: str,
+                                             extract_mode: ExtractMode
+                                             ) -> list[tuple[list[str], list[int]]]:
+        return extract_paragraphs_lines_and_indices(refined_content,
+                                                    self.action_interface,
+                                                    extract_mode)

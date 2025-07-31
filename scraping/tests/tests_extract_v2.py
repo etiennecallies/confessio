@@ -1,7 +1,9 @@
 import os
 import unittest
 
-from scraping.scrape.download_refine_and_extract import get_extracted_html_list_v2
+from scraping.extract_v2.extract_content import ExtractV2Interface
+from scraping.extract_v2.qualify_line_interfaces import RegexQualifyLineInterface
+from scraping.scrape.download_refine_and_extract import get_extracted_html_list
 
 
 class MyTestCase(unittest.TestCase):
@@ -54,7 +56,8 @@ class MyTestCase(unittest.TestCase):
                 content_html = ''.join(lines)
                 expected_confession_part = ''.join(expected_lines)
 
-                confession_parts = get_extracted_html_list_v2(content_html)
+                extract_interface = ExtractV2Interface(RegexQualifyLineInterface())
+                confession_parts = get_extracted_html_list(content_html, extract_interface)
                 confession_part = '\n\n'.join(confession_parts) if confession_parts else None
                 # print(confession_part)
 

@@ -8,8 +8,9 @@ from tqdm import tqdm
 
 from home.models import Pruning, PruningModeration
 from home.models import Sentence
-from scraping.extract.extract_content import BaseActionInterface, ExtractMode
+from scraping.extract.extract_content import BaseActionInterface
 from scraping.extract.extract_content import extract_paragraphs_lines_and_indices
+from scraping.extract.extract_interface import ExtractMode
 from scraping.prune.models import Action, Source
 from scraping.services.classify_sentence_service import classify_and_create_sentence
 from scraping.services.parse_pruning_service import parse_pruning_for_website
