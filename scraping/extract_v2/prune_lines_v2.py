@@ -70,15 +70,11 @@ class PostBuffer:
     def reset_remaining_attempts(self):
         self.remaining_attempts = MAX_POST_BUFFERING_ATTEMPTS
 
-    def decrement(self, index_line: IndexLine, paragraph_indices: list[int],
-                  ) -> 'Optional[PostBuffer]':
+    def decrement(self) -> 'Optional[PostBuffer]':
         if self.remaining_attempts == 0:
             return None
 
         self.remaining_attempts -= 1
-
-        if index_line.tags or index_line.event_motion in (EventMotion.START, EventMotion.SHOW):
-            self.add_line(index_line, paragraph_indices)
 
         return self
 
@@ -124,7 +120,7 @@ def get_pruned_lines_indices(lines_and_tags: list[LineAndTagV2]) -> list[list[in
             if is_resetting_attempts(index_line):
                 post_buffer.add_line(index_line, paragraph_indices)
             else:
-                post_buffer = post_buffer.decrement(index_line, paragraph_indices)
+                post_buffer = post_buffer.decrement()
                 if post_buffer is None:
                     paragraph_indices = flush_results(paragraph_indices, results)
 

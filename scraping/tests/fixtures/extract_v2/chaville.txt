@@ -13,7 +13,4 @@ Adoration<br>
 <a href="javascript:;"> Réagir à cet article </a><br>
 Un message, un commentaire ?<br>
 modération a priori<br>
-Attention, votre message n’apparaîtra qu’après avoir été relu et approuvé.<br>
-Qui êtes-vous ?<br>
-Nom<br>
-Courriel (non publié)
+Attention, votre message n’apparaîtra qu’après avoir été relu et approuvé.

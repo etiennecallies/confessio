@@ -1,3 +1,123 @@
+Dimanche 12 février : messes KT 10h00 à St-Nicolas et 10h30 à St-Vincent - messe animée par les jeunes de l'aumônerie à 18h00 à St-Nicolas<br>
+Dimanche 12 février : messes KT 10h00 à St-Nicolas et 10h30 à St-Vincent - messe animée par les jeunes de l'aumônerie à 18h00 à St-Nicolas<br>
+<a href="javascript:void(0);"> Messes dominicales </a><br>
+<table>
+ <tbody>
+  <tr>
+   <td>
+   </td>
+   <th>
+    Saint-Nicolas
+   </th>
+   <th>
+    Saint-Vincent
+   </th>
+   <th>
+    Sainte-Thérèse
+   </th>
+   <th>
+    Notre-Dame de la Croix
+   </th>
+  </tr>
+  <tr>
+   <td>
+    Samedi
+   </td>
+   <td>
+   </td>
+   <td>
+    18:30
+   </td>
+   <td>
+    18:00
+   </td>
+   <td>
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Dimanche
+   </td>
+   <td>
+    10:00, 11:30 et 18:00
+   </td>
+   <td>
+    10:30
+   </td>
+   <td>
+   </td>
+   <td>
+    travaux (messe de 10:00 à St Nicolas)
+   </td>
+  </tr>
+ </tbody>
+</table><br>
+<a href="javascript:void(0);"> Messes de semaine </a><br>
+<table>
+ <tbody>
+  <tr>
+   <td>
+   </td>
+   <th>
+    Saint-Nicolas
+   </th>
+   <th>
+    Saint-Vincent
+   </th>
+  </tr>
+  <tr>
+   <td>
+    Mardi
+   </td>
+   <td>
+    09:00
+   </td>
+   <td>
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Mercredi
+   </td>
+   <td>
+    09:00
+   </td>
+   <td>
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Jeudi
+   </td>
+   <td>
+    09:00
+   </td>
+   <td>
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Vendredi
+   </td>
+   <td>
+   </td>
+   <td>
+    19:15
+   </td>
+  </tr>
+  <tr>
+   <td>
+    Samedi
+   </td>
+   <td>
+    09:00
+   </td>
+   <td>
+   </td>
+  </tr>
+ </tbody>
+</table><br>
+<a href="javascript:void(0);"> Secrétariat </a><br>
 <table>
  <tbody>
   <tr>
