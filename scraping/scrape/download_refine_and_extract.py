@@ -1,19 +1,23 @@
 import asyncio
 
 from scraping.download.download_content import get_content_from_url
-from scraping.extract.extract_content import extract_paragraphs_lines_and_indices, ExtractMode
+from scraping.extract.extract_content import ExtractV1Interface
+from scraping.extract.extract_interface import ExtractMode, BaseExtractInterface
 from scraping.prune.action_interfaces import DummyActionInterface
 from scraping.refine.refine_content import refine_confession_content
 
 
-def get_extracted_html_list(html_content: str) -> list[str] | None:
+def get_extracted_html_list(html_content: str,
+                            extract_interface: BaseExtractInterface = None) -> list[str] | None:
     refined_content = refine_confession_content(html_content)
     if refined_content is None:
         return None
 
-    paragraphs_lines_and_indices = extract_paragraphs_lines_and_indices(refined_content,
-                                                                        DummyActionInterface(),
-                                                                        ExtractMode.EXTRACT)
+    if extract_interface is None:
+        extract_interface = ExtractV1Interface(DummyActionInterface())
+
+    paragraphs_lines_and_indices = extract_interface.extract_paragraphs_lines_and_indices(
+        refined_content, ExtractMode.EXTRACT)
     if not paragraphs_lines_and_indices:
         return None
 

@@ -1,15 +1,14 @@
 from scraping.extract.extract_interface import ExtractMode, BaseExtractInterface
-from scraping.extract.split_content import LineAndTag, split_and_tag
-from scraping.prune.action_interfaces import BaseActionInterface
-from scraping.prune.prune_lines import get_pruned_lines_indices
+from scraping.extract_v2.prune_lines_v2 import get_pruned_lines_indices
+from scraping.extract_v2.qualify_line_interfaces import BaseQualifyLineInterface
+from scraping.extract_v2.split_content import LineAndTagV2, split_and_tag_v2
 
 
 ###########
 # EXTRACT #
 ###########
 
-
-def extract_lines_and_indices(lines_and_tags: list[LineAndTag],
+def extract_lines_and_indices(lines_and_tags: list[LineAndTagV2],
                               extract_mode: ExtractMode
                               ) -> list[tuple[list[str], list[int]]]:
     indices_list = get_pruned_lines_indices(lines_and_tags)
@@ -30,22 +29,22 @@ def extract_lines_and_indices(lines_and_tags: list[LineAndTag],
     return results
 
 
-def extract_paragraphs_lines_and_indices(refined_content: str,
-                                         action_interface: BaseActionInterface,
-                                         extract_mode: ExtractMode
-                                         ) -> list[tuple[list[str], list[int]]]:
-    lines_and_tags = split_and_tag(refined_content, action_interface)
+def extract_paragraphs_lines_and_indices_v2(refined_content: str,
+                                            qualify_line_interface: BaseQualifyLineInterface,
+                                            extract_mode: ExtractMode
+                                            ) -> list[tuple[list[str], list[int]]]:
+    lines_and_tags = split_and_tag_v2(refined_content, qualify_line_interface)
 
     return extract_lines_and_indices(lines_and_tags, extract_mode)
 
 
-class ExtractV1Interface(BaseExtractInterface):
-    def __init__(self, action_interface: BaseActionInterface):
-        self.action_interface = action_interface
+class ExtractV2Interface(BaseExtractInterface):
+    def __init__(self, qualify_line_interface: BaseQualifyLineInterface):
+        self.qualify_line_interface = qualify_line_interface
 
     def extract_paragraphs_lines_and_indices(self, refined_content: str,
                                              extract_mode: ExtractMode
                                              ) -> list[tuple[list[str], list[int]]]:
-        return extract_paragraphs_lines_and_indices(refined_content,
-                                                    self.action_interface,
-                                                    extract_mode)
+        return extract_paragraphs_lines_and_indices_v2(refined_content,
+                                                       self.qualify_line_interface,
+                                                       extract_mode)
