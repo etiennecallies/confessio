@@ -168,7 +168,7 @@ class Page(TimeStampMixin):
     def has_been_scraped(self) -> bool:
         try:
             return self.scraping is not None
-        except Page.DoesNotExist:
+        except Scraping.DoesNotExist:
             # If the page does not exist, it has not been scraped
             return False
 
