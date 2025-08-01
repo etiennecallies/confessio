@@ -24,7 +24,7 @@ class Command(AbstractCommand):
         nb_sentence_outliers = 0
         for sentence in sentence_dataset:
             human_label = extract_label(sentence, target)
-            label = classify_existing_sentence(sentence, target)
+            label, _ = classify_existing_sentence(sentence, target)
             if label != human_label:
                 self.warning(f'Got {label} vs human label {human_label} '
                              f'on line "{sentence.line}"')

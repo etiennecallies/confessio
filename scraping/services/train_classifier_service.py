@@ -73,6 +73,32 @@ def extract_label(sentence: Sentence, target: Classifier.Target) -> StringEnum:
     raise NotImplementedError(f'Target {target} is not supported for label extraction')
 
 
+def set_label(sentence: Sentence, label: StringEnum, classifier: Classifier) -> None:
+    if classifier.target == Classifier.Target.ACTION:
+        sentence.action = label
+        sentence.classifier = classifier
+        return
+
+    if classifier.target == Classifier.Target.SPECIFIER:
+        assert isinstance(label, BooleanStringEnum)
+        sentence.ml_specifier = label.to_bool()
+        sentence.specifier_classifier = classifier
+        return
+
+    if classifier.target == Classifier.Target.SCHEDULE:
+        assert isinstance(label, BooleanStringEnum)
+        sentence.ml_schedule = label.to_bool()
+        sentence.schedule_classifier = classifier
+        return
+
+    if classifier.target == Classifier.Target.CONFESSION:
+        sentence.ml_confession = label
+        sentence.confession_classifier = classifier
+        return
+
+    raise NotImplementedError(f'Target {classifier.target} is not supported for label setting')
+
+
 def train_classifier(sentence_dataset: list[Sentence], target: Classifier.Target) -> Classifier:
     if not sentence_dataset:
         raise ValueError("No sentence dataset to train classifier")
