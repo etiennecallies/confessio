@@ -158,8 +158,8 @@ def get_colored_pieces_v2(extracted_html: str, qualify_line_interface: BaseQuali
     kept_indices = sum(get_pruned_lines_indices_v2(lines_and_tags), [])
 
     tag_colors = {
-        TagV2.SPECIFIER: 'success',
-        TagV2.SCHEDULE: 'info',
+        TagV2.SPECIFIER: 'purple',
+        TagV2.SCHEDULE: 'tertiary',
     }
 
     colored_pieces = []

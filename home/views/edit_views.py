@@ -142,8 +142,8 @@ def edit_pruning_v2(request, pruning_uuid):
                                            SentenceQualifyLineInterface(pruning))
 
     event_motion_colors = {
-        EventMotion.START: 'info',
-        EventMotion.SHOW: 'success',
+        EventMotion.START: 'success',
+        EventMotion.SHOW: 'info',
         EventMotion.HIDE: 'black',
         EventMotion.STOP: 'danger',
     }
