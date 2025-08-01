@@ -1,7 +1,7 @@
-from enum import Enum
+from scraping.utils.enum_utils import StringEnum
 
 
-class Action(str, Enum):
+class Action(StringEnum):
     START = "start"
     SHOW = "show"
     HIDE = "hide"
@@ -12,7 +12,7 @@ class Action(str, Enum):
         return [(item.value, item.name) for item in cls]
 
 
-class Source(str, Enum):
+class Source(StringEnum):
     HUMAN = "human"
     ML = "ml"
 

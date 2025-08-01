@@ -30,7 +30,7 @@ def train_classifier(sentence_dataset: list[Sentence]) -> Classifier:
                            )
 
     # Train model
-    model = TensorFlowModel()
+    model = TensorFlowModel[Action](Action.list_items())
     model.fit(embeddings_train, actions_train)
 
     # Evaluate model
