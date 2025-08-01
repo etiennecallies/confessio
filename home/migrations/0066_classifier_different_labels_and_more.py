@@ -14,11 +14,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='classifier',
             name='different_labels',
-            field=models.JSONField(default=home.models.base_models.default_different_labels),
+            field=models.JSONField(),
         ),
         migrations.AddField(
             model_name='historicalclassifier',
             name='different_labels',
-            field=models.JSONField(default=home.models.base_models.default_different_labels),
+            field=models.JSONField(),
         ),
     ]

@@ -286,10 +286,6 @@ class Sentence(TimeStampMixin):
     history = HistoricalRecords()
 
 
-def default_different_labels():
-    return Action.list_items()
-
-
 class Classifier(TimeStampMixin):
     class Status(models.TextChoices):
         DRAFT = "draft"
