@@ -138,6 +138,7 @@ def set_ml_indices_as_human(pruning: Pruning):
 
 class ColoredTagV2(BaseModel):
     name: str
+    short_name: str
     color: str
     checked: bool
 
@@ -161,6 +162,10 @@ def get_colored_pieces_v2(extracted_html: str, qualify_line_interface: BaseQuali
         TagV2.SPECIFIER: 'purple',
         TagV2.SCHEDULE: 'tertiary',
     }
+    tag_short_names = {
+        TagV2.SPECIFIER: 'spec',
+        TagV2.SCHEDULE: 'sched',
+    }
 
     colored_pieces = []
     for i, lines_and_tag in enumerate(lines_and_tags):
@@ -168,6 +173,7 @@ def get_colored_pieces_v2(extracted_html: str, qualify_line_interface: BaseQuali
         for tag in TagV2:
             tags.append(ColoredTagV2(
                 name=tag.value,
+                short_name=tag_short_names[tag],
                 color=tag_colors[tag],
                 checked=tag in lines_and_tag.tags,
             ))
