@@ -415,6 +415,9 @@ class PruningModeration(ModerationMixin):
 class SentenceModeration(ModerationMixin):
     class Category(models.TextChoices):
         ML_MISMATCH = "ml_mismatch"
+        SPECIFIER_MISMATCH = "specifier_mismatch"
+        SCHEDULES_MISMATCH = "schedules_mismatch"
+        CONFESSION_MISMATCH = "confession_mismatch"
 
     resource = 'sentence'
     validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
@@ -427,7 +430,7 @@ class SentenceModeration(ModerationMixin):
     sentence = models.ForeignKey('Sentence', on_delete=models.CASCADE, related_name='moderations')
     action = models.CharField(max_length=5, choices=Action.choices())
     other_action = models.CharField(max_length=5, choices=Action.choices())
-    category = models.CharField(max_length=12, choices=Category)
+    category = models.CharField(max_length=20, choices=Category)
 
     class Meta:
         unique_together = ('sentence', 'category')
