@@ -17,7 +17,7 @@
                 {% blocktrans with url=scraping.page.url %}BeforeConfessionHTML {{ url }}{% endblocktrans %}
             </p>
         {% endfor %}
-        <form action="{% url 'edit_pruning' pruning.uuid %}" method="post">
+        <form action="{% url 'edit_pruning_v1' pruning.uuid %}" method="post">
             {% csrf_token %}
             {% for colored_piece in colored_pieces %}
                 <div class="row mb-2">

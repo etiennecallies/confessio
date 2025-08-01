@@ -90,7 +90,7 @@
             <div>
                 <a href="{{ page.url }}" target="_blank">{{ page.url }}</a>
                 {% for pruning in page.get_prunings %}
-                    <a class="btn btn-gray-500" href="{% url 'edit_pruning' pruning.uuid %}" target="_blank" role="button">
+                    <a class="btn btn-gray-500" href="{% url 'edit_pruning_v1' pruning.uuid %}" target="_blank" role="button">
                         Edit pruning <i class="fas fa-up-right-from-square"></i>
                     </a>
                 {% endfor %}

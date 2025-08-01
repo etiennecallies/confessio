@@ -23,7 +23,7 @@ urlpatterns = [
          name='website_upload_image'),
 
     # edit
-    path('edit/pruning/<uuid:pruning_uuid>', views.edit_pruning, name='edit_pruning'),
+    path('edit/pruning/v1/<uuid:pruning_uuid>', views.edit_pruning_v1, name='edit_pruning_v1'),
     path('edit/pruning/human/<uuid:pruning_uuid>', views.edit_pruning_human,
          name='edit_pruning_human'),
     path('edit/parsing/<uuid:parsing_uuid>', views.edit_parsing, name='edit_parsing'),

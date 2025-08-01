@@ -24,7 +24,7 @@ from scraping.utils.html_utils import split_lines
 
 @login_required
 @permission_required("home.change_sentence")
-def edit_pruning(request, pruning_uuid):
+def edit_pruning_v1(request, pruning_uuid):
     try:
         pruning = Pruning.objects.get(uuid=pruning_uuid)
     except Page.DoesNotExist:
@@ -69,7 +69,7 @@ def edit_pruning(request, pruning_uuid):
         Action.STOP: 'danger',
     }
 
-    return render(request, 'pages/edit_pruning.html', {
+    return render(request, 'pages/edit_pruning_v1.html', {
         'pruning': pruning,
         'colored_pieces': colored_pieces,
         'action_colors': action_colors,

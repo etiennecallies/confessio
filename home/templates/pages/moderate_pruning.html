@@ -29,7 +29,7 @@
             <a class="btn btn-info" role="button" href="{{ next_url }}">Next</a>
         </div>
     </div>
-    <p><a class="btn btn-gray-500" href="{% url 'edit_pruning' pruning.uuid %}" target="_blank" role="button">
+    <p><a class="btn btn-gray-500" href="{% url 'edit_pruning_v1' pruning.uuid %}" target="_blank" role="button">
         Edit pruning <i class="fas fa-up-right-from-square"></i>
     </a></p>
     {% for scraping in pruning.scrapings.all %}
