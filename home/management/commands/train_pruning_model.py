@@ -4,60 +4,83 @@ from home.management.abstract_command import AbstractCommand
 from home.models import Classifier, Sentence
 from scraping.prune.transform_sentence import get_transformer
 from scraping.services.classify_sentence_service import classify_line, get_classifier
-from scraping.services.train_classifier_service import train_classifier, build_sentence_dataset
+from scraping.services.train_classifier_service import train_classifier, build_sentence_dataset, \
+    extract_label
 from scraping.utils.stat_utils import is_significantly_different
 
 
 class Command(AbstractCommand):
-    help = "Launch the training of machine learning model to guess action of Sentence"
+    help = "Launch the training of machine learning model to guess label of Sentence, given target"
 
     def add_arguments(self, parser):
-        parser.add_argument('-t', '--test-on-line', help='test latest classifier on given line')
+        parser.add_argument('-t', '--target', type=Classifier.Target,
+                            choices=list(Classifier.Target), help='Target of the classifier')
+
+        parser.add_argument('-l', '--test-on-line', help='test latest classifier on given line')
         parser.add_argument('-a', '--automatic', action='store_true',
                             help='automatic training triggered in nightly job')
 
     def handle(self, *args, **options):
+        target = options['target']
+        if target:
+            targets = [target]
+        else:
+            targets = [t for t in Classifier.Target]
+
         if options['test_on_line']:
-            action, classifier, embedding, transformer = classify_line(options['test_on_line'])
-            self.success(f'Successfully got action {action}')
+            for target in targets:
+                self.info(f'Testing classifier on target {target}')
+
+                label, classifier, embedding, transformer = classify_line(
+                    options['test_on_line'], target
+                )
+                self.success(f'Successfully got label {label}')
             return
 
-        if options['automatic']:
-            last_training_at = Classifier.objects.latest('created_at').created_at
-            self.info(f'Last training was at {last_training_at}')
+        for target in targets:
+            self.info(f'Training model for target {target}')
+            self.train_model_for_target(target, options['automatic'])
 
-            last_sentence_at = Sentence.objects.filter(updated_by__isnull=False)\
+    def train_model_for_target(self, target: Classifier.Target, automatic: bool):
+        if automatic:
+            last_training_at = Classifier.objects.latest('created_at').created_at
+            self.info(f'Last training was at {last_training_at} for target {target}')
+
+            last_sentence_at = Sentence.objects.filter(updated_by__isnull=False) \
                 .latest('updated_at').updated_at
-            self.info(f'Last human-changed sentence updated at {last_sentence_at}')
+            self.info(f'Last human-changed sentence updated at {last_sentence_at} '
+                      f'for target {target}')
 
             if last_training_at > last_sentence_at:
-                self.info(f'No need to retrain model')
+                self.info(f'No need to retrain model for target {target}')
                 return
 
-        self.info(f'Building sentence dataset...')
-        sentence_dataset = build_sentence_dataset()
-        self.info(f'Got {len(sentence_dataset)} sentences')
+        self.info(f'Building sentence dataset for target {target}...')
+        sentence_dataset = build_sentence_dataset(target)
+        self.info(f'Got {len(sentence_dataset)} sentences for target {target}')
 
-        count_by_action = {}
+        count_by_label = {}
         for sentence in sentence_dataset:
-            count_by_action[sentence.action] = count_by_action.get(sentence.action, 0) + 1
-        for action, count in count_by_action.items():
-            self.info(f'{count} sentences with action {action}')
+            label = extract_label(sentence, target)
+            count_by_label[label] = count_by_label.get(label, 0) + 1
+        for label, count in count_by_label.items():
+            self.info(f'{count} sentences with label {label}')
 
-        self.info(f'Training model ...')
-        classifier = train_classifier(sentence_dataset)
+        self.info(f'Training model for target {target}...')
+        classifier = train_classifier(sentence_dataset, target)
         self.success(f'Successfully trained model with accuracy {classifier.accuracy}, '
-                     f'with test size {classifier.test_size}')
+                     f'with test size {classifier.test_size} for target {target}')
 
-        if options['automatic']:
+        if automatic:
             transformer = get_transformer()
-            production_classifier = get_classifier(transformer)
+            production_classifier = get_classifier(transformer, target)
             self.info(f'Production model accuracy: {production_classifier.accuracy}, '
                       f'test size: {production_classifier.test_size}')
 
             if classifier.accuracy > production_classifier.accuracy and \
-                is_significantly_different(classifier.accuracy, production_classifier.accuracy,
-                                           classifier.test_size, production_classifier.test_size):
+                    is_significantly_different(classifier.accuracy, production_classifier.accuracy,
+                                               classifier.test_size,
+                                               production_classifier.test_size):
                 self.success(f'New model is significantly better than production model')
                 classifier.status = classifier.Status.PROD
                 classifier.save()
