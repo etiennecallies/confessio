@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import Optional
 
+from scraping.extract_v2.models import TagV2, EventMotion
 from scraping.extract_v2.split_content import LineAndTagV2
-from scraping.extract_v2.tag_line import EventMotion, TagV2
 
 MAX_PRE_BUFFERING_ATTEMPTS = 3
 MAX_POST_BUFFERING_ATTEMPTS = 3

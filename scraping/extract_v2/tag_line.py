@@ -1,6 +1,6 @@
-from enum import Enum
 from typing import Set
 
+from scraping.extract_v2.models import TagV2, EventMotion
 from scraping.utils.string_search import has_any_of_words
 
 ##################
@@ -158,22 +158,6 @@ def is_date_description(content: str):
 
 def is_period_description(content: str):
     return has_any_of_words(content, PERIOD_MENTIONS)
-
-
-########
-# ENUM #
-########
-
-class TagV2(str, Enum):
-    SCHEDULE = 'schedule'
-    SPECIFIER = 'specifier'
-
-
-class EventMotion(str, Enum):
-    START = 'start'
-    SHOW = 'show'
-    HIDE = 'hide'
-    STOP = 'stop'
 
 
 ########

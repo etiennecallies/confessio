@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
+from scraping.extract_v2.models import TagV2, EventMotion
 from scraping.extract_v2.qualify_line_interfaces import BaseQualifyLineInterface
-from scraping.extract_v2.tag_line import TagV2, EventMotion
 from scraping.refine.refine_content import stringify_html
 from scraping.utils.html_utils import split_lines
 

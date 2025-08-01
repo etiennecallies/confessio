@@ -1,6 +1,7 @@
 from abc import abstractmethod
 
-from scraping.extract_v2.tag_line import EventMotion, TagV2, get_tags_with_regex, \
+from scraping.extract_v2.models import TagV2, EventMotion
+from scraping.extract_v2.tag_line import get_tags_with_regex, \
     get_event_motion_with_regex
 
 

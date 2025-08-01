@@ -10,6 +10,7 @@ from pgvector.django import VectorField
 from simple_history.models import HistoricalRecords
 
 from home.utils.hash_utils import hash_string_to_hex
+from scraping.extract_v2.models import EventMotion
 from scraping.parse.llm_client import LLMProvider
 from scraping.prune.models import Action, Source
 
@@ -255,15 +256,29 @@ class Pruning(TimeStampMixin):
 
 class Sentence(TimeStampMixin):
     line = models.TextField(null=False, unique=True)
+    prunings = models.ManyToManyField('Pruning', related_name='sentences')
     updated_by = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
     updated_on_pruning = models.ForeignKey('Pruning', on_delete=models.SET_NULL, null=True)
+    transformer_name = models.CharField(max_length=100)
+    embedding = VectorField(dimensions=768)
+    # v1
     action = models.CharField(max_length=5, choices=Action.choices())
     source = models.CharField(max_length=5, choices=Source.choices())
     classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,
                                    related_name='sentences', null=True)
-    transformer_name = models.CharField(max_length=100)
-    embedding = VectorField(dimensions=768)
-    prunings = models.ManyToManyField('Pruning', related_name='sentences')
+    # v2
+    ml_specifier = models.BooleanField(null=True)
+    human_specifier = models.BooleanField(null=True)
+    specifier_classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,
+                                             related_name='specifier_sentences', null=True)
+    ml_schedule = models.BooleanField(null=True)
+    human_schedule = models.BooleanField(null=True)
+    schedule_classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,
+                                            related_name='schedule_sentences', null=True)
+    ml_confession = models.CharField(max_length=5, choices=EventMotion.choices(), null=True)
+    human_confession = models.CharField(max_length=5, choices=EventMotion.choices(), null=True)
+    confession_classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,
+                                              related_name='confession_sentences', null=True)
     history = HistoricalRecords()
 
 
@@ -272,8 +287,17 @@ class Classifier(TimeStampMixin):
         DRAFT = "draft"
         PROD = "prod"
 
+    class Target(models.TextChoices):
+        # V1
+        ACTION = "action"
+        # V2
+        SPECIFIER = "specifier"
+        SCHEDULE = "schedule"
+        CONFESSION = "confession"
+
     transformer_name = models.CharField(max_length=100)
     status = models.CharField(max_length=5, choices=Status)
+    target = models.CharField(max_length=10, choices=Target, default=Target.ACTION)
     pickle = models.CharField()
     accuracy = models.FloatField()
     test_size = models.PositiveSmallIntegerField()
