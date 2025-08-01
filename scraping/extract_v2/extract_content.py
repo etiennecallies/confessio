@@ -1,5 +1,5 @@
 from scraping.extract.extract_interface import ExtractMode, BaseExtractInterface
-from scraping.extract_v2.prune_lines_v2 import get_pruned_lines_indices
+from scraping.extract_v2.prune_lines_v2 import get_pruned_lines_indices_v2
 from scraping.extract_v2.qualify_line_interfaces import BaseQualifyLineInterface
 from scraping.extract_v2.split_content import LineAndTagV2, split_and_tag_v2
 
@@ -11,7 +11,7 @@ from scraping.extract_v2.split_content import LineAndTagV2, split_and_tag_v2
 def extract_lines_and_indices(lines_and_tags: list[LineAndTagV2],
                               extract_mode: ExtractMode
                               ) -> list[tuple[list[str], list[int]]]:
-    indices_list = get_pruned_lines_indices(lines_and_tags)
+    indices_list = get_pruned_lines_indices_v2(lines_and_tags)
 
     results = []
     for indices in indices_list:

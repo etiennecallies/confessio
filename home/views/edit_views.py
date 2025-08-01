@@ -9,8 +9,9 @@ from pydantic import ValidationError
 from home.models import Page, Pruning, Sentence, Parsing
 from home.services.edit_pruning_service import get_colored_pieces, update_sentence_action, \
     reset_pages_counter_of_pruning, set_ml_indices_as_human, set_human_indices, \
-    get_pruning_human_pieces
+    get_pruning_human_pieces, get_colored_pieces_v2
 from jsoneditor.forms import JSONSchemaForm
+from scraping.extract_v2.models import EventMotion
 from scraping.parse.schedules import SchedulesList
 from scraping.prune.action_interfaces import DummyActionInterface
 from scraping.prune.models import Action
@@ -18,7 +19,7 @@ from scraping.services.parse_pruning_service import reset_counters_of_parsing, \
     re_index_related_website
 from scraping.services.parsing_service import get_parsing_schedules_list
 from scraping.services.prune_scraping_service import SentenceFromDbActionInterface, \
-    reprune_affected_prunings, prune_pruning
+    reprune_affected_prunings, prune_pruning, SentenceQualifyLineInterface
 from scraping.utils.html_utils import split_lines
 
 
@@ -97,6 +98,60 @@ def edit_pruning_human(request, pruning_uuid):
     return render(request, 'pages/edit_pruning_human.html', {
         'pruning': pruning,
         'pruning_human_pieces': pruning_human_pieces,
+    })
+
+
+@login_required
+@permission_required("home.change_sentence")
+def edit_pruning_v2(request, pruning_uuid):
+    try:
+        pruning = Pruning.objects.get(uuid=pruning_uuid)
+    except Page.DoesNotExist:
+        return HttpResponseNotFound("Pruning not found")
+
+    extracted_html = pruning.extracted_html
+
+    # if request.method == "POST":
+    #     # We extract action per line from POST
+    #     dummy_colored_pieces = get_colored_pieces_v2(extracted_html,
+    #                                                  DummyActionInterface())
+    #     modified_sentences = []
+    #     for dummy_piece in dummy_colored_pieces:
+    #         new_action = Action(request.POST.get(f"action-{dummy_piece.id}"))
+    #         sentence_uuid = request.POST.get(f"sentence-uuid-{dummy_piece.id}")
+    #         sentence = Sentence.objects.get(uuid=sentence_uuid)
+    #
+    #         if Action(sentence.action) != new_action:
+    #             modified_sentences.append(sentence)
+    #             update_sentence_action(sentence, pruning, request.user, new_action)
+    #
+    #     # Save pruning
+    #     prune_pruning(pruning)
+    #
+    #     # Set human indices
+    #     set_ml_indices_as_human(pruning)
+    #
+    #     if modified_sentences:
+    #         # reset page counter
+    #         reset_pages_counter_of_pruning(pruning)
+    #
+    #         # re-prune affected prunings
+    #         reprune_affected_prunings(modified_sentences, pruning)
+
+    colored_pieces = get_colored_pieces_v2(extracted_html,
+                                           SentenceQualifyLineInterface(pruning))
+
+    event_motion_colors = {
+        EventMotion.START: 'info',
+        EventMotion.SHOW: 'success',
+        EventMotion.HIDE: 'black',
+        EventMotion.STOP: 'danger',
+    }
+
+    return render(request, 'pages/edit_pruning_v2.html', {
+        'pruning': pruning,
+        'colored_pieces': colored_pieces,
+        'event_motion_colors': event_motion_colors,
     })
 
 

@@ -89,7 +89,7 @@ def flush_results(paragraph_indices: list[int], results: list[list[int]]) -> lis
     return []
 
 
-def get_pruned_lines_indices(lines_and_tags: list[LineAndTagV2]) -> list[list[int]]:
+def get_pruned_lines_indices_v2(lines_and_tags: list[LineAndTagV2]) -> list[list[int]]:
     results = []
     paragraph_indices = []
     pre_buffer: Optional[PreBuffer] = None

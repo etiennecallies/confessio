@@ -11,14 +11,16 @@ from home.models import Sentence
 from scraping.extract.extract_content import BaseActionInterface
 from scraping.extract.extract_content import extract_paragraphs_lines_and_indices
 from scraping.extract.extract_interface import ExtractMode
+from scraping.extract_v2.models import TagV2, EventMotion
+from scraping.extract_v2.qualify_line_interfaces import BaseQualifyLineInterface
 from scraping.prune.models import Action, Source
 from scraping.services.classify_sentence_service import classify_and_create_sentence
 from scraping.services.parse_pruning_service import parse_pruning_for_website
 
 
-###################
-# TAGGING WITH DB #
-###################
+######################
+# TAGGING WITH DB V1 #
+######################
 
 class SentenceFromDbActionInterface(BaseActionInterface):
     def __init__(self, pruning: Pruning):
@@ -29,6 +31,53 @@ class SentenceFromDbActionInterface(BaseActionInterface):
         sentence.prunings.add(self.pruning)
 
         return Action(sentence.action), Source(sentence.source), sentence.uuid
+
+    def get_sentence(self, stringified_line: str) -> Sentence:
+        try:
+            return Sentence.objects.get(line=stringified_line)
+        except Sentence.DoesNotExist:
+            return classify_and_create_sentence(stringified_line, self.pruning)
+
+
+######################
+# TAGGING WITH DB V2 #
+######################
+
+class SentenceQualifyLineInterface(BaseQualifyLineInterface):
+    def __init__(self, pruning: Pruning):
+        self.pruning = pruning
+
+    def get_tags_and_event_motion(self, stringified_line: str) -> tuple[set[TagV2], EventMotion]:
+        sentence = self.get_sentence(stringified_line)
+        sentence.prunings.add(self.pruning)
+
+        tags = set()
+        if sentence.human_schedule is not None:
+            if sentence.human_schedule:
+                tags.add(TagV2.SCHEDULE)
+        elif sentence.ml_schedule is not None:
+            if sentence.ml_schedule:
+                tags.add(TagV2.SCHEDULE)
+        else:
+            raise ValueError(f'Sentence {sentence.uuid} has no human schedule nor ML schedule')
+        if sentence.human_specifier is not None:
+            if sentence.human_specifier:
+                tags.add(TagV2.SPECIFIER)
+        elif sentence.ml_specifier is not None:
+            if sentence.ml_specifier:
+                tags.add(TagV2.SPECIFIER)
+        else:
+            raise ValueError(f'Sentence {sentence.uuid} has no human specifier nor ML specifier')
+
+        if sentence.human_confession is not None:
+            event_motion = EventMotion(sentence.human_confession)
+        elif sentence.ml_confession is not None:
+            event_motion = EventMotion(sentence.ml_confession)
+        else:
+            raise ValueError(f'Sentence {sentence.uuid} has no human '
+                             f'confession nor ML confession')
+
+        return tags, event_motion
 
     def get_sentence(self, stringified_line: str) -> Sentence:
         try:

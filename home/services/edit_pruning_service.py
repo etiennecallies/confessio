@@ -9,6 +9,10 @@ from pydantic import BaseModel
 from home.models import Pruning, Sentence
 from scraping.extract.extract_content import split_and_tag, BaseActionInterface
 from scraping.extract.tag_line import Tag
+from scraping.extract_v2.models import TagV2, EventMotion
+from scraping.extract_v2.prune_lines_v2 import get_pruned_lines_indices_v2
+from scraping.extract_v2.qualify_line_interfaces import BaseQualifyLineInterface
+from scraping.extract_v2.split_content import split_and_tag_v2
 from scraping.prune.models import Action, Source
 from scraping.prune.prune_lines import get_pruned_lines_indices
 from scraping.refine.refine_content import replace_link_by_their_content
@@ -126,6 +130,61 @@ def set_ml_indices_as_human(pruning: Pruning):
     pruning.human_indices = pruning.ml_indices
     pruning.pruned_indices = pruning.ml_indices
     pruning.save()
+
+
+#################
+# ML INDICES V2 #
+#################
+
+class ColoredTagV2(BaseModel):
+    name: str
+    color: str
+    checked: bool
+
+
+class ColoredPieceV2(BaseModel):
+    id: str
+    do_show: bool
+    text: str
+    color: str
+    event_motion: EventMotion
+    tags: list[ColoredTagV2]
+    # sentence_uuid: UUID | None
+
+
+def get_colored_pieces_v2(extracted_html: str, qualify_line_interface: BaseQualifyLineInterface
+                          ) -> list[ColoredPiece]:
+    lines_and_tags = split_and_tag_v2(extracted_html, qualify_line_interface)
+    kept_indices = sum(get_pruned_lines_indices_v2(lines_and_tags), [])
+
+    tag_colors = {
+        TagV2.SPECIFIER: 'success',
+        TagV2.SCHEDULE: 'info',
+    }
+
+    colored_pieces = []
+    for i, lines_and_tag in enumerate(lines_and_tags):
+        tags = []
+        for tag in TagV2:
+            tags.append(ColoredTagV2(
+                name=tag.value,
+                color=tag_colors[tag],
+                checked=tag in lines_and_tag.tags,
+            ))
+
+        do_show = i in kept_indices
+
+        colored_pieces.append(ColoredPieceV2(
+            id=f'{i}',
+            do_show=do_show,
+            text=lines_and_tag.line,
+            color='' if do_show else 'text-warning',
+            event_motion=lines_and_tag.event_motion,
+            tags=tags,
+            # sentence_uuid=lines_and_tag.sentence_uuid,
+        ))
+
+    return colored_pieces
 
 
 ######################
