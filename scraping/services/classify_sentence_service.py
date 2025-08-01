@@ -34,7 +34,10 @@ def get_model(classifier: Classifier) -> TensorFlowModel:
     if _model is None:
         with _model_lock:
             if _model is None:
-                tmp_model = TensorFlowModel[Action](Action.list_items())
+                different_labels = Action.list_items()
+                assert classifier.different_labels == different_labels, \
+                    "Classifier and model are not compatible"
+                tmp_model = TensorFlowModel[Action](different_labels)
                 tmp_model.from_pickle(classifier.pickle)
                 _model = tmp_model
 

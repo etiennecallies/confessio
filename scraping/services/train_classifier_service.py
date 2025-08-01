@@ -41,6 +41,8 @@ def train_classifier(sentence_dataset: list[Sentence]) -> Classifier:
         transformer_name=first_transformer_name,
         pickle=model.to_pickle(),
         status=Classifier.Status.DRAFT,
+        target=Classifier.Target.ACTION,
+        different_labels=Action.list_items(),
         accuracy=accuracy,
         test_size=test_size,
     )
