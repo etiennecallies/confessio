@@ -144,7 +144,7 @@ def edit_pruning_v2(request, pruning_uuid):
     event_motion_colors = {
         EventMotion.START: 'success',
         EventMotion.SHOW: 'info',
-        EventMotion.HIDE: 'black',
+        EventMotion.HIDE: 'gray-500',
         EventMotion.STOP: 'danger',
     }
 
