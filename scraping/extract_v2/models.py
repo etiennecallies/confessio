@@ -1,12 +1,12 @@
-from enum import Enum
+from scraping.utils.enum_utils import StringEnum
 
 
-class TagV2(str, Enum):
+class TagV2(StringEnum):
     SCHEDULE = 'schedule'
     SPECIFIER = 'specifier'
 
 
-class EventMotion(str, Enum):
+class EventMotion(StringEnum):
     START = 'start'
     SHOW = 'show'
     HIDE = 'hide'
