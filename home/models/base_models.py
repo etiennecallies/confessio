@@ -305,8 +305,8 @@ class Classifier(TimeStampMixin):
 
     transformer_name = models.CharField(max_length=100)
     status = models.CharField(max_length=5, choices=Status)
-    target = models.CharField(max_length=10, choices=Target, default=Target.ACTION)
-    different_labels = models.JSONField(default=default_different_labels)
+    target = models.CharField(max_length=10, choices=Target)
+    different_labels = models.JSONField()
     pickle = models.CharField()
     accuracy = models.FloatField()
     test_size = models.PositiveSmallIntegerField()
