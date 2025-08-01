@@ -20,7 +20,7 @@ def upsert_extracted_html_list(page: Page, extracted_html_list: list[str]
     prunings_to_prune = []
 
     # Compare result to last scraping
-    if (page.scraping is not None
+    if (page.has_been_scraped()
             and is_extracted_html_list_identical_for_scraping(page.scraping,
                                                               extracted_html_list)):
         # If a scraping exists and is identical to last one
@@ -30,7 +30,7 @@ def upsert_extracted_html_list(page: Page, extracted_html_list: list[str]
         for pruning in page.scraping.prunings.all():
             prunings_to_prune.append(pruning)
     else:
-        if page.scraping is not None:
+        if page.has_been_scraped():
             # If a scraping exists and is different from last one, we delete it
             delete_scraping(page.scraping)
 

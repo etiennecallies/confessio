@@ -166,7 +166,11 @@ class Page(TimeStampMixin):
         unique_together = ('url', 'website')
 
     def has_been_scraped(self) -> bool:
-        return self.scraping is not None
+        try:
+            return self.scraping is not None
+        except Page.DoesNotExist:
+            # If the page does not exist, it has not been scraped
+            return False
 
     def has_been_parsed(self) -> bool:
         if self.get_prunings() is None:

@@ -11,7 +11,7 @@ from scraping.services.prune_scraping_service import remove_pruning_if_orphan
 ############
 
 def delete_page(page: Page):
-    if page.scraping is not None:
+    if page.has_been_scraped():
         delete_scraping(page.scraping)
     page.delete()
 
