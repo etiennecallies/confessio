@@ -40,12 +40,9 @@ def upsert_extracted_html_list(page: Page, extracted_html_list: list[str]
 
         scraping = Scraping(
             nb_iterations=1,
-            page_new=page,
+            page=page,
         )
         scraping.save()
-
-        page.scraping = scraping
-        page.save()
 
         for pruning in prunings:
             scraping.prunings.add(pruning)
