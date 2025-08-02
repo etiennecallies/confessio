@@ -150,7 +150,7 @@ class ColoredPieceV2(BaseModel):
     color: str
     event_motion: EventMotion
     tags: list[ColoredTagV2]
-    # sentence_uuid: UUID | None
+    sentence_uuid: UUID | None
 
 
 def get_colored_pieces_v2(extracted_html: str, qualify_line_interface: BaseQualifyLineInterface
@@ -168,14 +168,14 @@ def get_colored_pieces_v2(extracted_html: str, qualify_line_interface: BaseQuali
     }
 
     colored_pieces = []
-    for i, lines_and_tag in enumerate(lines_and_tags):
+    for i, line_and_tag in enumerate(lines_and_tags):
         tags = []
         for tag in TagV2:
             tags.append(ColoredTagV2(
                 name=tag.value,
                 short_name=tag_short_names[tag],
                 color=tag_colors[tag],
-                checked=tag in lines_and_tag.tags,
+                checked=tag in line_and_tag.tags,
             ))
 
         do_show = i in kept_indices
@@ -183,14 +183,20 @@ def get_colored_pieces_v2(extracted_html: str, qualify_line_interface: BaseQuali
         colored_pieces.append(ColoredPieceV2(
             id=f'{i}',
             do_show=do_show,
-            text=lines_and_tag.line,
+            text=line_and_tag.line,
             color='' if do_show else 'text-warning',
-            event_motion=lines_and_tag.event_motion,
+            event_motion=line_and_tag.event_motion,
             tags=tags,
-            # sentence_uuid=lines_and_tag.sentence_uuid,
+            sentence_uuid=line_and_tag.sentence_uuid,
         ))
 
     return colored_pieces
+
+
+def set_v2_indices_as_human(pruning: Pruning):
+    pruning.human_indices = pruning.v2_indices
+    pruning.pruned_indices = pruning.v2_indices
+    pruning.save()
 
 
 ######################

@@ -47,7 +47,8 @@ class SentenceQualifyLineInterface(BaseQualifyLineInterface):
     def __init__(self, pruning: Pruning):
         self.pruning = pruning
 
-    def get_tags_and_event_motion(self, stringified_line: str) -> tuple[set[TagV2], EventMotion]:
+    def get_tags_and_event_motion(self, stringified_line: str
+                                  ) -> tuple[set[TagV2], EventMotion, UUID | None]:
         sentence = self.get_sentence(stringified_line)
         sentence.prunings.add(self.pruning)
 
@@ -77,7 +78,7 @@ class SentenceQualifyLineInterface(BaseQualifyLineInterface):
             raise ValueError(f'Sentence {sentence.uuid} has no human '
                              f'confession nor ML confession')
 
-        return tags, event_motion
+        return tags, event_motion, sentence.uuid
 
     def get_sentence(self, stringified_line: str) -> Sentence:
         try:

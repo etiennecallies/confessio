@@ -12,6 +12,7 @@ from home.services.edit_pruning_service import get_colored_pieces, update_senten
     get_pruning_human_pieces, get_colored_pieces_v2
 from jsoneditor.forms import JSONSchemaForm
 from scraping.extract_v2.models import EventMotion
+from scraping.extract_v2.qualify_line_interfaces import DummyQualifyLineInterface
 from scraping.parse.schedules import SchedulesList
 from scraping.prune.action_interfaces import DummyActionInterface
 from scraping.prune.models import Action
@@ -111,32 +112,39 @@ def edit_pruning_v2(request, pruning_uuid):
 
     extracted_html = pruning.extracted_html
 
-    # if request.method == "POST":
-    #     # We extract action per line from POST
-    #     dummy_colored_pieces = get_colored_pieces_v2(extracted_html,
-    #                                                  DummyActionInterface())
-    #     modified_sentences = []
-    #     for dummy_piece in dummy_colored_pieces:
-    #         new_action = Action(request.POST.get(f"action-{dummy_piece.id}"))
-    #         sentence_uuid = request.POST.get(f"sentence-uuid-{dummy_piece.id}")
-    #         sentence = Sentence.objects.get(uuid=sentence_uuid)
-    #
-    #         if Action(sentence.action) != new_action:
-    #             modified_sentences.append(sentence)
-    #             update_sentence_action(sentence, pruning, request.user, new_action)
-    #
-    #     # Save pruning
-    #     prune_pruning(pruning)
-    #
-    #     # Set human indices
-    #     set_ml_indices_as_human(pruning)
-    #
-    #     if modified_sentences:
-    #         # reset page counter
-    #         reset_pages_counter_of_pruning(pruning)
-    #
-    #         # re-prune affected prunings
-    #         reprune_affected_prunings(modified_sentences, pruning)
+    if request.method == "POST":
+        dummy_colored_pieces = get_colored_pieces_v2(extracted_html,
+                                                     DummyQualifyLineInterface())
+        modified_sentences = []
+        for dummy_piece in dummy_colored_pieces:
+            sentence_uuid = request.POST.get(f"sentence-uuid-{dummy_piece.id}")
+            sentence = Sentence.objects.get(uuid=sentence_uuid)
+            new_specifier = request.POST.get(f"specifier-{dummy_piece.id}") == 'on'
+            new_schedule = request.POST.get(f"schedule-{dummy_piece.id}") == 'on'
+            new_event_motion = EventMotion(request.POST.get(f"event-motion-{dummy_piece.id}"))
+
+            if sentence.human_specifier != new_specifier \
+                    or sentence.human_schedule != new_schedule \
+                    or (sentence.human_confession is None
+                        or EventMotion(sentence.human_confession) != new_event_motion):
+                modified_sentences.append(sentence)
+                sentence.human_specifier = new_specifier
+                sentence.human_schedule = new_schedule
+                sentence.human_confession = new_event_motion.value
+                sentence.save()
+
+        # # Save pruning
+        # prune_pruning(pruning)
+        #
+        # # Set human indices
+        # set_v2_indices_as_human(pruning)
+        #
+        # if modified_sentences:
+        #     # reset page counter
+        #     reset_pages_counter_of_pruning(pruning)
+        #
+        #     # re-prune affected prunings
+        #     reprune_affected_prunings(modified_sentences, pruning)
 
     colored_pieces = get_colored_pieces_v2(extracted_html,
                                            SentenceQualifyLineInterface(pruning))
