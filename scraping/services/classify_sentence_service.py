@@ -8,9 +8,9 @@ from scraping.services.classifier_target_service import get_target_enum
 from scraping.services.train_classifier_service import set_label
 from scraping.utils.enum_utils import StringEnum
 
-_classifier = None
+_classifier = {}
 _classifier_lock = threading.Lock()
-_model = None
+_model = {}
 _model_lock = threading.Lock()
 
 
@@ -18,36 +18,38 @@ def get_classifier(transformer: TransformerInterface,
                    target: Classifier.Target
                    ) -> Classifier:
     global _classifier
-    if _classifier is None:
+    if _classifier.get(target, None) is None:
         with _classifier_lock:
-            if _classifier is None:
+            if _classifier.get(target, None) is None:
                 try:
-                    _classifier = Classifier.objects \
+                    _classifier[target] = Classifier.objects \
                         .filter(status=Classifier.Status.PROD, target=target) \
                         .latest('updated_at')
                 except Classifier.DoesNotExist:
                     raise ValueError(f"No classifier in production for target {target}")
 
-                assert _classifier.transformer_name == transformer.get_name(), \
+                assert _classifier[target].transformer_name == transformer.get_name(), \
                     "Classifier and transformer are not compatible"
 
-    return _classifier
+    return _classifier[target]
 
 
 def get_model(classifier: Classifier) -> TensorFlowModel:
     global _model
-    if _model is None:
+
+    target = Classifier.Target(classifier.target)
+    if _model.get(target, None) is None:
         with _model_lock:
-            if _model is None:
-                target_enum = get_target_enum(Classifier.Target(classifier.target))
+            if _model.get(target, None) is None:
+                target_enum = get_target_enum(target)
                 different_labels = target_enum.list_items()
                 assert classifier.different_labels == different_labels, \
                     "Classifier and model are not compatible"
                 tmp_model = TensorFlowModel[target_enum](different_labels)
                 tmp_model.from_pickle(classifier.pickle)
-                _model = tmp_model
+                _model[target] = tmp_model
 
-    return _model
+    return _model[target]
 
 
 def classify_line(stringified_line: str, target: Classifier.Target
