@@ -271,15 +271,15 @@ class Sentence(TimeStampMixin):
     classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,
                                    related_name='sentences', null=True)
     # v2
-    ml_specifier = models.BooleanField(null=True)
+    ml_specifier = models.BooleanField()
     human_specifier = models.BooleanField(null=True)
     specifier_classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,
                                              related_name='specifier_sentences', null=True)
-    ml_schedule = models.BooleanField(null=True)
+    ml_schedule = models.BooleanField()
     human_schedule = models.BooleanField(null=True)
     schedule_classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,
                                             related_name='schedule_sentences', null=True)
-    ml_confession = models.CharField(max_length=5, choices=EventMotion.choices(), null=True)
+    ml_confession = models.CharField(max_length=5, choices=EventMotion.choices())
     human_confession = models.CharField(max_length=5, choices=EventMotion.choices(), null=True)
     confession_classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,
                                               related_name='confession_sentences', null=True)
