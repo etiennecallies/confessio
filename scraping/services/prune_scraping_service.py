@@ -11,6 +11,7 @@ from home.models import Sentence
 from scraping.extract.extract_content import BaseActionInterface
 from scraping.extract.extract_content import extract_paragraphs_lines_and_indices
 from scraping.extract.extract_interface import ExtractMode
+from scraping.extract_v2.extract_content import extract_paragraphs_lines_and_indices_v2
 from scraping.extract_v2.models import TagV2, EventMotion
 from scraping.extract_v2.qualify_line_interfaces import BaseQualifyLineInterface
 from scraping.prune.models import Action, Source
@@ -224,6 +225,7 @@ async def update_parsings(pruning: Pruning):
 def prune_pruning(pruning: Pruning, no_parsing: bool = False) -> ():
     assert pruning.extracted_html, 'Pruning must have not empty extracted_html'
 
+    # V1
     paragraphs = extract_paragraphs_lines_and_indices(pruning.extracted_html,
                                                       SentenceFromDbActionInterface(pruning),
                                                       ExtractMode.PRUNE)
@@ -236,6 +238,17 @@ def prune_pruning(pruning: Pruning, no_parsing: bool = False) -> ():
         pruning.save()
 
         add_necessary_moderation(pruning)
+
+    # V2
+    paragraphs_v2 = extract_paragraphs_lines_and_indices_v2(pruning.extracted_html,
+                                                            SentenceQualifyLineInterface(pruning),
+                                                            ExtractMode.PRUNE)
+    v2_indices = sum([indices for _, indices in paragraphs_v2], [])
+    if v2_indices != pruning.v2_indices:
+        pruning.v2_indices = v2_indices
+        if pruning.human_indices is None:
+            pruning.pruned_indices = v2_indices
+        pruning.save()
 
     if not no_parsing:
         asyncio.run(update_parsings(pruning))

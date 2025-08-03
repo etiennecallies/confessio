@@ -227,6 +227,7 @@ class Pruning(TimeStampMixin):
     extracted_html_hash = models.CharField(max_length=32, unique=True, editable=False)
     pruned_indices = ArrayField(models.PositiveSmallIntegerField(), null=True)
     ml_indices = ArrayField(models.PositiveSmallIntegerField(), null=True)
+    v2_indices = ArrayField(models.PositiveSmallIntegerField(), null=True)
     human_indices = ArrayField(models.PositiveSmallIntegerField(), null=True)
     history = HistoricalRecords()
 

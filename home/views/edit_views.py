@@ -9,7 +9,7 @@ from pydantic import ValidationError
 from home.models import Page, Pruning, Sentence, Parsing
 from home.services.edit_pruning_service import get_colored_pieces, update_sentence_action, \
     reset_pages_counter_of_pruning, set_ml_indices_as_human, set_human_indices, \
-    get_pruning_human_pieces, get_colored_pieces_v2
+    get_pruning_human_pieces, get_colored_pieces_v2, set_v2_indices_as_human
 from jsoneditor.forms import JSONSchemaForm
 from scraping.extract_v2.models import EventMotion
 from scraping.extract_v2.qualify_line_interfaces import DummyQualifyLineInterface
@@ -133,18 +133,18 @@ def edit_pruning_v2(request, pruning_uuid):
                 sentence.human_confession = new_event_motion.value
                 sentence.save()
 
-        # # Save pruning
-        # prune_pruning(pruning)
-        #
-        # # Set human indices
-        # set_v2_indices_as_human(pruning)
-        #
-        # if modified_sentences:
-        #     # reset page counter
-        #     reset_pages_counter_of_pruning(pruning)
-        #
-        #     # re-prune affected prunings
-        #     reprune_affected_prunings(modified_sentences, pruning)
+        # Save pruning
+        prune_pruning(pruning)
+
+        # Set human indices
+        set_v2_indices_as_human(pruning)
+
+        if modified_sentences:
+            # reset page counter
+            reset_pages_counter_of_pruning(pruning)
+
+            # re-prune affected prunings
+            reprune_affected_prunings(modified_sentences, pruning)
 
     colored_pieces = get_colored_pieces_v2(extracted_html,
                                            SentenceQualifyLineInterface(pruning))

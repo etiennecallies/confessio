@@ -195,8 +195,14 @@ def get_colored_pieces_v2(extracted_html: str, qualify_line_interface: BaseQuali
 
 def set_v2_indices_as_human(pruning: Pruning):
     pruning.human_indices = pruning.v2_indices
-    pruning.pruned_indices = pruning.v2_indices
+    needs_reparse = False
+    if pruning.pruned_indices != pruning.v2_indices:
+        pruning.pruned_indices = pruning.v2_indices
+        needs_reparse = True
     pruning.save()
+
+    if needs_reparse:
+        asyncio.run(update_parsings(pruning))
 
 
 ######################
