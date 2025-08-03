@@ -246,8 +246,6 @@ def prune_pruning(pruning: Pruning, no_parsing: bool = False) -> ():
     v2_indices = sum([indices for _, indices in paragraphs_v2], [])
     if v2_indices != pruning.v2_indices:
         pruning.v2_indices = v2_indices
-        if pruning.human_indices is None:
-            pruning.pruned_indices = v2_indices
         pruning.save()
 
     if not no_parsing:
