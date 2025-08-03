@@ -16,7 +16,7 @@ from scraping.extract_v2.split_content import split_and_tag_v2
 from scraping.prune.models import Action, Source
 from scraping.prune.prune_lines import get_pruned_lines_indices
 from scraping.refine.refine_content import replace_link_by_their_content
-from scraping.services.prune_scraping_service import update_parsings
+from scraping.services.prune_scraping_service import update_parsings, add_necessary_moderation_v2
 from scraping.utils.html_utils import split_lines
 
 
@@ -200,6 +200,8 @@ def set_v2_indices_as_human(pruning: Pruning):
         pruning.pruned_indices = pruning.v2_indices
         needs_reparse = True
     pruning.save()
+
+    add_necessary_moderation_v2(pruning)
 
     if needs_reparse:
         asyncio.run(update_parsings(pruning))

@@ -391,6 +391,8 @@ class ChurchModeration(ModerationMixin):
 class PruningModeration(ModerationMixin):
     class Category(models.TextChoices):
         NEW_PRUNED_HTML = "new_pruned_html"
+        V2_DIFF_HUMAN = "v2_diff_human"
+        V2_DIFF_V1 = "v2_diff_v1"
 
     resource = 'pruning'
     validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',

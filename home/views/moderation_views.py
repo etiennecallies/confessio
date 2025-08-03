@@ -217,6 +217,12 @@ def render_pruning_moderation(request, moderation: PruningModeration, next_url):
             color = '' if i in pruning.human_indices else 'text-warning'
             human_lines_and_colors.append((line, color))
 
+    v2_lines_and_colors = []
+    if pruning.v2_indices is not None:
+        for i, line in enumerate(pruning.extracted_html.split('<br>\n')):
+            color = '' if i in pruning.v2_indices else 'text-warning'
+            v2_lines_and_colors.append((line, color))
+
     parsing_moderation = ParsingModeration.objects.filter(parsing__prunings=pruning).first()
 
     return render(request, f'pages/moderate_pruning.html', {
@@ -226,6 +232,7 @@ def render_pruning_moderation(request, moderation: PruningModeration, next_url):
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
         'ml_lines_and_colors': ml_lines_and_colors,
         'human_lines_and_colors': human_lines_and_colors,
+        'v2_lines_and_colors': v2_lines_and_colors,
         'parsing_moderation': parsing_moderation,
     })
 

@@ -133,11 +133,15 @@ def remove_pruning_if_orphan(pruning: Optional[Pruning]):
 ##############
 
 def get_current_moderation(pruning: Pruning,
-                           category) -> Optional[PruningModeration]:
+                           category: PruningModeration.Category) -> Optional[PruningModeration]:
     try:
         return PruningModeration.objects.get(pruning=pruning, category=category)
     except PruningModeration.DoesNotExist:
         return None
+
+
+def delete_moderation(pruning: Pruning, category: PruningModeration.Category) -> None:
+    PruningModeration.objects.filter(pruning=pruning, category=category).delete()
 
 
 def pruning_needs_moderation(pruning: Pruning):
@@ -162,6 +166,10 @@ def pruning_needs_moderation(pruning: Pruning):
 
 def add_new_moderation(pruning: Pruning, category):
     if not pruning_needs_moderation(pruning):
+        return
+
+    if get_current_moderation(pruning, category) is not None:
+        # moderation already exists, we do not need to create a new one
         return
 
     moderation = PruningModeration(
@@ -191,6 +199,22 @@ def add_necessary_moderation(pruning: Pruning):
         current_moderation.delete()
 
     add_new_moderation(pruning, category)
+
+
+def add_necessary_moderation_v2(pruning: Pruning):
+    if pruning.v2_indices == pruning.human_indices \
+            or (pruning.human_indices is None and pruning.v2_indices == pruning.ml_indices):
+        delete_moderation(pruning, PruningModeration.Category.V2_DIFF_HUMAN)
+        delete_moderation(pruning, PruningModeration.Category.V2_DIFF_V1)
+        return
+
+    if pruning.v2_indices == pruning.ml_indices:
+        add_new_moderation(pruning, PruningModeration.Category.V2_DIFF_HUMAN)
+        delete_moderation(pruning, PruningModeration.Category.V2_DIFF_V1)
+        return
+
+    delete_moderation(pruning, PruningModeration.Category.V2_DIFF_HUMAN)
+    add_new_moderation(pruning, PruningModeration.Category.V2_DIFF_V1)
 
 
 ####################
@@ -247,6 +271,8 @@ def prune_pruning(pruning: Pruning, no_parsing: bool = False) -> ():
     if v2_indices != pruning.v2_indices:
         pruning.v2_indices = v2_indices
         pruning.save()
+
+        add_necessary_moderation_v2(pruning)
 
     if not no_parsing:
         asyncio.run(update_parsings(pruning))
