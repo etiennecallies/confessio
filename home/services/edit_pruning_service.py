@@ -1,4 +1,3 @@
-import asyncio
 from typing import Optional
 from uuid import UUID
 
@@ -53,7 +52,7 @@ def set_human_indices(pruning: Pruning, indices: list[int]):
     pruning.save()
     if pruning.ml_indices != indices:
         reset_pages_counter_of_pruning(pruning)
-        asyncio.run(update_parsings(pruning))
+        update_parsings(pruning)
 
     add_necessary_moderation(pruning)
     add_necessary_moderation_v2(pruning)
@@ -213,7 +212,7 @@ def set_v2_indices_as_human(pruning: Pruning):
     add_necessary_moderation_v2(pruning)
 
     if needs_reparse:
-        asyncio.run(update_parsings(pruning))
+        update_parsings(pruning)
 
 
 ######################

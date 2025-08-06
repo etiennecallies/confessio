@@ -1,5 +1,3 @@
-import asyncio
-
 from django.db import transaction
 from django.db.models import Q
 from django.db.models.signals import post_save, pre_save, post_delete
@@ -59,5 +57,4 @@ def reparse_website(website: Website):
         Q(scrapings__page__website=website) | Q(images__website=website)
     ).all()
     for pruning in prunings:
-        with asyncio.Runner() as runner:
-            runner.run(parse_pruning_for_website(pruning, website))
+        parse_pruning_for_website(pruning, website)

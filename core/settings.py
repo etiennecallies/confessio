@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'request',  # statistics
     'dbbackup',  # nightly backups
     'simple_history',  # object versioning
+    'background_task',  # worker for background tasks
     "corsheaders",  # used to allow CORS requests
     'theme_pixel',
     'jsoneditor',  # json form
@@ -206,6 +207,10 @@ DBBACKUP_CONNECTORS = {
         'DROP': False,
     }
 }
+
+# Background task
+MAX_ATTEMPTS = 2
+BACKGROUND_TASK_RUN_ASYNC = True
 
 # Request (statistics)
 REQUEST_LOG_IP = False

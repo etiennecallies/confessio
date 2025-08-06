@@ -1,4 +1,3 @@
-import asyncio
 from datetime import timedelta
 from typing import Optional
 from uuid import UUID
@@ -221,12 +220,11 @@ def add_necessary_moderation_v2(pruning: Pruning):
 # LINK TO PARSINGS #
 ####################
 
-async def update_parsings(pruning: Pruning):
+def update_parsings(pruning: Pruning):
     websites = set()
 
     # Add scrapings' websites
-    async for scraping in pruning.scrapings.select_related("page").select_related("page__website")\
-            .all():
+    for scraping in pruning.scrapings.select_related("page").select_related("page__website").all():
         try:
             websites.add(scraping.page.website)
         except Page.DoesNotExist:
@@ -234,11 +232,11 @@ async def update_parsings(pruning: Pruning):
             # TODO delete this scraping?
 
     # Add images' websites
-    async for image in pruning.images.select_related("website").all():
+    for image in pruning.images.select_related("website").all():
         websites.add(image.website)
 
     for website in websites:
-        await parse_pruning_for_website(pruning, website)
+        parse_pruning_for_website(pruning, website)
 
 
 ########
@@ -275,7 +273,7 @@ def prune_pruning(pruning: Pruning, no_parsing: bool = False) -> ():
         add_necessary_moderation_v2(pruning)
 
     if not no_parsing:
-        asyncio.run(update_parsings(pruning))
+        update_parsings(pruning)
 
 
 def create_pruning(extracted_html: Optional[str]) -> Optional[Pruning]:

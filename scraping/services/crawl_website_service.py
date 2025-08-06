@@ -123,7 +123,7 @@ async def crawl_website(website: Website) -> tuple[bool, bool]:
                                           extracted_html_list_by_url)
 
     for pruning in prunings_to_prune:
-        await update_parsings(pruning)
+        update_parsings(pruning)
 
     return await run_in_sync(save_crawling_and_add_moderation,
                              website,

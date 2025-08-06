@@ -1,9 +1,16 @@
 ##
 # Set up systemd for executing gunicorn_start script
 ##
-- name: write a systemd service file
+- name: write a systemd service file for gunicorn
   template: src=confessio.service
                     dest=/etc/systemd/system
   become: yes
   notify:
     - restart app
+
+- name: write a systemd service file for django background tasks
+  template: src=background_parsing.service
+                    dest=/etc/systemd/system
+  become: yes
+  notify:
+    - restart background_parsing

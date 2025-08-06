@@ -41,6 +41,7 @@ PyMuPDF==1.25.5
 # Used in production
 django-dbbackup==4.3.0
 django-storages==1.14.2
+django-background-tasks==1.2.8
 boto3==1.34.15
 opentelemetry-api==1.28.2
 opentelemetry-sdk==1.28.2

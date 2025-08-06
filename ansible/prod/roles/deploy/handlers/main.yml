@@ -1,3 +1,7 @@
 - name: restart app
   service: name=confessio state=restarted enabled=yes
   become: yes
+
+- name: restart background_parsing
+  service: name=background_parsing state=restarted enabled=yes
+  become: yes

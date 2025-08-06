@@ -1,5 +1,3 @@
-import asyncio
-
 from django.db.models import Q
 
 from home.management.abstract_command import AbstractCommand
@@ -49,7 +47,7 @@ class Command(AbstractCommand):
 
                 website = scraping.page.website
                 self.info(f'Pruning {pruning.uuid} for website {website.name}')
-                asyncio.run(parse_pruning_for_website(pruning, website, options['force_parse']))
+                parse_pruning_for_website(pruning, website, options['force_parse'])
                 counter += 1
 
         self.success(f'Successfully parsed {counter} pruning-websites')

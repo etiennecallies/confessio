@@ -2,11 +2,11 @@ import asyncio
 import re
 from datetime import timedelta
 
+from background_task import background
 from django.db.models.functions import Now
 from django.utils import timezone
 
 from home.models import Pruning, Website, Parsing, ParsingModeration, Page, Image
-from home.utils.async_utils import run_in_sync
 from home.utils.hash_utils import hash_string_to_hex
 from home.utils.log_utils import info
 from scraping.parse.llm_client import LLMClientInterface
@@ -356,7 +356,7 @@ def unlink_orphan_pruning_for_website(pruning: Pruning, website: Website):
 def force_reparse_parsing_for_pruning(parsing: Parsing, pruning: Pruning):
     website = parsing.website
     if website:
-        asyncio.run(parse_pruning_for_website(pruning, website, force_parse=True))
+        parse_pruning_for_website(pruning, website, force_parse=True)
 
 
 ########
@@ -408,9 +408,20 @@ def prepare_parsing(
         prompt_template_hash, parsing
 
 
-async def parse_pruning_for_website(pruning: Pruning, website: Website,
-                                    force_parse: bool = False):
-    parsing_preparation = await run_in_sync(prepare_parsing, pruning, website, force_parse)
+def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: bool = False):
+    worker_parse_pruning_for_website(str(pruning.uuid), str(website.uuid), force_parse)
+
+
+@background(queue='parsing', schedule=0)
+def worker_parse_pruning_for_website(pruning_uuid: str, website_uuid: str, force_parse: bool):
+    try:
+        pruning = Pruning.objects.get(uuid=pruning_uuid)
+        website = Website.objects.get(uuid=website_uuid)
+    except (Pruning.DoesNotExist, Website.DoesNotExist) as e:
+        info(f'Pruning {pruning_uuid} or Website {website_uuid} does not exist: {e}')
+        return
+
+    parsing_preparation = prepare_parsing(pruning, website, force_parse)
     if not parsing_preparation:
         return
 
@@ -422,12 +433,13 @@ async def parse_pruning_for_website(pruning: Pruning, website: Website,
         schedules_list, llm_error_detail = None, "Truncated html too long"
     else:
         info(f'parsing {pruning} for website {website}')
-        schedules_list, llm_error_detail = await parse_with_llm(truncated_html, church_desc_by_id,
-                                                                prompt_template, llm_client)
+        schedules_list, llm_error_detail = asyncio.run(
+            parse_with_llm(truncated_html, church_desc_by_id, prompt_template, llm_client)
+        )
 
-    await run_in_sync(save_parsing, parsing, pruning, website, truncated_html,
-                      truncated_html_hash, church_desc_by_id, llm_client, prompt_template_hash,
-                      llm_error_detail, schedules_list)
+    save_parsing(parsing, pruning, website, truncated_html,
+                 truncated_html_hash, church_desc_by_id, llm_client, prompt_template_hash,
+                 llm_error_detail, schedules_list)
 
 
 def save_parsing(parsing: Parsing | None, pruning: Pruning, website: Website,
