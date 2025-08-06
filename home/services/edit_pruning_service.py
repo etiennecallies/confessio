@@ -160,6 +160,11 @@ class ColoredPieceV2(BaseModel):
 def get_colored_pieces_v2(extracted_html: str, qualify_line_interface: BaseQualifyLineInterface
                           ) -> list[ColoredPiece]:
     lines_and_tags = split_and_tag_v2(extracted_html, qualify_line_interface)
+
+    # used for debugging
+    # import json
+    # print(json.dumps([m.model_dump(mode='json') for m in lines_and_tags]))
+
     kept_indices = sum(get_pruned_lines_indices_v2(lines_and_tags), [])
 
     tag_colors = {

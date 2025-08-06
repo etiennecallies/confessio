@@ -126,9 +126,13 @@ def get_pruned_lines_indices_v2(lines_and_tags: list[LineAndTagV2]) -> list[list
 
         # If we encounter a SPECIFIER, we complete or create the pre_buffer
         elif TagV2.SPECIFIER in tags:
-            if pre_buffer is None:
-                pre_buffer = PreBuffer()
-            pre_buffer.from_index_line(index_line)
+            if event_motion in [EventMotion.HIDE, EventMotion.STOP]:
+                if pre_buffer is not None:
+                    pre_buffer.reset_remaining_attempts()
+            else:
+                if pre_buffer is None:
+                    pre_buffer = PreBuffer()
+                pre_buffer.from_index_line(index_line)
 
         # If there is a pre_buffer, we add the line to it or decrement it
         elif pre_buffer is not None:
