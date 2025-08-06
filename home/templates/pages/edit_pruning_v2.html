@@ -17,6 +17,10 @@
                 {% blocktrans with url=scraping.page.url %}BeforeConfessionHTML {{ url }}{% endblocktrans %}
             </p>
         {% endfor %}
+        <p><a class="btn btn-gray-500" href="{% url 'edit_pruning_human' pruning.uuid %}" target="_blank" role="button">
+        Edit human pruning <i class="fas fa-up-right-from-square"></i>
+        </a></p>
+
         <form action="{% url 'edit_pruning_v2' pruning.uuid %}" method="post">
             {% csrf_token %}
             {% for colored_piece in colored_pieces %}
@@ -48,7 +52,8 @@
                     </div>
                 </div>
             {% endfor %}
-            <button type="submit" class="btn btn-primary mt-4">Submit</button>
+            <button type="submit" class="btn btn-info mt-4" name="set_as_human" value="false">Preview</button>
+            <button type="submit" class="btn btn-primary mt-4" name="set_as_human" value="true">Submit</button>
         </form>
     </div>
 

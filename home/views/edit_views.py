@@ -136,8 +136,9 @@ def edit_pruning_v2(request, pruning_uuid):
         # Save pruning
         prune_pruning(pruning)
 
-        # Set human indices
-        set_v2_indices_as_human(pruning)
+        if request.POST.get("set_as_human", '') == 'true':
+            # Set human indices
+            set_v2_indices_as_human(pruning)
 
         if modified_sentences:
             # reset page counter
