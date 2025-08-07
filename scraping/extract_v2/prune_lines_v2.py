@@ -117,7 +117,7 @@ def get_pruned_lines_indices_v2(lines_and_tags: list[LineAndTagV2]) -> list[list
 
         # If there is a post_buffer, we add the line to it or decrement it
         elif post_buffer is not None:
-            if is_resetting_attempts(index_line):
+            if is_resetting_attempts(index_line) and event_motion != EventMotion.HIDE:
                 post_buffer.add_line(index_line, paragraph_indices)
             else:
                 post_buffer = post_buffer.decrement()

@@ -12,6 +12,7 @@ class TestPruneLines(unittest.TestCase):
     def prune_lines_fixtures():
         return [
             'colombe',
+            'teresa',
         ]
 
     def test_prune_lines(self):

@@ -1,0 +1,544 @@
+[
+  {
+    "line": "Samedi 2 ao\u00fbt : Saint Pierre-Julien Eymard",
+    "stringified_line": "Samedi 2 ao\u00fbt : Saint Pierre-Julien Eymard",
+    "tags": [
+      "specifier"
+    ],
+    "event_motion": "show",
+    "sentence_uuid": "75b0b692-92b2-471c-90cf-56f1670223f4"
+  },
+  {
+    "line": "08h00 Pri\u00e8re des Laudes en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "08h00 Pri\u00e8re des Laudes en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "14ea6676-f70b-41f8-ad15-f8908a4531f6"
+  },
+  {
+    "line": "08h15 Messe en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "08h15 Messe en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "9628bf9f-8c45-4a5c-b968-79acb79438d6"
+  },
+  {
+    "line": "9h30 \u00e0 11h15 Sacrement de R\u00e9conciliation en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "9h30 \u00e0 11h15 Sacrement de R\u00e9conciliation en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "start",
+    "sentence_uuid": "e14bf154-bb4f-4ed1-abd6-4e6a9652e1f2"
+  },
+  {
+    "line": "16h30 \u00e0 17h30 Sacrement de R\u00e9conciliation en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "16h30 \u00e0 17h30 Sacrement de R\u00e9conciliation en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "start",
+    "sentence_uuid": "28cbd175-4072-42c6-b11a-55d2f3798002"
+  },
+  {
+    "line": "18h00 Messe en l\u2019\u00e9glise St Joseph (messe anticip\u00e9e)",
+    "stringified_line": "18h00 Messe en l\u2019\u00e9glise St Joseph (messe anticip\u00e9e)",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "efeba66c-4702-4727-a26d-a95936103a6d"
+  },
+  {
+    "line": "18h30 Messe en l\u2019\u00e9glise St \u00c9tienne (messe anticip\u00e9e)",
+    "stringified_line": "18h30 Messe en l\u2019\u00e9glise St \u00c9tienne (messe anticip\u00e9e)",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "7cfc7b23-7d3a-44f9-8301-5c62c79f049a"
+  },
+  {
+    "line": "Dimanche 3 ao\u00fbt : 18 e dimanche du Temps Ordinaire 10h00 Messe en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "Dimanche 3 ao\u00fbt : 18 e dimanche du Temps Ordinaire 10h00 Messe en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "specifier",
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "66f28c95-09c3-4635-a14a-681d4aac2983"
+  },
+  {
+    "line": "11h00 Messe en l\u2019\u00e9glise du St Cur\u00e9 d\u2019Ars",
+    "stringified_line": "11h00 Messe en l\u2019\u00e9glise du St Cur\u00e9 d\u2019Ars",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "564a75b5-a85e-451d-a594-37007740c16c"
+  },
+  {
+    "line": "Lundi 4 ao\u00fbt : St Jean-Marie Vianney",
+    "stringified_line": "Lundi 4 ao\u00fbt : St Jean-Marie Vianney",
+    "tags": [
+      "specifier"
+    ],
+    "event_motion": "show",
+    "sentence_uuid": "3f688b1c-b2c4-4fa2-bff7-b80c1d8de553"
+  },
+  {
+    "line": "08h00 Pri\u00e8re des Laudes en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "08h00 Pri\u00e8re des Laudes en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "14ea6676-f70b-41f8-ad15-f8908a4531f6"
+  },
+  {
+    "line": "08h15 Messe en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "08h15 Messe en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "9628bf9f-8c45-4a5c-b968-79acb79438d6"
+  },
+  {
+    "line": "9h30 \u00e0 11h15 Sacrement de R\u00e9conciliation en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "9h30 \u00e0 11h15 Sacrement de R\u00e9conciliation en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "start",
+    "sentence_uuid": "e14bf154-bb4f-4ed1-abd6-4e6a9652e1f2"
+  },
+  {
+    "line": "16h30 \u00e0 17h30 Sacrement de R\u00e9conciliation en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "16h30 \u00e0 17h30 Sacrement de R\u00e9conciliation en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "start",
+    "sentence_uuid": "28cbd175-4072-42c6-b11a-55d2f3798002"
+  },
+  {
+    "line": "17h30 Chapelet en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "17h30 Chapelet en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "24e855f5-4fbf-4218-a9fc-da41d37d9d12"
+  },
+  {
+    "line": "18h00 Messe en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "18h00 Messe en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "b6f3eda8-0b77-4e2e-bee7-a031c6d36ffb"
+  },
+  {
+    "line": "Mardi 5 ao\u00fbt : D\u00e9dicace de la basilique Sainte-Marie-Majeure",
+    "stringified_line": "Mardi 5 ao\u00fbt : D\u00e9dicace de la basilique Sainte-Marie-Majeure",
+    "tags": [
+      "specifier"
+    ],
+    "event_motion": "show",
+    "sentence_uuid": "1d069bd1-c07a-40c0-87c9-10d542c7a699"
+  },
+  {
+    "line": "08h00 Pri\u00e8re des Laudes en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "08h00 Pri\u00e8re des Laudes en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "14ea6676-f70b-41f8-ad15-f8908a4531f6"
+  },
+  {
+    "line": "08h15 Messe en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "08h15 Messe en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "9628bf9f-8c45-4a5c-b968-79acb79438d6"
+  },
+  {
+    "line": "9h30 \u00e0 11h15 Sacrement de R\u00e9conciliation en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "9h30 \u00e0 11h15 Sacrement de R\u00e9conciliation en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "start",
+    "sentence_uuid": "e14bf154-bb4f-4ed1-abd6-4e6a9652e1f2"
+  },
+  {
+    "line": "16h30 \u00e0 17h30 Sacrement de R\u00e9conciliation en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "16h30 \u00e0 17h30 Sacrement de R\u00e9conciliation en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "start",
+    "sentence_uuid": "28cbd175-4072-42c6-b11a-55d2f3798002"
+  },
+  {
+    "line": "16h30 Pri\u00e8re du chapelet en l\u2019\u00e9glise St Cur\u00e9 d\u2019Ars",
+    "stringified_line": "16h30 Pri\u00e8re du chapelet en l\u2019\u00e9glise St Cur\u00e9 d\u2019Ars",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "49519132-86f0-43bc-acb8-23ff363dd464"
+  },
+  {
+    "line": "17h00 Messe en l\u2019\u00e9glise St Cur\u00e9 d\u2019Ars",
+    "stringified_line": "17h00 Messe en l\u2019\u00e9glise St Cur\u00e9 d\u2019Ars",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "986d1b95-d6e0-4d08-ae79-06f8a5f8a180"
+  },
+  {
+    "line": "17h30 \u00e0 18h00 Adoration du St Sacrement en l\u2019\u00e9glise St Cur\u00e9 d\u2019Ars",
+    "stringified_line": "17h30 \u00e0 18h00 Adoration du St Sacrement en l\u2019\u00e9glise St Cur\u00e9 d\u2019Ars",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "f174af46-e6c9-4c9b-878b-96f602167d0c"
+  },
+  {
+    "line": "17h30 \u00e0 18h00 Sacrement de R\u00e9conciliation en l\u2019\u00e9glise St Cur\u00e9 d\u2019Ars",
+    "stringified_line": "17h30 \u00e0 18h00 Sacrement de R\u00e9conciliation en l\u2019\u00e9glise St Cur\u00e9 d\u2019Ars",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "start",
+    "sentence_uuid": "6a2e28ea-e018-4f2c-b8dc-589d1b98663a"
+  },
+  {
+    "line": "17h30 Chapelet en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "17h30 Chapelet en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "24e855f5-4fbf-4218-a9fc-da41d37d9d12"
+  },
+  {
+    "line": "18h00 Messe en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "18h00 Messe en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "b6f3eda8-0b77-4e2e-bee7-a031c6d36ffb"
+  },
+  {
+    "line": "Mercredi 6 ao\u00fbt : Transfiguration du Seigneur (f\u00eate)",
+    "stringified_line": "Mercredi 6 ao\u00fbt : Transfiguration du Seigneur (f\u00eate)",
+    "tags": [
+      "specifier"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "83fa8e04-8ca2-4305-ae34-f87da6c65460"
+  },
+  {
+    "line": "08h00 Pri\u00e8re des Laudes en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "08h00 Pri\u00e8re des Laudes en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "14ea6676-f70b-41f8-ad15-f8908a4531f6"
+  },
+  {
+    "line": "08h15 Messe en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "08h15 Messe en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "9628bf9f-8c45-4a5c-b968-79acb79438d6"
+  },
+  {
+    "line": "9h30 \u00e0 11h15 Sacrement de R\u00e9conciliation en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "9h30 \u00e0 11h15 Sacrement de R\u00e9conciliation en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "start",
+    "sentence_uuid": "e14bf154-bb4f-4ed1-abd6-4e6a9652e1f2"
+  },
+  {
+    "line": "16h30 \u00e0 17h30 Sacrement de R\u00e9conciliation en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "16h30 \u00e0 17h30 Sacrement de R\u00e9conciliation en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "start",
+    "sentence_uuid": "28cbd175-4072-42c6-b11a-55d2f3798002"
+  },
+  {
+    "line": "17h30 Chapelet en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "17h30 Chapelet en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "24e855f5-4fbf-4218-a9fc-da41d37d9d12"
+  },
+  {
+    "line": "18h00 Messe en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "18h00 Messe en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "b6f3eda8-0b77-4e2e-bee7-a031c6d36ffb"
+  },
+  {
+    "line": "Jeudi 7 ao\u00fbt : Saint Sixte II et ses Compagnons",
+    "stringified_line": "Jeudi 7 ao\u00fbt : Saint Sixte II et ses Compagnons",
+    "tags": [
+      "specifier"
+    ],
+    "event_motion": "show",
+    "sentence_uuid": "2e896b8a-8ff4-4a0e-a581-f94c1d9e7386"
+  },
+  {
+    "line": "08h00 Pri\u00e8re des Laudes en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "08h00 Pri\u00e8re des Laudes en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "14ea6676-f70b-41f8-ad15-f8908a4531f6"
+  },
+  {
+    "line": "08h15 Messe en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "08h15 Messe en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "9628bf9f-8c45-4a5c-b968-79acb79438d6"
+  },
+  {
+    "line": "9h30 \u00e0 11h15 Sacrement de R\u00e9conciliation en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "9h30 \u00e0 11h15 Sacrement de R\u00e9conciliation en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "start",
+    "sentence_uuid": "e14bf154-bb4f-4ed1-abd6-4e6a9652e1f2"
+  },
+  {
+    "line": "16h30 \u00e0 17h30 Sacrement de Rconciliation en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "16h30 \u00e0 17h30 Sacrement de Rconciliation en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "start",
+    "sentence_uuid": "b4a5c772-bced-4c97-b6fe-db5704408064"
+  },
+  {
+    "line": "17h00 Messe en l\u2019\u00e9glise St Etienne",
+    "stringified_line": "17h00 Messe en l\u2019\u00e9glise St Etienne",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "d7777585-a580-47c1-8643-70c3f947e393"
+  },
+  {
+    "line": "17h30 \u00e0 18h00 Adoration du St Sacrement en l\u2019\u00e9glise St Etienne",
+    "stringified_line": "17h30 \u00e0 18h00 Adoration du St Sacrement en l\u2019\u00e9glise St Etienne",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "d1602c35-6977-4632-954d-4b635ff62822"
+  },
+  {
+    "line": "17h30 \u00e0 18h00 Sacrement de R\u00e9conciliation en l\u2019\u00e9glise St Etienne",
+    "stringified_line": "17h30 \u00e0 18h00 Sacrement de R\u00e9conciliation en l\u2019\u00e9glise St Etienne",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "start",
+    "sentence_uuid": "c03394d1-44dd-42de-8f76-c0c1086aa9fe"
+  },
+  {
+    "line": "17h30 Pri\u00e8re du chapelet en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "17h30 Pri\u00e8re du chapelet en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "683f717c-d132-43e3-93e0-7b85d2c74913"
+  },
+  {
+    "line": "18h00 Messe en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "18h00 Messe en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "b6f3eda8-0b77-4e2e-bee7-a031c6d36ffb"
+  },
+  {
+    "line": "\u2013 Vendredi 8 ao\u00fbt : Saint Dominique",
+    "stringified_line": "\u2013 Vendredi 8 ao\u00fbt : Saint Dominique",
+    "tags": [
+      "specifier"
+    ],
+    "event_motion": "show",
+    "sentence_uuid": "5c12ee62-fbb1-42e0-a87c-cbdf9869e0e5"
+  },
+  {
+    "line": "08h00 Pri\u00e8re des Laudes en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "08h00 Pri\u00e8re des Laudes en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "14ea6676-f70b-41f8-ad15-f8908a4531f6"
+  },
+  {
+    "line": "08h15 Messe en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "08h15 Messe en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "9628bf9f-8c45-4a5c-b968-79acb79438d6"
+  },
+  {
+    "line": "9h30 \u00e0 11h15 Sacrement de R\u00e9conciliation en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "9h30 \u00e0 11h15 Sacrement de R\u00e9conciliation en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "start",
+    "sentence_uuid": "e14bf154-bb4f-4ed1-abd6-4e6a9652e1f2"
+  },
+  {
+    "line": "16h30 \u00e0 17h30 Sacrement de R\u00e9conciliation en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "16h30 \u00e0 17h30 Sacrement de R\u00e9conciliation en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "start",
+    "sentence_uuid": "28cbd175-4072-42c6-b11a-55d2f3798002"
+  },
+  {
+    "line": "17h30 Chapelet en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "17h30 Chapelet en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "24e855f5-4fbf-4218-a9fc-da41d37d9d12"
+  },
+  {
+    "line": "18h00 Messe en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "18h00 Messe en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "b6f3eda8-0b77-4e2e-bee7-a031c6d36ffb"
+  },
+  {
+    "line": "\u2013 Samedi 9 ao\u00fbt : Sainte Th\u00e9r\u00e8se-B\u00e9n\u00e9dicte de la Croix (f\u00eate)",
+    "stringified_line": "\u2013 Samedi 9 ao\u00fbt : Sainte Th\u00e9r\u00e8se-B\u00e9n\u00e9dicte de la Croix (f\u00eate)",
+    "tags": [
+      "specifier"
+    ],
+    "event_motion": "show",
+    "sentence_uuid": "c8d2a75f-1ad1-4481-8e88-0291e50756e2"
+  },
+  {
+    "line": "08h00 Pri\u00e8re des Laudes en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "08h00 Pri\u00e8re des Laudes en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "14ea6676-f70b-41f8-ad15-f8908a4531f6"
+  },
+  {
+    "line": "08h15 Messe en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "08h15 Messe en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "9628bf9f-8c45-4a5c-b968-79acb79438d6"
+  },
+  {
+    "line": "9h30 \u00e0 11h15 Sacrement de R\u00e9conciliation en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "9h30 \u00e0 11h15 Sacrement de R\u00e9conciliation en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "start",
+    "sentence_uuid": "e14bf154-bb4f-4ed1-abd6-4e6a9652e1f2"
+  },
+  {
+    "line": "16h30 \u00e0 17h30 Sacrement de R\u00e9conciliation en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "16h30 \u00e0 17h30 Sacrement de R\u00e9conciliation en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "start",
+    "sentence_uuid": "28cbd175-4072-42c6-b11a-55d2f3798002"
+  },
+  {
+    "line": "18h00 Messe en l\u2019\u00e9glise St Joseph (messe anticip\u00e9e)",
+    "stringified_line": "18h00 Messe en l\u2019\u00e9glise St Joseph (messe anticip\u00e9e)",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "efeba66c-4702-4727-a26d-a95936103a6d"
+  },
+  {
+    "line": "18h30 Messe en l\u2019\u00e9glise St Etienne (messe anticip\u00e9e)",
+    "stringified_line": "18h30 Messe en l\u2019\u00e9glise St Etienne (messe anticip\u00e9e)",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "3f40e593-1b67-4205-9758-980a34a5a061"
+  },
+  {
+    "line": "Dimanche 10 ao\u00fbt : 19 e dimanche du Temps Ordinaire 10h00 Messe en l\u2019\u00e9glise St Joseph",
+    "stringified_line": "Dimanche 10 ao\u00fbt : 19 e dimanche du Temps Ordinaire 10h00 Messe en l\u2019\u00e9glise St Joseph",
+    "tags": [
+      "specifier",
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "5cd12a19-d7df-4de9-b1d8-78f7fdb97b9f"
+  },
+  {
+    "line": "11h00 Messe en l\u2019\u00e9glise du St Cur\u00e9 d\u2019Ars",
+    "stringified_line": "11h00 Messe en l\u2019\u00e9glise du St Cur\u00e9 d\u2019Ars",
+    "tags": [
+      "schedule"
+    ],
+    "event_motion": "hide",
+    "sentence_uuid": "564a75b5-a85e-451d-a594-37007740c16c"
+  }
+]
