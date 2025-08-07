@@ -2,6 +2,7 @@ from datetime import timedelta
 from typing import Optional
 from uuid import UUID
 
+from background_task import background
 from django.utils import timezone
 from tqdm import tqdm
 
@@ -92,6 +93,22 @@ class SentenceQualifyLineInterface(BaseQualifyLineInterface):
 ##############################
 
 def reprune_affected_prunings(sentences: list[Sentence], original_pruning: Pruning):
+    worker_reprune_affected_prunings([str(s.uuid) for s in sentences], str(original_pruning.uuid))
+
+
+@background(queue='parsing', schedule=0)
+def worker_reprune_affected_prunings(sentence_uuids: list[str], original_pruning_uuid: str):
+    try:
+        original_pruning = Pruning.objects.get(uuid=UUID(original_pruning_uuid))
+    except Pruning.DoesNotExist:
+        print(f'Pruning with uuid {original_pruning_uuid} does not exist, skipping repruning')
+        return
+
+    sentences = Sentence.objects.filter(uuid__in=sentence_uuids).all()
+    if not sentences:
+        print(f'No sentences found for uuids {sentence_uuids}, skipping repruning')
+        return
+
     affected_prunings = []
     for sentence in sentences:
         for pruning in sentence.prunings.all():
