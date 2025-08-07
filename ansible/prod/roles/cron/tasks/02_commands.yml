@@ -6,37 +6,45 @@
     name: "{{ item.name }}"
     hour: "{{ item.hour }}"
     minute: "{{ item.minute }}"
-    job: "(tmux has-session -t {{ item.name }} || tmux new-session -d -s {{ item.name }}) && tmux send-keys -t {{ item.name }} 'sudo systemd-run --scope --property=MemoryMax=1600M bash -c \". {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py {{ item.command }}\"' C-m"
+    job: "(tmux has-session -t {{ item.name }} || tmux new-session -d -s {{ item.name }}) && tmux send-keys -t {{ item.name }} 'sudo systemd-run --scope --property=MemoryMax={{ item.memory_max }} bash -c \". {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py {{ item.command }}\"' C-m"
   with_items:
     - name: daily_index_events
       command: "index_events"
       hour: "0"
       minute: 20
+      memory_max: "800M"
     - name: train_pruning_model
       command: "train_pruning_model -t action --automatic"
       hour: "0"
       minute: 40
+      memory_max: "800M"
     - name: daily_crawl_websites
       command: "crawl_websites -t 3300 --no-recent -p 6"
       hour: "1,2,3,4,5,6,7"
       minute: 0
+      memory_max: "1600M"
     - name: daily_check_crawling
       command: "check_crawling"
       hour: "8"
       minute: 0
+      memory_max: "800M"
     - name: hourly_scrape_pages
       command: "scrape_pages -t 4500"
       hour: "8,10,12,14,16,18,20,22"
       minute: 20
+      memory_max: "800M"
     - name: hourly_crawl_websites_in_error
       command: "crawl_websites --in-error -t 2100 -p 3"
       hour: "9,11,13,15,17,19,21"
       minute: 40
+      memory_max: "800M"
     - name: daily_clean_database
       command: "clean_database"
       hour: "23"
       minute: 0
+      memory_max: "800M"
     - name: daily_sync_trouverunemesse
       command: "sync_trouverunemesse -t 2400"
       hour: "23"
       minute: 15
+      memory_max: "800M"
