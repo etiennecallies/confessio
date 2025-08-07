@@ -6,7 +6,7 @@
     name: "{{ item.name }}"
     hour: "{{ item.hour }}"
     minute: "{{ item.minute }}"
-    job: "(tmux has-session -t {{ item.name }} || tmux new-session -d -s {{ item.name }}) && tmux send-keys -t {{ item.name }} 'sudo systemd-run --scope --property=MemoryMax=800M bash -c \". {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py {{ item.command }}\"' C-m"
+    job: "(tmux has-session -t {{ item.name }} || tmux new-session -d -s {{ item.name }}) && tmux send-keys -t {{ item.name }} 'sudo systemd-run --scope --property=MemoryMax=1600M bash -c \". {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py {{ item.command }}\"' C-m"
   with_items:
     - name: daily_index_events
       command: "index_events"

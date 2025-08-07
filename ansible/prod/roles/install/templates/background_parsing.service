@@ -10,6 +10,7 @@ User={{ deployer_user }}
 Group={{ deployer_group }}
 ExecStart=/bin/bash -c '. {{ app_dir }}/.env && {{ venv_python }} {{ app_dir }}/manage.py process_tasks --queue parsing --sleep 0'
 Restart=always
+MemoryMax=400M
 
 [Install]
 WantedBy=multi-user.target
