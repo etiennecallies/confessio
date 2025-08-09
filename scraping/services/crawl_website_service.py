@@ -1,12 +1,12 @@
 from typing import Optional
 
-from home.models import Website, Crawling, Page, WebsiteModeration, Pruning
+from home.models import Website, Crawling, Page, WebsiteModeration
 from home.utils.async_utils import run_in_sync
 from home.utils.log_utils import info
 from scraping.crawl.download_and_search_urls import search_for_confession_pages, \
     get_new_url_and_aliases, forbid_diocese_home_links
 from scraping.services.page_service import delete_page
-from scraping.services.prune_scraping_service import prune_pruning, update_parsings
+from scraping.services.prune_scraping_service import prune_pruning
 from scraping.services.scrape_page_service import upsert_extracted_html_list
 from scraping.services.website_moderation_service import remove_not_validated_moderation, \
     add_moderation
@@ -118,12 +118,9 @@ async def crawl_website(website: Website) -> tuple[bool, bool]:
 
     extracted_html_list_by_url, nb_visited_links, error_detail = await do_crawl_website(website)
 
-    prunings_to_prune = await run_in_sync(process_extracted_html,
-                                          website,
-                                          extracted_html_list_by_url)
-
-    for pruning in prunings_to_prune:
-        update_parsings(pruning)
+    await run_in_sync(process_extracted_html,
+                      website,
+                      extracted_html_list_by_url)
 
     return await run_in_sync(save_crawling_and_add_moderation,
                              website,
@@ -136,7 +133,7 @@ async def crawl_website(website: Website) -> tuple[bool, bool]:
 def process_extracted_html(
         website: Website,
         extracted_html_list_by_url: dict[str, list[str]],
-) -> list[Pruning]:
+):
     # Removing old pages
     existing_pages = website.get_pages()
     existing_urls = list(map(lambda p: p.url, existing_pages))
@@ -167,9 +164,7 @@ def process_extracted_html(
                                                                 extracted_html_list_by_url[url])
 
     for pruning in prunings_to_prune:
-        prune_pruning(pruning, no_parsing=True)
-
-    return prunings_to_prune
+        prune_pruning(pruning)
 
 
 def save_crawling_and_add_moderation(website: Website,

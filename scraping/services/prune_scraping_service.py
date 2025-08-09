@@ -261,7 +261,7 @@ def update_parsings(pruning: Pruning):
 ########
 
 
-def prune_pruning(pruning: Pruning, no_parsing: bool = False) -> ():
+def prune_pruning(pruning: Pruning) -> ():
     assert pruning.extracted_html, 'Pruning must have not empty extracted_html'
 
     # V1
@@ -289,8 +289,7 @@ def prune_pruning(pruning: Pruning, no_parsing: bool = False) -> ():
 
         add_necessary_moderation_v2(pruning)
 
-    if not no_parsing:
-        update_parsings(pruning)
+    update_parsings(pruning)
 
 
 def create_pruning(extracted_html: Optional[str]) -> Optional[Pruning]:
