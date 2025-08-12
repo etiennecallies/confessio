@@ -111,7 +111,8 @@ def get_url(moderation: ModerationMixin):
 @register.filter
 def get_unvalidated_pruning_moderation(pruning: Pruning) -> Optional[PruningModeration]:
     try:
-        return pruning.moderations.filter(validated_at__isnull=True).get()
+        return pruning.moderations.filter(validated_at__isnull=True,
+                                          category=PruningModeration.Category.NEW_PRUNED_HTML).get()
     except PruningModeration.DoesNotExist:
         return None
 
