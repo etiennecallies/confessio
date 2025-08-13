@@ -6,9 +6,9 @@ from background_task import background
 from django.db.models.functions import Now
 from django.utils import timezone
 
-from home.models import Pruning, Website, Parsing, ParsingModeration, Page, Image
+from home.models import Pruning, Website, Parsing, ParsingModeration, Page, Image, Log
 from home.utils.hash_utils import hash_string_to_hex
-from home.utils.log_utils import info
+from home.utils.log_utils import info, start_log_buffer, get_log_buffer
 from scraping.parse.llm_client import LLMClientInterface
 from scraping.parse.parse_with_llm import parse_with_llm, get_prompt_template, get_llm_client
 from scraping.parse.schedules import SchedulesList
@@ -421,6 +421,9 @@ def worker_parse_pruning_for_website(pruning_uuid: str, website_uuid: str, force
         info(f'Pruning {pruning_uuid} or Website {website_uuid} does not exist: {e}')
         return
 
+    start_log_buffer()
+    info(f'worker_parse_pruning_for_website: parsing {pruning_uuid} for website {website_uuid}')
+
     parsing_preparation = prepare_parsing(pruning, website, force_parse)
     if not parsing_preparation:
         return
@@ -440,6 +443,12 @@ def worker_parse_pruning_for_website(pruning_uuid: str, website_uuid: str, force
     save_parsing(parsing, pruning, website, truncated_html,
                  truncated_html_hash, church_desc_by_id, llm_client, prompt_template_hash,
                  llm_error_detail, schedules_list)
+
+    buffer_value = get_log_buffer()
+    log = Log(type=Log.Type.PARSING,
+              website=website,
+              content=buffer_value)
+    log.save()
 
 
 def save_parsing(parsing: Parsing | None, pruning: Pruning, website: Website,

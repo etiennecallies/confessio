@@ -14,6 +14,7 @@ class Log(TimeStampMixin):
     class Type(models.TextChoices):
         CRAWLING = "crawling"
         SCRAPING = "scraping"
+        PARSING = "parsing"
 
     website = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='logs')
     content = models.TextField()
