@@ -93,29 +93,30 @@ def clean_url_query(url_parsed: ParseResult):
 
 async def is_forbidden(url_parsed: ParseResult, home_url: str, forbidden_outer_paths: set[str],
                        path_redirection: dict[str, str], forbidden_paths: set[str]) -> bool:
-    for path in forbidden_paths:
-        if url_parsed.path.startswith(path):
+    for forbidden_path in forbidden_paths:
+        if url_parsed.path.startswith(forbidden_path):
             return True
+
+    considered_paths = [url_parsed.path]
+    if url_parsed.path.startswith('/category'):
+        # Sometimes, the path starts with '/category' and we want to check if it is forbidden
+        # by removing '/category' from the beginning of the path
+        # This is useful for some CMS like WordPress
+        considered_paths.append(url_parsed.path.replace('/category', ''))
 
     home_url_path = get_path(home_url)
     for accepted_home_word in ['accueil', 'home']:
         if home_url_path.endswith(f'/{accepted_home_word}'):
             home_url_path = home_url_path[:-len(accepted_home_word) - 1]
-    if home_url_path and url_parsed.path.startswith(home_url_path):
-        return False
+    if home_url_path:
+        for considered_path in considered_paths:
+            if considered_path.startswith(home_url_path):
+                return False
 
     if forbidden_outer_paths:
-        for path in forbidden_outer_paths:
-            if url_parsed.path.startswith(path):
-                return True
-
-        # Sometimes, the path starts with '/category' and we want to check if it is forbidden
-        # by removing '/category' from the beginning of the path
-        # This is useful for some CMS like WordPress
-        if url_parsed.path.startswith('/category'):
-            considered_path = url_parsed.path.replace('/category', '')
-            for path in forbidden_outer_paths:
-                if considered_path.startswith(path):
+        for forbidden_outer_path in forbidden_outer_paths:
+            for considered_path in considered_paths:
+                if considered_path.startswith(forbidden_outer_path):
                     return True
 
         # if we are in a multi-website domain (e.g. diocese), we forbid paths that contains

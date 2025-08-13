@@ -15,7 +15,9 @@ class TestExtractLinks(unittest.TestCase):
             ('https://paroissesaintbruno.pagesperso-orange.fr/', 'st-bruno-des-chartreux', []),
             ('https://saintleusaintgilles.fr/', 'st-leu-st-gilles', []),
             ('http://paroisse.ndchoisille.free.fr/', 'ndchoisille', []),
-            ('https://paroisses-pays-auray.fr', 'auray', ['/pluvigner', '/accueil-plougoumelen'])
+            ('https://paroisses-pays-auray.fr', 'auray', ['/pluvigner', '/accueil-plougoumelen']),
+            ('https://paroisses-pays-auray.fr/pluvigner', 'pluvigner',
+             ['', '/accueil-plougoumelen']),
         ]
 
     def test_parse_content_links(self):
