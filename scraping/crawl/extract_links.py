@@ -101,13 +101,22 @@ async def is_forbidden(url_parsed: ParseResult, home_url: str, forbidden_outer_p
     for accepted_home_word in ['accueil', 'home']:
         if home_url_path.endswith(f'/{accepted_home_word}'):
             home_url_path = home_url_path[:-len(accepted_home_word) - 1]
-    if url_parsed.path.startswith(home_url_path):
+    if home_url_path and url_parsed.path.startswith(home_url_path):
         return False
 
     if forbidden_outer_paths:
         for path in forbidden_outer_paths:
             if url_parsed.path.startswith(path):
                 return True
+
+        # Sometimes, the path starts with '/category' and we want to check if it is forbidden
+        # by removing '/category' from the beginning of the path
+        # This is useful for some CMS like WordPress
+        if url_parsed.path.startswith('/category'):
+            considered_path = url_parsed.path.replace('/category', '')
+            for path in forbidden_outer_paths:
+                if considered_path.startswith(path):
+                    return True
 
         # if we are in a multi-website domain (e.g. diocese), we forbid paths that contains
         # the words 'paroisse', since it's likely another parish website
