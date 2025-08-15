@@ -1,3 +1,4 @@
+from django.db.models import Q
 from tqdm import tqdm
 
 from home.management.abstract_command import AbstractCommand
@@ -15,11 +16,10 @@ class Command(AbstractCommand):
 
     def handle(self, *args, **options):
         if options['pruning_uuid']:
-            prunings = Pruning.objects.filter(scrapings__page__website__is_active=True,
-                                              uuid__in=options['pruning_uuid']).distinct()
+            prunings = Pruning.objects.filter(uuid__in=options['pruning_uuid']).distinct()
         else:
             prunings = Pruning.objects.filter(
-                scrapings__page__website__is_active=True
+                Q(scrapings__page__website__is_active=True) | Q(images__website__is_active=True)
             ).distinct()
 
         counter = 0

@@ -20,21 +20,24 @@ class Command(AbstractCommand):
                             help='re-parse existing parsings')
 
     def handle(self, *args, **options):
-        query = Q(scrapings__page__website__is_active=True,
+        query = Q(Q(scrapings__page__website__is_active=True) | Q(images__website__is_active=True),
                   pruned_indices__len__gt=0)
         if options['pruning_uuid']:
             query &= Q(uuid__in=options['pruning_uuid'])
         elif options['existing']:
             query &= Q(parsings__isnull=False)
         else:
-            query &= Q(scrapings__isnull=False)
+            query &= Q(scrapings__isnull=False) & Q(images__isnull=False)
 
         if options['name']:
-            query &= Q(scrapings__page__website__name__contains=options['name'])
+            query &= (Q(scrapings__page__website__name__contains=options['name'])
+                      | Q(images__website__name__contains=options['name']))
         if options['diocese']:
             d = options['diocese']
-            query &= Q(
-                scrapings__page__website__parishes__diocese__messesinfo_network_id__exact=d)
+            query &= (
+                Q(scrapings__page__website__parishes__diocese__messesinfo_network_id__exact=d)
+                | Q(images__website__parishes__diocese__messesinfo_network_id__exact=d)
+            )
 
         prunings = Pruning.objects.filter(query).distinct()
 

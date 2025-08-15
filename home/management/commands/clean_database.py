@@ -68,7 +68,8 @@ class Command(AbstractCommand):
         parsings = Parsing.objects.filter(website__isnull=False).all()
         counter = 0
         for parsing in parsings:
-            if not parsing.prunings.filter(scrapings__page__website=parsing.website).exists():
+            if not parsing.prunings.filter(scrapings__page__website=parsing.website).exists() \
+                    and not parsing.prunings.filter(images__website=parsing.website).exists():
                 parsing.prunings.clear()
                 unlink_website_from_parsing(parsing)
                 counter += 1
