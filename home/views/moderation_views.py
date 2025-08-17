@@ -8,7 +8,7 @@ from django.urls import reverse
 from home.models import WebsiteModeration, ChurchModeration, ModerationMixin, \
     BUG_DESCRIPTION_MAX_LENGTH, ParishModeration, ResourceDoesNotExistError, PruningModeration, \
     SentenceModeration, ParsingModeration, ReportModeration, Diocese, Pruning
-from home.services.edit_pruning_service import on_pruning_human_validation
+from home.services.edit_pruning_service import on_pruning_human_validation, set_v2_indices_as_human
 from home.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 from scraping.parse.schedules import SchedulesList
 from scraping.services.parse_pruning_service import on_parsing_human_validation, \
@@ -344,3 +344,24 @@ def moderate_erase_human_by_llm(request, parsing_moderation_uuid=None):
     return redirect_to_moderation(parsing_moderation, parsing_moderation.category, 'parsing',
                                   parsing_moderation.marked_as_bug_at is not None,
                                   parsing_moderation.get_diocese_slug())
+
+
+@login_required
+@permission_required("home.change_sentence")
+def moderate_set_v2_indices_as_human_by(request, pruning_moderation_uuid=None):
+    try:
+        pruning_moderation = PruningModeration.objects.get(uuid=pruning_moderation_uuid)
+    except PruningModeration.DoesNotExist:
+        return HttpResponseNotFound(f'pruning moderation not found with uuid '
+                                    f'{pruning_moderation_uuid}')
+
+    pruning = pruning_moderation.pruning
+    if pruning.v2_indices is None:
+        return HttpResponseBadRequest(f'Can not erase human by llm because parsing '
+                                      f'{pruning.uuid} does not have llm_json')
+
+    set_v2_indices_as_human(pruning)
+
+    return redirect_to_moderation(pruning_moderation, pruning_moderation.category, 'pruning',
+                                  pruning_moderation.marked_as_bug_at is not None,
+                                  pruning_moderation.get_diocese_slug())

@@ -62,6 +62,12 @@
             {% for line, color in v2_lines_and_colors %}
                 <div class="{{ color }}">{{ line|safe }}</div>
             {% endfor %}
+            <div>
+                <form action="{% url 'set_v2_as_human' pruning_moderation.uuid %}" method="post">
+                    {% csrf_token %}
+                <button type="submit" class="btn btn-warning">Set v2 as human</button>
+                </form>
+            </div>
         {% endif %}
     {% endif %}
 

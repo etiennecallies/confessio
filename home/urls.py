@@ -64,6 +64,8 @@ urlpatterns = [
          views.moderate_merge_websites, name='moderate_merge_websites'),
     path('moderate/erase_human_by_llm/<uuid:parsing_moderation_uuid>',
          views.moderate_erase_human_by_llm, name='moderate_erase_human_by_llm'),
+    path('moderate/set_v2_as_human/<uuid:pruning_moderation_uuid>',
+         views.moderate_set_v2_indices_as_human_by, name='set_v2_as_human'),
 
     # contact
     path('contact', views.contact, name='contact'),
