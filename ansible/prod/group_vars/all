@@ -71,6 +71,7 @@ trouverunemesse_password: "{{ lookup('ansible.builtin.env', 'TROUVERUNEMESSE_PAS
 # Heartbeats
 heartbeat_trouverunemesse_url: "{{ lookup('ansible.builtin.env', 'HEARTBEAT_TROUVERUNEMESSE_URL') }}"
 heartbeat_check_crawling_url: "{{ lookup('ansible.builtin.env', 'HEARTBEAT_CHECK_CRAWLING_URL') }}"
+heartbeat_train_pruning_url: "{{ lookup('ansible.builtin.env', 'HEARTBEAT_TRAIN_PRUNING_URL') }}"
 
 # Cloudflare Turnstile
 cloudflare_turnstile_site_key: "{{ lookup('ansible.builtin.env', 'CLOUDFLARE_TURNSTILE_SITE_KEY') }}"

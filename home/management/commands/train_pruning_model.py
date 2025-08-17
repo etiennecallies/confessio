@@ -1,6 +1,7 @@
 from django.core.management import call_command
 
 from home.management.abstract_command import AbstractCommand
+from home.management.utils.heartbeat_utils import ping_heartbeat
 from home.models import Classifier, Sentence
 from scraping.prune.transform_sentence import get_transformer
 from scraping.services.classify_sentence_service import classify_line, get_classifier
@@ -40,6 +41,9 @@ class Command(AbstractCommand):
         for target in targets:
             self.info(f'Training model for target {target}')
             self.train_model_for_target(target, options['automatic'])
+
+        if options['automatic']:
+            ping_heartbeat("HEARTBEAT_TRAIN_PRUNING_URL")
 
     def train_model_for_target(self, target: Classifier.Target, automatic: bool):
         if automatic:
