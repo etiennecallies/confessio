@@ -9,12 +9,15 @@ from scraping.services.classifier_target_service import get_target_enum
 from scraping.utils.enum_utils import StringEnum, BooleanStringEnum
 
 
+MIN_DATASET_SIZE = 300
+
+
 def build_sentence_dataset(target: Classifier.Target) -> list[Sentence]:
     if target == Classifier.Target.ACTION:
         return Sentence.objects.filter(source=Source.HUMAN).all()
     if target == Classifier.Target.SPECIFIER:
         human_qualified_dataset = Sentence.objects.filter(human_specifier__isnull=False).all()
-        if len(human_qualified_dataset) > 800:
+        if len(human_qualified_dataset) >= MIN_DATASET_SIZE:
             return human_qualified_dataset
 
         print(f"Not enough human specifier sentences ({len(human_qualified_dataset)}), "
@@ -24,7 +27,7 @@ def build_sentence_dataset(target: Classifier.Target) -> list[Sentence]:
 
     if target == Classifier.Target.SCHEDULE:
         human_qualified_dataset = Sentence.objects.filter(human_schedule__isnull=False).all()
-        if len(human_qualified_dataset) > 800:
+        if len(human_qualified_dataset) >= MIN_DATASET_SIZE:
             return human_qualified_dataset
 
         print(f"Not enough human schedule sentences ({len(human_qualified_dataset)}), "
@@ -34,7 +37,7 @@ def build_sentence_dataset(target: Classifier.Target) -> list[Sentence]:
 
     if target == Classifier.Target.CONFESSION:
         human_qualified_dataset = Sentence.objects.filter(human_confession__isnull=False).all()
-        if len(human_qualified_dataset) > 800:
+        if len(human_qualified_dataset) >= MIN_DATASET_SIZE:
             return human_qualified_dataset
 
         print(f"Not enough human confession sentences ({len(human_qualified_dataset)}), "
@@ -99,6 +102,17 @@ def set_label(sentence: Sentence, label: StringEnum, classifier: Classifier) -> 
     raise NotImplementedError(f'Target {classifier.target} is not supported for label setting')
 
 
+def get_test_size(dataset_size: int) -> int:
+    assert dataset_size >= MIN_DATASET_SIZE
+
+    third_size = dataset_size // 3
+    test_size = 100
+    while 2 * test_size < third_size:
+        test_size *= 2
+
+    return test_size
+
+
 def train_classifier(sentence_dataset: list[Sentence], target: Classifier.Target) -> Classifier:
     if not sentence_dataset:
         raise ValueError("No sentence dataset to train classifier")
@@ -112,7 +126,8 @@ def train_classifier(sentence_dataset: list[Sentence], target: Classifier.Target
     labels = [extract_label(sentence, target) for sentence in sentence_dataset]
 
     # Split dataset
-    test_size = 800
+    test_size = get_test_size(len(sentence_dataset))
+    print(f"Dataset size: {len(sentence_dataset)}, test size: {test_size}")
     embeddings_train, embeddings_test, \
         labels_train, labels_test, \
         = train_test_split(embeddings, labels, test_size=test_size,
