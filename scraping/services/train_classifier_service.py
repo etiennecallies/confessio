@@ -14,7 +14,7 @@ def build_sentence_dataset(target: Classifier.Target) -> list[Sentence]:
         return Sentence.objects.filter(source=Source.HUMAN).all()
     if target == Classifier.Target.SPECIFIER:
         human_qualified_dataset = Sentence.objects.filter(human_specifier__isnull=False).all()
-        if len(human_qualified_dataset) > 200:
+        if len(human_qualified_dataset) > 800:
             return human_qualified_dataset
 
         print(f"Not enough human specifier sentences ({len(human_qualified_dataset)}), "
@@ -24,7 +24,7 @@ def build_sentence_dataset(target: Classifier.Target) -> list[Sentence]:
 
     if target == Classifier.Target.SCHEDULE:
         human_qualified_dataset = Sentence.objects.filter(human_schedule__isnull=False).all()
-        if len(human_qualified_dataset) > 200:
+        if len(human_qualified_dataset) > 800:
             return human_qualified_dataset
 
         print(f"Not enough human schedule sentences ({len(human_qualified_dataset)}), "
@@ -34,7 +34,7 @@ def build_sentence_dataset(target: Classifier.Target) -> list[Sentence]:
 
     if target == Classifier.Target.CONFESSION:
         human_qualified_dataset = Sentence.objects.filter(human_confession__isnull=False).all()
-        if len(human_qualified_dataset) > 200:
+        if len(human_qualified_dataset) > 800:
             return human_qualified_dataset
 
         print(f"Not enough human confession sentences ({len(human_qualified_dataset)}), "

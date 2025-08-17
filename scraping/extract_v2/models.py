@@ -8,9 +8,10 @@ class TagV2(StringEnum):
 
 class EventMotion(StringEnum):
     START = 'start'
-    SHOW = 'show'
+    HOLD = 'hold'
     HIDE = 'hide'
     STOP = 'stop'
+    SHOW = 'show'
 
     @classmethod
     def choices(cls):

@@ -186,7 +186,7 @@ def get_event_motion_with_regex(stringified_line: str) -> EventMotion:
     if is_confession_mentions(stringified_line):
         return EventMotion.START
 
-    return EventMotion.SHOW
+    return EventMotion.HOLD
 
 
 def get_is_default_hold_with_regex(stringified_line: str) -> bool:
