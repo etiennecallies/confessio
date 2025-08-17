@@ -87,6 +87,45 @@ def classify_existing_sentence(sentence: Sentence, target: Classifier.Target
     return label, classifier
 
 
+def get_ml_label(sentence: Sentence, target: Classifier.Target) -> StringEnum:
+    transformer = get_transformer()
+    classifier = get_classifier(transformer, target)
+
+    assert target == classifier.target, \
+        f"Target {target} does not match classifier target {classifier.target}"
+
+    if target == Classifier.Target.ACTION:
+        if sentence.source == Source.ML and sentence.classifier == classifier:
+            ml_label = sentence.action
+        else:
+            ml_label, _ = classify_existing_sentence(sentence, target)
+    elif target == Classifier.Target.SPECIFIER:
+        if sentence.specifier_classifier == classifier:
+            ml_label = sentence.ml_specifier
+        else:
+            ml_label, _ = classify_existing_sentence(sentence, target)
+            set_label(sentence, ml_label, classifier)
+            sentence.save()
+    elif target == Classifier.Target.SCHEDULE:
+        if sentence.schedule_classifier == classifier:
+            ml_label = sentence.ml_schedule
+        else:
+            ml_label, _ = classify_existing_sentence(sentence, target)
+            set_label(sentence, ml_label, classifier)
+            sentence.save()
+    elif target == Classifier.Target.CONFESSION:
+        if sentence.confession_classifier == classifier:
+            ml_label = sentence.ml_confession
+        else:
+            ml_label, _ = classify_existing_sentence(sentence, target)
+            set_label(sentence, ml_label, classifier)
+            sentence.save()
+    else:
+        raise NotImplementedError(f'Target {target} is not supported for label extraction')
+
+    return ml_label
+
+
 def classify_and_create_sentence(stringified_line: str,
                                  pruning: Pruning) -> Sentence:
     # Classify line

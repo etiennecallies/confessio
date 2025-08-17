@@ -47,7 +47,8 @@ class Command(AbstractCommand):
 
     def train_model_for_target(self, target: Classifier.Target, automatic: bool):
         if automatic:
-            last_training_at = Classifier.objects.latest('created_at').created_at
+            last_training_at = Classifier.objects.filter(target=target)\
+                .latest('created_at').created_at
             self.info(f'Last training was at {last_training_at} for target {target}')
 
             last_sentence_at = Sentence.objects.filter(updated_by__isnull=False) \
@@ -90,7 +91,7 @@ class Command(AbstractCommand):
                 classifier.save()
 
                 self.info(f'Launching find_sentence_outliers command...')
-                call_command('find_sentence_outliers')
+                call_command('find_sentence_outliers', target=target)
                 self.success(f'End of find_sentence_outliers command.')
             else:
                 self.info(f'New model is not significantly better than production model')
