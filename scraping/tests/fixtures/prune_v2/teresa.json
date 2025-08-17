@@ -5,7 +5,7 @@
     "tags": [
       "specifier"
     ],
-    "event_motion": "show",
+    "event_motion": "hold",
     "is_default_hold": false,
     "sentence_uuid": "75b0b692-92b2-471c-90cf-56f1670223f4"
   },
@@ -96,7 +96,7 @@
     "tags": [
       "specifier"
     ],
-    "event_motion": "show",
+    "event_motion": "hold",
     "is_default_hold": false,
     "sentence_uuid": "3f688b1c-b2c4-4fa2-bff7-b80c1d8de553"
   },
@@ -166,7 +166,7 @@
     "tags": [
       "specifier"
     ],
-    "event_motion": "show",
+    "event_motion": "hold",
     "is_default_hold": false,
     "sentence_uuid": "1d069bd1-c07a-40c0-87c9-10d542c7a699"
   },
@@ -346,7 +346,7 @@
     "tags": [
       "specifier"
     ],
-    "event_motion": "show",
+    "event_motion": "hold",
     "is_default_hold": false,
     "sentence_uuid": "2e896b8a-8ff4-4a0e-a581-f94c1d9e7386"
   },
@@ -446,7 +446,7 @@
     "tags": [
       "specifier"
     ],
-    "event_motion": "show",
+    "event_motion": "hold",
     "is_default_hold": false,
     "sentence_uuid": "5c12ee62-fbb1-42e0-a87c-cbdf9869e0e5"
   },
@@ -516,7 +516,7 @@
     "tags": [
       "specifier"
     ],
-    "event_motion": "show",
+    "event_motion": "hold",
     "is_default_hold": false,
     "sentence_uuid": "c8d2a75f-1ad1-4481-8e88-0291e50756e2"
   },

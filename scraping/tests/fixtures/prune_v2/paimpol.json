@@ -27,7 +27,7 @@
     "line": "par <a href=\"_Jean-Luc-Pillot_.html\"> Jean-Luc Pillot </a> , <a href=\"_Pere-Valentin-KOUACOU_.html\"> P\u00e8re Valentin KOUACOU </a>",
     "stringified_line": "par Jean-Luc Pillot , P\u00e8re Valentin KOUACOU",
     "tags": [],
-    "event_motion": "show",
+    "event_motion": "hold",
     "is_default_hold": false,
     "sentence_uuid": "7c9a1f73-86da-4e0d-a821-404be43d1e5e"
   },
@@ -37,7 +37,7 @@
     "tags": [
       "specifier"
     ],
-    "event_motion": "show",
+    "event_motion": "hold",
     "is_default_hold": false,
     "sentence_uuid": "80bc111d-f5ae-4987-9cf2-66aeeaa2bade"
   },
@@ -53,7 +53,7 @@
     "line": "Le sacrement de la r\u00e9conciliation, appel\u00e9 aussi sacrement du pardon ou la confession, semble de moins en moins fr\u00e9quent\u00e9 de nos jours. Et pourtant, il nous offre une belle opportunit\u00e9 de conna\u00eetre la joie de l\u2019amour infini de Dieu pour nous. Ce sacrement est le signe immense de l\u2019amour infini de Dieu : Le pardon de Dieu est toujours possible, si nous faisons une d\u00e9marche vraiment sinc\u00e8re. En se reconnaissant p\u00e9cheur, nous croyons que l\u2019amour infini de Dieu est toujours le plus fort.",
     "stringified_line": "Le sacrement de la r\u00e9conciliation, appel\u00e9 aussi sacrement du pardon ou la confession, semble de moins en moins fr\u00e9quent\u00e9 de nos jours. Et pourtant, il nous offre une belle opportunit\u00e9 de conna\u00eetre la joie de l\u2019amour infini de Dieu pour nous. Ce sacrement est le signe immense de l\u2019amour infini de Dieu : Le pardon de Dieu est toujours possible, si nous faisons une d\u00e9marche vraiment sinc\u00e8re. En se reconnaissant p\u00e9cheur, nous croyons que l\u2019amour infini de Dieu est toujours le plus fort.",
     "tags": [],
-    "event_motion": "show",
+    "event_motion": "hold",
     "is_default_hold": false,
     "sentence_uuid": "e49d94b6-ad35-46a0-8346-662dddd0c645"
   },
@@ -61,7 +61,7 @@
     "line": "Saint Paul ne disait-il pas que : \u00ab Je ne fais pas le bien que je voudrais, mais le mal que je ne veux pas \u00bb. Nous sommes p\u00e9cheurs, mais Dieu est mis\u00e9ricorde. Quand le p\u00e9ch\u00e9 nous fait tomber, son amour nous rel\u00e8ve pour une nouvelle vie et un nouveau d\u00e9part.",
     "stringified_line": "Saint Paul ne disait-il pas que : \u00ab Je ne fais pas le bien que je voudrais, mais le mal que je ne veux pas \u00bb. Nous sommes p\u00e9cheurs, mais Dieu est mis\u00e9ricorde. Quand le p\u00e9ch\u00e9 nous fait tomber, son amour nous rel\u00e8ve pour une nouvelle vie et un nouveau d\u00e9part.",
     "tags": [],
-    "event_motion": "show",
+    "event_motion": "hold",
     "is_default_hold": false,
     "sentence_uuid": "d5b208e4-1482-4a70-848f-b6efc4f07a7b"
   },
@@ -69,7 +69,7 @@
     "line": "Ce sacrement n\u2019est pas un tribunal, mais un lieu de gu\u00e9rison et d\u2019\u00e9tablissement dans la paix int\u00e9rieure. Ainsi, le dialogue avec un pr\u00eatre est le signe efficace de la r\u00e9conciliation avec Dieu et avec nos fr\u00e8res et s\u0153urs.",
     "stringified_line": "Ce sacrement n\u2019est pas un tribunal, mais un lieu de gu\u00e9rison et d\u2019\u00e9tablissement dans la paix int\u00e9rieure. Ainsi, le dialogue avec un pr\u00eatre est le signe efficace de la r\u00e9conciliation avec Dieu et avec nos fr\u00e8res et s\u0153urs.",
     "tags": [],
-    "event_motion": "show",
+    "event_motion": "hold",
     "is_default_hold": false,
     "sentence_uuid": "39b024e4-410a-4d41-90ed-4fce48388adb"
   },
@@ -77,7 +77,7 @@
     "line": "Sur notre communaut\u00e9 pastorale, ce sacrement est propos\u00e9 selon les indications suivantes :",
     "stringified_line": "Sur notre communaut\u00e9 pastorale, ce sacrement est propos\u00e9 selon les indications suivantes :",
     "tags": [],
-    "event_motion": "show",
+    "event_motion": "hold",
     "is_default_hold": false,
     "sentence_uuid": "ea87ce79-98f1-4491-ac9f-b4d64258cda3"
   },
@@ -88,7 +88,7 @@
       "schedule",
       "specifier"
     ],
-    "event_motion": "show",
+    "event_motion": "hold",
     "is_default_hold": false,
     "sentence_uuid": "f591f1d4-fe92-4ab5-b8cb-636326ac88d9"
   },
@@ -99,7 +99,7 @@
       "schedule",
       "specifier"
     ],
-    "event_motion": "show",
+    "event_motion": "hold",
     "is_default_hold": false,
     "sentence_uuid": "9929e570-4ed1-4cdc-bef2-bc0b8a3af146"
   },
@@ -110,7 +110,7 @@
       "schedule",
       "specifier"
     ],
-    "event_motion": "show",
+    "event_motion": "hold",
     "is_default_hold": false,
     "sentence_uuid": "8b59bba9-31e8-47bc-a393-27ea794ffb96"
   },
@@ -120,7 +120,7 @@
     "tags": [
       "specifier"
     ],
-    "event_motion": "show",
+    "event_motion": "hold",
     "is_default_hold": false,
     "sentence_uuid": "7acf755a-3d65-4bbc-9bc8-6ba509a6a69b"
   },
@@ -131,7 +131,7 @@
       "schedule",
       "specifier"
     ],
-    "event_motion": "show",
+    "event_motion": "hold",
     "is_default_hold": false,
     "sentence_uuid": "ada3dd07-1cef-4bb1-8c9a-c1d5546ae722"
   }

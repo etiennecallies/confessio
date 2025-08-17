@@ -11,7 +11,6 @@ class EventMotion(StringEnum):
     HOLD = 'hold'
     HIDE = 'hide'
     STOP = 'stop'
-    SHOW = 'show'
 
     @classmethod
     def choices(cls):
