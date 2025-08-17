@@ -119,7 +119,7 @@ def get_pruned_lines_indices_v2(lines_and_tags: list[LineAndTagV2]) -> list[list
         elif post_buffer is not None:
             if is_resetting_attempts(index_line) and event_motion != EventMotion.HIDE:
                 post_buffer.add_line(index_line, paragraph_indices)
-            else:
+            elif event_motion != EventMotion.SHOW or index_line.is_default_hold:
                 post_buffer = post_buffer.decrement()
                 if post_buffer is None:
                     paragraph_indices = flush_results(paragraph_indices, results)

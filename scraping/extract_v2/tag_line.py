@@ -148,6 +148,10 @@ def is_confession_mentions(content: str):
     return has_any_of_words(content, CONFESSIONS_MENTIONS)
 
 
+def is_confession_hold_mentions(content: str):
+    return False
+
+
 def is_schedule_description(content: str):
     return has_any_of_words(content, SCHEDULES_MENTIONS, SCHEDULES_EXPR, SCHEDULES_REGEX)
 
@@ -183,3 +187,10 @@ def get_event_motion_with_regex(stringified_line: str) -> EventMotion:
         return EventMotion.START
 
     return EventMotion.SHOW
+
+
+def get_is_default_hold_with_regex(stringified_line: str) -> bool:
+    if is_confession_hold_mentions(stringified_line):
+        return False
+
+    return True

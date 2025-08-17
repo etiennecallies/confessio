@@ -13,6 +13,7 @@ class TestPruneLines(unittest.TestCase):
         return [
             'colombe',
             'teresa',
+            'paimpol',
         ]
 
     def test_prune_lines(self):

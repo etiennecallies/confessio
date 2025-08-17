@@ -13,6 +13,7 @@ class LineAndTagV2(BaseModel):
     stringified_line: str
     tags: set[TagV2]
     event_motion: EventMotion
+    is_default_hold: bool
     sentence_uuid: UUID | None
 
 
@@ -24,13 +25,14 @@ def split_and_tag_v2(refined_content: str, qualify_line_interface: BaseQualifyLi
     for line in split_lines(refined_content):
         stringified_line = stringify_html(line)
 
-        tags, event_motion, sentence_uuid = \
+        tags, event_motion, is_default_hold, sentence_uuid = \
             qualify_line_interface.get_tags_and_event_motion(stringified_line)
         results.append(LineAndTagV2(
             line=line,
             stringified_line=stringified_line,
             tags=tags,
             event_motion=event_motion,
+            is_default_hold=is_default_hold,
             sentence_uuid=sentence_uuid,
         ))
 
