@@ -224,7 +224,7 @@ def add_necessary_moderation_v2(pruning: Pruning):
         delete_moderation(pruning, PruningModeration.Category.V2_DIFF_V1)
         return
 
-    if pruning.v2_indices == pruning.ml_indices:
+    if pruning.human_indices is not None and pruning.v2_indices != pruning.human_indices:
         add_new_moderation(pruning, PruningModeration.Category.V2_DIFF_HUMAN)
         delete_moderation(pruning, PruningModeration.Category.V2_DIFF_V1)
         return
