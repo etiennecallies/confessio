@@ -209,19 +209,25 @@ def render_pruning_moderation(request, moderation: PruningModeration, next_url):
     ml_lines_and_colors = []
     for i, line in enumerate(pruning.extracted_html.split('<br>\n')):
         color = '' if i in (pruning.ml_indices or []) else 'text-warning'
-        ml_lines_and_colors.append((line, color))
+        differs = (pruning.human_indices is not None and i not in pruning.human_indices) \
+            or (pruning.v2_indices is not None and i not in pruning.v2_indices)
+        ml_lines_and_colors.append((line, color, differs))
 
     human_lines_and_colors = []
     if pruning.human_indices is not None:
         for i, line in enumerate(pruning.extracted_html.split('<br>\n')):
             color = '' if i in pruning.human_indices else 'text-warning'
-            human_lines_and_colors.append((line, color))
+            differs = (pruning.ml_indices is not None and i not in pruning.ml_indices) \
+                or (pruning.v2_indices is not None and i not in pruning.v2_indices)
+            human_lines_and_colors.append((line, color, differs))
 
     v2_lines_and_colors = []
     if pruning.v2_indices is not None:
         for i, line in enumerate(pruning.extracted_html.split('<br>\n')):
             color = '' if i in pruning.v2_indices else 'text-warning'
-            v2_lines_and_colors.append((line, color))
+            differs = (pruning.human_indices is not None and i not in pruning.human_indices) \
+                or (pruning.ml_indices is not None and i not in pruning.ml_indices)
+            v2_lines_and_colors.append((line, color, differs))
 
     parsing_moderation = ParsingModeration.objects.filter(parsing__prunings=pruning).first()
 

@@ -46,8 +46,8 @@
         <p><a class="btn btn-gray-500" href="{% url 'edit_pruning_human' pruning.uuid %}" target="_blank" role="button">
         Edit human pruning<i class="fas fa-up-right-from-square"></i>
         </a></p>
-        {% for line, color in human_lines_and_colors %}
-            <div class="{{ color }}">{{ line|safe }}</div>
+        {% for line, color, differs in human_lines_and_colors %}
+            <div class="{{ color }}{% if differs %} fw-bold{% endif %}">{{ line|safe }}</div>
         {% endfor %}
     {% endif %}
     {% if v2_lines_and_colors %}
@@ -56,8 +56,8 @@
             <p><a class="btn btn-gray-500" href="{% url 'edit_pruning_v2' pruning.uuid %}" target="_blank" role="button">
             Edit pruning V2 <i class="fas fa-up-right-from-square"></i>
             </a></p>
-            {% for line, color in v2_lines_and_colors %}
-                <div class="{{ color }}">{{ line|safe }}</div>
+            {% for line, color, differs in v2_lines_and_colors %}
+                <div class="{{ color }}{% if differs %} fw-bold{% endif %}">{{ line|safe }}</div>
             {% endfor %}
             <div>
                 <form action="{% url 'set_v2_as_human' pruning_moderation.uuid %}" method="post">
@@ -71,8 +71,8 @@
     <p><a class="btn btn-gray-500" href="{% url 'edit_pruning_v1' pruning.uuid %}" target="_blank" role="button">
         Edit pruning V1 <i class="fas fa-up-right-from-square"></i>
     </a></p>
-    {% for line, color in ml_lines_and_colors %}
-        <div class="{{ color }}">{{ line|safe }}</div>
+    {% for line, color, differs in ml_lines_and_colors %}
+        <div class="{{ color }}{% if differs %} fw-bold{% endif %}">{{ line|safe }}</div>
     {% endfor %}
 
     {% if parsing_moderation %}
