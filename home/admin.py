@@ -95,7 +95,7 @@ class DioceseChoiceField(ModelChoiceField):
 
 @admin.register(Classifier)
 class ClassifierAdmin(ModelAdmin):
-    list_display = ["uuid", "status", "target", "created_at", "accuracy", 'transformer_name']
+    list_display = ["uuid", "status", "target", "created_at", "accuracy", 'test_size']
     ordering = ["-created_at"]
     fields = ['status']
 
