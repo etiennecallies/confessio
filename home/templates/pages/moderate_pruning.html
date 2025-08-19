@@ -41,14 +41,11 @@
             </p>
         </div>
     {% endfor %}
-    <p><a class="btn btn-gray-500" href="{% url 'edit_pruning_v1' pruning.uuid %}" target="_blank" role="button">
-        Edit pruning V1 <i class="fas fa-up-right-from-square"></i>
-    </a></p>
-    {% for line, color in ml_lines_and_colors %}
-        <div class="{{ color }}">{{ line|safe }}</div>
-    {% endfor %}
     {% if human_lines_and_colors and human_lines_and_colors != ml_lines_and_colors %}
         <h3>Human validated pruning</h3>
+        <p><a class="btn btn-gray-500" href="{% url 'edit_pruning_human' pruning.uuid %}" target="_blank" role="button">
+        Edit human pruning<i class="fas fa-up-right-from-square"></i>
+        </a></p>
         {% for line, color in human_lines_and_colors %}
             <div class="{{ color }}">{{ line|safe }}</div>
         {% endfor %}
@@ -70,6 +67,13 @@
             </div>
         {% endif %}
     {% endif %}
+    <h3>V1 pruning</h3>
+    <p><a class="btn btn-gray-500" href="{% url 'edit_pruning_v1' pruning.uuid %}" target="_blank" role="button">
+        Edit pruning V1 <i class="fas fa-up-right-from-square"></i>
+    </a></p>
+    {% for line, color in ml_lines_and_colors %}
+        <div class="{{ color }}">{{ line|safe }}</div>
+    {% endfor %}
 
     {% if parsing_moderation %}
         <div>
