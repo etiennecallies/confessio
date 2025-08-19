@@ -1,10 +1,12 @@
 from django.core.management import call_command
+from tqdm import tqdm
 
 from home.management.abstract_command import AbstractCommand
 from home.management.utils.heartbeat_utils import ping_heartbeat
 from home.models import Classifier, Sentence
 from scraping.prune.transform_sentence import get_transformer
-from scraping.services.classify_sentence_service import classify_line, get_classifier
+from scraping.services.classify_sentence_service import classify_line, get_classifier, \
+    get_sentences_with_wrong_classifier, get_ml_label
 from scraping.services.train_classifier_service import train_classifier, build_sentence_dataset, \
     extract_label
 from scraping.utils.stat_utils import is_significantly_different
@@ -20,6 +22,8 @@ class Command(AbstractCommand):
         parser.add_argument('-l', '--test-on-line', help='test latest classifier on given line')
         parser.add_argument('-a', '--automatic', action='store_true',
                             help='automatic training triggered in nightly job')
+        parser.add_argument('-r', '--reclassify', action='store_true',
+                            help='reclassify all sentences with the latest model')
 
     def handle(self, *args, **options):
         target = options['target']
@@ -40,12 +44,13 @@ class Command(AbstractCommand):
 
         for target in targets:
             self.info(f'Training model for target {target}')
-            self.train_model_for_target(target, options['automatic'])
+            self.train_model_for_target(target, options['automatic'], options['reclassify'])
 
         if options['automatic']:
             ping_heartbeat("HEARTBEAT_TRAIN_PRUNING_URL")
 
-    def train_model_for_target(self, target: Classifier.Target, automatic: bool):
+    def train_model_for_target(self, target: Classifier.Target, automatic: bool,
+                               reclassify: bool):
         if automatic:
             last_training_at = Classifier.objects.filter(target=target)\
                 .latest('created_at').created_at
@@ -101,3 +106,12 @@ class Command(AbstractCommand):
                          f'You shall set it to prod in admin interface.')
         else:
             self.success(f'Model has now status {classifier.status}')
+
+        if reclassify:
+            self.info(f'Reclassifying all sentences with the latest model for target {target}')
+            sentences = get_sentences_with_wrong_classifier(target)
+            counter = 0
+            for sentence in tqdm(sentences):
+                get_ml_label(sentence, target)
+                counter += 1
+            self.success(f'Finished reclassifying {counter} sentences for target {target}')

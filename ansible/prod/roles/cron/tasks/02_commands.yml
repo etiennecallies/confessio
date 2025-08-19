@@ -14,7 +14,7 @@
       minute: 20
       memory_max: "800M"
     - name: train_pruning_model
-      command: "train_pruning_model --automatic"
+      command: "train_pruning_model --automatic --reclassify"
       hour: "0"
       minute: 40
       memory_max: "800M"

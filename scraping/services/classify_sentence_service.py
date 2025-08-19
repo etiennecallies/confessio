@@ -126,6 +126,24 @@ def get_ml_label(sentence: Sentence, target: Classifier.Target) -> StringEnum:
     return ml_label
 
 
+def get_sentences_with_wrong_classifier(target: Classifier.Target) -> list[Sentence]:
+    transformer = get_transformer()
+    classifier = get_classifier(transformer, target)
+
+    sentence_query = Sentence.objects
+
+    if target == Classifier.Target.ACTION:
+        sentence_query = sentence_query.filter(source=Source.ML).exclude(classifier=classifier)
+    if target == Classifier.Target.SCHEDULE:
+        sentence_query = sentence_query.exclude(schedule_classifier=classifier)
+    if target == Classifier.Target.SPECIFIER:
+        sentence_query = sentence_query.exclude(specifier_classifier=classifier)
+    if target == Classifier.Target.CONFESSION:
+        sentence_query = sentence_query.exclude(confession_classifier=classifier)
+
+    return sentence_query.all()
+
+
 def classify_and_create_sentence(stringified_line: str,
                                  pruning: Pruning) -> Sentence:
     # Classify line
