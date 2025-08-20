@@ -206,27 +206,33 @@ def render_pruning_moderation(request, moderation: PruningModeration, next_url):
     pruning = moderation.pruning
     assert pruning is not None
 
+    differs_by_index = []
+    for i in range(len(pruning.extracted_html.split('<br>\n'))):
+        i_in_ml = None if pruning.ml_indices is None else i in pruning.ml_indices
+        i_in_human = None if pruning.human_indices is None else i in pruning.human_indices
+        i_in_v2 = None if pruning.v2_indices is None else i in pruning.v2_indices
+
+        values = list(filter(lambda b: b is not None, [i_in_ml, i_in_human, i_in_v2]))
+        differs_by_index.append(len(set(values)) > 1)
+
     ml_lines_and_colors = []
     for i, line in enumerate(pruning.extracted_html.split('<br>\n')):
         color = '' if i in (pruning.ml_indices or []) else 'text-warning'
-        differs = (pruning.human_indices is not None and i not in pruning.human_indices) \
-            or (pruning.v2_indices is not None and i not in pruning.v2_indices)
+        differs = 'fw-bold display-5' if differs_by_index[i] else ''
         ml_lines_and_colors.append((line, color, differs))
 
     human_lines_and_colors = []
     if pruning.human_indices is not None:
         for i, line in enumerate(pruning.extracted_html.split('<br>\n')):
             color = '' if i in pruning.human_indices else 'text-warning'
-            differs = (pruning.ml_indices is not None and i not in pruning.ml_indices) \
-                or (pruning.v2_indices is not None and i not in pruning.v2_indices)
+            differs = 'fw-bold display-5' if differs_by_index[i] else ''
             human_lines_and_colors.append((line, color, differs))
 
     v2_lines_and_colors = []
     if pruning.v2_indices is not None:
         for i, line in enumerate(pruning.extracted_html.split('<br>\n')):
             color = '' if i in pruning.v2_indices else 'text-warning'
-            differs = (pruning.human_indices is not None and i not in pruning.human_indices) \
-                or (pruning.ml_indices is not None and i not in pruning.ml_indices)
+            differs = 'fw-bold display-5' if differs_by_index[i] else ''
             v2_lines_and_colors.append((line, color, differs))
 
     parsing_moderation = ParsingModeration.objects.filter(parsing__prunings=pruning).first()
