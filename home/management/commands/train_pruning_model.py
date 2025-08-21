@@ -44,13 +44,16 @@ class Command(AbstractCommand):
 
         for target in targets:
             self.info(f'Training model for target {target}')
-            self.train_model_for_target(target, options['automatic'], options['reclassify'])
+            self.train_model_for_target(target, options['automatic'])
+
+        if options['reclassify']:
+            for target in targets:
+                self.reclassify_for_target(target)
 
         if options['automatic']:
             ping_heartbeat("HEARTBEAT_TRAIN_PRUNING_URL")
 
-    def train_model_for_target(self, target: Classifier.Target, automatic: bool,
-                               reclassify: bool):
+    def train_model_for_target(self, target: Classifier.Target, automatic: bool):
         if automatic:
             last_training_at = Classifier.objects.filter(target=target)\
                 .latest('created_at').created_at
@@ -107,11 +110,11 @@ class Command(AbstractCommand):
         else:
             self.success(f'Model has now status {classifier.status}')
 
-        if reclassify:
-            self.info(f'Reclassifying all sentences with the latest model for target {target}')
-            sentences = get_sentences_with_wrong_classifier(target)
-            counter = 0
-            for sentence in tqdm(sentences):
-                get_ml_label(sentence, target)
-                counter += 1
-            self.success(f'Finished reclassifying {counter} sentences for target {target}')
+    def reclassify_for_target(self, target: Classifier.Target):
+        self.info(f'Reclassifying all sentences with the latest model for target {target}')
+        sentences = get_sentences_with_wrong_classifier(target)
+        counter = 0
+        for sentence in tqdm(sentences):
+            get_ml_label(sentence, target)
+            counter += 1
+        self.success(f'Finished reclassifying {counter} sentences for target {target}')
