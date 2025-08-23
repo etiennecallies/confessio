@@ -2,15 +2,16 @@ from datetime import datetime, date
 from typing import Literal
 from uuid import UUID
 
+from django.http import Http404
 from ninja import NinjaAPI, Schema
 
+from front.services.aggregation_service import get_search_results
 from home.models import Church, Website
 from home.services.autocomplete_service import get_aggregated_response, AutocompleteResult
 from home.services.report_service import get_count_and_label
-from home.services.search_service import TimeFilter, get_churches_in_box, \
-    get_churches_around, get_popular_churches, get_count_per_diocese, get_count_per_municipality, \
-    get_count_per_parish, get_churches_in_area, AggregationItem, MAX_CHURCHES_IN_RESULTS
+from home.services.search_service import TimeFilter, AggregationItem
 from home.services.website_events_service import get_website_events, ChurchEvent, WebsiteEvents
+from home.services.website_schedules_service import get_website_schedules, ParsingScheduleItem
 
 api = NinjaAPI(urls_namespace='front_api')
 
@@ -30,7 +31,7 @@ class ChurchOut(Schema):
     website_uuid: UUID
 
     @classmethod
-    def from_church(cls, church: Church):
+    def from_church(cls, church: Church) -> 'ChurchOut':
         return cls(
             uuid=church.uuid,
             name=church.name,
@@ -40,6 +41,33 @@ class ChurchOut(Schema):
             zipcode=church.zipcode,
             city=church.city,
             website_uuid=church.parish.website_id,
+        )
+
+
+class ScheduleOut(Schema):
+    explanation: str
+    parsing_uuids: list[UUID]
+
+    @classmethod
+    def from_parsing_schedule_item(cls,
+                                   parsing_schedule_item: ParsingScheduleItem) -> 'ScheduleOut':
+        return cls(
+            explanation=parsing_schedule_item.explanation,
+            parsing_uuids=parsing_schedule_item.parsing_uuids,
+        )
+
+
+class ChurchDetails(ChurchOut):
+    schedules: list[ScheduleOut]
+
+    @classmethod
+    def from_church_and_schedules(cls, church: Church, schedules: list[ScheduleOut]
+                                  ) -> 'ChurchDetails':
+        base = ChurchOut.from_church(church)
+
+        return cls(
+            **base.dict(),
+            schedules=schedules
         )
 
 
@@ -155,6 +183,10 @@ class AutocompleteItem(Schema):
         )
 
 
+class ErrorSchema(Schema):
+    detail: str
+
+
 #############
 # ENDPOINTS #
 #############
@@ -176,43 +208,8 @@ def api_search(request,
         hour_max=hour_max,
     )
 
-    if min_lat and min_lng and max_lat and max_lng:
-        index_events, churches, _, events_truncated_by_website_uuid = \
-            get_churches_in_box(min_lat, max_lat, min_lng, max_lng, time_filter)
-        if len(churches) == MAX_CHURCHES_IN_RESULTS:
-            diocese_count = len(set(church.parish.diocese for church in churches))
-            if diocese_count >= 5:
-                # Search in big box, count by diocese
-                aggregations = get_count_per_diocese(min_lat, max_lat, min_lng, max_lng,
-                                                     time_filter)
-            else:
-                municipality_count = len(set((church.city, church.zipcode) for church in churches))
-                parish_count = len(set(church.parish.uuid for church in churches))
-
-                if parish_count > municipality_count:
-                    # Search in big cities, many parishes, few municipalities
-                    aggregations = get_count_per_municipality(min_lat, max_lat, min_lng, max_lng,
-                                                              time_filter)
-                else:
-                    # Search in countryside, many municipalities, few parishes
-                    aggregations = get_count_per_parish(min_lat, max_lat, min_lng, max_lng,
-                                                        time_filter)
-
-            singleton_aggregations = list(filter(lambda a: a.church_count == 1, aggregations))
-            index_events, churches, _, events_truncated_by_website_uuid = \
-                get_churches_in_area(singleton_aggregations, time_filter)
-            aggregations = list(filter(lambda a: a.church_count > 1, aggregations))
-        else:
-            aggregations = []
-    elif latitude and longitude:
-        center = [latitude, longitude]
-        index_events, churches, _, events_truncated_by_website_uuid = \
-            get_churches_around(center, time_filter)
-        aggregations = []
-    else:
-        index_events, churches, _, events_truncated_by_website_uuid = \
-            get_popular_churches(time_filter)
-        aggregations = []
+    index_events, churches, events_truncated_by_website_uuid, aggregations = \
+        get_search_results(latitude, longitude, min_lat, min_lng, max_lat, max_lng, time_filter)
 
     # We get all websites and their churches
     websites_by_uuid = {}
@@ -253,3 +250,18 @@ def api_search(request,
 def autocomplete(request, query: str = '') -> list[AutocompleteItem]:
     results = get_aggregated_response(query)
     return list(map(lambda r: AutocompleteItem.from_autocomplete_result(r), results))
+
+
+@api.get("/church/{church_uuid}", response={200: ChurchDetails, 404: ErrorSchema})
+def get_church_details(request, church_uuid: UUID) -> ChurchDetails:
+    try:
+        church = Church.objects.get(uuid=church_uuid)
+    except Church.DoesNotExist:
+        raise Http404(f'Church with uuid {church_uuid} not found')
+
+    website = church.parish.website
+    website_schedules = get_website_schedules(website, [church])
+    schedules = [ScheduleOut.from_parsing_schedule_item(psi)
+                 for css in website_schedules.church_sorted_schedules
+                 for psi in css.sorted_schedules]
+    return ChurchDetails.from_church_and_schedules(church, schedules)
