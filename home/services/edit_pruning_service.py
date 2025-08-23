@@ -153,6 +153,7 @@ class ColoredPieceV2(BaseModel):
     color: str
     event_motion: EventMotion
     tags: list[ColoredTagV2]
+    source_icon: str
     sentence_uuid: UUID | None
 
 
@@ -174,6 +175,10 @@ def get_colored_pieces_v2(extracted_html: str, qualify_line_interface: BaseQuali
         TagV2.SPECIFIER: 'spec',
         TagV2.SCHEDULE: 'sched',
     }
+    source_icons = {
+        Source.HUMAN: 'fas fa-user',
+        Source.ML: 'fas fa-robot',
+    }
 
     colored_pieces = []
     for i, line_and_tag in enumerate(lines_and_tags):
@@ -187,6 +192,9 @@ def get_colored_pieces_v2(extracted_html: str, qualify_line_interface: BaseQuali
             ))
 
         do_show = i in kept_indices
+        sentence = Sentence.objects.get(uuid=line_and_tag.sentence_uuid) \
+            if line_and_tag.sentence_uuid else None
+        source = Source.HUMAN if sentence and sentence.human_confession is not None else Source.ML
 
         colored_pieces.append(ColoredPieceV2(
             id=f'{i}',
@@ -195,6 +203,7 @@ def get_colored_pieces_v2(extracted_html: str, qualify_line_interface: BaseQuali
             color='' if do_show else 'text-warning',
             event_motion=line_and_tag.event_motion,
             tags=tags,
+            source_icon=source_icons[source],
             sentence_uuid=line_and_tag.sentence_uuid,
         ))
 

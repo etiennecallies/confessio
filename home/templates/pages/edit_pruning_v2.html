@@ -39,6 +39,7 @@
                         {% endfor %}
                     </div>
                     <div class="col-md-4 text-end text-md-center">
+                        <i class="{{ colored_piece.source_icon }}"></i>
                         {% for event_motion, event_motion_color in event_motion_colors.items %}
                             <input type="radio" class="btn-check"
                                    id="{{ event_motion.value }}-{{ colored_piece.id }}"
