@@ -6,17 +6,37 @@
     name: "{{ item.name }}"
     hour: "{{ item.hour }}"
     minute: "{{ item.minute }}"
-    job: "(tmux has-session -t {{ item.name }} || tmux new-session -d -s {{ item.name }}) && tmux send-keys -t {{ item.name }} 'sudo systemd-run --scope --property=MemoryMax={{ item.memory_max }} bash -c \". {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py {{ item.command }}\"' C-m"
+    job: "(tmux has-session -t {{ item.name }} || tmux new-session -d -s {{ item.name }}) && tmux send-keys -t {{ item.name }} 'sudo systemd-run --scope --property=MemoryMax={{ item.memory_max }} flock /var/lock/manage.lock bash -c \". {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py {{ item.command }}\"' C-m"
   with_items:
     - name: daily_index_events
       command: "index_events"
       hour: "0"
-      minute: 20
+      minute: 30
       memory_max: "800M"
-    - name: train_pruning_model
-      command: "train_pruning_model --automatic --reclassify"
+    - name: daily_train_pruning_model
+      command: "train_pruning_model --automatic"
+      hour: "0"
+      minute: 35
+      memory_max: "3200M"
+    - name: daily_reclassify_action
+      command: "reclassify_sentences -t action"
       hour: "0"
       minute: 40
+      memory_max: "3200M"
+    - name: daily_reclassify_specifier
+      command: "reclassify_sentences -t specifier"
+      hour: "0"
+      minute: 45
+      memory_max: "3200M"
+    - name: daily_reclassify_schedule
+      command: "reclassify_sentences -t schedule"
+      hour: "0"
+      minute: 50
+      memory_max: "3200M"
+    - name: daily_reclassify_confession
+      command: "reclassify_sentences -t confession"
+      hour: "0"
+      minute: 55
       memory_max: "3200M"
     - name: daily_crawl_websites
       command: "crawl_websites -t 3300 --no-recent -p 6"

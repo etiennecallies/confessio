@@ -1,12 +1,13 @@
 import threading
 
 from home.models import Sentence, Classifier, Pruning
-from scraping.prune.models import Source
+from scraping.extract_v2.models import EventMotion
+from scraping.prune.models import Source, Action
 from scraping.prune.train_and_predict import TensorFlowModel
 from scraping.prune.transform_sentence import get_transformer, TransformerInterface
 from scraping.services.classifier_target_service import get_target_enum
 from scraping.services.train_classifier_service import set_label
-from scraping.utils.enum_utils import StringEnum
+from scraping.utils.enum_utils import StringEnum, BooleanStringEnum
 
 _classifier = {}
 _classifier_lock = threading.Lock()
@@ -96,32 +97,23 @@ def get_ml_label(sentence: Sentence, target: Classifier.Target) -> StringEnum:
 
     if target == Classifier.Target.ACTION:
         if sentence.source == Source.ML and sentence.classifier == classifier:
-            ml_label = sentence.action
-        else:
-            ml_label, _ = classify_existing_sentence(sentence, target)
+            return Action(sentence.action)
     elif target == Classifier.Target.SPECIFIER:
         if sentence.specifier_classifier == classifier:
-            ml_label = sentence.ml_specifier
-        else:
-            ml_label, _ = classify_existing_sentence(sentence, target)
-            set_label(sentence, ml_label, classifier)
-            sentence.save()
+            return BooleanStringEnum.from_bool(sentence.ml_specifier)
     elif target == Classifier.Target.SCHEDULE:
         if sentence.schedule_classifier == classifier:
-            ml_label = sentence.ml_schedule
-        else:
-            ml_label, _ = classify_existing_sentence(sentence, target)
-            set_label(sentence, ml_label, classifier)
-            sentence.save()
+            return BooleanStringEnum.from_bool(sentence.ml_schedule)
     elif target == Classifier.Target.CONFESSION:
         if sentence.confession_classifier == classifier:
-            ml_label = sentence.ml_confession
-        else:
-            ml_label, _ = classify_existing_sentence(sentence, target)
-            set_label(sentence, ml_label, classifier)
-            sentence.save()
+            return EventMotion(sentence.ml_confession)
     else:
         raise NotImplementedError(f'Target {target} is not supported for label extraction')
+
+    ml_label, _ = classify_existing_sentence(sentence, target)
+    if not (target == Classifier.Target.ACTION and sentence.source == Source.HUMAN):
+        set_label(sentence, ml_label, classifier)
+        sentence.save()
 
     return ml_label
 
