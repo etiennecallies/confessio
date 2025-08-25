@@ -2,8 +2,10 @@ from tqdm import tqdm
 
 from home.management.abstract_command import AbstractCommand
 from home.models import Classifier
+from home.utils.list_utils import chunk_list
 from scraping.services.classify_sentence_service import get_sentences_with_wrong_classifier, \
-    get_ml_label
+    classify_existing_sentences
+from scraping.services.train_classifier_service import set_label
 
 
 class Command(AbstractCommand):
@@ -27,7 +29,12 @@ class Command(AbstractCommand):
         self.info(f'Reclassifying all sentences with the latest model for target {target}')
         sentences = get_sentences_with_wrong_classifier(target)
         counter = 0
-        for sentence in tqdm(sentences):
-            get_ml_label(sentence, target)
-            counter += 1
+        for sentence_chunk in tqdm(list(chunk_list(sentences, 100))):
+            ml_labels, classifier = classify_existing_sentences(sentence_chunk, target)
+            assert len(ml_labels) == len(sentence_chunk)
+            for i, ml_label in enumerate(ml_labels):
+                sentence = sentence_chunk[i]
+                set_label(sentence, ml_label, classifier)
+                sentence.save()
+                counter += 1
         self.success(f'Finished reclassifying {counter} sentences for target {target}')

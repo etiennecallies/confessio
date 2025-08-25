@@ -71,21 +71,30 @@ def classify_line(stringified_line: str, target: Classifier.Target
 
 def classify_existing_sentence(sentence: Sentence, target: Classifier.Target
                                ) -> tuple[StringEnum, Classifier]:
+    labels, classifier = classify_existing_sentences([sentence], target)
+
+    return labels[0], classifier
+
+
+def classify_existing_sentences(sentences: list[Sentence], target: Classifier.Target
+                                ) -> tuple[list[StringEnum], Classifier]:
     # 1. Get transformer
     transformer = get_transformer()
-    if sentence.transformer_name != transformer.get_name():
-        embedding = transformer.transform(sentence.line)
-    else:
-        embedding = sentence.embedding
+    embeddings = []
+    for sentence in sentences:
+        if sentence.transformer_name != transformer.get_name():
+            embeddings.append(transformer.transform(sentence.line))
+        else:
+            embeddings.append(sentence.embedding)
 
     # 2. Get classifier
     classifier = get_classifier(transformer, target)
     model = get_model(classifier)
 
     # 3. Predict label
-    label = model.predict([embedding])[0]
+    labels = model.predict(embeddings)
 
-    return label, classifier
+    return labels, classifier
 
 
 def get_ml_label(sentence: Sentence, target: Classifier.Target) -> StringEnum:

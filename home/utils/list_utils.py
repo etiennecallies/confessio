@@ -46,3 +46,8 @@ def enumerate_with_and(items: list[str]) -> str:
 
 def round_robin(lst, n):
     return [lst[i::n] for i in range(n)]
+
+
+def chunk_list(lst, n):
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
