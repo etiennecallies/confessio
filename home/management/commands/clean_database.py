@@ -1,6 +1,7 @@
 from datetime import timedelta
 from typing import Type
 
+from background_task.models import CompletedTask
 from django.db.models import Q, Model
 from django.utils import timezone
 
@@ -93,6 +94,11 @@ class Command(AbstractCommand):
                 church_moderation.delete()
                 counter += 1
         self.success(f'Done removing {counter} church moderation items')
+
+        # Completed tasks (background tasks)
+        self.info(f'Starting removing completed tasks')
+        counter = self.delete_objects(CompletedTask.objects.all())
+        self.success(f'Done removing {counter} completed tasks')
 
     def delete_objects(self, objects):
         counter = 0
