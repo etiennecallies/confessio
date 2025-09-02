@@ -345,7 +345,8 @@ def unlink_orphan_pruning_for_website(pruning: Pruning, website: Website):
     parsings = Parsing.objects.filter(prunings=pruning, website=website).all()
 
     for parsing in parsings:
-        info(f'unlinking parsing {parsing.uuid} from orphan pruning {pruning.uuid}')
+        info(f'unlinking parsing {parsing.uuid} with website {website.uuid} '
+             f'from orphan pruning {pruning.uuid}')
         unlink_pruning_from_parsing(parsing, pruning)
 
 
