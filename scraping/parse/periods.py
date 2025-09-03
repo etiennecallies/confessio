@@ -34,6 +34,7 @@ EASTER_DATES_BY_YEAR = {
     2024: date(2024, 3, 31),
     2025: date(2025, 4, 20),
     2026: date(2026, 4, 5),
+    2027: date(2027, 3, 28),
 }
 
 
@@ -45,8 +46,8 @@ def get_easter_day(year: int) -> date:
 
 
 def check_easter_dates() -> bool:
-    # In september, we should have easter date for the next year
-    future_date = get_current_day() + timedelta(days=365 + 4 * 30)
+    # In october, we should have easter date for the next year
+    future_date = get_current_day() + timedelta(days=365 + 3 * 30)
     future_year = future_date.year
 
     return future_year in EASTER_DATES_BY_YEAR

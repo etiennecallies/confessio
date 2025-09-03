@@ -559,8 +559,8 @@ HOLIDAY_BY_ZONE = {
 
 
 def check_holiday_by_zone() -> bool:
-    # In september, we should have holidays for the next school year
-    future_date = get_current_day() + timedelta(days=365 + 4 * 30)
+    # In october, we should have holidays for the next school year
+    future_date = get_current_day() + timedelta(days=365 + 3 * 30)
     future_year = future_date.year
     return future_year in HOLIDAY_BY_ZONE[HolidayZoneEnum.FR_ZONE_A]
 
