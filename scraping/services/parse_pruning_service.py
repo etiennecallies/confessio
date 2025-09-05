@@ -375,7 +375,7 @@ def prepare_parsing(
     unlink_website_from_parsings_except_church_desc_by_id(website, church_desc_by_id)
 
     if not truncated_html:
-        info(f'No truncated html for pruning {pruning}')
+        info(f'No truncated html for pruning {pruning}, website {website.uuid}')
         return None
 
     llm_client = get_llm_client()
@@ -395,6 +395,7 @@ def prepare_parsing(
 
         # Check if website is already linked to the pruning
         if not parsing.website:
+            info(f'Linking parsing {parsing.uuid} for website {website.uuid}')
             parsing.website = website
             parsing.save()
             index_events_for_website(website)
@@ -402,7 +403,8 @@ def prepare_parsing(
         # Adding necessary moderation if missing
         add_necessary_parsing_moderation(parsing, website)
 
-        info(f'Parsing already exists for pruning {pruning}')
+        info(f'Parsing already exists for pruning {pruning}, website {website.uuid},'
+             f' parsing {parsing.uuid}')
         return None
 
     return truncated_html, truncated_html_hash, church_desc_by_id, llm_client, prompt_template, \
@@ -433,7 +435,8 @@ def worker_parse_pruning_for_website(pruning_uuid: str, website_uuid: str, force
         prompt_template_hash, parsing = parsing_preparation
 
     if len(truncated_html) > MAX_LENGTH_FOR_PARSING:
-        info(f'No parsing above {MAX_LENGTH_FOR_PARSING}, got {len(truncated_html)}')
+        info(f'No parsing above {MAX_LENGTH_FOR_PARSING}, got {len(truncated_html)},'
+             f' website {website.uuid}')
         schedules_list, llm_error_detail = None, "Truncated html too long"
     else:
         info(f'parsing {pruning} for website {website}')
