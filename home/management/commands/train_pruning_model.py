@@ -82,6 +82,8 @@ class Command(AbstractCommand):
             self.info(f'Production model accuracy: {production_classifier.accuracy}, '
                       f'test size: {production_classifier.test_size}')
 
+            new_classifier_in_prod = False
+
             if classifier.accuracy > production_classifier.accuracy and \
                     is_significantly_different(classifier.accuracy, production_classifier.accuracy,
                                                classifier.test_size,
@@ -89,12 +91,14 @@ class Command(AbstractCommand):
                 self.success(f'New model is significantly better than production model')
                 classifier.status = classifier.Status.PROD
                 classifier.save()
+                new_classifier_in_prod = True
+            else:
+                self.info(f'New model is not significantly better than production model')
 
+            if new_classifier_in_prod or target != Classifier.Target.ACTION:
                 self.info(f'Launching find_sentence_outliers command...')
                 call_command('find_sentence_outliers', target=target)
                 self.success(f'End of find_sentence_outliers command.')
-            else:
-                self.info(f'New model is not significantly better than production model')
 
         if classifier.status == classifier.Status.DRAFT:
             self.warning(f'WARNING: Trained model is still in draft status. '
