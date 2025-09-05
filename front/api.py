@@ -119,6 +119,10 @@ class AggregationOut(Schema):
     church_count: int
     centroid_latitude: float
     centroid_longitude: float
+    min_latitude: float
+    max_latitude: float
+    min_longitude: float
+    max_longitude: float
 
     @classmethod
     def from_aggregation(cls, aggregation: AggregationItem):
@@ -128,6 +132,10 @@ class AggregationOut(Schema):
             church_count=aggregation.church_count,
             centroid_latitude=aggregation.centroid_latitude,
             centroid_longitude=aggregation.centroid_longitude,
+            min_latitude=aggregation.min_latitude,
+            max_latitude=aggregation.max_latitude,
+            min_longitude=aggregation.min_longitude,
+            max_longitude=aggregation.max_longitude,
         )
 
 

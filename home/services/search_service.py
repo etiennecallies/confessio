@@ -2,7 +2,7 @@ from datetime import date
 from typing import Literal
 from uuid import UUID
 
-from django.contrib.gis.db.models import Collect
+from django.contrib.gis.db.models import Collect, Extent
 from django.contrib.gis.db.models.functions import Distance, Centroid
 from django.contrib.gis.geos import Point, Polygon
 from django.contrib.gis.measure import D
@@ -245,6 +245,10 @@ class AggregationItem(BaseModel):
     church_count: int
     centroid_latitude: float
     centroid_longitude: float
+    min_latitude: float
+    max_latitude: float
+    min_longitude: float
+    max_longitude: float
     identifiers: list
 
 
@@ -265,6 +269,7 @@ def get_count_per_area(
         .annotate(
         church_count=Count('uuid'),
         centroid=Centroid(Collect(CastToGeometry('location'))),
+        bounds=Extent(CastToGeometry('location')),
     )
 
     if not time_filter.is_null():
@@ -274,12 +279,17 @@ def get_count_per_area(
 
     results = []
     for row in church_query.all():
+        min_longitude, min_latitude, max_longitude, max_latitude = row["bounds"]
         results.append(AggregationItem(
             type=area_type,
             name=';'.join(row[k] for k in area_name_keys),
             church_count=row['church_count'],
             centroid_latitude=row['centroid'].y,
             centroid_longitude=row['centroid'].x,
+            min_latitude=min_latitude,
+            max_latitude=max_latitude,
+            min_longitude=min_longitude,
+            max_longitude=max_longitude,
             identifiers=[row[k] for k in identifier_keys],
         ))
 
