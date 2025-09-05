@@ -426,7 +426,16 @@ def worker_parse_pruning_for_website(pruning_uuid: str, website_uuid: str, force
 
     start_log_buffer()
     info(f'worker_parse_pruning_for_website: parsing {pruning_uuid} for website {website_uuid}')
+    do_parse_pruning_for_website(pruning, website, force_parse)
 
+    buffer_value = get_log_buffer()
+    log = Log(type=Log.Type.PARSING,
+              website=website,
+              content=buffer_value)
+    log.save()
+
+
+def do_parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: bool = False):
     parsing_preparation = prepare_parsing(pruning, website, force_parse)
     if not parsing_preparation:
         return
@@ -447,12 +456,6 @@ def worker_parse_pruning_for_website(pruning_uuid: str, website_uuid: str, force
     save_parsing(parsing, pruning, website, truncated_html,
                  truncated_html_hash, church_desc_by_id, llm_client, prompt_template_hash,
                  llm_error_detail, schedules_list)
-
-    buffer_value = get_log_buffer()
-    log = Log(type=Log.Type.PARSING,
-              website=website,
-              content=buffer_value)
-    log.save()
 
 
 def save_parsing(parsing: Parsing | None, pruning: Pruning, website: Website,
