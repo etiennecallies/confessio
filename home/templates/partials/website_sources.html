@@ -117,7 +117,50 @@
                 <div class="margin-left-indent">No pruning found for this page.</div>
             {% endfor %}
         {% empty %}
-            No empty sources.
+            No empty pages.
+        {% endfor %}
+        {% for image in empty_sources.images %}
+            <div>
+                Extrait de cette image
+                {% display_image image request %}
+            </div>
+            {% for pruning in empty_sources.prunings_by_image_uuid|get_item:image.uuid %}
+                <div class="margin-left-indent">
+                    <div class="row">
+                        {% with unvalidated_pruning_moderation=pruning|get_unvalidated_pruning_moderation %}
+                            {% if unvalidated_pruning_moderation %}
+                                <div class="col-xl-6">
+                                    <a href="{{ unvalidated_pruning_moderation|get_url }}" class="link-info">
+                                        <i class="fas fa-tags"></i> Valider
+                                    </a>
+                                </div>
+                            {% else %}
+                                <div class="col-xl-6">
+                                    <a href="{% url 'edit_pruning_v1' pruning.uuid %}" class="link-info"><i class="fas fa-tags"></i> {% trans 'EditPruning' %}</a>
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+                        {% for parsing in empty_sources.parsings_by_pruning_uuid|get_item:pruning.uuid %}
+                            <div class="col-xl-6">
+                                {% with parsing_moderation=parsing.moderations.first %}
+                                    {% if parsing_moderation %}
+                                        <a href="{{ parsing_moderation|get_url }}" class="link-info">
+                                            <i class="fas fa-code"></i> Modérer
+                                        </a>
+                                    {% else %}
+                                        <a href="{% url 'edit_parsing' parsing.uuid %}" class="link-info"><i class="fas fa-code"></i> {% trans 'EditParsing' %}</a>
+                                    {% endif %}
+                                {% endwith %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    {% display_expandable_pruning pruning %}
+                </div>
+            {% empty %}
+                <div class="margin-left-indent">No pruning found for this image.</div>
+            {% endfor %}
+        {% empty %}
+            No empty images.
         {% endfor %}
     </div>
 {% endif %}

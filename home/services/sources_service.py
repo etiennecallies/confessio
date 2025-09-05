@@ -94,7 +94,9 @@ def get_website_sorted_parsings(website: Website) -> list[Parsing]:
 @dataclass
 class WebsiteEmptySources:
     pages: list[Page]
+    images: list[Image]
     prunings_by_page_uuid: dict[UUID, Pruning]
+    prunings_by_image_uuid: dict[UUID, Pruning]
     parsings_by_pruning_uuid: dict[UUID, list[Parsing]]
 
 
@@ -114,17 +116,49 @@ def get_empty_sources(website: Website) -> WebsiteEmptySources:
         is_page_to_add = False
         for pruning in page.get_prunings():
             parsing = page.get_parsing(pruning)
-            if parsing is None or not has_schedules(parsing):
-                is_page_to_add = True
-                prunings_by_page_uuid.setdefault(page.uuid, []).append(pruning)
-                if parsing:
-                    parsings_by_pruning_uuid.setdefault(pruning.uuid, []).append(parsing)
+            is_page_to_add = add_pruning_if_empty(
+                parsing, pruning, prunings_by_page_uuid.setdefault(page.uuid, []),
+                parsings_by_pruning_uuid) or is_page_to_add
 
         if is_page_to_add:
             pages.append(page)
 
+    images = []
+    prunings_by_image_uuid = {}
+    for image in website.images.all():
+        if get_image_html(image) is None:
+            continue
+
+        prunings_all = image.prunings.all()
+        if len(prunings_all) == 0:
+            images.append(image)
+            continue
+
+        is_image_to_add = False
+        for pruning in prunings_all:
+            parsing = pruning.get_parsing(website)
+            is_image_to_add = add_pruning_if_empty(
+                parsing, pruning, prunings_by_image_uuid.setdefault(image.uuid, []),
+                parsings_by_pruning_uuid) or is_image_to_add
+
+        if is_image_to_add:
+            images.append(image)
+
     return WebsiteEmptySources(
         pages=pages,
+        images=images,
         prunings_by_page_uuid=prunings_by_page_uuid,
+        prunings_by_image_uuid=prunings_by_image_uuid,
         parsings_by_pruning_uuid=parsings_by_pruning_uuid,
     )
+
+
+def add_pruning_if_empty(parsing: Parsing | None, pruning: Pruning, prunings: list[Pruning],
+                         parsings_by_pruning_uuid: dict[UUID, list[Parsing]]) -> bool:
+    if parsing is None or not has_schedules(parsing):
+        prunings.append(pruning)
+        if parsing:
+            parsings_by_pruning_uuid.setdefault(pruning.uuid, []).append(parsing)
+        return True
+
+    return False
