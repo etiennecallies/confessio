@@ -149,7 +149,7 @@ def get_events_from_schedule_items(schedules: list[ScheduleItem],
 # CHECK #
 #########
 
-def are_schedule_rrules_valid(schedule: ScheduleItem) -> bool:
+def is_schedule_date_rule_valid(schedule: ScheduleItem) -> bool:
     if schedule.is_one_off_rule():
         return True
 
@@ -163,8 +163,8 @@ def are_schedule_rrules_valid(schedule: ScheduleItem) -> bool:
         return False
 
 
-def are_schedules_list_rrules_valid(schedules_list: SchedulesList) -> bool:
-    return all(are_schedule_rrules_valid(schedule_item)
+def are_schedules_list_date_rule_valid(schedules_list: SchedulesList) -> bool:
+    return all(is_schedule_date_rule_valid(schedule_item)
                for schedule_item in schedules_list.schedules)
 
 

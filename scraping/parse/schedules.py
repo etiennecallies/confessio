@@ -19,10 +19,14 @@ class OneOffRule(BaseModel, frozen=True):
     weekday: Weekday | None
     liturgical_day: LiturgicalDayEnum | None
 
-    def is_valid_date(self) -> bool:
+    @model_validator(mode='after')
+    def validate_date_specification(self) -> 'OneOffRule':
         if (not self.month or not self.day) and not self.liturgical_day:
-            return False
+            raise ValueError('Either month and day, or liturgical_day must be provided')
 
+        return self
+
+    def is_valid_date(self) -> bool:
         try:
             if self.month and self.day:
                 # check day and month
