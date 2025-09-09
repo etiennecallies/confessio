@@ -23,17 +23,23 @@ def split_and_tag_v2(refined_content: str, qualify_line_interface: BaseQualifyLi
 
     # Split into lines (or <table>)
     for line in split_lines(refined_content):
-        stringified_line = stringify_html(line)
-
-        tags, event_motion, is_default_hold, sentence_uuid = \
-            qualify_line_interface.get_tags_and_event_motion(stringified_line)
-        results.append(LineAndTagV2(
-            line=line,
-            stringified_line=stringified_line,
-            tags=tags,
-            event_motion=event_motion,
-            is_default_hold=is_default_hold,
-            sentence_uuid=sentence_uuid,
-        ))
+        results.append(create_line_and_tag_v2(line, qualify_line_interface))
 
     return results
+
+
+def create_line_and_tag_v2(line: str, qualify_line_interface: BaseQualifyLineInterface
+                           ) -> LineAndTagV2:
+    stringified_line = stringify_html(line)
+
+    tags, event_motion, is_default_hold, sentence_uuid = \
+        qualify_line_interface.get_tags_and_event_motion(stringified_line)
+
+    return LineAndTagV2(
+        line=line,
+        stringified_line=stringified_line,
+        tags=tags,
+        event_motion=event_motion,
+        is_default_hold=is_default_hold,
+        sentence_uuid=sentence_uuid,
+    )

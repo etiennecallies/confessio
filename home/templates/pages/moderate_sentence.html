@@ -24,17 +24,56 @@
         </a>
     </p>
 
-    Line : {{ sentence.line }}<br>
-    Action : {{ sentence.action }}<br>
+    {% if sentence_moderation.category == 'ml_mismatch' %}
+        Line : {{ sentence.line }}<br>
+        Action : {{ sentence.action }}<br>
 
-    {% if sentence_moderation.other_action and sentence_moderation.other_action != sentence.action %}
-        Other action : {{ sentence_moderation.other_action }}<br>
+        {% if sentence_moderation.other_action and sentence_moderation.other_action != sentence.action %}
+            Other action : {{ sentence_moderation.other_action }}<br>
+        {% endif %}
+    {% else %}
+        {% for colored_piece in colored_pieces %}
+            <div class="row mb-2">
+                <div class="col-md-6 {{ colored_piece.color }}">
+                    {{ colored_piece.text|safe }}
+                    <input type="hidden" name="sentence-uuid-{{ colored_piece.id }}"
+                               value="{{ colored_piece.sentence_uuid }}">
+                </div>
+                <div class="col-md-2 text-end text-md-center">
+                    {% for tag in colored_piece.tags %}
+                        <input type="checkbox" class="btn-check"
+                               id="{{ tag.name }}-{{ colored_piece.id }}"
+                               name="{{ tag.name }}-{{ colored_piece.id }}" {{ tag.checked|yesno:"checked," }} autocomplete="off">
+                        <label class="btn btn-fixed-outline-{{ tag.color }}" for="{{ tag.name }}-{{ colored_piece.id }}">{{ tag.short_name }}</label>
+                    {% endfor %}
+                </div>
+                <div class="col-md-4 text-end text-md-center">
+                    <i class="{{ colored_piece.source_icon }}"></i>
+                    {% for event_motion, event_motion_color in event_motion_colors.items %}
+                        <input type="radio" class="btn-check"
+                               id="{{ event_motion.value }}-{{ colored_piece.id }}"
+                               name="event-motion-{{ colored_piece.id }}"
+                               value="{{ event_motion.value }}"
+                            {% if colored_piece.event_motion == event_motion %}checked{% endif %}
+                            autocomplete="off">
+                        <label class="btn btn-fixed-outline-{{ event_motion_color }}"
+                               for="{{ event_motion.value }}-{{ colored_piece.id }}">{{ event_motion.value }}</label>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
     {% endif %}
 
     {% for pruning in sentence.prunings.all %}
-        <p><a class="btn btn-gray-500" href="{% url 'edit_pruning_v1' pruning.uuid %}" target="_blank" role="button">
-        Edit pruning <i class="fas fa-up-right-from-square"></i>
-        </a></p>
+        {% if sentence_moderation.category == 'ml_mismatch' %}
+            <p><a class="btn btn-gray-500" href="{% url 'edit_pruning_v1' pruning.uuid %}" target="_blank" role="button">
+            Edit pruning V1 <i class="fas fa-up-right-from-square"></i>
+            </a></p>
+        {% else %}
+            <p><a class="btn btn-gray-500" href="{% url 'edit_pruning_v2' pruning.uuid %}" target="_blank" role="button">
+            Edit pruning V2 <i class="fas fa-up-right-from-square"></i>
+            </a></p>
+        {% endif %}
     {% endfor %}
 
     {% if not sentence_moderation.marked_as_bug_at %}

@@ -11,7 +11,7 @@ from scraping.extract.tag_line import Tag
 from scraping.extract_v2.models import TagV2, EventMotion
 from scraping.extract_v2.prune_lines_v2 import get_pruned_lines_indices_v2
 from scraping.extract_v2.qualify_line_interfaces import BaseQualifyLineInterface
-from scraping.extract_v2.split_content import split_and_tag_v2
+from scraping.extract_v2.split_content import split_and_tag_v2, LineAndTagV2
 from scraping.prune.models import Action, Source
 from scraping.prune.prune_lines import get_pruned_lines_indices
 from scraping.refine.refine_content import replace_link_by_their_content
@@ -139,6 +139,14 @@ def set_ml_indices_as_human(pruning: Pruning):
 # ML INDICES V2 #
 #################
 
+EVENT_MOTION_COLORS = {
+    EventMotion.START: 'success',
+    EventMotion.HOLD: 'info',
+    EventMotion.HIDE: 'gray-500',
+    EventMotion.STOP: 'danger',
+}
+
+
 class ColoredTagV2(BaseModel):
     name: str
     short_name: str
@@ -167,6 +175,21 @@ def get_colored_pieces_v2(extracted_html: str, qualify_line_interface: BaseQuali
 
     kept_indices = sum(get_pruned_lines_indices_v2(lines_and_tags), [])
 
+    colored_pieces = []
+    for i, line_and_tag in enumerate(lines_and_tags):
+        do_show = i in kept_indices
+        sentence = Sentence.objects.get(uuid=line_and_tag.sentence_uuid) \
+            if line_and_tag.sentence_uuid else None
+        source = Source.HUMAN if sentence and sentence.human_confession is not None else Source.ML
+
+        colored_pieces.append(get_single_line_colored_piece(line_and_tag, source, i, do_show))
+
+    return colored_pieces
+
+
+def get_single_line_colored_piece(line_and_tag: LineAndTagV2,
+                                  source: Source,
+                                  i: int, do_show: bool) -> ColoredPieceV2:
     tag_colors = {
         TagV2.SPECIFIER: 'purple',
         TagV2.SCHEDULE: 'tertiary',
@@ -180,34 +203,25 @@ def get_colored_pieces_v2(extracted_html: str, qualify_line_interface: BaseQuali
         Source.ML: 'fas fa-robot',
     }
 
-    colored_pieces = []
-    for i, line_and_tag in enumerate(lines_and_tags):
-        tags = []
-        for tag in TagV2:
-            tags.append(ColoredTagV2(
-                name=tag.value,
-                short_name=tag_short_names[tag],
-                color=tag_colors[tag],
-                checked=tag in line_and_tag.tags,
-            ))
-
-        do_show = i in kept_indices
-        sentence = Sentence.objects.get(uuid=line_and_tag.sentence_uuid) \
-            if line_and_tag.sentence_uuid else None
-        source = Source.HUMAN if sentence and sentence.human_confession is not None else Source.ML
-
-        colored_pieces.append(ColoredPieceV2(
-            id=f'{i}',
-            do_show=do_show,
-            text=line_and_tag.line,
-            color='' if do_show else 'text-warning',
-            event_motion=line_and_tag.event_motion,
-            tags=tags,
-            source_icon=source_icons[source],
-            sentence_uuid=line_and_tag.sentence_uuid,
+    tags = []
+    for tag in TagV2:
+        tags.append(ColoredTagV2(
+            name=tag.value,
+            short_name=tag_short_names[tag],
+            color=tag_colors[tag],
+            checked=tag in line_and_tag.tags,
         ))
 
-    return colored_pieces
+    return ColoredPieceV2(
+        id=f'{i}',
+        do_show=do_show,
+        text=line_and_tag.line,
+        color='' if do_show else 'text-warning',
+        event_motion=line_and_tag.event_motion,
+        tags=tags,
+        source_icon=source_icons[source],
+        sentence_uuid=line_and_tag.sentence_uuid,
+    )
 
 
 def set_v2_indices_as_human(pruning: Pruning):

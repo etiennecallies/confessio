@@ -46,13 +46,14 @@ class SentenceFromDbActionInterface(BaseActionInterface):
 ######################
 
 class SentenceQualifyLineInterface(BaseQualifyLineInterface):
-    def __init__(self, pruning: Pruning):
+    def __init__(self, pruning: Pruning | None = None):
         self.pruning = pruning
 
     def get_tags_and_event_motion(self, stringified_line: str
                                   ) -> tuple[set[TagV2], EventMotion, bool, UUID | None]:
         sentence = self.get_sentence(stringified_line)
-        sentence.prunings.add(self.pruning)
+        if self.pruning:
+            sentence.prunings.add(self.pruning)
 
         tags = set()
         if sentence.human_schedule is not None:
@@ -86,7 +87,36 @@ class SentenceQualifyLineInterface(BaseQualifyLineInterface):
         try:
             return Sentence.objects.get(line=stringified_line)
         except Sentence.DoesNotExist:
+            if not self.pruning:
+                raise ValueError(f'Sentence does not exist for line {stringified_line}')
             return classify_and_create_sentence(stringified_line, self.pruning)
+
+
+class MLSentenceQualifyLineInterface(SentenceQualifyLineInterface):
+    def get_tags_and_event_motion(self, stringified_line: str
+                                  ) -> tuple[set[TagV2], EventMotion, bool, UUID | None]:
+        sentence = self.get_sentence(stringified_line)
+        if self.pruning:
+            sentence.prunings.add(self.pruning)
+
+        tags = set()
+        if sentence.ml_schedule is not None:
+            if sentence.ml_schedule:
+                tags.add(TagV2.SCHEDULE)
+        else:
+            raise ValueError(f'Sentence {sentence.uuid} has no ML schedule')
+        if sentence.ml_specifier is not None:
+            if sentence.ml_specifier:
+                tags.add(TagV2.SPECIFIER)
+        else:
+            raise ValueError(f'Sentence {sentence.uuid} has no ML specifier')
+
+        if sentence.ml_confession is not None:
+            event_motion = EventMotion(sentence.ml_confession)
+        else:
+            raise ValueError(f'Sentence {sentence.uuid} has no ML confession')
+
+        return tags, event_motion, False, sentence.uuid
 
 
 ##############################

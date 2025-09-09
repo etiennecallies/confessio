@@ -8,11 +8,16 @@ from django.urls import reverse
 from home.models import WebsiteModeration, ChurchModeration, ModerationMixin, \
     BUG_DESCRIPTION_MAX_LENGTH, ParishModeration, ResourceDoesNotExistError, PruningModeration, \
     SentenceModeration, ParsingModeration, ReportModeration, Diocese, Pruning
-from home.services.edit_pruning_service import on_pruning_human_validation, set_v2_indices_as_human
+from home.services.edit_pruning_service import on_pruning_human_validation, \
+    set_v2_indices_as_human, get_single_line_colored_piece, EVENT_MOTION_COLORS
 from home.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
+from scraping.extract_v2.split_content import create_line_and_tag_v2
 from scraping.parse.schedules import SchedulesList
+from scraping.prune.models import Source
 from scraping.services.parse_pruning_service import on_parsing_human_validation, \
     set_human_json, ParsingValidationError, force_reparse_parsing_for_pruning
+from scraping.services.prune_scraping_service import SentenceQualifyLineInterface, \
+    MLSentenceQualifyLineInterface
 from scraping.services.website_moderation_service import suggest_alternative_website
 from sourcing.services.church_human_service import on_church_human_validation
 from sourcing.services.merge_websites_service import merge_websites
@@ -259,9 +264,20 @@ def moderate_sentence(request, category, is_bug, diocese_slug, moderation_uuid=N
 def render_sentence_moderation(request, moderation: SentenceModeration, next_url):
     assert moderation.sentence is not None
 
+    line_and_tag_human = create_line_and_tag_v2(moderation.sentence.line,
+                                                SentenceQualifyLineInterface())
+    colored_piece_human = get_single_line_colored_piece(
+        line_and_tag_human, Source.HUMAN, i=0, do_show=True)
+    line_and_tag_ml = create_line_and_tag_v2(moderation.sentence.line,
+                                             MLSentenceQualifyLineInterface())
+    colored_piece_ml = get_single_line_colored_piece(
+        line_and_tag_ml, Source.ML, i=1, do_show=True)
+
     return render(request, f'pages/moderate_sentence.html', {
         'sentence_moderation': moderation,
         'sentence': moderation.sentence,
+        'colored_pieces': [colored_piece_human, colored_piece_ml],
+        'event_motion_colors': EVENT_MOTION_COLORS,
         'next_url': next_url,
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
     })
