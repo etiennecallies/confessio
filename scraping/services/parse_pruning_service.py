@@ -412,6 +412,10 @@ def prepare_parsing(
 
 
 def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: bool = False):
+    parsing_preparation = prepare_parsing(pruning, website, force_parse)
+    if not parsing_preparation:
+        return
+
     worker_parse_pruning_for_website(str(pruning.uuid), str(website.uuid), force_parse)
 
 

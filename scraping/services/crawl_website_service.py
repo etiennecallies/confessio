@@ -6,7 +6,6 @@ from home.utils.log_utils import info
 from scraping.crawl.download_and_search_urls import search_for_confession_pages, \
     get_new_url_and_aliases, forbid_diocese_home_links
 from scraping.services.page_service import delete_page
-from scraping.services.prune_scraping_service import prune_pruning
 from scraping.services.scrape_page_service import upsert_extracted_html_list
 from scraping.services.website_moderation_service import remove_not_validated_moderation, \
     add_moderation
@@ -137,15 +136,13 @@ def process_extracted_html(
     # Removing old pages
     existing_pages = website.get_pages()
     existing_urls = list(map(lambda p: p.url, existing_pages))
-    prunings_to_prune = []
     for page in existing_pages:
         if page.url not in extracted_html_list_by_url:
             # Page did exist but not anymore, we remove it
             delete_page(page)
         else:
             # Page still exists, we update scraping
-            prunings_to_prune += upsert_extracted_html_list(page,
-                                                            extracted_html_list_by_url[page.url])
+            upsert_extracted_html_list(page, extracted_html_list_by_url[page.url])
 
     if extracted_html_list_by_url:
         # Adding new pages
@@ -160,11 +157,7 @@ def process_extracted_html(
                 new_page.save()
 
                 # Insert or update scraping
-                prunings_to_prune += upsert_extracted_html_list(new_page,
-                                                                extracted_html_list_by_url[url])
-
-    for pruning in prunings_to_prune:
-        prune_pruning(pruning)
+                upsert_extracted_html_list(new_page, extracted_html_list_by_url[url])
 
 
 def save_crawling_and_add_moderation(website: Website,

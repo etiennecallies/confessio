@@ -1,6 +1,6 @@
-from home.models import Page, Scraping, Pruning
-from scraping.services.page_service import delete_scraping
-from scraping.services.prune_scraping_service import create_pruning
+from home.models import Page, Scraping
+from scraping.services.page_service import delete_scraping, check_for_orphan_prunings
+from scraping.services.prune_scraping_service import create_pruning, prune_pruning
 
 
 def is_extracted_html_list_identical_for_scraping(scraping: Scraping,
@@ -15,9 +15,9 @@ def is_extracted_html_list_identical_for_scraping(scraping: Scraping,
     return set(p.extracted_html for p in prunings) == set(extracted_html_list)
 
 
-def upsert_extracted_html_list(page: Page, extracted_html_list: list[str]
-                               ) -> list[Pruning]:
+def upsert_extracted_html_list(page: Page, extracted_html_list: list[str]):
     prunings_to_prune = []
+    old_prunings = []
 
     # Compare result to last scraping
     if (page.has_been_scraped()
@@ -30,13 +30,12 @@ def upsert_extracted_html_list(page: Page, extracted_html_list: list[str]
         for pruning in page.scraping.prunings.all():
             prunings_to_prune.append(pruning)
     else:
-        if page.has_been_scraped():
-            # If a scraping exists and is different from last one, we delete it
-            delete_scraping(page.scraping)
-
-        prunings = []
         for extracted_html_item in extracted_html_list:
-            prunings.append(create_pruning(extracted_html_item))
+            prunings_to_prune.append(create_pruning(extracted_html_item))
+
+        if page.has_been_scraped():
+            old_prunings = list(page.scraping.prunings.all())
+            page.scraping.delete()
 
         scraping = Scraping(
             nb_iterations=1,
@@ -44,11 +43,14 @@ def upsert_extracted_html_list(page: Page, extracted_html_list: list[str]
         )
         scraping.save()
 
-        for pruning in prunings:
+        for pruning in prunings_to_prune:
             scraping.prunings.add(pruning)
-            prunings_to_prune.append(pruning)
 
-    return prunings_to_prune
+    for pruning in prunings_to_prune:
+        prune_pruning(pruning)
+
+    if old_prunings:
+        check_for_orphan_prunings(old_prunings, page.website)
 
 
 def delete_orphan_scrapings() -> int:

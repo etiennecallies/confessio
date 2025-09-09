@@ -8,6 +8,7 @@ from tqdm import tqdm
 
 from home.models import Pruning, PruningModeration, Page
 from home.models import Sentence
+from home.utils.log_utils import info
 from scraping.extract.extract_content import BaseActionInterface
 from scraping.extract.extract_content import extract_paragraphs_lines_and_indices
 from scraping.extract.extract_interface import ExtractMode
@@ -120,7 +121,7 @@ def worker_reprune_affected_prunings(sentence_uuids: list[str], original_pruning
 
     print(f'got {len(affected_prunings)} affected prunings')
     for pruning in tqdm(affected_prunings):
-        if remove_pruning_if_orphan(pruning):
+        if remove_pruning_moderation_if_orphan(pruning):
             # pruning has been deleted, we do not need to reprune it
             continue
 
@@ -128,7 +129,7 @@ def worker_reprune_affected_prunings(sentence_uuids: list[str], original_pruning
         prune_pruning(pruning)
 
 
-def remove_pruning_if_orphan(pruning: Optional[Pruning]):
+def remove_pruning_moderation_if_orphan(pruning: Optional[Pruning]):
     """
     :return: True if the pruning has been deleted
     """
@@ -136,8 +137,8 @@ def remove_pruning_if_orphan(pruning: Optional[Pruning]):
         return True
 
     if not pruning.scrapings.exists() and not pruning.images.exists():
-        print(f'deleting not validated moderation for pruning {pruning} since it has no scraping '
-              f'nor image any more')
+        info(f'deleting not validated moderation for pruning {pruning} since it has no scraping '
+             f'nor image any more')
         PruningModeration.objects.filter(pruning=pruning, validated_at__isnull=True).delete()
         return True
 
