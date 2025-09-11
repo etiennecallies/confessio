@@ -9,7 +9,8 @@ from home.models import WebsiteModeration, ChurchModeration, ModerationMixin, \
     BUG_DESCRIPTION_MAX_LENGTH, ParishModeration, ResourceDoesNotExistError, PruningModeration, \
     SentenceModeration, ParsingModeration, ReportModeration, Diocese, Pruning
 from home.services.edit_pruning_service import on_pruning_human_validation, \
-    set_v2_indices_as_human, get_single_line_colored_piece, EVENT_MOTION_COLORS
+    set_v2_indices_as_human, get_single_line_colored_piece, EVENT_MOTION_COLORS, \
+    update_sentence_labels_with_request
 from home.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 from scraping.extract_v2.split_content import create_line_and_tag_v2
 from scraping.parse.schedules import SchedulesList
@@ -83,6 +84,11 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
             reverse('moderate_next_' + resource,
                     kwargs={'category': category, 'is_bug': is_bug, 'diocese_slug': diocese_slug}) \
             + f'?created_after={created_at_ts_us}'
+    related_url = request.POST.get('related_url')
+    if related_url:
+        next_url = f"{related_url}?backPath={next_url}"
+
+    do_redirect = True
     if request.method == "POST":
         if 'bug_description' in request.POST:
             bug_description = request.POST.get('bug_description')
@@ -97,11 +103,16 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
             try:
                 pruning = Pruning.objects.get(uuid=pruning_uuid)
                 force_reparse_parsing_for_pruning(moderation.parsing, pruning)
+                do_redirect = False
             except Pruning.DoesNotExist:
                 return HttpResponseNotFound(
                     f"pruning not found with uuid {pruning_uuid}")
         elif 'suggest_alternative_website' in request.POST:
             suggest_alternative_website(moderation)
+            do_redirect = False
+        elif 'update_human_labels' in request.POST:
+            update_sentence_labels_with_request(request, "1", moderation.sentence, None)
+            do_redirect = False
         else:
             if 'replace_home_url' in request.POST:
                 moderation.replace_home_url()
@@ -141,11 +152,8 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
 
             moderation.validate(request.user)
 
-        related_url = request.POST.get('related_url')
-        if related_url:
-            next_url = f"{related_url}?backPath={next_url}"
-
-        return redirect(next_url)
+        if do_redirect:
+            return redirect(next_url)
 
     return render_moderation(request, moderation, next_url)
 
@@ -267,11 +275,11 @@ def render_sentence_moderation(request, moderation: SentenceModeration, next_url
     line_and_tag_human = create_line_and_tag_v2(moderation.sentence.line,
                                                 SentenceQualifyLineInterface())
     colored_piece_human = get_single_line_colored_piece(
-        line_and_tag_human, Source.HUMAN, i=0, do_show=True)
+        line_and_tag_human, Source.HUMAN, i=1, do_show=True)
     line_and_tag_ml = create_line_and_tag_v2(moderation.sentence.line,
                                              MLSentenceQualifyLineInterface())
     colored_piece_ml = get_single_line_colored_piece(
-        line_and_tag_ml, Source.ML, i=1, do_show=True)
+        line_and_tag_ml, Source.ML, i=2, do_show=True)
 
     return render(request, f'pages/moderate_sentence.html', {
         'sentence_moderation': moderation,

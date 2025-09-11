@@ -6,12 +6,12 @@ from django.http import HttpResponseNotFound
 from django.shortcuts import render
 from pydantic import ValidationError
 
-from home.models import Page, Pruning, Sentence, Parsing, Classifier
+from home.models import Page, Pruning, Sentence, Parsing
 from home.services.edit_pruning_service import get_colored_pieces, update_sentence_action, \
     reset_pages_counter_of_pruning, set_ml_indices_as_human, set_human_indices, \
-    get_pruning_human_pieces, get_colored_pieces_v2, set_v2_indices_as_human, EVENT_MOTION_COLORS
+    get_pruning_human_pieces, get_colored_pieces_v2, set_v2_indices_as_human, EVENT_MOTION_COLORS, \
+    update_sentence_labels_with_request
 from jsoneditor.forms import JSONSchemaForm
-from scraping.extract_v2.models import EventMotion
 from scraping.extract_v2.qualify_line_interfaces import DummyQualifyLineInterface
 from scraping.parse.schedules import SchedulesList
 from scraping.prune.action_interfaces import DummyActionInterface
@@ -21,8 +21,6 @@ from scraping.services.parse_pruning_service import reset_counters_of_parsing, \
 from scraping.services.parsing_service import get_parsing_schedules_list
 from scraping.services.prune_scraping_service import SentenceFromDbActionInterface, \
     reprune_affected_prunings, prune_pruning, SentenceQualifyLineInterface
-from scraping.services.train_classifier_service import extract_label
-from scraping.utils.enum_utils import BooleanStringEnum
 from scraping.utils.html_utils import split_lines
 
 
@@ -121,24 +119,9 @@ def edit_pruning_v2(request, pruning_uuid):
         for dummy_piece in dummy_colored_pieces:
             sentence_uuid = request.POST.get(f"sentence-uuid-{dummy_piece.id}")
             sentence = Sentence.objects.get(uuid=sentence_uuid)
-            new_specifier = BooleanStringEnum.TRUE \
-                if request.POST.get(f"specifier-{dummy_piece.id}") == 'on' \
-                else BooleanStringEnum.FALSE
-            new_schedule = BooleanStringEnum.TRUE \
-                if request.POST.get(f"schedule-{dummy_piece.id}") == 'on' \
-                else BooleanStringEnum.FALSE
-            new_event_motion = EventMotion(request.POST.get(f"event-motion-{dummy_piece.id}"))
 
-            if extract_label(sentence, Classifier.Target.SPECIFIER) != new_specifier \
-                    or extract_label(sentence, Classifier.Target.SCHEDULE) != new_schedule \
-                    or extract_label(sentence, Classifier.Target.CONFESSION) != new_event_motion:
+            if update_sentence_labels_with_request(request, dummy_piece.id, sentence, pruning):
                 modified_sentences.append(sentence)
-                sentence.updated_by = request.user
-                sentence.updated_on_pruning = pruning
-                sentence.human_specifier = new_specifier.to_bool()
-                sentence.human_schedule = new_schedule.to_bool()
-                sentence.human_confession = new_event_motion
-                sentence.save()
 
         # Save pruning
         prune_pruning(pruning)
