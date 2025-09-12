@@ -3,6 +3,18 @@ import string
 import pymupdf
 
 
+def has_bad_encoding(text: str) -> bool:
+    words = text.split()
+    for w in words:
+        if not w or len(w) <= 1:
+            continue
+
+        if w.startswith('’'):
+            return True
+
+    return False
+
+
 def convert_text_to_html(raw_text: str) -> str:
     """Change \n to <br> and remove extra spaces."""
     # Remove extra spaces
@@ -35,6 +47,10 @@ def extract_text_from_doc(doc) -> str:
         text += extract_text_from_pdf_page(page) + '\n'
 
     doc.close()
+
+    if has_bad_encoding(text):
+        print('bad encoding, ignoring this pdf. In the future we shall use OCR')
+        return ''
 
     return convert_text_to_html(text)
 
