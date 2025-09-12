@@ -133,19 +133,11 @@ def process_extracted_html(
         website: Website,
         extracted_html_list_by_url: dict[str, list[str]],
 ):
-    # Removing old pages
     existing_pages = website.get_pages()
     existing_urls = list(map(lambda p: p.url, existing_pages))
-    for page in existing_pages:
-        if page.url not in extracted_html_list_by_url:
-            # Page did exist but not anymore, we remove it
-            delete_page(page)
-        else:
-            # Page still exists, we update scraping
-            upsert_extracted_html_list(page, extracted_html_list_by_url[page.url])
 
+    # New pages
     if extracted_html_list_by_url:
-        # Adding new pages
         for url in extracted_html_list_by_url:
             if url not in existing_urls:
                 # New page was found
@@ -158,6 +150,15 @@ def process_extracted_html(
 
                 # Insert or update scraping
                 upsert_extracted_html_list(new_page, extracted_html_list_by_url[url])
+
+    # Existing pages
+    for page in existing_pages:
+        if page.url not in extracted_html_list_by_url:
+            # Page did exist but not anymore, we remove it
+            delete_page(page)
+        else:
+            # Page still exists, we update scraping
+            upsert_extracted_html_list(page, extracted_html_list_by_url[page.url])
 
 
 def save_crawling_and_add_moderation(website: Website,
