@@ -40,8 +40,7 @@ class Command(AbstractCommand):
             for page in website.get_pages():
                 if website.enabled_for_crawling:
                     # Actually do the scraping
-                    with asyncio.Runner() as runner:
-                        extracted_html_list = runner.run(get_fresh_extracted_html_list(page.url))
+                    extracted_html_list = asyncio.run(get_fresh_extracted_html_list(page.url))
                 else:
                     extracted_html_list = []
 
