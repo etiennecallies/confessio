@@ -21,15 +21,13 @@ class Command(AbstractCommand):
         if target:
             targets = [target]
         else:
-            targets = [t for t in Classifier.Target]
+            targets = [target.ACTION, target.CONFESSION]
 
         for target in targets:
             self.handle_for_target(target)
 
     def handle_for_target(self, target: Classifier.Target):
         self.info(f'Finding sentence outliers for target {target}...')
-        self.info(f'Building sentence dataset for target {target}...')
-
         sentence_dataset = build_sentence_dataset(target)
         if not sentence_dataset:
             self.warning(f'No sentence found')
@@ -39,22 +37,32 @@ class Command(AbstractCommand):
 
         nb_sentence_outliers = 0
         for sentence in sentence_dataset:
-            human_label = extract_label(sentence, target)
-            ml_label = get_ml_label(sentence, target)
-            if ml_label != human_label:
-                self.warning(f'Got {ml_label} vs human label {human_label} '
-                             f'on line "{sentence.line}"')
-                nb_sentence_outliers += 1
-                if target == Classifier.Target.ACTION:
+            if target == Classifier.Target.ACTION:
+                human_label = extract_label(sentence, target)
+                ml_label = get_ml_label(sentence, target)
+                if ml_label != human_label:
+                    self.warning(f'Got {ml_label} vs human label {human_label} '
+                                 f'on line "{sentence.line}"')
+                    nb_sentence_outliers += 1
                     assert isinstance(ml_label, Action)
                     add_sentence_moderation(sentence, other_action=ml_label)
                 else:
-                    add_sentence_v2_moderation(sentence, target)
-            else:
-                if target == Classifier.Target.ACTION:
                     remove_sentence_not_validated_moderation(sentence)
+            else:
+                human_confession = extract_label(sentence, Classifier.Target.CONFESSION)
+                human_schedule = extract_label(sentence, Classifier.Target.SCHEDULE)
+                human_specifier = extract_label(sentence, Classifier.Target.SPECIFIER)
+
+                ml_confession = get_ml_label(sentence, Classifier.Target.CONFESSION)
+                ml_schedule = get_ml_label(sentence, Classifier.Target.SCHEDULE)
+                ml_specifier = get_ml_label(sentence, Classifier.Target.SPECIFIER)
+
+                if human_confession != ml_confession or human_schedule != ml_schedule or \
+                        human_specifier != ml_specifier:
+                    nb_sentence_outliers += 1
+                    add_sentence_v2_moderation(sentence)
                 else:
-                    remove_sentence_not_validated_v2_moderation(sentence, target)
+                    remove_sentence_not_validated_v2_moderation(sentence)
 
         self.success(f'Done! Got {nb_sentence_outliers} sentence outliers '
                      f'({nb_sentence_outliers / len(sentence_dataset) * 100:.2f} %)')

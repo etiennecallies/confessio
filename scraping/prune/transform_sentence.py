@@ -1,6 +1,8 @@
 import threading
 from abc import abstractmethod
 
+TRANSFORMER_NAME = "dangvantuan/sentence-camembert-base"
+
 
 class TransformerInterface:
     @abstractmethod
@@ -19,7 +21,7 @@ class CamembertTransformer(TransformerInterface):
         print('loading SentenceTransformer')
         from sentence_transformers import SentenceTransformer
         print('loading camembert transformer...')
-        self.name = "dangvantuan/sentence-camembert-base"
+        self.name = TRANSFORMER_NAME
         self.model = SentenceTransformer(self.name)
 
     def transform(self, sentence: str) -> list:

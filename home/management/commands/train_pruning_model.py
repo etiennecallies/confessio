@@ -3,7 +3,6 @@ from django.core.management import call_command
 from home.management.abstract_command import AbstractCommand
 from home.management.utils.heartbeat_utils import ping_heartbeat
 from home.models import Classifier, Sentence
-from scraping.prune.transform_sentence import get_transformer
 from scraping.services.classify_sentence_service import classify_line, get_classifier
 from scraping.services.train_classifier_service import train_classifier, build_sentence_dataset, \
     extract_label
@@ -77,8 +76,7 @@ class Command(AbstractCommand):
                      f'with test size {classifier.test_size} for target {target}')
 
         if automatic:
-            transformer = get_transformer()
-            production_classifier = get_classifier(transformer, target)
+            production_classifier = get_classifier(target)
             self.info(f'Production model accuracy: {production_classifier.accuracy}, '
                       f'test size: {production_classifier.test_size}')
 

@@ -4,7 +4,8 @@ from home.models import Sentence, Classifier, Pruning
 from scraping.extract_v2.models import EventMotion
 from scraping.prune.models import Source, Action
 from scraping.prune.train_and_predict import TensorFlowModel
-from scraping.prune.transform_sentence import get_transformer, TransformerInterface
+from scraping.prune.transform_sentence import get_transformer, TransformerInterface, \
+    TRANSFORMER_NAME
 from scraping.services.classifier_target_service import get_target_enum
 from scraping.services.train_classifier_service import set_label
 from scraping.utils.enum_utils import StringEnum, BooleanStringEnum
@@ -15,8 +16,7 @@ _model = {}
 _model_lock = threading.Lock()
 
 
-def get_classifier(transformer: TransformerInterface,
-                   target: Classifier.Target
+def get_classifier(target: Classifier.Target
                    ) -> Classifier:
     global _classifier
     if _classifier.get(target, None) is None:
@@ -29,7 +29,7 @@ def get_classifier(transformer: TransformerInterface,
                 except Classifier.DoesNotExist:
                     raise ValueError(f"No classifier in production for target {target}")
 
-                assert _classifier[target].transformer_name == transformer.get_name(), \
+                assert _classifier[target].transformer_name == TRANSFORMER_NAME, \
                     "Classifier and transformer are not compatible"
 
     return _classifier[target]
@@ -60,7 +60,7 @@ def classify_line(stringified_line: str, target: Classifier.Target
     embedding = transformer.transform(stringified_line)
 
     # 2. Get classifier
-    classifier = get_classifier(transformer, target)
+    classifier = get_classifier(target)
     model = get_model(classifier)
 
     # 3. Predict label
@@ -88,7 +88,7 @@ def classify_existing_sentences(sentences: list[Sentence], target: Classifier.Ta
             embeddings.append(sentence.embedding)
 
     # 2. Get classifier
-    classifier = get_classifier(transformer, target)
+    classifier = get_classifier(target)
     model = get_model(classifier)
 
     # 3. Predict label
@@ -98,8 +98,7 @@ def classify_existing_sentences(sentences: list[Sentence], target: Classifier.Ta
 
 
 def get_ml_label(sentence: Sentence, target: Classifier.Target) -> StringEnum:
-    transformer = get_transformer()
-    classifier = get_classifier(transformer, target)
+    classifier = get_classifier(target)
 
     assert target == classifier.target, \
         f"Target {target} does not match classifier target {classifier.target}"
@@ -128,8 +127,7 @@ def get_ml_label(sentence: Sentence, target: Classifier.Target) -> StringEnum:
 
 
 def get_sentences_with_wrong_classifier(target: Classifier.Target) -> list[Sentence]:
-    transformer = get_transformer()
-    classifier = get_classifier(transformer, target)
+    classifier = get_classifier(target)
 
     sentence_query = Sentence.objects
 

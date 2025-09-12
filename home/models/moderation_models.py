@@ -420,6 +420,7 @@ class SentenceModeration(ModerationMixin):
         SPECIFIER_MISMATCH = "specifier_mismatch"
         SCHEDULES_MISMATCH = "schedules_mismatch"
         CONFESSION_MISMATCH = "confession_mismatch"
+        CONFESSION_OUTLIER = "confession_outlier"
 
     resource = 'sentence'
     validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
@@ -430,9 +431,9 @@ class SentenceModeration(ModerationMixin):
                                 related_name=f'{resource}_moderations', null=True)
     history = HistoricalRecords()
     sentence = models.ForeignKey('Sentence', on_delete=models.CASCADE, related_name='moderations')
+    category = models.CharField(max_length=20, choices=Category)
     action = models.CharField(max_length=5, choices=Action.choices(), null=True)
     other_action = models.CharField(max_length=5, choices=Action.choices(), null=True)
-    category = models.CharField(max_length=20, choices=Category)
 
     class Meta:
         unique_together = ('sentence', 'category')
