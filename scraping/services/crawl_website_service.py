@@ -13,11 +13,6 @@ from scraping.utils.url_utils import get_path, get_domain, have_similar_domain
 
 
 def update_home_url(website: Website, new_home_url: str):
-    if len(new_home_url) > 200:
-        add_moderation(website, WebsiteModeration.Category.HOME_URL_TOO_LONG,
-                       other_home_url=new_home_url)
-        return
-
     not_eligible_urls = [
         'google.com/sorry',
         'google.com/v3/signin',
@@ -28,6 +23,11 @@ def update_home_url(website: Website, new_home_url: str):
         if not_eligible_url in new_home_url:
             print(f'This url is not eligible to home url update: {new_home_url}')
             return
+
+    if len(new_home_url) > 200:
+        add_moderation(website, WebsiteModeration.Category.HOME_URL_TOO_LONG,
+                       other_home_url=new_home_url)
+        return
 
     # Check that there is not already a Website with this home_url
     try:
