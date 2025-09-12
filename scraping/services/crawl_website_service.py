@@ -20,6 +20,7 @@ def update_home_url(website: Website, new_home_url: str):
 
     not_eligible_urls = [
         'google.com/sorry',
+        'google.com/v3/signin',
         'accounts.google.com',
         'wp-admin/install.php',
     ]
