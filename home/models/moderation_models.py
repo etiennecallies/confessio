@@ -417,9 +417,6 @@ class PruningModeration(ModerationMixin):
 class SentenceModeration(ModerationMixin):
     class Category(models.TextChoices):
         ML_MISMATCH = "ml_mismatch"
-        SPECIFIER_MISMATCH = "specifier_mismatch"
-        SCHEDULES_MISMATCH = "schedules_mismatch"
-        CONFESSION_MISMATCH = "confession_mismatch"
         CONFESSION_OUTLIER = "confession_outlier"
 
     resource = 'sentence'
