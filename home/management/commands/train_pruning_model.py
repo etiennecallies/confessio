@@ -41,6 +41,10 @@ class Command(AbstractCommand):
             self.info(f'Training model for target {target}')
             self.train_model_for_target(target, options['automatic'])
 
+        self.info(f'Launching find_sentence_outliers command ...')
+        call_command('find_sentence_outliers', target=Classifier.Target.CONFESSION)
+        self.success(f'End of find_sentence_outliers command.')
+
         if options['automatic']:
             ping_heartbeat("HEARTBEAT_TRAIN_PRUNING_URL")
 
@@ -93,7 +97,7 @@ class Command(AbstractCommand):
             else:
                 self.info(f'New model is not significantly better than production model')
 
-            if new_classifier_in_prod or target != Classifier.Target.ACTION:
+            if new_classifier_in_prod and target == Classifier.Target.ACTION:
                 self.info(f'Launching find_sentence_outliers command...')
                 call_command('find_sentence_outliers', target=target)
                 self.success(f'End of find_sentence_outliers command.')
