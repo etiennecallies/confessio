@@ -1,7 +1,6 @@
 from django.core.management import call_command
 
 from home.management.abstract_command import AbstractCommand
-from home.management.utils.heartbeat_utils import ping_heartbeat
 from home.models import Classifier, Sentence
 from scraping.services.classify_sentence_service import classify_line, get_classifier
 from scraping.services.train_classifier_service import train_classifier, build_sentence_dataset, \
@@ -13,40 +12,24 @@ class Command(AbstractCommand):
     help = "Launch the training of machine learning model to guess label of Sentence, given target"
 
     def add_arguments(self, parser):
-        parser.add_argument('-t', '--target', type=Classifier.Target,
-                            choices=list(Classifier.Target), help='Target of the classifier')
-
         parser.add_argument('-l', '--test-on-line', help='test latest classifier on given line')
         parser.add_argument('-a', '--automatic', action='store_true',
                             help='automatic training triggered in nightly job')
 
     def handle(self, *args, **options):
-        target = options['target']
-        if target:
-            targets = [target]
-        else:
-            targets = [t for t in Classifier.Target if t != Classifier.Target.ACTION]
+        target = Classifier.Target.ACTION
 
         if options['test_on_line']:
-            for target in targets:
-                self.info(f'Testing classifier on target {target}')
+            self.info(f'Testing classifier on target {target}')
 
-                label, classifier, embedding, transformer = classify_line(
-                    options['test_on_line'], target
-                )
-                self.success(f'Successfully got label {label}')
+            label, classifier, embedding, transformer = classify_line(
+                options['test_on_line'], target
+            )
+            self.success(f'Successfully got label {label}')
             return
 
-        for target in targets:
-            self.info(f'Training model for target {target}')
-            self.train_model_for_target(target, options['automatic'])
-
-        self.info(f'Launching find_sentence_outliers command ...')
-        call_command('find_sentence_outliers', target=Classifier.Target.CONFESSION)
-        self.success(f'End of find_sentence_outliers command.')
-
-        if options['automatic']:
-            ping_heartbeat("HEARTBEAT_TRAIN_PRUNING_URL")
+        self.info(f'Training model for target {target}')
+        self.train_model_for_target(target, options['automatic'])
 
     def train_model_for_target(self, target: Classifier.Target, automatic: bool):
         if automatic:
@@ -84,6 +67,8 @@ class Command(AbstractCommand):
             self.info(f'Production model accuracy: {production_classifier.accuracy}, '
                       f'test size: {production_classifier.test_size}')
 
+            new_classifier_in_prod = False
+
             if classifier.accuracy > production_classifier.accuracy and \
                     is_significantly_different(classifier.accuracy, production_classifier.accuracy,
                                                classifier.test_size,
@@ -91,8 +76,14 @@ class Command(AbstractCommand):
                 self.success(f'New model is significantly better than production model')
                 classifier.status = classifier.Status.PROD
                 classifier.save()
+                new_classifier_in_prod = True
             else:
                 self.info(f'New model is not significantly better than production model')
+
+            if new_classifier_in_prod:
+                self.info(f'Launching find_sentence_outliers command...')
+                call_command('find_sentence_outliers', target=target)
+                self.success(f'End of find_sentence_outliers command.')
 
         if classifier.status == classifier.Status.DRAFT:
             self.warning(f'WARNING: Trained model is still in draft status. '

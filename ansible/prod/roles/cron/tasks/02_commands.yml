@@ -11,8 +11,13 @@
     - name: daily_index_events
       command: "index_events"
       hour: "0"
-      minute: 30
+      minute: 25
       memory_max: "800M"
+    - name: daily_train_action_model
+      command: "train_action_model --automatic"
+      hour: "0"
+      minute: 30
+      memory_max: "3200M"
     - name: daily_train_pruning_model
       command: "train_pruning_model --automatic"
       hour: "0"
