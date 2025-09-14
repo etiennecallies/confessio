@@ -25,7 +25,7 @@ class Command(AbstractCommand):
             websites = Website.objects.filter(is_active=True, name__contains=options['name']).all()
         else:
             websites = Website.objects.filter(is_active=True, pages__isnull=False)\
-                .order_by(F('pages__scraping__updated_at').asc(nulls_first=True)).all()
+                .order_by(F('pages__scraping__updated_at').asc(nulls_first=True)).distinct()
 
         start_time = time.time()
 
