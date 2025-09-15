@@ -78,7 +78,7 @@ def has_relation_text(website_schedules: WebsiteSchedules | None) -> str:
     if relations:
         relation_text = enumerate_with_and(relations)
 
-        return f'👉 Certaines horaires sont liées aux {relation_text}'
+        return f'👉 Certains horaires sont liés aux {relation_text}'
 
     return ''
 
