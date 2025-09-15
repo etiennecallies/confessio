@@ -1,5 +1,3 @@
-from django.core.management import call_command
-
 from home.management.abstract_command import AbstractCommand
 from home.management.utils.heartbeat_utils import ping_heartbeat
 from home.models import Classifier, Sentence
@@ -40,10 +38,6 @@ class Command(AbstractCommand):
         for target in targets:
             self.info(f'Training model for target {target}')
             self.train_model_for_target(target, options['automatic'])
-
-        self.info(f'Launching find_sentence_outliers command ...')
-        call_command('find_sentence_outliers', target=Classifier.Target.CONFESSION)
-        self.success(f'End of find_sentence_outliers command.')
 
         if options['automatic']:
             ping_heartbeat("HEARTBEAT_TRAIN_PRUNING_URL")

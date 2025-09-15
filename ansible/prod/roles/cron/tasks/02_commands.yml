@@ -11,15 +11,10 @@
     - name: daily_index_events
       command: "index_events"
       hour: "0"
-      minute: 25
+      minute: 30
       memory_max: "800M"
     - name: daily_train_action_model
       command: "train_action_model --automatic"
-      hour: "0"
-      minute: 30
-      memory_max: "3200M"
-    - name: daily_train_pruning_model
-      command: "train_pruning_model --automatic"
       hour: "0"
       minute: 35
       memory_max: "3200M"
@@ -28,20 +23,30 @@
       hour: "0"
       minute: 40
       memory_max: "3200M"
+    - name: daily_train_pruning_model
+      command: "train_pruning_model --automatic"
+      hour: "0"
+      minute: 45
+      memory_max: "3200M"
     - name: daily_reclassify_specifier
       command: "reclassify_sentences -t specifier"
       hour: "0"
-      minute: 45
+      minute: 48
       memory_max: "3200M"
     - name: daily_reclassify_schedule
       command: "reclassify_sentences -t schedule"
       hour: "0"
-      minute: 50
+      minute: 51
       memory_max: "3200M"
     - name: daily_reclassify_confession
       command: "reclassify_sentences -t confession"
       hour: "0"
-      minute: 55
+      minute: 54
+      memory_max: "3200M"
+    - name: daily_find_sentence_outliers
+      command: "find_sentence_outliers -t confession"
+      hour: "0"
+      minute: 57
       memory_max: "3200M"
     - name: daily_crawl_websites
       command: "crawl_websites -t 3300 --no-recent -p 6"
