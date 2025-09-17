@@ -68,9 +68,17 @@ class Command(AbstractCommand):
                 if human_confession != ml_confession or human_schedule != ml_schedule or \
                         human_specifier != ml_specifier:
                     nb_sentence_outliers += 1
+                    if i % 100 == 0:
+                        print_memory_usage('before add_sentence_v2_moderation')
                     add_sentence_v2_moderation(sentence)
+                    if i % 100 == 0:
+                        print_memory_usage('after add_sentence_v2_moderation')
                 else:
+                    if i % 100 == 0:
+                        print_memory_usage('before remove_sentence_not_validated_v2_moderation')
                     remove_sentence_not_validated_v2_moderation(sentence)
+                    if i % 100 == 0:
+                        print_memory_usage('after remove_sentence_not_validated_v2_moderation')
 
         self.success(f'Done! Got {nb_sentence_outliers} sentence outliers '
                      f'({nb_sentence_outliers / len(sentence_dataset) * 100:.2f} %)')
