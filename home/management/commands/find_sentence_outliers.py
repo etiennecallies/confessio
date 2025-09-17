@@ -6,6 +6,7 @@ from scraping.services.sentence_outliers_service import add_sentence_moderation,
     remove_sentence_not_validated_moderation, add_sentence_v2_moderation, \
     remove_sentence_not_validated_v2_moderation
 from scraping.services.train_classifier_service import build_sentence_dataset, extract_label
+from scraping.utils.ram_utils import print_memory_usage
 
 
 class Command(AbstractCommand):
@@ -21,22 +22,29 @@ class Command(AbstractCommand):
         if target:
             targets = [target]
         else:
-            targets = [target.ACTION, target.CONFESSION]
+            targets = [Classifier.Target.ACTION, Classifier.Target.CONFESSION]
 
         for target in targets:
             self.handle_for_target(target)
 
     def handle_for_target(self, target: Classifier.Target):
         self.info(f'Finding sentence outliers for target {target}...')
+        print_memory_usage()
         sentence_dataset = build_sentence_dataset(target)
         if not sentence_dataset:
             self.warning(f'No sentence found')
             return
 
         self.info(f'Got {len(sentence_dataset)} sentences for target {target}')
+        print_memory_usage()
 
         nb_sentence_outliers = 0
+        i = 0
         for sentence in sentence_dataset:
+            if i % 100 == 0:
+                print_memory_usage()
+            i += 1
+
             if target == Classifier.Target.ACTION:
                 human_label = extract_label(sentence, target)
                 ml_label = get_ml_label(sentence, target)
