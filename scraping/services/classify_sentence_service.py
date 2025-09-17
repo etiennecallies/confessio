@@ -105,20 +105,21 @@ def get_ml_label(sentence: Sentence, target: Classifier.Target) -> StringEnum:
         f"Target {target} does not match classifier target {classifier.target}"
 
     if target == Classifier.Target.ACTION:
-        if sentence.source == Source.ML and sentence.classifier == classifier:
+        if sentence.source == Source.ML and sentence.classifier_id == classifier.id:
             return Action(sentence.action)
     elif target == Classifier.Target.SPECIFIER:
-        if sentence.specifier_classifier == classifier:
+        if sentence.specifier_classifier_id == classifier.id:
             return BooleanStringEnum.from_bool(sentence.ml_specifier)
     elif target == Classifier.Target.SCHEDULE:
-        if sentence.schedule_classifier == classifier:
+        if sentence.schedule_classifier_id == classifier.id:
             return BooleanStringEnum.from_bool(sentence.ml_schedule)
     elif target == Classifier.Target.CONFESSION:
-        if sentence.confession_classifier == classifier:
+        if sentence.confession_classifier_id == classifier.id:
             return EventMotion(sentence.ml_confession)
     else:
         raise NotImplementedError(f'Target {target} is not supported for label extraction')
 
+    print(f'Classifying sentence {sentence.uuid} for target {target}...')
     ml_label, _ = classify_existing_sentence(sentence, target)
     if not (target == Classifier.Target.ACTION and sentence.source == Source.HUMAN):
         set_label(sentence, ml_label, classifier)
