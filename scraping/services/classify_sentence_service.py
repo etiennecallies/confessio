@@ -22,6 +22,7 @@ def get_classifier(target: Classifier.Target
     if _classifier.get(target, None) is None:
         with _classifier_lock:
             if _classifier.get(target, None) is None:
+                print(f'Loading classifier for target {target}...')
                 try:
                     _classifier[target] = Classifier.objects \
                         .filter(status=Classifier.Status.PROD, target=target) \
