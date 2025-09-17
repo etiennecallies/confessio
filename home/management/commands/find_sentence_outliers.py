@@ -57,13 +57,19 @@ class Command(AbstractCommand):
                 else:
                     remove_sentence_not_validated_moderation(sentence)
             else:
+                if i % 100 == 0:
+                    print_memory_usage('before extract_label')
                 human_confession = extract_label(sentence, Classifier.Target.CONFESSION)
                 human_schedule = extract_label(sentence, Classifier.Target.SCHEDULE)
                 human_specifier = extract_label(sentence, Classifier.Target.SPECIFIER)
+                if i % 100 == 0:
+                    print_memory_usage('before get_ml_label')
 
                 ml_confession = get_ml_label(sentence, Classifier.Target.CONFESSION)
                 ml_schedule = get_ml_label(sentence, Classifier.Target.SCHEDULE)
                 ml_specifier = get_ml_label(sentence, Classifier.Target.SPECIFIER)
+                if i % 100 == 0:
+                    print_memory_usage('after get_ml_label')
 
                 if human_confession != ml_confession or human_schedule != ml_schedule or \
                         human_specifier != ml_specifier:
