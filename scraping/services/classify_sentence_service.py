@@ -119,7 +119,6 @@ def get_ml_label(sentence: Sentence, target: Classifier.Target) -> StringEnum:
     else:
         raise NotImplementedError(f'Target {target} is not supported for label extraction')
 
-    print(f'Classifying sentence {sentence.uuid} for target {target}...')
     ml_label, _ = classify_existing_sentence(sentence, target)
     if not (target == Classifier.Target.ACTION and sentence.source == Source.HUMAN):
         set_label(sentence, ml_label, classifier)
