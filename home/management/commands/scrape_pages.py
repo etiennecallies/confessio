@@ -1,16 +1,10 @@
-import asyncio
-import time
+from datetime import datetime, timedelta
 
 from django.db.models import F
-from django.db.models.functions import Now
 
 from home.management.abstract_command import AbstractCommand
-from home.models import Website, Log
-from home.utils.log_utils import start_log_buffer, get_log_buffer
-from scraping.scrape.download_refine_and_extract import get_fresh_extracted_html_list
-from scraping.services.page_service import delete_page
-from scraping.services.recognize_image_service import recognize_images_for_website
-from scraping.services.scrape_page_service import upsert_extracted_html_list
+from home.models import Website
+from scraping.services.website_worker_service import worker_scrape_page
 
 
 class Command(AbstractCommand):
@@ -27,42 +21,13 @@ class Command(AbstractCommand):
             websites = Website.objects.filter(is_active=True, pages__isnull=False)\
                 .order_by(F('pages__scraping__updated_at').asc(nulls_first=True)).distinct()
 
-        start_time = time.time()
+        timeout_dt = None
+        if options['timeout']:
+            timeout_dt = datetime.now() + timedelta(seconds=options['timeout'])
 
+        self.info(f'Enqueuing scraping pages...')
+        counter = 0
         for website in websites:
-            if options['timeout'] and time.time() - start_time > options['timeout']:
-                self.warning(f'Timeout reached, stopping the command')
-                return
-
-            start_log_buffer()
-            self.info(f'Starting to scrape website {website.name} {website.uuid}')
-
-            for page in website.get_pages():
-                if website.enabled_for_crawling:
-                    # Actually do the scraping
-                    extracted_html_list = asyncio.run(get_fresh_extracted_html_list(page.url))
-                else:
-                    extracted_html_list = []
-
-                if not extracted_html_list:
-                    self.warning(f'No more content for {page.url}, deleting page {page.uuid}')
-                    delete_page(page)
-
-                    # Trigger a recrawl to make sure we don't miss anything
-                    if website.crawling and website.enabled_for_crawling:
-                        website.crawling.recrawl_triggered_at = Now()
-                        website.crawling.save()
-                    continue
-
-                # Insert or update scraping
-                upsert_extracted_html_list(page, extracted_html_list)
-                self.info(f'Successfully scraped page {page.url} {page.uuid}')
-
-            recognize_images_for_website(website)
-
-            self.success(f'Successfully scraped website {website.name} {website.uuid}')
-            buffer_value = get_log_buffer()
-            log = Log(type=Log.Type.SCRAPING,
-                      website=website,
-                      content=buffer_value)
-            log.save()
+            counter += 1
+            worker_scrape_page(website, timeout_dt)
+        self.success(f'Enqueued {counter} websites for scrape pages.')

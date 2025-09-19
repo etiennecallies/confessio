@@ -3,6 +3,7 @@ import re
 from datetime import timedelta
 
 from background_task import background
+from background_task.tasks import TaskSchedule
 from django.db.models.functions import Now
 from django.utils import timezone
 
@@ -422,7 +423,7 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
     print_memory_usage('needs to parse')
 
 
-@background(queue='parsing', schedule=0)
+@background(queue='parsing', schedule=TaskSchedule(priority=3))
 def worker_parse_pruning_for_website(pruning_uuid: str, website_uuid: str, force_parse: bool):
     try:
         pruning = Pruning.objects.get(uuid=pruning_uuid)

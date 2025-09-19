@@ -49,24 +49,24 @@
       minute: 57
       memory_max: "3200M"
     - name: daily_crawl_websites
-      command: "crawl_websites -t 3300 --no-recent -p 6"
-      hour: "1,2,3,4,5,6,7"
+      command: "crawl_websites -t 78900 --no-recent"
+      hour: "1"
       minute: 0
-      memory_max: "2400M"
+      memory_max: "800M"
     - name: daily_check_crawling
       command: "check_crawling"
       hour: "8"
       minute: 0
       memory_max: "800M"
     - name: hourly_scrape_pages
-      command: "scrape_pages -t 4500"
-      hour: "8,10,12,14,16,18,20,22"
-      minute: 20
+      command: "scrape_pages -t 6900"
+      hour: "9,11,13,15,17,19,21"
+      minute: 0
       memory_max: "800M"
     - name: hourly_crawl_websites_in_error
-      command: "crawl_websites --in-error -t 2100 -p 3"
-      hour: "9,11,13,15,17,19,21"
-      minute: 40
+      command: "crawl_websites --in-error -t 21300"
+      hour: "10,16"
+      minute: 0
       memory_max: "800M"
     - name: daily_clean_database
       command: "clean_database"

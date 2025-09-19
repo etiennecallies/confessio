@@ -3,6 +3,7 @@ from typing import Optional
 from uuid import UUID
 
 from background_task import background
+from background_task.tasks import TaskSchedule
 from django.utils import timezone
 from tqdm import tqdm
 
@@ -127,7 +128,7 @@ def reprune_affected_prunings(sentences: list[Sentence], original_pruning: Pruni
     worker_reprune_affected_prunings([str(s.uuid) for s in sentences], str(original_pruning.uuid))
 
 
-@background(queue='parsing', schedule=0)
+@background(queue='parsing', schedule=TaskSchedule(priority=4))
 def worker_reprune_affected_prunings(sentence_uuids: list[str], original_pruning_uuid: str):
     try:
         original_pruning = Pruning.objects.get(uuid=UUID(original_pruning_uuid))
