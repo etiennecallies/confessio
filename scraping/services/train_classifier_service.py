@@ -6,8 +6,7 @@ from scraping.extract_v2.models import EventMotion, TemporalMotion
 from scraping.prune.models import Source, Action
 from scraping.prune.train_and_predict import TensorFlowModel, evaluate
 from scraping.services.classifier_target_service import get_target_enum
-from scraping.utils.enum_utils import StringEnum, BooleanStringEnum
-
+from scraping.utils.enum_utils import StringEnum
 
 MIN_DATASET_SIZE = 300
 
@@ -15,26 +14,6 @@ MIN_DATASET_SIZE = 300
 def build_sentence_dataset(target: Classifier.Target) -> list[Sentence]:
     if target == Classifier.Target.ACTION:
         return Sentence.objects.filter(source=Source.HUMAN).all()
-    if target == Classifier.Target.SPECIFIER:
-        human_qualified_dataset = Sentence.objects.filter(human_specifier__isnull=False).all()
-        if len(human_qualified_dataset) >= MIN_DATASET_SIZE:
-            return human_qualified_dataset
-
-        print(f"Not enough human specifier sentences ({len(human_qualified_dataset)}), "
-              f"using ML specifier sentences instead")
-        return Sentence.objects.filter(Q(human_specifier__isnull=False)
-                                       | Q(ml_specifier__isnull=False)).all()
-
-    if target == Classifier.Target.SCHEDULE:
-        human_qualified_dataset = Sentence.objects.filter(human_schedule__isnull=False).all()
-        if len(human_qualified_dataset) >= MIN_DATASET_SIZE:
-            return human_qualified_dataset
-
-        print(f"Not enough human schedule sentences ({len(human_qualified_dataset)}), "
-              f"using ML schedule sentences instead")
-        return Sentence.objects.filter(Q(human_schedule__isnull=False)
-                                       | Q(ml_schedule__isnull=False)).all()
-
     if target == Classifier.Target.TEMPORAL:
         human_qualified_dataset = Sentence.objects.filter(human_temporal__isnull=False).all()
         if len(human_qualified_dataset) >= MIN_DATASET_SIZE:
@@ -62,20 +41,6 @@ def extract_label(sentence: Sentence, target: Classifier.Target) -> StringEnum:
     if target == Classifier.Target.ACTION:
         return Action(sentence.action)
 
-    if target == Classifier.Target.SPECIFIER:
-        if sentence.human_specifier is not None:
-            return BooleanStringEnum.from_bool(sentence.human_specifier)
-        if sentence.ml_specifier is not None:
-            return BooleanStringEnum.from_bool(sentence.ml_specifier)
-        raise ValueError(f'Sentence {sentence.uuid} has no specifier for target {target}')
-
-    if target == Classifier.Target.SCHEDULE:
-        if sentence.human_schedule is not None:
-            return BooleanStringEnum.from_bool(sentence.human_schedule)
-        if sentence.ml_schedule is not None:
-            return BooleanStringEnum.from_bool(sentence.ml_schedule)
-        raise ValueError(f'Sentence {sentence.uuid} has no schedule for target {target}')
-
     if target == Classifier.Target.TEMPORAL:
         if sentence.human_temporal is not None:
             return TemporalMotion(sentence.human_temporal)
@@ -97,18 +62,6 @@ def set_label(sentence: Sentence, label: StringEnum, classifier: Classifier) -> 
     if classifier.target == Classifier.Target.ACTION:
         sentence.action = label
         sentence.classifier = classifier
-        return
-
-    if classifier.target == Classifier.Target.SPECIFIER:
-        assert isinstance(label, BooleanStringEnum)
-        sentence.ml_specifier = label.to_bool()
-        sentence.specifier_classifier = classifier
-        return
-
-    if classifier.target == Classifier.Target.SCHEDULE:
-        assert isinstance(label, BooleanStringEnum)
-        sentence.ml_schedule = label.to_bool()
-        sentence.schedule_classifier = classifier
         return
 
     if classifier.target == Classifier.Target.TEMPORAL:

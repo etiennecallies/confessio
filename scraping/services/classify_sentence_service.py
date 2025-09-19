@@ -131,10 +131,6 @@ def get_sentences_with_wrong_classifier(target: Classifier.Target) -> list[Sente
 
     if target == Classifier.Target.ACTION:
         sentence_query = sentence_query.filter(source=Source.ML).exclude(classifier=classifier)
-    if target == Classifier.Target.SCHEDULE:
-        sentence_query = sentence_query.exclude(schedule_classifier=classifier)
-    if target == Classifier.Target.SPECIFIER:
-        sentence_query = sentence_query.exclude(specifier_classifier=classifier)
     if target == Classifier.Target.TEMPORAL:
         sentence_query = sentence_query.exclude(temporal_classifier=classifier)
     if target == Classifier.Target.CONFESSION:
@@ -162,12 +158,6 @@ def classify_and_create_sentence(stringified_line: str,
     )
 
     # V2 labels
-    ml_specifier, specifier_classifier = classify_existing_sentence(
-        sentence, Classifier.Target.SPECIFIER)
-    set_label(sentence, ml_specifier, specifier_classifier)
-    ml_schedule, schedule_classifier = classify_existing_sentence(sentence,
-                                                                  Classifier.Target.SCHEDULE)
-    set_label(sentence, ml_schedule, schedule_classifier)
     ml_temporal, temporal_classifier = classify_existing_sentence(sentence,
                                                                   Classifier.Target.TEMPORAL)
     set_label(sentence, ml_temporal, temporal_classifier)
