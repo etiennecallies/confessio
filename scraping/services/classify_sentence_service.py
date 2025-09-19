@@ -174,6 +174,9 @@ def classify_and_create_sentence(stringified_line: str,
     ml_schedule, schedule_classifier = classify_existing_sentence(sentence,
                                                                   Classifier.Target.SCHEDULE)
     set_label(sentence, ml_schedule, schedule_classifier)
+    ml_temporal, temporal_classifier = classify_existing_sentence(sentence,
+                                                                  Classifier.Target.TEMPORAL)
+    set_label(sentence, ml_temporal, temporal_classifier)
     ml_confession, confession_classifier = classify_existing_sentence(sentence,
                                                                       Classifier.Target.CONFESSION)
     set_label(sentence, ml_confession, confession_classifier)
