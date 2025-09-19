@@ -55,5 +55,5 @@ class Command(AbstractCommand):
         counter = 0
         for website in websites:
             counter += 1
-            worker_crawl_website(website, timeout_dt)
+            worker_crawl_website(str(website.uuid), timeout_dt)
         self.success(f'Enqueued {counter} websites for crawling.')
