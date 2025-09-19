@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from home.models import Pruning, Sentence, Classifier
 from scraping.extract.extract_content import split_and_tag, BaseActionInterface
 from scraping.extract.tag_line import Tag
-from scraping.extract_v2.models import TagV2, EventMotion
+from scraping.extract_v2.models import TagV2, EventMotion, TemporalMotion
 from scraping.extract_v2.prune_lines_v2 import get_pruned_lines_indices_v2
 from scraping.extract_v2.qualify_line_interfaces import BaseQualifyLineInterface
 from scraping.extract_v2.split_content import split_and_tag_v2, LineAndTagV2
@@ -18,7 +18,6 @@ from scraping.refine.refine_content import replace_link_by_their_content
 from scraping.services.prune_scraping_service import update_parsings, add_necessary_moderation_v2, \
     add_necessary_moderation
 from scraping.services.train_classifier_service import extract_label
-from scraping.utils.enum_utils import BooleanStringEnum
 from scraping.utils.html_utils import split_lines
 
 
@@ -144,16 +143,15 @@ def set_ml_indices_as_human(pruning: Pruning):
 EVENT_MOTION_COLORS = {
     EventMotion.START: 'success',
     EventMotion.HOLD: 'info',
-    EventMotion.HIDE: 'gray-500',
+    EventMotion.HIDE: 'black',
     EventMotion.STOP: 'danger',
 }
 
-
-class ColoredTagV2(BaseModel):
-    name: str
-    short_name: str
-    color: str
-    checked: bool
+TEMPORAL_MOTION_COLORS = {
+    TemporalMotion.NONE: 'gray-500',
+    TemporalMotion.SCHED: 'tertiary',
+    TemporalMotion.SPEC: 'purple',
+}
 
 
 class ColoredPieceV2(BaseModel):
@@ -162,7 +160,7 @@ class ColoredPieceV2(BaseModel):
     text: str
     color: str
     event_motion: EventMotion
-    tags: list[ColoredTagV2]
+    temporal_motion: TemporalMotion
     source_icon: str
     sentence_uuid: UUID | None
 
@@ -192,27 +190,18 @@ def get_colored_pieces_v2(extracted_html: str, qualify_line_interface: BaseQuali
 def get_single_line_colored_piece(line_and_tag: LineAndTagV2,
                                   source: Source,
                                   i: int, do_show: bool) -> ColoredPieceV2:
-    tag_colors = {
-        TagV2.SPECIFIER: 'purple',
-        TagV2.SCHEDULE: 'tertiary',
-    }
-    tag_short_names = {
-        TagV2.SPECIFIER: 'spec',
-        TagV2.SCHEDULE: 'sched',
-    }
     source_icons = {
         Source.HUMAN: 'fas fa-user',
         Source.ML: 'fas fa-robot',
     }
 
-    tags = []
-    for tag in TagV2:
-        tags.append(ColoredTagV2(
-            name=tag.value,
-            short_name=tag_short_names[tag],
-            color=tag_colors[tag],
-            checked=tag in line_and_tag.tags,
-        ))
+    assert len(line_and_tag.tags) <= 1
+    if line_and_tag.tags == {TagV2.SPECIFIER}:
+        temporal_motion = TemporalMotion.SPEC
+    elif line_and_tag.tags == {TagV2.SCHEDULE}:
+        temporal_motion = TemporalMotion.SCHED
+    else:
+        temporal_motion = TemporalMotion.NONE
 
     return ColoredPieceV2(
         id=f'{i}',
@@ -220,7 +209,7 @@ def get_single_line_colored_piece(line_and_tag: LineAndTagV2,
         text=line_and_tag.line,
         color='' if do_show else 'text-warning',
         event_motion=line_and_tag.event_motion,
-        tags=tags,
+        temporal_motion=temporal_motion,
         source_icon=source_icons[source],
         sentence_uuid=line_and_tag.sentence_uuid,
     )
@@ -228,21 +217,14 @@ def get_single_line_colored_piece(line_and_tag: LineAndTagV2,
 
 def update_sentence_labels_with_request(request, piece_id: str, sentence: Sentence,
                                         pruning: Pruning | None) -> bool:
-    new_specifier = BooleanStringEnum.TRUE \
-        if request.POST.get(f"specifier-{piece_id}") == 'on' \
-        else BooleanStringEnum.FALSE
-    new_schedule = BooleanStringEnum.TRUE \
-        if request.POST.get(f"schedule-{piece_id}") == 'on' \
-        else BooleanStringEnum.FALSE
+    new_temporal = TemporalMotion(request.POST.get(f"temporal-motion-{piece_id}"))
     new_event_motion = EventMotion(request.POST.get(f"event-motion-{piece_id}"))
 
-    if extract_label(sentence, Classifier.Target.SPECIFIER) != new_specifier \
-            or extract_label(sentence, Classifier.Target.SCHEDULE) != new_schedule \
+    if extract_label(sentence, Classifier.Target.TEMPORAL) != new_temporal \
             or extract_label(sentence, Classifier.Target.CONFESSION) != new_event_motion:
         sentence.updated_by = request.user
         sentence.updated_on_pruning = pruning
-        sentence.human_specifier = new_specifier.to_bool()
-        sentence.human_schedule = new_schedule.to_bool()
+        sentence.human_temporal = new_temporal
         sentence.human_confession = new_event_motion
         sentence.save()
 

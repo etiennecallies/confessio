@@ -1,0 +1,34 @@
+{% for colored_piece in colored_pieces %}
+    <div class="row mb-2">
+        <div class="col-md-5 {{ colored_piece.color }}">
+            {{ colored_piece.text|safe }}
+            <input type="hidden" name="sentence-uuid-{{ colored_piece.id }}"
+                       value="{{ colored_piece.sentence_uuid }}">
+        </div>
+        <div class="col-md-3 text-end text-md-center">
+            <i class="{{ colored_piece.source_icon }}"></i>
+            {% for temporal_motion, temporal_motion_color in temporal_motion_colors.items %}
+                <input type="radio" class="btn-check"
+                       id="{{ temporal_motion.value }}-{{ colored_piece.id }}"
+                       name="temporal-motion-{{ colored_piece.id }}"
+                       value="{{ temporal_motion.value }}"
+                    {% if colored_piece.temporal_motion == temporal_motion %}checked{% endif %}
+                    autocomplete="off">
+                <label class="btn btn-fixed-outline-{{ temporal_motion_color }}"
+                       for="{{ temporal_motion.value }}-{{ colored_piece.id }}">{{ temporal_motion.value }}</label>
+            {% endfor %}
+        </div>
+        <div class="col-md-4 text-end text-md-center">
+            {% for event_motion, event_motion_color in event_motion_colors.items %}
+                <input type="radio" class="btn-check"
+                       id="{{ event_motion.value }}-{{ colored_piece.id }}"
+                       name="event-motion-{{ colored_piece.id }}"
+                       value="{{ event_motion.value }}"
+                    {% if colored_piece.event_motion == event_motion %}checked{% endif %}
+                    autocomplete="off">
+                <label class="btn btn-fixed-outline-{{ event_motion_color }}"
+                       for="{{ event_motion.value }}-{{ colored_piece.id }}">{{ event_motion.value }}</label>
+            {% endfor %}
+        </div>
+    </div>
+{% endfor %}
