@@ -1,7 +1,7 @@
 import threading
 
 from home.models import Sentence, Classifier, Pruning
-from scraping.extract_v2.models import EventMotion
+from scraping.extract_v2.models import EventMotion, TemporalMotion
 from scraping.prune.models import Source, Action
 from scraping.prune.train_and_predict import TensorFlowModel
 from scraping.prune.transform_sentence import get_transformer, TransformerInterface, \
@@ -113,6 +113,9 @@ def get_ml_label(sentence: Sentence, target: Classifier.Target) -> StringEnum:
     elif target == Classifier.Target.SCHEDULE:
         if sentence.schedule_classifier_id == classifier.uuid:
             return BooleanStringEnum.from_bool(sentence.ml_schedule)
+    elif target == Classifier.Target.TEMPORAL:
+        if sentence.temporal_classifier_id == classifier.uuid:
+            return TemporalMotion(sentence.ml_temporal)
     elif target == Classifier.Target.CONFESSION:
         if sentence.confession_classifier_id == classifier.uuid:
             return EventMotion(sentence.ml_confession)
@@ -138,6 +141,8 @@ def get_sentences_with_wrong_classifier(target: Classifier.Target) -> list[Sente
         sentence_query = sentence_query.exclude(schedule_classifier=classifier)
     if target == Classifier.Target.SPECIFIER:
         sentence_query = sentence_query.exclude(specifier_classifier=classifier)
+    if target == Classifier.Target.TEMPORAL:
+        sentence_query = sentence_query.exclude(temporal_classifier=classifier)
     if target == Classifier.Target.CONFESSION:
         sentence_query = sentence_query.exclude(confession_classifier=classifier)
 

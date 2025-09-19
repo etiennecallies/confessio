@@ -10,7 +10,7 @@ from pgvector.django import VectorField
 from simple_history.models import HistoricalRecords
 
 from home.utils.hash_utils import hash_string_to_hex
-from scraping.extract_v2.models import EventMotion
+from scraping.extract_v2.models import EventMotion, TemporalMotion
 from scraping.parse.llm_client import LLMProvider
 from scraping.prune.models import Action, Source
 
@@ -265,6 +265,12 @@ class Sentence(TimeStampMixin):
     classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,
                                    related_name='sentences', null=True)
     # v2
+    ml_temporal = models.CharField(max_length=5, choices=TemporalMotion.choices(),
+                                   null=True)  # TODO not null when all sentences are migrated
+    human_temporal = models.CharField(max_length=5, choices=TemporalMotion.choices(), null=True)
+    temporal_classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,
+                                            related_name='temporal_sentences', null=True)
+
     ml_specifier = models.BooleanField()
     human_specifier = models.BooleanField(null=True)
     specifier_classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,
@@ -292,6 +298,7 @@ class Classifier(TimeStampMixin):
         SPECIFIER = "specifier"
         SCHEDULE = "schedule"
         CONFESSION = "confession"
+        TEMPORAL = "temporal"
 
     transformer_name = models.CharField(max_length=100)
     status = models.CharField(max_length=5, choices=Status)

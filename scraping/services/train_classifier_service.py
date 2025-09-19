@@ -2,7 +2,7 @@ from django.db.models import Q
 from sklearn.model_selection import train_test_split
 
 from home.models import Sentence, Classifier
-from scraping.extract_v2.models import EventMotion
+from scraping.extract_v2.models import EventMotion, TemporalMotion
 from scraping.prune.models import Source, Action
 from scraping.prune.train_and_predict import TensorFlowModel, evaluate
 from scraping.services.classifier_target_service import get_target_enum
@@ -35,6 +35,16 @@ def build_sentence_dataset(target: Classifier.Target) -> list[Sentence]:
         return Sentence.objects.filter(Q(human_schedule__isnull=False)
                                        | Q(ml_schedule__isnull=False)).all()
 
+    if target == Classifier.Target.TEMPORAL:
+        human_qualified_dataset = Sentence.objects.filter(human_temporal__isnull=False).all()
+        if len(human_qualified_dataset) >= MIN_DATASET_SIZE:
+            return human_qualified_dataset
+
+        print(f"Not enough human temporal sentences ({len(human_qualified_dataset)}), "
+              f"using ML temporal sentences instead")
+        return Sentence.objects.filter(Q(human_temporal__isnull=False)
+                                       | Q(ml_temporal__isnull=False)).all()
+
     if target == Classifier.Target.CONFESSION:
         human_qualified_dataset = Sentence.objects.filter(human_confession__isnull=False).all()
         if len(human_qualified_dataset) >= MIN_DATASET_SIZE:
@@ -66,6 +76,13 @@ def extract_label(sentence: Sentence, target: Classifier.Target) -> StringEnum:
             return BooleanStringEnum.from_bool(sentence.ml_schedule)
         raise ValueError(f'Sentence {sentence.uuid} has no schedule for target {target}')
 
+    if target == Classifier.Target.TEMPORAL:
+        if sentence.human_temporal is not None:
+            return TemporalMotion(sentence.human_temporal)
+        if sentence.ml_temporal is not None:
+            return TemporalMotion(sentence.ml_temporal)
+        raise ValueError(f'Sentence {sentence.uuid} has no temporal for target {target}')
+
     if target == Classifier.Target.CONFESSION:
         if sentence.human_confession is not None:
             return EventMotion(sentence.human_confession)
@@ -92,6 +109,11 @@ def set_label(sentence: Sentence, label: StringEnum, classifier: Classifier) -> 
         assert isinstance(label, BooleanStringEnum)
         sentence.ml_schedule = label.to_bool()
         sentence.schedule_classifier = classifier
+        return
+
+    if classifier.target == Classifier.Target.TEMPORAL:
+        sentence.ml_temporal = label
+        sentence.temporal_classifier = classifier
         return
 
     if classifier.target == Classifier.Target.CONFESSION:
