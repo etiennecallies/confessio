@@ -265,8 +265,7 @@ class Sentence(TimeStampMixin):
     classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,
                                    related_name='sentences', null=True)
     # v2
-    ml_temporal = models.CharField(max_length=5, choices=TemporalMotion.choices(),
-                                   null=True)  # TODO not null when all sentences are migrated
+    ml_temporal = models.CharField(max_length=5, choices=TemporalMotion.choices())
     human_temporal = models.CharField(max_length=5, choices=TemporalMotion.choices(), null=True)
     temporal_classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,
                                             related_name='temporal_sentences', null=True)

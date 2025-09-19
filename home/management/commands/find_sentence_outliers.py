@@ -50,15 +50,12 @@ class Command(AbstractCommand):
                     remove_sentence_not_validated_moderation(sentence)
             else:
                 human_confession = extract_label(sentence, Classifier.Target.CONFESSION)
-                human_schedule = extract_label(sentence, Classifier.Target.SCHEDULE)
-                human_specifier = extract_label(sentence, Classifier.Target.SPECIFIER)
+                human_temporal = extract_label(sentence, Classifier.Target.TEMPORAL)
 
                 ml_confession = get_ml_label(sentence, Classifier.Target.CONFESSION)
-                ml_schedule = get_ml_label(sentence, Classifier.Target.SCHEDULE)
-                ml_specifier = get_ml_label(sentence, Classifier.Target.SPECIFIER)
+                ml_temporal = get_ml_label(sentence, Classifier.Target.TEMPORAL)
 
-                if human_confession != ml_confession or human_schedule != ml_schedule or \
-                        human_specifier != ml_specifier:
+                if human_confession != ml_confession or human_temporal != ml_temporal:
                     nb_sentence_outliers += 1
                     add_sentence_v2_moderation(sentence)
                 else:

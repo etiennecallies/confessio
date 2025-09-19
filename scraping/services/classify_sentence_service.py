@@ -8,7 +8,7 @@ from scraping.prune.transform_sentence import get_transformer, TransformerInterf
     TRANSFORMER_NAME
 from scraping.services.classifier_target_service import get_target_enum
 from scraping.services.train_classifier_service import set_label
-from scraping.utils.enum_utils import StringEnum, BooleanStringEnum
+from scraping.utils.enum_utils import StringEnum
 
 _classifier = {}
 _classifier_lock = threading.Lock()
@@ -107,12 +107,6 @@ def get_ml_label(sentence: Sentence, target: Classifier.Target) -> StringEnum:
     if target == Classifier.Target.ACTION:
         if sentence.source == Source.ML and sentence.classifier_id == classifier.uuid:
             return Action(sentence.action)
-    elif target == Classifier.Target.SPECIFIER:
-        if sentence.specifier_classifier_id == classifier.uuid:
-            return BooleanStringEnum.from_bool(sentence.ml_specifier)
-    elif target == Classifier.Target.SCHEDULE:
-        if sentence.schedule_classifier_id == classifier.uuid:
-            return BooleanStringEnum.from_bool(sentence.ml_schedule)
     elif target == Classifier.Target.TEMPORAL:
         if sentence.temporal_classifier_id == classifier.uuid:
             return TemporalMotion(sentence.ml_temporal)

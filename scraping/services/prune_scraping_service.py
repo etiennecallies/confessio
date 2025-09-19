@@ -14,7 +14,7 @@ from scraping.extract.extract_content import BaseActionInterface
 from scraping.extract.extract_content import extract_paragraphs_lines_and_indices
 from scraping.extract.extract_interface import ExtractMode
 from scraping.extract_v2.extract_content import extract_paragraphs_lines_and_indices_v2
-from scraping.extract_v2.models import TagV2, EventMotion
+from scraping.extract_v2.models import TagV2, EventMotion, TemporalMotion
 from scraping.extract_v2.qualify_line_interfaces import BaseQualifyLineInterface
 from scraping.prune.models import Action, Source
 from scraping.services.classify_sentence_service import classify_and_create_sentence
@@ -57,22 +57,15 @@ class SentenceQualifyLineInterface(BaseQualifyLineInterface):
             sentence.prunings.add(self.pruning)
 
         tags = set()
-        if sentence.human_schedule is not None:
-            if sentence.human_schedule:
+        if sentence.human_temporal is not None or sentence.ml_temporal is not None:
+            temporal = TemporalMotion(sentence.human_temporal or sentence.ml_temporal)
+            if temporal == TemporalMotion.SCHED:
                 tags.add(TagV2.SCHEDULE)
-        elif sentence.ml_schedule is not None:
-            if sentence.ml_schedule:
-                tags.add(TagV2.SCHEDULE)
-        else:
-            raise ValueError(f'Sentence {sentence.uuid} has no human schedule nor ML schedule')
-        if sentence.human_specifier is not None:
-            if sentence.human_specifier:
-                tags.add(TagV2.SPECIFIER)
-        elif sentence.ml_specifier is not None:
-            if sentence.ml_specifier:
+            elif temporal == TemporalMotion.SPEC:
                 tags.add(TagV2.SPECIFIER)
         else:
-            raise ValueError(f'Sentence {sentence.uuid} has no human specifier nor ML specifier')
+            raise ValueError(f'Sentence {sentence.uuid} has no human '
+                             f'temporal nor ML temporal')
 
         if sentence.human_confession is not None:
             event_motion = EventMotion(sentence.human_confession)
@@ -101,16 +94,14 @@ class MLSentenceQualifyLineInterface(SentenceQualifyLineInterface):
             sentence.prunings.add(self.pruning)
 
         tags = set()
-        if sentence.ml_schedule is not None:
-            if sentence.ml_schedule:
+        if sentence.ml_temporal is not None:
+            temporal = TemporalMotion(sentence.ml_temporal)
+            if temporal == TemporalMotion.SCHED:
                 tags.add(TagV2.SCHEDULE)
-        else:
-            raise ValueError(f'Sentence {sentence.uuid} has no ML schedule')
-        if sentence.ml_specifier is not None:
-            if sentence.ml_specifier:
+            elif temporal == TemporalMotion.SPEC:
                 tags.add(TagV2.SPECIFIER)
         else:
-            raise ValueError(f'Sentence {sentence.uuid} has no ML specifier')
+            raise ValueError(f'Sentence {sentence.uuid} has no ML temporal')
 
         if sentence.ml_confession is not None:
             event_motion = EventMotion(sentence.ml_confession)
