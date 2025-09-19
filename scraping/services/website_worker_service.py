@@ -1,6 +1,6 @@
 import asyncio
+import time
 import traceback
-from datetime import datetime
 
 from background_task import background
 from background_task.tasks import TaskSchedule
@@ -20,7 +20,7 @@ from scraping.services.scrape_page_service import upsert_extracted_html_list
 ########################
 
 @background(queue='main', schedule=TaskSchedule(priority=2))
-def worker_crawl_website(website_uuid: str, timeout_dt: datetime | None):
+def worker_crawl_website(website_uuid: str, timeout_ts: int | None):
     try:
         website = Website.objects.get(uuid=website_uuid)
     except Website.DoesNotExist:
@@ -28,9 +28,9 @@ def worker_crawl_website(website_uuid: str, timeout_dt: datetime | None):
         return
 
     start_log_buffer()
-    now = datetime.now()
-    if timeout_dt and now > timeout_dt:
-        info(f'Timeout reached before starting crawling, now = {now}, timeout = {timeout_dt}')
+    now = int(time.time())
+    if timeout_ts and now > timeout_ts:
+        info(f'Timeout reached before starting crawling, now = {now}, timeout_ts = {timeout_ts}')
         save_buffer(website, Log.Type.CRAWLING, Log.Status.TIMEOUT)
         return
 
@@ -76,7 +76,7 @@ def handle_crawl_website(website: Website):
 ######################
 
 @background(queue='main', schedule=TaskSchedule(priority=1))
-def worker_scrape_page(website_uuid: str, timeout_dt: datetime | None):
+def worker_scrape_page(website_uuid: str, timeout_ts: int | None):
     try:
         website = Website.objects.get(uuid=website_uuid)
     except Website.DoesNotExist:
@@ -84,9 +84,9 @@ def worker_scrape_page(website_uuid: str, timeout_dt: datetime | None):
         return
 
     start_log_buffer()
-    now = datetime.now()
-    if timeout_dt and now > timeout_dt:
-        info(f'Timeout reached before starting scraping, now = {now}, timeout = {timeout_dt}')
+    now = int(time.time())
+    if timeout_ts and now > timeout_ts:
+        info(f'Timeout reached before starting scraping, now = {now}, timeout_ts = {timeout_ts}')
         save_buffer(website, Log.Type.SCRAPING, Log.Status.TIMEOUT)
         return
 

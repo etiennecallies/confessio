@@ -1,4 +1,3 @@
-import datetime
 import time
 from datetime import timedelta
 
@@ -47,13 +46,13 @@ class Command(AbstractCommand):
             websites = Website.objects.filter(is_active=True) \
                 .order_by(F('crawling').asc(nulls_first=True)).all()
 
-        timeout_dt = None
+        timeout_ts = None
         if options['timeout']:
-            timeout_dt = datetime.datetime.now() + timedelta(seconds=options['timeout'])
+            timeout_ts = int(time.time()) + options['timeout']
 
         self.info(f'Enqueuing crawling websites...')
         counter = 0
         for website in websites:
             counter += 1
-            worker_crawl_website(str(website.uuid), timeout_dt)
+            worker_crawl_website(str(website.uuid), timeout_ts)
         self.success(f'Enqueued {counter} websites for crawling.')

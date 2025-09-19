@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+import time
 
 from django.db.models import F
 
@@ -21,13 +21,13 @@ class Command(AbstractCommand):
             websites = Website.objects.filter(is_active=True, pages__isnull=False)\
                 .order_by(F('pages__scraping__updated_at').asc(nulls_first=True)).distinct()
 
-        timeout_dt = None
+        timeout_ts = None
         if options['timeout']:
-            timeout_dt = datetime.now() + timedelta(seconds=options['timeout'])
+            timeout_ts = int(time.time()) + options['timeout']
 
         self.info(f'Enqueuing scraping pages...')
         counter = 0
         for website in websites:
             counter += 1
-            worker_scrape_page(str(website.uuid), timeout_dt)
+            worker_scrape_page(str(website.uuid), timeout_ts)
         self.success(f'Enqueued {counter} websites for scrape pages.')
