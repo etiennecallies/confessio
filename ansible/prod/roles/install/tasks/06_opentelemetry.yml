@@ -47,21 +47,18 @@
           datapoint:
             - 'metric.name == "system.filesystem.utilization" and attributes["mountpoint"] != "/"'
       batch: {}
-      attributes/betterstack:
-        actions:
-          - key: better_stack_source_token
-            value: '{{ otel_better_stack_source_token }}'
-            action: insert
 
     otel_collector_exporters:
 #      debug:
 #        verbosity: detailed
-      prometheusremotewrite/betterstack:
-        endpoint: "https://in-otel.logs.betterstack.com/metrics"
+      otlphttp/betterstack:
+        endpoint: "{{ otel_better_stack_ingesting_host }}"
+        headers:
+          Authorization: "Bearer {{ otel_better_stack_source_token }}"
 
     otel_collector_service:
       pipelines:
         metrics:
           receivers: [hostmetrics, otlp]
-          processors: [resourcedetection, filter/ottl, batch, attributes/betterstack]
-          exporters: [prometheusremotewrite/betterstack]
+          processors: [resourcedetection, filter/ottl, batch]
+          exporters: [otlphttp/betterstack]

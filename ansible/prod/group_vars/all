@@ -47,6 +47,7 @@ aws_access_key: "{{ lookup('ansible.builtin.env', 'AWS_ACCESS_KEY') }}"
 aws_secret_key: "{{ lookup('ansible.builtin.env', 'AWS_SECRET_KEY') }}"
 
 # OpenTelemetry
+otel_better_stack_ingesting_host: "{{ lookup('ansible.builtin.env', 'OTEL_BETTER_STACK_INGESTING_HOST') }}"
 otel_better_stack_source_token: "{{ lookup('ansible.builtin.env', 'OTEL_BETTER_STACK_SOURCE_TOKEN') }}"
 
 # SSH
