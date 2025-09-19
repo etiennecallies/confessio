@@ -8,4 +8,4 @@
     uv pip install -r {{ app_dir }}/prod_requirements.txt
   notify:
     - restart app
-    - restart background_parsing
+    - restart background_main

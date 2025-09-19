@@ -423,7 +423,7 @@ def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: b
     print_memory_usage('needs to parse')
 
 
-@background(queue='parsing', schedule=TaskSchedule(priority=3))
+@background(queue='main', schedule=TaskSchedule(priority=3))
 def worker_parse_pruning_for_website(pruning_uuid: str, website_uuid: str, force_parse: bool):
     try:
         pruning = Pruning.objects.get(uuid=pruning_uuid)

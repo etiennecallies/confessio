@@ -9,8 +9,8 @@
     - restart app
 
 - name: write a systemd service file for django background tasks
-  template: src=background_parsing.service
+  template: src=background_main.service
                     dest=/etc/systemd/system
   become: yes
   notify:
-    - restart background_parsing
+    - restart background_main

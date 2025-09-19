@@ -19,7 +19,7 @@ from scraping.services.scrape_page_service import upsert_extracted_html_list
 # CRAWL WEBSITE WORKER #
 ########################
 
-@background(queue='parsing', schedule=TaskSchedule(priority=2))
+@background(queue='main', schedule=TaskSchedule(priority=2))
 def worker_crawl_website(website_uuid: str, timeout_dt: datetime | None):
     try:
         website = Website.objects.get(uuid=website_uuid)
@@ -75,7 +75,7 @@ def handle_crawl_website(website: Website):
 # SCRAPE PAGE WORKER #
 ######################
 
-@background(queue='parsing', schedule=TaskSchedule(priority=1))
+@background(queue='main', schedule=TaskSchedule(priority=1))
 def worker_scrape_page(website_uuid: str, timeout_dt: datetime | None):
     try:
         website = Website.objects.get(uuid=website_uuid)
