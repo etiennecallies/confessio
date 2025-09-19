@@ -173,7 +173,11 @@ def classify_and_create_sentence(stringified_line: str,
                                                                       Classifier.Target.CONFESSION)
     set_label(sentence, ml_confession, confession_classifier)
 
-    # Save sentence
-    sentence.save()
+    try:
+        # In the meantime, a sentence with the same line could have been created
+        return Sentence.objects.get(line=stringified_line)
+    except Sentence.DoesNotExist:
+        # Save sentence
+        sentence.save()
 
-    return sentence
+        return sentence
