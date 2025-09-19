@@ -6,9 +6,14 @@ class MetricsService:
         meter = get_meter(__name__)
 
         # Create all metrics once here
-        self.response_time_histogram = meter.create_histogram(
-            "http.server.response.time",
-            description="Response time by URL name",
+        self.response_count = meter.create_counter(
+            "http.server.response.count",
+            description="Number of responses by URL name",
+        )
+
+        self.response_time_sum = meter.create_counter(
+            "http.server.response.time.sum",
+            description="Total response time by URL name",
         )
 
         self.warning_counter = meter.create_counter(
@@ -17,9 +22,9 @@ class MetricsService:
         )
 
     def record_response_time(self, elapsed_time, url_name):
-        self.response_time_histogram.record(elapsed_time, {
-            "url_name": url_name,
-        })
+        attributes = {"url_name": url_name}
+        self.response_count.add(1, attributes)
+        self.response_time_sum.add(elapsed_time, attributes)
 
     def increment_warning_counter(self, warning_name):
         self.warning_counter.add(1, {
