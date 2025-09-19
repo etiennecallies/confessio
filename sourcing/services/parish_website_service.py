@@ -1,5 +1,3 @@
-import asyncio
-
 from home.models import Parish, Website, WebsiteModeration
 from scraping.utils.string_search import normalize_content, get_words
 from sourcing.services.merge_websites_service import add_website_moderation
@@ -88,7 +86,7 @@ def get_new_website_for_parish(parish: Parish) -> Website | None:
         if is_link_ok(result.link) and is_title_ok(result.title):
             print(f'got result {result.title} {result.link}')
             # We can not take result.title since it's truncated by google
-            website_title = asyncio.run(get_page_title(result.link))
+            website_title = get_page_title(result.link)
             if not website_title:
                 print(f'got no title for {result.link} (Google said "{result.title}")')
                 continue

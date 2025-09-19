@@ -1,10 +1,9 @@
-import asyncio
 import json
 import os
 import unittest
 
-from scraping.download.download_content import get_domain
 from scraping.crawl.extract_links import parse_content_links
+from scraping.download.download_content import get_domain
 
 
 class TestExtractLinks(unittest.TestCase):
@@ -29,8 +28,8 @@ class TestExtractLinks(unittest.TestCase):
                 with open(f'{tests_dir}/fixtures/urls/{file_name}.json') as f:
                     expected_links = json.load(f)
                 content = ''.join(lines)
-                links = asyncio.run(parse_content_links(content, home_url, {get_domain(home_url)},
-                                                        set(forbidden_outer_paths), {}, set()))
+                links = parse_content_links(content, home_url, {get_domain(home_url)},
+                                            set(forbidden_outer_paths), {}, set())
                 # print(json.dumps(list(links), indent=2))
                 self.assertSetEqual(links, set(expected_links), f'Failed for {file_name}')
 

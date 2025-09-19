@@ -1,4 +1,3 @@
-import asyncio
 from abc import ABC, abstractmethod
 from statistics import mean
 from typing import Optional
@@ -103,8 +102,8 @@ def update_parish(parish: Parish,
     # Check website
     if external_parish.website:
         if parish.website \
-                and asyncio.run(redirects_to_other_url(external_parish.website.home_url,
-                                                       parish.website.home_url)):
+                and redirects_to_other_url(external_parish.website.home_url,
+                                           parish.website.home_url):
             return
 
         try:

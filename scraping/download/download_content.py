@@ -21,13 +21,13 @@ def get_headers():
     }
 
 
-async def get_content_length(url):
+def get_content_length(url):
     info(f'getting content length from url {url}')
 
     headers = get_headers()
     try:
-        async with httpx.AsyncClient() as client:
-            r = await client.get(url, headers=headers, timeout=TIMEOUT)
+        with httpx.Client() as client:
+            r = client.get(url, headers=headers, timeout=TIMEOUT)
             r.raise_for_status()
     except httpx.HTTPError as e:
         info(e)
@@ -36,7 +36,7 @@ async def get_content_length(url):
     content_length = r.headers.get('Content-Length')
     if not content_length:
         total_size = 0
-        async for chunk in r.aiter_bytes(chunk_size=8192):
+        for chunk in r.iter_bytes(chunk_size=8192):
             total_size += len(chunk)
             if total_size > MAX_SIZE:
                 info("File size exceeds limit. Download aborted.")
@@ -47,10 +47,10 @@ async def get_content_length(url):
     return int(content_length)
 
 
-async def get_content_from_url(url: str) -> str | None:
+def get_content_from_url(url: str) -> str | None:
     # Handle heavy pdf files
     if url.endswith('.pdf'):
-        content_length = await get_content_length(url)
+        content_length = get_content_length(url)
         if content_length is None:
             info(f'could not get content length from url {url}')
             return None
@@ -65,8 +65,8 @@ async def get_content_from_url(url: str) -> str | None:
 
     headers = get_headers()
     try:
-        async with httpx.AsyncClient() as client:
-            r = await client.get(url, headers=headers, timeout=TIMEOUT, follow_redirects=True)
+        with httpx.Client() as client:
+            r = client.get(url, headers=headers, timeout=TIMEOUT, follow_redirects=True)
     except HTTPError as e:
         info(e)
         return None
@@ -113,8 +113,8 @@ def is_pdf(r: Response) -> bool:
     return False
 
 
-async def get_url_aliases(url, already_seen: set | None = None
-                          ) -> tuple[list[tuple[str, str]], Optional[str]]:
+def get_url_aliases(url, already_seen: set | None = None
+                    ) -> tuple[list[tuple[str, str]], Optional[str]]:
     if already_seen and url in already_seen:
         info(f'url {url} already seen, stopping there')
         return [], f'url {url} already seen'
@@ -123,13 +123,13 @@ async def get_url_aliases(url, already_seen: set | None = None
 
     headers = get_headers()
     try:
-        async with httpx.AsyncClient() as client:
-            r = await client.get(url, headers=headers, follow_redirects=False, timeout=TIMEOUT)
+        with httpx.Client() as client:
+            r = client.get(url, headers=headers, follow_redirects=False, timeout=TIMEOUT)
     except HTTPError as e:
         attempt_with_https = replace_http_with_https(url)
         if attempt_with_https:
             info(f'error with http, trying https: {e}')
-            return await get_url_aliases(attempt_with_https, (already_seen or set()) | {url})
+            return get_url_aliases(attempt_with_https, (already_seen or set()) | {url})
 
         return [], str(e)
 
@@ -157,8 +157,8 @@ async def get_url_aliases(url, already_seen: set | None = None
         if not redirect_url_parsed.netloc:
             redirect_url = replace_scheme_and_hostname(redirect_url_parsed, new_url=url)
 
-        url_aliases, error_message = await get_url_aliases(redirect_url,
-                                                           (already_seen or set()) | {url})
+        url_aliases, error_message = get_url_aliases(redirect_url,
+                                                     (already_seen or set()) | {url})
         if not url_aliases:
             info(f'tried to follow redirect location {redirect_url} but got error {error_message}')
         else:
@@ -167,19 +167,19 @@ async def get_url_aliases(url, already_seen: set | None = None
     return aliases, None
 
 
-async def redirects_to_other_url(url1: str, url2: str) -> bool:
+def redirects_to_other_url(url1: str, url2: str) -> bool:
     if are_similar_urls(url1, url2):
         return True
 
-    aliases, _ = await get_url_aliases(url1)
+    aliases, _ = get_url_aliases(url1)
     for url, domain in aliases:
         if are_similar_urls(url, url2):
             return True
     return False
 
 
-async def get_url_redirection(url: str):
-    aliases, _ = await get_url_aliases(url)
+def get_url_redirection(url: str):
+    aliases, _ = get_url_aliases(url)
     if not aliases:
         return None
 

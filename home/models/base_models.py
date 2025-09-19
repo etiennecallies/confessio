@@ -103,13 +103,6 @@ class Website(TimeStampMixin):
 
         return self.parishes.first().diocese
 
-    async def async_get_diocese(self) -> Diocese | None:
-        if not await self.parishes.aexists():
-            return None
-
-        first_parish = await self.parishes.select_related('diocese').afirst()
-        return first_parish.diocese
-
 
 class Parish(TimeStampMixin):
     name = models.CharField(max_length=100)

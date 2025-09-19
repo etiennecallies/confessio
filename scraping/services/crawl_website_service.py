@@ -1,7 +1,6 @@
 from typing import Optional
 
 from home.models import Website, Crawling, Page, WebsiteModeration
-from home.utils.async_utils import run_in_sync
 from home.utils.log_utils import info
 from scraping.crawl.download_and_search_urls import search_for_confession_pages, \
     get_new_url_and_aliases, forbid_diocese_home_links
@@ -44,43 +43,43 @@ def update_home_url(website: Website, new_home_url: str):
         remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_CONFLICT)
 
 
-async def handle_diocese_domain(website: Website, domain_has_changed: bool,
-                                aliases_domains: set[str],
-                                forbidden_paths: set[str], path_redirection: dict[str, str]):
-    diocese = await website.async_get_diocese()
+def handle_diocese_domain(website: Website, domain_has_changed: bool,
+                          aliases_domains: set[str],
+                          forbidden_paths: set[str], path_redirection: dict[str, str]):
+    diocese = website.get_diocese()
     if diocese and diocese.home_url:
         if domain_has_changed:
             info('check if diocese home_url has changed')
             new_diocese_url, diocese_aliases_domains, error_message = \
-                await get_new_url_and_aliases(diocese.home_url)
+                get_new_url_and_aliases(diocese.home_url)
             if error_message:
                 info(f'error in get_new_url_and_aliases for diocese with url {diocese.home_url}: '
                      f'{error_message}')
             elif new_diocese_url != diocese.home_url:
                 info(f'it has changed! Replacing it. New url: {new_diocese_url}')
                 diocese.home_url = new_diocese_url
-                await diocese.asave()
+                diocese.save()
 
         if have_similar_domain(website.home_url, diocese.home_url):
             info('Website and diocese have similar domain, forbidding diocese home links')
-            forbidden_paths |= await forbid_diocese_home_links(diocese.home_url,
-                                                               aliases_domains,
-                                                               path_redirection)
+            forbidden_paths |= forbid_diocese_home_links(diocese.home_url,
+                                                         aliases_domains,
+                                                         path_redirection)
 
 
-async def do_crawl_website(website: Website) -> tuple[dict[str, list[str]], int, Optional[str]]:
+def do_crawl_website(website: Website) -> tuple[dict[str, list[str]], int, Optional[str]]:
     if not website.enabled_for_crawling:
         return {}, 0, None
 
     # Get home_url aliases
-    new_home_url, aliases_domains, error_message = await get_new_url_and_aliases(website.home_url)
+    new_home_url, aliases_domains, error_message = get_new_url_and_aliases(website.home_url)
     if error_message:
         return {}, 0, f'error in get_url_aliases: {error_message}'
 
     # Update home_url if needed
     if website.home_url != new_home_url:
         domain_has_changed = True
-        await run_in_sync(update_home_url, website, new_home_url)
+        update_home_url(website, new_home_url)
     else:
         domain_has_changed = False
 
@@ -90,44 +89,38 @@ async def do_crawl_website(website: Website) -> tuple[dict[str, list[str]], int,
         same_domain_websites = Website.objects\
             .filter(home_url__contains=alias_domain, is_active=True)\
             .exclude(uuid=website.uuid).all()
-        async for other_website in same_domain_websites:
+        for other_website in same_domain_websites:
             if get_domain(other_website.home_url) in aliases_domains:
                 forbidden_outer_paths.add(get_path(other_website.home_url))
 
     path_redirection = {}
-    await handle_diocese_domain(website,
-                                domain_has_changed, aliases_domains, forbidden_outer_paths,
-                                path_redirection)
+    handle_diocese_domain(website,
+                          domain_has_changed, aliases_domains, forbidden_outer_paths,
+                          path_redirection)
 
     forbidden_paths = set()
-    async for forbidden_path in website.forbidden_paths.all():
+    for forbidden_path in website.forbidden_paths.all():
         print(f'Adding forbidden path {forbidden_path.path} for website {website.name}')
         forbidden_paths.add(forbidden_path.path)
 
     # Actually crawling website
-    return await search_for_confession_pages(new_home_url, aliases_domains, forbidden_outer_paths,
-                                             path_redirection, forbidden_paths)
+    return search_for_confession_pages(new_home_url, aliases_domains, forbidden_outer_paths,
+                                       path_redirection, forbidden_paths)
 
 
-async def crawl_website(website: Website) -> tuple[bool, bool]:
+def crawl_website(website: Website) -> tuple[bool, bool]:
     # check if website has parish
-    if not await website.parishes.aexists():
-        await website.adelete()
+    if not website.parishes.exists():
+        website.delete()
         info('website has no parish')
         return False, False
 
-    extracted_html_list_by_url, nb_visited_links, error_detail = await do_crawl_website(website)
+    extracted_html_list_by_url, nb_visited_links, error_detail = do_crawl_website(website)
 
-    await run_in_sync(process_extracted_html,
-                      website,
-                      extracted_html_list_by_url)
+    process_extracted_html(website, extracted_html_list_by_url)
 
-    return await run_in_sync(save_crawling_and_add_moderation,
-                             website,
-                             len(extracted_html_list_by_url),
-                             nb_visited_links,
-                             error_detail,
-                             )
+    return save_crawling_and_add_moderation(
+        website, len(extracted_html_list_by_url), nb_visited_links, error_detail)
 
 
 def process_extracted_html(

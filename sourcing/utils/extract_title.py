@@ -1,12 +1,10 @@
-import asyncio
-
 from bs4 import BeautifulSoup
 
 from scraping.download.download_content import get_content_from_url
 
 
-async def get_page_title(url):
-    html = await get_content_from_url(url)
+def get_page_title(url):
+    html = get_content_from_url(url)
     if not html:
         return None
 
@@ -22,4 +20,4 @@ async def get_page_title(url):
 
 
 if __name__ == '__main__':
-    print(asyncio.run(get_page_title('http://www.montsdelamadeleine.fr/')))
+    print(get_page_title('http://www.montsdelamadeleine.fr/'))

@@ -1,4 +1,3 @@
-import asyncio
 import time
 import traceback
 
@@ -41,7 +40,7 @@ def handle_crawl_website(website: Website):
     info(f'Starting crawling for website {website.name} {website.uuid}')
 
     try:
-        got_pages_with_content, some_pages_visited = asyncio.run(crawl_website(website))
+        got_pages_with_content, some_pages_visited = crawl_website(website)
     except Exception:
         info(f'Exception while crawling website {website.name} {website.uuid}')
         stack_trace = traceback.format_exc()
@@ -99,7 +98,7 @@ def handle_scrape_page(website: Website):
     for page in website.get_pages():
         if website.enabled_for_crawling:
             # Actually do the scraping
-            extracted_html_list = asyncio.run(get_fresh_extracted_html_list(page.url))
+            extracted_html_list = get_fresh_extracted_html_list(page.url)
         else:
             extracted_html_list = []
 
