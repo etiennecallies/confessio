@@ -1,6 +1,6 @@
 import time
 
-from django.db.models import F
+from django.db.models import F, Min
 
 from home.management.abstract_command import AbstractCommand
 from home.models import Website
@@ -18,8 +18,9 @@ class Command(AbstractCommand):
         if options['name']:
             websites = Website.objects.filter(is_active=True, name__contains=options['name']).all()
         else:
-            websites = Website.objects.filter(is_active=True, pages__isnull=False)\
-                .order_by(F('pages__scraping__updated_at').asc(nulls_first=True)).distinct()
+            websites = Website.objects.filter(is_active=True, pages__isnull=False) \
+                .annotate(earliest_update=Min('pages__scraping__updated_at')) \
+                .order_by(F('earliest_update').asc(nulls_first=True))
 
         timeout_ts = None
         if options['timeout']:
