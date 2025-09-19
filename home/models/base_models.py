@@ -286,10 +286,8 @@ class Classifier(TimeStampMixin):
         # V1
         ACTION = "action"
         # V2
-        SPECIFIER = "specifier"
-        SCHEDULE = "schedule"
-        CONFESSION = "confession"
         TEMPORAL = "temporal"
+        CONFESSION = "confession"
 
     transformer_name = models.CharField(max_length=100)
     status = models.CharField(max_length=5, choices=Status)
