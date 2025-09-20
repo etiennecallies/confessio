@@ -74,13 +74,8 @@
       minute: 15
       memory_max: "800M"
 
-- name: Add cron without lock nor memory limit for commands
+- name: Add cron to unlock dead tasks every minute
   cron:
-    name: "{{ item.name }}"
-    hour: "{{ item.hour }}"
-    minute: "{{ item.minute }}"
-    job: "(tmux has-session -t {{ item.name }} || tmux new-session -d -s {{ item.name }}) && tmux send-keys -t {{ item.name }} '. {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py {{ item.command }}' C-m"
-  with_items:
-    - name: unlock_dead_tasks
-      command: "unlock_dead_tasks"
-      minute: "*"
+    name: "unlock_dead_tasks"
+    minute: "*"
+    job: "(tmux has-session -t unlock_dead_tasks || tmux new-session -d -s unlock_dead_tasks) && tmux send-keys -t unlock_dead_tasks '. {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py unlock_dead_tasks' C-m"
