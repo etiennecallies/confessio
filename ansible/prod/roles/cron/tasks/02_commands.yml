@@ -73,3 +73,14 @@
       hour: "23"
       minute: 15
       memory_max: "800M"
+
+- name: Add cron without lock nor memory limit for commands
+  cron:
+    name: "{{ item.name }}"
+    hour: "{{ item.hour }}"
+    minute: "{{ item.minute }}"
+    job: "(tmux has-session -t {{ item.name }} || tmux new-session -d -s {{ item.name }}) && tmux send-keys -t {{ item.name }} '. {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py {{ item.command }}' C-m"
+  with_items:
+    - name: unlock_dead_tasks
+      command: "unlock_dead_tasks"
+      minute: "*"
