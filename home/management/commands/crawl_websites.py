@@ -6,7 +6,8 @@ from django.utils import timezone
 
 from home.management.abstract_command import AbstractCommand
 from home.models import Website, WebsiteModeration
-from scraping.services.website_worker_service import worker_crawl_website
+from home.utils.log_utils import start_log_buffer
+from scraping.services.website_worker_service import worker_crawl_website, handle_crawl_website
 
 
 class Command(AbstractCommand):
@@ -22,6 +23,8 @@ class Command(AbstractCommand):
     def add_arguments(self, parser):
         parser.add_argument('-n', '--name', help='name of website to crawl')
         parser.add_argument('-t', '--timeout', help='timeout in seconds', type=int, default=0)
+        parser.add_argument('-d', '--direct', action="store_true",
+                            help='crawl directly without going through the queue')
         parser.add_argument('--in-error', action="store_true",
                             help='only websites with not validated home url moderation')
         parser.add_argument('--no-recent', action="store_true",
@@ -54,5 +57,13 @@ class Command(AbstractCommand):
         counter = 0
         for website in websites:
             counter += 1
-            worker_crawl_website(str(website.uuid), timeout_ts)
-        self.success(f'Enqueued {counter} websites for crawling.')
+            if options['direct']:
+                start_log_buffer()
+                handle_crawl_website(website)
+            else:
+                worker_crawl_website(str(website.uuid), timeout_ts)
+
+        if options['direct']:
+            self.success(f'Crawled {counter} websites directly.')
+        else:
+            self.success(f'Enqueued {counter} websites for crawling.')

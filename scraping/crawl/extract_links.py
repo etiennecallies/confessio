@@ -63,6 +63,9 @@ IGNORED_EXTENSIONS = [
 
     # calendar
     '.ics',
+
+    # archive
+    '.zip',
 ]
 
 
