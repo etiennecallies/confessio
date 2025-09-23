@@ -45,10 +45,10 @@ def handle_crawl_website(website: Website):
         info(f'Exception while crawling website {website.name} {website.uuid}')
         stack_trace = traceback.format_exc()
         if len(stack_trace) > 8000:
-            print(stack_trace[:4000] + '...')
-            print('...' + stack_trace[-4000:])
+            info(stack_trace[:4000] + '...')
+            info('...' + stack_trace[-4000:])
         else:
-            print(stack_trace)
+            info(stack_trace)
 
         save_buffer(website, Log.Type.CRAWLING, Log.Status.FAILURE)
         return
