@@ -10,7 +10,7 @@ from home.utils.date_utils import get_current_year
 from home.utils.hash_utils import hash_string_to_hex
 from scraping.parse.explain_schedule import schedule_item_sort_key, get_explanation_from_schedule
 from scraping.parse.rrule_utils import get_events_from_schedule_item
-from scraping.parse.schedules import Event, ScheduleItem
+from scraping.parse.schedules import Event, ScheduleItem, WeeklyRule, RegularRule
 from scraping.services.parsing_service import get_church_by_id, get_parsing_schedules_list
 
 
@@ -244,8 +244,92 @@ def get_color_of_nullable_church(church: Church | None,
 # MERGE & SORT #
 ################
 
-def get_merged_schedule_items(church_schedule_items: list[ChurchScheduleItem]
-                              ) -> list[ChurchScheduleItem]:
+def merge_similar_weekly_rules_in_group(church_schedule_items: list[ChurchScheduleItem]
+                                        ) -> list[ChurchScheduleItem]:
+    results = []
+    schedules_by_key = {}
+    for church_schedule_item in church_schedule_items:
+        if not church_schedule_item.schedule_item.item.is_regular_rule() or \
+                not church_schedule_item.schedule_item.item.date_rule.is_weekly_rule():
+            results.append(church_schedule_item)
+            continue
+
+        key = (
+            church_schedule_item.schedule_item.item.is_cancellation,
+            church_schedule_item.schedule_item.item.start_time_iso8601,
+            church_schedule_item.schedule_item.item.end_time_iso8601,
+            tuple(sorted(church_schedule_item.schedule_item.item.date_rule.only_in_periods)),
+            tuple(sorted(church_schedule_item.schedule_item.item.date_rule.not_in_periods)),
+            tuple(sorted(church_schedule_item.schedule_item.item.date_rule.not_on_dates)),
+        )
+        schedules_by_key.setdefault(key, []).append(church_schedule_item)
+
+    for schedules_group in schedules_by_key.values():
+        first_schedule = schedules_group[0]
+        if len(schedules_group) == 1:
+            results.append(first_schedule)
+            continue
+
+        combined_weekdays_days = set()
+        for church_schedule_item in schedules_group:
+            combined_weekdays_days.update(
+                church_schedule_item.schedule_item.item.date_rule.rule.by_weekdays)
+
+        first_item = first_schedule.schedule_item.item
+        combined_schedule_item = ScheduleItem(
+            church_id=first_item.church_id,
+            date_rule=RegularRule(
+                rule=WeeklyRule(by_weekdays=list(combined_weekdays_days)),
+                only_in_periods=first_item.date_rule.only_in_periods,
+                not_in_periods=first_item.date_rule.not_in_periods,
+                not_on_dates=first_item.date_rule.not_on_dates,
+            ),
+            is_cancellation=first_item.is_cancellation,
+            start_time_iso8601=first_item.start_time_iso8601,
+            end_time_iso8601=first_item.end_time_iso8601,
+        )
+
+        parsing_uuids = list(set(sum((cs.schedule_item.parsing_uuids for cs in schedules_group),
+                                     [])))
+        combined_events = list(sorted(set(sum(
+            (cs.schedule_item.events for cs in schedules_group), []))))
+
+        combined_parsing_schedule_item = ParsingScheduleItem(
+            item=combined_schedule_item,
+            explanation=get_explanation_from_schedule(combined_schedule_item),
+            parsing_uuids=parsing_uuids,
+            events=combined_events
+        )
+
+        combined_church_schedule_item = ChurchScheduleItem(
+            church=first_schedule.church,
+            is_church_explicitly_other=first_schedule.is_church_explicitly_other,
+            schedule_item=combined_parsing_schedule_item
+        )
+
+        results.append(combined_church_schedule_item)
+
+    return results
+
+
+def merge_similar_weekly_rules(church_schedule_items: list[ChurchScheduleItem]
+                               ) -> list[ChurchScheduleItem]:
+    church_schedule_items_by_church = {}
+    for church_schedule_item in church_schedule_items:
+        church_schedule_items_by_church.setdefault(
+            church_schedule_item.schedule_item.item.church_id, []).append(church_schedule_item)
+
+    church_schedule_items = []
+    for church_schedule_items_group in church_schedule_items_by_church.values():
+        church_schedule_items.extend(
+            merge_similar_weekly_rules_in_group(church_schedule_items_group)
+        )
+
+    return church_schedule_items
+
+
+def eliminate_similar_with_unknow_church(church_schedule_items: list[ChurchScheduleItem]
+                                         ) -> list[ChurchScheduleItem]:
     church_explanations = set()
     for church_schedule_item in church_schedule_items:
         if church_schedule_item.church:
@@ -280,6 +364,17 @@ def get_merged_schedule_items(church_schedule_items: list[ChurchScheduleItem]
         merged_schedules_items.append(merged_schedule)
 
     return merged_schedules_items
+
+
+def get_merged_schedule_items(church_schedule_items: list[ChurchScheduleItem]
+                              ) -> list[ChurchScheduleItem]:
+    # First we merge weekly rules when possible
+    church_schedule_items = merge_similar_weekly_rules(church_schedule_items)
+
+    # Then we eliminate similar schedule_items with unknow church
+    church_schedule_items = eliminate_similar_with_unknow_church(church_schedule_items)
+
+    return church_schedule_items
 
 
 def church_schedule_item_sort_key(church_schedule_item: ChurchScheduleItem) -> tuple:

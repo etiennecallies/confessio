@@ -92,7 +92,8 @@ def get_name_by_period(period: PeriodEnum) -> str:
 def get_weekly_explanation(weekly_rule: WeeklyRule) -> str:
     prefix = "toutes les semaines"
 
-    weekdays = [NAME_BY_WEEKDAY[w] for w in weekly_rule.by_weekdays]
+    weekdays = [NAME_BY_WEEKDAY[w] for w in sorted(weekly_rule.by_weekdays,
+                                                   key=lambda w: POSITION_BY_WEEKDAY[w])]
 
     if not weekdays:
         raise ValueError("No weekday in weekly rrule")
@@ -247,7 +248,7 @@ POSITION_BY_WEEKDAY = {
 
 def get_weekdays_key(regular_rule: RegularRule) -> tuple:
     if isinstance(regular_rule, WeeklyRule):
-        return tuple(POSITION_BY_WEEKDAY[w] for w in regular_rule.by_weekdays)
+        return tuple(sorted(POSITION_BY_WEEKDAY[w] for w in regular_rule.by_weekdays))
 
     return tuple()
 
