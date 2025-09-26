@@ -118,6 +118,7 @@ def get_website_schedules(website: Website,
             if schedule.church_id is not None and schedule.church_id != -1 \
                     and schedule.church_id not in church_by_id:
                 # We ignore schedule for out of scope churches
+                # TODO can it happen?
                 continue
 
             events = get_events_from_schedule_item(schedule, start_date,
@@ -154,6 +155,7 @@ def get_website_schedules(website: Website,
         for church_id, church_schedules in church_schedule_items.items()
     ]
 
+    # Add churches without events
     churches_with_events = {cs.church for cs in merged_church_schedule_items}
     church_sorted_schedules += [
         ChurchSortedSchedules(

@@ -209,6 +209,31 @@ def get_frequency_key(regular_rule: RegularRule) -> int:
     raise ValueError(f"Frequency not implemented yet")
 
 
+POSITION_BY_PERIOD = {
+    PeriodEnum.JANUARY: 1,
+    PeriodEnum.FEBRUARY: 2,
+    PeriodEnum.MARCH: 3,
+    PeriodEnum.APRIL: 4,
+    PeriodEnum.MAY: 5,
+    PeriodEnum.JUNE: 6,
+    PeriodEnum.JULY: 7,
+    PeriodEnum.AUGUST: 8,
+    PeriodEnum.SEPTEMBER: 9,
+    PeriodEnum.OCTOBER: 10,
+    PeriodEnum.NOVEMBER: 11,
+    PeriodEnum.DECEMBER: 12,
+    PeriodEnum.SUMMER: 13,
+    PeriodEnum.WINTER: 14,
+    PeriodEnum.ADVENT: 15,
+    PeriodEnum.LENT: 16,
+    PeriodEnum.SCHOOL_HOLIDAYS: 17,
+}
+
+
+def get_periods_key(periods: list[PeriodEnum]) -> tuple:
+    return tuple(POSITION_BY_PERIOD[p] for p in periods)
+
+
 POSITION_BY_WEEKDAY = {
     Weekday.MONDAY: 0,
     Weekday.TUESDAY: 1,
@@ -229,6 +254,7 @@ def get_weekdays_key(regular_rule: RegularRule) -> tuple:
 
 def regular_rule_sort_key(regular_rule: RegularRule) -> tuple:
     return (
+        get_periods_key(regular_rule.only_in_periods),
         get_frequency_key(regular_rule),
         len(regular_rule.by_weekdays) if isinstance(regular_rule, WeeklyRule) else 0,
         get_weekdays_key(regular_rule),
