@@ -175,7 +175,7 @@ def get_links(element: el, home_url: str, aliases_domains: set[str],
         if not link.has_attr('href'):
             continue
 
-        full_url = link['href']
+        full_url = str(link['href'])
         url_parsed = urlparse(full_url)
 
         # If the link is like "sacrements.html", we build it from any home_url we have
