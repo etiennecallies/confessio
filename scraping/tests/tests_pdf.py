@@ -14,6 +14,7 @@ class MyTestCase(unittest.TestCase):
             'charlesdefoucauld',
             'st-sauveur',
             'nimes',
+            'st-jean-23',
         ]
 
     def test_extract_pdf(self):

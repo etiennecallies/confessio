@@ -55,6 +55,55 @@ def extract_text_from_doc(doc) -> str:
     return convert_text_to_html(text)
 
 
+def find_split_lines(blocks_coords, axis=1):
+    """
+    Find split lines along axis:
+    axis=1 -> horizontal (y)
+    axis=0 -> vertical (x)
+    """
+    # choose relevant coords
+    idx0, idx1 = (1, 3) if axis == 1 else (0, 2)
+
+    candidates = set()
+    for b in blocks_coords:
+        candidates.add(b[idx0])  # top or left
+        candidates.add(b[idx1])  # bottom or right
+
+    valid = []
+    for c in sorted(candidates):
+        ok = True
+        for b in blocks_coords:
+            if not (b[idx1] <= c or b[idx0] >= c):
+                ok = False
+                break
+        if ok:
+            valid.append(c)
+    return valid
+
+
+def find_clip_areas(blocks_coords, page_rect):
+    # First: horizontal splits
+    y_splits = [page_rect[1]] + find_split_lines(blocks_coords, axis=1) + [page_rect[3]]
+    y_splits = sorted(set(y_splits))
+
+    clip_areas = []
+    for y0, y1 in zip(y_splits[:-1], y_splits[1:]):
+        # consider blocks in this vertical band
+        band_blocks = [b for b in blocks_coords if not (b[3] <= y0 or b[1] >= y1)]
+        if not band_blocks:
+            continue
+
+        x_splits = [page_rect[0]] + find_split_lines(band_blocks, axis=0) + [page_rect[2]]
+        x_splits = sorted(set(x_splits))
+        for x0, x1 in zip(x_splits[:-1], x_splits[1:]):
+            # keep only if at least one block intersects this rectangle
+            area_blocks = [b for b in band_blocks if not (b[2] <= x0 or b[0] >= x1)]
+            if area_blocks:
+                clip_areas.append((x0, y0, x1, y1))
+
+    return clip_areas
+
+
 def blocks_are_in_natural_order(blocks):
     coords = [b[:2] for b in blocks]
 
@@ -78,9 +127,12 @@ def extract_text_from_pdf_page(page) -> str:
     if not non_empty_text_blocks:
         return ''
 
-    sort = not blocks_are_in_natural_order(non_empty_text_blocks)
+    if not blocks_are_in_natural_order(non_empty_text_blocks):
+        blocks_coords = [b[:4] for b in non_empty_text_blocks]
+        areas = find_clip_areas(blocks_coords, page.rect)
+        return '<br>'.join(page.get_text('text', sort=True, clip=area) for area in areas)
 
-    return page.get_text('text', sort=sort)
+    return page.get_text('text', sort=False)
 
 
 def extract_text_from_pdf_file(pdf_file: str) -> str:
