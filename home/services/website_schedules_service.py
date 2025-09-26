@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import date, timedelta
-from typing import Optional
+from typing import Optional, Callable
 from uuid import UUID
 
 from home.models import Church, Parsing, Website
@@ -240,12 +240,12 @@ def get_color_of_nullable_church(church: Church | None,
     return get_no_church_color(is_church_explicitly_other)
 
 
-################
-# MERGE & SORT #
-################
+#########
+# MERGE #
+#########
 
-def merge_similar_weekly_rules_in_group(church_schedule_items: list[ChurchScheduleItem]
-                                        ) -> list[ChurchScheduleItem]:
+def merge_similar_weekly_rules_of_church(church_schedule_items: list[ChurchScheduleItem]
+                                         ) -> list[ChurchScheduleItem]:
     results = []
     schedules_by_key = {}
     for church_schedule_item in church_schedule_items:
@@ -312,8 +312,10 @@ def merge_similar_weekly_rules_in_group(church_schedule_items: list[ChurchSchedu
     return results
 
 
-def merge_similar_weekly_rules(church_schedule_items: list[ChurchScheduleItem]
-                               ) -> list[ChurchScheduleItem]:
+def apply_on_same_church(
+        church_schedule_items: list[ChurchScheduleItem],
+        function_on_group: Callable[[list[ChurchScheduleItem]], list[ChurchScheduleItem]]
+) -> list[ChurchScheduleItem]:
     church_schedule_items_by_church = {}
     for church_schedule_item in church_schedule_items:
         church_schedule_items_by_church.setdefault(
@@ -322,7 +324,7 @@ def merge_similar_weekly_rules(church_schedule_items: list[ChurchScheduleItem]
     church_schedule_items = []
     for church_schedule_items_group in church_schedule_items_by_church.values():
         church_schedule_items.extend(
-            merge_similar_weekly_rules_in_group(church_schedule_items_group)
+            function_on_group(church_schedule_items_group)
         )
 
     return church_schedule_items
@@ -366,16 +368,72 @@ def eliminate_similar_with_unknow_church(church_schedule_items: list[ChurchSched
     return merged_schedules_items
 
 
+def eliminate_similar_without_exception_of_church(church_schedule_items: list[ChurchScheduleItem]
+                                                  ) -> list[ChurchScheduleItem]:
+    explanations_dict = {}
+    for church_schedule_item in church_schedule_items:
+        item = church_schedule_item.schedule_item.item
+        if item.is_one_off_rule():
+            continue
+
+        if item.date_rule.only_in_periods or \
+                item.date_rule.not_in_periods or \
+                item.date_rule.not_on_dates:
+            schedule_item_without_exception = item.model_copy(
+                update={
+                    'date_rule': item.date_rule.model_copy(
+                        update={
+                            'only_in_periods': [],
+                            'not_in_periods': [],
+                            'not_on_dates': [],
+                        }
+                    )
+                }
+            )
+            explanation_without_exceptions = get_explanation_from_schedule(
+                schedule_item_without_exception)
+            explanations_dict.setdefault(explanation_without_exceptions, [])\
+                .append(church_schedule_item)
+
+    results = []
+    for church_schedule_item in church_schedule_items:
+        item = church_schedule_item.schedule_item.item
+        if item.is_one_off_rule():
+            results.append(church_schedule_item)
+            continue
+
+        if not item.date_rule.only_in_periods and \
+                not item.date_rule.not_in_periods and \
+                not item.date_rule.not_on_dates:
+            if church_schedule_item.schedule_item.explanation in explanations_dict \
+                    and len(explanations_dict[church_schedule_item.schedule_item.explanation]) == 1:
+                # We keep church_schedule_item with exception
+                continue
+
+        results.append(church_schedule_item)
+
+    return results
+
+
 def get_merged_schedule_items(church_schedule_items: list[ChurchScheduleItem]
                               ) -> list[ChurchScheduleItem]:
     # First we merge weekly rules when possible
-    church_schedule_items = merge_similar_weekly_rules(church_schedule_items)
+    church_schedule_items = apply_on_same_church(church_schedule_items,
+                                                 merge_similar_weekly_rules_of_church)
 
     # Then we eliminate similar schedule_items with unknow church
     church_schedule_items = eliminate_similar_with_unknow_church(church_schedule_items)
 
+    # Finally we eliminate similar schedule_items without exception
+    church_schedule_items = apply_on_same_church(church_schedule_items,
+                                                 eliminate_similar_without_exception_of_church)
+
     return church_schedule_items
 
+
+########
+# SORT #
+########
 
 def church_schedule_item_sort_key(church_schedule_item: ChurchScheduleItem) -> tuple:
     return schedule_item_sort_key(church_schedule_item.schedule_item.item)
