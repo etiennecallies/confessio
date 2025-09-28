@@ -60,8 +60,11 @@ class OneOffRule(BaseModel, frozen=True):
 
         return date(year, self.month, self.day)
 
+    def get_key(self):
+        return self.year, self.month, self.day, self.weekday, self.liturgical_day
+
     def __lt__(self, other: 'OneOffRule') -> bool:
-        return self.model_dump() < other.model_dump()
+        return self.get_key() < other.get_key()
 
 
 ################
