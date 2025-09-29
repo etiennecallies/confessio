@@ -42,6 +42,7 @@ def is_link_ok(link: str) -> bool:
 
         'facebook.com',
         'instagram.com',
+        'flickr.com',
     ]:
         if domain in link:
             return False
