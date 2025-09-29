@@ -46,7 +46,7 @@ class Website(TimeStampMixin):
         FOREIGN_LANGUAGE = "foreign_language"
 
     name = models.CharField(max_length=300)
-    home_url = models.URLField(unique=True)
+    home_url = models.URLField(unique=True, max_length=255)
     is_active = models.BooleanField(default=True)
     enabled_for_crawling = models.BooleanField(default=True)
     crawling = models.OneToOneField('Crawling', on_delete=models.SET_NULL,
