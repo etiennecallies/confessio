@@ -95,13 +95,15 @@ def clean_url_query(url_parsed: ParseResult):
     return url_parsed.geturl()
 
 
-def debug_print_links(url_parsed: ParseResult, prefix: str = ''):
+def debug_print_links(url_parsed: ParseResult, prefix: str = '', url: str | None = None):
     try:
         url_parsed.path.startswith('/category')
     except TypeError:
         info(f'{prefix} url_parsed ' + str(url_parsed))
         info(f'{prefix} type(url_parsed.path) ' + str(type(url_parsed.path)))
         info(f'{prefix} url_parsed.path ' + str(url_parsed.path))
+        if url is not None:
+            info(f'{prefix} url ' + str(url) + ' type(url) ' + str(type(url)))
 
 
 def is_forbidden(url_parsed: ParseResult, home_url: str, forbidden_outer_paths: set[str],
@@ -142,7 +144,7 @@ def is_forbidden(url_parsed: ParseResult, home_url: str, forbidden_outer_paths: 
 
             new_url = path_redirection[url_parsed.path]
             new_url_parsed = urlparse(new_url)
-            debug_print_links(new_url_parsed, 'new_url_parsed')
+            debug_print_links(new_url_parsed, 'new_url_parsed', new_url)
 
             # Get the path with redirection
             if new_url_parsed.path != url_parsed.path:

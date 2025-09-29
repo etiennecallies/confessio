@@ -178,9 +178,10 @@ def redirects_to_other_url(url1: str, url2: str) -> bool:
     return False
 
 
-def get_url_redirection(url: str):
+def get_url_redirection(url: str) -> str | None:
     aliases, _ = get_url_aliases(url)
     if not aliases:
         return None
 
+    # return str(aliases[-1][0])  # TODO be sure it fixes the issue
     return aliases[-1][0]
