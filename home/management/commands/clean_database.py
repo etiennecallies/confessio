@@ -29,6 +29,16 @@ class Command(AbstractCommand):
         delete_count = delete_orphan_scrapings()
         self.success(f'Successfully cleaning {delete_count} orphan scrapings')
 
+        self.info(f'Starting cleaning old parsings')
+        old_parsings = Parsing.objects.filter(website__isnull=True,
+                                              human_json__isnull=True,
+                                              updated_at__lt=timezone.now() - timedelta(days=30)
+                                              ).all()
+        counter = self.delete_objects(old_parsings)
+        self.success(f'Successfully cleaned {counter} old parsings')
+
+        self.clean_history(Parsing, Parsing.history.model)
+
         self.info(f'Starting cleaning parsing moderations')
         delete_count = clean_parsing_moderations()
         self.success(f'Successfully cleaning {delete_count} parsing moderations')
