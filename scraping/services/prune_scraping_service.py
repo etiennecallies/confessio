@@ -4,6 +4,7 @@ from uuid import UUID
 
 from background_task import background
 from background_task.tasks import TaskSchedule
+from django.db import IntegrityError, transaction
 from django.utils import timezone
 from tqdm import tqdm
 
@@ -216,7 +217,12 @@ def add_new_moderation(pruning: Pruning, category):
         category=category,
         diocese=pruning.get_diocese(),
     )
-    moderation.save()
+    try:
+        with transaction.atomic():
+            moderation.save()
+    except IntegrityError:
+        info(f'PruningModeration for pruning {pruning} and category {category} '
+             f'already exists, skipping creation')
 
 
 def add_necessary_moderation(pruning: Pruning):
