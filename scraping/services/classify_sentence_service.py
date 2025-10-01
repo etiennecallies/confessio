@@ -1,5 +1,7 @@
 import threading
 
+from django.db import transaction, IntegrityError
+
 from home.models import Sentence, Classifier, Pruning
 from scraping.extract_v2.models import EventMotion, TemporalMotion
 from scraping.prune.models import Source, Action
@@ -169,7 +171,10 @@ def classify_and_create_sentence(stringified_line: str,
         # In the meantime, a sentence with the same line could have been created
         return Sentence.objects.get(line=stringified_line)
     except Sentence.DoesNotExist:
-        # Save sentence
-        sentence.save()
+        try:
+            with transaction.atomic():
+                sentence.save()
 
-        return sentence
+            return sentence
+        except IntegrityError:
+            return Sentence.objects.get(line=stringified_line)
