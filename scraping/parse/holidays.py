@@ -40,6 +40,7 @@ HOLIDAY_ZONE_PER_DEPARTMENT = {
     "19": HolidayZoneEnum.FR_ZONE_A,
     "2A": HolidayZoneEnum.CORSICA,
     "2B": HolidayZoneEnum.CORSICA,
+    "20": HolidayZoneEnum.CORSICA,
     "21": HolidayZoneEnum.FR_ZONE_A,
     "22": HolidayZoneEnum.FR_ZONE_B,
     "23": HolidayZoneEnum.FR_ZONE_A,
