@@ -124,7 +124,7 @@ HOLIDAY_ZONE_PER_DEPARTMENT = {
 }
 
 
-def parse_ics(ics_content: str) -> List[Dict]:
+def parse_ics(ics_content: str, default_zones: list | None = None) -> List[Dict]:
     events = []
     event_pattern = re.compile(r'BEGIN:VEVENT(.*?)END:VEVENT', re.DOTALL)
 
@@ -138,10 +138,10 @@ def parse_ics(ics_content: str) -> List[Dict]:
         end_date = re.search(r'DTEND;VALUE=DATE:(\d+)', match)
         location = re.search(r'LOCATION:(.*?)\n', match)
 
-        if name and start_date and end_date and location:
+        if name and start_date and end_date and (location or default_zones):
             start_date = datetime.strptime(start_date.group(1), "%Y%m%d").date()
             end_date = datetime.strptime(end_date.group(1), "%Y%m%d").date()
-            zones = parse_zones(location.group(1))
+            zones = parse_zones(location.group(1)) if default_zones is None else default_zones
 
             events.append({
                 'name': name.group(1),
@@ -179,6 +179,34 @@ def parse_zones(location: str) -> List[HolidayZoneEnum]:
     if 'Corse' in location:
         zones.append(HolidayZoneEnum.CORSICA)
     return zones
+
+
+def print_holidays_for_zone(ics_content, default_zones: list | None = None):
+    holiday_by_zone = {
+        HolidayZoneEnum.FR_ZONE_A: {},
+        HolidayZoneEnum.FR_ZONE_B: {},
+        HolidayZoneEnum.FR_ZONE_C: {},
+        HolidayZoneEnum.CORSICA: {},
+    }
+
+    for item in parse_ics(ics_content, default_zones):
+        year = item['start_date'].year
+        for zone in item['zones']:
+            holiday_by_zone[zone].setdefault(year, []).append((item['start_date'],
+                                                               item['end_date']))
+    for zone, years in holiday_by_zone.items():
+        for year, periods in years.items():
+            new_periods = []
+            last_end = None
+            for start, end in sorted(periods):
+                if last_end is not None and start <= last_end:
+                    new_periods[-1] = (new_periods[-1][0], end)
+                else:
+                    new_periods.append((start, end))
+                last_end = end
+            holiday_by_zone[zone][year] = new_periods
+
+    print(pprint.pformat(holiday_by_zone))
 
 
 def generate_and_print_holiday_by_zone():
@@ -497,38 +525,292 @@ def generate_and_print_holiday_by_zone():
     BEGIN:VEVENT
     """
 
-    holiday_by_zone = {
-        HolidayZoneEnum.FR_ZONE_A: {},
-        HolidayZoneEnum.FR_ZONE_B: {},
-        HolidayZoneEnum.FR_ZONE_C: {},
-        HolidayZoneEnum.CORSICA: {},
-    }
+    print_holidays_for_zone(ics_content)
 
-    for item in parse_ics(ics_content):
-        year = item['start_date'].year
-        for zone in item['zones']:
-            holiday_by_zone[zone].setdefault(year, []).append((item['start_date'],
-                                                               item['end_date']))
-    for zone, years in holiday_by_zone.items():
-        for year, periods in years.items():
-            new_periods = []
-            last_end = None
-            for start, end in sorted(periods):
-                if last_end is not None and start <= last_end:
-                    new_periods[-1] = (new_periods[-1][0], end)
-                else:
-                    new_periods.append((start, end))
-                last_end = end
-            holiday_by_zone[zone][year] = new_periods
 
-    print(pprint.pformat(holiday_by_zone))
+def generate_and_print_corsica_holiday():
+    # https://www.ac-corse.fr/calendrier-scolaire-122048
+    ics_content = """
+    BEGIN:VCALENDAR
+    PRODID:-//Google Inc//Google Calendar 70.9054//EN
+    VERSION:2.0
+    CALSCALE:GREGORIAN
+    METHOD:PUBLISH
+    X-WR-CALNAME:calendrier scolaire Corse
+    X-WR-TIMEZONE:Europe/Paris
+    X-WR-CALDESC:Le calendrier scolaire Corse vous fournit toutes les dates des
+      vacances scolaires pour la zone Corse jusqu'en juillet  2025.
+    BEGIN:VEVENT
+    DTSTART;VALUE=DATE:20240226
+    DTEND;VALUE=DATE:20240311
+    DTSTAMP:20250826T072717Z
+    UID:33if0pu6dm44upendv5kf5jbds@google.com
+    CREATED:20230906T133946Z
+    LAST-MODIFIED:20230906T133946Z
+    SEQUENCE:0
+    STATUS:CONFIRMED
+    SUMMARY:Vacances d'Hiver
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTART;VALUE=DATE:20240429
+    DTEND;VALUE=DATE:20240513
+    DTSTAMP:20250826T072717Z
+    UID:3704jp72664fn3hssbl3jj8rmi@google.com
+    CREATED:20230906T134017Z
+    LAST-MODIFIED:20230906T134017Z
+    SEQUENCE:0
+    STATUS:CONFIRMED
+    SUMMARY:Vacances de Printemps
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTART;VALUE=DATE:20240706
+    DTEND;VALUE=DATE:20240902
+    DTSTAMP:20250826T072717Z
+    UID:3s71c4j9bekamaanjnbgvbi68a@google.com
+    CREATED:20230906T134143Z
+    LAST-MODIFIED:20240703T090348Z
+    SEQUENCE:0
+    STATUS:CONFIRMED
+    SUMMARY:Vacances d’Eté
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTART;VALUE=DATE:20240902
+    DTEND;VALUE=DATE:20240903
+    DTSTAMP:20250826T072717Z
+    UID:0keisd9l7s8mumpq91cmr445in@google.com
+    CREATED:20240703T090403Z
+    LAST-MODIFIED:20240703T090403Z
+    SEQUENCE:0
+    STATUS:CONFIRMED
+    SUMMARY:Rentrée scolaire des enseignants
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTART;VALUE=DATE:20240903
+    DTEND;VALUE=DATE:20240904
+    DTSTAMP:20250826T072717Z
+    UID:1d723tv5mo78jggelqqt8viu1b@google.com
+    CREATED:20240703T090411Z
+    LAST-MODIFIED:20240703T090411Z
+    SEQUENCE:0
+    STATUS:CONFIRMED
+    SUMMARY:Rentrée scolaire des élèves (école collège et lycée)
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTART;VALUE=DATE:20241019
+    DTEND;VALUE=DATE:20241104
+    DTSTAMP:20250826T072717Z
+    UID:0rh5dlf54da4egclbjjtqrucd6@google.com
+    CREATED:20240703T090444Z
+    LAST-MODIFIED:20240703T090444Z
+    SEQUENCE:0
+    STATUS:CONFIRMED
+    SUMMARY:Vacances d'automne
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTART;VALUE=DATE:20241221
+    DTEND;VALUE=DATE:20250106
+    DTSTAMP:20250826T072717Z
+    UID:3m71octvtq5c8jivtks2hsetbf@google.com
+    CREATED:20240703T090523Z
+    LAST-MODIFIED:20240703T090523Z
+    SEQUENCE:0
+    STATUS:CONFIRMED
+    SUMMARY:Vacances de Noël
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTART;VALUE=DATE:20250215
+    DTEND;VALUE=DATE:20250303
+    DTSTAMP:20250826T072717Z
+    UID:1ouoham370h53jbm0nemcn0r58@google.com
+    CREATED:20240703T090542Z
+    LAST-MODIFIED:20240703T090542Z
+    SEQUENCE:0
+    STATUS:CONFIRMED
+    SUMMARY:Vacances d'hiver
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTART;VALUE=DATE:20250412
+    DTEND;VALUE=DATE:20250428
+    DTSTAMP:20250826T072717Z
+    UID:0rnu1m00n2bbr80tc8eubotpvi@google.com
+    CREATED:20240703T090602Z
+    LAST-MODIFIED:20240703T090602Z
+    SEQUENCE:0
+    STATUS:CONFIRMED
+    SUMMARY:Vacances de printemps
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTART;VALUE=DATE:20250530
+    DTEND;VALUE=DATE:20250531
+    DTSTAMP:20250826T072717Z
+    UID:2r0bmqp7is7ftiufvcng84nhff@google.com
+    CREATED:20240703T090902Z
+    LAST-MODIFIED:20240703T090902Z
+    SEQUENCE:0
+    STATUS:CONFIRMED
+    SUMMARY:jour sans école
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTART;VALUE=DATE:20250705
+    DTEND;VALUE=DATE:20250901
+    DTSTAMP:20250826T072717Z
+    UID:400qoc2vubhpucsvd515deu27e@google.com
+    CREATED:20240703T090621Z
+    LAST-MODIFIED:20250826T070925Z
+    SEQUENCE:0
+    STATUS:CONFIRMED
+    SUMMARY:Vacances d’été
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTART;VALUE=DATE:20250901
+    DTEND;VALUE=DATE:20250902
+    DTSTAMP:20250826T072717Z
+    UID:3ah7ri5r0jevv1p622c6gr4lv3@google.com
+    CREATED:20250826T070943Z
+    LAST-MODIFIED:20250826T070943Z
+    SEQUENCE:0
+    STATUS:CONFIRMED
+    SUMMARY:Rentrée scolaire des enseignants
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTART;VALUE=DATE:20250902
+    DTEND;VALUE=DATE:20250903
+    DTSTAMP:20250826T072717Z
+    UID:7i34p1ink296ehkj9g0if92t39@google.com
+    CREATED:20250826T070952Z
+    LAST-MODIFIED:20250826T070952Z
+    SEQUENCE:0
+    STATUS:CONFIRMED
+    SUMMARY:Rentrée scolaire des élèves (école collège et lycée)
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTART;VALUE=DATE:20251018
+    DTEND;VALUE=DATE:20251103
+    DTSTAMP:20250826T072717Z
+    UID:67i3bfjokkn25fmocv0riunf0g@google.com
+    CREATED:20250826T071032Z
+    LAST-MODIFIED:20250826T071032Z
+    SEQUENCE:0
+    STATUS:CONFIRMED
+    SUMMARY:Vacances d'automne
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTART;VALUE=DATE:20251220
+    DTEND;VALUE=DATE:20260105
+    DTSTAMP:20250826T072717Z
+    UID:31vo17ag5mhmfvpp4pa0s2mjdo@google.com
+    CREATED:20250826T071155Z
+    LAST-MODIFIED:20250826T071155Z
+    SEQUENCE:0
+    STATUS:CONFIRMED
+    SUMMARY:Vacances de Noël
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTART;VALUE=DATE:20260214
+    DTEND;VALUE=DATE:20260302
+    DTSTAMP:20250826T072717Z
+    UID:7db9bulsmbr2t65ti80ephmdui@google.com
+    CREATED:20250826T071305Z
+    LAST-MODIFIED:20250826T071306Z
+    SEQUENCE:0
+    STATUS:CONFIRMED
+    SUMMARY:Vacances d'hiver
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTART;VALUE=DATE:20260411
+    DTEND;VALUE=DATE:20260427
+    DTSTAMP:20250826T072717Z
+    UID:5si3030n4i6lfjc1isucdsv3h6@google.com
+    CREATED:20250826T071342Z
+    LAST-MODIFIED:20250826T071342Z
+    SEQUENCE:0
+    STATUS:CONFIRMED
+    SUMMARY:Vacances de printemps
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTART;VALUE=DATE:20260704
+    DTEND;VALUE=DATE:20260705
+    DTSTAMP:20250826T072717Z
+    UID:735avdq90an7h2s3qbpqi5d3ab@google.com
+    CREATED:20250826T071417Z
+    LAST-MODIFIED:20250826T071417Z
+    SEQUENCE:0
+    STATUS:CONFIRMED
+    SUMMARY:Vacances d’été
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTART;VALUE=DATE:20250908
+    DTEND;VALUE=DATE:20250909
+    DTSTAMP:20250826T072717Z
+    UID:3bn38l425dudg7tv1eugvkj6gi@google.com
+    CREATED:20250826T072036Z
+    LAST-MODIFIED:20250826T072036Z
+    SEQUENCE:0
+    STATUS:CONFIRMED
+    SUMMARY:La journée du 8 septembre : fériée
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTART;VALUE=DATE:20251208
+    DTEND;VALUE=DATE:20251209
+    DTSTAMP:20250826T072717Z
+    UID:2n0o7k8op4h6qbepv2ob4pdee3@google.com
+    CREATED:20250826T072102Z
+    LAST-MODIFIED:20250826T072102Z
+    SEQUENCE:0
+    STATUS:CONFIRMED
+    SUMMARY:La journée du 8 décembre : banalisée
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTART;VALUE=DATE:20260515
+    DTEND;VALUE=DATE:20260516
+    DTSTAMP:20250826T072717Z
+    UID:5l7qlmmvv93qt6e6cnl4ie4ai2@google.com
+    CREATED:20250826T072129Z
+    LAST-MODIFIED:20250826T072129Z
+    SEQUENCE:0
+    STATUS:CONFIRMED
+    SUMMARY:Les classes vaqueront le vendredi 15 mai
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    END:VCALENDAR
+    """
+
+    print_holidays_for_zone(ics_content, default_zones=[HolidayZoneEnum.CORSICA])
 
 
 HOLIDAY_BY_ZONE = {
-    'corsica': {2024: [(date(2024, 10, 19), date(2024, 11, 4)),
+    'corsica': {2024: [(date(2024, 2, 26), date(2024, 3, 11)),
+                       (date(2024, 4, 29), date(2024, 5, 13)),
+                       (date(2024, 7, 6), date(2024, 9, 2)),
+                       (date(2024, 10, 19), date(2024, 11, 4)),
                        (date(2024, 12, 21), date(2025, 1, 6))],
                 2025: [(date(2025, 2, 15), date(2025, 3, 3)),
-                       (date(2025, 4, 12), date(2025, 4, 28))]},
+                       (date(2025, 4, 12), date(2025, 4, 28)),
+                       (date(2025, 7, 5), date(2025, 9, 1)),
+                       (date(2025, 10, 18), date(2025, 11, 3)),
+                       (date(2025, 12, 20), date(2026, 1, 5))],
+                2026: [(date(2026, 2, 14), date(2026, 3, 2)),
+                       (date(2026, 4, 11), date(2026, 4, 27))]},
     'fr_zone_a': {2024: [(date(2024, 10, 19), date(2024, 11, 4)),
                          (date(2024, 12, 21), date(2025, 1, 6))],
                   2025: [(date(2025, 2, 22), date(2025, 3, 10)),
@@ -568,3 +850,4 @@ def check_holiday_by_zone() -> bool:
 
 if __name__ == '__main__':
     generate_and_print_holiday_by_zone()
+    generate_and_print_corsica_holiday()
