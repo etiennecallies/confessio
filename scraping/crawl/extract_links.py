@@ -5,7 +5,6 @@ from bs4 import BeautifulSoup, SoupStrainer, Comment
 from bs4 import element as el
 
 from home.utils.date_utils import get_current_year
-from home.utils.log_utils import info
 from scraping.download.download_content import get_url_redirection
 from scraping.utils.string_search import has_any_of_words
 from scraping.utils.url_utils import is_internal_link, get_clean_full_url, \
@@ -95,17 +94,6 @@ def clean_url_query(url_parsed: ParseResult):
     return url_parsed.geturl()
 
 
-def debug_print_links(url_parsed: ParseResult, prefix: str = '', url: str | None = None):
-    try:
-        url_parsed.path.startswith('/category')
-    except TypeError:
-        info(f'{prefix} url_parsed ' + str(url_parsed))
-        info(f'{prefix} type(url_parsed.path) ' + str(type(url_parsed.path)))
-        info(f'{prefix} url_parsed.path ' + str(url_parsed.path))
-        if url is not None:
-            info(f'{prefix} url ' + str(url) + ' type(url) ' + str(type(url)))
-
-
 def is_forbidden(url_parsed: ParseResult, home_url: str, forbidden_outer_paths: set[str],
                  path_redirection: dict[str, str], forbidden_paths: set[str]) -> bool:
     for forbidden_path in forbidden_paths:
@@ -114,7 +102,6 @@ def is_forbidden(url_parsed: ParseResult, home_url: str, forbidden_outer_paths: 
 
     considered_paths = [url_parsed.path]
 
-    debug_print_links(url_parsed, 'is_forbidden')
     if url_parsed.path.startswith('/category'):
         # Sometimes, the path starts with '/category' and we want to check if it is forbidden
         # by removing '/category' from the beginning of the path
@@ -144,7 +131,6 @@ def is_forbidden(url_parsed: ParseResult, home_url: str, forbidden_outer_paths: 
 
             new_url = path_redirection[url_parsed.path]
             new_url_parsed = urlparse(new_url)
-            debug_print_links(new_url_parsed, 'new_url_parsed', new_url)
 
             # Get the path with redirection
             if new_url_parsed.path != url_parsed.path:
@@ -193,20 +179,14 @@ def get_links(element: el, home_url: str, aliases_domains: set[str],
         full_url = str(link['href'])
         url_parsed = urlparse(full_url)
 
-        debug_print_links(url_parsed, 'begin')
-
         # If the link is like "sacrements.html", we build it from any home_url we have
         if not url_parsed.netloc:
             full_url = replace_scheme_and_hostname(url_parsed, new_url=home_url)
             url_parsed = urlparse(full_url)
 
-        debug_print_links(url_parsed, 'after netloc')
-
         # We ignore external links (ex: facebook page...)
         if not is_internal_link(full_url, url_parsed, aliases_domains):
             continue
-
-        debug_print_links(url_parsed, 'before is_forbidden')
 
         # We ignore forbidden paths and their children
         if is_forbidden(url_parsed, home_url, forbidden_outer_paths, path_redirection,

@@ -183,5 +183,4 @@ def get_url_redirection(url: str) -> str | None:
     if not aliases:
         return None
 
-    # return str(aliases[-1][0])  # TODO be sure it fixes the issue
-    return aliases[-1][0]
+    return str(aliases[-1][0])
