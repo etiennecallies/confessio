@@ -24,4 +24,4 @@ class Log(TimeStampMixin):
     website = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='logs')
     content = models.TextField()
     type = models.CharField(max_length=8, choices=Type)
-    status = models.CharField(max_length=8, choices=Status, null=True)
+    status = models.CharField(max_length=8, choices=Status, null=True)  # TODO set as not null

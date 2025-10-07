@@ -439,7 +439,8 @@ def worker_parse_pruning_for_website(pruning_uuid: str, website_uuid: str, force
     buffer_value = get_log_buffer()
     log = Log(type=Log.Type.PARSING,
               website=website,
-              content=buffer_value)
+              content=buffer_value,
+              status=Log.Status.DONE)
     log.save()
 
 
