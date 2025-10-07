@@ -171,7 +171,11 @@ def save_crawling_and_add_moderation(website: Website,
     )
     crawling.save()
 
-    last_crawling = website.crawling
+    try:
+        last_crawling = website.crawling
+    except Crawling.DoesNotExist:
+        last_crawling = None
+
     website.crawling = crawling
     website.save()
     if last_crawling:
