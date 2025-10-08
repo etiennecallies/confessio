@@ -102,7 +102,7 @@ def is_forbidden(url_parsed: ParseResult, home_url: str, forbidden_outer_paths: 
 
     considered_paths = [url_parsed.path]
 
-    if url_parsed.path.startswith('/category'):
+    if str(url_parsed.path).startswith('/category'):
         # Sometimes, the path starts with '/category' and we want to check if it is forbidden
         # by removing '/category' from the beginning of the path
         # This is useful for some CMS like WordPress
