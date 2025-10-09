@@ -120,6 +120,7 @@ HOLIDAY_ZONE_PER_DEPARTMENT = {
     "972": HolidayZoneEnum.DOM,
     "973": HolidayZoneEnum.DOM,
     "974": HolidayZoneEnum.DOM,
+    "975": HolidayZoneEnum.DOM,
     "976": HolidayZoneEnum.DOM,
 }
 
