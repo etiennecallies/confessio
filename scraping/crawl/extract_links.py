@@ -97,7 +97,7 @@ def clean_url_query(url_parsed: ParseResult):
 def is_forbidden(url_parsed: ParseResult, home_url: str, forbidden_outer_paths: set[str],
                  path_redirection: dict[str, str], forbidden_paths: set[str]) -> bool:
     for forbidden_path in forbidden_paths:
-        if url_parsed.path.startswith(forbidden_path):
+        if str(url_parsed.path).startswith(forbidden_path):
             return True
 
     considered_paths = [url_parsed.path]
@@ -106,7 +106,7 @@ def is_forbidden(url_parsed: ParseResult, home_url: str, forbidden_outer_paths: 
         # Sometimes, the path starts with '/category' and we want to check if it is forbidden
         # by removing '/category' from the beginning of the path
         # This is useful for some CMS like WordPress
-        considered_paths.append(url_parsed.path.replace('/category', ''))
+        considered_paths.append(str(url_parsed.path.replace('/category', '')))
 
     home_url_path = get_path(home_url)
     for accepted_home_word in ['accueil', 'home']:
