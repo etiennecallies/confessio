@@ -18,6 +18,7 @@ ALL_FRENCH_DEPARTMENTS = {
     "17": "17, Charente-Maritime, Nouvelle-Aquitaine",
     "18": "18, Cher, Centre-Val de Loire",
     "19": "19, Corrèze, Nouvelle-Aquitaine",
+    "20": "20, Corse, Corse",
     "21": "21, Côte-d'Or, Bourgogne-Franche-Comté",
     "22": "22, Côtes-d'Armor, Bretagne",
     "23": "23, Creuse, Nouvelle-Aquitaine",
