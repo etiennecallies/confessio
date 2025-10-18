@@ -100,7 +100,7 @@ def is_forbidden(url_parsed: ParseResult, home_url: str, forbidden_outer_paths: 
         if str(url_parsed.path).startswith(forbidden_path):
             return True
 
-    considered_paths = [url_parsed.path]
+    considered_paths = [str(url_parsed.path)]
 
     if str(url_parsed.path).startswith('/category'):
         # Sometimes, the path starts with '/category' and we want to check if it is forbidden
