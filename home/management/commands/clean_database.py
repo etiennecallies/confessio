@@ -7,7 +7,7 @@ from django.utils import timezone
 
 from home.management.abstract_command import AbstractCommand
 from home.models import Pruning, Sentence, Classifier, Page, ParsingModeration, Parsing, Log, \
-    ChurchModeration
+    ChurchModeration, Website
 from scraping.services.page_service import delete_page
 from scraping.services.parse_pruning_service import clean_parsing_moderations, \
     unlink_website_from_parsing
@@ -110,6 +110,10 @@ class Command(AbstractCommand):
         counter = self.delete_objects(CompletedTask.objects.all())
         self.success(f'Done removing {counter} completed tasks')
 
+        # Website history
+        self.delete_irrelevant_history(Website, {
+            'updated_at', 'crawling', 'nb_recent_hits', 'is_best_diocese_hit'})
+
     def delete_objects(self, objects):
         counter = 0
         for obj in objects:
@@ -124,3 +128,42 @@ class Command(AbstractCommand):
         counter = query.count()
         query.delete()
         self.success(f'Done removing {counter} orphan {model.__name__} history items')
+
+    @staticmethod
+    def get_changed_fields(fields_to_consider: set[str], old, new):
+        """Return the set of fields that differ between two historical records."""
+        diff = set()
+        for field in fields_to_consider:
+            if getattr(old, field) != getattr(new, field):
+                diff.add(field)
+        return diff
+
+    def delete_irrelevant_history(self, model: Type[Model], fields_to_ignore: set[str]):
+        total_deleted = 0
+        self.info(f'Starting deleting irrelevant {model.__name__} history items')
+
+        fields = {f.name for f in model._meta.fields}
+        # fields minus ignored fields
+        fields_to_consider = fields - fields_to_ignore
+
+        for obj in model.objects.all().iterator():
+            # Ordered chronologically
+            history = list(obj.history.order_by('history_date'))
+
+            # Skip if fewer than 2 versions
+            if len(history) < 2:
+                continue
+
+            for prev, current in zip(history, history[1:]):
+                # Skip creation/deletion markers
+                if current.history_type in ['+', '-']:
+                    continue
+
+                changed_fields = self.get_changed_fields(fields_to_consider, prev, current)
+
+                # If *only* ignored fields changed, we can delete this history record
+                if not changed_fields or all(f in fields_to_ignore for f in changed_fields):
+                    current.delete()
+                    total_deleted += 1
+
+        self.success(f"Deleted {total_deleted} irrelevant {model.__name__} history items.")
