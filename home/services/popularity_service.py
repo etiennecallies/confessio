@@ -39,21 +39,24 @@ def update_popularity_of_websites():
 
         diocese = website.get_diocese()
         count_by_diocese.setdefault(diocese, {})[website] = count
-        website.nb_recent_hits = count
-        website.save()
+        if count != website.nb_recent_hits:
+            website.nb_recent_hits = count
+            website.save()
 
-    print('Setting is_best_diocese_hit to False for all websites')
-    Website.objects.update(is_best_diocese_hit=False)
     print('Computing best website for each diocese')
     for diocese, count_by_website in count_by_diocese.items():
-        best_website = get_best_wesbite_for_diocese(count_by_website)
+        best_website = get_best_website_for_diocese(count_by_website)
         print(f'Best website for {diocese.name}: {best_website} '
               f'with count {count_by_website[best_website]}')
-        best_website.is_best_diocese_hit = True
-        best_website.save()
+        if not best_website.is_best_diocese_hit:
+            best_website.is_best_diocese_hit = True
+            best_website.save()
+        print('Setting is_best_diocese_hit to False for other websites')
+        Website.objects.filter(is_best_diocese_hit=True).exclude(uuid=best_website.uuid)\
+            .update(is_best_diocese_hit=False)
 
 
-def get_best_wesbite_for_diocese(count_by_website: dict[Website, int],) -> Website:
+def get_best_website_for_diocese(count_by_website: dict[Website, int], ) -> Website:
     for website, count in sorted(count_by_website.items(), key=lambda item: item[1], reverse=True):
         if ChurchIndexEvent.objects.filter(church__parish__website=website,
                                            is_explicitely_other__isnull=True).exists():
