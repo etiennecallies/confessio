@@ -177,7 +177,11 @@ def get_links(element: el, home_url: str, aliases_domains: set[str],
             continue
 
         full_url = str(link['href'])
-        url_parsed = urlparse(full_url)
+        try:
+            url_parsed = urlparse(full_url)
+        except ValueError:
+            print(f'cannot parse url {full_url}')
+            continue
 
         # If the link is like "sacrements.html", we build it from any home_url we have
         if not url_parsed.netloc:
