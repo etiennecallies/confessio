@@ -96,17 +96,18 @@ def clean_url_query(url_parsed: ParseResult):
 
 def is_forbidden(url_parsed: ParseResult, home_url: str, forbidden_outer_paths: set[str],
                  path_redirection: dict[str, str], forbidden_paths: set[str]) -> bool:
+    url_path = str(url_parsed.path)
     for forbidden_path in forbidden_paths:
-        if str(url_parsed.path).startswith(forbidden_path):
+        if url_path.startswith(forbidden_path):
             return True
 
-    considered_paths = [str(url_parsed.path)]
+    considered_paths = [url_path]
 
-    if str(url_parsed.path).startswith('/category'):
+    if url_path.startswith('/category'):
         # Sometimes, the path starts with '/category' and we want to check if it is forbidden
         # by removing '/category' from the beginning of the path
         # This is useful for some CMS like WordPress
-        considered_paths.append(str(url_parsed.path.replace('/category', '')))
+        considered_paths.append(url_path.replace('/category', ''))
 
     home_url_path = get_path(home_url)
     for accepted_home_word in ['accueil', 'home']:
@@ -125,15 +126,15 @@ def is_forbidden(url_parsed: ParseResult, home_url: str, forbidden_outer_paths: 
 
         # if we are in a multi-website domain (e.g. diocese), we forbid paths that contains
         # the words 'paroisse', since it's likely another parish website
-        if 'paroisse' in url_parsed.path:
-            if url_parsed.path not in path_redirection:
-                path_redirection[url_parsed.path] = get_url_redirection(url_parsed.geturl())
+        if 'paroisse' in url_path:
+            if url_path not in path_redirection:
+                path_redirection[url_path] = get_url_redirection(url_parsed.geturl())
 
-            new_url = path_redirection[url_parsed.path]
+            new_url = path_redirection[url_path]
             new_url_parsed = urlparse(new_url)
 
             # Get the path with redirection
-            if new_url_parsed.path != url_parsed.path:
+            if new_url_parsed.path != url_path:
                 return is_forbidden(new_url_parsed, home_url, forbidden_outer_paths,
                                     path_redirection, forbidden_paths)
 
