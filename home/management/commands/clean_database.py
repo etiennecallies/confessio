@@ -58,7 +58,10 @@ class Command(AbstractCommand):
         # Sentences
         self.info(f'Starting removing orphan sentences')
         orphan_sentences = Sentence.objects.filter(prunings__isnull=True,
-                                                   source__exact='ml').all()
+                                                   source__exact='ml',
+                                                   human_temporal__isnull=True,
+                                                   human_confession__isnull=True,
+                                                   ).all()
         counter = self.delete_objects(orphan_sentences)
         self.success(f'Done removing {counter} orphan sentences')
 
