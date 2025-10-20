@@ -7,7 +7,7 @@ from django.utils import timezone
 
 from home.management.abstract_command import AbstractCommand
 from home.models import Pruning, Sentence, Classifier, Page, ParsingModeration, Parsing, Log, \
-    ChurchModeration, Website
+    ChurchModeration, Website, WebsiteModeration
 from scraping.services.page_service import delete_page
 from scraping.services.parse_pruning_service import clean_parsing_moderations, \
     unlink_website_from_parsing
@@ -113,6 +113,9 @@ class Command(AbstractCommand):
         # Website history
         self.delete_irrelevant_history(Website, {
             'updated_at', 'crawling', 'nb_recent_hits', 'is_best_diocese_hit'})
+
+        # Website moderation history
+        self.delete_irrelevant_history(WebsiteModeration, {'updated_at'})
 
     def delete_objects(self, objects):
         counter = 0

@@ -18,17 +18,23 @@ def add_moderation(website: Website, category: WebsiteModeration.Category,
                    other_home_url: str | None = None,
                    conflict_day: date | None = None,
                    conflict_church: Church | None = None):
+    home_url = other_home_url[:200] if other_home_url else website.home_url
     try:
         moderation = WebsiteModeration.objects.get(website=website, category=category)
-        moderation.home_url = other_home_url[:200] if other_home_url else website.home_url
-        moderation.conflict_day = conflict_day
-        moderation.conflict_church = conflict_church
-        moderation.save()
+        if moderation.home_url != home_url or \
+                moderation.other_website != other_website or \
+                moderation.conflict_day != conflict_day or \
+                moderation.conflict_church != conflict_church:
+            moderation.home_url = home_url
+            moderation.other_website = other_website
+            moderation.conflict_day = conflict_day
+            moderation.conflict_church = conflict_church
+            moderation.save()
     except WebsiteModeration.DoesNotExist:
         moderation = WebsiteModeration(
             website=website, category=category,
             other_website=other_website,
-            home_url=other_home_url[:200] if other_home_url else website.home_url,
+            home_url=home_url,
             diocese=website.get_diocese(),
             conflict_day=conflict_day,
             conflict_church=conflict_church,
@@ -39,5 +45,7 @@ def add_moderation(website: Website, category: WebsiteModeration.Category,
 def suggest_alternative_website(website_moderation: WebsiteModeration):
     alternative_website = get_alternative_website_url(website_moderation.website)
     if alternative_website:
-        website_moderation.home_url = alternative_website.home_url[:200]
-        website_moderation.save()
+        alternative_url = alternative_website.home_url[:200]
+        if website_moderation.home_url != alternative_url:
+            website_moderation.home_url = alternative_url
+            website_moderation.save()
