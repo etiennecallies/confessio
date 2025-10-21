@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup, NavigableString, Comment, ProcessingInstruction, 
     MarkupResemblesLocatorWarning, PageElement, Tag
 
 from scraping.refine.detect_calendar import is_calendar_item
-from scraping.utils.string_utils import is_below_byte_limit
+from scraping.utils.string_utils import is_below_byte_limit, remove_unsafe_chars
 
 
 ###################
@@ -154,6 +154,7 @@ def flatten_string(text: str):
 
 
 def clean_text(text: str):
+    text = remove_unsafe_chars(text)
     text = text.replace("", "")
     text = text.replace('\u200b', '')
     text = text.replace('\u00A0', ' ')  # replace non-breaking space by space
@@ -186,6 +187,7 @@ def line_is_suitable(text: str):
 
 
 def clean_paragraph(text: str):
+    text = remove_unsafe_chars(text)
     text = re.sub(r'<br> ', r'<br>', text)
     text = re.sub(r' <br>', r'<br>', text)
     text = re.sub(r'<br>\n +', r'<br>\n', text)

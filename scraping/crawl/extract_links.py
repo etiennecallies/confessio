@@ -7,6 +7,7 @@ from bs4 import element as el
 from home.utils.date_utils import get_current_year
 from scraping.download.download_content import get_url_redirection
 from scraping.utils.string_search import has_any_of_words
+from scraping.utils.string_utils import remove_unsafe_chars
 from scraping.utils.url_utils import is_internal_link, get_clean_full_url, \
     replace_scheme_and_hostname, get_path
 
@@ -218,6 +219,7 @@ def get_links(element: el, home_url: str, aliases_domains: set[str],
         all_strings = link.find_all(text=lambda t: not isinstance(t, Comment),
                                     recursive=True)
         text = ' '.join(all_strings).rstrip()
+        text = remove_unsafe_chars(text)
 
         if is_obsolete_path(url_parsed.path):
             continue
