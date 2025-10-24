@@ -22,7 +22,7 @@ def remove_triple_quotes(text: str) -> str:
 
 
 def get_html_from_image(image_url: str, prompt: str, llm_provider: LLMProvider,
-                        llm_model: str) -> tuple[str | None, str | None]:
+                        llm_model: str, max_attempts: int = 3) -> tuple[str | None, str | None]:
     assert llm_provider == LLMProvider.OPENAI
     openai_client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY_RECOGNIZE"))
 
@@ -43,5 +43,10 @@ def get_html_from_image(image_url: str, prompt: str, llm_provider: LLMProvider,
 
         return remove_triple_quotes(response.output_text), None
     except BadRequestError as e:
+        if 'Timeout while downloading' in str(e):
+            if max_attempts > 0:
+                print(f"Retrying after error {e}. {max_attempts} attempt(s) remaining...")
+                return get_html_from_image(image_url, prompt, llm_provider, llm_model,
+                                           max_attempts - 1)
         print(f"Error processing image {image_url}: {e}")
         return None, str(e)
