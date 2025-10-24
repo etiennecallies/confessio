@@ -104,22 +104,22 @@ ALL_FRENCH_DEPARTMENTS = {
 }
 
 
-def get_department(zipcode: str):
+def get_department(zipcode: str) -> str:
     if zipcode.startswith('97'):
         return zipcode[:3]
     else:
         return zipcode[:2]
 
 
-def get_departments(zipcodes: set[str]):
+def get_departments(zipcodes: set[str]) -> set[str]:
     return set(get_department(zipcode) for zipcode in zipcodes)
 
 
-def get_department_context(department: str):
+def get_department_context(department: str) -> str:
     return ALL_FRENCH_DEPARTMENTS[department]
 
 
-def get_departments_context(zipcodes: set[str]):
+def get_departments_context(zipcodes: set[str]) -> str:
     departments = get_departments(zipcodes)
     contexts = list(map(get_department_context, departments))
 

@@ -1,4 +1,5 @@
 from home.models import Parish, Website, WebsiteModeration
+from home.utils.department_utils import get_departments
 from scraping.utils.string_search import normalize_content, get_words
 from sourcing.services.merge_websites_service import add_website_moderation
 from sourcing.services.website_name_service import clean_website_name
@@ -64,6 +65,28 @@ def is_title_ok(title: str) -> bool:
     return True
 
 
+def get_parish_department(parish: Parish) -> str | None:
+    department = extract_department_from_messesinfo_community_id(parish.messesinfo_community_id)
+    if department:
+        return department
+
+    print('Cannot extract department from messesinfo_community_id. Trying with churches.')
+
+    zipcodes = set()
+    for church in parish.churches.all():
+        if church.zipcode:
+            zipcodes.add(church.zipcode)
+    if len(zipcodes) == 0:
+        print('No department found in churches.')
+        return None
+    departments = get_departments(zipcodes)
+    if len(departments) == 1:
+        return departments.pop()
+
+    print('More than one department found in churches.')
+    return None
+
+
 def get_new_website_for_parish(parish: Parish) -> Website | None:
     # Possibilities to give context to the search:
     # - diocese name or department (we don't have it)
@@ -74,9 +97,9 @@ def get_new_website_for_parish(parish: Parish) -> Website | None:
         print('no messesinfo_community_id for parish, cannot get website')
         return None
 
-    department = extract_department_from_messesinfo_community_id(parish.messesinfo_community_id)
+    department = get_parish_department(parish)
     if not department:
-        print('cannot extract department from messesinfo_community_id')
+        print(f'cannot extract department for parish {parish.messesinfo_community_id}')
         return None
 
     search_query = f"paroisse {parish.name} {department}"
