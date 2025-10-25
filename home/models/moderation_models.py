@@ -134,6 +134,7 @@ class WebsiteModeration(ModerationMixin):
         HOME_URL_NO_CONFESSION = "hu_no_conf"
         HOME_URL_CONFLICT = "hu_conflict"
         HOME_URL_TOO_LONG = "hu_too_long"
+        HOME_URL_DIOCESE = "hu_diocese"
         GOOGLE_SEARCH = "google_search"
         SCHEDULES_CONFLICT = "sched_conflict"
 

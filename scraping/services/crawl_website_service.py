@@ -66,6 +66,9 @@ def handle_diocese_domain(website: Website, domain_has_changed: bool,
                                                          aliases_domains,
                                                          path_redirection)
 
+        if website.home_url == diocese.home_url:
+            add_moderation(website, WebsiteModeration.Category.HOME_URL_DIOCESE)
+
 
 def do_crawl_website(website: Website) -> tuple[dict[str, list[str]], int, Optional[str]]:
     if not website.enabled_for_crawling:
