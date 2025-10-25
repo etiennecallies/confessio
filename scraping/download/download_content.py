@@ -55,6 +55,10 @@ def count_bad_chars(content: str) -> int:
 
 
 def get_text_with_right_encoding(response: Response) -> str:
+    """
+    Example of url with misleading encoding:
+    https://www.paroisses-cote-de-jade.fr/horaires_des_messes_et_permanences_519.htm
+    """
     text_auto = response.text
     try:
         text_cp1252 = response.content.decode("cp1252")
