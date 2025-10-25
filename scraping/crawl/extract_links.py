@@ -40,6 +40,7 @@ CONFESSIONS_OR_SCHEDULES_MENTIONS = [
     'demarches',
     'agenda',
     'feuille',
+    'annonces',
 ]
 
 IGNORED_EXTENSIONS = [
