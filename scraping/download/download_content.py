@@ -47,6 +47,26 @@ def get_content_length(url):
     return int(content_length)
 
 
+def count_bad_chars(content: str) -> int:
+    if not content:
+        return 0
+
+    return content.count('�')
+
+
+def get_text_with_right_encoding(response: Response) -> str:
+    text_auto = response.text
+    try:
+        text_cp1252 = response.content.decode("cp1252")
+    except UnicodeDecodeError:
+        return text_auto
+
+    if count_bad_chars(text_cp1252) < count_bad_chars(text_auto):
+        return text_cp1252
+
+    return text_auto
+
+
 def get_content_from_url(url: str) -> str | None:
     # Handle heavy pdf files
     if url.endswith('.pdf'):
@@ -79,7 +99,7 @@ def get_content_from_url(url: str) -> str | None:
     if is_pdf(r):
         return extract_text_from_pdf_bytes(r.content)
 
-    return r.text
+    return get_text_with_right_encoding(r)
 
 
 def get_meta_refresh_tag_content(soup: BeautifulSoup) -> Optional[str]:
