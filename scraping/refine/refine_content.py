@@ -297,7 +297,10 @@ def build_text(soup: BeautifulSoup) -> tuple[str, int]:
         total_calendar_items += int(is_calendar_item(current_line))
 
     if total_calendar_items > 1:
-        return refine_table_or_calendar(soup), 0
+        calendar_html = refine_table_or_calendar(soup)
+        # We check that keeping calendar html does not make the line too long
+        if clean_paragraph(calendar_html):
+            return calendar_html, 0
 
     return result_line, total_calendar_items
 

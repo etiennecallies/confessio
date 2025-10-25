@@ -1,6 +1,5 @@
 import re
 
-from scraping.utils.html_utils import split_lines
 from scraping.utils.string_search import normalize_content
 
 DATES_REGEX = [
@@ -13,6 +12,7 @@ DATES_REGEX = [
     r"([1-9]|[12][0-9]|3[01])",
     r"([1-9]|[12][0-9]|3[01])",
     r"(lun|mar|mer|jeu|ven|sam|dim)",
+    r"(lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)",
 ]
 
 
@@ -25,13 +25,5 @@ def is_calendar_item(line: str) -> bool:
     for regex in DATES_REGEX:
         if re.fullmatch(regex, normalized_line):
             return True
-
-    return False
-
-
-def is_calendar(cleaned_text: str) -> bool:
-    lines = split_lines(cleaned_text)
-    if sum(map(int, map(is_calendar_item, lines))) > 1:
-        return True
 
     return False

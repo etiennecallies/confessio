@@ -35,7 +35,7 @@ def get_fresh_extracted_html_list(url) -> list[str] | None:
 
 
 if __name__ == '__main__':
-    url_ = ('https://saint-ambroise.com/category/sacrements/confession/')
+    url_ = ('https://paroissedecannes.fr/offices-horaires-et-lieux-dupliquer-51/')
     extracted_html_list_ = get_fresh_extracted_html_list(url_)
 
     print()

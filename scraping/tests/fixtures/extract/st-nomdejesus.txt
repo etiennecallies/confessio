@@ -1,5 +1,11 @@
 Rencontrer un prêtre - Se confesser<br>
-Mardi<br>
-Samedi<br>
+<div>
+ <span>
+  Mardi
+ </span>
+ <span>
+  Samedi
+ </span>
+</div><br>
 18:00 - 19:00<br>
 10:00 - 12:00
