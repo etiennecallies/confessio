@@ -140,6 +140,11 @@ def extract_text_from_pdf_file(pdf_file: str) -> str:
     return extract_text_from_doc(doc)
 
 
-def extract_text_from_pdf_bytes(raw_content: bytes) -> str:
-    doc = pymupdf.open(stream=raw_content, filetype="pdf")
+def extract_text_from_pdf_bytes(raw_content: bytes) -> str | None:
+    try:
+        doc = pymupdf.open(stream=raw_content, filetype="pdf")
+    except pymupdf.FileDataError as e:
+        print('Could not open pdf', e)
+        return None
+
     return extract_text_from_doc(doc)
