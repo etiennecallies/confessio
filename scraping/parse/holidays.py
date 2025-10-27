@@ -12,6 +12,8 @@ class HolidayZoneEnum(str, Enum):
     FR_ZONE_B = 'fr_zone_b'
     FR_ZONE_C = 'fr_zone_c'
     CORSICA = 'corsica'
+    GUADELOUPE = 'guadeloupe'
+    MARTINIQUE = 'martinique'
     DOM = 'dom'
 
     def __repr__(self):
@@ -116,8 +118,8 @@ HOLIDAY_ZONE_PER_DEPARTMENT = {
     "93": HolidayZoneEnum.FR_ZONE_C,
     "94": HolidayZoneEnum.FR_ZONE_C,
     "95": HolidayZoneEnum.FR_ZONE_C,
-    "971": HolidayZoneEnum.DOM,
-    "972": HolidayZoneEnum.DOM,
+    "971": HolidayZoneEnum.GUADELOUPE,
+    "972": HolidayZoneEnum.MARTINIQUE,
     "973": HolidayZoneEnum.DOM,
     "974": HolidayZoneEnum.DOM,
     "975": HolidayZoneEnum.DOM,
@@ -188,6 +190,8 @@ def print_holidays_for_zone(ics_content, default_zones: list | None = None):
         HolidayZoneEnum.FR_ZONE_B: {},
         HolidayZoneEnum.FR_ZONE_C: {},
         HolidayZoneEnum.CORSICA: {},
+        HolidayZoneEnum.GUADELOUPE: {},
+        HolidayZoneEnum.MARTINIQUE: {},
     }
 
     for item in parse_ics(ics_content, default_zones):
@@ -799,6 +803,411 @@ def generate_and_print_corsica_holiday():
     print_holidays_for_zone(ics_content, default_zones=[HolidayZoneEnum.CORSICA])
 
 
+def generate_and_print_guadeloupe_holiday():
+    # https://www.data.gouv.fr/datasets/le-calendrier-scolaire/
+    ics_content = """
+    BEGIN:VCALENDAR
+    PRODID:-//MENJS//Calendrier//FR
+    VERSION:2.0
+    CALSCALE:GREGORIAN
+    X-WR-CALNAME:Calendrier scolaire - Guadeloupe
+    X-WR-TIMEZONE:Europe/Paris
+    X-WR-CALDESC:Congés scolaires de la Guadeloupe
+    BEGIN:VTIMEZONE
+    TZID:Europe/Paris
+    X-LIC-LOCATION:Europe/Paris
+    BEGIN:DAYLIGHT
+    DTSTART:19700329T020000
+    TZNAME:CEST
+    TZOFFSETFROM:+0100
+    TZOFFSETTO:+0200
+    RRULE:FREQ=YEARLY;INTERVAL=1;BYMONTH=3;BYDAY=-1SU
+    TZNAME:CET
+    END:DAYLIGHT
+    BEGIN:STANDARD
+    DTSTART:19701025T030000
+    TZOFFSETFROM:+0200
+    TZOFFSETTO:+0100
+    RRULE:FREQ=YEARLY;INTERVAL=1;BYMONTH=10;BYDAY=-1SU
+    END:STANDARD
+    END:VTIMEZONE
+    BEGIN:VEVENT
+    DTSTAMP:20250114T124531Z
+    DTSTART;VALUE=DATE:20250222
+    DTEND;VALUE=DATE:20250310
+    SUMMARY:Vacances de Carnaval
+    UID:20250114T125445Z-Guadeloupe@data.education.gouv.fr
+    LOCATION:Guadeloupe
+    DESCRIPTION:Vacances de Carnaval - Guadeloupe
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTAMP:20250114T124531Z
+    DTSTART;VALUE=DATE:20250327
+    DTEND;VALUE=DATE:20250327
+    SUMMARY:Mi-carême
+    UID:20250114T125446Z-Guadeloupe@data.education.gouv.fr
+    LOCATION:Guadeloupe
+    DESCRIPTION:Mi-carême - Guadeloupe (Guadeloupe & Saint-Martin)
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTAMP:20250114T124531Z
+    DTSTART;VALUE=DATE:20250417
+    DTEND;VALUE=DATE:20250505
+    SUMMARY:Vacances de Pâques
+    UID:20250114T125447Z-Guadeloupe@data.education.gouv.fr
+    LOCATION:Guadeloupe
+    DESCRIPTION:Vacances de Pâques - Guadeloupe
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTAMP:20250114T124531Z
+    DTSTART;VALUE=DATE:20250526
+    DTEND;VALUE=DATE:20250526
+    SUMMARY:Semaine en mai
+    UID:20250114T125448Z-Guadeloupe@data.education.gouv.fr
+    LOCATION:Guadeloupe
+    DESCRIPTION:Semaine en mai - Guadeloupe - Guadeloupe (Guadeloupe & Saint-Ba
+     rthélémy)
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTAMP:20250114T124531Z
+    DTSTART;VALUE=DATE:20250526
+    DTEND;VALUE=DATE:20250526
+    SUMMARY:Semaine en mai
+    UID:20250114T125449Z-Guadeloupe@data.education.gouv.fr
+    LOCATION:Guadeloupe
+    DESCRIPTION:Semaine en mai - Guadeloupe - Guadeloupe (Saint Martin)
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTAMP:20250114T124531Z
+    DTSTART;VALUE=DATE:20250527
+    DTEND;VALUE=DATE:20250527
+    SUMMARY:Abolition de l?esclavage
+    UID:20250114T125450Z-Guadeloupe@data.education.gouv.fr
+    LOCATION:Guadeloupe
+    DESCRIPTION:Abolition de l?esclavage - Guadeloupe (Guadeloupe sauf Saint-Ma
+     rtin)
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTAMP:20250114T124531Z
+    DTSTART;VALUE=DATE:20250527
+    DTEND;VALUE=DATE:20250527
+    SUMMARY:Semaine en mai
+    UID:20250114T125451Z-Guadeloupe@data.education.gouv.fr
+    LOCATION:Guadeloupe
+    DESCRIPTION:Semaine en mai - Guadeloupe - Guadeloupe (Saint Martin)
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTAMP:20250114T124531Z
+    DTSTART;VALUE=DATE:20250528
+    DTEND;VALUE=DATE:20250528
+    SUMMARY:Semaine en mai
+    UID:20250114T125452Z-Guadeloupe@data.education.gouv.fr
+    LOCATION:Guadeloupe
+    DESCRIPTION:Semaine en mai - Guadeloupe - Guadeloupe (Guadeloupe & Saint-Ba
+     rthélémy)
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTAMP:20250114T124531Z
+    DTSTART;VALUE=DATE:20250528
+    DTEND;VALUE=DATE:20250528
+    SUMMARY:Abolition de l?esclavage
+    UID:20250114T125453Z-Guadeloupe@data.education.gouv.fr
+    LOCATION:Guadeloupe
+    DESCRIPTION:Abolition de l?esclavage - Guadeloupe (Saint-Martin)
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTAMP:20250114T124531Z
+    DTSTART;VALUE=DATE:20250705
+    DTEND;VALUE=DATE:20250901
+    SUMMARY:Vacances d'Été
+    UID:20250114T125454Z-Guadeloupe@data.education.gouv.fr
+    LOCATION:Guadeloupe
+    DESCRIPTION:Vacances d'Été - Guadeloupe
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTAMP:20250114T124531Z
+    DTSTART;VALUE=DATE:20250829
+    DTEND;VALUE=DATE:20250901
+    SUMMARY:Vacances d'Été(prérentrée Enseignants)
+    UID:20250114T125455Z-Guadeloupe@data.education.gouv.fr
+    LOCATION:Guadeloupe
+    DESCRIPTION:Vacances d'Été(prérentrée Enseignants) - Guadeloupe (Enseignant
+     s)
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTAMP:20250114T124531Z
+    DTSTART;VALUE=DATE:20251009
+    DTEND;VALUE=DATE:20251009
+    SUMMARY:Abolition de l?esclavage
+    UID:20250114T125456Z-Guadeloupe@data.education.gouv.fr
+    LOCATION:Guadeloupe
+    DESCRIPTION:Abolition de l?esclavage - Guadeloupe (Saint-Barthélémy)
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTAMP:20250114T124531Z
+    DTSTART;VALUE=DATE:20251018
+    DTEND;VALUE=DATE:20251103
+    SUMMARY:Vacances de la Toussaint
+    UID:20250114T125457Z-Guadeloupe@data.education.gouv.fr
+    LOCATION:Guadeloupe
+    DESCRIPTION:Vacances de la Toussaint - Guadeloupe
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTAMP:20250114T124531Z
+    DTSTART;VALUE=DATE:20251220
+    DTEND;VALUE=DATE:20260105
+    SUMMARY:Vacances de Noël
+    UID:20250114T125458Z-Guadeloupe@data.education.gouv.fr
+    LOCATION:Guadeloupe
+    DESCRIPTION:Vacances de Noël - Guadeloupe
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTAMP:20250114T124531Z
+    DTSTART;VALUE=DATE:20260207
+    DTEND;VALUE=DATE:20260223
+    SUMMARY:Vacances de Carnaval
+    UID:20250114T125459Z-Guadeloupe@data.education.gouv.fr
+    LOCATION:Guadeloupe
+    DESCRIPTION:Vacances de Carnaval - Guadeloupe
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTAMP:20250114T124531Z
+    DTSTART;VALUE=DATE:20260312
+    DTEND;VALUE=DATE:20260312
+    SUMMARY:Mi-carême
+    UID:20250114T125500Z-Guadeloupe@data.education.gouv.fr
+    LOCATION:Guadeloupe
+    DESCRIPTION:Mi-carême - Guadeloupe (Guadeloupe & Saint-Martin)
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTAMP:20250114T124531Z
+    DTSTART;VALUE=DATE:20260402
+    DTEND;VALUE=DATE:20260420
+    SUMMARY:Vacances de Pâques
+    UID:20250114T125501Z-Guadeloupe@data.education.gouv.fr
+    LOCATION:Guadeloupe
+    DESCRIPTION:Vacances de Pâques - Guadeloupe
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTAMP:20250114T124531Z
+    DTSTART;VALUE=DATE:20260526
+    DTEND;VALUE=DATE:20260526
+    SUMMARY:Semaine en mai
+    UID:20250114T125502Z-Guadeloupe@data.education.gouv.fr
+    LOCATION:Guadeloupe
+    DESCRIPTION:Semaine en mai - Guadeloupe - Guadeloupe (Guadeloupe & Saint-Ba
+     rthélémy)
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTAMP:20250114T124531Z
+    DTSTART;VALUE=DATE:20260527
+    DTEND;VALUE=DATE:20260527
+    SUMMARY:Abolition de l?esclavage
+    UID:20250114T125503Z-Guadeloupe@data.education.gouv.fr
+    LOCATION:Guadeloupe
+    DESCRIPTION:Abolition de l?esclavage - Guadeloupe (Guadeloupe sauf Saint-Ma
+     rtin)
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTAMP:20250114T124531Z
+    DTSTART;VALUE=DATE:20260528
+    DTEND;VALUE=DATE:20260528
+    SUMMARY:Abolition de l?esclavage
+    UID:20250114T125504Z-Guadeloupe@data.education.gouv.fr
+    LOCATION:Guadeloupe
+    DESCRIPTION:Abolition de l?esclavage - Guadeloupe (Saint-Martin)
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTAMP:20250114T124531Z
+    DTSTART;VALUE=DATE:20260529
+    DTEND;VALUE=DATE:20260529
+    SUMMARY:Semaine en mai
+    UID:20250114T125505Z-Guadeloupe@data.education.gouv.fr
+    LOCATION:Guadeloupe
+    DESCRIPTION:Semaine en mai - Guadeloupe (Saint Martin)
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTAMP:20250114T124531Z
+    DTSTART;VALUE=DATE:20260704
+    DTEND;VALUE=DATE:20260704
+    SUMMARY:Début des Vacances d'Été
+    UID:20250114T125506Z-Guadeloupe@data.education.gouv.fr
+    LOCATION:Guadeloupe
+    DESCRIPTION:Début des Vacances d'Été - Guadeloupe
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    END:VCALENDAR
+    """
+
+    print_holidays_for_zone(ics_content, default_zones=[HolidayZoneEnum.GUADELOUPE])
+
+
+def generate_and_print_martinique_holiday():
+    # https://www.data.gouv.fr/datasets/le-calendrier-scolaire/
+    ics_content = """
+    BEGIN:VCALENDAR
+    PRODID:-//MENJS//Calendrier//FR
+    VERSION:2.0
+    CALSCALE:GREGORIAN
+    X-WR-CALNAME:Calendrier scolaire - Martinique
+    X-WR-TIMEZONE:Europe/Paris
+    X-WR-CALDESC:Congés scolaires de la Martinique
+    BEGIN:VTIMEZONE
+    TZID:Europe/Paris
+    X-LIC-LOCATION:Europe/Paris
+    BEGIN:DAYLIGHT
+    DTSTART:19700329T020000
+    TZNAME:CEST
+    TZOFFSETFROM:+0100
+    TZOFFSETTO:+0200
+    RRULE:FREQ=YEARLY;INTERVAL=1;BYMONTH=3;BYDAY=-1SU
+    TZNAME:CET
+    END:DAYLIGHT
+    BEGIN:STANDARD
+    DTSTART:19701025T030000
+    TZOFFSETFROM:+0200
+    TZOFFSETTO:+0100
+    RRULE:FREQ=YEARLY;INTERVAL=1;BYMONTH=10;BYDAY=-1SU
+    END:STANDARD
+    END:VTIMEZONE
+    BEGIN:VEVENT
+    DTSTAMP:20250114T124531Z
+    DTSTART;VALUE=DATE:20250222
+    DTEND;VALUE=DATE:20250310
+    SUMMARY:Vacances de Carnaval
+    UID:20250114T125558Z-Martinique@data.education.gouv.fr
+    LOCATION:Martinique
+    DESCRIPTION:Vacances de Carnaval - Martinique
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTAMP:20250114T124531Z
+    DTSTART;VALUE=DATE:20250412
+    DTEND;VALUE=DATE:20250428
+    SUMMARY:Vacances de Pâques
+    UID:20250114T125559Z-Martinique@data.education.gouv.fr
+    LOCATION:Martinique
+    DESCRIPTION:Vacances de Pâques - Martinique
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTAMP:20250114T124531Z
+    DTSTART;VALUE=DATE:20250529
+    DTEND;VALUE=DATE:20250602
+    SUMMARY:Pont de l'Ascension
+    UID:20250114T125600Z-Martinique@data.education.gouv.fr
+    LOCATION:Martinique
+    DESCRIPTION:Pont de l'Ascension - Martinique
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTAMP:20250114T124531Z
+    DTSTART;VALUE=DATE:20250705
+    DTEND;VALUE=DATE:20250901
+    SUMMARY:Vacances d'Été
+    UID:20250114T125601Z-Martinique@data.education.gouv.fr
+    LOCATION:Martinique
+    DESCRIPTION:Vacances d'Été - Martinique
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTAMP:20250114T124531Z
+    DTSTART;VALUE=DATE:20250829
+    DTEND;VALUE=DATE:20250901
+    SUMMARY:Vacances d'Été(prérentrée Enseignants)
+    UID:20250114T125602Z-Martinique@data.education.gouv.fr
+    LOCATION:Martinique
+    DESCRIPTION:Vacances d'Été(prérentrée Enseignants) - Martinique (Enseignant
+     s)
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTAMP:20250114T124531Z
+    DTSTART;VALUE=DATE:20251018
+    DTEND;VALUE=DATE:20251103
+    SUMMARY:Vacances de la Toussaint
+    UID:20250114T125603Z-Martinique@data.education.gouv.fr
+    LOCATION:Martinique
+    DESCRIPTION:Vacances de la Toussaint - Martinique
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTAMP:20250114T124531Z
+    DTSTART;VALUE=DATE:20251220
+    DTEND;VALUE=DATE:20260105
+    SUMMARY:Vacances de Noël
+    UID:20250114T125604Z-Martinique@data.education.gouv.fr
+    LOCATION:Martinique
+    DESCRIPTION:Vacances de Noël - Martinique
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTAMP:20250114T124531Z
+    DTSTART;VALUE=DATE:20260207
+    DTEND;VALUE=DATE:20260223
+    SUMMARY:Vacances de Carnaval
+    UID:20250114T125605Z-Martinique@data.education.gouv.fr
+    LOCATION:Martinique
+    DESCRIPTION:Vacances de Carnaval - Martinique
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTAMP:20250114T124531Z
+    DTSTART;VALUE=DATE:20260328
+    DTEND;VALUE=DATE:20260413
+    SUMMARY:Vacances de Pâques
+    UID:20250114T125606Z-Martinique@data.education.gouv.fr
+    LOCATION:Martinique
+    DESCRIPTION:Vacances de Pâques - Martinique
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTAMP:20250114T124531Z
+    DTSTART;VALUE=DATE:20260514
+    DTEND;VALUE=DATE:20260518
+    SUMMARY:Pont de l'Ascension
+    UID:20250114T125607Z-Martinique@data.education.gouv.fr
+    LOCATION:Martinique
+    DESCRIPTION:Pont de l'Ascension - Martinique
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    BEGIN:VEVENT
+    DTSTAMP:20250114T124531Z
+    DTSTART;VALUE=DATE:20260704
+    DTEND;VALUE=DATE:20260704
+    SUMMARY:Début des Vacances d'Été
+    UID:20250114T125608Z-Martinique@data.education.gouv.fr
+    LOCATION:Martinique
+    DESCRIPTION:Début des Vacances d'Été - Martinique
+    TRANSP:TRANSPARENT
+    END:VEVENT
+    END:VCALENDAR
+    """
+
+    print_holidays_for_zone(ics_content, default_zones=[HolidayZoneEnum.MARTINIQUE])
+
+
 HOLIDAY_BY_ZONE = {
     'corsica': {2024: [(date(2024, 2, 26), date(2024, 3, 11)),
                        (date(2024, 4, 29), date(2024, 5, 13)),
@@ -839,7 +1248,28 @@ HOLIDAY_BY_ZONE = {
                          (date(2025, 10, 18), date(2025, 11, 3)),
                          (date(2025, 12, 20), date(2026, 1, 5))],
                   2026: [(date(2026, 2, 21), date(2026, 3, 9)),
-                         (date(2026, 4, 18), date(2026, 5, 4))]}}
+                         (date(2026, 4, 18), date(2026, 5, 4))]},
+    'guadeloupe': {2025: [(date(2025, 2, 22), date(2025, 3, 10)),
+                          (date(2025, 4, 17), date(2025, 5, 5)),
+                          (date(2025, 7, 5), date(2025, 9, 1)),
+                          (date(2025, 10, 18),
+                           date(2025, 11, 3)),
+                          (date(2025, 12, 20),
+                           date(2026, 1, 5))],
+                   2026: [(date(2026, 2, 7), date(2026, 2, 23)),
+                          (date(2026, 4, 2),
+                           date(2026, 4, 20))]},
+    'martinique': {2025: [(date(2025, 2, 22), date(2025, 3, 10)),
+                          (date(2025, 4, 12), date(2025, 4, 28)),
+                          (date(2025, 7, 5), date(2025, 9, 1)),
+                          (date(2025, 10, 18),
+                           date(2025, 11, 3)),
+                          (date(2025, 12, 20),
+                           date(2026, 1, 5))],
+                   2026: [(date(2026, 2, 7), date(2026, 2, 23)),
+                          (date(2026, 3, 28),
+                           date(2026, 4, 13))]}
+}
 
 
 def check_holiday_by_zone() -> bool:
@@ -850,5 +1280,7 @@ def check_holiday_by_zone() -> bool:
 
 
 if __name__ == '__main__':
-    generate_and_print_holiday_by_zone()
-    generate_and_print_corsica_holiday()
+    # generate_and_print_holiday_by_zone()
+    # generate_and_print_corsica_holiday()
+    # generate_and_print_guadeloupe_holiday()
+    generate_and_print_martinique_holiday()
