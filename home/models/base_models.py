@@ -4,6 +4,7 @@ from typing import Optional
 
 from django.contrib.gis.db import models as gis_models
 from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.indexes import GistIndex
 from django.db import models
 from django.utils import timezone
 from pgvector.django import VectorField
@@ -119,7 +120,7 @@ class Parish(TimeStampMixin):
 
 class Church(TimeStampMixin):
     name = models.CharField(max_length=120)
-    location = gis_models.PointField(geography=True, null=True)
+    location = gis_models.PointField(geography=False, null=True, srid=4326)
     address = models.CharField(max_length=100, null=True, blank=True)
     zipcode = models.CharField(max_length=5, null=True)
     city = models.CharField(max_length=50, null=True)
@@ -132,6 +133,11 @@ class Church(TimeStampMixin):
                                related_name='churches')
     is_active = models.BooleanField(default=True)
     history = HistoricalRecords()
+
+    class Meta:
+        indexes = [
+            GistIndex(fields=['location']),
+        ]
 
     def get_desc(self) -> str:
         return f'{self.name} {self.city}'

@@ -3,7 +3,8 @@ from uuid import UUID
 from home.models import ChurchIndexEvent, Church
 from home.services.search_service import get_churches_in_box, MAX_CHURCHES_IN_RESULTS, \
     get_count_per_diocese, TimeFilter, get_count_per_municipality, get_count_per_parish, \
-    get_churches_in_area, get_churches_around, get_popular_churches, AggregationItem
+    get_churches_in_area, get_churches_around, get_popular_churches, AggregationItem, \
+    DEFAULT_SEARCH_BOX
 
 
 def get_search_results(
@@ -49,8 +50,9 @@ def get_search_results(
             get_churches_around(center, time_filter)
         aggregations = []
     else:
+        min_lat, max_lat, min_lng, max_lng = DEFAULT_SEARCH_BOX
         index_events, churches, _, events_truncated_by_website_uuid = \
-            get_popular_churches(time_filter)
+            get_popular_churches(min_lat, max_lat, min_lng, max_lng, time_filter)
         aggregations = []
 
     return index_events, churches, events_truncated_by_website_uuid, aggregations

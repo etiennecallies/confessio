@@ -17,7 +17,8 @@ from home.services.page_url_service import get_page_pruning_urls
 from home.services.report_service import get_count_and_label, new_report, NewReportError, \
     get_previous_reports
 from home.services.search_service import TimeFilter, get_churches_in_box, get_churches_by_website, \
-    get_churches_around, get_churches_by_diocese, get_popular_churches, fetch_events
+    get_churches_around, get_churches_by_diocese, get_popular_churches, fetch_events, \
+    DEFAULT_SEARCH_BOX
 from home.services.sources_service import get_website_parsings_and_prunings, get_empty_sources
 from home.services.stat_service import new_search_hit
 from home.services.website_events_service import get_website_events
@@ -283,13 +284,13 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
 Merci de nous remonter d'éventuelles erreurs. Bonne confession !"""
 
     else:
+        min_lat, max_lat, min_lng, max_lng = DEFAULT_SEARCH_BOX
         index_events, churches, too_many_results, events_truncated_by_website_uuid = \
-            get_popular_churches(time_filter)
+            get_popular_churches(min_lat, max_lat, min_lng, max_lng, time_filter)
         if churches:
             center = get_center(churches)
         else:
-            # Default coordinates
-            center = [48.859, 2.342]  # Paris
+            center = [min_lat + max_lat / 2, min_lng + max_lng / 2]
         bounds = None
 
         display_sub_title = True

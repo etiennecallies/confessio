@@ -5,7 +5,6 @@ from uuid import UUID
 from django.contrib.gis.db.models import Collect, Extent
 from django.contrib.gis.db.models.functions import Distance, Centroid
 from django.contrib.gis.geos import Point, Polygon
-from django.contrib.gis.measure import D
 from django.db.models import QuerySet, OuterRef, Subquery, Exists, ExpressionWrapper, Q, \
     BooleanField, Count, Func
 from pydantic import BaseModel
@@ -16,6 +15,7 @@ from home.utils.date_utils import time_from_minutes
 
 MAX_CHURCHES_IN_RESULTS = 50
 MAX_WEBSITES_IN_RESULTS = 10
+DEFAULT_SEARCH_BOX = [41.787, 51.754, -9.162, 15.183]  # min_lat, max_lat, min_lng, max_lng
 
 
 ###########
@@ -176,8 +176,9 @@ def get_churches_around(center, time_filter: TimeFilter,
     latitude, longitude = center
     center_as_point = Point(x=longitude, y=latitude)
 
+    # 0.045 degrees is ~5km
     church_query = build_church_query(time_filter) \
-        .filter(location__dwithin=(center_as_point, D(km=5))) \
+        .filter(location__dwithin=(center_as_point, 0.045)) \
         .annotate(distance=Distance('location', center_as_point)) \
         .order_by('distance')
 
@@ -222,10 +223,12 @@ def get_churches_by_diocese(
     return truncate_results(church_query, time_filter)
 
 
-def get_popular_churches(time_filter: TimeFilter,
+def get_popular_churches(min_lat, max_lat, min_long, max_long, time_filter: TimeFilter,
                          ) -> tuple[list[ChurchIndexEvent], list[Church], bool, dict[UUID, bool]]:
     event_query = build_event_subquery(time_filter).filter(is_explicitely_other__isnull=True)
-    church_query = build_church_query(time_filter).annotate(has_located_event=Exists(event_query))\
+    church_query = filter_in_box(build_church_query(time_filter),
+                                 min_lat, max_lat, min_long, max_long)\
+        .annotate(has_located_event=Exists(event_query))\
         .order_by(
         '-has_located_event',
         '-parish__website__is_best_diocese_hit',
