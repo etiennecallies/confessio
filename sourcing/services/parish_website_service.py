@@ -68,6 +68,8 @@ def is_title_ok(title: str) -> bool:
 def get_parish_department(parish: Parish) -> str | None:
     department = extract_department_from_messesinfo_community_id(parish.messesinfo_community_id)
     if department:
+        if department == '97' and 'mn' in parish.messesinfo_community_id:
+            return 'martinique'
         return department
 
     print('Cannot extract department from messesinfo_community_id. Trying with churches.')
