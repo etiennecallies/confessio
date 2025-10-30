@@ -60,8 +60,8 @@ class ChurchOut(Schema):
 
 
 @api.get("/churches", response=list[ChurchOut])
-def api_churches(request, limit: int = 10, offset: int = 0, updated_from: datetime = None
-                 ) -> list[ChurchOut]:
+def api_home_churches(request, limit: int = 10, offset: int = 0, updated_from: datetime = None
+                      ) -> list[ChurchOut]:
     limit = max(0, min(100, limit))
     offset = max(0, offset)
 
@@ -105,8 +105,8 @@ class ParishOut(Schema):
 
 
 @api.get("/parishes", response=list[ParishOut])
-def api_parishes(request, limit: int = 10, offset: int = 0, updated_from: datetime = None
-                 ) -> list[ParishOut]:
+def api_home_parishes(request, limit: int = 10, offset: int = 0, updated_from: datetime = None
+                      ) -> list[ParishOut]:
     limit = max(0, min(100, limit))
     offset = max(0, offset)
 
@@ -141,8 +141,8 @@ class WebsiteOut(Schema):
 
 
 @api.get("/websites", response=list[WebsiteOut])
-def api_websites(request, limit: int = 10, offset: int = 0, updated_from: datetime = None
-                 ) -> list[WebsiteOut]:
+def api_home_websites(request, limit: int = 10, offset: int = 0, updated_from: datetime = None
+                      ) -> list[WebsiteOut]:
     limit = max(0, min(100, limit))
     offset = max(0, offset)
 

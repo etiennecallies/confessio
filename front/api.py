@@ -200,16 +200,16 @@ class ErrorSchema(Schema):
 #############
 
 @api.get("/search", response=SearchResult)
-def api_search(request,
-               latitude: float | None = None,
-               longitude: float | None = None,
-               min_lat: float | None = None,
-               min_lng: float | None = None,
-               max_lat: float | None = None,
-               max_lng: float | None = None,
-               date_filter: date | None = None,
-               hour_min: int = 0, hour_max: int = 24 * 60 - 1
-               ) -> SearchResult:
+def api_front_search(request,
+                     latitude: float | None = None,
+                     longitude: float | None = None,
+                     min_lat: float | None = None,
+                     min_lng: float | None = None,
+                     max_lat: float | None = None,
+                     max_lng: float | None = None,
+                     date_filter: date | None = None,
+                     hour_min: int = 0, hour_max: int = 24 * 60 - 1
+                     ) -> SearchResult:
     time_filter = TimeFilter(
         day_filter=date_filter,
         hour_min=hour_min,
@@ -255,13 +255,13 @@ def api_search(request,
 
 
 @api.get("/autocomplete", response=list[AutocompleteItem])
-def autocomplete(request, query: str = '') -> list[AutocompleteItem]:
+def api_front_autocomplete(request, query: str = '') -> list[AutocompleteItem]:
     results = get_aggregated_response(query)
     return list(map(lambda r: AutocompleteItem.from_autocomplete_result(r), results))
 
 
 @api.get("/church/{church_uuid}", response={200: ChurchDetails, 404: ErrorSchema})
-def get_church_details(request, church_uuid: UUID) -> ChurchDetails:
+def api_front_church_details(request, church_uuid: UUID) -> ChurchDetails:
     try:
         church = Church.objects.get(uuid=church_uuid)
     except Church.DoesNotExist:
