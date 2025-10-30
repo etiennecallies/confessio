@@ -69,7 +69,10 @@ class AutocompleteResult:
         )
 
 
-def get_data_gouv_response(query) -> list[AutocompleteResult]:
+def get_data_gouv_response(query: str) -> list[AutocompleteResult]:
+    if not query or len(query) > 200 or len(query) < 3 or not query[0].isalnum():
+        return []
+
     url = f'https://api-adresse.data.gouv.fr/search/'
 
     try:
