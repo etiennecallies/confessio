@@ -5,7 +5,7 @@ from typing import Optional
 from pydantic import BaseModel, model_validator, Field
 
 from home.utils.date_utils import guess_year_from_weekday, Weekday, get_python_weekday
-from scraping.parse.periods import PeriodEnum, LiturgicalDayEnum, get_liturgical_date
+from scraping.parse.intervals import PeriodEnum, LiturgicalDayEnum, get_liturgical_date
 
 
 ################
@@ -13,11 +13,11 @@ from scraping.parse.periods import PeriodEnum, LiturgicalDayEnum, get_liturgical
 ################
 
 class OneOffRule(BaseModel, frozen=True):
-    year: int | None
-    month: int | None  # only nullable when liturgical_day is given
-    day: int | None  # only nullable when liturgical_day is given
-    weekday: Weekday | None
-    liturgical_day: LiturgicalDayEnum | None
+    year: int | None = Field(None, ge=2000)
+    month: int | None = Field(None, ge=1, le=12)  # nullable when liturgical_day is given
+    day: int | None = Field(None, ge=1, le=31)  # nullable when liturgical_day is given
+    weekday: Weekday | None = None
+    liturgical_day: LiturgicalDayEnum | None = None
 
     @model_validator(mode='after')
     def validate_date_specification(self) -> 'OneOffRule':
@@ -46,7 +46,7 @@ class OneOffRule(BaseModel, frozen=True):
         except ValueError:
             return False
 
-    def get_start(self, default_year: int) -> date:
+    def get_date(self, default_year: int) -> date:
         if self.liturgical_day:
             return get_liturgical_date(self.liturgical_day, self.year or default_year)
 
@@ -95,24 +95,29 @@ class DailyRule(BaseModel, frozen=True):
 
 
 class WeeklyRule(BaseModel, frozen=True):
-    by_weekdays: list[Weekday] = Field(..., description='uniqueItems')
+    by_weekdays: list[Weekday] = Field(..., description='uniqueItems', min_length=1)
 
     def __hash__(self):
         return hash(tuple(sorted(map(lambda w: w.value, self.by_weekdays))))
 
 
 class MonthlyRule(BaseModel, frozen=True):
-    by_nweekdays: list[NWeekday]
+    by_nweekdays: list[NWeekday] = Field(..., min_length=1)
 
     def __hash__(self):
         return hash(tuple(sorted(self.by_nweekdays)))
 
 
+class CustomPeriod(BaseModel, frozen=True):
+    start: OneOffRule
+    end: OneOffRule
+
+
 class RegularRule(BaseModel, frozen=True):
     rule: DailyRule | WeeklyRule | MonthlyRule
-    only_in_periods: list[PeriodEnum] = Field(..., description='uniqueItems')
-    not_in_periods: list[PeriodEnum] = Field(..., description='uniqueItems')
-    not_on_dates: list[OneOffRule] = Field(..., description='table')
+    only_in_periods: list[PeriodEnum | CustomPeriod] = Field(default_factory=list)
+    not_in_periods: list[PeriodEnum | CustomPeriod] = Field(default_factory=list)
+    not_on_dates: list[OneOffRule] = Field(default_factory=list, description='table')
 
     def __hash__(self):
         """It would have been simpler to use tuple instead of list for only_in_periods and
@@ -139,11 +144,11 @@ class RegularRule(BaseModel, frozen=True):
 #############
 
 class ScheduleItem(BaseModel, frozen=True):
-    church_id: int | None
+    church_id: int | None = None
     date_rule: OneOffRule | RegularRule
-    is_cancellation: bool
-    start_time_iso8601: str | None = Field(..., description='time')
-    end_time_iso8601: str | None = Field(..., description='time')
+    is_cancellation: bool = False
+    start_time_iso8601: str | None = Field(None, description='time')
+    end_time_iso8601: str | None = Field(None, description='time')
 
     @model_validator(mode='after')
     def validate_times(self) -> 'ScheduleItem':
@@ -173,11 +178,11 @@ class ScheduleItem(BaseModel, frozen=True):
 
 class SchedulesList(BaseModel):
     schedules: list[ScheduleItem]
-    possible_by_appointment: bool = Field(..., description='checkbox')
-    is_related_to_mass: bool = Field(..., description='checkbox')
-    is_related_to_adoration: bool = Field(..., description='checkbox')
-    is_related_to_permanence: bool = Field(..., description='checkbox')
-    will_be_seasonal_events: bool = Field(..., description='checkbox')
+    possible_by_appointment: bool = Field(False, description='checkbox')
+    is_related_to_mass: bool = Field(False, description='checkbox')
+    is_related_to_adoration: bool = Field(False, description='checkbox')
+    is_related_to_permanence: bool = Field(False, description='checkbox')
+    will_be_seasonal_events: bool = Field(False, description='checkbox')
 
     def __eq__(self, other: 'SchedulesList'):
         return self.model_dump(exclude={'schedules'}) == other.model_dump(exclude={'schedules'}) \

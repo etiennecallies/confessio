@@ -2,9 +2,9 @@ import unittest
 
 from home.utils.date_utils import Weekday
 from scraping.parse.explain_schedule import get_explanation_from_schedule
-from scraping.parse.periods import PeriodEnum
+from scraping.parse.intervals import PeriodEnum
 from scraping.parse.schedules import ScheduleItem, \
-    RegularRule, OneOffRule, WeeklyRule, MonthlyRule, NWeekday, Position
+    RegularRule, OneOffRule, WeeklyRule, MonthlyRule, NWeekday, Position, CustomPeriod
 
 
 class ExplainSchedulesTests(unittest.TestCase):
@@ -24,7 +24,8 @@ class ExplainSchedulesTests(unittest.TestCase):
                             ]
                         ),
                         only_in_periods=[],
-                        not_in_periods=[PeriodEnum.JULY, PeriodEnum.AUGUST],
+                        not_in_periods=[CustomPeriod(start=OneOffRule(day=1, month=7),
+                                                     end=OneOffRule(day=31, month=8))],
                         not_on_dates=[],
                     ),
                     is_cancellation=False,
@@ -32,7 +33,7 @@ class ExplainSchedulesTests(unittest.TestCase):
                     end_time_iso8601=None,
                 ),
                 'Toutes les semaines les mardi, mercredi, jeudi et vendredi à partir de 17:30, '
-                'sauf en juillet et en août.'
+                'sauf du 1er juillet au 31 août.'
             ),
             (
                 ScheduleItem(
