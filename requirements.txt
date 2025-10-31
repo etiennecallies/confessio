@@ -1,5 +1,5 @@
 # Used by django
-Django==5.2.3
+Django==5.2.7
 gunicorn==23.0.0
 python-dotenv==1.0.0
 whitenoise==6.6.0
