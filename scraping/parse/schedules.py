@@ -5,7 +5,7 @@ from typing import Optional
 from pydantic import BaseModel, model_validator, Field
 
 from home.utils.date_utils import guess_year_from_weekday, Weekday, get_python_weekday
-from scraping.parse.intervals import PeriodEnum, LiturgicalDayEnum, get_liturgical_date
+from scraping.parse.liturgical import LiturgicalDayEnum, get_liturgical_date, PeriodEnum
 
 
 ################
@@ -111,6 +111,9 @@ class MonthlyRule(BaseModel, frozen=True):
 class CustomPeriod(BaseModel, frozen=True):
     start: OneOffRule
     end: OneOffRule
+
+    def __lt__(self, other: 'CustomPeriod') -> bool:
+        return (self.start, self.end) < (other.start, other.end)
 
 
 class RegularRule(BaseModel, frozen=True):

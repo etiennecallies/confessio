@@ -9,8 +9,9 @@ from home.services.sources_service import get_website_sorted_parsings
 from home.utils.date_utils import get_current_year
 from home.utils.hash_utils import hash_string_to_hex
 from scraping.parse.explain_schedule import schedule_item_sort_key, get_explanation_from_schedule
+from scraping.parse.liturgical import PeriodEnum
 from scraping.parse.rrule_utils import get_events_from_schedule_item
-from scraping.parse.schedules import Event, ScheduleItem, WeeklyRule, RegularRule
+from scraping.parse.schedules import Event, ScheduleItem, WeeklyRule, RegularRule, CustomPeriod
 from scraping.services.parsing_service import get_church_by_id, get_parsing_schedules_list
 
 
@@ -244,13 +245,21 @@ def get_color_of_nullable_church(church: Church | None,
 # MERGE #
 #########
 
+def get_periods_or_custom_periods_key(periods: list[PeriodEnum | CustomPeriod]) -> tuple:
+    return (
+        tuple(sorted(p for p in periods if isinstance(p, PeriodEnum))),
+        tuple(sorted(p for p in periods if isinstance(p, CustomPeriod)))
+    )
+
+
 def merge_similar_weekly_rules_of_church(church_schedule_items: list[ChurchScheduleItem]
                                          ) -> list[ChurchScheduleItem]:
     results = []
     schedules_by_key = {}
     for church_schedule_item in church_schedule_items:
+        date_rule = church_schedule_item.schedule_item.item.date_rule
         if not church_schedule_item.schedule_item.item.is_regular_rule() or \
-                not church_schedule_item.schedule_item.item.date_rule.is_weekly_rule():
+                not date_rule.is_weekly_rule():
             results.append(church_schedule_item)
             continue
 
@@ -258,9 +267,9 @@ def merge_similar_weekly_rules_of_church(church_schedule_items: list[ChurchSched
             church_schedule_item.schedule_item.item.is_cancellation,
             church_schedule_item.schedule_item.item.start_time_iso8601,
             church_schedule_item.schedule_item.item.end_time_iso8601,
-            tuple(sorted(church_schedule_item.schedule_item.item.date_rule.only_in_periods)),
-            tuple(sorted(church_schedule_item.schedule_item.item.date_rule.not_in_periods)),
-            tuple(sorted(church_schedule_item.schedule_item.item.date_rule.not_on_dates)),
+            get_periods_or_custom_periods_key(date_rule.only_in_periods),
+            get_periods_or_custom_periods_key(date_rule.not_in_periods),
+            tuple(sorted(date_rule.not_on_dates)),
         )
         schedules_by_key.setdefault(key, []).append(church_schedule_item)
 
