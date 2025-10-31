@@ -13,7 +13,6 @@ Restart=always
 KillSignal=SIGINT
 TimeoutStopSec=10
 MemoryMax=1600M
-CPUQuota=40%
 
 [Install]
 WantedBy=multi-user.target
