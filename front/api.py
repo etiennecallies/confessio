@@ -6,10 +6,11 @@ from django.http import Http404
 from ninja import NinjaAPI, Schema
 
 from front.services.aggregation_service import get_search_results
-from home.models import Church, Website
+from home.models import Church, Website, Diocese
 from home.services.autocomplete_service import get_aggregated_response, AutocompleteResult
 from home.services.report_service import get_count_and_label
-from home.services.search_service import TimeFilter, AggregationItem
+from home.services.search_service import TimeFilter, AggregationItem, BoundingBox, \
+    get_dioceses_bounding_box
 from home.services.website_events_service import get_website_events, ChurchEvent, WebsiteEvents
 from home.services.website_schedules_service import get_website_schedules, ParsingScheduleItem
 
@@ -191,6 +192,28 @@ class AutocompleteItem(Schema):
         )
 
 
+class DioceseOut(Schema):
+    uuid: UUID
+    name: str
+    slug: str
+    min_latitude: float
+    max_latitude: float
+    min_longitude: float
+    max_longitude: float
+
+    @classmethod
+    def from_diocese_and_box(cls, diocese: Diocese, bounding_box: BoundingBox) -> 'DioceseOut':
+        return cls(
+            uuid=diocese.uuid,
+            name=diocese.name,
+            slug=diocese.slug,
+            min_latitude=bounding_box.min_latitude,
+            max_latitude=bounding_box.max_latitude,
+            min_longitude=bounding_box.min_longitude,
+            max_longitude=bounding_box.max_longitude,
+        )
+
+
 class ErrorSchema(Schema):
     detail: str
 
@@ -273,3 +296,10 @@ def api_front_church_details(request, church_uuid: UUID) -> ChurchDetails:
                  for css in website_schedules.church_sorted_schedules
                  for psi in css.sorted_schedules]
     return ChurchDetails.from_church_and_schedules(church, schedules)
+
+
+@api.get("/dioceses", response={200: list[DioceseOut], 404: ErrorSchema})
+def api_front_get_dioceses(request) -> list[DioceseOut]:
+    dioceses_and_box = get_dioceses_bounding_box()
+    return [DioceseOut.from_diocese_and_box(diocese, bounding_box)
+            for diocese, bounding_box in dioceses_and_box]

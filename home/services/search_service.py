@@ -383,3 +383,31 @@ def get_churches_in_area(aggregations: list[AggregationItem],
         church_query = church_query.filter(query)
 
     return truncate_results(church_query, time_filter)
+
+
+################
+# DIOCESE LIST #
+################
+
+class BoundingBox(BaseModel):
+    min_latitude: float
+    max_latitude: float
+    min_longitude: float
+    max_longitude: float
+
+
+def get_dioceses_bounding_box() -> list[tuple[Diocese, BoundingBox]]:
+    dioceses = Diocese.objects \
+        .annotate(bounds=Extent(CastToGeometry('parishes__churches__location'))).all()
+
+    results = []
+    for diocese in dioceses:
+        min_longitude, min_latitude, max_longitude, max_latitude = diocese.bounds
+        bounding_box = BoundingBox(
+            min_latitude=min_latitude,
+            min_longitude=min_longitude,
+            max_latitude=max_latitude,
+            max_longitude=max_longitude,
+        )
+        results.append((diocese, bounding_box))
+    return results
