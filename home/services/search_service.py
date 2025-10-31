@@ -6,7 +6,7 @@ from django.contrib.gis.db.models import Collect, Extent
 from django.contrib.gis.db.models.functions import Distance, Centroid
 from django.contrib.gis.geos import Point, Polygon
 from django.db.models import QuerySet, OuterRef, Subquery, Exists, ExpressionWrapper, Q, \
-    BooleanField, Count, Func
+    BooleanField, Count
 from pydantic import BaseModel
 
 from home.models import Church, Website, Diocese, ChurchIndexEvent
@@ -255,10 +255,6 @@ class AggregationItem(BaseModel):
     identifiers: list
 
 
-class CastToGeometry(Func):
-    template = '%(expressions)s::geometry'
-
-
 def get_count_per_area(
         min_lat, max_lat, min_long, max_long,
         time_filter: TimeFilter,
@@ -271,8 +267,8 @@ def get_count_per_area(
         .values(*set(area_name_keys + identifier_keys)) \
         .annotate(
         church_count=Count('uuid'),
-        centroid=Centroid(Collect(CastToGeometry('location'))),
-        bounds=Extent(CastToGeometry('location')),
+        centroid=Centroid(Collect('location')),
+        bounds=Extent('location'),
     )
 
     if not time_filter.is_null():
@@ -398,7 +394,7 @@ class BoundingBox(BaseModel):
 
 def get_dioceses_bounding_box() -> list[tuple[Diocese, BoundingBox]]:
     dioceses = Diocese.objects \
-        .annotate(bounds=Extent(CastToGeometry('parishes__churches__location'))).all()
+        .annotate(bounds=Extent('parishes__churches__location')).all()
 
     results = []
     for diocese in dioceses:
