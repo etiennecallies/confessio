@@ -6,7 +6,7 @@ from dateutil.rrule import rrule, rruleset, WEEKLY, DAILY, rrulestr
 from home.utils.date_utils import get_current_year, date_to_datetime, Weekday
 from scraping.parse.explain_schedule import get_explanation_from_schedule
 from scraping.parse.holidays import HolidayZoneEnum
-from scraping.parse.periods import add_exrules
+from scraping.parse.intervals import add_exrules
 from scraping.parse.schedules import ScheduleItem, SchedulesList, Event, RegularRule, WeeklyRule, \
     MonthlyRule
 
@@ -48,7 +48,7 @@ def get_rruleset_from_schedule(schedule: ScheduleItem, default_year: int,
     rset = rruleset()
 
     if schedule.is_one_off_rule():
-        dt_as_string = schedule.date_rule.get_start(default_year).strftime('%Y%m%d')
+        dt_as_string = schedule.date_rule.get_date(default_year).strftime('%Y%m%d')
         one_off_rrule = f"DTSTART:{dt_as_string}\nRRULE:FREQ=DAILY;UNTIL={dt_as_string}"
 
         if schedule.is_cancellation:

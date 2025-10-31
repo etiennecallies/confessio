@@ -3,10 +3,10 @@ from datetime import datetime, date
 
 from home.utils.date_utils import Weekday
 from scraping.parse.holidays import HolidayZoneEnum
-from scraping.parse.periods import PeriodEnum
+from scraping.parse.intervals import PeriodEnum
 from scraping.parse.rrule_utils import get_events_from_schedule_items
 from scraping.parse.schedules import ScheduleItem, \
-    RegularRule, Event, MonthlyRule, NWeekday, Position, WeeklyRule
+    RegularRule, Event, MonthlyRule, NWeekday, Position, WeeklyRule, CustomPeriod, OneOffRule
 
 
 class GenerateEventsTests(unittest.TestCase):
@@ -34,7 +34,9 @@ class GenerateEventsTests(unittest.TestCase):
                                     )
                                 ]
                             ),
-                            only_in_periods=[PeriodEnum.JANUARY, PeriodEnum.FEBRUARY],
+                            only_in_periods=[CustomPeriod(
+                                start=OneOffRule(day=1, month=1),
+                                end=OneOffRule(day=28, month=2))],
                             not_in_periods=[],
                             not_on_dates=[],
                         ),
