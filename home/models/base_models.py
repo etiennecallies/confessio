@@ -315,12 +315,14 @@ class Parsing(TimeStampMixin):
                                 null=True)
 
     llm_json = models.JSONField(null=True, blank=True)
+    llm_json_version = models.CharField(max_length=6, default='v1.0')
     llm_provider = models.CharField(choices=LLMProvider.choices())
     llm_model = models.CharField(max_length=100)
     prompt_template_hash = models.CharField(max_length=32)
     llm_error_detail = models.TextField(null=True, blank=True)
 
     human_json = models.JSONField(null=True, blank=True)
+    human_json_version = models.CharField(max_length=6, default='v1.0')
 
     history = HistoricalRecords()
 

@@ -20,7 +20,7 @@ class OpenAILLMClient(LLMClientInterface):
                               temperature: float) -> tuple[Optional[SchedulesList], Optional[str]]:
         try:
             temperature_args = {'temperature': temperature} if self.model != 'o3' else {}
-            response = await self.client.beta.chat.completions.parse(
+            response = await self.client.chat.completions.parse(
                 model=self.model,
                 messages=messages,
                 response_format=SchedulesList,
