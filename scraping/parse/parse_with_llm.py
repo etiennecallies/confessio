@@ -216,10 +216,10 @@ async def parse_with_llm(truncated_html: str, church_desc_by_id: dict[int, str],
         temperature=0.0,
     )
     if schedules_list:
+        schedules_list.schedules = filter_unnecessary_schedules(schedules_list.schedules)
+
         if not are_schedules_list_date_rule_valid(schedules_list):
             return None, "Invalid date rule"
-
-        schedules_list.schedules = filter_unnecessary_schedules(schedules_list.schedules)
 
         is_explainable, not_explainable_detail = is_schedules_list_explainable(schedules_list)
         if not is_explainable:

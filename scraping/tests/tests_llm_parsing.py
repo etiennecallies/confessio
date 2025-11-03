@@ -15,6 +15,7 @@ from scraping.parse.openai_provider import OpenAILLMClient, get_openai_client
 from scraping.parse.parse_with_llm import parse_with_llm, get_prompt_template
 from scraping.parse.rrule_utils import are_schedules_list_equivalent
 from scraping.parse.schedules import SchedulesList, get_merged_schedules_list
+from scraping.parse.v1_0_to_v1_1 import from_v1_0_to_v1_1
 
 
 class LLMClientWithCache(LLMClientInterface):
@@ -35,6 +36,7 @@ class LLMClientWithCache(LLMClientInterface):
             json.dumps(SchedulesList.model_json_schema()),
             temperature
         )
+        # simple_cache.save_key(cache_filename, key, None, 0)
         value = simple_cache.load_key(cache_filename, key)
 
         if value is None:
@@ -107,8 +109,11 @@ class LlmParsingTests(unittest.TestCase):
                 truncated_html = ''.join(lines)
                 church_desc_by_id = input_and_output['input']['church_desc_by_id']
                 year = int(input_and_output['input']['year'])
-                expected_schedules_list = SchedulesList(
-                    **input_and_output['output']['schedules_list'])
+                # TODO convert source json
+                # expected_schedules_list = SchedulesList(
+                #     **input_and_output['output']['schedules_list'])
+                expected_schedules_list = from_v1_0_to_v1_1(
+                    input_and_output['output']['schedules_list'])
 
                 prompt_template = get_prompt_template()
                 schedules_list, llm_error_detail = asyncio.run(parse_with_llm(

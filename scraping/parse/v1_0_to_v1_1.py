@@ -62,7 +62,7 @@ def convert_legacy_schedules(schedules_json: dict) -> list[ScheduleItem]:
     return [
         ScheduleItem(
             church_id=d['church_id'],
-            date_rule=d['date_rule'],
+            date_rule=convert_date_rule(d['date_rule']),
             is_cancellation=d['is_cancellation'],
             start_time_iso8601=d['start_time_iso8601'],
             end_time_iso8601=d['end_time_iso8601'],

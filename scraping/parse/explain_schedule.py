@@ -145,6 +145,8 @@ def get_one_off_explanation(one_off_rule: OneOffRule) -> str:
                                                 'fr_FR.UTF-8')
     elif one_off_rule.liturgical_day:
         full_date = NAME_BY_LITURGICAL_DAY[one_off_rule.liturgical_day]
+    elif not one_off_rule.month or not one_off_rule.day:
+        raise ValueError("One off rule has no day or no month")
     else:
         full_date = ''
         if one_off_rule.weekday:
