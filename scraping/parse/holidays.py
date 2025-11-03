@@ -351,7 +351,7 @@ def check_holiday_by_zone() -> bool:
 
 
 if __name__ == '__main__':
-    # generate_and_print_holiday_by_zone()
+    generate_and_print_holiday_by_zone()
     # generate_and_print_corsica_holiday()
     # generate_and_print_guadeloupe_holiday()
-    generate_and_print_martinique_holiday()
+    # generate_and_print_martinique_holiday()
