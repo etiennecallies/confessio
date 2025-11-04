@@ -50,7 +50,7 @@
       memory_max: "800M"
     - name: daily_check_crawling
       command: "check_crawling"
-      hour: "8"
+      hour: "9"
       minute: 0
       memory_max: "800M"
 #    - name: hourly_scrape_pages
