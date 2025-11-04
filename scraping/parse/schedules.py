@@ -16,7 +16,7 @@ SCHEDULES_LIST_VERSION = 'v1.1'
 ################
 
 class OneOffRule(BaseModel, frozen=True):
-    year: int | None = Field(None, ge=2000)
+    year: int | None = Field(None, ge=1900)
     month: int | None = Field(None, ge=1, le=12)  # nullable when liturgical_day is given
     day: int | None = Field(None, ge=1, le=31)  # nullable when liturgical_day is given
     weekday: Weekday | None = None
@@ -209,6 +209,10 @@ class SchedulesList(BaseModel):
     will_be_seasonal_events: bool = Field(False, description='checkbox')
 
     def check_is_valid(self):
+        """Raises ValueError if not valid.
+        This is not a hard validation since some schedules returned by the LLM may be invalid.
+        We prefer to handle it manually than raising ValidationError at model creation.
+        """
         for schedule in self.schedules:
             schedule.check_is_valid()
 

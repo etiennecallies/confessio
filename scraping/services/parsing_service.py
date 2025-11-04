@@ -1,6 +1,6 @@
 from home.models import Parsing, Church
 from home.utils.log_utils import info
-from scraping.parse.schedules import SchedulesList
+from scraping.parse.schedules import SchedulesList, SCHEDULES_LIST_VERSION
 from scraping.parse.v1_0_to_v1_1 import from_v1_0_to_v1_1
 
 
@@ -75,5 +75,7 @@ def get_parsing_schedules_list(parsing: Parsing) -> SchedulesList | None:
 
     if version == 'v1.0':
         return from_v1_0_to_v1_1(schedules_list_as_dict)
+    if version == SCHEDULES_LIST_VERSION:
+        return SchedulesList(**schedules_list_as_dict)
 
-    return SchedulesList(**schedules_list_as_dict)
+    raise ValueError(f'Unknown parsing version {version}')

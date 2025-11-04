@@ -241,7 +241,7 @@ POSITION_BY_PERIOD = {
 
 def get_period_or_custom_period_key(period: PeriodEnum | CustomPeriod):
     if isinstance(period, PeriodEnum):
-        return POSITION_BY_PERIOD[period]
+        return ((POSITION_BY_PERIOD[period],),)
 
     if isinstance(period, CustomPeriod):
         return one_off_rule_sort_key(period.start), one_off_rule_sort_key(period.end)
