@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 
 from dateutil.rrule import rrulestr, rruleset
 
@@ -71,14 +71,16 @@ def compute_intervals_complementary(intervals: list[tuple[date, date]],
     full_start = date(start_year, 1, 1)
     full_end = date(end_year, 12, 31)
 
+    one_day = timedelta(days=1)
+
     # Compute the complementary
     complementary = []
     for start, end in sorted_intervals:
-        if full_start < start:
-            complementary.append((full_start, start))
+        if full_start + one_day <= start - one_day:
+            complementary.append((full_start + one_day, start - one_day))
         full_start = end
-    if full_start < full_end:
-        complementary.append((full_start, full_end))
+    if full_start + one_day <= full_end - one_day:
+        complementary.append((full_start + one_day, full_end - one_day))
 
     return complementary
 

@@ -152,6 +152,12 @@ confession starts "après la messe", two cases : either the schedule is explicit
 "après la messe de Xh le vendredi" would give a start time of Xh30, or the schedule is not explicit,
 e.g. "après la messe" would not give a schedule item dictionary.
 - If the church is not explicit in the text, the church_id must be null.
+- Sometimes you will be given a calendar, with month as title, day number as headers. In this case
+you should return one-off date rules for each day number mentioned in the calendar.
+- Sometimes, only the the start time of events are mentioned. In this case, you can set
+end_time_iso8601 to null, or infer it from next event start time if relevant.
+Example: "Xh confessions; Xh30 messe;"
+would give start_time_iso8601 "0X:00:00" and end_time_iso8601 "0X:30:00".
 
 Here is the HTML extract to parse:
 {truncated_html}

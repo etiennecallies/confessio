@@ -151,6 +151,72 @@ class GenerateEventsTests(unittest.TestCase):
                     datetime(2026, 4, 27, 17, 30),
                 ]
             ),
+            (
+                [
+                    ScheduleItem(**{
+                        "church_id": None,
+                        "date_rule":
+                            {
+                                "rule":
+                                    {
+                                        "by_weekdays":
+                                            [
+                                                "saturday"
+                                            ]
+                                    },
+                                "only_in_periods":
+                                    [],
+                                "not_in_periods":
+                                    [
+                                        "school_holidays"
+                                    ],
+                                "not_on_dates":
+                                    []
+                            },
+                        "is_cancellation": False,
+                        "start_time_iso8601": "16:30:00",
+                        "end_time_iso8601": None
+                    }),
+                    ScheduleItem(**{
+                        "church_id": None,
+                        "date_rule":
+                            {
+                                "rule":
+                                    {
+                                        "by_weekdays":
+                                            [
+                                                "saturday"
+                                            ]
+                                    },
+                                "only_in_periods":
+                                    [
+                                        "school_holidays"
+                                    ],
+                                "not_in_periods":
+                                    [],
+                                "not_on_dates":
+                                    []
+                            },
+                        "is_cancellation": False,
+                        "start_time_iso8601": "16:30:00",
+                        "end_time_iso8601": None
+                    }),
+                ],
+                date(2024, 10, 1),
+                date(2024, 11, 30),
+                2024,
+                [
+                    datetime(2024, 10, 5, 16, 30),
+                    datetime(2024, 10, 12, 16, 30),
+                    datetime(2024, 10, 19, 16, 30),
+                    datetime(2024, 10, 26, 16, 30),
+                    datetime(2024, 11, 2, 16, 30),
+                    datetime(2024, 11, 9, 16, 30),
+                    datetime(2024, 11, 16, 16, 30),
+                    datetime(2024, 11, 23, 16, 30),
+                    datetime(2024, 11, 30, 16, 30),
+                ]
+            ),
         ]
 
     def test_generate_events(self):
