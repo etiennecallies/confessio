@@ -22,6 +22,10 @@ class OneOffRule(BaseModel, frozen=True):
     def is_valid(self):
         return (self.month and self.day) or self.liturgical_day
 
+    def check_is_valid(self):
+        if not self.is_valid():
+            raise ValueError(f'Invalid one-off rule: {self}')
+
     def is_valid_date(self) -> bool:
         if not self.is_valid():
             return False
@@ -131,6 +135,18 @@ class RegularRule(BaseModel, frozen=True):
             tuple(sorted(self.not_on_dates)),
         ))
 
+    def check_is_valid(self):
+        for period in self.only_in_periods:
+            if isinstance(period, CustomPeriod):
+                period.start.check_is_valid()
+                period.end.check_is_valid()
+        for period in self.not_in_periods:
+            if isinstance(period, CustomPeriod):
+                period.start.check_is_valid()
+                period.end.check_is_valid()
+        for date_rule in self.not_on_dates:
+            date_rule.check_is_valid()
+
     def is_daily_rule(self) -> bool:
         return isinstance(self.rule, DailyRule)
 
@@ -159,6 +175,9 @@ class ScheduleItem(BaseModel, frozen=True):
 
         return self
 
+    def check_is_valid(self):
+        self.date_rule.check_is_valid()
+
     def is_one_off_rule(self) -> bool:
         return isinstance(self.date_rule, OneOffRule)
 
@@ -185,6 +204,10 @@ class SchedulesList(BaseModel):
     is_related_to_adoration: bool = Field(False, description='checkbox')
     is_related_to_permanence: bool = Field(False, description='checkbox')
     will_be_seasonal_events: bool = Field(False, description='checkbox')
+
+    def check_is_valid(self):
+        for schedule in self.schedules:
+            schedule.check_is_valid()
 
     def __eq__(self, other: 'SchedulesList'):
         return self.model_dump(exclude={'schedules'}) == other.model_dump(exclude={'schedules'}) \

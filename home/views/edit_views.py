@@ -166,6 +166,7 @@ def edit_parsing(request, parsing_uuid):
         previous_schedule_list = get_parsing_schedules_list(parsing)
         try:
             schedules_list = SchedulesList(**schedules_list_as_dict)
+            schedules_list.check_is_valid()
             parsing.human_json = schedules_list.model_dump(mode='json')
             parsing.save()
             success = True
@@ -175,6 +176,8 @@ def edit_parsing(request, parsing_uuid):
                 # reset page counter
                 reset_counters_of_parsing(parsing)
         except ValidationError as e:
+            validation_error = str(e)
+        except ValueError as e:
             validation_error = str(e)
 
     if not schedules_list_as_json:
