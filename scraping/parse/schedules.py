@@ -8,6 +8,9 @@ from home.utils.date_utils import guess_year_from_weekday, Weekday, get_python_w
 from scraping.parse.liturgical import LiturgicalDayEnum, get_liturgical_date, PeriodEnum
 
 
+SCHEDULES_LIST_VERSION = 'v1.1'
+
+
 ################
 # ONE OFF RULE #
 ################
