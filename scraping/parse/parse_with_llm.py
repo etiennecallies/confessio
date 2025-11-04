@@ -30,11 +30,11 @@ The output should be a dictionary with this format:
 }}
 
 Then, "schedules" is a list of dictionaries, each containing the schedule for a church.
-Sometimes several schedule dictionaries can be extracted from the same church.
+Sometimes several schedule dictionaries can be extracted for the same church.
 
 Here is the schedule dictionary format:
 {{
-    "church_id": Optional[int],  # the id of the respective church, can be null if the
+    "church_id": int | null,  # the id of the respective church, can be null if the
         church information is not explicit in the text. Can be -1 if the church is explicit and is
         not in the provided list. Sometimes, you can guess the church_id when it says
         "à la chapelle" and there is only one church called "chapelle" in the list.
@@ -42,9 +42,9 @@ Here is the schedule dictionary format:
     "date_rule": OneOffRule | RegularRule,  # the recurrence rule for the confession (see below)
     "is_cancellation": bool,  # whether this is a cancellation of a confession, e.g "pas de
         confession en août"
-    "start_time_iso8601": Optional[str],  # the start time of the confession in "HH:MM:SS" format,
+    "start_time_iso8601": str | null,  # the start time of the confession in "HH:MM:SS" format,
 null if not explicit.
-    "end_time_iso8601": Optional[str]  # the end time of the confession in "HH:MM:SS" format,
+    "end_time_iso8601": str | null  # the end time of the confession in "HH:MM:SS" format,
 null if not explicit.
 }}
 
@@ -53,9 +53,9 @@ be a one-off date rule or a regular date rule.
 
 Here is the one-off date rule format:
 {{
-    "year": Optional[int],  # the year as written in the text, let null if not explicit
-    "month": Optional[int],  # month, let null if not explicit
-    "day": Optional[int],  # day of month, let null if not explicit
+    "year": int | null,  # the year as written in the text, let null if not explicit
+    "month": int | null,  # month, let null if not explicit
+    "day": int | null,  # day of month, let null if not explicit
     "weekday": Weekday | null,  # the week day, let null if not explicit
     "liturgical_day": LiturgicalDayEnum | null,  # the liturgical day, let null if not explicit
 }}
@@ -83,21 +83,29 @@ For example, for "Vendredi 30 août", the one-off date rule would be:
     "liturgical_day": null
 }}
 
-The accepted LiturgicalDayEnum values are 'ash_wednesday', from 'palms_sunday' to 'easter_sunday',
+The accepted LiturgicalDayEnum values are 'ash_wednesday', from 'palms_sunday' to 'easter_monday',
 'ascension' and 'pentecost'.
 
 Here is the regular date rule format:
 {{
     "rule": DailyRule | WeeklyRule | MonthlyRule,  # the recurrence rule for the confession.
-    "only_in_periods": list[PeriodEnum],  # the year periods when the rrule applied. For
-        example, if the confession is only during the school holidays, the list would be
+    "only_in_periods": list[PeriodEnum | CustomPeriod],  # the year periods when the rrule applied.
+        For example, if the confession is only during the school holidays, the list would be
         ['school_holidays']. If the expression says "durant l'été", the list would be
-        ['july', 'august'].
-    "not_in_periods": list[PeriodEnum]  # the year periods excluded. For example, if the
-        confession is only during the school terms, the list would be ['school_holidays']. If the
-        expression says "sauf pendant le carême", the list would be ['lent'].
+        ['summer'].
+    "not_in_periods": list[PeriodEnum | CustomPeriod]  # the year periods excluded. For example,
+        if the confession is only during the school terms, the list would be ['school_holidays'].
+        If the expression says "sauf pendant le carême", the list would be ['lent'].
     "not_on_dates": list[OneOffRule]  # the one-off dates excluded from the rrule.
 }}
+
+CustomPeriod is a dictionary with the following fields:
+{{
+    "start": OneOffRule,  # the start date of the period
+    "end": OneOffRule,  # the end date of the period
+}}
+For example, if the expression says "sauf en août", the "not_in_periods" would be:
+{{"start":{{"month":8,"day":1}},"end":{{"month":8,"day":30}}}}
 
 DailyRule is an empty dictionary, WeeklyRule is a dictionary with the following format:
 {{
@@ -117,18 +125,16 @@ NWeekday is a dictionary with the following format:
     "position": Position  # the position of the weekday in a month, e.g. 1, 2, 3, 4, 5 or -1
 }}
 
+For example, for "le premier dimanche du mois", the "rule" would be:
+{{"by_nweekdays":[{{"weekday":"sunday","position":1}}]}}
+Warning: "un dimanche par mois", unlike "le premier dimanche du mois", is too vague and therefore
+can not be translated into a schedule.
+
 The accepted PeriodEnum values are:
-- any month from 'january' to 'december'
 - 'school_holidays'. If you need 'school_terms', just add 'school_holidays' to the opposite list.
 - 'advent' or 'lent' for the liturgical seasons
-
-For example, for "tous les jours sauf en août de 10h à 10h30", the regular date rule would be:
-{{
-    "rule": {{}},
-    "only_in_periods": [],
-    "not_in_periods": ["august"]
-}}
-For "tous les jours sauf en août" without any time, do not return a schedule item dictionary.
+- 'solemnities' for "jours de fêtes" or "jours de solennité"
+- 'summer' or 'winter'
 
 Some details:
 - if a recurring event description is vague (e.g. "une fois par mois") and is followed by a list of
@@ -210,7 +216,7 @@ def replace_unknown_by_unique_church(schedules: list[ScheduleItem],
 
 async def parse_with_llm(truncated_html: str, church_desc_by_id: dict[int, str],
                          prompt_template: str, llm_client: Optional[LLMClientInterface]
-                         ) -> tuple[Optional[SchedulesList], Optional[str]]:
+                         ) -> tuple[SchedulesList | None, str | None]:
     schedules_list, llm_error_detail = await llm_client.get_completions(
         messages=build_input_messages(prompt_template, truncated_html, church_desc_by_id),
         temperature=0.0,

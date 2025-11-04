@@ -4,6 +4,7 @@ from datetime import datetime, date
 from home.utils.date_utils import Weekday
 from scraping.parse.holidays import HolidayZoneEnum
 from scraping.parse.intervals import PeriodEnum
+from scraping.parse.liturgical import LiturgicalDayEnum
 from scraping.parse.rrule_utils import get_events_from_schedule_items
 from scraping.parse.schedules import ScheduleItem, \
     RegularRule, Event, MonthlyRule, NWeekday, Position, WeeklyRule, CustomPeriod, OneOffRule
@@ -113,6 +114,41 @@ class GenerateEventsTests(unittest.TestCase):
                     datetime(2024, 8, 13, 17, 30),
                     datetime(2024, 8, 20, 17, 30),
                     datetime(2024, 8, 27, 17, 30),
+                ]
+            ),
+            (
+                [
+                    ScheduleItem(
+                        church_id=None,
+                        date_rule=RegularRule(
+                            rule=WeeklyRule(
+                                by_weekdays=[
+                                    Weekday.MONDAY,
+                                ]
+                            ),
+                            only_in_periods=[],
+                            not_in_periods=[],
+                            not_on_dates=[
+                                OneOffRule(liturgical_day=LiturgicalDayEnum.EASTER_MONDAY)
+                            ],
+                        ),
+                        is_cancellation=False,
+                        start_time_iso8601='17:30:00',
+                        end_time_iso8601=None,
+                    ),
+                ],
+                date(2026, 3, 1),
+                date(2026, 5, 1),
+                2026,
+                [
+                    datetime(2026, 3, 2, 17, 30),
+                    datetime(2026, 3, 9, 17, 30),
+                    datetime(2026, 3, 16, 17, 30),
+                    datetime(2026, 3, 23, 17, 30),
+                    datetime(2026, 3, 30, 17, 30),
+                    datetime(2026, 4, 13, 17, 30),
+                    datetime(2026, 4, 20, 17, 30),
+                    datetime(2026, 4, 27, 17, 30),
                 ]
             ),
         ]

@@ -1,11 +1,12 @@
 from datetime import date
 
-from dateutil.rrule import rrulestr
+from dateutil.rrule import rrulestr, rruleset
 
+from home.utils.date_utils import date_to_datetime
 from scraping.parse.holidays import HolidayZoneEnum, HOLIDAY_BY_ZONE
 from scraping.parse.liturgical import PeriodEnum, get_advent_dates, get_liturgical_date, \
     LiturgicalDayEnum, get_solemnities_dates
-from scraping.parse.schedules import CustomPeriod
+from scraping.parse.schedules import CustomPeriod, OneOffRule
 
 
 def intervals_from_period(period: PeriodEnum, year: int,
@@ -109,7 +110,7 @@ def rrules_from_intervals(intervals: list[tuple[date, date]]) -> list[str]:
             for start, end in intervals]
 
 
-def add_exrules(rset, periods: list[PeriodEnum | CustomPeriod], start_year, end_year,
+def add_exrules(rset: rruleset, periods: list[PeriodEnum | CustomPeriod], start_year, end_year,
                 use_complementary: bool, holiday_zone: HolidayZoneEnum):
     if not periods:
         return
@@ -126,3 +127,8 @@ def add_exrules(rset, periods: list[PeriodEnum | CustomPeriod], start_year, end_
 
     for rule in rrules_from_intervals(merged_intervals):
         rset.exrule(rrulestr(rule))
+
+
+def add_exdate(rset: rruleset, one_off_rule: OneOffRule, start_year, end_year):
+    for year in range(start_year, end_year + 1):
+        rset.exdate(date_to_datetime(one_off_rule.get_date(year)))
