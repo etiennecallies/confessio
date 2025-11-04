@@ -19,8 +19,11 @@ class OneOffRule(BaseModel, frozen=True):
     weekday: Weekday | None = None
     liturgical_day: LiturgicalDayEnum | None = None
 
+    def is_valid(self):
+        return (self.month and self.day) or self.liturgical_day
+
     def is_valid_date(self) -> bool:
-        if (not self.month or not self.day) and not self.liturgical_day:
+        if not self.is_valid():
             return False
 
         try:

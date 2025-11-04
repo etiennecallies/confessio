@@ -5,7 +5,7 @@ from scraping.parse.llm_client import LLMClientInterface, \
     LLMProvider
 from scraping.parse.openai_provider import get_openai_llm_client
 from scraping.parse.rrule_utils import are_schedules_list_date_rule_valid, \
-    is_schedules_list_explainable, filter_unnecessary_schedules
+    is_schedules_list_explainable, filter_valid_schedules
 from scraping.parse.schedules import SchedulesList, ScheduleItem
 
 
@@ -222,7 +222,7 @@ async def parse_with_llm(truncated_html: str, church_desc_by_id: dict[int, str],
         temperature=0.0,
     )
     if schedules_list:
-        schedules_list.schedules = filter_unnecessary_schedules(schedules_list.schedules)
+        schedules_list.schedules = filter_valid_schedules(schedules_list.schedules)
 
         if not are_schedules_list_date_rule_valid(schedules_list):
             return None, "Invalid date rule"
