@@ -2,9 +2,9 @@ from datetime import datetime
 
 from home.utils.date_utils import format_datetime_with_locale, Weekday
 from home.utils.list_utils import enumerate_with_and
-from scraping.parse.periods import PeriodEnum, get_liturgical_date, LiturgicalDayEnum
+from scraping.parse.intervals import PeriodEnum, get_liturgical_date, LiturgicalDayEnum
 from scraping.parse.schedules import (ScheduleItem, OneOffRule, RegularRule, Position,
-                                      WeeklyRule, MonthlyRule)
+                                      WeeklyRule, MonthlyRule, CustomPeriod)
 
 ################
 # TRANSLATIONS #
@@ -39,38 +39,24 @@ NAME_BY_LITURGICAL_DAY = {
     LiturgicalDayEnum.GOOD_FRIDAY: "vendredi Saint",
     LiturgicalDayEnum.HOLY_SATURDAY: "samedi Saint",
     LiturgicalDayEnum.EASTER_SUNDAY: "dimanche de Pâques",
+    LiturgicalDayEnum.EASTER_MONDAY: "lundi de Pâques",
     LiturgicalDayEnum.ASCENSION: "jeudi de l'Ascension",
     LiturgicalDayEnum.PENTECOST: "dimanche de Pentecôte",
 }
 
-PERIOD_BY_MONTH = {
-    1: PeriodEnum.JANUARY,
-    2: PeriodEnum.FEBRUARY,
-    3: PeriodEnum.MARCH,
-    4: PeriodEnum.APRIL,
-    5: PeriodEnum.MAY,
-    6: PeriodEnum.JUNE,
-    7: PeriodEnum.JULY,
-    8: PeriodEnum.AUGUST,
-    9: PeriodEnum.SEPTEMBER,
-    10: PeriodEnum.OCTOBER,
-    11: PeriodEnum.NOVEMBER,
-    12: PeriodEnum.DECEMBER,
-}
-
 NAME_BY_MONTH = {
-    PeriodEnum.JANUARY: 'janvier',
-    PeriodEnum.FEBRUARY: 'février',
-    PeriodEnum.MARCH: 'mars',
-    PeriodEnum.APRIL: 'avril',
-    PeriodEnum.MAY: 'mai',
-    PeriodEnum.JUNE: 'juin',
-    PeriodEnum.JULY: 'juillet',
-    PeriodEnum.AUGUST: 'août',
-    PeriodEnum.SEPTEMBER: 'septembre',
-    PeriodEnum.OCTOBER: 'octobre',
-    PeriodEnum.NOVEMBER: 'novembre',
-    PeriodEnum.DECEMBER: 'décembre',
+    1: 'janvier',
+    2: 'février',
+    3: 'mars',
+    4: 'avril',
+    5: 'mai',
+    6: 'juin',
+    7: 'juillet',
+    8: 'août',
+    9: 'septembre',
+    10: 'octobre',
+    11: 'novembre',
+    12: 'décembre',
 }
 
 
@@ -79,6 +65,8 @@ def get_name_by_period(period: PeriodEnum) -> str:
         return 'pendant l\'avent'
     if period == PeriodEnum.LENT:
         return 'pendant le carême'
+    if period == PeriodEnum.SOLEMNITIES:
+        return 'les jours de solennité'
     if period == PeriodEnum.SCHOOL_HOLIDAYS:
         return 'pendant les vacances scolaires'
     if period == PeriodEnum.SUMMER:
@@ -86,7 +74,26 @@ def get_name_by_period(period: PeriodEnum) -> str:
     if period == PeriodEnum.WINTER:
         return 'en hiver'
 
-    return f'en {NAME_BY_MONTH[period]}'
+    raise ValueError(f'unknown period {period}')
+
+
+def contract_a_le_to_au(explanation: str) -> str:
+    return explanation.replace('à le', 'au').replace('de le', 'du')
+
+
+def explain_custom_period(custom_period: CustomPeriod) -> str:
+    return contract_a_le_to_au(f'de {get_one_off_explanation(custom_period.start)} '
+                               f'à {get_one_off_explanation(custom_period.end)}')
+
+
+def explain_period_or_custom_period(period: PeriodEnum | CustomPeriod) -> str:
+    if isinstance(period, PeriodEnum):
+        return get_name_by_period(period)
+
+    if isinstance(period, CustomPeriod):
+        return explain_custom_period(period)
+
+    raise ValueError(f'unknown type of period {period}')
 
 
 def get_weekly_explanation(weekly_rule: WeeklyRule) -> str:
@@ -119,6 +126,13 @@ def get_monthly_explanation(monthly_rule: MonthlyRule) -> str:
     return f"{enumerate_with_and(items)} du mois"
 
 
+def get_day_of_month_explanation(day: int) -> str:
+    if day == 1:
+        return "1er"
+
+    return str(day)
+
+
 def get_one_off_explanation(one_off_rule: OneOffRule) -> str:
     if one_off_rule.year and one_off_rule.is_valid_date():
         if one_off_rule.liturgical_day:
@@ -131,11 +145,14 @@ def get_one_off_explanation(one_off_rule: OneOffRule) -> str:
                                                 'fr_FR.UTF-8')
     elif one_off_rule.liturgical_day:
         full_date = NAME_BY_LITURGICAL_DAY[one_off_rule.liturgical_day]
+    elif not one_off_rule.month or not one_off_rule.day:
+        raise ValueError("One off rule has no day or no month")
     else:
         full_date = ''
         if one_off_rule.weekday:
             full_date += f"{NAME_BY_WEEKDAY[one_off_rule.weekday]} "
-        full_date += f"{one_off_rule.day} {NAME_BY_MONTH[PERIOD_BY_MONTH[one_off_rule.month]]}"
+        full_date += (f"{get_day_of_month_explanation(one_off_rule.day)} "
+                      f"{NAME_BY_MONTH[one_off_rule.month]}")
         if one_off_rule.year:
             full_date += f" {one_off_rule.year} (⚠️ date impossible)"
 
@@ -181,11 +198,13 @@ def get_explanation_from_schedule(schedule: ScheduleItem) -> str:
 
     if schedule.is_regular_rule():
         if schedule.date_rule.only_in_periods:
-            periods = [get_name_by_period(p) for p in schedule.date_rule.only_in_periods]
+            periods = [explain_period_or_custom_period(p)
+                       for p in schedule.date_rule.only_in_periods]
             explanation = f"{enumerate_with_and(periods)}, {explanation}"
 
         if schedule.date_rule.not_in_periods:
-            periods = [get_name_by_period(p) for p in schedule.date_rule.not_in_periods]
+            periods = [explain_period_or_custom_period(p)
+                       for p in schedule.date_rule.not_in_periods]
             explanation += f", sauf {enumerate_with_and(periods)}"
 
         if schedule.date_rule.not_on_dates:
@@ -211,28 +230,27 @@ def get_frequency_key(regular_rule: RegularRule) -> int:
 
 
 POSITION_BY_PERIOD = {
-    PeriodEnum.JANUARY: 1,
-    PeriodEnum.FEBRUARY: 2,
-    PeriodEnum.MARCH: 3,
-    PeriodEnum.APRIL: 4,
-    PeriodEnum.MAY: 5,
-    PeriodEnum.JUNE: 6,
-    PeriodEnum.JULY: 7,
-    PeriodEnum.AUGUST: 8,
-    PeriodEnum.SEPTEMBER: 9,
-    PeriodEnum.OCTOBER: 10,
-    PeriodEnum.NOVEMBER: 11,
-    PeriodEnum.DECEMBER: 12,
-    PeriodEnum.SUMMER: 13,
-    PeriodEnum.WINTER: 14,
-    PeriodEnum.ADVENT: 15,
-    PeriodEnum.LENT: 16,
-    PeriodEnum.SCHOOL_HOLIDAYS: 17,
+    PeriodEnum.SUMMER: 1,
+    PeriodEnum.WINTER: 2,
+    PeriodEnum.ADVENT: 3,
+    PeriodEnum.LENT: 4,
+    PeriodEnum.SOLEMNITIES: 5,
+    PeriodEnum.SCHOOL_HOLIDAYS: 6,
 }
 
 
-def get_periods_key(periods: list[PeriodEnum]) -> tuple:
-    return tuple(POSITION_BY_PERIOD[p] for p in periods)
+def get_period_or_custom_period_key(period: PeriodEnum | CustomPeriod):
+    if isinstance(period, PeriodEnum):
+        return ((POSITION_BY_PERIOD[period],),)
+
+    if isinstance(period, CustomPeriod):
+        return one_off_rule_sort_key(period.start), one_off_rule_sort_key(period.end)
+
+    raise ValueError(f"Type of period {period} is not supported")
+
+
+def get_periods_key(periods: list[PeriodEnum | CustomPeriod]) -> tuple:
+    return tuple(get_period_or_custom_period_key(p) for p in periods)
 
 
 POSITION_BY_WEEKDAY = {

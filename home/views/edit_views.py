@@ -13,7 +13,7 @@ from home.services.edit_pruning_service import get_colored_pieces, update_senten
     update_sentence_labels_with_request, TEMPORAL_MOTION_COLORS
 from jsoneditor.forms import JSONSchemaForm
 from scraping.extract_v2.qualify_line_interfaces import DummyQualifyLineInterface
-from scraping.parse.schedules import SchedulesList
+from scraping.parse.schedules import SchedulesList, SCHEDULES_LIST_VERSION
 from scraping.prune.action_interfaces import DummyActionInterface
 from scraping.prune.models import Action
 from scraping.services.parse_pruning_service import reset_counters_of_parsing, \
@@ -166,7 +166,9 @@ def edit_parsing(request, parsing_uuid):
         previous_schedule_list = get_parsing_schedules_list(parsing)
         try:
             schedules_list = SchedulesList(**schedules_list_as_dict)
+            schedules_list.check_is_valid()
             parsing.human_json = schedules_list.model_dump(mode='json')
+            parsing.human_json_version = SCHEDULES_LIST_VERSION
             parsing.save()
             success = True
             re_index_related_website(parsing)
@@ -175,6 +177,8 @@ def edit_parsing(request, parsing_uuid):
                 # reset page counter
                 reset_counters_of_parsing(parsing)
         except ValidationError as e:
+            validation_error = str(e)
+        except ValueError as e:
             validation_error = str(e)
 
     if not schedules_list_as_json:

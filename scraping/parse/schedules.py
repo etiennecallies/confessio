@@ -5,7 +5,10 @@ from typing import Optional
 from pydantic import BaseModel, model_validator, Field
 
 from home.utils.date_utils import guess_year_from_weekday, Weekday, get_python_weekday
-from scraping.parse.periods import PeriodEnum, LiturgicalDayEnum, get_liturgical_date
+from scraping.parse.liturgical import LiturgicalDayEnum, get_liturgical_date, PeriodEnum
+
+
+SCHEDULES_LIST_VERSION = 'v1.1'
 
 
 ################
@@ -13,20 +16,23 @@ from scraping.parse.periods import PeriodEnum, LiturgicalDayEnum, get_liturgical
 ################
 
 class OneOffRule(BaseModel, frozen=True):
-    year: int | None
-    month: int | None  # only nullable when liturgical_day is given
-    day: int | None  # only nullable when liturgical_day is given
-    weekday: Weekday | None
-    liturgical_day: LiturgicalDayEnum | None
+    year: int | None = Field(None, ge=1900)
+    month: int | None = Field(None, ge=1, le=12)  # nullable when liturgical_day is given
+    day: int | None = Field(None, ge=1, le=31)  # nullable when liturgical_day is given
+    weekday: Weekday | None = None
+    liturgical_day: LiturgicalDayEnum | None = None
 
-    @model_validator(mode='after')
-    def validate_date_specification(self) -> 'OneOffRule':
-        if (not self.month or not self.day) and not self.liturgical_day:
-            raise ValueError('Either month and day, or liturgical_day must be provided')
+    def is_valid(self):
+        return (self.month and self.day) or self.liturgical_day
 
-        return self
+    def check_is_valid(self):
+        if not self.is_valid():
+            raise ValueError(f'Invalid one-off rule: {self}')
 
     def is_valid_date(self) -> bool:
+        if not self.is_valid():
+            return False
+
         try:
             if self.month and self.day:
                 # check day and month
@@ -46,7 +52,7 @@ class OneOffRule(BaseModel, frozen=True):
         except ValueError:
             return False
 
-    def get_start(self, default_year: int) -> date:
+    def get_date(self, default_year: int) -> date:
         if self.liturgical_day:
             return get_liturgical_date(self.liturgical_day, self.year or default_year)
 
@@ -95,24 +101,32 @@ class DailyRule(BaseModel, frozen=True):
 
 
 class WeeklyRule(BaseModel, frozen=True):
-    by_weekdays: list[Weekday] = Field(..., description='uniqueItems')
+    by_weekdays: list[Weekday] = Field(..., description='uniqueItems', min_length=1)
 
     def __hash__(self):
         return hash(tuple(sorted(map(lambda w: w.value, self.by_weekdays))))
 
 
 class MonthlyRule(BaseModel, frozen=True):
-    by_nweekdays: list[NWeekday]
+    by_nweekdays: list[NWeekday] = Field(..., min_length=1)
 
     def __hash__(self):
         return hash(tuple(sorted(self.by_nweekdays)))
 
 
+class CustomPeriod(BaseModel, frozen=True):
+    start: OneOffRule
+    end: OneOffRule
+
+    def __lt__(self, other: 'CustomPeriod') -> bool:
+        return (self.start, self.end) < (other.start, other.end)
+
+
 class RegularRule(BaseModel, frozen=True):
     rule: DailyRule | WeeklyRule | MonthlyRule
-    only_in_periods: list[PeriodEnum] = Field(..., description='uniqueItems')
-    not_in_periods: list[PeriodEnum] = Field(..., description='uniqueItems')
-    not_on_dates: list[OneOffRule] = Field(..., description='table')
+    only_in_periods: list[PeriodEnum | CustomPeriod] = Field(default_factory=list)
+    not_in_periods: list[PeriodEnum | CustomPeriod] = Field(default_factory=list)
+    not_on_dates: list[OneOffRule] = Field(default_factory=list, description='table')
 
     def __hash__(self):
         """It would have been simpler to use tuple instead of list for only_in_periods and
@@ -123,6 +137,18 @@ class RegularRule(BaseModel, frozen=True):
             tuple(sorted(self.not_in_periods)),
             tuple(sorted(self.not_on_dates)),
         ))
+
+    def check_is_valid(self):
+        for period in self.only_in_periods:
+            if isinstance(period, CustomPeriod):
+                period.start.check_is_valid()
+                period.end.check_is_valid()
+        for period in self.not_in_periods:
+            if isinstance(period, CustomPeriod):
+                period.start.check_is_valid()
+                period.end.check_is_valid()
+        for date_rule in self.not_on_dates:
+            date_rule.check_is_valid()
 
     def is_daily_rule(self) -> bool:
         return isinstance(self.rule, DailyRule)
@@ -139,11 +165,11 @@ class RegularRule(BaseModel, frozen=True):
 #############
 
 class ScheduleItem(BaseModel, frozen=True):
-    church_id: int | None
+    church_id: int | None = None
     date_rule: OneOffRule | RegularRule
-    is_cancellation: bool
-    start_time_iso8601: str | None = Field(..., description='time')
-    end_time_iso8601: str | None = Field(..., description='time')
+    is_cancellation: bool = False
+    start_time_iso8601: str | None = Field(None, description='time')
+    end_time_iso8601: str | None = Field(None, description='time')
 
     @model_validator(mode='after')
     def validate_times(self) -> 'ScheduleItem':
@@ -151,6 +177,9 @@ class ScheduleItem(BaseModel, frozen=True):
         self.get_end_time()
 
         return self
+
+    def check_is_valid(self):
+        self.date_rule.check_is_valid()
 
     def is_one_off_rule(self) -> bool:
         return isinstance(self.date_rule, OneOffRule)
@@ -173,11 +202,19 @@ class ScheduleItem(BaseModel, frozen=True):
 
 class SchedulesList(BaseModel):
     schedules: list[ScheduleItem]
-    possible_by_appointment: bool = Field(..., description='checkbox')
-    is_related_to_mass: bool = Field(..., description='checkbox')
-    is_related_to_adoration: bool = Field(..., description='checkbox')
-    is_related_to_permanence: bool = Field(..., description='checkbox')
-    will_be_seasonal_events: bool = Field(..., description='checkbox')
+    possible_by_appointment: bool = Field(False, description='checkbox')
+    is_related_to_mass: bool = Field(False, description='checkbox')
+    is_related_to_adoration: bool = Field(False, description='checkbox')
+    is_related_to_permanence: bool = Field(False, description='checkbox')
+    will_be_seasonal_events: bool = Field(False, description='checkbox')
+
+    def check_is_valid(self):
+        """Raises ValueError if not valid.
+        This is not a hard validation since some schedules returned by the LLM may be invalid.
+        We prefer to handle it manually than raising ValidationError at model creation.
+        """
+        for schedule in self.schedules:
+            schedule.check_is_valid()
 
     def __eq__(self, other: 'SchedulesList'):
         return self.model_dump(exclude={'schedules'}) == other.model_dump(exclude={'schedules'}) \

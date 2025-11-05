@@ -6,9 +6,10 @@ from dateutil.rrule import rrule, rruleset, WEEKLY, DAILY, rrulestr
 from home.utils.date_utils import get_current_year, date_to_datetime, Weekday
 from scraping.parse.explain_schedule import get_explanation_from_schedule
 from scraping.parse.holidays import HolidayZoneEnum
-from scraping.parse.periods import add_exrules
+from scraping.parse.intervals import add_exrules, add_exdate
+from scraping.parse.liturgical import PeriodEnum
 from scraping.parse.schedules import ScheduleItem, SchedulesList, Event, RegularRule, WeeklyRule, \
-    MonthlyRule
+    MonthlyRule, CustomPeriod
 
 ####################
 # RRULE GENERATION #
@@ -48,7 +49,7 @@ def get_rruleset_from_schedule(schedule: ScheduleItem, default_year: int,
     rset = rruleset()
 
     if schedule.is_one_off_rule():
-        dt_as_string = schedule.date_rule.get_start(default_year).strftime('%Y%m%d')
+        dt_as_string = schedule.date_rule.get_date(default_year).strftime('%Y%m%d')
         one_off_rrule = f"DTSTART:{dt_as_string}\nRRULE:FREQ=DAILY;UNTIL={dt_as_string}"
 
         if schedule.is_cancellation:
@@ -72,6 +73,8 @@ def get_rruleset_from_schedule(schedule: ScheduleItem, default_year: int,
                 use_complementary=not schedule.is_cancellation, holiday_zone=holiday_zone)
     add_exrules(rset, schedule.date_rule.not_in_periods, start_year, end_year,
                 use_complementary=schedule.is_cancellation, holiday_zone=holiday_zone)
+    for one_off_rule in schedule.date_rule.not_on_dates:
+        add_exdate(rset, one_off_rule, start_year, end_year)
 
     return rset
 
@@ -190,7 +193,7 @@ def is_schedules_list_explainable(schedules_list: SchedulesList) -> tuple[bool, 
 # REDUCE #
 ##########
 
-def is_necessary_schedule(schedule: ScheduleItem) -> bool:
+def is_valid_schedule(schedule: ScheduleItem) -> bool:
     if (not schedule.is_cancellation
             and (schedule.get_start_time() is None
                  or schedule.get_start_time() == time(0, 0))):
@@ -198,16 +201,49 @@ def is_necessary_schedule(schedule: ScheduleItem) -> bool:
         return False
 
     if schedule.is_one_off_rule():
-        if (not schedule.date_rule.month or not schedule.date_rule.day) \
-                and not schedule.date_rule.liturgical_day:
-            # we ignore one-off schedules without date
+        if not schedule.date_rule.is_valid():
             return False
 
     return True
 
 
-def filter_unnecessary_schedules(schedules: list[ScheduleItem]) -> list[ScheduleItem]:
-    return [schedule for schedule in schedules if is_necessary_schedule(schedule)]
+def is_valid_period(period: PeriodEnum | CustomPeriod) -> bool:
+    if isinstance(period, PeriodEnum):
+        return True
+
+    if isinstance(period, CustomPeriod):
+        return period.start.is_valid() and period.end.is_valid()
+
+    raise ValueError(f'Period of type {period} not implemented')
+
+
+def get_valid_schedule(schedule: ScheduleItem) -> ScheduleItem:
+    if schedule.is_regular_rule():
+        return schedule.model_copy(
+            update={
+                'date_rule': schedule.date_rule.model_copy(
+                    update={
+                        'only_in_periods': [
+                            period for period in schedule.date_rule.only_in_periods
+                            if is_valid_period(period)],
+                        'not_in_periods': [
+                            period for period in schedule.date_rule.not_in_periods
+                            if is_valid_period(period)
+                        ],
+                        'not_on_dates': [
+                            one_off_rule for one_off_rule in schedule.date_rule.not_on_dates
+                            if one_off_rule.is_valid()],
+                    }
+                )
+            }
+        )
+
+    return schedule
+
+
+def filter_valid_schedules(schedules: list[ScheduleItem]) -> list[ScheduleItem]:
+    return [get_valid_schedule(schedule)
+            for schedule in schedules if is_valid_schedule(schedule)]
 
 
 ###########

@@ -3,10 +3,11 @@ from datetime import datetime, date
 
 from home.utils.date_utils import Weekday
 from scraping.parse.holidays import HolidayZoneEnum
-from scraping.parse.periods import PeriodEnum
+from scraping.parse.intervals import PeriodEnum
+from scraping.parse.liturgical import LiturgicalDayEnum
 from scraping.parse.rrule_utils import get_events_from_schedule_items
 from scraping.parse.schedules import ScheduleItem, \
-    RegularRule, Event, MonthlyRule, NWeekday, Position, WeeklyRule
+    RegularRule, Event, MonthlyRule, NWeekday, Position, WeeklyRule, CustomPeriod, OneOffRule
 
 
 class GenerateEventsTests(unittest.TestCase):
@@ -34,7 +35,9 @@ class GenerateEventsTests(unittest.TestCase):
                                     )
                                 ]
                             ),
-                            only_in_periods=[PeriodEnum.JANUARY, PeriodEnum.FEBRUARY],
+                            only_in_periods=[CustomPeriod(
+                                start=OneOffRule(day=1, month=1),
+                                end=OneOffRule(day=28, month=2))],
                             not_in_periods=[],
                             not_on_dates=[],
                         ),
@@ -111,6 +114,107 @@ class GenerateEventsTests(unittest.TestCase):
                     datetime(2024, 8, 13, 17, 30),
                     datetime(2024, 8, 20, 17, 30),
                     datetime(2024, 8, 27, 17, 30),
+                ]
+            ),
+            (
+                [
+                    ScheduleItem(
+                        church_id=None,
+                        date_rule=RegularRule(
+                            rule=WeeklyRule(
+                                by_weekdays=[
+                                    Weekday.MONDAY,
+                                ]
+                            ),
+                            only_in_periods=[],
+                            not_in_periods=[],
+                            not_on_dates=[
+                                OneOffRule(liturgical_day=LiturgicalDayEnum.EASTER_MONDAY)
+                            ],
+                        ),
+                        is_cancellation=False,
+                        start_time_iso8601='17:30:00',
+                        end_time_iso8601=None,
+                    ),
+                ],
+                date(2026, 3, 1),
+                date(2026, 5, 1),
+                2026,
+                [
+                    datetime(2026, 3, 2, 17, 30),
+                    datetime(2026, 3, 9, 17, 30),
+                    datetime(2026, 3, 16, 17, 30),
+                    datetime(2026, 3, 23, 17, 30),
+                    datetime(2026, 3, 30, 17, 30),
+                    datetime(2026, 4, 13, 17, 30),
+                    datetime(2026, 4, 20, 17, 30),
+                    datetime(2026, 4, 27, 17, 30),
+                ]
+            ),
+            (
+                [
+                    ScheduleItem(**{
+                        "church_id": None,
+                        "date_rule":
+                            {
+                                "rule":
+                                    {
+                                        "by_weekdays":
+                                            [
+                                                "saturday"
+                                            ]
+                                    },
+                                "only_in_periods":
+                                    [],
+                                "not_in_periods":
+                                    [
+                                        "school_holidays"
+                                    ],
+                                "not_on_dates":
+                                    []
+                            },
+                        "is_cancellation": False,
+                        "start_time_iso8601": "16:30:00",
+                        "end_time_iso8601": None
+                    }),
+                    ScheduleItem(**{
+                        "church_id": None,
+                        "date_rule":
+                            {
+                                "rule":
+                                    {
+                                        "by_weekdays":
+                                            [
+                                                "saturday"
+                                            ]
+                                    },
+                                "only_in_periods":
+                                    [
+                                        "school_holidays"
+                                    ],
+                                "not_in_periods":
+                                    [],
+                                "not_on_dates":
+                                    []
+                            },
+                        "is_cancellation": False,
+                        "start_time_iso8601": "16:30:00",
+                        "end_time_iso8601": None
+                    }),
+                ],
+                date(2024, 10, 1),
+                date(2024, 11, 30),
+                2024,
+                [
+                    datetime(2024, 10, 5, 16, 30),
+                    datetime(2024, 10, 12, 16, 30),
+                    datetime(2024, 10, 19, 16, 30),
+                    datetime(2024, 10, 26, 16, 30),
+                    datetime(2024, 11, 2, 16, 30),
+                    datetime(2024, 11, 9, 16, 30),
+                    datetime(2024, 11, 16, 16, 30),
+                    datetime(2024, 11, 23, 16, 30),
+                    datetime(2024, 11, 30, 16, 30),
                 ]
             ),
         ]

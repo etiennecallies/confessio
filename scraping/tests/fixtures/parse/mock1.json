@@ -15,7 +15,22 @@
             "rule": {},
             "only_in_periods": [],
             "not_in_periods": [
-              "august"
+              {
+                "start": {
+                  "year": null,
+                  "month": 8,
+                  "day": 1,
+                  "weekday": null,
+                  "liturgical_day": null
+                },
+                "end": {
+                  "year": null,
+                  "month": 8,
+                  "day": 31,
+                  "weekday": null,
+                  "liturgical_day": null
+                }
+              }
             ],
             "not_on_dates": []
           },

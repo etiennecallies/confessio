@@ -1,0 +1,155 @@
+{
+  "input": {
+    "church_desc_by_id": {
+      "0": "Église Saint-Sulpice Paris"
+    },
+    "year": 2025
+  },
+  "output": {
+    "schedules_list": {
+      "schedules": [
+        {
+          "church_id": 0,
+          "date_rule": {
+            "rule": {
+              "by_weekdays": [
+                "monday",
+                "tuesday",
+                "wednesday",
+                "thursday",
+                "friday",
+                "saturday"
+              ]
+            },
+            "only_in_periods": [],
+            "not_in_periods": [
+              "school_holidays"
+            ],
+            "not_on_dates": [
+              {
+                "year": null,
+                "month": null,
+                "day": null,
+                "weekday": null,
+                "liturgical_day": "easter_sunday"
+              },
+              {
+                "year": null,
+                "month": null,
+                "day": null,
+                "weekday": null,
+                "liturgical_day": "easter_monday"
+              }
+            ]
+          },
+          "is_cancellation": false,
+          "start_time_iso8601": "09:30:00",
+          "end_time_iso8601": "19:00:00"
+        },
+        {
+          "church_id": 0,
+          "date_rule": {
+            "rule": {
+              "by_weekdays": [
+                "monday",
+                "tuesday",
+                "wednesday",
+                "thursday",
+                "friday",
+                "saturday"
+              ]
+            },
+            "only_in_periods": [
+              "school_holidays"
+            ],
+            "not_in_periods": [],
+            "not_on_dates": [
+              {
+                "year": null,
+                "month": null,
+                "day": null,
+                "weekday": null,
+                "liturgical_day": "easter_sunday"
+              },
+              {
+                "year": null,
+                "month": null,
+                "day": null,
+                "weekday": null,
+                "liturgical_day": "easter_monday"
+              }
+            ]
+          },
+          "is_cancellation": false,
+          "start_time_iso8601": "14:00:00",
+          "end_time_iso8601": "18:30:00"
+        },
+        {
+          "church_id": 0,
+          "date_rule": {
+            "rule": {
+              "by_weekdays": [
+                "sunday"
+              ]
+            },
+            "only_in_periods": [],
+            "not_in_periods": [],
+            "not_on_dates": [
+              {
+                "year": null,
+                "month": null,
+                "day": null,
+                "weekday": null,
+                "liturgical_day": "easter_sunday"
+              },
+              {
+                "year": null,
+                "month": null,
+                "day": null,
+                "weekday": null,
+                "liturgical_day": "easter_monday"
+              }
+            ]
+          },
+          "is_cancellation": false,
+          "start_time_iso8601": "16:00:00",
+          "end_time_iso8601": "19:00:00"
+        },
+        {
+          "church_id": 0,
+          "date_rule": {
+            "rule": {},
+            "only_in_periods": [
+              "solemnities"
+            ],
+            "not_in_periods": [],
+            "not_on_dates": [
+              {
+                "year": null,
+                "month": null,
+                "day": null,
+                "weekday": null,
+                "liturgical_day": "easter_sunday"
+              },
+              {
+                "year": null,
+                "month": null,
+                "day": null,
+                "weekday": null,
+                "liturgical_day": "easter_monday"
+              }
+            ]
+          },
+          "is_cancellation": false,
+          "start_time_iso8601": "16:00:00",
+          "end_time_iso8601": "19:00:00"
+        }
+      ],
+      "possible_by_appointment": false,
+      "is_related_to_mass": false,
+      "is_related_to_adoration": true,
+      "is_related_to_permanence": false,
+      "will_be_seasonal_events": false
+    }
+  }
+}

@@ -35,6 +35,7 @@ class LLMClientWithCache(LLMClientInterface):
             json.dumps(SchedulesList.model_json_schema()),
             temperature
         )
+        # simple_cache.save_key(cache_filename, key, None, 0)
         value = simple_cache.load_key(cache_filename, key)
 
         if value is None:
@@ -94,6 +95,10 @@ class LlmParsingTests(unittest.TestCase):
             'groscaillou',
             'bellecombe',
             'st-ambroise',
+            'colmar',
+            'toulouse',
+            'st-charles',
+            'st-sulpice',
         ]
 
     def test_llm_parsing(self):

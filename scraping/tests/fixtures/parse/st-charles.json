@@ -1,0 +1,122 @@
+{
+  "input": {
+    "church_desc_by_id": {
+      "0": "Maison Paroissiale Charles de Foucauld Saumur",
+      "1": "Église Notre-Dame de la Visitation Saumur",
+      "2": "Église Notre-Dame des Ardilliers Saumur",
+      "3": "Église Saint-Lambert de Saint-Lambert-des-Levées Saumur",
+      "4": "Église Saint-Nicolas Saumur",
+      "5": "Église Saint-Pierre Saumur"
+    },
+    "year": 2025
+  },
+  "output": {
+    "schedules_list": {
+      "schedules": [
+        {
+          "church_id": 5,
+          "date_rule": {
+            "rule": {
+              "by_weekdays": [
+                "wednesday"
+              ]
+            },
+            "only_in_periods": [
+              {
+                "start": {
+                  "year": null,
+                  "month": null,
+                  "day": null,
+                  "weekday": null,
+                  "liturgical_day": "palm_sunday"
+                },
+                "end": {
+                  "year": null,
+                  "month": 11,
+                  "day": 1,
+                  "weekday": null,
+                  "liturgical_day": null
+                }
+              }
+            ],
+            "not_in_periods": [],
+            "not_on_dates": []
+          },
+          "is_cancellation": false,
+          "start_time_iso8601": "17:00:00",
+          "end_time_iso8601": "17:45:00"
+        },
+        {
+          "church_id": 4,
+          "date_rule": {
+            "rule": {
+              "by_weekdays": [
+                "wednesday"
+              ]
+            },
+            "only_in_periods": [
+              {
+                "start": {
+                  "year": null,
+                  "month": 11,
+                  "day": 1,
+                  "weekday": null,
+                  "liturgical_day": null
+                },
+                "end": {
+                  "year": null,
+                  "month": null,
+                  "day": null,
+                  "weekday": null,
+                  "liturgical_day": "palm_sunday"
+                }
+              }
+            ],
+            "not_in_periods": [],
+            "not_on_dates": []
+          },
+          "is_cancellation": false,
+          "start_time_iso8601": "17:00:00",
+          "end_time_iso8601": "17:45:00"
+        },
+        {
+          "church_id": 5,
+          "date_rule": {
+            "rule": {
+              "by_weekdays": [
+                "thursday"
+              ]
+            },
+            "only_in_periods": [],
+            "not_in_periods": [],
+            "not_on_dates": []
+          },
+          "is_cancellation": false,
+          "start_time_iso8601": "18:00:00",
+          "end_time_iso8601": "18:45:00"
+        },
+        {
+          "church_id": 5,
+          "date_rule": {
+            "rule": {
+              "by_weekdays": [
+                "saturday"
+              ]
+            },
+            "only_in_periods": [],
+            "not_in_periods": [],
+            "not_on_dates": []
+          },
+          "is_cancellation": false,
+          "start_time_iso8601": "17:00:00",
+          "end_time_iso8601": "19:00:00"
+        }
+      ],
+      "possible_by_appointment": false,
+      "is_related_to_mass": false,
+      "is_related_to_adoration": false,
+      "is_related_to_permanence": false,
+      "will_be_seasonal_events": true
+    }
+  }
+}

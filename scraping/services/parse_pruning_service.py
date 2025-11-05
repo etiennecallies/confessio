@@ -12,7 +12,7 @@ from home.utils.hash_utils import hash_string_to_hex
 from home.utils.log_utils import info, start_log_buffer, get_log_buffer
 from scraping.parse.llm_client import LLMClientInterface
 from scraping.parse.parse_with_llm import parse_with_llm, get_prompt_template, get_llm_client
-from scraping.parse.schedules import SchedulesList
+from scraping.parse.schedules import SchedulesList, SCHEDULES_LIST_VERSION
 from scraping.refine.refine_content import stringify_html
 from scraping.services.index_events_service import index_events_for_website
 from scraping.services.parsing_service import get_existing_parsing
@@ -158,6 +158,7 @@ def on_parsing_human_validation(parsing_moderation: ParsingModeration):
 
 def set_human_json(parsing: Parsing):
     parsing.human_json = parsing.llm_json
+    parsing.human_json_version = parsing.llm_json_version
     parsing.save()
     re_index_related_website(parsing)
 
@@ -477,6 +478,7 @@ def save_parsing(parsing: Parsing | None, pruning: Pruning, website: Website,
     if parsing:
         parsing.website = website
         parsing.llm_json = llm_json
+        parsing.llm_json_version = SCHEDULES_LIST_VERSION
         parsing.llm_provider = llm_client.get_provider()
         parsing.llm_model = llm_client.get_model()
         parsing.prompt_template_hash = prompt_template_hash
@@ -489,6 +491,7 @@ def save_parsing(parsing: Parsing | None, pruning: Pruning, website: Website,
             truncated_html_hash=truncated_html_hash,
             church_desc_by_id=church_desc_by_id,
             llm_json=llm_json,
+            llm_json_version=SCHEDULES_LIST_VERSION,
             llm_provider=llm_client.get_provider(),
             llm_model=llm_client.get_model(),
             prompt_template_hash=prompt_template_hash,
