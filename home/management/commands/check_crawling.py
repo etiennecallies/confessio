@@ -8,7 +8,7 @@ from home.management.utils.heartbeat_utils import ping_heartbeat
 from home.models import Website, Crawling, ChurchIndexEvent
 from home.utils.date_utils import get_current_day
 from scraping.parse.holidays import check_holiday_by_zone
-from scraping.parse.intervals import check_easter_dates
+from scraping.parse.liturgical import check_easter_dates
 from scraping.services.parse_pruning_service import check_website_parsing_relations, \
     debug_website_parsing_relations
 from sourcing.services.church_location_service import find_church_geo_outliers
