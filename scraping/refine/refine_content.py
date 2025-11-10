@@ -164,6 +164,8 @@ def clean_text(text: str):
     text = re.sub(r' \n', r'\n', text)
     text = re.sub(r'(\n)+', r'\n', text)
     text = re.sub(r'\s*$', '', text)
+    # TODO remove this hack by not adding space between two spans
+    text = re.sub('o nfession', 'onfession', text)
     # text = re.sub('’', "'", text)
     text = text.strip()
 
