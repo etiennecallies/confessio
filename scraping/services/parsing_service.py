@@ -68,14 +68,19 @@ def get_dict_and_version(parsing: Parsing) -> tuple[dict, str]:
     return parsing.llm_json, parsing.llm_json_version
 
 
-def get_parsing_schedules_list(parsing: Parsing) -> SchedulesList | None:
-    schedules_list_as_dict, version = get_dict_and_version(parsing)
-    if schedules_list_as_dict is None:
-        return None
-
+def get_schedules_list_from_dict(schedules_list_as_dict: dict, version: str
+                                 ) -> SchedulesList | None:
     if version == 'v1.0':
         return from_v1_0_to_v1_1(schedules_list_as_dict)
     if version == SCHEDULES_LIST_VERSION:
         return SchedulesList(**schedules_list_as_dict)
 
     raise ValueError(f'Unknown parsing version {version}')
+
+
+def get_parsing_schedules_list(parsing: Parsing) -> SchedulesList | None:
+    schedules_list_as_dict, version = get_dict_and_version(parsing)
+    if schedules_list_as_dict is None:
+        return None
+
+    return get_schedules_list_from_dict(schedules_list_as_dict, version)

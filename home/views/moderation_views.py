@@ -13,10 +13,10 @@ from home.services.edit_pruning_service import on_pruning_human_validation, \
     update_sentence_labels_with_request, TEMPORAL_MOTION_COLORS
 from home.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 from scraping.extract_v2.split_content import create_line_and_tag_v2
-from scraping.parse.schedules import SchedulesList
 from scraping.prune.models import Source
 from scraping.services.parse_pruning_service import on_parsing_human_validation, \
     set_human_json, ParsingValidationError, force_reparse_parsing_for_pruning
+from scraping.services.parsing_service import get_schedules_list_from_dict
 from scraping.services.prune_scraping_service import SentenceQualifyLineInterface, \
     MLSentenceQualifyLineInterface
 from scraping.services.website_moderation_service import suggest_alternative_website
@@ -304,10 +304,19 @@ def render_parsing_moderation(request, moderation: ParsingModeration, next_url):
     assert parsing is not None
 
     truncated_html = parsing.truncated_html
-    llm_schedules_list = SchedulesList(**parsing.llm_json) if parsing.llm_json else None
-    church_desc_by_id_json = json.dumps(parsing.church_desc_by_id, indent=2, ensure_ascii=False)
-    human_schedules_list = SchedulesList(**parsing.human_json) if parsing.human_json else None
+    if parsing.llm_json:
+        llm_schedules_list = get_schedules_list_from_dict(parsing.llm_json,
+                                                          parsing.llm_json_version)
+    else:
+        llm_schedules_list = None
 
+    if parsing.human_json:
+        human_schedules_list = get_schedules_list_from_dict(parsing.human_json,
+                                                            parsing.human_json_version)
+    else:
+        human_schedules_list = None
+
+    church_desc_by_id_json = json.dumps(parsing.church_desc_by_id, indent=2, ensure_ascii=False)
     back_path = request.GET.get('backPath', '')
 
     return render(request, f'pages/moderate_parsing.html', {
