@@ -294,12 +294,11 @@ class Classifier(TimeStampMixin):
         ACTION = "action"
         # V2
         TEMPORAL = "temporal"
-        CONFESSION_LEGACY = "confession_legacy"
         CONFESSION = "confession"
 
     transformer_name = models.CharField(max_length=100)
     status = models.CharField(max_length=5, choices=Status)
-    target = models.CharField(max_length=17, choices=Target)
+    target = models.CharField(max_length=10, choices=Target)
     different_labels = models.JSONField()
     pickle = models.CharField()
     accuracy = models.FloatField()
