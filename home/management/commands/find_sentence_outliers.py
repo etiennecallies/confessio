@@ -21,7 +21,7 @@ class Command(AbstractCommand):
         if target:
             targets = [target]
         else:
-            targets = [Classifier.Target.ACTION, Classifier.Target.CONFESSION_LEGACY]
+            targets = [Classifier.Target.ACTION, Classifier.Target.CONFESSION]
 
         for target in targets:
             self.handle_for_target(target)
