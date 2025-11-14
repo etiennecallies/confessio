@@ -1,11 +1,6 @@
 from scraping.utils.enum_utils import StringEnum
 
 
-class TemporalTag(StringEnum):
-    SCHEDULE = 'schedule'
-    SPECIFIER = 'specifier'
-
-
 class Temporal(StringEnum):
     NONE = 'none'
     SCHED = 'sched'

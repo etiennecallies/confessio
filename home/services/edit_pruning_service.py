@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from home.models import Pruning, Sentence, Classifier
 from scraping.extract.extract_content import split_and_tag, BaseActionInterface
 from scraping.extract.tag_line import Tag
-from scraping.extract_v2.models import TemporalTag, EventMotion, Temporal
+from scraping.extract_v2.models import EventMotion, Temporal
 from scraping.extract_v2.prune_lines_v2 import get_pruned_lines_indices_v2
 from scraping.extract_v2.qualify_line_interfaces import BaseQualifyLineInterface
 from scraping.extract_v2.split_content import split_and_tag_v2, LineAndTagV2
@@ -195,10 +195,10 @@ def get_single_line_colored_piece(line_and_tag: LineAndTagV2,
         Source.ML: 'fas fa-robot',
     }
 
-    assert len(line_and_tag.tags) <= 1
-    if line_and_tag.tags == {TemporalTag.SPECIFIER}:
+    assert len(line_and_tag.temporal_tags) <= 1
+    if line_and_tag.temporal_tags == {Temporal.SPEC}:
         temporal = Temporal.SPEC
-    elif line_and_tag.tags == {TemporalTag.SCHEDULE}:
+    elif line_and_tag.temporal_tags == {Temporal.SCHED}:
         temporal = Temporal.SCHED
     else:
         temporal = Temporal.NONE

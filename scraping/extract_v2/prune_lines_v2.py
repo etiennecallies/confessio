@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from scraping.extract_v2.models import TemporalTag, EventMotion
+from scraping.extract_v2.models import EventMotion, Temporal
 from scraping.extract_v2.split_content import LineAndTagV2
 
 MAX_PRE_BUFFERING_ATTEMPTS = 3
@@ -24,7 +24,7 @@ class PreBuffer:
         return self.buffer
 
     def from_index_line(self, index_line: IndexLine):
-        assert TemporalTag.SPECIFIER in index_line.tags
+        assert Temporal.SPEC in index_line.temporal_tags
         if self.buffer is None:
             self.buffer = []
         self.buffer.append(index_line)
@@ -60,7 +60,7 @@ class PostBuffer:
 
     def add_line(self, index_line: IndexLine, paragraph_indices: list[int]):
         self.buffer.append(index_line.index)
-        self.is_post_schedule = self.is_post_schedule or TemporalTag.SCHEDULE in index_line.tags
+        self.is_post_schedule = self.is_post_schedule or Temporal.SCHED in index_line.temporal_tags
         if is_resetting_attempts(index_line):
             self.reset_remaining_attempts()
         if self.is_post_schedule:
@@ -80,7 +80,7 @@ class PostBuffer:
 
 
 def is_resetting_attempts(index_line: IndexLine) -> bool:
-    return index_line.tags or index_line.event_motion == EventMotion.START
+    return index_line.temporal_tags or index_line.event_motion == EventMotion.START
 
 
 def flush_results(paragraph_indices: list[int], results: list[list[int]]) -> list[int]:
@@ -98,10 +98,10 @@ def get_pruned_lines_indices_v2(lines_and_tags: list[LineAndTagV2]) -> list[list
     for i, line_and_tag in enumerate(lines_and_tags):
         index_line = IndexLine(index=i, **line_and_tag.model_dump())
 
-        tags = line_and_tag.tags
+        temporal_tags = line_and_tag.temporal_tags
         event_motion = line_and_tag.event_motion
 
-        # print(line_and_tag.line, tags, event_motion)
+        # print(line_and_tag.line, temporal_tags, event_motion)
 
         # If we encounter a START, we complete or create the post_buffer
         if event_motion == EventMotion.START:
@@ -125,7 +125,7 @@ def get_pruned_lines_indices_v2(lines_and_tags: list[LineAndTagV2]) -> list[list
                     paragraph_indices = flush_results(paragraph_indices, results)
 
         # If we encounter a SPECIFIER, we complete or create the pre_buffer
-        elif TemporalTag.SPECIFIER in tags:
+        elif Temporal.SPEC in temporal_tags:
             if event_motion in [EventMotion.HIDE, EventMotion.STOP]:
                 if pre_buffer is not None:
                     pre_buffer.reset_remaining_attempts()
