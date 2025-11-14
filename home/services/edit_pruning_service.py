@@ -186,7 +186,7 @@ def get_colored_pieces_v2(extracted_html: str, qualify_line_interface: BaseQuali
         do_show = i in kept_indices
         sentence = Sentence.objects.get(uuid=line_and_tag.sentence_uuid) \
             if line_and_tag.sentence_uuid else None
-        source = Source.HUMAN if sentence and sentence.human_confession_legacy is not None \
+        source = Source.HUMAN if sentence and sentence.human_confession is not None \
             else Source.ML
 
         colored_pieces.append(get_single_line_colored_piece(line_and_tag, source, i, do_show))

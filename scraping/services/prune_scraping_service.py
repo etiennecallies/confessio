@@ -15,7 +15,7 @@ from scraping.extract.extract_content import BaseActionInterface
 from scraping.extract.extract_content import extract_paragraphs_lines_and_indices
 from scraping.extract.extract_interface import ExtractMode
 from scraping.extract_v2.extract_content import extract_paragraphs_lines_and_indices_v2
-from scraping.extract_v2.models import EventMotion, Temporal, EventMention
+from scraping.extract_v2.models import Temporal, EventMention
 from scraping.extract_v2.qualify_line_interfaces import BaseQualifyLineInterface
 from scraping.prune.models import Action, Source
 from scraping.services.classify_sentence_service import classify_and_create_sentence
@@ -65,11 +65,6 @@ class SentenceQualifyLineInterface(BaseQualifyLineInterface):
 
         if sentence.human_confession is not None or sentence.ml_confession is not None:
             event_mention_tags = {EventMention(sentence.human_confession or sentence.ml_confession)}
-        elif sentence.human_confession_legacy is not None \
-                or sentence.ml_confession_legacy is not None:
-            event_motion = EventMotion(sentence.human_confession_legacy
-                                       or sentence.ml_confession_legacy)
-            event_mention_tags = {event_motion.to_event_mention()}
         else:
             raise ValueError(f'Sentence {sentence.uuid} has no human '
                              f'confession nor ML confession')

@@ -2,7 +2,7 @@ from django.db.models import Q
 from sklearn.model_selection import train_test_split
 
 from home.models import Sentence, Classifier
-from scraping.extract_v2.models import EventMotion, Temporal, EventMention
+from scraping.extract_v2.models import Temporal, EventMention
 from scraping.prune.models import Source, Action
 from scraping.prune.train_and_predict import TensorFlowModel, evaluate
 from scraping.services.classifier_target_service import get_target_enum
@@ -23,17 +23,6 @@ def build_sentence_dataset(target: Classifier.Target) -> list[Sentence]:
               f"using ML temporal sentences instead")
         return Sentence.objects.filter(Q(human_temporal__isnull=False)
                                        | Q(ml_temporal__isnull=False)).all()
-
-    if target == Classifier.Target.CONFESSION_LEGACY:
-        human_qualified_dataset = Sentence.objects.filter(
-            human_confession_legacy__isnull=False).all()
-        if len(human_qualified_dataset) >= MIN_DATASET_SIZE:
-            return human_qualified_dataset
-
-        print(f"Not enough legacy human confession sentences ({len(human_qualified_dataset)}), "
-              f"using ML legacy confession sentences instead")
-        return Sentence.objects.filter(Q(human_confession_legacy__isnull=False)
-                                       | Q(ml_confession_legacy__isnull=False)).all()
 
     if target == Classifier.Target.CONFESSION:
         human_qualified_dataset = Sentence.objects.filter(
@@ -60,22 +49,11 @@ def extract_label(sentence: Sentence, target: Classifier.Target) -> StringEnum:
             return Temporal(sentence.ml_temporal)
         raise ValueError(f'Sentence {sentence.uuid} has no temporal for target {target}')
 
-    if target == Classifier.Target.CONFESSION_LEGACY:
-        if sentence.human_confession_legacy is not None:
-            return EventMotion(sentence.human_confession_legacy)
-        if sentence.ml_confession_legacy is not None:
-            return EventMotion(sentence.ml_confession_legacy)
-        raise ValueError(f'Sentence {sentence.uuid} has no confession legacy for target {target}')
-
     if target == Classifier.Target.CONFESSION:
         if sentence.human_confession is not None:
             return EventMention(sentence.human_confession)
         if sentence.ml_confession is not None:
             return EventMention(sentence.ml_confession)
-        if sentence.human_confession_legacy is not None:
-            return EventMention(EventMotion(sentence.human_confession_legacy).to_event_mention())
-        if sentence.ml_confession_legacy is not None:
-            return EventMention(EventMotion(sentence.ml_confession_legacy).to_event_mention())
         raise ValueError(f'Sentence {sentence.uuid} has no confession for target {target}')
 
     raise NotImplementedError(f'Target {target} is not supported for label extraction')
@@ -90,11 +68,6 @@ def set_label(sentence: Sentence, label: StringEnum, classifier: Classifier) -> 
     if classifier.target == Classifier.Target.TEMPORAL:
         sentence.ml_temporal = label
         sentence.temporal_classifier = classifier
-        return
-
-    if classifier.target == Classifier.Target.CONFESSION_LEGACY:
-        sentence.ml_confession_legacy = label
-        sentence.confession_legacy_classifier = classifier
         return
 
     if classifier.target == Classifier.Target.CONFESSION:
