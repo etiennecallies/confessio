@@ -31,3 +31,11 @@ class EventMotion(StringEnum):
     @classmethod
     def choices(cls):
         return [(item.value, item.name) for item in cls]
+
+    def to_event_mention(self):
+        if self == EventMotion.START:
+            return EventMention.EVENT
+        elif self == EventMotion.HOLD:
+            return EventMention.NEUTRAL
+        else:
+            return EventMention.OTHER

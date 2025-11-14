@@ -14,7 +14,7 @@ class Command(AbstractCommand):
         for sentence in Sentence.objects.all():
             stringified_line = sentence.line
             temporal_tags, event_motion = \
-                qualify_line_interface.get_tags_and_event_motion(stringified_line)
+                qualify_line_interface.get_temporal_and_event_mention_tags(stringified_line)
 
             if sentence.action in [Action.SHOW, Action.START]:
                 if Temporal.SPEC in temporal_tags or sentence.action == Action.START:

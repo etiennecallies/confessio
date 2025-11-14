@@ -2,7 +2,7 @@ from django.db.models import Q
 from sklearn.model_selection import train_test_split
 
 from home.models import Sentence, Classifier
-from scraping.extract_v2.models import EventMotion, Temporal
+from scraping.extract_v2.models import EventMotion, Temporal, EventMention
 from scraping.prune.models import Source, Action
 from scraping.prune.train_and_predict import TensorFlowModel, evaluate
 from scraping.services.classifier_target_service import get_target_enum
@@ -54,6 +54,17 @@ def extract_label(sentence: Sentence, target: Classifier.Target) -> StringEnum:
             return EventMotion(sentence.human_confession_legacy)
         if sentence.ml_confession_legacy is not None:
             return EventMotion(sentence.ml_confession_legacy)
+        raise ValueError(f'Sentence {sentence.uuid} has no confession legacy for target {target}')
+
+    if target == Classifier.Target.CONFESSION:
+        if sentence.human_confession is not None:
+            return EventMention(sentence.human_confession)
+        if sentence.ml_confession is not None:
+            return EventMention(sentence.ml_confession)
+        if sentence.human_confession_legacy is not None:
+            return EventMention(EventMotion(sentence.human_confession_legacy).to_event_mention())
+        if sentence.ml_confession_legacy is not None:
+            return EventMention(EventMotion(sentence.ml_confession_legacy).to_event_mention())
         raise ValueError(f'Sentence {sentence.uuid} has no confession for target {target}')
 
     raise NotImplementedError(f'Target {target} is not supported for label extraction')

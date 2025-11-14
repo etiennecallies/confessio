@@ -6,7 +6,7 @@
       "spec",
       "sched"
     ],
-    "event_motion": "hide",
+    "event_mention_tags": ["other"],
     "is_default_hold": false,
     "sentence_uuid": "f842363e-6926-4bad-84a6-1350c1ce5785"
   },
@@ -14,7 +14,7 @@
     "line": "Le d\u00e9roul\u00e9 vous a d\u00e9j\u00e0 \u00e9t\u00e9 propos\u00e9 sur ce site : voir dans \u00ab Articles R\u00e9cents \u00bb le document <a href=\"http://www.catholiques-val-de-bievre.org/Celebrer-la-semaine-sainte-chez-soi-confine\"> \u00ab C\u00e9l\u00e9brer la semaine sainte chez soi, confin\u00e9 \u00bb </a>",
     "stringified_line": "Le d\u00e9roul\u00e9 vous a d\u00e9j\u00e0 \u00e9t\u00e9 propos\u00e9 sur ce site : voir dans \u00ab Articles R\u00e9cents \u00bb le document \u00ab C\u00e9l\u00e9brer la semaine sainte chez soi, confin\u00e9 \u00bb",
     "temporal_tags": [],
-    "event_motion": "hide",
+    "event_mention_tags": ["other"],
     "is_default_hold": false,
     "sentence_uuid": "463b0044-c2d2-4d93-a470-05029edd9498"
   },
@@ -25,7 +25,7 @@
       "spec",
       "sched"
     ],
-    "event_motion": "start",
+    "event_mention_tags": ["event"],
     "is_default_hold": false,
     "sentence_uuid": "5865540c-83db-4b2b-83a6-c03282f21c98"
   }

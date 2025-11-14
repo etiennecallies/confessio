@@ -1,6 +1,6 @@
 from typing import Set
 
-from scraping.extract_v2.models import EventMotion, Temporal
+from scraping.extract_v2.models import Temporal, EventMention
 from scraping.utils.string_search import has_any_of_words
 
 ##################
@@ -182,15 +182,12 @@ def get_temporal_tags_with_regex(stringified_line: str) -> Set[Temporal]:
     return temporal_tags
 
 
-def get_event_motion_with_regex(stringified_line: str) -> EventMotion:
+def get_event_mention_tags_with_regex(stringified_line: str) -> set[EventMention]:
+    event_mention_tags = set()
     if is_confession_mentions(stringified_line):
-        return EventMotion.START
+        event_mention_tags.add(EventMention.EVENT)
 
-    return EventMotion.HOLD
-
-
-def get_is_default_hold_with_regex(stringified_line: str) -> bool:
     if is_confession_hold_mentions(stringified_line):
-        return False
+        event_mention_tags.add(EventMention.NEUTRAL)
 
-    return True
+    return event_mention_tags

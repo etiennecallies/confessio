@@ -10,7 +10,7 @@ from home.models import WebsiteModeration, ChurchModeration, ModerationMixin, \
     SentenceModeration, ParsingModeration, ReportModeration, Diocese, Pruning
 from home.services.edit_pruning_service import on_pruning_human_validation, \
     set_v2_indices_as_human, get_single_line_colored_piece, EVENT_MOTION_COLORS, \
-    update_sentence_labels_with_request, TEMPORAL_COLORS
+    update_sentence_labels_with_request, TEMPORAL_COLORS, EVENT_MENTION_COLORS
 from home.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 from scraping.extract_v2.split_content import create_line_and_tag_v2
 from scraping.prune.models import Source
@@ -287,6 +287,7 @@ def render_sentence_moderation(request, moderation: SentenceModeration, next_url
         'colored_pieces': [colored_piece_human, colored_piece_ml],
         'temporal_colors': TEMPORAL_COLORS,
         'event_motion_colors': EVENT_MOTION_COLORS,
+        'event_mention_colors': EVENT_MENTION_COLORS,
         'next_url': next_url,
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
     })

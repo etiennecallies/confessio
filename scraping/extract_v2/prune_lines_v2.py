@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from scraping.extract_v2.models import EventMotion, Temporal
+from scraping.extract_v2.models import Temporal, EventMention
 from scraping.extract_v2.split_content import LineAndTagV2
 
 MAX_PRE_BUFFERING_ATTEMPTS = 3
@@ -80,7 +80,7 @@ class PostBuffer:
 
 
 def is_resetting_attempts(index_line: IndexLine) -> bool:
-    return index_line.temporal_tags or index_line.event_motion == EventMotion.START
+    return index_line.temporal_tags or EventMention.EVENT in index_line.event_mention_tags
 
 
 def flush_results(paragraph_indices: list[int], results: list[list[int]]) -> list[int]:
@@ -99,34 +99,34 @@ def get_pruned_lines_indices_v2(lines_and_tags: list[LineAndTagV2]) -> list[list
         index_line = IndexLine(index=i, **line_and_tag.model_dump())
 
         temporal_tags = line_and_tag.temporal_tags
-        event_motion = line_and_tag.event_motion
+        event_mention_tags = line_and_tag.event_mention_tags
 
-        # print(line_and_tag.line, temporal_tags, event_motion)
+        # print(line_and_tag.line, temporal_tags, event_mention_tags)
 
-        # If we encounter a START, we complete or create the post_buffer
-        if event_motion == EventMotion.START:
+        # If we encounter an EVENT, we complete or create the post_buffer
+        if EventMention.EVENT in event_mention_tags:
             if post_buffer is None:
                 post_buffer = PostBuffer.from_pre_buffer(pre_buffer, paragraph_indices)
                 pre_buffer = None
             post_buffer.add_line(index_line, paragraph_indices)
 
-        # If we encounter a STOP, we flush the post_buffer if it exists
-        elif event_motion == EventMotion.STOP and post_buffer is not None:
+        # If we encounter an OTHER, we flush the post_buffer if it exists
+        elif EventMention.OTHER in event_mention_tags and post_buffer is not None:
             post_buffer = None
             paragraph_indices = flush_results(paragraph_indices, results)
 
         # If there is a post_buffer, we add the line to it or decrement it
         elif post_buffer is not None:
-            if is_resetting_attempts(index_line) and event_motion != EventMotion.HIDE:
+            if is_resetting_attempts(index_line) and EventMention.OTHER not in event_mention_tags:
                 post_buffer.add_line(index_line, paragraph_indices)
-            elif event_motion != EventMotion.HOLD or index_line.is_default_hold:
+            elif not event_mention_tags:  # No NEUTRAL
                 post_buffer = post_buffer.decrement()
                 if post_buffer is None:
                     paragraph_indices = flush_results(paragraph_indices, results)
 
         # If we encounter a SPECIFIER, we complete or create the pre_buffer
         elif Temporal.SPEC in temporal_tags:
-            if event_motion in [EventMotion.HIDE, EventMotion.STOP]:
+            if EventMention.OTHER in event_mention_tags:
                 if pre_buffer is not None:
                     pre_buffer.reset_remaining_attempts()
             else:

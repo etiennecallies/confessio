@@ -19,15 +19,15 @@
             {% endfor %}
         </div>
         <div class="col-md-4 text-end text-md-center">
-            {% for event_motion, event_motion_color in event_motion_colors.items %}
+            {% for event_mention, event_mention_color in event_mention_colors.items %}
                 <input type="radio" class="btn-check"
-                       id="{{ event_motion.value }}-{{ colored_piece.id }}"
-                       name="event-motion-{{ colored_piece.id }}"
-                       value="{{ event_motion.value }}"
-                    {% if colored_piece.event_motion == event_motion %}checked{% endif %}
+                       id="{{ event_mention.value }}-{{ colored_piece.id }}"
+                       name="event-mention-{{ colored_piece.id }}"
+                       value="{{ event_mention.value }}"
+                    {% if colored_piece.event_mention == event_mention %}checked{% endif %}
                     autocomplete="off">
-                <label class="btn btn-fixed-outline-{{ event_motion_color }}"
-                       for="{{ event_motion.value }}-{{ colored_piece.id }}">{{ event_motion.value }}</label>
+                <label class="btn btn-fixed-outline-{{ event_mention_color }}"
+                       for="{{ event_mention.value }}-{{ colored_piece.id }}">{{ event_mention.value }}</label>
             {% endfor %}
         </div>
     </div>

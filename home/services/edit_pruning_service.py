@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from home.models import Pruning, Sentence, Classifier
 from scraping.extract.extract_content import split_and_tag, BaseActionInterface
 from scraping.extract.tag_line import Tag
-from scraping.extract_v2.models import EventMotion, Temporal
+from scraping.extract_v2.models import EventMotion, Temporal, EventMention
 from scraping.extract_v2.prune_lines_v2 import get_pruned_lines_indices_v2
 from scraping.extract_v2.qualify_line_interfaces import BaseQualifyLineInterface
 from scraping.extract_v2.split_content import split_and_tag_v2, LineAndTagV2
@@ -147,6 +147,12 @@ EVENT_MOTION_COLORS = {
     EventMotion.STOP: 'danger',
 }
 
+EVENT_MENTION_COLORS = {
+    EventMention.EVENT: 'success',
+    EventMention.NEUTRAL: 'info',
+    EventMention.OTHER: 'black',
+}
+
 TEMPORAL_COLORS = {
     Temporal.NONE: 'gray-500',
     Temporal.SCHED: 'tertiary',
@@ -159,7 +165,7 @@ class ColoredPieceV2(BaseModel):
     do_show: bool
     text: str
     color: str
-    event_motion: EventMotion
+    event_mention: EventMention
     temporal: Temporal
     source_icon: str
     sentence_uuid: UUID | None
@@ -204,12 +210,20 @@ def get_single_line_colored_piece(line_and_tag: LineAndTagV2,
     else:
         temporal = Temporal.NONE
 
+    assert len(line_and_tag.event_mention_tags) <= 1
+    if line_and_tag.event_mention_tags == {EventMention.EVENT}:
+        event_mention = EventMention.EVENT
+    elif line_and_tag.event_mention_tags == {EventMention.OTHER}:
+        event_mention = EventMention.OTHER
+    else:
+        event_mention = EventMention.NEUTRAL
+
     return ColoredPieceV2(
         id=f'{i}',
         do_show=do_show,
         text=line_and_tag.line,
         color='' if do_show else 'text-warning',
-        event_motion=line_and_tag.event_motion,
+        event_mention=event_mention,
         temporal=temporal,
         source_icon=source_icons[source],
         sentence_uuid=line_and_tag.sentence_uuid,
@@ -219,14 +233,14 @@ def get_single_line_colored_piece(line_and_tag: LineAndTagV2,
 def update_sentence_labels_with_request(request, piece_id: str, sentence: Sentence,
                                         pruning: Pruning | None) -> bool:
     new_temporal = Temporal(request.POST.get(f"temporal-{piece_id}"))
-    new_event_motion = EventMotion(request.POST.get(f"event-motion-{piece_id}"))
+    new_event_mention = EventMention(request.POST.get(f"event-mention-{piece_id}"))
 
     if extract_label(sentence, Classifier.Target.TEMPORAL) != new_temporal \
-            or extract_label(sentence, Classifier.Target.CONFESSION_LEGACY) != new_event_motion:
+            or extract_label(sentence, Classifier.Target.CONFESSION) != new_event_mention:
         sentence.updated_by = request.user
         sentence.updated_on_pruning = pruning
         sentence.human_temporal = new_temporal
-        sentence.human_confession_legacy = new_event_motion
+        sentence.human_confession = new_event_mention
         sentence.save()
 
         return True

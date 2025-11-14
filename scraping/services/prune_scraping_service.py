@@ -15,7 +15,7 @@ from scraping.extract.extract_content import BaseActionInterface
 from scraping.extract.extract_content import extract_paragraphs_lines_and_indices
 from scraping.extract.extract_interface import ExtractMode
 from scraping.extract_v2.extract_content import extract_paragraphs_lines_and_indices_v2
-from scraping.extract_v2.models import EventMotion, Temporal
+from scraping.extract_v2.models import EventMotion, Temporal, EventMention
 from scraping.extract_v2.qualify_line_interfaces import BaseQualifyLineInterface
 from scraping.prune.models import Action, Source
 from scraping.services.classify_sentence_service import classify_and_create_sentence
@@ -51,32 +51,30 @@ class SentenceQualifyLineInterface(BaseQualifyLineInterface):
     def __init__(self, pruning: Pruning | None = None):
         self.pruning = pruning
 
-    def get_tags_and_event_motion(self, stringified_line: str
-                                  ) -> tuple[set[Temporal], EventMotion, bool, UUID | None]:
+    def get_temporal_and_event_mention_tags(
+            self, stringified_line: str) -> tuple[set[Temporal], set[EventMention], UUID | None]:
         sentence = self.get_sentence(stringified_line)
         if self.pruning:
             sentence.prunings.add(self.pruning)
 
-        temporal_tags = set()
         if sentence.human_temporal is not None or sentence.ml_temporal is not None:
-            temporal = Temporal(sentence.human_temporal or sentence.ml_temporal)
-            if temporal == Temporal.SCHED:
-                temporal_tags.add(Temporal.SCHED)
-            elif temporal == Temporal.SPEC:
-                temporal_tags.add(Temporal.SPEC)
+            temporal_tags = {Temporal(sentence.human_temporal or sentence.ml_temporal)}
         else:
             raise ValueError(f'Sentence {sentence.uuid} has no human '
                              f'temporal nor ML temporal')
 
-        if sentence.human_confession_legacy is not None:
-            event_motion = EventMotion(sentence.human_confession_legacy)
-        elif sentence.ml_confession_legacy is not None:
-            event_motion = EventMotion(sentence.ml_confession_legacy)
+        if sentence.human_confession is not None or sentence.ml_confession is not None:
+            event_mention_tags = {EventMention(sentence.human_confession or sentence.ml_confession)}
+        elif sentence.human_confession_legacy is not None \
+                or sentence.ml_confession_legacy is not None:
+            event_motion = EventMotion(sentence.human_confession_legacy
+                                       or sentence.ml_confession_legacy)
+            event_mention_tags = {event_motion.to_event_mention()}
         else:
             raise ValueError(f'Sentence {sentence.uuid} has no human '
                              f'confession nor ML confession')
 
-        return temporal_tags, event_motion, False, sentence.uuid
+        return temporal_tags, event_mention_tags, sentence.uuid
 
     def get_sentence(self, stringified_line: str) -> Sentence:
         try:
@@ -88,28 +86,23 @@ class SentenceQualifyLineInterface(BaseQualifyLineInterface):
 
 
 class MLSentenceQualifyLineInterface(SentenceQualifyLineInterface):
-    def get_tags_and_event_motion(self, stringified_line: str
-                                  ) -> tuple[set[Temporal], EventMotion, bool, UUID | None]:
+    def get_temporal_and_event_mention_tags(
+            self, stringified_line: str) -> tuple[set[Temporal], set[EventMention], UUID | None]:
         sentence = self.get_sentence(stringified_line)
         if self.pruning:
             sentence.prunings.add(self.pruning)
 
-        temporal_tags = set()
         if sentence.ml_temporal is not None:
-            temporal = Temporal(sentence.ml_temporal)
-            if temporal == Temporal.SCHED:
-                temporal_tags.add(Temporal.SCHED)
-            elif temporal == Temporal.SPEC:
-                temporal_tags.add(Temporal.SPEC)
+            temporal_tags = {Temporal(sentence.ml_temporal)}
         else:
             raise ValueError(f'Sentence {sentence.uuid} has no ML temporal')
 
-        if sentence.ml_confession_legacy is not None:
-            event_motion = EventMotion(sentence.ml_confession_legacy)
+        if sentence.ml_confession is not None:
+            event_mention_tags = {EventMention(sentence.ml_confession)}
         else:
             raise ValueError(f'Sentence {sentence.uuid} has no ML confession')
 
-        return temporal_tags, event_motion, False, sentence.uuid
+        return temporal_tags, event_mention_tags, sentence.uuid
 
 
 ##############################

@@ -115,6 +115,9 @@ def get_ml_label(sentence: Sentence, target: Classifier.Target) -> StringEnum:
     elif target == Classifier.Target.CONFESSION_LEGACY:
         if sentence.confession_legacy_classifier_id == classifier.uuid:
             return EventMotion(sentence.ml_confession_legacy)
+    elif target == Classifier.Target.CONFESSION:
+        if sentence.confession_new_classifier_id == classifier.uuid:
+            return EventMotion(sentence.ml_confession)
     else:
         raise NotImplementedError(f'Target {target} is not supported for label extraction')
 
