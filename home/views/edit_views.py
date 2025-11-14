@@ -9,7 +9,7 @@ from pydantic import ValidationError
 from home.models import Page, Pruning, Sentence, Parsing
 from home.services.edit_pruning_service import get_colored_pieces, update_sentence_action, \
     reset_pages_counter_of_pruning, set_ml_indices_as_human, set_human_indices, \
-    get_pruning_human_pieces, get_colored_pieces_v2, set_v2_indices_as_human, EVENT_MOTION_COLORS, \
+    get_pruning_human_pieces, get_colored_pieces_v2, set_v2_indices_as_human, \
     update_sentence_labels_with_request, TEMPORAL_COLORS, EVENT_MENTION_COLORS
 from jsoneditor.forms import JSONSchemaForm
 from scraping.extract_v2.qualify_line_interfaces import DummyQualifyLineInterface
@@ -143,7 +143,6 @@ def edit_pruning_v2(request, pruning_uuid):
     return render(request, 'pages/edit_pruning_v2.html', {
         'pruning': pruning,
         'colored_pieces': colored_pieces,
-        'event_motion_colors': EVENT_MOTION_COLORS,
         'event_mention_colors': EVENT_MENTION_COLORS,
         'temporal_colors': TEMPORAL_COLORS,
     })

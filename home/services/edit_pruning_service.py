@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from home.models import Pruning, Sentence, Classifier
 from scraping.extract.extract_content import split_and_tag, BaseActionInterface
 from scraping.extract.tag_line import Tag
-from scraping.extract_v2.models import EventMotion, Temporal, EventMention
+from scraping.extract_v2.models import Temporal, EventMention
 from scraping.extract_v2.prune_lines_v2 import get_pruned_lines_indices_v2
 from scraping.extract_v2.qualify_line_interfaces import BaseQualifyLineInterface
 from scraping.extract_v2.split_content import split_and_tag_v2, LineAndTagV2
@@ -139,13 +139,6 @@ def set_ml_indices_as_human(pruning: Pruning):
 #################
 # ML INDICES V2 #
 #################
-
-EVENT_MOTION_COLORS = {
-    EventMotion.START: 'success',
-    EventMotion.HOLD: 'info',
-    EventMotion.HIDE: 'black',
-    EventMotion.STOP: 'danger',
-}
 
 EVENT_MENTION_COLORS = {
     EventMention.EVENT: 'success',

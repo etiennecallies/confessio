@@ -11,7 +11,7 @@ from pgvector.django import VectorField
 from simple_history.models import HistoricalRecords
 
 from home.utils.hash_utils import hash_string_to_hex
-from scraping.extract_v2.models import EventMotion, Temporal, EventMention
+from scraping.extract_v2.models import Temporal, EventMention
 from scraping.parse.llm_client import LLMProvider
 from scraping.prune.models import Action, Source
 
@@ -276,12 +276,6 @@ class Sentence(TimeStampMixin):
     temporal_classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,
                                             related_name='temporal_sentences', null=True)
 
-    ml_confession_legacy = models.CharField(max_length=5, choices=EventMotion.choices())
-    human_confession_legacy = models.CharField(max_length=5, choices=EventMotion.choices(),
-                                               null=True)
-    confession_legacy_classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,
-                                                     related_name='confession_legacy_sentences',
-                                                     null=True)
     ml_confession = models.CharField(max_length=7, choices=EventMention.choices())
     human_confession = models.CharField(max_length=7, choices=EventMention.choices(), null=True)
     confession_new_classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,
