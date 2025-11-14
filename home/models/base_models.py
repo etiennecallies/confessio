@@ -11,7 +11,7 @@ from pgvector.django import VectorField
 from simple_history.models import HistoricalRecords
 
 from home.utils.hash_utils import hash_string_to_hex
-from scraping.extract_v2.models import EventMotion, Temporal
+from scraping.extract_v2.models import EventMotion, Temporal, EventMention
 from scraping.parse.llm_client import LLMProvider
 from scraping.prune.models import Action, Source
 
@@ -282,6 +282,12 @@ class Sentence(TimeStampMixin):
     confession_legacy_classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,
                                                      related_name='confession_legacy_sentences',
                                                      null=True)
+    # TODO set it as not null
+    ml_confession = models.CharField(max_length=7, choices=EventMention.choices(), null=True)
+    human_confession = models.CharField(max_length=7, choices=EventMention.choices(), null=True)
+    confession_new_classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,
+                                                  related_name='confession_new_sentences',
+                                                  null=True)
     history = HistoricalRecords()
 
 
@@ -295,11 +301,12 @@ class Classifier(TimeStampMixin):
         ACTION = "action"
         # V2
         TEMPORAL = "temporal"
+        CONFESSION_LEGACY = "confession_legacy"
         CONFESSION = "confession"
 
     transformer_name = models.CharField(max_length=100)
     status = models.CharField(max_length=5, choices=Status)
-    target = models.CharField(max_length=10, choices=Target)
+    target = models.CharField(max_length=17, choices=Target)
     different_labels = models.JSONField()
     pickle = models.CharField()
     accuracy = models.FloatField()
