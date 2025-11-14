@@ -13,4 +13,10 @@ class Command(AbstractCommand):
 
             counter += 1
 
+        for classifier in Classifier.history.filter(
+                target__exact=Classifier.Target.CONFESSION_LEGACY):
+            classifier.delete()
+
+            counter += 1
+
         self.success(f'Successfully remove {counter} classifiers.')
