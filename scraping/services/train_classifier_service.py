@@ -30,10 +30,21 @@ def build_sentence_dataset(target: Classifier.Target) -> list[Sentence]:
         if len(human_qualified_dataset) >= MIN_DATASET_SIZE:
             return human_qualified_dataset
 
-        print(f"Not enough human confession sentences ({len(human_qualified_dataset)}), "
-              f"using ML confession sentences instead")
+        print(f"Not enough legacy human confession sentences ({len(human_qualified_dataset)}), "
+              f"using ML legacy confession sentences instead")
         return Sentence.objects.filter(Q(human_confession_legacy__isnull=False)
                                        | Q(ml_confession_legacy__isnull=False)).all()
+
+    if target == Classifier.Target.CONFESSION:
+        human_qualified_dataset = Sentence.objects.filter(
+            human_confession__isnull=False).all()
+        if len(human_qualified_dataset) >= MIN_DATASET_SIZE:
+            return human_qualified_dataset
+
+        print(f"Not enough human confession sentences ({len(human_qualified_dataset)}), "
+              f"using ML confession sentences instead")
+        return Sentence.objects.filter(Q(human_confession__isnull=False)
+                                       | Q(ml_confession__isnull=False)).all()
 
     raise NotImplementedError(f'Target {target} is not supported for sentence dataset building')
 

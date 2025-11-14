@@ -58,7 +58,11 @@ class Command(AbstractCommand):
                 return
 
         self.info(f'Building sentence dataset for target {target}...')
-        sentence_dataset = build_sentence_dataset(target)
+        if target == Classifier.Target.CONFESSION:
+            # TODO remove fallback to legacy once enough data collected
+            sentence_dataset = build_sentence_dataset(Classifier.Target.CONFESSION_LEGACY)
+        else:
+            sentence_dataset = build_sentence_dataset(target)
         self.info(f'Got {len(sentence_dataset)} sentences for target {target}')
 
         count_by_label = {}
