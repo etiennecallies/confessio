@@ -34,12 +34,12 @@
       minute: 48
       memory_max: "3200M"
     - name: daily_reclassify_confession
-      command: "reclassify_sentences -t confession"
+      command: "reclassify_sentences -t confession_legacy"
       hour: "0"
       minute: 51
       memory_max: "3200M"
     - name: daily_find_sentence_outliers
-      command: "find_sentence_outliers -t confession"
+      command: "find_sentence_outliers -t confession_legacy"
       hour: "0"
       minute: 54
       memory_max: "3200M"
