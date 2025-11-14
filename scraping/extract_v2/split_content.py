@@ -2,7 +2,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from scraping.extract_v2.models import TagV2, EventMotion
+from scraping.extract_v2.models import TemporalTag, EventMotion
 from scraping.extract_v2.qualify_line_interfaces import BaseQualifyLineInterface
 from scraping.refine.refine_content import stringify_html
 from scraping.utils.html_utils import split_lines
@@ -11,7 +11,7 @@ from scraping.utils.html_utils import split_lines
 class LineAndTagV2(BaseModel):
     line: str
     stringified_line: str
-    tags: set[TagV2]
+    tags: set[TemporalTag]
     event_motion: EventMotion
     is_default_hold: bool
     sentence_uuid: UUID | None

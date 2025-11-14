@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from scraping.extract_v2.models import TagV2, EventMotion
+from scraping.extract_v2.models import TemporalTag, EventMotion
 from scraping.extract_v2.split_content import LineAndTagV2
 
 MAX_PRE_BUFFERING_ATTEMPTS = 3
@@ -24,7 +24,7 @@ class PreBuffer:
         return self.buffer
 
     def from_index_line(self, index_line: IndexLine):
-        assert TagV2.SPECIFIER in index_line.tags
+        assert TemporalTag.SPECIFIER in index_line.tags
         if self.buffer is None:
             self.buffer = []
         self.buffer.append(index_line)
@@ -60,7 +60,7 @@ class PostBuffer:
 
     def add_line(self, index_line: IndexLine, paragraph_indices: list[int]):
         self.buffer.append(index_line.index)
-        self.is_post_schedule = self.is_post_schedule or TagV2.SCHEDULE in index_line.tags
+        self.is_post_schedule = self.is_post_schedule or TemporalTag.SCHEDULE in index_line.tags
         if is_resetting_attempts(index_line):
             self.reset_remaining_attempts()
         if self.is_post_schedule:
@@ -125,7 +125,7 @@ def get_pruned_lines_indices_v2(lines_and_tags: list[LineAndTagV2]) -> list[list
                     paragraph_indices = flush_results(paragraph_indices, results)
 
         # If we encounter a SPECIFIER, we complete or create the pre_buffer
-        elif TagV2.SPECIFIER in tags:
+        elif TemporalTag.SPECIFIER in tags:
             if event_motion in [EventMotion.HIDE, EventMotion.STOP]:
                 if pre_buffer is not None:
                     pre_buffer.reset_remaining_attempts()

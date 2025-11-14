@@ -1,7 +1,7 @@
 from scraping.utils.enum_utils import StringEnum
 
 
-class TagV2(StringEnum):
+class TemporalTag(StringEnum):
     SCHEDULE = 'schedule'
     SPECIFIER = 'specifier'
 

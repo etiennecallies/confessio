@@ -15,7 +15,7 @@ from scraping.extract.extract_content import BaseActionInterface
 from scraping.extract.extract_content import extract_paragraphs_lines_and_indices
 from scraping.extract.extract_interface import ExtractMode
 from scraping.extract_v2.extract_content import extract_paragraphs_lines_and_indices_v2
-from scraping.extract_v2.models import TagV2, EventMotion, Temporal
+from scraping.extract_v2.models import TemporalTag, EventMotion, Temporal
 from scraping.extract_v2.qualify_line_interfaces import BaseQualifyLineInterface
 from scraping.prune.models import Action, Source
 from scraping.services.classify_sentence_service import classify_and_create_sentence
@@ -52,7 +52,7 @@ class SentenceQualifyLineInterface(BaseQualifyLineInterface):
         self.pruning = pruning
 
     def get_tags_and_event_motion(self, stringified_line: str
-                                  ) -> tuple[set[TagV2], EventMotion, bool, UUID | None]:
+                                  ) -> tuple[set[TemporalTag], EventMotion, bool, UUID | None]:
         sentence = self.get_sentence(stringified_line)
         if self.pruning:
             sentence.prunings.add(self.pruning)
@@ -61,9 +61,9 @@ class SentenceQualifyLineInterface(BaseQualifyLineInterface):
         if sentence.human_temporal is not None or sentence.ml_temporal is not None:
             temporal = Temporal(sentence.human_temporal or sentence.ml_temporal)
             if temporal == Temporal.SCHED:
-                tags.add(TagV2.SCHEDULE)
+                tags.add(TemporalTag.SCHEDULE)
             elif temporal == Temporal.SPEC:
-                tags.add(TagV2.SPECIFIER)
+                tags.add(TemporalTag.SPECIFIER)
         else:
             raise ValueError(f'Sentence {sentence.uuid} has no human '
                              f'temporal nor ML temporal')
@@ -89,7 +89,7 @@ class SentenceQualifyLineInterface(BaseQualifyLineInterface):
 
 class MLSentenceQualifyLineInterface(SentenceQualifyLineInterface):
     def get_tags_and_event_motion(self, stringified_line: str
-                                  ) -> tuple[set[TagV2], EventMotion, bool, UUID | None]:
+                                  ) -> tuple[set[TemporalTag], EventMotion, bool, UUID | None]:
         sentence = self.get_sentence(stringified_line)
         if self.pruning:
             sentence.prunings.add(self.pruning)
@@ -98,9 +98,9 @@ class MLSentenceQualifyLineInterface(SentenceQualifyLineInterface):
         if sentence.ml_temporal is not None:
             temporal = Temporal(sentence.ml_temporal)
             if temporal == Temporal.SCHED:
-                tags.add(TagV2.SCHEDULE)
+                tags.add(TemporalTag.SCHEDULE)
             elif temporal == Temporal.SPEC:
-                tags.add(TagV2.SPECIFIER)
+                tags.add(TemporalTag.SPECIFIER)
         else:
             raise ValueError(f'Sentence {sentence.uuid} has no ML temporal')
 

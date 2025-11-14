@@ -1,6 +1,6 @@
 from home.management.abstract_command import AbstractCommand
 from home.models import Sentence
-from scraping.extract_v2.models import TagV2, EventMotion
+from scraping.extract_v2.models import TemporalTag, EventMotion
 from scraping.extract_v2.qualify_line_interfaces import RegexQualifyLineInterface
 from scraping.prune.models import Action
 
@@ -16,12 +16,12 @@ class Command(AbstractCommand):
             tags, event_motion = qualify_line_interface.get_tags_and_event_motion(stringified_line)
 
             if sentence.action in [Action.SHOW, Action.START]:
-                if TagV2.SPECIFIER in tags or sentence.action == Action.START:
+                if TemporalTag.SPECIFIER in tags or sentence.action == Action.START:
                     spec = True
                 else:
                     spec = False
 
-                if TagV2.SCHEDULE in tags:
+                if TemporalTag.SCHEDULE in tags:
                     sched = True
                 else:
                     sched = False

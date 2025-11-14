@@ -1,6 +1,6 @@
 from typing import Set
 
-from scraping.extract_v2.models import TagV2, EventMotion
+from scraping.extract_v2.models import TemporalTag, EventMotion
 from scraping.utils.string_search import has_any_of_words
 
 ##################
@@ -168,16 +168,16 @@ def is_period_description(content: str):
 # MAIN #
 ########
 
-def get_tags_with_regex(stringified_line: str) -> Set[TagV2]:
+def get_tags_with_regex(stringified_line: str) -> Set[TemporalTag]:
     tags = set()
     if is_schedule_description(stringified_line):
-        tags.add(TagV2.SCHEDULE)
+        tags.add(TemporalTag.SCHEDULE)
 
     if is_date_description(stringified_line):
-        tags.add(TagV2.SPECIFIER)
+        tags.add(TemporalTag.SPECIFIER)
 
     if is_period_description(stringified_line):
-        tags.add(TagV2.SPECIFIER)
+        tags.add(TemporalTag.SPECIFIER)
 
     return tags
 
