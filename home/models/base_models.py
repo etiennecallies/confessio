@@ -282,8 +282,7 @@ class Sentence(TimeStampMixin):
     confession_legacy_classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,
                                                      related_name='confession_legacy_sentences',
                                                      null=True)
-    # TODO set it as not null
-    ml_confession = models.CharField(max_length=7, choices=EventMention.choices(), null=True)
+    ml_confession = models.CharField(max_length=7, choices=EventMention.choices())
     human_confession = models.CharField(max_length=7, choices=EventMention.choices(), null=True)
     confession_new_classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,
                                                   related_name='confession_new_sentences',
