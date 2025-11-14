@@ -2,7 +2,7 @@ from django.db.models import Q
 from sklearn.model_selection import train_test_split
 
 from home.models import Sentence, Classifier
-from scraping.extract_v2.models import EventMotion, TemporalMotion
+from scraping.extract_v2.models import EventMotion, Temporal
 from scraping.prune.models import Source, Action
 from scraping.prune.train_and_predict import TensorFlowModel, evaluate
 from scraping.services.classifier_target_service import get_target_enum
@@ -43,9 +43,9 @@ def extract_label(sentence: Sentence, target: Classifier.Target) -> StringEnum:
 
     if target == Classifier.Target.TEMPORAL:
         if sentence.human_temporal is not None:
-            return TemporalMotion(sentence.human_temporal)
+            return Temporal(sentence.human_temporal)
         if sentence.ml_temporal is not None:
-            return TemporalMotion(sentence.ml_temporal)
+            return Temporal(sentence.ml_temporal)
         raise ValueError(f'Sentence {sentence.uuid} has no temporal for target {target}')
 
     if target == Classifier.Target.CONFESSION:

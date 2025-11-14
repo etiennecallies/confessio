@@ -15,7 +15,7 @@ from scraping.extract.extract_content import BaseActionInterface
 from scraping.extract.extract_content import extract_paragraphs_lines_and_indices
 from scraping.extract.extract_interface import ExtractMode
 from scraping.extract_v2.extract_content import extract_paragraphs_lines_and_indices_v2
-from scraping.extract_v2.models import TagV2, EventMotion, TemporalMotion
+from scraping.extract_v2.models import TagV2, EventMotion, Temporal
 from scraping.extract_v2.qualify_line_interfaces import BaseQualifyLineInterface
 from scraping.prune.models import Action, Source
 from scraping.services.classify_sentence_service import classify_and_create_sentence
@@ -59,10 +59,10 @@ class SentenceQualifyLineInterface(BaseQualifyLineInterface):
 
         tags = set()
         if sentence.human_temporal is not None or sentence.ml_temporal is not None:
-            temporal = TemporalMotion(sentence.human_temporal or sentence.ml_temporal)
-            if temporal == TemporalMotion.SCHED:
+            temporal = Temporal(sentence.human_temporal or sentence.ml_temporal)
+            if temporal == Temporal.SCHED:
                 tags.add(TagV2.SCHEDULE)
-            elif temporal == TemporalMotion.SPEC:
+            elif temporal == Temporal.SPEC:
                 tags.add(TagV2.SPECIFIER)
         else:
             raise ValueError(f'Sentence {sentence.uuid} has no human '
@@ -96,10 +96,10 @@ class MLSentenceQualifyLineInterface(SentenceQualifyLineInterface):
 
         tags = set()
         if sentence.ml_temporal is not None:
-            temporal = TemporalMotion(sentence.ml_temporal)
-            if temporal == TemporalMotion.SCHED:
+            temporal = Temporal(sentence.ml_temporal)
+            if temporal == Temporal.SCHED:
                 tags.add(TagV2.SCHEDULE)
-            elif temporal == TemporalMotion.SPEC:
+            elif temporal == Temporal.SPEC:
                 tags.add(TagV2.SPECIFIER)
         else:
             raise ValueError(f'Sentence {sentence.uuid} has no ML temporal')

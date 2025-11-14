@@ -1,6 +1,6 @@
 from home.management.abstract_command import AbstractCommand
 from home.models import Classifier
-from scraping.extract_v2.models import TemporalMotion
+from scraping.extract_v2.models import Temporal
 from scraping.services.classify_sentence_service import get_ml_label
 from scraping.services.train_classifier_service import build_sentence_dataset, extract_label
 from scraping.utils.enum_utils import BooleanStringEnum
@@ -36,9 +36,9 @@ class Command(AbstractCommand):
             if ml_schedule == BooleanStringEnum.TRUE and ml_specifier == BooleanStringEnum.TRUE:
                 continue
 
-            mixed_temporal = TemporalMotion.SPEC if ml_specifier == BooleanStringEnum.TRUE else (
-                TemporalMotion.SCHED if ml_schedule == BooleanStringEnum.TRUE
-                else TemporalMotion.NONE
+            mixed_temporal = Temporal.SPEC if ml_specifier == BooleanStringEnum.TRUE else (
+                Temporal.SCHED if ml_schedule == BooleanStringEnum.TRUE
+                else Temporal.NONE
             )
 
             if mixed_temporal == human_temporal:

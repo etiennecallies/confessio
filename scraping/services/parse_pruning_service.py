@@ -16,7 +16,6 @@ from scraping.parse.schedules import SchedulesList, SCHEDULES_LIST_VERSION
 from scraping.refine.refine_content import stringify_html
 from scraping.services.index_events_service import index_events_for_website
 from scraping.services.parsing_service import get_existing_parsing
-from scraping.utils.ram_utils import print_memory_usage
 
 TRUNCATION_LENGTH = 32
 MAX_LENGTH_FOR_PARSING = 15000
@@ -417,11 +416,9 @@ def prepare_parsing(
 def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: bool = False):
     parsing_preparation = prepare_parsing(pruning, website, force_parse)
     if not parsing_preparation:
-        print_memory_usage('no need to parse')
         return
 
     worker_parse_pruning_for_website(str(pruning.uuid), str(website.uuid), force_parse)
-    print_memory_usage('needs to parse')
 
 
 @background(queue='main', schedule=TaskSchedule(priority=3))

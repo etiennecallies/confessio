@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from home.models import Pruning, Sentence, Classifier
 from scraping.extract.extract_content import split_and_tag, BaseActionInterface
 from scraping.extract.tag_line import Tag
-from scraping.extract_v2.models import TagV2, EventMotion, TemporalMotion
+from scraping.extract_v2.models import TagV2, EventMotion, Temporal
 from scraping.extract_v2.prune_lines_v2 import get_pruned_lines_indices_v2
 from scraping.extract_v2.qualify_line_interfaces import BaseQualifyLineInterface
 from scraping.extract_v2.split_content import split_and_tag_v2, LineAndTagV2
@@ -147,10 +147,10 @@ EVENT_MOTION_COLORS = {
     EventMotion.STOP: 'danger',
 }
 
-TEMPORAL_MOTION_COLORS = {
-    TemporalMotion.NONE: 'gray-500',
-    TemporalMotion.SCHED: 'tertiary',
-    TemporalMotion.SPEC: 'purple',
+TEMPORAL_COLORS = {
+    Temporal.NONE: 'gray-500',
+    Temporal.SCHED: 'tertiary',
+    Temporal.SPEC: 'purple',
 }
 
 
@@ -160,7 +160,7 @@ class ColoredPieceV2(BaseModel):
     text: str
     color: str
     event_motion: EventMotion
-    temporal_motion: TemporalMotion
+    temporal: Temporal
     source_icon: str
     sentence_uuid: UUID | None
 
@@ -197,11 +197,11 @@ def get_single_line_colored_piece(line_and_tag: LineAndTagV2,
 
     assert len(line_and_tag.tags) <= 1
     if line_and_tag.tags == {TagV2.SPECIFIER}:
-        temporal_motion = TemporalMotion.SPEC
+        temporal = Temporal.SPEC
     elif line_and_tag.tags == {TagV2.SCHEDULE}:
-        temporal_motion = TemporalMotion.SCHED
+        temporal = Temporal.SCHED
     else:
-        temporal_motion = TemporalMotion.NONE
+        temporal = Temporal.NONE
 
     return ColoredPieceV2(
         id=f'{i}',
@@ -209,7 +209,7 @@ def get_single_line_colored_piece(line_and_tag: LineAndTagV2,
         text=line_and_tag.line,
         color='' if do_show else 'text-warning',
         event_motion=line_and_tag.event_motion,
-        temporal_motion=temporal_motion,
+        temporal=temporal,
         source_icon=source_icons[source],
         sentence_uuid=line_and_tag.sentence_uuid,
     )
@@ -217,7 +217,7 @@ def get_single_line_colored_piece(line_and_tag: LineAndTagV2,
 
 def update_sentence_labels_with_request(request, piece_id: str, sentence: Sentence,
                                         pruning: Pruning | None) -> bool:
-    new_temporal = TemporalMotion(request.POST.get(f"temporal-motion-{piece_id}"))
+    new_temporal = Temporal(request.POST.get(f"temporal-{piece_id}"))
     new_event_motion = EventMotion(request.POST.get(f"event-motion-{piece_id}"))
 
     if extract_label(sentence, Classifier.Target.TEMPORAL) != new_temporal \

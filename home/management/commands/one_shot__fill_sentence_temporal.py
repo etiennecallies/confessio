@@ -1,6 +1,6 @@
 from home.management.abstract_command import AbstractCommand
 from home.models import Sentence
-from scraping.extract_v2.models import TemporalMotion
+from scraping.extract_v2.models import Temporal
 
 
 class Command(AbstractCommand):
@@ -13,8 +13,8 @@ class Command(AbstractCommand):
                 assert sentence.human_specifier is not None and sentence.human_schedule is not None
                 assert sentence.human_schedule is not True or sentence.human_specifier is not True
 
-                human_temporal = TemporalMotion.SPEC if sentence.human_specifier is True else (
-                    TemporalMotion.SCHED if sentence.human_schedule is True else TemporalMotion.NONE
+                human_temporal = Temporal.SPEC if sentence.human_specifier is True else (
+                    Temporal.SCHED if sentence.human_schedule is True else Temporal.NONE
                 )
                 sentence.human_temporal = human_temporal
                 sentence.save()

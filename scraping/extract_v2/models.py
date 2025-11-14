@@ -6,7 +6,7 @@ class TagV2(StringEnum):
     SPECIFIER = 'specifier'
 
 
-class TemporalMotion(StringEnum):
+class Temporal(StringEnum):
     NONE = 'none'
     SCHED = 'sched'
     SPEC = 'spec'

@@ -3,7 +3,7 @@ import threading
 from django.db import transaction, IntegrityError
 
 from home.models import Sentence, Classifier, Pruning
-from scraping.extract_v2.models import EventMotion, TemporalMotion
+from scraping.extract_v2.models import EventMotion, Temporal
 from scraping.prune.models import Source, Action
 from scraping.prune.train_and_predict import TensorFlowModel
 from scraping.prune.transform_sentence import get_transformer, TransformerInterface, \
@@ -111,7 +111,7 @@ def get_ml_label(sentence: Sentence, target: Classifier.Target) -> StringEnum:
             return Action(sentence.action)
     elif target == Classifier.Target.TEMPORAL:
         if sentence.temporal_classifier_id == classifier.uuid:
-            return TemporalMotion(sentence.ml_temporal)
+            return Temporal(sentence.ml_temporal)
     elif target == Classifier.Target.CONFESSION:
         if sentence.confession_classifier_id == classifier.uuid:
             return EventMotion(sentence.ml_confession)
