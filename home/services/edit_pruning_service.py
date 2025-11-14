@@ -222,7 +222,7 @@ def update_sentence_labels_with_request(request, piece_id: str, sentence: Senten
     new_event_motion = EventMotion(request.POST.get(f"event-motion-{piece_id}"))
 
     if extract_label(sentence, Classifier.Target.TEMPORAL) != new_temporal \
-            or extract_label(sentence, Classifier.Target.CONFESSION) != new_event_motion:
+            or extract_label(sentence, Classifier.Target.CONFESSION_LEGACY) != new_event_motion:
         sentence.updated_by = request.user
         sentence.updated_on_pruning = pruning
         sentence.human_temporal = new_temporal

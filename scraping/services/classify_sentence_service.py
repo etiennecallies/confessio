@@ -112,8 +112,8 @@ def get_ml_label(sentence: Sentence, target: Classifier.Target) -> StringEnum:
     elif target == Classifier.Target.TEMPORAL:
         if sentence.temporal_classifier_id == classifier.uuid:
             return Temporal(sentence.ml_temporal)
-    elif target == Classifier.Target.CONFESSION:
-        if sentence.confession_classifier_id == classifier.uuid:
+    elif target == Classifier.Target.CONFESSION_LEGACY:
+        if sentence.confession_legacy_classifier_id == classifier.uuid:
             return EventMotion(sentence.ml_confession_legacy)
     else:
         raise NotImplementedError(f'Target {target} is not supported for label extraction')
@@ -135,8 +135,10 @@ def get_sentences_with_wrong_classifier(target: Classifier.Target) -> list[Sente
         sentence_query = sentence_query.filter(source=Source.ML).exclude(classifier=classifier)
     if target == Classifier.Target.TEMPORAL:
         sentence_query = sentence_query.exclude(temporal_classifier=classifier)
+    if target == Classifier.Target.CONFESSION_LEGACY:
+        sentence_query = sentence_query.exclude(confession_legacy_classifier=classifier)
     if target == Classifier.Target.CONFESSION:
-        sentence_query = sentence_query.exclude(confession_classifier=classifier)
+        sentence_query = sentence_query.exclude(confession_new_classifier=classifier)
 
     return sentence_query.all()
 
@@ -163,8 +165,8 @@ def classify_and_create_sentence(stringified_line: str,
     ml_temporal, temporal_classifier = classify_existing_sentence(sentence,
                                                                   Classifier.Target.TEMPORAL)
     set_label(sentence, ml_temporal, temporal_classifier)
-    ml_confession, confession_classifier = classify_existing_sentence(sentence,
-                                                                      Classifier.Target.CONFESSION)
+    ml_confession, confession_classifier = classify_existing_sentence(
+        sentence, Classifier.Target.CONFESSION_LEGACY)
     set_label(sentence, ml_confession, confession_classifier)
 
     try:

@@ -24,7 +24,7 @@ def build_sentence_dataset(target: Classifier.Target) -> list[Sentence]:
         return Sentence.objects.filter(Q(human_temporal__isnull=False)
                                        | Q(ml_temporal__isnull=False)).all()
 
-    if target == Classifier.Target.CONFESSION:
+    if target == Classifier.Target.CONFESSION_LEGACY:
         human_qualified_dataset = Sentence.objects.filter(
             human_confession_legacy__isnull=False).all()
         if len(human_qualified_dataset) >= MIN_DATASET_SIZE:
@@ -49,7 +49,7 @@ def extract_label(sentence: Sentence, target: Classifier.Target) -> StringEnum:
             return Temporal(sentence.ml_temporal)
         raise ValueError(f'Sentence {sentence.uuid} has no temporal for target {target}')
 
-    if target == Classifier.Target.CONFESSION:
+    if target == Classifier.Target.CONFESSION_LEGACY:
         if sentence.human_confession_legacy is not None:
             return EventMotion(sentence.human_confession_legacy)
         if sentence.ml_confession_legacy is not None:
@@ -70,7 +70,7 @@ def set_label(sentence: Sentence, label: StringEnum, classifier: Classifier) -> 
         sentence.temporal_classifier = classifier
         return
 
-    if classifier.target == Classifier.Target.CONFESSION:
+    if classifier.target == Classifier.Target.CONFESSION_LEGACY:
         sentence.ml_confession_legacy = label
         sentence.confession_legacy_classifier = classifier
         return

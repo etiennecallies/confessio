@@ -21,7 +21,7 @@ class Command(AbstractCommand):
         if target:
             targets = [target]
         else:
-            targets = [Classifier.Target.ACTION, Classifier.Target.CONFESSION]
+            targets = [Classifier.Target.ACTION, Classifier.Target.CONFESSION_LEGACY]
 
         for target in targets:
             self.handle_for_target(target)
@@ -49,10 +49,10 @@ class Command(AbstractCommand):
                 else:
                     remove_sentence_not_validated_moderation(sentence)
             else:
-                human_confession = extract_label(sentence, Classifier.Target.CONFESSION)
+                human_confession = extract_label(sentence, Classifier.Target.CONFESSION_LEGACY)
                 human_temporal = extract_label(sentence, Classifier.Target.TEMPORAL)
 
-                ml_confession = get_ml_label(sentence, Classifier.Target.CONFESSION)
+                ml_confession = get_ml_label(sentence, Classifier.Target.CONFESSION_LEGACY)
                 ml_temporal = get_ml_label(sentence, Classifier.Target.TEMPORAL)
 
                 if human_confession != ml_confession or human_temporal != ml_temporal:
