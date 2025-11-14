@@ -180,7 +180,8 @@ def get_colored_pieces_v2(extracted_html: str, qualify_line_interface: BaseQuali
         do_show = i in kept_indices
         sentence = Sentence.objects.get(uuid=line_and_tag.sentence_uuid) \
             if line_and_tag.sentence_uuid else None
-        source = Source.HUMAN if sentence and sentence.human_confession is not None else Source.ML
+        source = Source.HUMAN if sentence and sentence.human_confession_legacy is not None \
+            else Source.ML
 
         colored_pieces.append(get_single_line_colored_piece(line_and_tag, source, i, do_show))
 
@@ -225,7 +226,7 @@ def update_sentence_labels_with_request(request, piece_id: str, sentence: Senten
         sentence.updated_by = request.user
         sentence.updated_on_pruning = pruning
         sentence.human_temporal = new_temporal
-        sentence.human_confession = new_event_motion
+        sentence.human_confession_legacy = new_event_motion
         sentence.save()
 
         return True

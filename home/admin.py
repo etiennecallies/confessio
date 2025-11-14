@@ -102,8 +102,8 @@ class ClassifierAdmin(ModelAdmin):
 
 @admin.register(Sentence)
 class SentenceAdmin(ModelAdmin):
-    list_display = ["line", "action", "human_temporal", "human_confession"]
-    fields = ["line", 'action', "human_temporal", "human_confession"]
+    list_display = ["line", "action", "human_temporal", "human_confession_legacy"]
+    fields = ["line", 'action', "human_temporal", "human_confession_legacy"]
 
 
 @admin.register(Report)

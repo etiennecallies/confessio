@@ -11,7 +11,18 @@ class Temporal(StringEnum):
         return [(item.value, item.name) for item in cls]
 
 
+class EventMention(StringEnum):
+    EVENT = 'event'
+    NEUTRAL = 'neutral'
+    OTHER = 'other'
+
+    @classmethod
+    def choices(cls):
+        return [(item.value, item.name) for item in cls]
+
+
 class EventMotion(StringEnum):
+    """TODO deprecated"""
     START = 'start'
     HOLD = 'hold'
     HIDE = 'hide'

@@ -42,7 +42,7 @@ class Command(AbstractCommand):
 
             sentence.ml_specifier = spec
             sentence.ml_schedule = sched
-            sentence.ml_confession = confession_motion
+            sentence.ml_confession_legacy = confession_motion
             sentence.save()
 
             counter += 1

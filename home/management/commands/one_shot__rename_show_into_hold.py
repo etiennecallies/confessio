@@ -9,12 +9,12 @@ class Command(AbstractCommand):
     def handle(self, *args, **options):
         counter = 0
         for sentence in Sentence.objects.all():
-            if sentence.ml_confession \
-                    and EventMotion(sentence.ml_confession) == EventMotion.SHOW:
-                sentence.ml_confession = EventMotion.HOLD
-            if sentence.human_confession \
-                    and EventMotion(sentence.human_confession) == EventMotion.SHOW:
-                sentence.human_confession = EventMotion.HOLD
+            if sentence.ml_confession_legacy \
+                    and EventMotion(sentence.ml_confession_legacy) == EventMotion.SHOW:
+                sentence.ml_confession_legacy = EventMotion.HOLD
+            if sentence.human_confession_legacy \
+                    and EventMotion(sentence.human_confession_legacy) == EventMotion.SHOW:
+                sentence.human_confession_legacy = EventMotion.HOLD
             sentence.save()
 
             counter += 1

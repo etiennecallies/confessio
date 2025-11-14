@@ -68,10 +68,10 @@ class SentenceQualifyLineInterface(BaseQualifyLineInterface):
             raise ValueError(f'Sentence {sentence.uuid} has no human '
                              f'temporal nor ML temporal')
 
-        if sentence.human_confession is not None:
-            event_motion = EventMotion(sentence.human_confession)
-        elif sentence.ml_confession is not None:
-            event_motion = EventMotion(sentence.ml_confession)
+        if sentence.human_confession_legacy is not None:
+            event_motion = EventMotion(sentence.human_confession_legacy)
+        elif sentence.ml_confession_legacy is not None:
+            event_motion = EventMotion(sentence.ml_confession_legacy)
         else:
             raise ValueError(f'Sentence {sentence.uuid} has no human '
                              f'confession nor ML confession')
@@ -104,8 +104,8 @@ class MLSentenceQualifyLineInterface(SentenceQualifyLineInterface):
         else:
             raise ValueError(f'Sentence {sentence.uuid} has no ML temporal')
 
-        if sentence.ml_confession is not None:
-            event_motion = EventMotion(sentence.ml_confession)
+        if sentence.ml_confession_legacy is not None:
+            event_motion = EventMotion(sentence.ml_confession_legacy)
         else:
             raise ValueError(f'Sentence {sentence.uuid} has no ML confession')
 

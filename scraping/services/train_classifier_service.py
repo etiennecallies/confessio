@@ -25,14 +25,15 @@ def build_sentence_dataset(target: Classifier.Target) -> list[Sentence]:
                                        | Q(ml_temporal__isnull=False)).all()
 
     if target == Classifier.Target.CONFESSION:
-        human_qualified_dataset = Sentence.objects.filter(human_confession__isnull=False).all()
+        human_qualified_dataset = Sentence.objects.filter(
+            human_confession_legacy__isnull=False).all()
         if len(human_qualified_dataset) >= MIN_DATASET_SIZE:
             return human_qualified_dataset
 
         print(f"Not enough human confession sentences ({len(human_qualified_dataset)}), "
               f"using ML confession sentences instead")
-        return Sentence.objects.filter(Q(human_confession__isnull=False)
-                                       | Q(ml_confession__isnull=False)).all()
+        return Sentence.objects.filter(Q(human_confession_legacy__isnull=False)
+                                       | Q(ml_confession_legacy__isnull=False)).all()
 
     raise NotImplementedError(f'Target {target} is not supported for sentence dataset building')
 
@@ -49,10 +50,10 @@ def extract_label(sentence: Sentence, target: Classifier.Target) -> StringEnum:
         raise ValueError(f'Sentence {sentence.uuid} has no temporal for target {target}')
 
     if target == Classifier.Target.CONFESSION:
-        if sentence.human_confession is not None:
-            return EventMotion(sentence.human_confession)
-        if sentence.ml_confession is not None:
-            return EventMotion(sentence.ml_confession)
+        if sentence.human_confession_legacy is not None:
+            return EventMotion(sentence.human_confession_legacy)
+        if sentence.ml_confession_legacy is not None:
+            return EventMotion(sentence.ml_confession_legacy)
         raise ValueError(f'Sentence {sentence.uuid} has no confession for target {target}')
 
     raise NotImplementedError(f'Target {target} is not supported for label extraction')
@@ -70,8 +71,8 @@ def set_label(sentence: Sentence, label: StringEnum, classifier: Classifier) -> 
         return
 
     if classifier.target == Classifier.Target.CONFESSION:
-        sentence.ml_confession = label
-        sentence.confession_classifier = classifier
+        sentence.ml_confession_legacy = label
+        sentence.confession_legacy_classifier = classifier
         return
 
     raise NotImplementedError(f'Target {classifier.target} is not supported for label setting')

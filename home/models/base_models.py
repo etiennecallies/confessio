@@ -276,10 +276,12 @@ class Sentence(TimeStampMixin):
     temporal_classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,
                                             related_name='temporal_sentences', null=True)
 
-    ml_confession = models.CharField(max_length=5, choices=EventMotion.choices())
-    human_confession = models.CharField(max_length=5, choices=EventMotion.choices(), null=True)
-    confession_classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,
-                                              related_name='confession_sentences', null=True)
+    ml_confession_legacy = models.CharField(max_length=5, choices=EventMotion.choices())
+    human_confession_legacy = models.CharField(max_length=5, choices=EventMotion.choices(),
+                                               null=True)
+    confession_legacy_classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,
+                                                     related_name='confession_legacy_sentences',
+                                                     null=True)
     history = HistoricalRecords()
 
 

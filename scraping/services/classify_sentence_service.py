@@ -114,7 +114,7 @@ def get_ml_label(sentence: Sentence, target: Classifier.Target) -> StringEnum:
             return Temporal(sentence.ml_temporal)
     elif target == Classifier.Target.CONFESSION:
         if sentence.confession_classifier_id == classifier.uuid:
-            return EventMotion(sentence.ml_confession)
+            return EventMotion(sentence.ml_confession_legacy)
     else:
         raise NotImplementedError(f'Target {target} is not supported for label extraction')
 

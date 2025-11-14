@@ -13,7 +13,7 @@ class Command(AbstractCommand):
         counter = 0
         for sentence in Sentence.objects.filter(Q(ml_specifier__isnull=True)
                                                 | Q(ml_schedule__isnull=True)
-                                                | Q(ml_confession__isnull=True)).all():
+                                                | Q(ml_confession_legacy__isnull=True)).all():
             if sentence.ml_specifier is None:
                 ml_specifier, specifier_classifier = classify_existing_sentence(
                     sentence, Classifier.Target.SPECIFIER)
@@ -22,7 +22,7 @@ class Command(AbstractCommand):
                 ml_schedule, schedule_classifier = classify_existing_sentence(
                     sentence, Classifier.Target.SCHEDULE)
                 set_label(sentence, ml_schedule, schedule_classifier)
-            if sentence.ml_confession is None:
+            if sentence.ml_confession_legacy is None:
                 ml_confession, confession_classifier = classify_existing_sentence(
                     sentence, Classifier.Target.CONFESSION)
                 set_label(sentence, ml_confession, confession_classifier)

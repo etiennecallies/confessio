@@ -20,11 +20,11 @@ class Command(AbstractCommand):
                 ml_schedule__isnull=True
             ).update(ml_schedule=sentence.ml_schedule)
 
-            assert sentence.ml_confession is not None
+            assert sentence.ml_confession_legacy is not None
             Sentence.history.model.objects.filter(
                 uuid=sentence.uuid,
-                ml_confession__isnull=True
-            ).update(ml_confession=sentence.ml_confession)
+                ml_confession_legacy__isnull=True
+            ).update(ml_confession_legacy=sentence.ml_confession_legacy)
 
             counter += 1
             if counter % 100 == 0:
