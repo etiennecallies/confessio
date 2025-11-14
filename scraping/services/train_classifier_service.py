@@ -97,6 +97,11 @@ def set_label(sentence: Sentence, label: StringEnum, classifier: Classifier) -> 
         sentence.confession_legacy_classifier = classifier
         return
 
+    if classifier.target == Classifier.Target.CONFESSION:
+        sentence.ml_confession = label
+        sentence.confession_new_classifier = classifier
+        return
+
     raise NotImplementedError(f'Target {classifier.target} is not supported for label setting')
 
 
