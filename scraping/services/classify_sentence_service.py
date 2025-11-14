@@ -3,7 +3,7 @@ import threading
 from django.db import transaction, IntegrityError
 
 from home.models import Sentence, Classifier, Pruning
-from scraping.extract_v2.models import EventMotion, Temporal
+from scraping.extract_v2.models import EventMotion, Temporal, EventMention
 from scraping.prune.models import Source, Action
 from scraping.prune.train_and_predict import TensorFlowModel
 from scraping.prune.transform_sentence import get_transformer, TransformerInterface, \
@@ -117,7 +117,7 @@ def get_ml_label(sentence: Sentence, target: Classifier.Target) -> StringEnum:
             return EventMotion(sentence.ml_confession_legacy)
     elif target == Classifier.Target.CONFESSION:
         if sentence.confession_new_classifier_id == classifier.uuid:
-            return EventMotion(sentence.ml_confession)
+            return EventMention(sentence.ml_confession)
     else:
         raise NotImplementedError(f'Target {target} is not supported for label extraction')
 

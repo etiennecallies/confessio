@@ -49,10 +49,10 @@ class Command(AbstractCommand):
                 else:
                     remove_sentence_not_validated_moderation(sentence)
             else:
-                human_confession = extract_label(sentence, Classifier.Target.CONFESSION_LEGACY)
+                human_confession = extract_label(sentence, Classifier.Target.CONFESSION)
                 human_temporal = extract_label(sentence, Classifier.Target.TEMPORAL)
 
-                ml_confession = get_ml_label(sentence, Classifier.Target.CONFESSION_LEGACY)
+                ml_confession = get_ml_label(sentence, Classifier.Target.CONFESSION)
                 ml_temporal = get_ml_label(sentence, Classifier.Target.TEMPORAL)
 
                 if human_confession != ml_confession or human_temporal != ml_temporal:
