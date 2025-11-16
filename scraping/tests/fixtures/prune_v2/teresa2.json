@@ -1,0 +1,101 @@
+[
+  {
+    "line": "Pour les adultes, cette pr\u00e9paration se fait dans le cadre du cat\u00e9chum\u00e9nat et la Confirmation est c\u00e9l\u00e9br\u00e9e par l\u2019\u00e9v\u00eaque le jour de la Pentec\u00f4te.",
+    "stringified_line": "Pour les adultes, cette pr\u00e9paration se fait dans le cadre du cat\u00e9chum\u00e9nat et la Confirmation est c\u00e9l\u00e9br\u00e9e par l\u2019\u00e9v\u00eaque le jour de la Pentec\u00f4te.",
+    "temporal_tags": [
+      "none"
+    ],
+    "event_mention_tags": [
+      "other"
+    ],
+    "sentence_uuid": "b27e6911-7103-428b-93b9-5ec2697f8efe"
+  },
+  {
+    "line": "Sacrement du pardon",
+    "stringified_line": "Sacrement du pardon",
+    "temporal_tags": [
+      "none"
+    ],
+    "event_mention_tags": [
+      "event"
+    ],
+    "sentence_uuid": "c133c8c4-bc77-431d-8af0-688a2eee81a6"
+  },
+  {
+    "line": "Par ce sacrement, Dieu pardonne nos fautes et nous donne la gr\u00e2ce n\u00e9cessaire pour reprendre le bon chemin dans la vie.",
+    "stringified_line": "Par ce sacrement, Dieu pardonne nos fautes et nous donne la gr\u00e2ce n\u00e9cessaire pour reprendre le bon chemin dans la vie.",
+    "temporal_tags": [
+      "none"
+    ],
+    "event_mention_tags": [
+      "neutral"
+    ],
+    "sentence_uuid": "4b76120d-fa8c-49f6-8d72-e308cbee6986"
+  },
+  {
+    "line": "<a> Comment le recevoir ? </a>",
+    "stringified_line": "Comment le recevoir ?",
+    "temporal_tags": [
+      "none"
+    ],
+    "event_mention_tags": [
+      "neutral"
+    ],
+    "sentence_uuid": "4333e480-b620-49dd-baf5-ca3f4e95ec83"
+  },
+  {
+    "line": "Ce sacrement de R\u00e9conciliation peut se vivre lors d\u2019une rencontre personnelle avec un pr\u00eatre en prenant un rendez-vous en maison paroissiale ou selon le temps liturgique (Avent & Car\u00eame).",
+    "stringified_line": "Ce sacrement de R\u00e9conciliation peut se vivre lors d\u2019une rencontre personnelle avec un pr\u00eatre en prenant un rendez-vous en maison paroissiale ou selon le temps liturgique (Avent & Car\u00eame).",
+    "temporal_tags": [
+      "sched"
+    ],
+    "event_mention_tags": [
+      "event"
+    ],
+    "sentence_uuid": "cfb17552-e689-4019-8fe3-475f56c8946c"
+  },
+  {
+    "line": "Mariage",
+    "stringified_line": "Mariage",
+    "temporal_tags": [
+      "none"
+    ],
+    "event_mention_tags": [
+      "other"
+    ],
+    "sentence_uuid": "d7d4f8c6-f035-4937-bcb4-4b8b877d3e60"
+  },
+  {
+    "line": "Le sacrement de mariage sanctifie l\u2019union d\u2019un homme et d\u2019une femme et situe l\u2019amour des \u00e9poux au c\u0153ur de l\u2019amour de Dieu.",
+    "stringified_line": "Le sacrement de mariage sanctifie l\u2019union d\u2019un homme et d\u2019une femme et situe l\u2019amour des \u00e9poux au c\u0153ur de l\u2019amour de Dieu.",
+    "temporal_tags": [
+      "none"
+    ],
+    "event_mention_tags": [
+      "other"
+    ],
+    "sentence_uuid": "f1465bda-c82a-47fe-90e7-bb651230c2c6"
+  },
+  {
+    "line": "<a> Comment s'y pr\u00e9parer ? </a>",
+    "stringified_line": "Comment s'y pr\u00e9parer ?",
+    "temporal_tags": [
+      "none"
+    ],
+    "event_mention_tags": [
+      "neutral"
+    ],
+    "sentence_uuid": "4500473e-e332-4f14-8f8d-6826004595c7"
+  },
+  {
+    "line": "Un temps de pr\u00e9paration est assur\u00e9 par des couples mari\u00e9s. Ils vous accompagneront pour que l\u2019amour qui vous anime d\u00e9j\u00e0 grandisse encore tout au long de votre vie.",
+    "stringified_line": "Un temps de pr\u00e9paration est assur\u00e9 par des couples mari\u00e9s. Ils vous accompagneront pour que l\u2019amour qui vous anime d\u00e9j\u00e0 grandisse encore tout au long de votre vie.",
+    "temporal_tags": [
+      "none"
+    ],
+    "event_mention_tags": [
+      "other"
+    ],
+    "sentence_uuid": "230c040e-9413-4815-b798-5743c49a01f0"
+  }
+]

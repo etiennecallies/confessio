@@ -80,7 +80,8 @@ class PostBuffer:
 
 
 def is_resetting_attempts(index_line: IndexLine) -> bool:
-    return index_line.temporal_tags or EventMention.EVENT in index_line.event_mention_tags
+    return (index_line.temporal_tags and Temporal.NONE not in index_line.temporal_tags) \
+        or (EventMention.EVENT in index_line.event_mention_tags)
 
 
 def flush_results(paragraph_indices: list[int], results: list[list[int]]) -> list[int]:
