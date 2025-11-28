@@ -1,4 +1,4 @@
-tensorflow-cpu==2.18.0
+tensorflow-cpu==2.20.0
 
 # We need to install pytorch with cpu support only (and not gpu)
 # pytorch is a requirement of sentence_transformers

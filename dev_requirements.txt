@@ -2,7 +2,7 @@
 ansible==8.7.0
 
 # Differs from production
-tensorflow==2.18.0
+tensorflow==2.20.0
 
 # Used to investigate RAM usage
 memory-profiler==0.61.0

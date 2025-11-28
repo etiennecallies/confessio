@@ -217,7 +217,7 @@ def get_links(element: el, home_url: str, aliases_domains: set[str],
             continue
 
         # Extract link text
-        all_strings = link.find_all(text=lambda t: not isinstance(t, Comment),
+        all_strings = link.find_all(string=lambda t: not isinstance(t, Comment),
                                     recursive=True)
         text = ' '.join(all_strings).rstrip()
         text = remove_unsafe_chars(text)

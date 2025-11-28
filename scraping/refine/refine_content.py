@@ -313,7 +313,7 @@ def build_text(soup: BeautifulSoup) -> tuple[str, int]:
 
 def stringify_html(html: str) -> str:
     # https://stackoverflow.com/a/41496131
-    warnings.filterwarnings("ignore", category=MarkupResemblesLocatorWarning, module='bs4')
+    warnings.filterwarnings("ignore", category=MarkupResemblesLocatorWarning)
 
     return clean_text(BeautifulSoup(html, 'html.parser').text)
 

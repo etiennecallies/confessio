@@ -23,7 +23,7 @@ ip_hash_salt: "{{ lookup('ansible.builtin.env', 'PROD_IP_HASH_SALT') }}"
 
 # Application Dependencies Setup
 venv_dir: '/home/{{ deployer_user }}/envs/{{ app_name }}'
-python_version: '3.12'
+python_version: '3.13'
 venv_python: '{{ venv_dir }}/bin/python{{ python_version }}'
 
 # Remote Server Details

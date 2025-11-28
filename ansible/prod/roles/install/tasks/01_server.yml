@@ -16,9 +16,6 @@
   apt:
     name:
       - wget
-      - python3-psycopg2
-      - python3-pip
-      - python3-venv
       - acl
       - git
       - nginx
@@ -44,6 +41,30 @@
   community.general.locale_gen:
     name: fr_FR.UTF-8
     state: present
+  become: true
+
+# Install Python 3.13 from deadsnakes PPA
+- name: Add deadsnakes PPA for Python 3.13
+  apt_repository:
+    repo: ppa:deadsnakes/ppa
+    state: present
+  become: true
+
+- name: Install Python 3.13 and related packages
+  apt:
+    name:
+      - python3.13
+      - python3.13-venv
+      - python3.13-dev
+      - python3-psycopg2
+      - python3-pip
+      - python3-venv
+
+- name: Set Python 3.13 as default
+  alternatives:
+    name: python3
+    link: /usr/bin/python3
+    path: /usr/bin/python3.13
   become: true
 
 # Python environment
