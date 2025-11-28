@@ -59,6 +59,7 @@
       - python3-psycopg2
       - python3-pip
       - python3-venv
+  become: true
 
 - name: Set Python 3.13 as default
   alternatives:
@@ -70,6 +71,9 @@
 # Python environment
 - name: Create a virtualenv directory
   file: path={{ venv_dir }} state=directory
+
+- name: Ensure venv has pip
+  command: "python3 -m ensurepip --upgrade"
 
 - name: Install uv
   pip:    name=uv
