@@ -1,9 +1,7 @@
-from typing import Optional
-
 from home.models import Website, Crawling, Page, WebsiteModeration
 from home.utils.log_utils import info
 from scraping.crawl.download_and_search_urls import search_for_confession_pages, \
-    get_new_url_and_aliases, forbid_diocese_home_links
+    get_new_url_and_aliases, forbid_diocese_home_links, CrawlingResult
 from scraping.services.page_service import delete_page
 from scraping.services.scrape_page_service import upsert_extracted_html_list
 from scraping.services.website_moderation_service import remove_not_validated_moderation, \
@@ -70,14 +68,22 @@ def handle_diocese_domain(website: Website, domain_has_changed: bool,
             add_moderation(website, WebsiteModeration.Category.HOME_URL_DIOCESE)
 
 
-def do_crawl_website(website: Website) -> tuple[dict[str, list[str]], int, Optional[str]]:
+def do_crawl_website(website: Website) -> CrawlingResult:
     if not website.enabled_for_crawling:
-        return {}, 0, None
+        return CrawlingResult(
+            confession_pages={},
+            visited_links_count=0,
+            error_detail=None
+        )
 
     # Get home_url aliases
     new_home_url, aliases_domains, error_message = get_new_url_and_aliases(website.home_url)
     if error_message:
-        return {}, 0, f'error in get_url_aliases: {error_message}'
+        return CrawlingResult(
+            confession_pages={},
+            visited_links_count=0,
+            error_detail=f'error in get_url_aliases: {error_message}'
+        )
 
     # Update home_url if needed
     if website.home_url != new_home_url:
@@ -118,24 +124,23 @@ def crawl_website(website: Website) -> tuple[bool, bool]:
         info('website has no parish')
         return False, False
 
-    extracted_html_list_by_url, nb_visited_links, error_detail = do_crawl_website(website)
+    crawling_result = do_crawl_website(website)
 
-    process_extracted_html(website, extracted_html_list_by_url)
+    process_extracted_html(website, crawling_result)
 
-    return save_crawling_and_add_moderation(
-        website, len(extracted_html_list_by_url), nb_visited_links, error_detail)
+    return save_crawling_and_add_moderation(website, crawling_result)
 
 
 def process_extracted_html(
         website: Website,
-        extracted_html_list_by_url: dict[str, list[str]],
+        crawling_result: CrawlingResult,
 ):
     existing_pages = website.get_pages()
     existing_urls = list(map(lambda p: p.url, existing_pages))
 
     # New pages
-    if extracted_html_list_by_url:
-        for url in extracted_html_list_by_url:
+    if crawling_result.confession_pages:
+        for url, extracted_html_list in crawling_result.confession_pages.items():
             if url not in existing_urls:
                 # New page was found
 
@@ -146,31 +151,29 @@ def process_extracted_html(
                 new_page.save()
 
                 # Insert or update scraping
-                upsert_extracted_html_list(new_page, extracted_html_list_by_url[url])
+                upsert_extracted_html_list(new_page, extracted_html_list)
 
     # Existing pages
     for page in existing_pages:
-        if page.url not in extracted_html_list_by_url:
+        if page.url not in crawling_result.confession_pages:
             # Page did exist but not anymore, we remove it
             delete_page(page)
         else:
             # Page still exists, we update scraping
-            upsert_extracted_html_list(page, extracted_html_list_by_url[page.url])
+            upsert_extracted_html_list(page, crawling_result.confession_pages[page.url])
 
 
 def save_crawling_and_add_moderation(website: Website,
-                                     nb_success_links: int,
-                                     nb_visited_links: int,
-                                     error_detail: str | None = None,
+                                     crawling_result: CrawlingResult,
                                      ) -> tuple[bool, bool]:
     if not website.enabled_for_crawling:
         return False, False
 
     # Inserting global statistics
     crawling = Crawling(
-        nb_visited_links=nb_visited_links,
-        nb_success_links=nb_success_links,
-        error_detail=error_detail,
+        nb_visited_links=crawling_result.visited_links_count,
+        nb_success_links=len(crawling_result.confession_pages),
+        error_detail=crawling_result.error_detail,
     )
     crawling.save()
 
@@ -185,7 +188,7 @@ def save_crawling_and_add_moderation(website: Website,
         last_crawling.delete()
 
     # Add moderation
-    if nb_success_links > 0:
+    if crawling_result.confession_pages:
         remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_NO_RESPONSE)
 
         if website.one_page_has_confessions():
@@ -197,7 +200,7 @@ def save_crawling_and_add_moderation(website: Website,
         add_moderation(website, WebsiteModeration.Category.HOME_URL_NO_CONFESSION)
         return False, True
 
-    elif nb_visited_links > 0:
+    elif crawling_result.visited_links_count > 0:
         remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_NO_RESPONSE)
         add_moderation(website, WebsiteModeration.Category.HOME_URL_NO_CONFESSION)
 

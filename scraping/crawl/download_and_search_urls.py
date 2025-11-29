@@ -1,5 +1,4 @@
-import json
-from typing import Optional
+from pydantic import BaseModel
 
 from scraping.crawl.extract_links import parse_content_links, remove_http_https_duplicate
 from scraping.download.download_content import get_content_from_url, get_url_aliases
@@ -8,6 +7,12 @@ from scraping.utils.ram_utils import print_memory_usage
 from scraping.utils.url_utils import get_clean_full_url, get_path
 
 MAX_VISITED_LINKS = 50
+
+
+class CrawlingResult(BaseModel):
+    confession_pages: dict[str, list[str]]
+    visited_links_count: int
+    error_detail: str | None
 
 
 def forbid_diocese_home_links(diocese_url: str, aliases_domains: set[str],
@@ -44,7 +49,7 @@ def search_for_confession_pages(home_url, aliases_domains: set[str],
                                 forbidden_outer_paths: set[str],
                                 path_redirection: dict[str, str],
                                 forbidden_paths: set[str]
-                                ) -> tuple[dict[str, list[str]], int, Optional[str]]:
+                                ) -> CrawlingResult:
     visited_links = set()
     links_to_visit = {home_url}
     extracted_html_seen = set()
@@ -82,7 +87,11 @@ def search_for_confession_pages(home_url, aliases_domains: set[str],
     if len(visited_links) == MAX_VISITED_LINKS:
         error_detail = f'Reached limit of {MAX_VISITED_LINKS} visited links.'
 
-    return remove_http_https_duplicate(results), len(visited_links), error_detail
+    return CrawlingResult(
+        confession_pages=remove_http_https_duplicate(results),
+        visited_links_count=len(visited_links),
+        error_detail=error_detail,
+    )
 
 
 if __name__ == '__main__':
@@ -97,4 +106,4 @@ if __name__ == '__main__':
     confession_pages = search_for_confession_pages(home_url_,
                                                    set('saintetrinite78.fr'),
                                                    set(), {}, set())
-    print(json.dumps(confession_pages))
+    print(confession_pages.model_dump_json())
