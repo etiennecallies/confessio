@@ -6,6 +6,7 @@ from scraping.services.page_service import delete_page
 from scraping.services.scrape_page_service import upsert_extracted_html_list
 from scraping.services.website_moderation_service import remove_not_validated_moderation, \
     add_moderation
+from scraping.services.website_widget_service import process_extracted_widgets
 from scraping.utils.url_utils import get_path, get_domain, have_similar_domain
 
 
@@ -70,18 +71,12 @@ def handle_diocese_domain(website: Website, domain_has_changed: bool,
 
 def do_crawl_website(website: Website) -> CrawlingResult:
     if not website.enabled_for_crawling:
-        return CrawlingResult(
-            confession_pages={},
-            visited_links_count=0,
-            error_detail=None
-        )
+        return CrawlingResult()
 
     # Get home_url aliases
     new_home_url, aliases_domains, error_message = get_new_url_and_aliases(website.home_url)
     if error_message:
         return CrawlingResult(
-            confession_pages={},
-            visited_links_count=0,
             error_detail=f'error in get_url_aliases: {error_message}'
         )
 
@@ -127,6 +122,7 @@ def crawl_website(website: Website) -> tuple[bool, bool]:
     crawling_result = do_crawl_website(website)
 
     process_extracted_html(website, crawling_result)
+    process_extracted_widgets(website, crawling_result)
 
     return save_crawling_and_add_moderation(website, crawling_result)
 

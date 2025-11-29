@@ -1,6 +1,7 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from scraping.crawl.extract_links import parse_content_links, remove_http_https_duplicate
+from scraping.crawl.extract_widgets import extract_widgets, BaseWidget
 from scraping.download.download_content import get_content_from_url, get_url_aliases
 from scraping.scrape.download_refine_and_extract import get_extracted_html_list
 from scraping.utils.ram_utils import print_memory_usage
@@ -10,9 +11,10 @@ MAX_VISITED_LINKS = 50
 
 
 class CrawlingResult(BaseModel):
-    confession_pages: dict[str, list[str]]
-    visited_links_count: int
-    error_detail: str | None
+    confession_pages: dict[str, list[str]] = Field(default_factory=dict)
+    visited_links_count: int = 0
+    error_detail: str | None = None
+    widgets_by_url: dict[str, list[BaseWidget]] | None = None
 
 
 def forbid_diocese_home_links(diocese_url: str, aliases_domains: set[str],
@@ -56,7 +58,8 @@ def search_for_confession_pages(home_url, aliases_domains: set[str],
 
     error_detail = None
 
-    results = {}
+    content_by_url = {}
+    widgets_by_url = {}
     while len(links_to_visit) > 0 and len(visited_links) < MAX_VISITED_LINKS:
         print_memory_usage()
 
@@ -73,13 +76,19 @@ def search_for_confession_pages(home_url, aliases_domains: set[str],
         extracted_html_list = get_extracted_html_list(html_content)
         if any(extracted_html not in extracted_html_seen
                for extracted_html in extracted_html_list or []):
-            results[link] = extracted_html_list
+            content_by_url[link] = extracted_html_list
             extracted_html_seen.update(set(extracted_html_list))
 
         # Looking for new links to visit
         new_links = parse_content_links(html_content, home_url, aliases_domains,
                                         forbidden_outer_paths, path_redirection,
                                         forbidden_paths)
+
+        # Looking for widgets
+        widgets = extract_widgets(html_content)
+        if widgets:
+            widgets_by_url[link] = widgets
+
         for new_link in new_links:
             if new_link not in visited_links:
                 links_to_visit.add(new_link)
@@ -88,9 +97,10 @@ def search_for_confession_pages(home_url, aliases_domains: set[str],
         error_detail = f'Reached limit of {MAX_VISITED_LINKS} visited links.'
 
     return CrawlingResult(
-        confession_pages=remove_http_https_duplicate(results),
+        confession_pages=remove_http_https_duplicate(content_by_url),
         visited_links_count=len(visited_links),
         error_detail=error_detail,
+        widgets_by_url=widgets_by_url,
     )
 
 
