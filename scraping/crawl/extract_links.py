@@ -99,11 +99,12 @@ def clean_url_query(url_parsed: ParseResult):
 def is_forbidden(url_parsed: ParseResult, home_url: str, forbidden_outer_paths: set[str],
                  path_redirection: dict[str, str], forbidden_paths: set[str]) -> bool:
     url_path = str(url_parsed.path)
+    url_full_path = f"{url_path}?{url_parsed.query}" if url_parsed.query else None
     for forbidden_path in forbidden_paths:
-        if url_path.startswith(forbidden_path):
+        if url_path.startswith(forbidden_path) or url_full_path.startswith(forbidden_path):
             return True
 
-    considered_paths = [url_path]
+    considered_paths = [url_path] + ([url_full_path] if url_full_path else [])
 
     if url_path.startswith('/category'):
         # Sometimes, the path starts with '/category' and we want to check if it is forbidden

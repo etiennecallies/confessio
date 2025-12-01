@@ -13,6 +13,13 @@ def get_path(url):
     return url_parsed.path
 
 
+def get_full_path(url):
+    url_parsed = urlparse(url)
+    if url_parsed.query:
+        return f"{url_parsed.path if url_parsed.path else '/'}?{url_parsed.query}"
+    return url_parsed.path
+
+
 def replace_scheme_and_hostname(url_parsed: ParseResult, new_url: str) -> str:
     new_url_parsed = urlparse(new_url)
 
