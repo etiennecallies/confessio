@@ -37,10 +37,20 @@ def evaluate(model: MachineLearningInterface, vectors_test, labels_test):
     from sklearn.metrics import accuracy_score
     print('starting evaluation')
     labels_pred = model.predict(vectors_test)
+    assert len(labels_pred) == len(labels_test), \
+        "Number of predicted labels must be equal to number of test labels"
 
     for label in model.different_labels:
-        print(f'{label}: predicted {len([lab for lab in labels_pred if lab == label])} vs '
-              f'{len([lab for lab in labels_test if lab == label])} in dataset')
+        test_indices = [i for i, lab in enumerate(labels_test) if lab == label]
+        print(f'Label {label} ({len(test_indices)}):')
+        pred_values = {}
+        for i in test_indices:
+            pred_lab = labels_pred[i]
+            if pred_lab not in pred_values:
+                pred_values[pred_lab] = 0
+            pred_values[pred_lab] += 1
+        for pred_lab, count in sorted(pred_values.items(), key=lambda x: x[1], reverse=True):
+            print(f'  got {pred_lab}: {count} ({count / len(test_indices) * 100:.2f}%)')
 
     return accuracy_score(list(map(str, labels_test)), list(map(str, labels_pred)))
 
