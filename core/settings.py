@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'jsoneditor',  # json form
     "home",
     'sourcing',
+    'fetching',
 ]
 
 MIDDLEWARE = [
