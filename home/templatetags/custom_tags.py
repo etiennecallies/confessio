@@ -4,6 +4,7 @@ from typing import Optional
 from django.template.defaulttags import register
 from django.urls import reverse
 
+from fetching.models import OClocherOrganizationModeration, OClocherMatchingModeration
 from home.models import WebsiteModeration, ChurchModeration, ParishModeration, \
     PruningModeration, SentenceModeration, ParsingModeration, ModerationMixin, Pruning, \
     Page, Parsing, ReportModeration, Diocese
@@ -137,4 +138,6 @@ def get_moderation_stats(diocese: Diocese | None):
         SentenceModeration.get_stats_by_category(diocese),
         ParsingModeration.get_stats_by_category(diocese),
         ReportModeration.get_stats_by_category(diocese),
+        OClocherOrganizationModeration.get_stats_by_category(diocese),
+        OClocherMatchingModeration.get_stats_by_category(diocese),
     ], [])

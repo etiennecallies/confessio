@@ -137,7 +137,6 @@ class WebsiteModeration(ModerationMixin):
         HOME_URL_DIOCESE = "hu_diocese"
         GOOGLE_SEARCH = "google_search"
         SCHEDULES_CONFLICT = "sched_conflict"
-        OCLOCHER_CONFLICT = "oclocher_conflict"
 
     resource = 'website'
     validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',

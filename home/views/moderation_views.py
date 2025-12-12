@@ -5,6 +5,7 @@ from django.http import HttpResponseBadRequest, HttpResponseNotFound
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
+from fetching.models import OClocherOrganizationModeration, OClocherMatchingModeration
 from home.models import WebsiteModeration, ChurchModeration, ModerationMixin, \
     BUG_DESCRIPTION_MAX_LENGTH, ParishModeration, ResourceDoesNotExistError, PruningModeration, \
     SentenceModeration, ParsingModeration, ReportModeration, Diocese, Pruning
@@ -346,6 +347,48 @@ def render_report_moderation(request, moderation: ReportModeration, next_url):
     return render(request, f'pages/moderate_report.html', {
         'report': report,
         'report_moderation': moderation,
+        'next_url': next_url,
+        'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
+    })
+
+
+@login_required
+@permission_required("home.change_sentence")
+def moderate_oclocher_organization(request, category, is_bug, diocese_slug, moderation_uuid=None):
+    return get_moderate_response(request, category, 'oclocher_organization', is_bug, diocese_slug,
+                                 OClocherOrganizationModeration,
+                                 moderation_uuid, render_oclocher_organization_moderation)
+
+
+def render_oclocher_organization_moderation(request, moderation: OClocherOrganizationModeration,
+                                            next_url):
+    oclocher_organization = moderation.oclocher_organization
+    assert oclocher_organization is not None
+
+    return render(request, f'pages/moderate_oclocher_organization.html', {
+        'oclocher_organization': oclocher_organization,
+        'moderation': moderation,
+        'next_url': next_url,
+        'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
+    })
+
+
+@login_required
+@permission_required("home.change_sentence")
+def moderate_oclocher_matching(request, category, is_bug, diocese_slug, moderation_uuid=None):
+    return get_moderate_response(request, category, 'oclocher_matching', is_bug, diocese_slug,
+                                 OClocherMatchingModeration,
+                                 moderation_uuid, render_oclocher_matching_moderation)
+
+
+def render_oclocher_matching_moderation(request, moderation: OClocherMatchingModeration,
+                                        next_url):
+    oclocher_matching = moderation.oclocher_matching
+    assert oclocher_matching is not None
+
+    return render(request, f'pages/moderate_oclocher_matching.html', {
+        'oclocher_matching': oclocher_matching,
+        'moderation': moderation,
         'next_url': next_url,
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
     })

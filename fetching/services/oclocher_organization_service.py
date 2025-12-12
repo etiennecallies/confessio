@@ -1,8 +1,9 @@
 from fetching.models import OClocherOrganization
-from home.models import Website, WebsiteModeration
+from fetching.models.oclocher_moderation_models import OClocherOrganizationModeration
+from fetching.services.oclocher_moderations_service import add_organization_moderation
+from home.models import Website
 from home.utils.log_utils import info
 from scraping.crawl.extract_widgets import OClocherWidget
-from scraping.services.website_moderation_service import add_moderation
 
 
 def remove_oclocher_organization_for_website(website: Website):
@@ -20,7 +21,8 @@ def add_oclocher_organization_for_website(website: Website, oclocher_widgets: li
     if len(organization_ids) > 1:
         info(f"Multiple oclocher organization IDs found for website {website}: "
              f"{organization_ids}. Not updating.")
-        add_moderation(website, WebsiteModeration.Category.OCLOCHER_CONFLICT)
+        add_organization_moderation(website,
+                                    OClocherOrganizationModeration.Category.MULTIPLE_WIDGETS)
         return
 
     organization_id = organization_ids.pop()
@@ -34,8 +36,9 @@ def add_oclocher_organization_for_website(website: Website, oclocher_widgets: li
 
         info(f"Oclocher organization ID {organization_id} for website {website} "
              f"conflicts with website {organization_with_this_id.website}. Not updating.")
-        add_moderation(website, WebsiteModeration.Category.OCLOCHER_CONFLICT,
-                       other_website=organization_with_this_id.website)
+        add_organization_moderation(website,
+                                    OClocherOrganizationModeration.Category.MULTIPLE_WIDGETS,
+                                    oclocher_organization=organization_with_this_id)
         return
 
     info(f"Creating oclocher organization ID {organization_id} "

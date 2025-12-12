@@ -9,8 +9,10 @@ from scraping.crawl.extract_widgets import BaseWidget, OClocherWidget
 
 def nightly_synchronization():
     # OClocher
-    fetch_all_organization_schedules()
-    fetch_all_organization_locations()
+    counter = fetch_all_organization_locations()
+    print(f"Fetched {counter} OClocher locations.")
+    counter = fetch_all_organization_schedules()
+    print(f"Fetched {counter} OClocher schedules.")
     match_all_organizations_locations()
 
 
