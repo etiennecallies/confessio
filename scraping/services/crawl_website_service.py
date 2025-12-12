@@ -1,3 +1,4 @@
+from fetching.process import process_extracted_widgets
 from home.models import Website, Crawling, Page, WebsiteModeration
 from home.utils.log_utils import info
 from scraping.crawl.download_and_search_urls import search_for_confession_pages, \
@@ -6,7 +7,6 @@ from scraping.services.page_service import delete_page
 from scraping.services.scrape_page_service import upsert_extracted_html_list
 from scraping.services.website_moderation_service import remove_not_validated_moderation, \
     add_moderation
-from scraping.services.website_widget_service import process_extracted_widgets
 from scraping.utils.url_utils import get_path, get_domain, have_similar_domain
 
 
@@ -122,7 +122,7 @@ def crawl_website(website: Website) -> tuple[bool, bool]:
     crawling_result = do_crawl_website(website)
 
     process_extracted_html(website, crawling_result)
-    process_extracted_widgets(website, crawling_result)
+    process_extracted_widgets(website, crawling_result.widgets)
 
     return save_crawling_and_add_moderation(website, crawling_result)
 
