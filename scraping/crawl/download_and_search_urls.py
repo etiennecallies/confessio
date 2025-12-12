@@ -14,7 +14,7 @@ class CrawlingResult(BaseModel):
     confession_pages: dict[str, list[str]] = Field(default_factory=dict)
     visited_links_count: int = 0
     error_detail: str | None = None
-    widgets_by_url: dict[str, list[BaseWidget]] | None = None
+    widgets: list[BaseWidget] | None = None
 
 
 def forbid_diocese_home_links(diocese_url: str, aliases_domains: set[str],
@@ -62,7 +62,7 @@ def search_for_confession_pages(home_url, aliases_domains: set[str],
     error_detail = None
 
     content_by_url = {}
-    widgets_by_url = {}
+    all_widgets = []
     while len(links_to_visit) > 0 and len(visited_links) < MAX_VISITED_LINKS:
         print_memory_usage()
 
@@ -91,7 +91,7 @@ def search_for_confession_pages(home_url, aliases_domains: set[str],
         widgets = extract_widgets(html_content)
         if widgets:
             print(f'found {len(widgets)} widgets for {link}: {widgets}')
-            widgets_by_url[link] = widgets
+            all_widgets.extend(widgets)
 
         for new_link in new_links:
             if new_link not in visited_links:
@@ -104,7 +104,7 @@ def search_for_confession_pages(home_url, aliases_domains: set[str],
         confession_pages=remove_http_https_duplicate(content_by_url),
         visited_links_count=len(visited_links),
         error_detail=error_detail,
-        widgets_by_url=widgets_by_url,
+        widgets=all_widgets,
     )
 
 

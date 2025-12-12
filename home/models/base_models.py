@@ -59,7 +59,6 @@ class Website(TimeStampMixin):
     unreliability_reason = models.CharField(choices=UnreliabilityReason, null=True, blank=True)
     nb_recent_hits = models.PositiveSmallIntegerField(default=0)
     is_best_diocese_hit = models.BooleanField(default=False)
-    oclocher_organization_id = models.CharField(max_length=32, null=True, blank=True)
     history = HistoricalRecords()
 
     def __str__(self):
