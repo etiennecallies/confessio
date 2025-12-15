@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     "home",
     'sourcing',
     'fetching',
+    'scheduling',
 ]
 
 MIDDLEWARE = [

@@ -1,4 +1,4 @@
-from fetching.process import process_extracted_widgets
+from fetching.public import process_extracted_widgets
 from home.models import Website, Crawling, Page, WebsiteModeration
 from home.utils.log_utils import info
 from scraping.crawl.download_and_search_urls import search_for_confession_pages, \

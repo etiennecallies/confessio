@@ -12,9 +12,6 @@ class OClocherOrganization(TimeStampMixin):
     matching = models.OneToOneField('fetching.OClocherMatching', on_delete=models.SET_NULL,
                                     null=True, blank=True, related_name='organization')
 
-    class Meta:
-        abstract = False
-
 
 class OClocherLocation(TimeStampMixin):
     location_id = models.CharField(max_length=32, unique=True)
