@@ -211,6 +211,11 @@ STORAGES = {
         },
     }
 }
+DBBACKUP_CONNECTORS = {
+    'default': {
+        'CONNECTOR': 'dbbackup.db.postgresql.PgDumpBinaryConnector',
+    }
+}
 
 # Background task
 MAX_ATTEMPTS = 2
