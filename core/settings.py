@@ -211,11 +211,6 @@ STORAGES = {
         },
     }
 }
-DBBACKUP_CONNECTORS = {
-    'default': {
-        'DROP': False,
-    }
-}
 
 # Background task
 MAX_ATTEMPTS = 2
