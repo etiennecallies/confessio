@@ -32,13 +32,13 @@ We'd like to thank our sponsor [Hozana](https://hozana.org/) for their continuou
 ### Environment variables
 Copy the `.env.sample` file to `.env` and fill in the values.
 
-### Python virtualenv with pyenv
-We recommend using pyenv to manage python versions. Install it following the instructions 
-[here](https://github.com/pyenv/pyenv?tab=readme-ov-file#installation).
+### uv
+Install uv from this [instructions](https://docs.astral.sh/uv/getting-started/installation/).
+
+### Python virtualenv with uv
 ```shell
-pyenv virtualenv 3.13.9 confessio
-pyenv activate confessio
-pip install -r requirements.txt
+uv python pin 3.13.9
+uv sync --group dev
 ```
 
 ### Install GIS dependencies

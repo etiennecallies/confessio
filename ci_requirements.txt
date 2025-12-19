@@ -1,6 +1,0 @@
-# Linter
-flake8==7.1.1
-pep8-naming==0.14.1
-
-# Caching for tests
-simple_cache==0.35

@@ -1,4 +1,4 @@
 [flake8]
 max-line-length = 100
-exclude = home/migrations, fetching/migrations, scheduling/migrations, __init__.py, production_settings.py, profiling_settings.py
+exclude = home/migrations, fetching/migrations, scheduling/migrations, __init__.py, production_settings.py, profiling_settings.py, .venv
 ignore = F541, W503
