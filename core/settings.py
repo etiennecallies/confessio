@@ -197,12 +197,16 @@ if os.getenv('GEOS_LIBRARY_PATH'):
     GEOS_LIBRARY_PATH = os.getenv('GEOS_LIBRARY_PATH')
 
 # Dbbackup
-DBBACKUP_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-DBBACKUP_STORAGE_OPTIONS = {
-    'access_key': AWS_ACCESS_KEY_ID,
-    'secret_key': AWS_SECRET_ACCESS_KEY,
-    'bucket_name': os.environ.get('DBBACKUP_BUCKET') or 'confessio-dbbackup-daily',
-    'default_acl': 'private',
+STORAGES = {
+    "dbbackup": {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+        "OPTIONS": {
+            'access_key': AWS_ACCESS_KEY_ID,
+            'secret_key': AWS_SECRET_ACCESS_KEY,
+            'bucket_name': os.environ.get('DBBACKUP_BUCKET') or 'confessio-dbbackup-daily',
+            'default_acl': 'private',
+        },
+    }
 }
 DBBACKUP_CONNECTORS = {
     'default': {
