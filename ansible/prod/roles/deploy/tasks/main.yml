@@ -1,6 +1,6 @@
 ##
 # Update code and run migrations
 ##
-- include: 01_git.yml
-- include: 02_dependencies.yml
-- include: 03_migrations.yml
+- import_tasks: 01_git.yml
+- import_tasks: 02_dependencies.yml
+- import_tasks: 03_migrations.yml

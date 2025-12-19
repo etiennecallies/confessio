@@ -1,5 +1,5 @@
 ##
 # Update crons
 ##
-- include: 01_backups.yml
-- include: 02_commands.yml
+- import_tasks: 01_backups.yml
+- import_tasks: 02_commands.yml

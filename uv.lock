@@ -1,6 +1,6 @@
 version = 1
 revision = 2
-requires-python = ">=3.13.8, <3.13.10"
+requires-python = "==3.13.*"
 
 [[package]]
 name = "absl-py"
@@ -22,19 +22,19 @@ wheels = [
 
 [[package]]
 name = "ansible"
-version = "8.7.0"
+version = "12.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "ansible-core" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/90/25/55e09468efe564f3b48c47a7e082bd84d4f0d064af60ac8458eba4667994/ansible-8.7.0.tar.gz", hash = "sha256:3a5ca5152e4547d590e40b542d76b18dbbe2b36da4edd00a13a7c51a374ff737", size = 49317896, upload-time = "2023-12-06T14:21:07.265Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/00/1e/154896819d41cb9a5266759244285c7b594a199e2543263764a022b86618/ansible-12.2.0.tar.gz", hash = "sha256:0563dfd33ebd28caf6ccdc7a6d22a7fdafbd9c9c42fefcae5179616a53a35211", size = 51095490, upload-time = "2025-11-05T16:09:07.672Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b4/1a/c88115997ce826c402d63da78bcbf5183a1ffe23308898eafedc5db9a8aa/ansible-8.7.0-py3-none-any.whl", hash = "sha256:fa7d3bc2dfdb0ab031df645814ff86b15cb5ec041bfbee4041f795abfa5646ca", size = 48371342, upload-time = "2023-12-06T14:20:57.854Z" },
+    { url = "https://files.pythonhosted.org/packages/94/03/977b161a3c8145ffb4668cf716d47114ff3240664513d3d0a124f9b202b9/ansible-12.2.0-py3-none-any.whl", hash = "sha256:daafa5c528317f60f68033ad70c59733f4a7548b6255759183cfc7cf422c7fda", size = 53595687, upload-time = "2025-11-05T16:09:03.053Z" },
 ]
 
 [[package]]
 name = "ansible-core"
-version = "2.15.13"
+version = "2.19.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "cryptography" },
@@ -43,9 +43,9 @@ dependencies = [
     { name = "pyyaml" },
     { name = "resolvelib" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/69/dd/05343f635cb26df641c8366c5feb868ef5e2b893c625b04a6cb0cf1c7bfe/ansible_core-2.15.13.tar.gz", hash = "sha256:f542e702ee31fb049732143aeee6b36311ca48b7d13960a0685afffa0d742d7f", size = 3141067, upload-time = "2024-11-04T18:38:06.834Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/72/f7/030452764ef32f11ab7abe61a49ca6ccee777217253753f87b85aafd6183/ansible_core-2.19.5.tar.gz", hash = "sha256:d03660ff32ba8a5ae40a82148cb24b38a35d26c0155621ddd9148b7562fd8be2", size = 3412598, upload-time = "2025-12-09T16:48:44.079Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/9b/2c/19ac50eca9d32a9524329f023a459ebb6ca5a546380eb15af384306c170a/ansible_core-2.15.13-py3-none-any.whl", hash = "sha256:e7f50bbb61beae792f5ecb86eff82149d3948d078361d70aedb01d76bc483c30", size = 2251441, upload-time = "2024-11-04T18:38:04.381Z" },
+    { url = "https://files.pythonhosted.org/packages/ad/aa/547b4c30e72d801bd53b75c0233eb125978b5280b149f00b58d6c8ea26aa/ansible_core-2.19.5-py3-none-any.whl", hash = "sha256:7fa6c052bad2c294284b960d240b4cd227060fd2e3836d381db44d2bcfcdf4b7", size = 2415436, upload-time = "2025-12-09T16:48:42.677Z" },
 ]
 
 [[package]]
@@ -342,7 +342,7 @@ ci = [
     { name = "simple-cache", specifier = "==0.35" },
 ]
 dev = [
-    { name = "ansible", specifier = "==8.7.0" },
+    { name = "ansible", specifier = "==12.2.0" },
     { name = "django-silk", specifier = "==5.3.1" },
     { name = "flake8", specifier = "==7.1.1" },
     { name = "matplotlib", specifier = "==3.9.2" },
