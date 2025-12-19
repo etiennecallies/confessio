@@ -1,6 +1,6 @@
 - name: Install dependencies with uv sync
   command:
-    cmd: uv sync --group prod
+    cmd: uv sync --group prod --frozen
     chdir: "{{ app_dir }}"
   environment:
     UV_PYTHON: "python3.13"
