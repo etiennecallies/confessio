@@ -198,6 +198,9 @@ if os.getenv('GEOS_LIBRARY_PATH'):
 
 # Dbbackup
 STORAGES = {
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
     "dbbackup": {
         "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
         "OPTIONS": {
