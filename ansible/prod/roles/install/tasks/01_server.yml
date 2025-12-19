@@ -76,6 +76,9 @@
   command: "python3 -m ensurepip --upgrade"
 
 - name: Install uv
-  pip:    name=uv
-          virtualenv={{ venv_dir }}
-          virtualenv_command='python3 -m venv'
+  shell: curl -LsSf https://astral.sh/uv/install.sh | sh
+  environment:
+    UV_INSTALL_DIR: "/usr/local/bin"
+  args:
+    creates: /usr/local/bin/uv
+  become: true

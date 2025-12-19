@@ -1,11 +1,9 @@
-##
-# Set up all the dependencies in a virtualenv required by the Django app
-##
-- name: Install common and prod-specific dependencies
-  shell: |
-    . {{ venv_dir }}/bin/activate && \
-    uv pip install -r {{ app_dir }}/requirements.txt && \
-    uv pip install -r {{ app_dir }}/prod_requirements.txt
+- name: Install dependencies with uv sync
+  command:
+    cmd: uv sync --group prod
+    chdir: "{{ app_dir }}"
+  environment:
+    UV_PYTHON: "python3.13"
   notify:
     - restart app
     - restart background_main
