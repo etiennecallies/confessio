@@ -25,10 +25,10 @@
 - name: Install required packages
   apt:
     name:
-      - postgresql
-      - postgresql-contrib
-      - postgresql-15-postgis-3
-      - postgresql-15-pgvector
+      - postgresql-18
+      - postgresql-contrib-18
+      - postgresql-18-postgis-3
+      - postgresql-18-pgvector
     state: latest
   become: true
 
@@ -38,7 +38,7 @@
 
 - name: Modify listen_addresses in postgresql.conf to accept remote connection
   lineinfile:
-    path: /etc/postgresql/15/main/postgresql.conf
+    path: /etc/postgresql/18/main/postgresql.conf
     regexp: "^#?listen_addresses = '.*'"
     line: "listen_addresses = '*'"
     state: present
@@ -79,7 +79,7 @@
 - name: copy pg_hba.conf
   template:
     src: pg_hba.conf
-    dest: /etc/postgresql/15/main/pg_hba.conf
+    dest: /etc/postgresql/18/main/pg_hba.conf
     owner: postgres
     group: postgres
     mode: "0640"

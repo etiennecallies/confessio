@@ -20,6 +20,7 @@
       - git
       - nginx
       - libpq-dev
+      - build-essential
     state: latest
   become: true
 
@@ -28,8 +29,9 @@
 
 - name: copy .tmux.conf
   template: src=.tmux.conf dest=~
-  notify:
-    - reload tmux
+  # NOT WORKING the first time
+#  notify:
+#    - reload tmux
 
 - name: Authorize additional_pub_key1
   authorized_key:
@@ -54,27 +56,10 @@
   apt:
     name:
       - python3.13
-      - python3.13-venv
       - python3.13-dev
-      - python3-psycopg2
-      - python3-pip
-      - python3-venv
   become: true
 
-- name: Set Python 3.13 as default
-  alternatives:
-    name: python3
-    link: /usr/bin/python3
-    path: /usr/bin/python3.13
-  become: true
-
-# Python environment
-- name: Create a virtualenv directory
-  file: path={{ venv_dir }} state=directory
-
-- name: Ensure venv has pip
-  command: "python3 -m ensurepip --upgrade"
-
+# Python environment management with uv
 - name: Install uv
   shell: curl -LsSf https://astral.sh/uv/install.sh | sh
   environment:
