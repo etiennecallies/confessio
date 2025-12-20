@@ -211,6 +211,11 @@ STORAGES = {
         },
     }
 }
+DBBACKUP_CONNECTORS = {
+    'default': {
+        'PSQL_CMD': "/usr/lib/postgresql/15/bin/psql",
+    }
+}
 
 # Background task
 MAX_ATTEMPTS = 2
