@@ -5,6 +5,7 @@ from typing import Optional
 from pydantic import BaseModel, model_validator, Field
 
 from home.utils.date_utils import guess_year_from_weekday, Weekday, get_python_weekday
+from home.utils.sort_utils import compare_int_or_none_tuples
 from scraping.parse.liturgical import LiturgicalDayEnum, get_liturgical_date, PeriodEnum
 
 
@@ -70,7 +71,7 @@ class OneOffRule(BaseModel, frozen=True):
         return self.year, self.month, self.day, self.weekday, self.liturgical_day
 
     def __lt__(self, other: 'OneOffRule') -> bool:
-        return self.get_key() < other.get_key()
+        return compare_int_or_none_tuples(self.get_key(), other.get_key())
 
 
 ################
