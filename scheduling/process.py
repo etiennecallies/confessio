@@ -5,13 +5,16 @@ from scheduling.models import Scheduling
 from scheduling.services.index_scheduling_service import do_index_scheduling
 from scheduling.services.parse_scheduling_service import do_parse_scheduling
 from scheduling.services.prune_scheduling_service import do_prune_scheduling
-from scheduling.services.init_scheduling_service import build_scheduling
+from scheduling.services.init_scheduling_service import build_scheduling, \
+    bulk_create_scheduling_related_objects
 
 
-def init_scheduling(website: Website):
+def init_scheduling(website: Website,
+                    must_be_indexed_after_scheduling: Scheduling | None = None) -> Scheduling:
     print(f"Initializing scheduling for website {website}.")
 
-    new_scheduling = build_scheduling(website)
+    new_scheduling, scheduling_related_objects = \
+        build_scheduling(website, must_be_indexed_after_scheduling)
     with transaction.atomic():
         # Cancel any existing in-progress Scheduling for this website
         Scheduling.objects.filter(
@@ -21,6 +24,11 @@ def init_scheduling(website: Website):
 
         # Save new Scheduling
         new_scheduling.save()
+
+        # Bulk create related objects
+        bulk_create_scheduling_related_objects(new_scheduling, scheduling_related_objects)
+
+    return new_scheduling
 
 
 def prune_scheduling(scheduling: Scheduling):
