@@ -1,12 +1,13 @@
 from django.db import transaction
+from django.db.models.functions import Now
 
 from home.models import Website
 from scheduling.models import Scheduling
 from scheduling.services.index_scheduling_service import do_index_scheduling
-from scheduling.services.parse_scheduling_service import do_parse_scheduling
-from scheduling.services.prune_scheduling_service import do_prune_scheduling
 from scheduling.services.init_scheduling_service import build_scheduling, \
     bulk_create_scheduling_related_objects
+from scheduling.services.parse_scheduling_service import do_parse_scheduling
+from scheduling.services.prune_scheduling_service import do_prune_scheduling
 
 
 def init_scheduling(website: Website,
@@ -20,7 +21,10 @@ def init_scheduling(website: Website,
         Scheduling.objects.filter(
             website=website,
             status__in=[Scheduling.Status.BUILT, Scheduling.Status.PRUNED, Scheduling.Status.PARSED]
-        ).update(status=Scheduling.Status.CANCELLED)
+        ).update(
+            status=Scheduling.Status.CANCELLED,
+            updated_at=Now(),
+        )
 
         # Save new Scheduling
         new_scheduling.save()
@@ -42,7 +46,10 @@ def prune_scheduling(scheduling: Scheduling):
     Scheduling.objects.filter(
         uuid=scheduling.uuid,
         status=Scheduling.Status.BUILT,
-    ).update(status=Scheduling.Status.PRUNED)
+    ).update(
+        status=Scheduling.Status.PRUNED,
+        updated_at=Now(),
+    )
 
 
 def parse_scheduling(scheduling: Scheduling):
@@ -56,7 +63,10 @@ def parse_scheduling(scheduling: Scheduling):
     Scheduling.objects.filter(
         uuid=scheduling.uuid,
         status=Scheduling.Status.PRUNED,
-    ).update(status=Scheduling.Status.PARSED)
+    ).update(
+        status=Scheduling.Status.PARSED,
+        updated_at=Now(),
+    )
 
 
 def index_scheduling(scheduling: Scheduling):

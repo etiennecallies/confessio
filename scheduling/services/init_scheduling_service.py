@@ -31,9 +31,8 @@ def get_scraping_history_ids(website: Website) -> list[int]:
 
 def get_image_history_ids(website: Website) -> list[int]:
     image_history_ids = []
-    # TODO add history to image
-    # for image in website.images.all():
-    #     image_history_ids.append(image.history.latest().history_id)
+    for image in website.images.all():
+        image_history_ids.append(image.history.latest().history_id)
     return image_history_ids
 
 
