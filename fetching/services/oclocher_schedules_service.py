@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from fetching.models import OClocherOrganization
-from fetching.oclocher.fetch_oclocher_api import fetch_organization_schedules
+from fetching.workflows.oclocher.fetch_oclocher_api import fetch_organization_schedules
 
 
 def extract_datetime(d: dict, key: str) -> datetime | None:

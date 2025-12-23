@@ -5,7 +5,7 @@ from openai.types.chat import ChatCompletionMessageParam, ChatCompletionUserMess
     ChatCompletionContentPartTextParam
 from pydantic import ValidationError
 
-from fetching.oclocher.oclocher_matrix import OClocherMatrix
+from fetching.workflows.oclocher.oclocher_matrix import OClocherMatrix
 from home.utils.hash_utils import hash_string_to_hex
 from scraping.parse.llm_client import LLMProvider
 

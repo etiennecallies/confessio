@@ -351,3 +351,5 @@ class Image(TimeStampMixin):
     user = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
     user_agent = models.TextField(null=True, blank=True)
     ip_address_hash = models.CharField(max_length=64, null=True, blank=True)
+
+    history = HistoricalRecords()

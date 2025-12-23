@@ -18,5 +18,8 @@ env
 local_static/
 profiling_prof_files/
 
+# uv
+.venv/
+
 # Direnv
 .envrc

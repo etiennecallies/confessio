@@ -1,5 +1,5 @@
 from fetching.models import OClocherOrganization
-from fetching.oclocher.fetch_oclocher_api import fetch_organization_locations
+from fetching.workflows.oclocher.fetch_oclocher_api import fetch_organization_locations
 
 
 def fetch_oclocher_organization_locations(oclocher_organization: OClocherOrganization) -> int:

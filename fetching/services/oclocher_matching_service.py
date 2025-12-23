@@ -1,6 +1,6 @@
 from fetching.models import OClocherOrganization, OClocherMatching, OClocherMatchingModeration, \
     OClocherLocation
-from fetching.oclocher.match_with_llm import match_oclocher_with_llm
+from fetching.workflows.oclocher.match_with_llm import match_oclocher_with_llm
 from fetching.services.oclocher_moderations_service import add_matching_moderation
 
 
