@@ -219,6 +219,8 @@ class Scraping(TimeStampMixin):
     prunings = models.ManyToManyField('Pruning', related_name='scrapings')
     page = models.OneToOneField('Page', on_delete=models.CASCADE, related_name='scraping')
 
+    history = HistoricalRecords()
+
 
 class Pruning(TimeStampMixin):
     # We can not set unique=True because size can exceed index limits
@@ -228,6 +230,7 @@ class Pruning(TimeStampMixin):
     ml_indices = ArrayField(models.PositiveSmallIntegerField(), null=True)
     v2_indices = ArrayField(models.PositiveSmallIntegerField(), null=True)
     human_indices = ArrayField(models.PositiveSmallIntegerField(), null=True)
+
     history = HistoricalRecords()
 
     def save(self, *args, **kwargs):
