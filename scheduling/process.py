@@ -7,7 +7,8 @@ from scheduling.services.index_scheduling_service import do_index_scheduling
 from scheduling.services.init_scheduling_service import build_scheduling, \
     bulk_create_scheduling_related_objects
 from scheduling.services.parse_scheduling_service import do_parse_scheduling
-from scheduling.services.prune_scheduling_service import do_prune_scheduling
+from scheduling.services.prune_scheduling_service import do_prune_scheduling, \
+    bulk_create_scheduling_pruning_objects
 
 
 def init_scheduling(website: Website,
@@ -41,15 +42,25 @@ def prune_scheduling(scheduling: Scheduling):
         print(f"Scheduling is in status {scheduling.status}; skipping pruning.")
         return
 
-    do_prune_scheduling(scheduling)
+    scheduling_pruning_objects = do_prune_scheduling(scheduling)
 
-    Scheduling.objects.filter(
-        uuid=scheduling.uuid,
-        status=Scheduling.Status.BUILT,
-    ).update(
-        status=Scheduling.Status.PRUNED,
-        updated_at=Now(),
-    )
+    with transaction.atomic():
+        # 1. Verify the scheduling is still in BUILT status
+        try:
+            scheduling = Scheduling.objects.select_for_update().get(
+                uuid=scheduling.uuid,
+                status=Scheduling.Status.BUILT
+            )
+        except Scheduling.DoesNotExist:
+            print("Aborting: Scheduling not found or status changed.")
+            return
+
+        # 2. Save pruning objects
+        bulk_create_scheduling_pruning_objects(scheduling, scheduling_pruning_objects)
+
+        # 3. Mark scheduling as PRUNED
+        scheduling.status = Scheduling.Status.PRUNED
+        scheduling.save()
 
 
 def parse_scheduling(scheduling: Scheduling):
