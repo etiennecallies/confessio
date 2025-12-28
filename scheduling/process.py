@@ -6,7 +6,8 @@ from scheduling.models import Scheduling
 from scheduling.services.index_scheduling_service import do_index_scheduling
 from scheduling.services.init_scheduling_service import build_scheduling, \
     bulk_create_scheduling_related_objects
-from scheduling.services.parse_scheduling_service import do_parse_scheduling
+from scheduling.services.parse_scheduling_service import do_parse_scheduling, \
+    bulk_create_scheduling_parsing_objects
 from scheduling.services.prune_scheduling_service import do_prune_scheduling, \
     bulk_create_scheduling_pruning_objects
 
@@ -69,15 +70,25 @@ def parse_scheduling(scheduling: Scheduling):
         print(f"Scheduling is in status {scheduling.status}; skipping parsing.")
         return
 
-    do_parse_scheduling(scheduling)
+    scheduling_parsing_objects = do_parse_scheduling(scheduling)
 
-    Scheduling.objects.filter(
-        uuid=scheduling.uuid,
-        status=Scheduling.Status.PRUNED,
-    ).update(
-        status=Scheduling.Status.PARSED,
-        updated_at=Now(),
-    )
+    with transaction.atomic():
+        # 1. Verify the scheduling is still in PRUNED status
+        try:
+            scheduling = Scheduling.objects.select_for_update().get(
+                uuid=scheduling.uuid,
+                status=Scheduling.Status.PRUNED
+            )
+        except Scheduling.DoesNotExist:
+            print("Aborting: Scheduling not found or status changed.")
+            return
+
+        # 2. Save pruning objects
+        bulk_create_scheduling_parsing_objects(scheduling, scheduling_parsing_objects)
+
+        # 3. Mark scheduling as PARSED
+        scheduling.status = Scheduling.Status.PARSED
+        scheduling.save()
 
 
 def index_scheduling(scheduling: Scheduling):
