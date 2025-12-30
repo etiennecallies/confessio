@@ -87,7 +87,8 @@ class WebsiteSchedules:
 
 def get_website_schedules(website: Website,
                           all_website_churches: list[Church],
-                          max_days: int = 1
+                          max_days: int = 1,
+                          parsings: list[Parsing] | None = None,
                           ) -> WebsiteSchedules:
     ################
     # Get parsings #
@@ -106,7 +107,8 @@ def get_website_schedules(website: Website,
 
     holiday_zone = get_website_holiday_zone(website, all_website_churches)
 
-    parsings = get_website_sorted_parsings(website)
+    if parsings is None:
+        parsings = get_website_sorted_parsings(website)
 
     for i, parsing in enumerate(parsings):
         church_by_id = get_church_by_id(parsing, all_website_churches)
