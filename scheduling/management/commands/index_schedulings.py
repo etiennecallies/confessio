@@ -4,11 +4,11 @@ from scheduling.process import index_scheduling
 
 
 class Command(AbstractCommand):
-    help = "Index scheduling in status PARSED"
+    help = "Index scheduling in status MATCHED"
 
     def handle(self, *args, **options):
-        self.info(f'Starting index Schedulings in status PARSED')
-        schedulings = Scheduling.objects.filter(status=Scheduling.Status.PARSED).all()
+        self.info(f'Starting index Schedulings in status MATCHED')
+        schedulings = Scheduling.objects.filter(status=Scheduling.Status.MATCHED).all()
         for scheduling in schedulings:
             self.info(f'Processing scheduling {scheduling.uuid} '
                       f'for website {scheduling.website.name}')

@@ -11,6 +11,7 @@ from pgvector.django import VectorField
 from simple_history.models import HistoricalRecords
 
 from home.utils.hash_utils import hash_string_to_hex
+from home.utils.list_utils import get_desc_by_id
 from scraping.extract_v2.models import Temporal, EventMention
 from scraping.parse.llm_client import LLMProvider
 from scraping.prune.models import Action, Source
@@ -92,11 +93,7 @@ class Website(TimeStampMixin):
             for church in parish.churches.all():
                 church_descs.append(church.get_desc())
 
-        church_desc_by_id = {}
-        for i, desc in enumerate(sorted(church_descs)):
-            church_desc_by_id[i] = desc
-
-        return church_desc_by_id
+        return get_desc_by_id(church_descs)
 
     def get_diocese(self) -> Diocese | None:
         if not self.parishes.exists():

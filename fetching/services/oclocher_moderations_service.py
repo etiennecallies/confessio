@@ -1,4 +1,4 @@
-from fetching.models import OClocherOrganization, OClocherMatchingModeration
+from fetching.models import OClocherOrganization, OClocherMatchingModeration, OClocherMatching
 from fetching.models.oclocher_moderation_models import OClocherOrganizationModeration
 from home.models import Website
 
@@ -22,16 +22,17 @@ def add_organization_moderation(website: Website,
 
 
 def add_matching_moderation(oclocher_organization: OClocherOrganization,
+                            oclocher_matching: OClocherMatching,
                             category: OClocherMatchingModeration.Category,
                             ):
     try:
         OClocherMatchingModeration.objects.get(
-            oclocher_matching=oclocher_organization.matching,
+            oclocher_matching=oclocher_matching,
             category=category
         )
     except OClocherMatchingModeration.DoesNotExist:
         moderation = OClocherMatchingModeration(
-            oclocher_matching=oclocher_organization.matching,
+            oclocher_matching=oclocher_matching,
             diocese=oclocher_organization.website.get_diocese(),
             category=category,
         )

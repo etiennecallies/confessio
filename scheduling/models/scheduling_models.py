@@ -8,6 +8,7 @@ class Scheduling(TimeStampMixin):
         BUILT = "built"
         PRUNED = "pruned"
         PARSED = "parsed"
+        MATCHED = "matched"
         INDEXED = "indexed"
         CANCELLED = "cancelled"
 
@@ -48,13 +49,13 @@ class SchedulingHistoricalImage(TimeStampMixin):
         unique_together = ('scheduling', 'image_history_id')
 
 
-class SchedulingHistoricalOClocherMatching(TimeStampMixin):
+class SchedulingHistoricalOClocherLocation(TimeStampMixin):
     scheduling = models.ForeignKey('Scheduling', on_delete=models.CASCADE,
-                                   related_name='historical_oclocher_matchings')
-    oclocher_matching_history_id = models.PositiveIntegerField()
+                                   related_name='historical_oclocher_locations')
+    oclocher_location_history_id = models.PositiveIntegerField()
 
     class Meta:
-        unique_together = ('scheduling', 'oclocher_matching_history_id')
+        unique_together = ('scheduling', 'oclocher_location_history_id')
 
 
 class SchedulingHistoricalOClocherSchedule(TimeStampMixin):
@@ -94,3 +95,12 @@ class PruningParsing(TimeStampMixin):
 
     class Meta:
         unique_together = ('scheduling', 'pruning_history_id', 'parsing_history_id')
+
+
+class SchedulingHistoricalOClocherMatching(TimeStampMixin):
+    scheduling = models.ForeignKey('Scheduling', on_delete=models.CASCADE,
+                                   related_name='historical_oclocher_matchings')
+    oclocher_matching_history_id = models.PositiveIntegerField()
+
+    class Meta:
+        unique_together = ('scheduling', 'oclocher_matching_history_id')

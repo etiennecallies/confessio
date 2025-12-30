@@ -9,8 +9,6 @@ class OClocherOrganization(TimeStampMixin):
     organization_id = models.CharField(max_length=32, unique=True)
     website = models.OneToOneField('home.Website', on_delete=models.CASCADE,
                                    related_name='oclocher_organization')
-    matching = models.OneToOneField('fetching.OClocherMatching', on_delete=models.SET_NULL,
-                                    null=True, blank=True, related_name='organization')
 
 
 class OClocherLocation(TimeStampMixin):
@@ -20,6 +18,8 @@ class OClocherLocation(TimeStampMixin):
     name = models.CharField(max_length=120)
     content = models.CharField(max_length=120, null=True, blank=True)
     address = models.CharField(max_length=120, null=True, blank=True)
+
+    history = HistoricalRecords()
 
 
 class OClocherMatching(TimeStampMixin):

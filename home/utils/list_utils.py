@@ -1,3 +1,11 @@
+def get_desc_by_id(desc_list: list[str]) -> dict[int, str]:
+    desc_by_id = {}
+    for i, desc in enumerate(sorted(desc_list)):
+        desc_by_id[i] = desc
+
+    return desc_by_id
+
+
 def group_consecutive_indices(n: int, indices: list[int]) -> list[tuple[bool, list[int]]]:
     result = []
 

@@ -2,8 +2,8 @@ from dataclasses import dataclass
 
 from home.models import Website
 from scheduling.models import Scheduling, SchedulingHistoricalChurch, \
-    SchedulingHistoricalScraping, SchedulingHistoricalImage, SchedulingHistoricalOClocherMatching, \
-    SchedulingHistoricalOClocherSchedule
+    SchedulingHistoricalScraping, SchedulingHistoricalImage, SchedulingHistoricalOClocherSchedule, \
+    SchedulingHistoricalOClocherLocation
 
 
 @dataclass
@@ -11,7 +11,7 @@ class SchedulingRelatedObjects:
     church_history_ids: list[int]
     scraping_history_ids: list[int]
     image_history_ids: list[int]
-    oclocher_matching_history_ids: list[int]
+    oclocher_location_history_ids: list[int]
     oclocher_schedule_history_ids: list[int]
 
 
@@ -42,17 +42,17 @@ def get_image_history_ids(website: Website) -> list[int]:
     return image_history_ids
 
 
-def get_oclocher_matching_history_ids(website: Website) -> list[int]:
+def get_oclocher_location_history_ids(website: Website) -> list[int]:
     try:
         oclocher_organization = website.oclocher_organization
     except Website.oclocher_organization.RelatedObjectDoesNotExist:
         return []
 
-    oclocher_matching = oclocher_organization.matching
-    if oclocher_matching is None:
-        return []
+    oclocher_location_history_ids = []
+    for location in oclocher_organization.locations.all():
+        oclocher_location_history_ids.append(location.history.latest().history_id)
 
-    return [oclocher_matching.history.latest().history_id]
+    return oclocher_location_history_ids
 
 
 def get_oclocher_schedule_history_ids(website: Website) -> list[int]:
@@ -80,14 +80,14 @@ def build_scheduling(website: Website,
     church_history_ids = get_church_history_ids(website)
     scraping_history_ids = get_scraping_history_ids(website)
     image_history_ids = get_image_history_ids(website)
-    oclocher_matching_history_ids = get_oclocher_matching_history_ids(website)
+    oclocher_location_history_ids = get_oclocher_location_history_ids(website)
     oclocher_schedule_history_ids = get_oclocher_schedule_history_ids(website)
 
     scheduling_related_objects = SchedulingRelatedObjects(
         church_history_ids=church_history_ids,
         scraping_history_ids=scraping_history_ids,
         image_history_ids=image_history_ids,
-        oclocher_matching_history_ids=oclocher_matching_history_ids,
+        oclocher_location_history_ids=oclocher_location_history_ids,
         oclocher_schedule_history_ids=oclocher_schedule_history_ids,
     )
 
@@ -125,14 +125,14 @@ def bulk_create_scheduling_related_objects(
     ]
     SchedulingHistoricalImage.objects.bulk_create(image_objs)
 
-    # SchedulingHistoricalOClocherMatching
-    oclocher_matching_objs = [
-        SchedulingHistoricalOClocherMatching(
+    # SchedulingHistoricalOClocherLocation
+    oclocher_location_objs = [
+        SchedulingHistoricalOClocherLocation(
             scheduling=scheduling,
-            oclocher_matching_history_id=matching_id
-        ) for matching_id in scheduling_related_objects.oclocher_matching_history_ids
+            oclocher_location_history_id=location_id
+        ) for location_id in scheduling_related_objects.oclocher_location_history_ids
     ]
-    SchedulingHistoricalOClocherMatching.objects.bulk_create(oclocher_matching_objs)
+    SchedulingHistoricalOClocherLocation.objects.bulk_create(oclocher_location_objs)
 
     # SchedulingHistoricalOClocherSchedule
     oclocher_schedule_objs = [

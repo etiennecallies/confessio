@@ -2,6 +2,16 @@ from fetching.models import OClocherOrganization, OClocherMatching, OClocherMatc
     OClocherLocation
 from fetching.workflows.oclocher.match_with_llm import match_oclocher_with_llm
 from fetching.services.oclocher_moderations_service import add_matching_moderation
+from home.models import Church
+from home.utils.list_utils import get_desc_by_id
+
+
+def get_church_desc_by_id_from_churches(churches: list[Church]) -> dict[int, str]:
+    church_descs = []
+    for church in churches:
+        church_descs.append(church.get_desc())
+
+    return get_desc_by_id(church_descs)
 
 
 def get_location_desc(oclocher_location: OClocherLocation) -> str:
@@ -16,9 +26,9 @@ def get_location_desc(oclocher_location: OClocherLocation) -> str:
     return location_desc
 
 
-def get_location_desc_by_id(oclocher_organization: OClocherOrganization) -> dict:
+def get_location_desc_by_id(locations: list[OClocherLocation]) -> dict:
     location_desc_list = []
-    for location in oclocher_organization.locations.all():
+    for location in locations:
         location_desc_list.append(get_location_desc(location))
 
     location_desc_by_id = {}
@@ -37,17 +47,21 @@ def get_existing_matching(church_desc_by_id: dict[int, str],
     ).first()
 
 
-def match_organization_locations(oclocher_organization: OClocherOrganization):
-    church_desc_by_id = oclocher_organization.website.get_church_desc_by_id()
-    location_desc_by_id = get_location_desc_by_id(oclocher_organization)
+def match_churches_and_locations(
+        churches: list[Church],
+        locations: list[OClocherLocation]
+) -> OClocherMatching:
+    assert churches and locations
+
+    church_desc_by_id = get_church_desc_by_id_from_churches(churches)
+    location_desc_by_id = get_location_desc_by_id(locations)
 
     # GET OClocherMatching if any
     existing_matching = get_existing_matching(church_desc_by_id, location_desc_by_id)
     if existing_matching:
-        if oclocher_organization.matching != existing_matching:
-            oclocher_organization.matching = existing_matching
-            oclocher_organization.save()
-        return
+        return existing_matching
+
+    oclocher_organization = locations[0].organization
 
     print(f'Matching organization {oclocher_organization.organization_id} '
           f'with {len(location_desc_by_id)} locations.')
@@ -56,8 +70,8 @@ def match_organization_locations(oclocher_organization: OClocherOrganization):
         match_oclocher_with_llm(church_desc_by_id, location_desc_by_id)
 
     oclocher_matching = OClocherMatching(
-        church_desc_by_id=oclocher_organization.website.get_church_desc_by_id(),
-        location_desc_by_id=get_location_desc_by_id(oclocher_organization),
+        church_desc_by_id=church_desc_by_id,
+        location_desc_by_id=location_desc_by_id,
         llm_matrix=llm_matrix.model_dump(mode='json') if llm_matrix else None,
         llm_provider=llm_provider,
         llm_model=llm_model,
@@ -65,8 +79,6 @@ def match_organization_locations(oclocher_organization: OClocherOrganization):
         llm_error_detail=llm_error_detail,
     )
     oclocher_matching.save()
-    oclocher_organization.matching = oclocher_matching
-    oclocher_organization.save()
 
     # moderation
     if llm_error_detail:
@@ -74,7 +86,20 @@ def match_organization_locations(oclocher_organization: OClocherOrganization):
     else:
         category = OClocherMatchingModeration.Category.NEW_MATCHING
 
-    add_matching_moderation(oclocher_organization, category)
+    add_matching_moderation(oclocher_organization, oclocher_matching, category)
+
+    return oclocher_matching
+
+
+def match_organization_locations(oclocher_organization: OClocherOrganization):
+    churches = []
+    for parish in oclocher_organization.website.parishes.all():
+        for church in parish.churches.all():
+            churches.append(church)
+
+    locations = oclocher_organization.locations.all()
+
+    match_churches_and_locations(churches, locations)
 
 
 def match_all_organizations_locations():

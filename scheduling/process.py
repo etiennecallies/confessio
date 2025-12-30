@@ -6,6 +6,8 @@ from scheduling.models import Scheduling
 from scheduling.services.index_scheduling_service import do_index_scheduling
 from scheduling.services.init_scheduling_service import build_scheduling, \
     bulk_create_scheduling_related_objects
+from scheduling.services.match_scheduling_service import bulk_create_scheduling_matching_objects, \
+    do_match_scheduling
 from scheduling.services.parse_scheduling_service import do_parse_scheduling, \
     bulk_create_scheduling_parsing_objects
 from scheduling.services.prune_scheduling_service import do_prune_scheduling, \
@@ -22,7 +24,12 @@ def init_scheduling(website: Website,
         # Cancel any existing in-progress Scheduling for this website
         Scheduling.objects.filter(
             website=website,
-            status__in=[Scheduling.Status.BUILT, Scheduling.Status.PRUNED, Scheduling.Status.PARSED]
+            status__in=[
+                Scheduling.Status.BUILT,
+                Scheduling.Status.PRUNED,
+                Scheduling.Status.PARSED,
+                Scheduling.Status.MATCHED,
+            ]
         ).update(
             status=Scheduling.Status.CANCELLED,
             updated_at=Now(),
@@ -91,14 +98,13 @@ def parse_scheduling(scheduling: Scheduling):
         scheduling.save()
 
 
-def index_scheduling(scheduling: Scheduling):
-    print("Indexing scheduling.")
-
+def match_scheduling(scheduling: Scheduling):
+    print("Match scheduling.")
     if scheduling.status != Scheduling.Status.PARSED:
-        print(f"Scheduling is in status {scheduling.status}; skipping indexing.")
+        print(f"Scheduling is in status {scheduling.status}; skipping parsing.")
         return
 
-    index_events = do_index_scheduling(scheduling)
+    scheduling_matching_objects = do_match_scheduling(scheduling)
 
     with transaction.atomic():
         # 1. Verify the scheduling is still in PARSED status
@@ -106,6 +112,34 @@ def index_scheduling(scheduling: Scheduling):
             scheduling = Scheduling.objects.select_for_update().get(
                 uuid=scheduling.uuid,
                 status=Scheduling.Status.PARSED
+            )
+        except Scheduling.DoesNotExist:
+            print("Aborting: Scheduling not found or status changed.")
+            return
+
+        # 2. Save pruning objects
+        bulk_create_scheduling_matching_objects(scheduling, scheduling_matching_objects)
+
+        # 3. Mark scheduling as MATCHED
+        scheduling.status = Scheduling.Status.MATCHED
+        scheduling.save()
+
+
+def index_scheduling(scheduling: Scheduling):
+    print("Indexing scheduling.")
+
+    if scheduling.status != Scheduling.Status.MATCHED:
+        print(f"Scheduling is in status {scheduling.status}; skipping indexing.")
+        return
+
+    index_events = do_index_scheduling(scheduling)
+
+    with transaction.atomic():
+        # 1. Verify the scheduling is still in MATCHED status
+        try:
+            scheduling = Scheduling.objects.select_for_update().get(
+                uuid=scheduling.uuid,
+                status=Scheduling.Status.MATCHED
             )
         except Scheduling.DoesNotExist:
             print("Aborting: Scheduling not found or status changed.")

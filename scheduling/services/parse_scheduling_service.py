@@ -23,6 +23,7 @@ def do_parse_scheduling(scheduling: Scheduling) -> SchedulingParsingObjects:
         historical_pruning = Pruning.history.get(history_id=pruning_history_id)
         pruning = historical_pruning.instance
 
+        # TODO force parsing with church list
         do_parse_pruning_for_website(pruning, scheduling.website)
 
         parsing = pruning.get_parsing(scheduling.website)
