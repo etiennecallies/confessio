@@ -87,11 +87,17 @@ class Website(TimeStampMixin):
         if not self.parishes.exists():
             self.delete()
 
+    def get_churches(self) -> list['Church']:
+        churches = []
+        for parish in self.parishes.all():
+            churches.extend(parish.churches.all())
+
+        return churches
+
     def get_church_desc_by_id(self) -> dict[int, str]:
         church_descs = []
-        for parish in self.parishes.all():
-            for church in parish.churches.all():
-                church_descs.append(church.get_desc())
+        for church in self.get_churches():
+            church_descs.append(church.get_desc())
 
         return get_desc_by_id(church_descs)
 

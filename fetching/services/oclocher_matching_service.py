@@ -92,10 +92,7 @@ def match_churches_and_locations(
 
 
 def match_organization_locations(oclocher_organization: OClocherOrganization):
-    churches = []
-    for parish in oclocher_organization.website.parishes.all():
-        for church in parish.churches.all():
-            churches.append(church)
+    churches = oclocher_organization.website.get_churches()
 
     locations = oclocher_organization.locations.all()
 

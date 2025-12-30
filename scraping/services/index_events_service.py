@@ -24,10 +24,7 @@ def build_website_church_events(website: Website,
                                 parsings: list[Parsing] | None = None,
                                 ) -> list[ChurchIndexEvent]:
     # TODO make it return IndexEvent when we get rid of ChurchIndexEvent
-    website_churches = []
-    for parish in website.parishes.all():
-        for church in parish.churches.all():
-            website_churches.append(church)
+    website_churches = website.get_churches()
 
     all_church_events = get_all_church_events(website, website_churches, parsings=parsings)
 

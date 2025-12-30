@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from home.models import Pruning
+from home.models import Pruning, Church
 from scheduling.models import Scheduling, PruningParsing
 from scraping.services.parse_pruning_service import do_parse_pruning_for_website
 
@@ -11,6 +11,12 @@ class SchedulingParsingObjects:
 
 
 def do_parse_scheduling(scheduling: Scheduling) -> SchedulingParsingObjects:
+    churches = []
+    for scheduling_historical_church in scheduling.historical_churches.all():
+        church_history_id = scheduling_historical_church.church_history_id
+        historical_church = Church.history.get(history_id=church_history_id)
+        churches.append(historical_church.instance)
+
     all_pruning_history_ids = []
     for scraping_pruning in scheduling.scraping_prunings.all():
         all_pruning_history_ids.append(scraping_pruning.pruning_history_id)
@@ -23,8 +29,7 @@ def do_parse_scheduling(scheduling: Scheduling) -> SchedulingParsingObjects:
         historical_pruning = Pruning.history.get(history_id=pruning_history_id)
         pruning = historical_pruning.instance
 
-        # TODO force parsing with church list
-        do_parse_pruning_for_website(pruning, scheduling.website)
+        do_parse_pruning_for_website(pruning, scheduling.website, churches)
 
         parsing = pruning.get_parsing(scheduling.website)
         if parsing is None:

@@ -17,9 +17,8 @@ class SchedulingRelatedObjects:
 
 def get_church_history_ids(website: Website) -> list[int]:
     church_history_ids = []
-    for parish in website.parishes.all():
-        for church in parish.churches.all():
-            church_history_ids.append(church.history.latest().history_id)
+    for church in website.get_churches():
+        church_history_ids.append(church.history.latest().history_id)
 
     return church_history_ids
 

@@ -7,8 +7,9 @@ from background_task.tasks import TaskSchedule
 from django.db.models.functions import Now
 from django.utils import timezone
 
-from home.models import Pruning, Website, Parsing, ParsingModeration, Page, Image, Log
+from home.models import Pruning, Website, Parsing, ParsingModeration, Page, Image, Log, Church
 from home.utils.hash_utils import hash_string_to_hex
+from home.utils.list_utils import get_desc_by_id
 from home.utils.log_utils import info, start_log_buffer, get_log_buffer
 from scraping.parse.llm_client import LLMClientInterface
 from scraping.parse.parse_with_llm import parse_with_llm, get_prompt_template, get_llm_client
@@ -367,13 +368,15 @@ def force_reparse_parsing_for_pruning(parsing: Parsing, pruning: Pruning):
 ########
 
 def prepare_parsing(
-        pruning: Pruning, website: Website, force_parse: bool = False
+        pruning: Pruning, website: Website,
+        churches: list[Church],
+        force_parse: bool = False
 ) -> None | tuple[str, str, dict[int, str], LLMClientInterface, str, str, Parsing | None]:
     truncated_html = get_truncated_html(pruning)
     truncated_html_hash = hash_string_to_hex(truncated_html) if truncated_html else None
     unlink_pruning_from_parsings_except_truncated_html_hash(pruning, truncated_html_hash)
 
-    church_desc_by_id = website.get_church_desc_by_id()
+    church_desc_by_id = get_desc_by_id([church.get_desc() for church in churches])
     unlink_website_from_parsings_except_church_desc_by_id(website, church_desc_by_id)
 
     if not truncated_html:
@@ -414,7 +417,7 @@ def prepare_parsing(
 
 
 def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: bool = False):
-    parsing_preparation = prepare_parsing(pruning, website, force_parse)
+    parsing_preparation = prepare_parsing(pruning, website, website.get_churches(), force_parse)
     if not parsing_preparation:
         return
 
@@ -432,7 +435,7 @@ def worker_parse_pruning_for_website(pruning_uuid: str, website_uuid: str, force
 
     start_log_buffer()
     info(f'worker_parse_pruning_for_website: parsing {pruning_uuid} for website {website_uuid}')
-    do_parse_pruning_for_website(pruning, website, force_parse)
+    do_parse_pruning_for_website(pruning, website, website.get_churches(), force_parse)
 
     buffer_value = get_log_buffer()
     log = Log(type=Log.Type.PARSING,
@@ -442,8 +445,10 @@ def worker_parse_pruning_for_website(pruning_uuid: str, website_uuid: str, force
     log.save()
 
 
-def do_parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: bool = False):
-    parsing_preparation = prepare_parsing(pruning, website, force_parse)
+def do_parse_pruning_for_website(pruning: Pruning, website: Website,
+                                 churches: list[Church],
+                                 force_parse: bool = False):
+    parsing_preparation = prepare_parsing(pruning, website, churches, force_parse)
     if not parsing_preparation:
         return
 
