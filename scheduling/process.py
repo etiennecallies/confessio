@@ -12,6 +12,7 @@ from scheduling.services.parse_scheduling_service import do_parse_scheduling, \
     bulk_create_scheduling_parsing_objects
 from scheduling.services.prune_scheduling_service import do_prune_scheduling, \
     bulk_create_scheduling_pruning_objects
+from scheduling.tasks import worker_prune_scheduling, worker_parse_scheduling
 
 
 def init_scheduling(website: Website,
@@ -40,6 +41,9 @@ def init_scheduling(website: Website,
 
         # Bulk create related objects
         bulk_create_scheduling_related_objects(new_scheduling, scheduling_related_objects)
+
+    # trigger prune_scheduling in background
+    worker_prune_scheduling(str(new_scheduling.uuid))
 
     return new_scheduling
 
@@ -70,6 +74,9 @@ def prune_scheduling(scheduling: Scheduling):
         scheduling.status = Scheduling.Status.PRUNED
         scheduling.save()
 
+    # trigger parse_scheduling in background
+    worker_parse_scheduling(str(scheduling.uuid))
+
 
 def parse_scheduling(scheduling: Scheduling):
     print("Parsing scheduling.")
@@ -97,6 +104,9 @@ def parse_scheduling(scheduling: Scheduling):
         scheduling.status = Scheduling.Status.PARSED
         scheduling.save()
 
+    # trigger match_scheduling synchronously
+    match_scheduling(scheduling)
+
 
 def match_scheduling(scheduling: Scheduling):
     print("Match scheduling.")
@@ -123,6 +133,9 @@ def match_scheduling(scheduling: Scheduling):
         # 3. Mark scheduling as MATCHED
         scheduling.status = Scheduling.Status.MATCHED
         scheduling.save()
+
+    # trigger index_scheduling synchronously
+    index_scheduling(scheduling)
 
 
 def index_scheduling(scheduling: Scheduling):
