@@ -55,7 +55,7 @@
       memory_max: "800M"
     - name: daily_init_scheduling
       command: "init_scheduling"
-      hour: "10"
+      hour: "8"
       minute: 0
       memory_max: "800M"
 #    - name: hourly_scrape_pages
