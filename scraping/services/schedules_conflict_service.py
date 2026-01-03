@@ -1,11 +1,12 @@
 from datetime import date
 
-from home.models import Church, ChurchIndexEvent, Website, WebsiteModeration
+from home.models import Church, Website, WebsiteModeration
+from scheduling.models import IndexEvent
 from scraping.services.website_moderation_service import remove_not_validated_moderation, \
     add_moderation
 
 
-def website_has_schedules_conflict(church_index_events: list[ChurchIndexEvent]
+def website_has_schedules_conflict(church_index_events: list[IndexEvent]
                                    ) -> tuple[date, Church] | None:
     events_by_church_and_day = {}
     for church_event in church_index_events:
@@ -26,7 +27,7 @@ def website_has_schedules_conflict(church_index_events: list[ChurchIndexEvent]
     return None
 
 
-def look_for_conflict(website: Website, church_index_events: list[ChurchIndexEvent]):
+def look_for_conflict(website: Website, church_index_events: list[IndexEvent]):
     conflict = website_has_schedules_conflict(church_index_events)
     if conflict is None:
         remove_not_validated_moderation(website,
