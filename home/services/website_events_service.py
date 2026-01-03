@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from datetime import date, timedelta, datetime
 
-from home.models import Church, ChurchIndexEvent
+from home.models import Church
+from scheduling.models import IndexEvent
 
 
 @dataclass
@@ -14,7 +15,7 @@ class ChurchEvent:
     church_color: str
 
     @classmethod
-    def from_index_event(cls, index_event: ChurchIndexEvent) -> 'ChurchEvent':
+    def from_index_event(cls, index_event: IndexEvent) -> 'ChurchEvent':
         start = datetime.combine(index_event.day, index_event.start_time)
         end = datetime.combine(index_event.day, index_event.displayed_end_time) \
             if index_event.displayed_end_time else None
@@ -60,7 +61,7 @@ class WebsiteEvents:
         return None
 
 
-def get_website_events(index_events: list[ChurchIndexEvent],
+def get_website_events(index_events: list[IndexEvent],
                        events_truncated: bool,
                        unique_day: bool) -> WebsiteEvents:
     church_events_by_day = get_church_events_by_day(index_events, unique_day)
@@ -93,7 +94,7 @@ def get_website_events(index_events: list[ChurchIndexEvent],
 # CHURCH EVENTS BY DAY #
 ########################
 
-def get_church_events_by_day(index_events: list[ChurchIndexEvent],
+def get_church_events_by_day(index_events: list[IndexEvent],
                              unique_day: bool) -> dict[date, list[ChurchEvent]]:
     today = date.today()
     sorted_church_events = list(sorted(list(set(map(

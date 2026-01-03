@@ -1,32 +1,19 @@
-from home.models import Website, ChurchIndexEvent, Church, Parsing
+from home.models import Website, Church, Parsing
 from home.services.website_events_service import ChurchEvent
 from home.services.website_schedules_service import get_website_schedules, \
     get_color_of_nullable_church
 from home.utils.date_utils import time_plus_hours
-from scraping.services.schedules_conflict_service import look_for_conflict
-
-
-def index_events_for_website(website: Website):
-    church_index_to_add = build_website_church_events(website)
-
-    # Remove existing events
-    ChurchIndexEvent.objects.filter(church__parish__website=website).delete()
-
-    # Add new events
-    for website_index_event in church_index_to_add:
-        website_index_event.save()
-
-    # check for conflicting events
-    look_for_conflict(website, church_index_to_add)
+from scheduling.models import IndexEvent, Scheduling
+from scheduling.services.scheduling_service import get_scheduling_parsings
 
 
 def build_website_church_events(website: Website,
-                                parsings: list[Parsing] | None = None,
-                                ) -> list[ChurchIndexEvent]:
-    # TODO make it return IndexEvent when we get rid of ChurchIndexEvent
+                                scheduling: Scheduling,
+                                ) -> list[IndexEvent]:
     website_churches = website.get_churches()
+    parsings = get_scheduling_parsings(scheduling)
 
-    all_church_events = get_all_church_events(website, website_churches, parsings=parsings)
+    all_church_events = get_all_church_events(website, website_churches, parsings)
 
     start_end_with_churches = set()
     for church_event in all_church_events:
@@ -40,7 +27,8 @@ def build_website_church_events(website: Website,
         displayed_end_time = church_event.end.time() if church_event.end else None
         indexed_end_time = displayed_end_time or time_plus_hours(event_start_time, 4)
         if church_event.church:
-            church_index_to_add.append(ChurchIndexEvent(
+            church_index_to_add.append(IndexEvent(
+                scheduling=scheduling,
                 church=church_event.church,
                 day=event_day,
                 start_time=event_start_time,
@@ -56,7 +44,8 @@ def build_website_church_events(website: Website,
                 continue
 
             for church in website_churches:
-                church_index_to_add.append(ChurchIndexEvent(
+                church_index_to_add.append(IndexEvent(
+                    scheduling=scheduling,
                     church=church,
                     day=event_day,
                     start_time=event_start_time,
@@ -71,7 +60,7 @@ def build_website_church_events(website: Website,
 
 
 def get_all_church_events(website: Website, website_churches: list[Church],
-                          parsings: list[Parsing] | None = None,
+                          parsings: list[Parsing],
                           ) -> list[ChurchEvent]:
     all_church_events = []
     website_schedules = get_website_schedules(

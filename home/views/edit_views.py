@@ -16,8 +16,7 @@ from scraping.extract_v2.qualify_line_interfaces import DummyQualifyLineInterfac
 from scraping.parse.schedules import SchedulesList, SCHEDULES_LIST_VERSION
 from scraping.prune.action_interfaces import DummyActionInterface
 from scraping.prune.models import Action
-from scraping.services.parse_pruning_service import reset_counters_of_parsing, \
-    re_index_related_website
+from scraping.services.parse_pruning_service import reset_counters_of_parsing
 from scraping.services.parsing_service import get_parsing_schedules_list
 from scraping.services.prune_scraping_service import SentenceFromDbActionInterface, \
     reprune_affected_prunings, prune_pruning, SentenceQualifyLineInterface
@@ -171,7 +170,7 @@ def edit_parsing(request, parsing_uuid):
             parsing.human_json_version = SCHEDULES_LIST_VERSION
             parsing.save()
             success = True
-            re_index_related_website(parsing)
+            # TODO init_scheduling for this website?
 
             if schedules_list != previous_schedule_list:
                 # reset page counter

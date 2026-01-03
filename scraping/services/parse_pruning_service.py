@@ -15,7 +15,6 @@ from scraping.parse.llm_client import LLMClientInterface
 from scraping.parse.parse_with_llm import parse_with_llm, get_prompt_template, get_llm_client
 from scraping.parse.schedules import SchedulesList, SCHEDULES_LIST_VERSION
 from scraping.refine.refine_content import stringify_html
-from scraping.services.index_events_service import index_events_for_website
 from scraping.services.parsing_service import get_existing_parsing
 
 TRUNCATION_LENGTH = 32
@@ -160,12 +159,7 @@ def set_human_json(parsing: Parsing):
     parsing.human_json = parsing.llm_json
     parsing.human_json_version = parsing.llm_json_version
     parsing.save()
-    re_index_related_website(parsing)
-
-
-def re_index_related_website(parsing: Parsing):
-    if parsing.website:
-        index_events_for_website(parsing.website)
+    # TODO init_scheduling for this website?
 
 
 ############
@@ -304,14 +298,11 @@ def unlink_website_from_parsing(parsing: Parsing):
     if not parsing.website:
         return
 
-    website = parsing.website
-
     # unlink website from parsing
     parsing.website = None
     parsing.save()
 
-    # re-index events for the website
-    index_events_for_website(website)
+    # TODO init_scheduling for this website?
 
     info(f'deleting not validated moderation for parsing {parsing} since it has no '
          f'website any more')
@@ -403,7 +394,7 @@ def prepare_parsing(
             info(f'Linking parsing {parsing.uuid} for website {website.uuid}')
             parsing.website = website
             parsing.save()
-            index_events_for_website(website)
+            # TODO init_scheduling for this website?
 
         # Adding necessary moderation if missing
         add_necessary_parsing_moderation(parsing, website)
@@ -503,4 +494,4 @@ def save_parsing(parsing: Parsing | None, pruning: Pruning, website: Website,
 
     parsing.prunings.add(pruning)
     add_necessary_parsing_moderation(parsing, website)
-    index_events_for_website(website)
+    # TODO init_scheduling for this website?

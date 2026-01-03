@@ -8,11 +8,6 @@
     minute: "{{ item.minute }}"
     job: "(tmux has-session -t {{ item.name }} || tmux new-session -d -s {{ item.name }}) && tmux send-keys -t {{ item.name }} 'sudo systemd-run --scope --property=MemoryMax={{ item.memory_max }} flock /var/lock/manage.lock bash -c \". {{ app_dir }}/.env; {{ venv_python }} {{ app_dir }}/manage.py {{ item.command }}\"' C-m"
   with_items:
-    - name: daily_index_events
-      command: "index_events"
-      hour: "0"
-      minute: 30
-      memory_max: "800M"
     - name: daily_train_action_model
       command: "train_action_model --automatic"
       hour: "0"
