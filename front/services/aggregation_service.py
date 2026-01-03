@@ -1,10 +1,11 @@
 from uuid import UUID
 
-from home.models import ChurchIndexEvent, Church
+from home.models import Church
 from home.services.search_service import get_churches_in_box, MAX_CHURCHES_IN_RESULTS, \
     get_count_per_diocese, TimeFilter, get_count_per_municipality, get_count_per_parish, \
     get_churches_in_area, get_churches_around, get_popular_churches, AggregationItem, \
     DEFAULT_SEARCH_BOX
+from scheduling.models import IndexEvent
 
 
 def get_search_results(
@@ -15,7 +16,7 @@ def get_search_results(
         max_lat: float | None,
         max_lng: float | None,
         time_filter: TimeFilter,
-) -> tuple[list[ChurchIndexEvent], list[Church], dict[UUID, bool], list[AggregationItem]]:
+) -> tuple[list[IndexEvent], list[Church], dict[UUID, bool], list[AggregationItem]]:
     if min_lat and min_lng and max_lat and max_lng:
         index_events, churches, _, events_truncated_by_website_uuid = \
             get_churches_in_box(min_lat, max_lat, min_lng, max_lng, time_filter)

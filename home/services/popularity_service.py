@@ -5,7 +5,8 @@ from django.db.models import Q
 from django.utils.timezone import make_aware
 from request.models import Request
 
-from home.models import Website, ChurchIndexEvent
+from home.models import Website
+from scheduling.models import IndexEvent
 
 
 def update_popularity_of_websites():
@@ -58,8 +59,8 @@ def update_popularity_of_websites():
 
 def get_best_website_for_diocese(count_by_website: dict[Website, int], ) -> Website:
     for website, count in sorted(count_by_website.items(), key=lambda item: item[1], reverse=True):
-        if ChurchIndexEvent.objects.filter(church__parish__website=website,
-                                           is_explicitely_other__isnull=True).exists():
+        if IndexEvent.objects.filter(church__parish__website=website,
+                                     is_explicitely_other__isnull=True).exists():
             return website
 
     return max(count_by_website, key=count_by_website.get)

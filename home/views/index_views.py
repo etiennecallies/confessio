@@ -8,10 +8,9 @@ from django.http import HttpResponseNotFound, JsonResponse, HttpResponseBadReque
 from django.shortcuts import render
 from django.utils.translation import gettext
 
-from home.models import Website, Diocese, ChurchIndexEvent, Church
+from home.models import Website, Diocese, Church
 from home.services.autocomplete_service import get_aggregated_response
 from home.services.filter_service import get_filter_days
-from home.services.upload_image_service import upload_image, find_error_in_document_to_upload
 from home.services.map_service import prepare_map, get_center, get_cities_label
 from home.services.page_url_service import get_page_pruning_urls
 from home.services.report_service import get_count_and_label, new_report, NewReportError, \
@@ -21,15 +20,17 @@ from home.services.search_service import TimeFilter, get_churches_in_box, get_ch
     DEFAULT_SEARCH_BOX
 from home.services.sources_service import get_website_parsings_and_prunings, get_empty_sources
 from home.services.stat_service import new_search_hit
+from home.services.upload_image_service import upload_image, find_error_in_document_to_upload
 from home.services.website_events_service import get_website_events
 from home.services.website_schedules_service import get_website_schedules
 from home.utils.date_utils import get_current_day, get_current_year
 from home.utils.web_utils import redirect_with_url_params
+from scheduling.models import IndexEvent
 from sourcing.utils.string_utils import lower_first, city_and_prefix
 
 
 def render_map(request, center,
-               index_events: list[ChurchIndexEvent],
+               index_events: list[IndexEvent],
                events_truncated_by_website_uuid: dict[UUID, bool],
                churches, h1_title: str,
                meta_title: str, display_sub_title: bool,

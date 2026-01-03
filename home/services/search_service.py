@@ -9,9 +9,10 @@ from django.db.models import QuerySet, OuterRef, Subquery, Exists, ExpressionWra
     BooleanField, Count
 from pydantic import BaseModel
 
-from home.models import Church, Website, Diocese, ChurchIndexEvent
+from home.models import Church, Website, Diocese
 from home.utils.city_utils import get_municipality_name
 from home.utils.date_utils import time_from_minutes
+from scheduling.models import IndexEvent
 
 MAX_CHURCHES_IN_RESULTS = 50
 MAX_WEBSITES_IN_RESULTS = 10
@@ -38,8 +39,8 @@ class TimeFilter(BaseModel):
 ###############
 
 def build_event_subquery(time_filter: TimeFilter):
-    event_query = ChurchIndexEvent.objects.filter(church_id=OuterRef('pk'),
-                                                  day__gte=date.today())
+    event_query = IndexEvent.objects.filter(church_id=OuterRef('pk'),
+                                            day__gte=date.today())
 
     if not time_filter.is_null():
         event_query = add_event_filters(event_query, time_filter)
@@ -82,16 +83,16 @@ def build_church_query(time_filter: TimeFilter) -> QuerySet[Church]:
 
 
 def build_events_query(church_by_uuid: dict[UUID, Church],
-                       time_filter: TimeFilter) -> QuerySet[ChurchIndexEvent]:
-    event_query = ChurchIndexEvent.objects \
+                       time_filter: TimeFilter) -> QuerySet[IndexEvent]:
+    event_query = IndexEvent.objects \
         .filter(church__uuid__in=church_by_uuid.keys())
     event_query = add_event_filters(event_query, time_filter)
 
     return event_query
 
 
-def add_event_filters(event_query: QuerySet[ChurchIndexEvent],
-                      time_filter: TimeFilter) -> QuerySet[ChurchIndexEvent]:
+def add_event_filters(event_query: QuerySet[IndexEvent],
+                      time_filter: TimeFilter) -> QuerySet[IndexEvent]:
     if time_filter.day_filter:
         event_query = event_query.filter(day=time_filter.day_filter)
 
@@ -105,7 +106,7 @@ def add_event_filters(event_query: QuerySet[ChurchIndexEvent],
 
 def truncate_results(church_query: QuerySet[Church],
                      time_filter: TimeFilter
-                     ) -> tuple[list[ChurchIndexEvent], list[Church], bool, dict[UUID, bool]]:
+                     ) -> tuple[list[IndexEvent], list[Church], bool, dict[UUID, bool]]:
     churches = church_query.all()[:MAX_CHURCHES_IN_RESULTS]
 
     non_truncated_count = 0
@@ -142,7 +143,7 @@ def truncate_results(church_query: QuerySet[Church],
 
 
 def fetch_events(church_by_uuid: dict[UUID, Church],
-                 time_filter: TimeFilter) -> list[ChurchIndexEvent]:
+                 time_filter: TimeFilter) -> list[IndexEvent]:
     events = build_events_query(church_by_uuid, time_filter).all()
     for event in events:
         event.church = church_by_uuid.get(event.church_id)
@@ -150,10 +151,10 @@ def fetch_events(church_by_uuid: dict[UUID, Church],
     return list(events)
 
 
-def fetch_next_event(church_by_uuid: dict[UUID, Church]) -> list[ChurchIndexEvent]:
+def fetch_next_event(church_by_uuid: dict[UUID, Church]) -> list[IndexEvent]:
     events_uuid = [church.next_event_uuid for church in church_by_uuid.values()
                    if church.next_event_uuid]
-    events = ChurchIndexEvent.objects.filter(uuid__in=events_uuid)
+    events = IndexEvent.objects.filter(uuid__in=events_uuid)
 
     for event in events:
         event.church = church_by_uuid.get(event.church_id)
@@ -172,7 +173,7 @@ def filter_in_box(church_query: QuerySet[Church], min_lat, max_lat, min_long, ma
 ###########
 
 def get_churches_around(center, time_filter: TimeFilter,
-                        ) -> tuple[list[ChurchIndexEvent], list[Church], bool, dict[UUID, bool]]:
+                        ) -> tuple[list[IndexEvent], list[Church], bool, dict[UUID, bool]]:
     latitude, longitude = center
     center_as_point = Point(x=longitude, y=latitude)
 
@@ -186,7 +187,7 @@ def get_churches_around(center, time_filter: TimeFilter,
 
 
 def get_churches_in_box(min_lat, max_lat, min_long, max_long, time_filter: TimeFilter
-                        ) -> tuple[list[ChurchIndexEvent], list[Church], bool, dict[UUID, bool]]:
+                        ) -> tuple[list[IndexEvent], list[Church], bool, dict[UUID, bool]]:
     church_query = filter_in_box(build_church_query(time_filter),
                                  min_lat, max_lat, min_long, max_long)\
         .annotate(has_event=Exists(build_event_subquery(time_filter)))\
@@ -201,7 +202,7 @@ def get_churches_in_box(min_lat, max_lat, min_long, max_long, time_filter: TimeF
 def get_churches_by_website(
         website: Website,
         time_filter: TimeFilter,
-) -> tuple[list[ChurchIndexEvent], list[Church], bool, dict[UUID, bool]]:
+) -> tuple[list[IndexEvent], list[Church], bool, dict[UUID, bool]]:
     church_query = build_church_query(time_filter)\
         .filter(parish__website=website)
 
@@ -211,7 +212,7 @@ def get_churches_by_website(
 def get_churches_by_diocese(
         diocese: Diocese,
         time_filter: TimeFilter,
-) -> tuple[list[ChurchIndexEvent], list[Church], bool, dict[UUID, bool]]:
+) -> tuple[list[IndexEvent], list[Church], bool, dict[UUID, bool]]:
     event_query = build_event_subquery(time_filter).filter(is_explicitely_other__isnull=True)
     church_query = build_church_query(time_filter).annotate(has_located_event=Exists(event_query))\
         .filter(parish__diocese=diocese)\
@@ -224,7 +225,7 @@ def get_churches_by_diocese(
 
 
 def get_popular_churches(min_lat, max_lat, min_long, max_long, time_filter: TimeFilter,
-                         ) -> tuple[list[ChurchIndexEvent], list[Church], bool, dict[UUID, bool]]:
+                         ) -> tuple[list[IndexEvent], list[Church], bool, dict[UUID, bool]]:
     event_query = build_event_subquery(time_filter).filter(is_explicitely_other__isnull=True)
     church_query = filter_in_box(build_church_query(time_filter),
                                  min_lat, max_lat, min_long, max_long)\
@@ -349,7 +350,7 @@ def get_count_per_municipality(
 
 def get_churches_in_area(aggregations: list[AggregationItem],
                          time_filter: TimeFilter
-                         ) -> tuple[list[ChurchIndexEvent], list[Church], bool, dict[UUID, bool]]:
+                         ) -> tuple[list[IndexEvent], list[Church], bool, dict[UUID, bool]]:
     if not aggregations:
         return [], [], False, {}
 

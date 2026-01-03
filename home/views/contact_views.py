@@ -1,13 +1,14 @@
 import os
-from django.utils.translation import gettext
 
 from django.core.mail import send_mail, BadHeaderError
 from django.http import HttpResponseBadRequest
 from django.shortcuts import render, redirect
+from django.utils.translation import gettext
 
-from home.models import Diocese, Website, ChurchIndexEvent
+from home.models import Diocese, Website
 from home.services.page_url_service import quote_path, unquote_path
 from home.utils.cloudflare_utils import verify_token
+from scheduling.models import IndexEvent
 
 
 def contact(request, message=None, email=None, name_text=None, message_text=None):
@@ -55,11 +56,11 @@ def contact(request, message=None, email=None, name_text=None, message_text=None
 def about(request):
     diocese_count = Diocese.objects.count()
     website_count = Website.objects.count()
-    church_index_events_count = ChurchIndexEvent.objects.count()
+    index_events_count = IndexEvent.objects.count()
 
     return render(request, 'pages/about.html', {
         'meta_title': 'Qui sommes-nous ?',
         'diocese_count': diocese_count,
         'website_count': website_count,
-        'church_index_events_count': church_index_events_count,
+        'index_events_count': index_events_count,
     })

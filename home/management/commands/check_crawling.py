@@ -5,8 +5,9 @@ from django.utils import timezone
 
 from home.management.abstract_command import AbstractCommand
 from home.management.utils.heartbeat_utils import ping_heartbeat
-from home.models import Website, Crawling, ChurchIndexEvent
+from home.models import Website, Crawling
 from home.utils.date_utils import get_current_day
+from scheduling.models import IndexEvent
 from scraping.parse.holidays import check_holiday_by_zone
 from scraping.parse.liturgical import check_easter_dates
 from scraping.services.parse_pruning_service import check_website_parsing_relations, \
@@ -113,7 +114,7 @@ class Command(AbstractCommand):
 
         self.info(f'Starting checking index events')
         yesterday = get_current_day() - timedelta(days=1)
-        if ChurchIndexEvent.objects.filter(day__lt=yesterday).exists():
+        if IndexEvent.objects.filter(day__lt=yesterday).exists():
             error_message = f'Index events exist from yesterday or before'
             self.error(error_message)
             message = f"""
