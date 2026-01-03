@@ -24,7 +24,7 @@ def do_parse_scheduling(scheduling: Scheduling) -> SchedulingParsingObjects:
     for image_pruning in scheduling.image_prunings.all():
         all_pruning_history_ids.append(image_pruning.pruning_history_id)
 
-    pruning_parsing_history_ids = []
+    pruning_parsing_history_ids = set()
     for pruning_history_id in all_pruning_history_ids:
         historical_pruning = Pruning.history.get(history_id=pruning_history_id)
         pruning = historical_pruning.instance
@@ -36,10 +36,10 @@ def do_parse_scheduling(scheduling: Scheduling) -> SchedulingParsingObjects:
             continue
 
         parsing_history_id = parsing.history.latest().history_id
-        pruning_parsing_history_ids.append((pruning_history_id, parsing_history_id))
+        pruning_parsing_history_ids.add((pruning_history_id, parsing_history_id))
 
     return SchedulingParsingObjects(
-        pruning_parsing_history_ids=pruning_parsing_history_ids,
+        pruning_parsing_history_ids=list(pruning_parsing_history_ids),
     )
 
 
