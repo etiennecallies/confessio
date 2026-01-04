@@ -13,10 +13,12 @@ from home.services.edit_pruning_service import on_pruning_human_validation, \
     set_v2_indices_as_human, get_single_line_colored_piece, update_sentence_labels_with_request, \
     TEMPORAL_COLORS, EVENT_MENTION_COLORS
 from home.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
+from scheduling.public import init_scheduling_for_pruning
 from scraping.extract_v2.split_content import create_line_and_tag_v2
 from scraping.prune.models import Source
-from scraping.services.parse_pruning_service import on_parsing_human_validation, \
-    set_human_json, ParsingValidationError, force_reparse_parsing_for_pruning
+from scraping.services.edit_parsing_service import on_parsing_human_validation, \
+    ParsingValidationError, set_llm_json_as_human_json
+from scraping.services.parse_pruning_service import force_reparse_parsing_for_pruning
 from scraping.services.parsing_service import get_schedules_list_from_dict
 from scraping.services.prune_scraping_service import SentenceQualifyLineInterface, \
     MLSentenceQualifyLineInterface
@@ -103,7 +105,9 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
             pruning_uuid = request.POST.get('pruning_uuid')
             try:
                 pruning = Pruning.objects.get(uuid=pruning_uuid)
+                # TODO this should not be two async tasks
                 force_reparse_parsing_for_pruning(moderation.parsing, pruning)
+                init_scheduling_for_pruning(pruning)
                 do_redirect = False
             except Pruning.DoesNotExist:
                 return HttpResponseNotFound(
@@ -428,7 +432,7 @@ def moderate_erase_human_by_llm(request, parsing_moderation_uuid=None):
         return HttpResponseBadRequest(f'Can not erase human by llm because parsing '
                                       f'{parsing.uuid} does not have llm_json')
 
-    set_human_json(parsing)
+    set_llm_json_as_human_json(parsing)
 
     return redirect_to_moderation(parsing_moderation, parsing_moderation.category, 'parsing',
                                   parsing_moderation.marked_as_bug_at is not None,

@@ -3,7 +3,7 @@ from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 
 from home.models import Website, Image
-from scraping.services.page_service import check_for_orphan_prunings
+from scheduling.process import init_scheduling
 
 
 @receiver(pre_delete, sender=Image)
@@ -12,10 +12,6 @@ def image_pre_delete(sender, instance, origin, **kwargs):
         print(f'Image pre_delete signal triggered by {type(origin)}. Ignoring signal.')
         return
 
-    prunings = instance.prunings.all()
-    if prunings:
-        print(f'Image pre_delete signal triggered for image {instance.uuid} {instance.name},'
-              f' website {instance.website.name}')
-        transaction.on_commit(lambda: check_for_orphan_prunings(prunings, instance.website))
-    else:
-        print(f'No prunings found for image {instance.uuid} {instance.name}. No action taken.')
+    print(f'Image pre_delete signal triggered for image {instance.uuid} {instance.name},'
+          f' website {instance.website.name}')
+    transaction.on_commit(lambda: init_scheduling(instance.website))

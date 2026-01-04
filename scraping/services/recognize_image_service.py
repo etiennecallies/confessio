@@ -6,7 +6,7 @@ from scraping.recognize.recognize_image_with_llm import (get_html_from_image, ge
                                                          get_llm_model)
 from scraping.scrape.download_refine_and_extract import get_extracted_html_list
 from scraping.services.image_service import get_image_html
-from scraping.services.prune_scraping_service import create_pruning, prune_pruning
+from scraping.services.prune_scraping_service import create_pruning
 
 
 def recognize_images_for_website(website: Website):
@@ -56,6 +56,3 @@ def extract_and_prune_image(image: Image):
     image.prunings.clear()
     for pruning in prunings:
         image.prunings.add(pruning)
-
-    for pruning in prunings:
-        prune_pruning(pruning)

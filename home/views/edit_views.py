@@ -12,14 +12,15 @@ from home.services.edit_pruning_service import get_colored_pieces, update_senten
     get_pruning_human_pieces, get_colored_pieces_v2, set_v2_indices_as_human, \
     update_sentence_labels_with_request, TEMPORAL_COLORS, EVENT_MENTION_COLORS
 from jsoneditor.forms import JSONSchemaForm
+from scheduling.public import init_scheduling_for_sentences
 from scraping.extract_v2.qualify_line_interfaces import DummyQualifyLineInterface
 from scraping.parse.schedules import SchedulesList, SCHEDULES_LIST_VERSION
 from scraping.prune.action_interfaces import DummyActionInterface
 from scraping.prune.models import Action
-from scraping.services.parse_pruning_service import reset_counters_of_parsing
+from scraping.services.edit_parsing_service import set_human_json, reset_counters_of_parsing
 from scraping.services.parsing_service import get_parsing_schedules_list
 from scraping.services.prune_scraping_service import SentenceFromDbActionInterface, \
-    reprune_affected_prunings, prune_pruning, SentenceQualifyLineInterface
+    prune_pruning, SentenceQualifyLineInterface
 from scraping.utils.html_utils import split_lines
 
 
@@ -58,7 +59,7 @@ def edit_pruning_v1(request, pruning_uuid):
             reset_pages_counter_of_pruning(pruning)
 
             # re-prune affected prunings
-            reprune_affected_prunings(modified_sentences, pruning)
+            init_scheduling_for_sentences(modified_sentences)
 
     colored_pieces = get_colored_pieces(extracted_html,
                                         SentenceFromDbActionInterface(pruning))
@@ -134,7 +135,7 @@ def edit_pruning_v2(request, pruning_uuid):
             reset_pages_counter_of_pruning(pruning)
 
             # re-prune affected prunings
-            reprune_affected_prunings(modified_sentences, pruning)
+            init_scheduling_for_sentences(modified_sentences)
 
     colored_pieces = get_colored_pieces_v2(extracted_html,
                                            SentenceQualifyLineInterface(pruning))
@@ -166,11 +167,8 @@ def edit_parsing(request, parsing_uuid):
         try:
             schedules_list = SchedulesList(**schedules_list_as_dict)
             schedules_list.check_is_valid()
-            parsing.human_json = schedules_list.model_dump(mode='json')
-            parsing.human_json_version = SCHEDULES_LIST_VERSION
-            parsing.save()
+            set_human_json(parsing, schedules_list.model_dump(mode='json'), SCHEDULES_LIST_VERSION)
             success = True
-            # TODO init_scheduling for this website?
 
             if schedules_list != previous_schedule_list:
                 # reset page counter

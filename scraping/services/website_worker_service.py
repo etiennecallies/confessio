@@ -7,6 +7,7 @@ from django.db.models.functions import Now
 
 from home.models import Website, Log
 from home.utils.log_utils import info, start_log_buffer, get_log_buffer
+from scheduling.process import init_scheduling
 from scraping.scrape.download_refine_and_extract import get_fresh_extracted_html_list
 from scraping.services.crawl_website_service import crawl_website
 from scraping.services.page_service import delete_page
@@ -67,6 +68,7 @@ def handle_crawl_website(website: Website):
             info('No crawling found')
 
     recognize_images_for_website(website)
+    init_scheduling(website)
     save_buffer(website, Log.Type.CRAWLING)
 
 
@@ -117,6 +119,7 @@ def handle_scrape_page(website: Website):
         info(f'Successfully scraped page {page.url} {page.uuid}')
 
     recognize_images_for_website(website)
+    init_scheduling(website)
 
     info(f'Successfully scraped website {website.name} {website.uuid}')
     save_buffer(website, Log.Type.SCRAPING)

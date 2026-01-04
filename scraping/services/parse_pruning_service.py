@@ -134,66 +134,6 @@ def parsing_needs_moderation(parsing: Parsing):
     return False
 
 
-#########################
-# MODERATION VALIDATION #
-#########################
-
-class ParsingValidationError(Exception):
-    pass
-
-
-def on_parsing_human_validation(parsing_moderation: ParsingModeration):
-    parsing = parsing_moderation.parsing
-    if parsing.human_json is None:
-        if parsing.llm_json is None:
-            raise ParsingValidationError(
-                'No human nor LLM json for parsing, can not be validated'
-            )
-
-        set_human_json(parsing)
-
-    increment_counters_of_parsing(parsing)
-
-
-def set_human_json(parsing: Parsing):
-    parsing.human_json = parsing.llm_json
-    parsing.human_json_version = parsing.llm_json_version
-    parsing.save()
-    # TODO init_scheduling for this website?
-
-
-############
-# COUNTERS #
-############
-
-def reset_counters_of_parsing(parsing: Parsing):
-    websites_to_update = set()
-    for pruning in parsing.prunings.all():
-        for scraping in pruning.scrapings.all():
-            page = scraping.page
-            page.parsing_validation_counter = -1
-            page.save()
-            websites_to_update.add(page.website)
-
-    for website in websites_to_update:
-        website.parsing_validation_counter = -1
-        website.save()
-
-
-def increment_counters_of_parsing(parsing: Parsing):
-    websites_to_update = set()
-    for pruning in parsing.prunings.all():
-        for scraping in pruning.scrapings.all():
-            page = scraping.page
-            page.parsing_validation_counter += 1
-            page.save()
-            websites_to_update.add(page.website)
-
-    for website in websites_to_update:
-        website.parsing_validation_counter += 1
-        website.save()
-
-
 ####################
 # MODERATION CLEAN #
 ####################
@@ -302,8 +242,6 @@ def unlink_website_from_parsing(parsing: Parsing):
     parsing.website = None
     parsing.save()
 
-    # TODO init_scheduling for this website?
-
     info(f'deleting not validated moderation for parsing {parsing} since it has no '
          f'website any more')
     ParsingModeration.objects.filter(parsing=parsing, validated_at__isnull=True).delete()
@@ -385,16 +323,11 @@ def prepare_parsing(
             and parsing.llm_model == llm_client.get_model() \
             and parsing.prompt_template_hash == prompt_template_hash:
 
-        # Check if parsing is already linked to the pruning
-        if not parsing.prunings.filter(pk=pruning.pk).exists():
-            parsing.prunings.add(pruning)
-
         # Check if website is already linked to the pruning
         if not parsing.website:
             info(f'Linking parsing {parsing.uuid} for website {website.uuid}')
             parsing.website = website
             parsing.save()
-            # TODO init_scheduling for this website?
 
         # Adding necessary moderation if missing
         add_necessary_parsing_moderation(parsing, website)
@@ -492,6 +425,4 @@ def save_parsing(parsing: Parsing | None, pruning: Pruning, website: Website,
         )
         parsing.save()
 
-    parsing.prunings.add(pruning)
     add_necessary_parsing_moderation(parsing, website)
-    # TODO init_scheduling for this website?

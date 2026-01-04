@@ -6,6 +6,7 @@ from django.db.models.functions import Now
 from pydantic import BaseModel
 
 from home.models import Pruning, Sentence, Classifier
+from scheduling.public import init_scheduling_for_pruning
 from scraping.extract.extract_content import split_and_tag, BaseActionInterface
 from scraping.extract.tag_line import Tag
 from scraping.extract_v2.models import Temporal, EventMention
@@ -15,7 +16,7 @@ from scraping.extract_v2.split_content import split_and_tag_v2, LineAndTagV2
 from scraping.prune.models import Action, Source
 from scraping.prune.prune_lines import get_pruned_lines_indices
 from scraping.refine.refine_content import replace_link_by_their_content
-from scraping.services.prune_scraping_service import update_parsings, add_necessary_moderation_v2, \
+from scraping.services.prune_scraping_service import add_necessary_moderation_v2, \
     add_necessary_moderation
 from scraping.services.train_classifier_service import extract_label
 from scraping.utils.html_utils import split_lines
@@ -53,7 +54,7 @@ def set_human_indices(pruning: Pruning, indices: list[int]):
     pruning.save()
     if pruning.ml_indices != indices:
         reset_pages_counter_of_pruning(pruning)
-        update_parsings(pruning)
+        init_scheduling_for_pruning(pruning)
 
     add_necessary_moderation(pruning)
     add_necessary_moderation_v2(pruning)
@@ -132,8 +133,14 @@ def update_sentence_action(sentence: Sentence, pruning: Pruning, user: User, act
 
 def set_ml_indices_as_human(pruning: Pruning):
     pruning.human_indices = pruning.ml_indices
-    pruning.pruned_indices = pruning.ml_indices
+    needs_reschedule = False
+    if pruning.pruned_indices != pruning.ml_indices:
+        pruning.pruned_indices = pruning.ml_indices
+        needs_reschedule = True
     pruning.save()
+
+    if needs_reschedule:
+        init_scheduling_for_pruning(pruning)
 
 
 #################
@@ -243,16 +250,16 @@ def update_sentence_labels_with_request(request, piece_id: str, sentence: Senten
 
 def set_v2_indices_as_human(pruning: Pruning):
     pruning.human_indices = pruning.v2_indices
-    needs_reparse = False
+    needs_reschedule = False
     if pruning.pruned_indices != pruning.v2_indices:
         pruning.pruned_indices = pruning.v2_indices
-        needs_reparse = True
+        needs_reschedule = True
     pruning.save()
 
     add_necessary_moderation_v2(pruning)
 
-    if needs_reparse:
-        update_parsings(pruning)
+    if needs_reschedule:
+        init_scheduling_for_pruning(pruning)
 
 
 ######################
