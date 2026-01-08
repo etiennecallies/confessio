@@ -5,6 +5,10 @@ from scheduling.models import Scheduling
 from scheduling.process import init_scheduling
 
 
+###################
+# INIT SCHEDULING #
+###################
+
 def init_scheduling_for_sentences(sentences: list[Sentence]):
     affected_prunings = []
     for sentence in sentences:
@@ -27,6 +31,10 @@ def init_schedulings_for_parsing(parsing: Parsing):
     for website in websites:
         init_scheduling(website)
 
+
+################
+# GET WEBSITES #
+################
 
 def get_websites_of_prunings(prunings: list[Pruning]) -> list[Website]:
     history_ids = Subquery(
