@@ -11,6 +11,8 @@ from home.models import Pruning, Website, Parsing, ParsingModeration, Page, Imag
 from home.utils.hash_utils import hash_string_to_hex
 from home.utils.list_utils import get_desc_by_id
 from home.utils.log_utils import info, start_log_buffer, get_log_buffer
+from scheduling.models import Scheduling
+from scheduling.services.scheduling_service import get_scheduling_parsings
 from scraping.parse.llm_client import LLMClientInterface
 from scraping.parse.parse_with_llm import parse_with_llm, get_prompt_template, get_llm_client
 from scraping.parse.schedules import SchedulesList, SCHEDULES_LIST_VERSION
@@ -152,8 +154,8 @@ def clean_parsing_moderations() -> int:
 # WEBSITE <-> PARSING relations #
 #################################
 
-def check_website_parsing_relations(website: Website) -> bool:
-    direct_parsings = {p.uuid for p in Parsing.objects.filter(website=website).all()}
+def check_website_parsing_relations(website: Website, scheduling: Scheduling) -> bool:
+    direct_parsings = get_scheduling_parsings(scheduling)
     indirect_parsings = {
         parsing.uuid
         for parsing in [
@@ -167,14 +169,16 @@ def check_website_parsing_relations(website: Website) -> bool:
             for pruning in Pruning.objects.filter(images__website=website).all()
         ] if parsing
     }
-    return direct_parsings == indirect_parsings
+    direct_parsings_uuid = {parsing.uuid for parsing in direct_parsings}
+    indirect_parsings_uuid = {parsing_uuid for parsing_uuid in indirect_parsings}
+    return direct_parsings_uuid == indirect_parsings_uuid
 
 
-def debug_website_parsing_relations(website: Website):
+def debug_website_parsing_relations(website: Website, scheduling: Scheduling) -> None:
     info(f'Website {website.name} {website.uuid} parsing relations:')
     info()
     info('Direct parsings:')
-    for parsing in Parsing.objects.filter(website=website).all():
+    for parsing in get_scheduling_parsings(scheduling):
         info(f' - Parsing {parsing.uuid}')
         for pruning in parsing.prunings.all():
             info(f'  - Pruning {pruning.uuid}')

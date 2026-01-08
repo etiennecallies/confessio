@@ -80,9 +80,6 @@ class Website(TimeStampMixin):
     def one_page_has_confessions(self) -> bool:
         return any(map(lambda p: p.has_confessions(), self.get_pages()))
 
-    def all_pages_parsed(self) -> bool:
-        return all(map(lambda page: page.has_been_parsed(), self.get_pages()))
-
     def delete_if_no_parish(self):
         if not self.parishes.exists():
             self.delete()
