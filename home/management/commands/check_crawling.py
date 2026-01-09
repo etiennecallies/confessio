@@ -10,8 +10,6 @@ from home.utils.date_utils import get_current_day
 from scheduling.models import IndexEvent, Scheduling
 from scraping.parse.holidays import check_holiday_by_zone
 from scraping.parse.liturgical import check_easter_dates
-from scraping.services.parse_pruning_service import check_website_parsing_relations, \
-    debug_website_parsing_relations
 from sourcing.services.church_location_service import find_church_geo_outliers
 
 
@@ -27,7 +25,6 @@ class Command(AbstractCommand):
         website_not_crawled_recently = []
         website_not_indexed = []
         website_not_indexed_recently = []
-        website_badly_linked_to_parsing = []
         for website in active_websites:
             try:
                 crawling = website.crawling
@@ -54,19 +51,13 @@ class Command(AbstractCommand):
                 website_not_indexed_recently.append(website)
                 continue
 
-            if not check_website_parsing_relations(website, scheduling):
-                website_badly_linked_to_parsing.append(website)
-                self.error(f'Website {website.name} {website.uuid} has bad parsing links')
-                debug_website_parsing_relations(website, scheduling)
-
         if website_not_crawled or website_not_crawled_recently or website_not_indexed \
-                or website_badly_linked_to_parsing:
+                or website_not_indexed_recently:
             error_message = (f'Crawling failure: {len(website_not_crawled)} websites have never '
                              f'been crawled and {len(website_not_crawled_recently)} have '
                              f'not been crawled recently and {len(website_not_indexed)} have not '
                              f'been indexed and {len(website_not_indexed_recently)} have not '
-                             f'been indexed recently and {len(website_badly_linked_to_parsing)} '
-                             f'with issues')
+                             f'been indexed recently')
             self.error(error_message)
             website_not_crawled_str = "\n".join(
                 [f" - {website.name} {website.uuid}" for website in website_not_crawled[:5]])
@@ -78,9 +69,6 @@ class Command(AbstractCommand):
             website_not_indexed_recently_str = "\n".join(
                 [f" - {website.name} {website.uuid}"
                  for website in website_not_indexed_recently[:5]])
-            website_badly_linked_to_parsing_str = "\n".join(
-                [f" - {website.name} {website.uuid}"
-                 for website in website_badly_linked_to_parsing[:5]])
 
             message = f"""
             Crawling failure
@@ -96,9 +84,6 @@ class Command(AbstractCommand):
 
             Some websites not indexed recently (total {len(website_not_indexed_recently)}):
             {website_not_indexed_recently_str}
-
-            Some websites with bad parsing links (total {len(website_badly_linked_to_parsing)}):
-            {website_badly_linked_to_parsing_str}
             """
             mail_admins(subject=error_message, message=message)
             self.success(f'Email sent to admins')

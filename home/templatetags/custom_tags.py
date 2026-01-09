@@ -7,7 +7,7 @@ from django.urls import reverse
 from fetching.models import OClocherOrganizationModeration, OClocherMatchingModeration
 from home.models import WebsiteModeration, ChurchModeration, ParishModeration, \
     PruningModeration, SentenceModeration, ParsingModeration, ModerationMixin, Pruning, \
-    Page, Parsing, ReportModeration, Diocese
+    ReportModeration, Diocese
 from home.services.website_events_service import WebsiteEvents
 from home.services.website_schedules_service import WebsiteSchedules
 from home.utils.date_utils import get_current_year
@@ -116,11 +116,6 @@ def get_unvalidated_pruning_moderation(pruning: Pruning) -> Optional[PruningMode
                                           category=PruningModeration.Category.NEW_PRUNED_HTML).get()
     except PruningModeration.DoesNotExist:
         return None
-
-
-@register.filter
-def get_page_parsing_of_pruning(page: Page, pruning: Pruning) -> Optional[Parsing]:
-    return page.get_parsing(pruning)
 
 
 @register.simple_tag

@@ -6,12 +6,11 @@ from datetime import timedelta
 from django.db.models.functions import Now
 from django.utils import timezone
 
-from home.models import Pruning, Website, Parsing, ParsingModeration, Page, Image, Church
+from home.models import Pruning, Parsing, ParsingModeration, Church
 from home.utils.hash_utils import hash_string_to_hex
 from home.utils.list_utils import get_desc_by_id
 from home.utils.log_utils import info
-from scheduling.models import Scheduling
-from scheduling.services.scheduling_service import get_scheduling_parsings, get_websites_of_parsing
+from scheduling.services.scheduling_service import get_websites_of_parsing
 from scraping.parse.llm_client import LLMClientInterface
 from scraping.parse.parse_with_llm import parse_with_llm, get_prompt_template, get_llm_client
 from scraping.parse.schedules import SchedulesList, SCHEDULES_LIST_VERSION
@@ -149,77 +148,6 @@ def clean_parsing_moderations() -> int:
     return counter
 
 
-#################################
-# WEBSITE <-> PARSING relations #
-#################################
-
-def check_website_parsing_relations(website: Website, scheduling: Scheduling) -> bool:
-    direct_parsings = get_scheduling_parsings(scheduling)
-    indirect_parsings = {
-        parsing.uuid
-        for parsing in [
-            pruning.get_parsing(website)
-            for pruning in Pruning.objects.filter(scrapings__page__website=website).all()
-        ] if parsing
-    } | {
-        parsing.uuid
-        for parsing in [
-            pruning.get_parsing(website)
-            for pruning in Pruning.objects.filter(images__website=website).all()
-        ] if parsing
-    }
-    direct_parsings_uuid = {parsing.uuid for parsing in direct_parsings}
-    indirect_parsings_uuid = {parsing_uuid for parsing_uuid in indirect_parsings}
-    return direct_parsings_uuid == indirect_parsings_uuid
-
-
-def debug_website_parsing_relations(website: Website, scheduling: Scheduling) -> None:
-    info(f'Website {website.name} {website.uuid} parsing relations:')
-    info()
-    info('Direct parsings:')
-    for parsing in get_scheduling_parsings(scheduling):
-        info(f' - Parsing {parsing.uuid}')
-        for pruning in parsing.prunings.all():
-            info(f'  - Pruning {pruning.uuid}')
-            for scraping in pruning.scrapings.all():
-                info(f'   - Scraping {scraping.uuid}')
-                page = scraping.page
-                info(f'    - Page {page.uuid} {page.url}')
-                info(f'     - Website {page.website.name} {page.website.uuid}')
-            for image in pruning.images.all():
-                info(f'   - Image {image.uuid}')
-                info(f'    - Website {image.website.name} {image.website.uuid}')
-
-    info('Indirect parsings (page):')
-    for page in Page.objects.filter(website=website).all():
-        info(f' - Page {page.uuid} {page.url}')
-        scraping = page.scraping
-        info(f'  - Scraping {scraping.uuid}')
-        for pruning in scraping.prunings.all():
-            debug_pruning(pruning, website)
-    info('Indirect parsings (image):')
-    for image in Image.objects.filter(website=website).all():
-        info(f' - Image {image.uuid}')
-        for pruning in image.prunings.all():
-            debug_pruning(pruning, website)
-    info()
-
-
-def debug_pruning(pruning: Pruning, website: Website) -> None:
-    info(f'   - Pruning {pruning.uuid}')
-    parsing = pruning.get_parsing(website)
-    if parsing:
-        info(f'    - Parsing {parsing.uuid}')
-        websites = get_websites_of_parsing(parsing)
-        if websites:
-            for website in websites:
-                info(f'     - Website {website.name} {website.uuid}')
-        else:
-            info(f'     - No website for parsing {parsing.uuid}')
-    else:
-        info(f'    - No parsing for pruning {pruning.uuid}')
-
-
 #################
 # Pruning links #
 #################
@@ -231,37 +159,6 @@ def remove_useless_moderation_for_parsing(parsing: Parsing):
     info(f'deleting not validated moderation for parsing {parsing} since it has no '
          f'website any more')
     ParsingModeration.objects.filter(parsing=parsing, validated_at__isnull=True).delete()
-
-
-def unlink_pruning_from_parsing(parsing: Parsing, pruning: Pruning):
-    parsing.prunings.remove(pruning)
-    remove_useless_moderation_for_parsing(parsing)
-
-
-def unlink_pruning_from_parsings_except_truncated_html_hash(pruning: Pruning,
-                                                            truncated_html_hash: str):
-    """
-    Handle change of truncated_html for a pruning
-    """
-    parsings = Parsing.objects.filter(prunings=pruning)\
-        .exclude(truncated_html_hash=truncated_html_hash).all()
-
-    for parsing in parsings:
-        info(f'unlinking pruning {pruning.uuid} from parsing {parsing.uuid} '
-             f'because of changed truncated html')
-        unlink_pruning_from_parsing(parsing, pruning)
-
-
-def unlink_orphan_pruning_for_website(pruning: Pruning, website: Website):
-    """
-    Handle a pruning that disappeared for a website
-    """
-    parsings = Parsing.objects.filter(prunings=pruning, website=website).all()
-
-    for parsing in parsings:
-        info(f'unlinking parsing {parsing.uuid} with website {website.uuid} '
-             f'from orphan pruning {pruning.uuid}')
-        unlink_pruning_from_parsing(parsing, pruning)
 
 
 ########
@@ -283,7 +180,6 @@ class ParsingPreparation:
 def prepare_parsing(pruning: Pruning, churches: list[Church]) -> None | ParsingPreparation:
     truncated_html = get_truncated_html(pruning)
     truncated_html_hash = hash_string_to_hex(truncated_html) if truncated_html else None
-    unlink_pruning_from_parsings_except_truncated_html_hash(pruning, truncated_html_hash)
 
     church_desc_by_id = get_desc_by_id([church.get_desc() for church in churches])
 

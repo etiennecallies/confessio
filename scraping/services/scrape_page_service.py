@@ -44,7 +44,7 @@ def upsert_extracted_html_list(page: Page, extracted_html_list: list[str]):
             scraping.prunings.add(pruning)
 
     if old_prunings:
-        check_for_orphan_prunings(old_prunings, page.website)
+        check_for_orphan_prunings(old_prunings)
 
 
 def delete_orphan_scrapings() -> int:
