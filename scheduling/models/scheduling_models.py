@@ -14,9 +14,6 @@ class Scheduling(TimeStampMixin):
 
     website = models.ForeignKey('home.Website', on_delete=models.CASCADE,
                                 related_name='schedulings')
-    must_be_indexed_after_scheduling = models.ForeignKey(
-        'Scheduling', on_delete=models.SET_NULL, null=True, blank=True,
-        related_name='must_be_indexed_before_schedulings')
     status = models.CharField(max_length=16, choices=Status.choices)
 
     merged_schedules = models.JSONField(null=True, blank=True)

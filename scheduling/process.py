@@ -15,12 +15,10 @@ from scheduling.services.prune_scheduling_service import do_prune_scheduling, \
 from scheduling.tasks import worker_prune_scheduling, worker_parse_scheduling
 
 
-def init_scheduling(website: Website,
-                    must_be_indexed_after_scheduling: Scheduling | None = None) -> Scheduling:
+def init_scheduling(website: Website) -> Scheduling:
     print(f"Initializing scheduling for website {website}.")
 
-    new_scheduling, scheduling_related_objects = \
-        build_scheduling(website, must_be_indexed_after_scheduling)
+    new_scheduling, scheduling_related_objects = build_scheduling(website)
     with transaction.atomic():
         # Cancel any existing in-progress Scheduling for this website
         Scheduling.objects.filter(

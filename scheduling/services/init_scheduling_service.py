@@ -67,13 +67,10 @@ def get_oclocher_schedule_history_ids(website: Website) -> list[int]:
     return oclocher_schedule_history_ids
 
 
-def build_scheduling(website: Website,
-                     must_be_indexed_after_scheduling: Scheduling | None
-                     ) -> tuple[Scheduling, SchedulingRelatedObjects]:
+def build_scheduling(website: Website) -> tuple[Scheduling, SchedulingRelatedObjects]:
     scheduling = Scheduling(
         website=website,
         status=Scheduling.Status.BUILT,
-        must_be_indexed_after_scheduling=must_be_indexed_after_scheduling,
     )
 
     church_history_ids = get_church_history_ids(website)
