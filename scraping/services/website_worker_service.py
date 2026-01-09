@@ -11,7 +11,6 @@ from scheduling.process import init_scheduling
 from scraping.scrape.download_refine_and_extract import get_fresh_extracted_html_list
 from scraping.services.crawl_website_service import crawl_website
 from scraping.services.page_service import delete_page
-from scraping.services.recognize_image_service import recognize_images_for_website
 from scraping.services.scrape_page_service import upsert_extracted_html_list
 
 
@@ -67,7 +66,6 @@ def handle_crawl_website(website: Website):
         else:
             info('No crawling found')
 
-    recognize_images_for_website(website)
     init_scheduling(website)
     save_buffer(website, Log.Type.CRAWLING)
 
@@ -118,7 +116,6 @@ def handle_scrape_page(website: Website):
         upsert_extracted_html_list(page, extracted_html_list)
         info(f'Successfully scraped page {page.url} {page.uuid}')
 
-    recognize_images_for_website(website)
     init_scheduling(website)
 
     info(f'Successfully scraped website {website.name} {website.uuid}')

@@ -1,6 +1,11 @@
-from home.models import Image, Website
+from background_task import background
+from background_task.tasks import TaskSchedule
+
+from home.models import Image
 from home.services.upload_image_service import get_image_public_url
 from home.utils.hash_utils import hash_string_to_hex
+from home.utils.log_utils import info
+from scheduling.process import init_scheduling
 from scraping.parse.llm_client import LLMProvider
 from scraping.recognize.recognize_image_with_llm import (get_html_from_image, get_prompt,
                                                          get_llm_model)
@@ -9,18 +14,26 @@ from scraping.services.image_service import get_image_html
 from scraping.services.prune_scraping_service import create_pruning
 
 
-def recognize_images_for_website(website: Website):
-    for image in website.images.all():
-        recognize_and_parse_image(image)
+def recognize_and_extract_image(image: Image):
+    worker_recognize_and_extract_image(str(image.uuid))
 
 
-def recognize_and_parse_image(image: Image):
+@background(queue='main', schedule=TaskSchedule(priority=3))
+def worker_recognize_and_extract_image(image_uuid: str):
+    try:
+        image = Image.objects.get(uuid=image_uuid)
+    except Image.DoesNotExist as e:
+        info(f'Image {image_uuid} does not exist: {e}')
+        return
+
     recognize_image(image)
-    extract_and_prune_image(image)
+    extract_image(image)
+    init_scheduling(image.website)
 
 
 def recognize_image(image: Image):
     if image.llm_provider is not None:
+        print(f'Image {image.uuid} already recognized with LLM')
         return
 
     print(f'Recognizing image {image.uuid} with LLM')
@@ -42,13 +55,11 @@ def recognize_image(image: Image):
     image.save()
 
 
-def extract_and_prune_image(image: Image):
-    # Extract
+def extract_image(image: Image):
     extracted_html_list = get_extracted_html_list(get_image_html(image))
     if not extracted_html_list:
         return
 
-    # Prune
     prunings = []
     for extracted_html_item in extracted_html_list:
         prunings.append(create_pruning(extracted_html_item))

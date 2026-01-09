@@ -26,6 +26,7 @@ from home.services.website_schedules_service import get_website_schedules
 from home.utils.date_utils import get_current_day, get_current_year
 from home.utils.web_utils import redirect_with_url_params
 from scheduling.models import IndexEvent
+from scraping.services.recognize_image_service import recognize_and_extract_image
 from sourcing.utils.string_utils import lower_first, city_and_prefix
 
 
@@ -41,7 +42,7 @@ def render_map(request, center,
     upload_success = extract_bool('upload_success', request)
     upload_error_message = request.GET.get('upload_error_message', None)
     success_message = success_message or (
-        "L'image a été chargée avec succès ! Elle sera analysée dans les deux heures."
+        "L'image a été chargée avec succès ! Elle sera analysée dans les deux minutes."
         if upload_success else None
     )
 
@@ -402,10 +403,15 @@ def website_upload_image(request, website_uuid: str):
         return HttpResponseNotFound("Website does not exist with this uuid")
 
     if request.method == 'POST':
-        image = request.FILES.get('file-input', None)
-        upload_error_message = find_error_in_document_to_upload(image)
+        document = request.FILES.get('file-input', None)
+        upload_error_message = find_error_in_document_to_upload(document)
         if not upload_error_message:
-            success, error_message = upload_image(image, website, request)
+            image, error_message = upload_image(document, website, request)
+            if image:
+                success = True
+                recognize_and_extract_image(image)
+            else:
+                success = False
 
             return redirect_with_url_params(
                 "website_view", website_uuid=website_uuid,

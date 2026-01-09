@@ -26,12 +26,13 @@ def find_error_in_document_to_upload(document) -> str | None:
     return None
 
 
-def upload_image(document, website: Website, request) -> tuple[bool, str | None]:
+def upload_image(document, website: Website, request
+                 ) -> tuple[Image | None, str | None]:
     if too_many_recent_images():
         subject = 'Too many images uploaded recently'
         send_email_to_admin(subject, subject)
 
-        return False, "Trop d'images ont été téléchargées récemment. Veuillez réessayer plus tard."
+        return None, "Trop d'images ont été téléchargées récemment. Veuillez réessayer plus tard."
 
     # Generate unique filename
     image_name = document.name.replace(' ', '_').replace('/', '_')
@@ -63,11 +64,11 @@ def upload_image(document, website: Website, request) -> tuple[bool, str | None]
             subject = f'New image on confessio for {website.name}'
             send_email_to_admin(subject, email_body)
 
-        return True, None
+        return image, None
 
     image.delete()
 
-    return False, 'Une erreur est survenue lors du chargement du fichier.'
+    return None, 'Une erreur est survenue lors du chargement du fichier.'
 
 
 def upload_to_s3(file, filename) -> bool:
