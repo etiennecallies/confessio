@@ -1,8 +1,9 @@
 from django.db import transaction
 
 from home.models import Website
-from scheduling.models import Scheduling
-from scheduling.services.index_scheduling_service import do_index_scheduling
+from scheduling.models import Scheduling, PruningParsing
+from scheduling.services.index_scheduling_service import do_index_scheduling, \
+    clean_parsings_moderations
 from scheduling.services.init_scheduling_service import build_scheduling, \
     bulk_create_scheduling_related_objects
 from scheduling.services.match_scheduling_service import bulk_create_scheduling_matching_objects, \
@@ -160,10 +161,12 @@ def index_scheduling(scheduling: Scheduling):
 
         # 2. Delete previous INDEXED schedulings for the same website
         # This will cascade delete related indexed events
-        Scheduling.objects.filter(
-            website=scheduling.website,
-            status=Scheduling.Status.INDEXED,
-        ).delete()
+        indexed_schedulings = Scheduling.objects.filter(website=scheduling.website,
+                                                        status=Scheduling.Status.INDEXED)
+        # we save parsing_history_ids to later clean up moderations
+        parsing_history_ids = PruningParsing.objects.filter(scheduling__in=indexed_schedulings)\
+            .values_list('parsing_history_id', flat=True).distinct()
+        indexed_schedulings.delete()
 
         # 3. Save index events
         for index_event in index_events:
@@ -172,3 +175,5 @@ def index_scheduling(scheduling: Scheduling):
         # 4. Mark scheduling as INDEXED
         scheduling.status = Scheduling.Status.INDEXED
         scheduling.save()
+
+    clean_parsings_moderations(list(parsing_history_ids))

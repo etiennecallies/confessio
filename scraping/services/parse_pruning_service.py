@@ -13,7 +13,7 @@ from home.utils.hash_utils import hash_string_to_hex
 from home.utils.list_utils import get_desc_by_id
 from home.utils.log_utils import info, start_log_buffer, get_log_buffer
 from scheduling.models import Scheduling
-from scheduling.services.scheduling_service import get_scheduling_parsings
+from scheduling.services.scheduling_service import get_scheduling_parsings, get_websites_of_parsing
 from scraping.parse.llm_client import LLMClientInterface
 from scraping.parse.parse_with_llm import parse_with_llm, get_prompt_template, get_llm_client
 from scraping.parse.schedules import SchedulesList, SCHEDULES_LIST_VERSION
@@ -144,7 +144,7 @@ def parsing_needs_moderation(parsing: Parsing):
 def clean_parsing_moderations() -> int:
     counter = 0
     for parsing_moderation in ParsingModeration.objects.filter(validated_at__isnull=True).all():
-        if not parsing_moderation.parsing.website:
+        if not get_websites_of_parsing(parsing_moderation.parsing):
             parsing_moderation.delete()
             counter += 1
 
@@ -212,8 +212,10 @@ def debug_pruning(pruning: Pruning, website: Website) -> None:
     parsing = pruning.get_parsing(website)
     if parsing:
         info(f'    - Parsing {parsing.uuid}')
-        if parsing.website:
-            info(f'     - Website {parsing.website.name} {parsing.website.uuid}')
+        websites = get_websites_of_parsing(parsing)
+        if websites:
+            for website in websites:
+                info(f'     - Website {website.name} {website.uuid}')
         else:
             info(f'     - No website for parsing {parsing.uuid}')
     else:
@@ -221,10 +223,10 @@ def debug_pruning(pruning: Pruning, website: Website) -> None:
 
 
 ###########################
-# Website & Pruning links #
+# Pruning links #
 ###########################
 
-def unlink_website_from_parsings_except_church_desc_by_id(website: Website,
+def unlink_pruning_from_parsings_except_church_desc_by_id(website: Website,
                                                           church_desc_by_id: dict[int, str]):
     """
     Handle change of church_desc_by_id for a website
@@ -236,16 +238,12 @@ def unlink_website_from_parsings_except_church_desc_by_id(website: Website,
         info(f'parsing {parsing.uuid} has changed church_desc_by_id, unlinking website '
              f'{website.uuid} and all prunings')
         parsing.prunings.clear()
-        unlink_website_from_parsing(parsing)
+        remove_useless_moderation_for_parsing(parsing)
 
 
-def unlink_website_from_parsing(parsing: Parsing):
-    if not parsing.website:
+def remove_useless_moderation_for_parsing(parsing: Parsing):
+    if get_websites_of_parsing(parsing):
         return
-
-    # unlink website from parsing
-    parsing.website = None
-    parsing.save()
 
     info(f'deleting not validated moderation for parsing {parsing} since it has no '
          f'website any more')
@@ -254,11 +252,7 @@ def unlink_website_from_parsing(parsing: Parsing):
 
 def unlink_pruning_from_parsing(parsing: Parsing, pruning: Pruning):
     parsing.prunings.remove(pruning)
-    if parsing.website:
-        if not parsing.prunings.filter(scrapings__page__website=parsing.website).exists()\
-                and not parsing.prunings.filter(images__website=parsing.website).exists():
-            info(f'parsing {parsing.uuid} has no more prunings for website {parsing.website.uuid}')
-            unlink_website_from_parsing(parsing)
+    remove_useless_moderation_for_parsing(parsing)
 
 
 def unlink_pruning_from_parsings_except_truncated_html_hash(pruning: Pruning,
@@ -313,7 +307,7 @@ def prepare_parsing(
     unlink_pruning_from_parsings_except_truncated_html_hash(pruning, truncated_html_hash)
 
     church_desc_by_id = get_desc_by_id([church.get_desc() for church in churches])
-    unlink_website_from_parsings_except_church_desc_by_id(website, church_desc_by_id)
+    unlink_pruning_from_parsings_except_church_desc_by_id(website, church_desc_by_id)
 
     if not truncated_html:
         info(f'No truncated html for pruning {pruning}, website {website.uuid}')
@@ -329,12 +323,6 @@ def prepare_parsing(
             and parsing.llm_provider == llm_client.get_provider() \
             and parsing.llm_model == llm_client.get_model() \
             and parsing.prompt_template_hash == prompt_template_hash:
-
-        # Check if website is already linked to the pruning
-        if not parsing.website:
-            info(f'Linking parsing {parsing.uuid} for website {website.uuid}')
-            parsing.website = website
-            parsing.save()
 
         # Adding necessary moderation if missing
         add_necessary_parsing_moderation(parsing, website)

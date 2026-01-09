@@ -1,7 +1,10 @@
 from dataclasses import dataclass
 from uuid import UUID
 
-from home.models import Parsing, Pruning, Scraping, Image
+from django.db.models import Q, Subquery
+
+from home.models import Parsing, Pruning, Website
+from home.models import Scraping, Image
 from scheduling.models import Scheduling
 
 
@@ -63,4 +66,41 @@ def get_scheduling_parsings_and_prunings(scheduling: Scheduling) -> SchedulingPa
         prunings_by_parsing_uuid=prunings_by_parsing_uuid,
         scrapings_by_parsing_uuid=scrapings_by_parsing_uuid,
         images_by_parsing_uuid=images_by_parsing_uuid,
+    )
+
+
+################
+# GET WEBSITES #
+################
+
+def get_websites_of_prunings(prunings: list[Pruning]) -> list[Website]:
+    history_ids = Subquery(
+        Pruning.history.filter(
+            uuid__in=[pruning.uuid for pruning in prunings]
+        ).values('history_id')
+    )
+
+    return list(
+        Website.objects.filter(
+            schedulings__in=Scheduling.objects.filter(
+                Q(scraping_prunings__pruning_history_id__in=history_ids)
+                | Q(image_prunings__pruning_history_id__in=history_ids),
+                status=Scheduling.Status.INDEXED,
+            )
+        ).distinct()
+    )
+
+
+def get_websites_of_parsing(parsing: Parsing) -> list[Website]:
+    history_ids = Subquery(
+        parsing.history.values('history_id')
+    )
+
+    return list(
+        Website.objects.filter(
+            schedulings__in=Scheduling.objects.filter(
+                pruning_parsings__parsing_history_id__in=history_ids,
+                status=Scheduling.Status.INDEXED,
+            )
+        ).distinct()
     )
