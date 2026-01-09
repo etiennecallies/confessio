@@ -360,14 +360,6 @@ def prepare_reparsing(parsing: Parsing) -> ParsingPreparation:
                               prompt_template, prompt_template_hash, parsing, parsing.website)
 
 
-def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: bool = False):
-    parsing_preparation = prepare_parsing(pruning, website, website.get_churches(), force_parse)
-    if not parsing_preparation:
-        return
-
-    worker_parse_pruning_for_website(str(pruning.uuid), str(website.uuid), force_parse)
-
-
 @background(queue='main', schedule=TaskSchedule(priority=3))
 def worker_parse_pruning_for_website(pruning_uuid: str, website_uuid: str, force_parse: bool):
     try:
