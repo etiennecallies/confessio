@@ -41,15 +41,6 @@ def check_for_orphan_prunings(prunings: list[Pruning], website: Website):
                 unlink_orphan_pruning_for_website(pruning, website)
 
 
-def clean_scraping_of_pruning(pruning: Pruning):
-    for scraping in pruning.scrapings.all():
-        try:
-            scraping.page
-        except Page.DoesNotExist:
-            info(f'deleting scraping {scraping} since its page does not exist')
-            delete_scraping(scraping)
-
-
 ######################
 # QUALITY EVALUATION #
 ######################
