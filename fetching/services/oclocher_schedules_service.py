@@ -11,12 +11,14 @@ def extract_datetime(d: dict, key: str) -> datetime | None:
     return datetime.fromisoformat(datetime_str)
 
 
-def fetch_oclocher_organization_schedules(oclocher_organization: OClocherOrganization) -> int:
+def fetch_oclocher_organization_schedules(oclocher_organization: OClocherOrganization) -> bool:
     schedules_as_dict = fetch_organization_schedules(oclocher_organization.organization_id)
     schedules_as_dict_by_location_id = {}
     for schedule in schedules_as_dict:
         schedules_as_dict_by_location_id.setdefault(schedule.get('location'),
                                                     []).append(schedule)
+
+    has_changed = False
 
     existing_schedules = oclocher_organization.schedules.all()
     existing_schedule_by_id = {
@@ -26,9 +28,10 @@ def fetch_oclocher_organization_schedules(oclocher_organization: OClocherOrganiz
     for location_id, schedules_as_dict_ in schedules_as_dict_by_location_id.items():
         oclocher_location = oclocher_organization.locations.filter(location_id=location_id).first()
         if not oclocher_location:
-            raise ValueError(f"Location with id {location_id} not found for organization "
-                             f"{oclocher_organization.organization_id} but schedules exist. "
-                             f"{schedules_as_dict=}")
+            print(f"Location with id {location_id} not found for organization "
+                  f"{oclocher_organization.organization_id} but schedules exist. "
+                  f"{schedules_as_dict=}")
+            continue
 
         for schedule in schedules_as_dict_:
             schedule_id = schedule['id']
@@ -57,6 +60,7 @@ def fetch_oclocher_organization_schedules(oclocher_organization: OClocherOrganiz
                 oclocher_schedule.datetime_end = datetime_end
                 oclocher_schedule.recurrence_id = recurrence_id
                 oclocher_schedule.save()
+                has_changed = True
                 continue
 
             oclocher_organization.schedules.create(
@@ -68,18 +72,11 @@ def fetch_oclocher_organization_schedules(oclocher_organization: OClocherOrganiz
                 datetime_end=datetime_end,
                 recurrence_id=recurrence_id,
             )
+            has_changed = True
 
     # Delete schedules that are no longer present
     for schedule in existing_schedule_by_id.values():
         schedule.delete()
+        has_changed = True
 
-    return len(schedules_as_dict)
-
-
-def fetch_all_organization_schedules() -> int:
-    oclocher_organizations = OClocherOrganization.objects.all()
-    counter = 0
-    for oclocher_organization in oclocher_organizations:
-        counter += fetch_oclocher_organization_schedules(oclocher_organization)
-
-    return counter
+    return has_changed

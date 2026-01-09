@@ -29,6 +29,11 @@ def do_match_scheduling(scheduling: Scheduling) -> SchedulingMatchingObjects:
         historical_church = Church.history.get(history_id=church_history_id)
         churches.append(historical_church.instance)
 
+    if not churches:
+        return SchedulingMatchingObjects(
+            oclocher_matching_history_ids=[],
+        )
+
     oclocher_matching = match_churches_and_locations(churches, locations)
     oclocher_matching_history_id = oclocher_matching.history.latest().history_id
 

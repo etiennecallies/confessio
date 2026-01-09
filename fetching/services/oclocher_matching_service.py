@@ -1,7 +1,7 @@
-from fetching.models import OClocherOrganization, OClocherMatching, OClocherMatchingModeration, \
+from fetching.models import OClocherMatching, OClocherMatchingModeration, \
     OClocherLocation
-from fetching.workflows.oclocher.match_with_llm import match_oclocher_with_llm
 from fetching.services.oclocher_moderations_service import add_matching_moderation
+from fetching.workflows.oclocher.match_with_llm import match_oclocher_with_llm
 from home.models import Church
 from home.utils.list_utils import get_desc_by_id
 
@@ -18,8 +18,6 @@ def get_location_desc(oclocher_location: OClocherLocation) -> str:
     desc_parts = []
     if oclocher_location.name:
         desc_parts.append(oclocher_location.name)
-    if oclocher_location.content:
-        desc_parts.append(oclocher_location.content)
     if oclocher_location.address:
         desc_parts.append(oclocher_location.address)
     location_desc = " ".join(desc_parts)
@@ -89,25 +87,3 @@ def match_churches_and_locations(
     add_matching_moderation(oclocher_organization, oclocher_matching, category)
 
     return oclocher_matching
-
-
-def match_organization_locations(oclocher_organization: OClocherOrganization):
-    churches = oclocher_organization.website.get_churches()
-
-    locations = oclocher_organization.locations.all()
-
-    match_churches_and_locations(churches, locations)
-
-
-def match_all_organizations_locations():
-    oclocher_organizations = OClocherOrganization.objects.all()
-    for oclocher_organization in oclocher_organizations:
-        # If there are no schedules, we do not bother matching
-        if not oclocher_organization.schedules.exists():
-            continue
-
-        # If there are no locations, no point in matching
-        if not oclocher_organization.locations.exists():
-            continue
-
-        match_organization_locations(oclocher_organization)

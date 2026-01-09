@@ -16,7 +16,6 @@ class OClocherLocation(TimeStampMixin):
     organization = models.ForeignKey(OClocherOrganization, on_delete=models.CASCADE,
                                      related_name='locations')
     name = models.CharField(max_length=120)
-    content = models.CharField(max_length=120, null=True, blank=True)
     address = models.CharField(max_length=120, null=True, blank=True)
 
     history = HistoricalRecords()
@@ -49,7 +48,7 @@ class OClocherSchedule(TimeStampMixin):
     name = models.CharField(max_length=120)
     selection = models.CharField(max_length=16)
     datetime_start = models.DateTimeField()
-    datetime_end = models.DateTimeField()
-    recurrence_id = models.UUIDField(null=True, blank=True)
+    datetime_end = models.DateTimeField(null=True, blank=True)
+    recurrence_id = models.CharField(max_length=32, null=True, blank=True)
 
     history = HistoricalRecords()
