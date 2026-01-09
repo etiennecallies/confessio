@@ -3,15 +3,13 @@ import re
 from dataclasses import dataclass
 from datetime import timedelta
 
-from background_task import background
-from background_task.tasks import TaskSchedule
 from django.db.models.functions import Now
 from django.utils import timezone
 
-from home.models import Pruning, Website, Parsing, ParsingModeration, Page, Image, Log, Church
+from home.models import Pruning, Website, Parsing, ParsingModeration, Page, Image, Church
 from home.utils.hash_utils import hash_string_to_hex
 from home.utils.list_utils import get_desc_by_id
-from home.utils.log_utils import info, start_log_buffer, get_log_buffer
+from home.utils.log_utils import info
 from scheduling.models import Scheduling
 from scheduling.services.scheduling_service import get_scheduling_parsings, get_websites_of_parsing
 from scraping.parse.llm_client import LLMClientInterface
@@ -56,7 +54,7 @@ def get_truncated_html(pruning: Pruning) -> str:
 # MODERATION #
 ##############
 
-def add_necessary_parsing_moderation(parsing: Parsing, website: Website):
+def add_necessary_parsing_moderation(parsing: Parsing):
     category = get_category(parsing)
     needs_moderation = parsing_needs_moderation(parsing)
 
@@ -64,11 +62,11 @@ def add_necessary_parsing_moderation(parsing: Parsing, website: Website):
     remove_parsing_moderation_of_other_category(parsing, category)
 
     # 2. we add moderation
-    add_parsing_moderation(parsing, category, needs_moderation, website)
+    add_parsing_moderation(parsing, category, needs_moderation)
 
 
 def add_parsing_moderation(parsing: Parsing, category: ParsingModeration.Category,
-                           needs_moderation: bool, website: Website):
+                           needs_moderation: bool):
     try:
         parsing_moderation = ParsingModeration.objects.filter(parsing=parsing,
                                                               category=category).get()
@@ -83,7 +81,7 @@ def add_parsing_moderation(parsing: Parsing, category: ParsingModeration.Categor
             parsing=parsing,
             category=category,
             validated_at=None if needs_moderation else Now(),
-            diocese=website.get_diocese(),
+            diocese=None,
         )
         parsing_moderation.save()
 
@@ -222,24 +220,9 @@ def debug_pruning(pruning: Pruning, website: Website) -> None:
         info(f'    - No parsing for pruning {pruning.uuid}')
 
 
-###########################
+#################
 # Pruning links #
-###########################
-
-def unlink_pruning_from_parsings_except_church_desc_by_id(website: Website,
-                                                          church_desc_by_id: dict[int, str]):
-    """
-    Handle change of church_desc_by_id for a website
-    """
-    parsings = Parsing.objects.filter(website=website)\
-        .exclude(church_desc_by_id=church_desc_by_id).all()
-
-    for parsing in parsings:
-        info(f'parsing {parsing.uuid} has changed church_desc_by_id, unlinking website '
-             f'{website.uuid} and all prunings')
-        parsing.prunings.clear()
-        remove_useless_moderation_for_parsing(parsing)
-
+#################
 
 def remove_useless_moderation_for_parsing(parsing: Parsing):
     if get_websites_of_parsing(parsing):
@@ -294,23 +277,18 @@ class ParsingPreparation:
     prompt_template: str
     prompt_template_hash: str
     parsing: Parsing | None
-    website: Website  # TODO remove website link
+    needs_reparse: bool = True
 
 
-def prepare_parsing(
-        pruning: Pruning, website: Website,
-        churches: list[Church],
-        force_parse: bool = False
-) -> None | ParsingPreparation:
+def prepare_parsing(pruning: Pruning, churches: list[Church]) -> None | ParsingPreparation:
     truncated_html = get_truncated_html(pruning)
     truncated_html_hash = hash_string_to_hex(truncated_html) if truncated_html else None
     unlink_pruning_from_parsings_except_truncated_html_hash(pruning, truncated_html_hash)
 
     church_desc_by_id = get_desc_by_id([church.get_desc() for church in churches])
-    unlink_pruning_from_parsings_except_church_desc_by_id(website, church_desc_by_id)
 
     if not truncated_html:
-        info(f'No truncated html for pruning {pruning}, website {website.uuid}')
+        info(f'No truncated html for pruning {pruning}')
         return None
 
     llm_client = get_llm_client()
@@ -319,20 +297,22 @@ def prepare_parsing(
 
     # check the parsing does not already exist
     parsing = get_existing_parsing(truncated_html_hash, church_desc_by_id)
-    if not force_parse and parsing \
+    if parsing \
             and parsing.llm_provider == llm_client.get_provider() \
             and parsing.llm_model == llm_client.get_model() \
             and parsing.prompt_template_hash == prompt_template_hash:
 
         # Adding necessary moderation if missing
-        add_necessary_parsing_moderation(parsing, website)
+        add_necessary_parsing_moderation(parsing)
 
-        info(f'Parsing already exists for pruning {pruning}, website {website.uuid},'
-             f' parsing {parsing.uuid}')
-        return None
+        info(f'Parsing already exists for pruning {pruning}, parsing {parsing.uuid}')
+        needs_reparse = False
+    else:
+        print(f'Preparing parsing for pruning {pruning.uuid}')
+        needs_reparse = True
 
     return ParsingPreparation(truncated_html, truncated_html_hash, church_desc_by_id, llm_client,
-                              prompt_template, prompt_template_hash, parsing, website)
+                              prompt_template, prompt_template_hash, parsing, needs_reparse)
 
 
 def prepare_reparsing(parsing: Parsing) -> ParsingPreparation:
@@ -345,50 +325,28 @@ def prepare_reparsing(parsing: Parsing) -> ParsingPreparation:
     prompt_template_hash = hash_string_to_hex(prompt_template)
 
     return ParsingPreparation(truncated_html, truncated_html_hash, church_desc_by_id, llm_client,
-                              prompt_template, prompt_template_hash, parsing, parsing.website)
+                              prompt_template, prompt_template_hash, parsing)
 
 
-@background(queue='main', schedule=TaskSchedule(priority=3))
-def worker_parse_pruning_for_website(pruning_uuid: str, website_uuid: str, force_parse: bool):
-    try:
-        pruning = Pruning.objects.get(uuid=pruning_uuid)
-        website = Website.objects.get(uuid=website_uuid)
-    except (Pruning.DoesNotExist, Website.DoesNotExist) as e:
-        info(f'Pruning {pruning_uuid} or Website {website_uuid} does not exist: {e}')
-        return
-
-    start_log_buffer()
-    info(f'worker_parse_pruning_for_website: parsing {pruning_uuid} for website {website_uuid}')
-    do_parse_pruning_for_website(pruning, website, website.get_churches(), force_parse)
-
-    buffer_value = get_log_buffer()
-    log = Log(type=Log.Type.PARSING,
-              website=website,
-              content=buffer_value,
-              status=Log.Status.DONE)
-    log.save()
-
-
-def do_parse_pruning_for_website(pruning: Pruning, website: Website,
-                                 churches: list[Church],
-                                 force_parse: bool = False):
-    parsing_preparation = prepare_parsing(pruning, website, churches, force_parse)
+def do_parse_pruning_for_website(pruning: Pruning, churches: list[Church]) -> Parsing | None:
+    parsing_preparation = prepare_parsing(pruning, churches)
     if not parsing_preparation:
-        return
+        return None
 
-    parse_parsing_preparation(parsing_preparation)
+    if not parsing_preparation.needs_reparse:
+        return parsing_preparation.parsing
+
+    return parse_parsing_preparation(parsing_preparation)
 
 
-def parse_parsing_preparation(parsing_preparation: ParsingPreparation):
+def parse_parsing_preparation(parsing_preparation: ParsingPreparation) -> Parsing:
     truncated_html = parsing_preparation.truncated_html
 
     if len(truncated_html) > MAX_LENGTH_FOR_PARSING:
-        info(f'No parsing above {MAX_LENGTH_FOR_PARSING}, got {len(truncated_html)},'
-             f' website {parsing_preparation.website.uuid}')
+        info(f'No parsing above {MAX_LENGTH_FOR_PARSING}, got {len(truncated_html)},')
         schedules_list, llm_error_detail = None, "Truncated html too long"
     else:
-        info(f'parsing website {parsing_preparation.website} with '
-             f'hash {parsing_preparation.truncated_html_hash}')
+        info(f'parsing with hash {parsing_preparation.truncated_html_hash}')
         schedules_list, llm_error_detail = asyncio.run(
             parse_with_llm(truncated_html,
                            parsing_preparation.church_desc_by_id,
@@ -396,18 +354,17 @@ def parse_parsing_preparation(parsing_preparation: ParsingPreparation):
                            parsing_preparation.llm_client)
         )
 
-    save_parsing(parsing_preparation, schedules_list, llm_error_detail)
+    return save_parsing(parsing_preparation, schedules_list, llm_error_detail)
 
 
 def save_parsing(parsing_preparation: ParsingPreparation,
                  schedules_list: SchedulesList | None,
-                 llm_error_detail: str | None):
+                 llm_error_detail: str | None) -> Parsing:
     llm_json = schedules_list.model_dump(mode="json") if schedules_list else None
     parsing = parsing_preparation.parsing
     llm_client = parsing_preparation.llm_client
 
     if parsing:
-        parsing.website = parsing_preparation.website
         parsing.llm_json = llm_json
         parsing.llm_json_version = SCHEDULES_LIST_VERSION
         parsing.llm_provider = llm_client.get_provider()
@@ -417,7 +374,6 @@ def save_parsing(parsing_preparation: ParsingPreparation,
         parsing.save()
     else:
         parsing = Parsing(
-            website=parsing_preparation.website,
             truncated_html=parsing_preparation.truncated_html,
             truncated_html_hash=parsing_preparation.truncated_html_hash,
             church_desc_by_id=parsing_preparation.church_desc_by_id,
@@ -430,4 +386,6 @@ def save_parsing(parsing_preparation: ParsingPreparation,
         )
         parsing.save()
 
-    add_necessary_parsing_moderation(parsing, parsing_preparation.website)
+    add_necessary_parsing_moderation(parsing)
+
+    return parsing

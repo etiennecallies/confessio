@@ -315,8 +315,6 @@ class Parsing(TimeStampMixin):
     church_desc_by_id = models.JSONField(editable=False)
 
     prunings = models.ManyToManyField('Pruning', related_name='parsings')
-    website = models.ForeignKey('Website', on_delete=models.SET_NULL, related_name='parsings',
-                                null=True)
 
     llm_json = models.JSONField(null=True, blank=True)
     llm_json_version = models.CharField(max_length=6, default='v1.0')

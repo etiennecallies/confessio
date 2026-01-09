@@ -29,9 +29,7 @@ def do_parse_scheduling(scheduling: Scheduling) -> SchedulingParsingObjects:
         historical_pruning = Pruning.history.get(history_id=pruning_history_id)
         pruning = historical_pruning.instance
 
-        do_parse_pruning_for_website(pruning, scheduling.website, churches)
-
-        parsing = pruning.get_parsing(scheduling.website)
+        parsing = do_parse_pruning_for_website(pruning, churches)
         if parsing is None:
             continue
 
