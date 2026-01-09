@@ -50,14 +50,18 @@ def get_pruning_human_pieces(pruning: Pruning) -> list[PruningHumanPiece]:
 
 def set_human_indices(pruning: Pruning, indices: list[int]):
     pruning.human_indices = indices
-    pruning.pruned_indices = indices
+    needs_reschedule = False
+    if pruning.pruned_indices != indices:
+        pruning.pruned_indices = indices
+        needs_reschedule = True
     pruning.save()
-    if pruning.ml_indices != indices:
-        reset_pages_counter_of_pruning(pruning)
+    if needs_reschedule:
         init_scheduling_for_pruning(pruning)
 
     add_necessary_moderation(pruning)
     add_necessary_moderation_v2(pruning)
+    if pruning.ml_indices != indices:
+        reset_pages_counter_of_pruning(pruning)
 
 
 #################
@@ -132,15 +136,7 @@ def update_sentence_action(sentence: Sentence, pruning: Pruning, user: User, act
 
 
 def set_ml_indices_as_human(pruning: Pruning):
-    pruning.human_indices = pruning.ml_indices
-    needs_reschedule = False
-    if pruning.pruned_indices != pruning.ml_indices:
-        pruning.pruned_indices = pruning.ml_indices
-        needs_reschedule = True
-    pruning.save()
-
-    if needs_reschedule:
-        init_scheduling_for_pruning(pruning)
+    set_human_indices(pruning, pruning.ml_indices)
 
 
 #################
@@ -249,17 +245,7 @@ def update_sentence_labels_with_request(request, piece_id: str, sentence: Senten
 
 
 def set_v2_indices_as_human(pruning: Pruning):
-    pruning.human_indices = pruning.v2_indices
-    needs_reschedule = False
-    if pruning.pruned_indices != pruning.v2_indices:
-        pruning.pruned_indices = pruning.v2_indices
-        needs_reschedule = True
-    pruning.save()
-
-    add_necessary_moderation_v2(pruning)
-
-    if needs_reschedule:
-        init_scheduling_for_pruning(pruning)
+    set_human_indices(pruning, pruning.v2_indices)
 
 
 ######################
