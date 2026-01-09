@@ -148,10 +148,6 @@ def clean_parsing_moderations() -> int:
     return counter
 
 
-#################
-# Pruning links #
-#################
-
 def remove_useless_moderation_for_parsing(parsing: Parsing):
     if get_websites_of_parsing(parsing):
         return
@@ -161,9 +157,9 @@ def remove_useless_moderation_for_parsing(parsing: Parsing):
     ParsingModeration.objects.filter(parsing=parsing, validated_at__isnull=True).delete()
 
 
-########
-# MAIN #
-########
+#######################
+# Parsing Preparation #
+#######################
 
 @dataclass
 class ParsingPreparation:
@@ -223,6 +219,10 @@ def prepare_reparsing(parsing: Parsing) -> ParsingPreparation:
     return ParsingPreparation(truncated_html, truncated_html_hash, church_desc_by_id, llm_client,
                               prompt_template, prompt_template_hash, parsing)
 
+
+########
+# MAIN #
+########
 
 def do_parse_pruning_for_website(pruning: Pruning, churches: list[Church]) -> Parsing | None:
     parsing_preparation = prepare_parsing(pruning, churches)
