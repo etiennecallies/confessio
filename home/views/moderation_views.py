@@ -8,20 +8,19 @@ from django.urls import reverse
 from fetching.models import OClocherOrganizationModeration, OClocherMatchingModeration
 from home.models import WebsiteModeration, ChurchModeration, ModerationMixin, \
     BUG_DESCRIPTION_MAX_LENGTH, ParishModeration, ResourceDoesNotExistError, PruningModeration, \
-    SentenceModeration, ParsingModeration, ReportModeration, Diocese, Pruning
+    SentenceModeration, ParsingModeration, ReportModeration, Diocese
 from home.services.edit_pruning_service import on_pruning_human_validation, \
     set_v2_indices_as_human, get_single_line_colored_piece, update_sentence_labels_with_request, \
     TEMPORAL_COLORS, EVENT_MENTION_COLORS
 from home.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
-from scheduling.public import init_scheduling_for_pruning
 from scraping.extract_v2.split_content import create_line_and_tag_v2
 from scraping.prune.models import Source
 from scraping.services.edit_parsing_service import on_parsing_human_validation, \
     ParsingValidationError, set_llm_json_as_human_json
-from scraping.services.parse_pruning_service import force_reparse_parsing_for_pruning
 from scraping.services.parsing_service import get_schedules_list_from_dict
 from scraping.services.prune_scraping_service import SentenceQualifyLineInterface, \
     MLSentenceQualifyLineInterface
+from scraping.services.reparse_parsing_service import reparse_parsing
 from scraping.services.website_moderation_service import suggest_alternative_website
 from sourcing.services.church_human_service import on_church_human_validation
 from sourcing.services.merge_websites_service import merge_websites
@@ -102,16 +101,8 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
         elif 'delete_moderation' in request.POST:
             moderation.delete()
         elif 'reparse_parsing' in request.POST:
-            pruning_uuid = request.POST.get('pruning_uuid')
-            try:
-                pruning = Pruning.objects.get(uuid=pruning_uuid)
-                # TODO this should not be two async tasks
-                force_reparse_parsing_for_pruning(moderation.parsing, pruning)
-                init_scheduling_for_pruning(pruning)
-                do_redirect = False
-            except Pruning.DoesNotExist:
-                return HttpResponseNotFound(
-                    f"pruning not found with uuid {pruning_uuid}")
+            reparse_parsing(moderation.parsing)
+            do_redirect = False
         elif 'suggest_alternative_website' in request.POST:
             suggest_alternative_website(moderation)
             do_redirect = False

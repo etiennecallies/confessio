@@ -1,5 +1,6 @@
 import asyncio
 import re
+from dataclasses import dataclass
 from datetime import timedelta
 
 from background_task import background
@@ -286,25 +287,27 @@ def unlink_orphan_pruning_for_website(pruning: Pruning, website: Website):
         unlink_pruning_from_parsing(parsing, pruning)
 
 
-############
-# RE-PARSE #
-############
-
-def force_reparse_parsing_for_pruning(parsing: Parsing, pruning: Pruning):
-    website = parsing.website
-    if website:
-        parse_pruning_for_website(pruning, website, force_parse=True)
-
-
 ########
 # MAIN #
 ########
+
+@dataclass
+class ParsingPreparation:
+    truncated_html: str
+    truncated_html_hash: str
+    church_desc_by_id: dict[int, str]
+    llm_client: LLMClientInterface
+    prompt_template: str
+    prompt_template_hash: str
+    parsing: Parsing | None
+    website: Website  # TODO remove website link
+
 
 def prepare_parsing(
         pruning: Pruning, website: Website,
         churches: list[Church],
         force_parse: bool = False
-) -> None | tuple[str, str, dict[int, str], LLMClientInterface, str, str, Parsing | None]:
+) -> None | ParsingPreparation:
     truncated_html = get_truncated_html(pruning)
     truncated_html_hash = hash_string_to_hex(truncated_html) if truncated_html else None
     unlink_pruning_from_parsings_except_truncated_html_hash(pruning, truncated_html_hash)
@@ -340,8 +343,21 @@ def prepare_parsing(
              f' parsing {parsing.uuid}')
         return None
 
-    return truncated_html, truncated_html_hash, church_desc_by_id, llm_client, prompt_template, \
-        prompt_template_hash, parsing
+    return ParsingPreparation(truncated_html, truncated_html_hash, church_desc_by_id, llm_client,
+                              prompt_template, prompt_template_hash, parsing, website)
+
+
+def prepare_reparsing(parsing: Parsing) -> ParsingPreparation:
+    truncated_html = parsing.truncated_html
+    truncated_html_hash = parsing.truncated_html_hash
+    church_desc_by_id = parsing.church_desc_by_id
+
+    llm_client = get_llm_client()
+    prompt_template = get_prompt_template()
+    prompt_template_hash = hash_string_to_hex(prompt_template)
+
+    return ParsingPreparation(truncated_html, truncated_html_hash, church_desc_by_id, llm_client,
+                              prompt_template, prompt_template_hash, parsing, parsing.website)
 
 
 def parse_pruning_for_website(pruning: Pruning, website: Website, force_parse: bool = False):
@@ -380,53 +396,58 @@ def do_parse_pruning_for_website(pruning: Pruning, website: Website,
     if not parsing_preparation:
         return
 
-    truncated_html, truncated_html_hash, church_desc_by_id, llm_client, prompt_template, \
-        prompt_template_hash, parsing = parsing_preparation
+    parse_parsing_preparation(parsing_preparation)
+
+
+def parse_parsing_preparation(parsing_preparation: ParsingPreparation):
+    truncated_html = parsing_preparation.truncated_html
 
     if len(truncated_html) > MAX_LENGTH_FOR_PARSING:
         info(f'No parsing above {MAX_LENGTH_FOR_PARSING}, got {len(truncated_html)},'
-             f' website {website.uuid}')
+             f' website {parsing_preparation.website.uuid}')
         schedules_list, llm_error_detail = None, "Truncated html too long"
     else:
-        info(f'parsing {pruning} for website {website}')
+        info(f'parsing website {parsing_preparation.website} with '
+             f'hash {parsing_preparation.truncated_html_hash}')
         schedules_list, llm_error_detail = asyncio.run(
-            parse_with_llm(truncated_html, church_desc_by_id, prompt_template, llm_client)
+            parse_with_llm(truncated_html,
+                           parsing_preparation.church_desc_by_id,
+                           parsing_preparation.prompt_template,
+                           parsing_preparation.llm_client)
         )
 
-    save_parsing(parsing, pruning, website, truncated_html,
-                 truncated_html_hash, church_desc_by_id, llm_client, prompt_template_hash,
-                 llm_error_detail, schedules_list)
+    save_parsing(parsing_preparation, schedules_list, llm_error_detail)
 
 
-def save_parsing(parsing: Parsing | None, pruning: Pruning, website: Website,
-                 truncated_html: str, truncated_html_hash: str,
-                 church_desc_by_id: dict[int, str], llm_client: LLMClientInterface,
-                 prompt_template_hash: str, llm_error_detail: str | None,
-                 schedules_list: SchedulesList | None):
+def save_parsing(parsing_preparation: ParsingPreparation,
+                 schedules_list: SchedulesList | None,
+                 llm_error_detail: str | None):
     llm_json = schedules_list.model_dump(mode="json") if schedules_list else None
+    parsing = parsing_preparation.parsing
+    llm_client = parsing_preparation.llm_client
 
     if parsing:
-        parsing.website = website
+        parsing.website = parsing_preparation.website
         parsing.llm_json = llm_json
         parsing.llm_json_version = SCHEDULES_LIST_VERSION
         parsing.llm_provider = llm_client.get_provider()
         parsing.llm_model = llm_client.get_model()
-        parsing.prompt_template_hash = prompt_template_hash
+        parsing.prompt_template_hash = parsing_preparation.prompt_template_hash
         parsing.llm_error_detail = llm_error_detail
         parsing.save()
     else:
         parsing = Parsing(
-            website=website,
-            truncated_html=truncated_html,
-            truncated_html_hash=truncated_html_hash,
-            church_desc_by_id=church_desc_by_id,
+            website=parsing_preparation.website,
+            truncated_html=parsing_preparation.truncated_html,
+            truncated_html_hash=parsing_preparation.truncated_html_hash,
+            church_desc_by_id=parsing_preparation.church_desc_by_id,
             llm_json=llm_json,
             llm_json_version=SCHEDULES_LIST_VERSION,
             llm_provider=llm_client.get_provider(),
             llm_model=llm_client.get_model(),
-            prompt_template_hash=prompt_template_hash,
+            prompt_template_hash=parsing_preparation.prompt_template_hash,
             llm_error_detail=llm_error_detail,
         )
         parsing.save()
 
-    add_necessary_parsing_moderation(parsing, website)
+    add_necessary_parsing_moderation(parsing, parsing_preparation.website)
