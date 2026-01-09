@@ -1,5 +1,4 @@
 from django.db import transaction
-from django.db.models.functions import Now
 
 from home.models import Website
 from scheduling.models import Scheduling
@@ -15,7 +14,7 @@ from scheduling.services.prune_scheduling_service import do_prune_scheduling, \
 from scheduling.tasks import worker_prune_scheduling, worker_parse_scheduling
 
 
-def init_scheduling(website: Website) -> Scheduling:
+def init_scheduling(website: Website, instant_deindex: bool = False) -> Scheduling:
     print(f"Initializing scheduling for website {website}.")
 
     new_scheduling, scheduling_related_objects = build_scheduling(website)
@@ -29,10 +28,13 @@ def init_scheduling(website: Website) -> Scheduling:
                 Scheduling.Status.PARSED,
                 Scheduling.Status.MATCHED,
             ]
-        ).update(
-            status=Scheduling.Status.CANCELLED,
-            updated_at=Now(),
-        )
+        ).delete()
+
+        if instant_deindex:
+            Scheduling.objects.filter(
+                website=website,
+                status=Scheduling.Status.INDEXED,
+            ).delete()
 
         # Save new Scheduling
         new_scheduling.save()
@@ -170,13 +172,3 @@ def index_scheduling(scheduling: Scheduling):
         # 4. Mark scheduling as INDEXED
         scheduling.status = Scheduling.Status.INDEXED
         scheduling.save()
-
-
-def delete_cancelled_scheduling(scheduling: Scheduling):
-    print("Deleting cancelled scheduling.")
-
-    if scheduling.status != Scheduling.Status.CANCELLED:
-        print("Scheduling is not cancelled; skipping deletion.")
-        return
-
-    scheduling.delete()

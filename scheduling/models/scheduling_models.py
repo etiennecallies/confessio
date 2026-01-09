@@ -10,7 +10,6 @@ class Scheduling(TimeStampMixin):
         PARSED = "parsed"
         MATCHED = "matched"
         INDEXED = "indexed"
-        CANCELLED = "cancelled"
 
     website = models.ForeignKey('home.Website', on_delete=models.CASCADE,
                                 related_name='schedulings')
