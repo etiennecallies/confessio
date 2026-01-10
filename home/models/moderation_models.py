@@ -149,7 +149,7 @@ class WebsiteModeration(ModerationMixin):
     website = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=32, choices=Category)
 
-    home_url = models.URLField(null=True)
+    home_url = models.URLField(null=True, max_length=255)
     other_website = models.ForeignKey('Website', on_delete=models.SET_NULL,
                                       related_name='other_moderations', null=True)
     conflict_day = models.DateField(null=True)
