@@ -18,7 +18,8 @@ from home.services.report_service import get_count_and_label, new_report, NewRep
 from home.services.search_service import TimeFilter, get_churches_in_box, get_churches_by_website, \
     get_churches_around, get_churches_by_diocese, get_popular_churches, fetch_events, \
     DEFAULT_SEARCH_BOX
-from home.services.sources_service import get_website_parsings_and_prunings, get_empty_sources
+from home.services.sources_service import get_website_parsings_and_prunings, get_empty_sources, \
+    get_website_scheduling_prunings_and_parsings
 from home.services.stat_service import new_search_hit
 from home.services.upload_image_service import upload_image, find_error_in_document_to_upload
 from home.services.website_events_service import get_website_events
@@ -320,10 +321,11 @@ def partial_website_sources(request, website_uuid: str):
     if request.user.is_authenticated and request.user.has_perm("home.change_sentence"):
         empty_sources = get_empty_sources(website)
 
+    prunings_and_parsings = get_website_scheduling_prunings_and_parsings(website)
     return render(request, 'partials/website_sources.html', {
         'website': website,
-        'parsings_and_prunings': get_website_parsings_and_prunings(website),
-        'page_pruning_urls': get_page_pruning_urls([website]),
+        'parsings_and_prunings': get_website_parsings_and_prunings(prunings_and_parsings),
+        'page_pruning_urls': get_page_pruning_urls(prunings_and_parsings),
         'empty_sources': empty_sources,
     })
 

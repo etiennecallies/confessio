@@ -1,10 +1,10 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from uuid import UUID
 
 from home.models import Website, Parsing, Page, Pruning, Image
 from scheduling.models import Scheduling
 from scheduling.services.scheduling_service import get_scheduling_parsings, \
-    get_scheduling_parsings_and_prunings
+    get_scheduling_prunings_and_parsings, SchedulingPruningsAndParsings
 from scraping.services.image_service import get_image_html
 from scraping.services.parsing_service import has_schedules
 
@@ -15,58 +15,79 @@ from scraping.services.parsing_service import has_schedules
 
 @dataclass
 class WebsiteParsingsAndPrunings:
-    sources: list[Parsing] = field(default_factory=list)
-    page_by_parsing_uuid: dict[UUID, Page] = field(default_factory=dict)
-    all_pages_by_parsing_uuid: dict[UUID, list[Page]] = field(default_factory=dict)
-    image_by_parsing_uuid: dict[UUID, Image] = field(default_factory=dict)
-    all_images_by_parsing_uuid: dict[UUID, list[Image]] = field(default_factory=dict)
-    prunings_by_parsing_uuid: dict[UUID, list[Pruning]] = field(default_factory=dict)
+    sources: list[Parsing]
+    page_by_parsing_uuid: dict[UUID, Page]
+    all_pages_by_parsing_uuid: dict[UUID, list[Page]]
+    image_by_parsing_uuid: dict[UUID, Image]
+    all_images_by_parsing_uuid: dict[UUID, list[Image]]
+    prunings_by_parsing_uuid: dict[UUID, list[Pruning]]
 
 
-def get_website_parsings_and_prunings(website: Website) -> WebsiteParsingsAndPrunings:
+def get_website_scheduling_prunings_and_parsings(website: Website
+                                                 ) -> SchedulingPruningsAndParsings:
     scheduling = website.schedulings.filter(status=Scheduling.Status.INDEXED).first()
     if scheduling is None:
-        return WebsiteParsingsAndPrunings()
+        return SchedulingPruningsAndParsings()
 
-    scheduling_parsings_and_prunings = get_scheduling_parsings_and_prunings(scheduling)
+    return get_scheduling_prunings_and_parsings(scheduling)
 
-    sources = sort_parsings(scheduling_parsings_and_prunings.parsings)
-    prunings_by_parsing_uuid = scheduling_parsings_and_prunings.prunings_by_parsing_uuid
+
+def get_website_parsings_and_prunings(
+        scheduling_prunings_and_parsings: SchedulingPruningsAndParsings
+) -> WebsiteParsingsAndPrunings:
+    prunings_by_parsing_uuid = {}
+    parsings = []
 
     # Pages
     page_by_parsing_uuid = {}
     all_pages_by_parsing_uuid = {}
-    for parsing_uuid, scrapings \
-            in scheduling_parsings_and_prunings.scrapings_by_parsing_uuid.items():
-        scraping_last_created_at = None
-        all_pages_by_parsing_uuid[parsing_uuid] = []
-        for scraping in scrapings:
-            page = scraping.page
-            if page.scraping is None:
+    scraping_last_created_at_by_parsing_uuid = {}
+    for scraping in scheduling_prunings_and_parsings.scrapings:
+        page = scraping.page
+        for pruning in scheduling_prunings_and_parsings.prunings_by_scraping_uuid[scraping.uuid]:
+            parsing = scheduling_prunings_and_parsings.parsing_by_pruning_uuid.get(pruning.uuid)
+            if parsing is None:
                 continue
 
-            if scraping_last_created_at is None or scraping.created_at > scraping_last_created_at:
-                scraping_last_created_at = scraping.created_at
-                page_by_parsing_uuid[parsing_uuid] = page
+            all_pages_by_parsing_uuid.setdefault(parsing.uuid, [])
+            if page not in all_pages_by_parsing_uuid[parsing.uuid]:
+                all_pages_by_parsing_uuid[parsing.uuid].append(page)
+            prunings_by_parsing_uuid.setdefault(parsing.uuid, [])
+            if pruning not in prunings_by_parsing_uuid[parsing.uuid]:
+                prunings_by_parsing_uuid[parsing.uuid].append(pruning)
+            if parsing not in parsings:
+                parsings.append(parsing)
 
-            all_pages_by_parsing_uuid[parsing_uuid].append(page)
+            if scraping_last_created_at_by_parsing_uuid.setdefault(parsing.uuid, None) is None \
+                    or scraping.created_at > scraping_last_created_at_by_parsing_uuid[parsing.uuid]:
+                scraping_last_created_at_by_parsing_uuid[parsing.uuid] = scraping.created_at
+                page_by_parsing_uuid[parsing.uuid] = page
 
     # Images
     image_by_parsing_uuid = {}
     all_images_by_parsing_uuid = {}
-    for parsing_uuid, images \
-            in scheduling_parsings_and_prunings.images_by_parsing_uuid.items():
-        image_last_created_at = None
-        all_images_by_parsing_uuid[parsing_uuid] = []
-        for image in images:
-            if get_image_html(image) is None:
+    image_last_created_at_by_parsing_uuid = {}
+    for image in scheduling_prunings_and_parsings.images:
+        for pruning in scheduling_prunings_and_parsings.prunings_by_image_uuid[image.uuid]:
+            parsing = scheduling_prunings_and_parsings.parsing_by_pruning_uuid.get(pruning.uuid)
+            if parsing is None:
                 continue
 
-            if image_last_created_at is None or image.created_at > image_last_created_at:
-                image_last_created_at = image.created_at
-                image_by_parsing_uuid[parsing_uuid] = image
+            all_images_by_parsing_uuid.setdefault(parsing.uuid, [])
+            if image not in all_images_by_parsing_uuid[parsing.uuid]:
+                all_images_by_parsing_uuid[parsing.uuid].append(image)
+            prunings_by_parsing_uuid.setdefault(parsing.uuid, [])
+            if pruning not in prunings_by_parsing_uuid[parsing.uuid]:
+                prunings_by_parsing_uuid[parsing.uuid].append(pruning)
+            if parsing not in parsings:
+                parsings.append(parsing)
 
-            all_images_by_parsing_uuid[parsing_uuid].append(image)
+            if image_last_created_at_by_parsing_uuid.setdefault(parsing.uuid, None) is None \
+                    or image.created_at > image_last_created_at_by_parsing_uuid[parsing.uuid]:
+                image_last_created_at_by_parsing_uuid[parsing.uuid] = image.created_at
+                image_by_parsing_uuid[parsing.uuid] = image
+
+    sources = sort_parsings(parsings)
 
     return WebsiteParsingsAndPrunings(
         sources=sources,

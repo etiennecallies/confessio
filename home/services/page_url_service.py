@@ -1,6 +1,7 @@
 from urllib.parse import quote, unquote
 
-from home.models import Page, Pruning, Website
+from home.models import Page, Pruning
+from scheduling.services.scheduling_service import SchedulingPruningsAndParsings
 from scraping.extract.split_content import split_lines
 from scraping.refine.refine_content import get_text_if_not_table
 
@@ -23,21 +24,19 @@ def get_page_url_with_pointer_at_pruning(page: Page, pruning: Pruning):
     return f'{page.url}#:~:text={pointer_text.strip()}'
 
 
-def get_page_pruning_urls(websites: list[Website]) -> dict[str, dict[str, str]]:
+def get_page_pruning_urls(scheduling_prunings_and_parsings: SchedulingPruningsAndParsings,
+                          ) -> dict[str, dict[str, str]]:
     page_pruning_urls = {}
-    for website in websites:
-        for page in website.get_pages():
-            prunings = page.get_prunings()
-            if not prunings:
+    for scraping in scheduling_prunings_and_parsings.scrapings:
+        page = scraping.page
+        prunings = scheduling_prunings_and_parsings.prunings_by_scraping_uuid[scraping.uuid]
+        for pruning in prunings:
+            parsing = scheduling_prunings_and_parsings.parsing_by_pruning_uuid.get(pruning.uuid)
+            if not parsing:
                 continue
 
-            for pruning in prunings:
-                parsing = page.get_parsing(pruning)
-                if not parsing:
-                    continue
-
-                url = get_page_url_with_pointer_at_pruning(page, pruning)
-                page_pruning_urls.setdefault(page.uuid, {})[parsing.uuid] = url
+            url = get_page_url_with_pointer_at_pruning(page, pruning)
+            page_pruning_urls.setdefault(page.uuid, {})[parsing.uuid] = url
 
     return page_pruning_urls
 
