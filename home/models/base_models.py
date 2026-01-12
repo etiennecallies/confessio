@@ -1,6 +1,5 @@
 import uuid
 from datetime import timedelta
-from typing import Optional
 
 from django.contrib.gis.db import models as gis_models
 from django.contrib.postgres.fields import ArrayField
@@ -171,12 +170,6 @@ class Page(TimeStampMixin):
             # If the page does not exist, it has not been scraped
             return False
 
-    def has_been_parsed(self) -> bool:
-        if self.get_prunings() is None:
-            return False
-
-        return all(pruning.has_been_parsed(self.website) for pruning in self.get_prunings())
-
     def has_confessions(self) -> bool:
         if self.get_prunings() is None:
             return False
@@ -188,9 +181,6 @@ class Page(TimeStampMixin):
             return None
 
         return self.scraping.prunings.all()
-
-    def get_parsing(self, pruning: 'Pruning') -> Optional['Parsing']:
-        return pruning.get_parsing(self.website)
 
     def has_been_modified_recently(self) -> bool:
         if self.scraping is None:
@@ -239,20 +229,6 @@ class Pruning(TimeStampMixin):
 
     def has_confessions(self) -> bool:
         return bool(self.pruned_indices)
-
-    def get_parsing(self, website: Website) -> Optional['Parsing']:
-        for parsing in self.parsings.all():
-            if parsing.match_website(website):
-                return parsing
-
-        return None
-
-    def has_been_parsed(self, website: Website) -> bool:
-        if not self.has_confessions():
-            # no parsing needed
-            return True
-
-        return self.get_parsing(website) is not None
 
     def get_diocese(self) -> Diocese | None:
         if not self.scrapings.exists():
