@@ -317,11 +317,11 @@ def partial_website_sources(request, website_uuid: str):
     except Website.DoesNotExist:
         return HttpResponseNotFound("Website does not exist with this uuid")
 
+    prunings_and_parsings = get_website_scheduling_prunings_and_parsings(website)
     empty_sources = None
     if request.user.is_authenticated and request.user.has_perm("home.change_sentence"):
-        empty_sources = get_empty_sources(website)
+        empty_sources = get_empty_sources(prunings_and_parsings)
 
-    prunings_and_parsings = get_website_scheduling_prunings_and_parsings(website)
     return render(request, 'partials/website_sources.html', {
         'website': website,
         'parsings_and_prunings': get_website_parsings_and_prunings(prunings_and_parsings),

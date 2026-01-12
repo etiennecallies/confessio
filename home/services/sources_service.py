@@ -5,7 +5,6 @@ from home.models import Website, Parsing, Page, Pruning, Image
 from scheduling.models import Scheduling
 from scheduling.services.scheduling_service import get_scheduling_parsings, \
     get_scheduling_prunings_and_parsings, SchedulingPruningsAndParsings
-from scraping.services.image_service import get_image_html
 from scraping.services.parsing_service import has_schedules
 
 
@@ -123,46 +122,44 @@ class WebsiteEmptySources:
     parsings_by_pruning_uuid: dict[UUID, list[Parsing]]
 
 
-def get_empty_sources(website: Website) -> WebsiteEmptySources:
+def get_empty_sources(scheduling_prunings_and_parsings: SchedulingPruningsAndParsings
+                      ) -> WebsiteEmptySources:
+    parsings_by_pruning_uuid = {}
+
     pages = []
     prunings_by_page_uuid = {}
-    parsings_by_pruning_uuid = {}
-    for page in website.get_pages():
-        if page.scraping is None:
-            continue
+    for scraping in scheduling_prunings_and_parsings.scrapings:
+        page = scraping.page
 
-        prunings = page.get_prunings()
+        prunings = scheduling_prunings_and_parsings.prunings_by_scraping_uuid[scraping.uuid]
         if not prunings:
             pages.append(page)
             continue
 
-        is_page_to_add = False
-        for pruning in page.get_prunings():
-            parsing = page.get_parsing(pruning)
-            is_page_to_add = add_pruning_if_empty(
-                parsing, pruning, prunings_by_page_uuid.setdefault(page.uuid, []),
-                parsings_by_pruning_uuid) or is_page_to_add
+        is_page_to_add = handle_prunings(
+            prunings,
+            scheduling_prunings_and_parsings,
+            prunings_by_page_uuid.setdefault(page.uuid, []),
+            parsings_by_pruning_uuid
+        )
 
         if is_page_to_add:
             pages.append(page)
 
     images = []
     prunings_by_image_uuid = {}
-    for image in website.images.all():
-        if get_image_html(image) is None:
-            continue
-
-        prunings_all = image.prunings.all()
-        if len(prunings_all) == 0:
+    for image in scheduling_prunings_and_parsings.images:
+        prunings = scheduling_prunings_and_parsings.prunings_by_image_uuid[image.uuid]
+        if not prunings:
             images.append(image)
             continue
 
-        is_image_to_add = False
-        for pruning in prunings_all:
-            parsing = pruning.get_parsing(website)
-            is_image_to_add = add_pruning_if_empty(
-                parsing, pruning, prunings_by_image_uuid.setdefault(image.uuid, []),
-                parsings_by_pruning_uuid) or is_image_to_add
+        is_image_to_add = handle_prunings(
+            prunings,
+            scheduling_prunings_and_parsings,
+            prunings_by_image_uuid.setdefault(image.uuid, []),
+            parsings_by_pruning_uuid
+        )
 
         if is_image_to_add:
             images.append(image)
@@ -185,3 +182,16 @@ def add_pruning_if_empty(parsing: Parsing | None, pruning: Pruning, prunings: li
         return True
 
     return False
+
+
+def handle_prunings(prunings: list[Pruning],
+                    scheduling_prunings_and_parsings: SchedulingPruningsAndParsings,
+                    prunings_of_object: list[Pruning],
+                    parsings_by_pruning_uuid: dict[UUID, list[Parsing]]) -> bool:
+    is_object_to_add = False
+    for pruning in prunings:
+        parsing = scheduling_prunings_and_parsings.parsing_by_pruning_uuid.get(pruning.uuid)
+        is_object_to_add = add_pruning_if_empty(
+            parsing, pruning, prunings_of_object, parsings_by_pruning_uuid) or is_object_to_add
+
+    return is_object_to_add
