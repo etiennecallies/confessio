@@ -1,10 +1,8 @@
 import asyncio
 import re
 from dataclasses import dataclass
-from datetime import timedelta
 
 from django.db.models.functions import Now
-from django.utils import timezone
 
 from home.models import Pruning, Parsing, ParsingModeration, Church
 from home.utils.hash_utils import hash_string_to_hex
@@ -112,26 +110,7 @@ def parsing_needs_moderation(parsing: Parsing):
         ).exists():
             return False
 
-        return True
-
-    for pruning in parsing.prunings.all():
-        for scraping in pruning.scrapings.all():
-            page = scraping.page
-
-            # if page has been validated less than three times or more than one year ago
-            # and if website has been validated less than seven times or more than one year ago
-            if (
-                page.parsing_validation_counter < 2
-                or page.parsing_last_validated_at is None
-                or page.parsing_last_validated_at < (timezone.now() - timedelta(days=365))
-            ) and (
-                page.website.parsing_validation_counter < 6
-                or page.website.parsing_last_validated_at is None
-                or page.website.parsing_last_validated_at < (timezone.now() - timedelta(days=365))
-            ):
-                return True
-
-    return False
+    return True
 
 
 ####################

@@ -39,40 +39,6 @@ def on_parsing_human_validation(parsing_moderation: ParsingModeration):
 
         set_llm_json_as_human_json(parsing)
 
-    increment_counters_of_parsing(parsing)
-
 
 def set_llm_json_as_human_json(parsing: Parsing):
     set_human_json(parsing, parsing.llm_json, parsing.llm_json_version)
-
-
-############
-# COUNTERS #
-############
-
-def reset_counters_of_parsing(parsing: Parsing):
-    websites_to_update = set()
-    for pruning in parsing.prunings.all():
-        for scraping in pruning.scrapings.all():
-            page = scraping.page
-            page.parsing_validation_counter = -1
-            page.save()
-            websites_to_update.add(page.website)
-
-    for website in websites_to_update:
-        website.parsing_validation_counter = -1
-        website.save()
-
-
-def increment_counters_of_parsing(parsing: Parsing):
-    websites_to_update = set()
-    for pruning in parsing.prunings.all():
-        for scraping in pruning.scrapings.all():
-            page = scraping.page
-            page.parsing_validation_counter += 1
-            page.save()
-            websites_to_update.add(page.website)
-
-    for website in websites_to_update:
-        website.parsing_validation_counter += 1
-        website.save()

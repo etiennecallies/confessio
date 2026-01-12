@@ -54,8 +54,6 @@ class Website(TimeStampMixin):
                                     related_name='website', null=True, blank=True)
     pruning_validation_counter = models.SmallIntegerField(default=0)
     pruning_last_validated_at = models.DateTimeField(null=True, blank=True)
-    parsing_validation_counter = models.SmallIntegerField(default=0)
-    parsing_last_validated_at = models.DateTimeField(null=True, blank=True)
     unreliability_reason = models.CharField(choices=UnreliabilityReason, null=True, blank=True)
     nb_recent_hits = models.PositiveSmallIntegerField(default=0)
     is_best_diocese_hit = models.BooleanField(default=False)
@@ -156,8 +154,6 @@ class Page(TimeStampMixin):
     website = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='pages')
     pruning_validation_counter = models.SmallIntegerField(default=0)
     pruning_last_validated_at = models.DateTimeField(null=True, blank=True)
-    parsing_validation_counter = models.SmallIntegerField(default=0)
-    parsing_last_validated_at = models.DateTimeField(null=True, blank=True)
     history = HistoricalRecords()
 
     class Meta:

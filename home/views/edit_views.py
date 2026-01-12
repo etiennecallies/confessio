@@ -17,7 +17,7 @@ from scraping.extract_v2.qualify_line_interfaces import DummyQualifyLineInterfac
 from scraping.parse.schedules import SchedulesList, SCHEDULES_LIST_VERSION
 from scraping.prune.action_interfaces import DummyActionInterface
 from scraping.prune.models import Action
-from scraping.services.edit_parsing_service import set_human_json, reset_counters_of_parsing
+from scraping.services.edit_parsing_service import set_human_json
 from scraping.services.parsing_service import get_parsing_schedules_list
 from scraping.services.prune_scraping_service import SentenceFromDbActionInterface, \
     prune_pruning, SentenceQualifyLineInterface
@@ -163,16 +163,11 @@ def edit_parsing(request, parsing_uuid):
     if request.method == "POST":
         schedules_list_as_json = request.POST.get("json")
         schedules_list_as_dict = json.loads(schedules_list_as_json)
-        previous_schedule_list = get_parsing_schedules_list(parsing)
         try:
             schedules_list = SchedulesList(**schedules_list_as_dict)
             schedules_list.check_is_valid()
             set_human_json(parsing, schedules_list.model_dump(mode='json'), SCHEDULES_LIST_VERSION)
             success = True
-
-            if schedules_list != previous_schedule_list:
-                # reset page counter
-                reset_counters_of_parsing(parsing)
         except ValidationError as e:
             validation_error = str(e)
         except ValueError as e:
