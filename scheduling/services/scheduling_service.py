@@ -3,9 +3,10 @@ from uuid import UUID
 
 from django.db.models import Q, Subquery
 
-from home.models import Parsing, Pruning, Website, ParsingModeration
+from home.models import Parsing, Pruning, Website
 from home.models import Scraping, Image
 from scheduling.models import Scheduling
+from scheduling.models.parsing_models import ParsingModeration
 
 
 def get_scheduling_parsings(scheduling: Scheduling) -> list[Parsing]:

@@ -6,8 +6,9 @@ from django.db.models import Q, Model
 from django.utils import timezone
 
 from home.management.abstract_command import AbstractCommand
-from home.models import Pruning, Sentence, Classifier, Page, ParsingModeration, Parsing, Log, \
+from home.models import Pruning, Sentence, Classifier, Page, Parsing, Log, \
     ChurchModeration, Website, WebsiteModeration
+from scheduling.models.parsing_models import ParsingModeration
 from scraping.services.page_service import delete_page
 from scraping.services.parse_pruning_service import clean_parsing_moderations
 from scraping.services.scrape_page_service import delete_orphan_scrapings

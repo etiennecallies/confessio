@@ -444,31 +444,6 @@ class SentenceModeration(ModerationMixin):
         return False
 
 
-class ParsingModeration(ModerationMixin):
-    class Category(models.TextChoices):
-        NEW_SCHEDULES = "new_schedules"
-        SCHEDULES_DIFFER = "schedules_differ"
-        LLM_ERROR = "llm_error"
-
-    resource = 'parsing'
-    validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
-                                     on_delete=models.SET_NULL, null=True)
-    marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
-                                         on_delete=models.SET_NULL, null=True)
-    diocese = models.ForeignKey('Diocese', on_delete=models.CASCADE,
-                                related_name=f'{resource}_moderations', null=True)
-    history = HistoricalRecords()
-    parsing = models.ForeignKey('Parsing', on_delete=models.CASCADE, related_name='moderations')
-    category = models.CharField(max_length=16, choices=Category)
-
-    class Meta:
-        unique_together = ('parsing', 'category')
-
-    def delete_on_validate(self) -> bool:
-        # we always keep validated ParsingModeration
-        return False
-
-
 class ReportModeration(ModerationMixin):
     class Category(models.TextChoices):
         GOOD = "good"
@@ -506,7 +481,7 @@ class FineTunedLLM(TimeStampMixin):
     dataset_name = models.CharField(max_length=100)
     base_model = models.CharField(max_length=100)
     fine_tune_job_id = models.CharField(max_length=100)
-    parsing_moderations = models.ManyToManyField('ParsingModeration',
+    parsing_moderations = models.ManyToManyField('scheduling.ParsingModeration',
                                                  related_name='fine_tuned_llms')
     fine_tuned_model = models.CharField(max_length=100, null=True)
     error_detail = models.TextField(null=True)

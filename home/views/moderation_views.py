@@ -8,11 +8,12 @@ from django.urls import reverse
 from fetching.models import OClocherOrganizationModeration, OClocherMatchingModeration
 from home.models import WebsiteModeration, ChurchModeration, ModerationMixin, \
     BUG_DESCRIPTION_MAX_LENGTH, ParishModeration, ResourceDoesNotExistError, PruningModeration, \
-    SentenceModeration, ParsingModeration, ReportModeration, Diocese
+    SentenceModeration, ReportModeration, Diocese
 from home.services.edit_pruning_service import on_pruning_human_validation, \
     set_v2_indices_as_human, get_single_line_colored_piece, update_sentence_labels_with_request, \
     TEMPORAL_COLORS, EVENT_MENTION_COLORS
 from home.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
+from scheduling.models.parsing_models import ParsingModeration
 from scheduling.services.scheduling_service import get_parsing_moderation_of_pruning
 from scraping.extract_v2.split_content import create_line_and_tag_v2
 from scraping.prune.models import Source

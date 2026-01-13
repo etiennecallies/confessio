@@ -6,12 +6,13 @@ from django.urls import reverse
 
 from fetching.models import OClocherOrganizationModeration, OClocherMatchingModeration
 from home.models import WebsiteModeration, ChurchModeration, ParishModeration, \
-    PruningModeration, SentenceModeration, ParsingModeration, ModerationMixin, Pruning, \
+    PruningModeration, SentenceModeration, ModerationMixin, Pruning, \
     ReportModeration, Diocese
 from home.services.website_events_service import WebsiteEvents
 from home.services.website_schedules_service import WebsiteSchedules
 from home.utils.date_utils import get_current_year
 from home.utils.list_utils import enumerate_with_and
+from scheduling.models.parsing_models import ParsingModeration
 from scraping.parse.holidays import HolidayZoneEnum
 from scraping.parse.rrule_utils import get_events_from_schedule_item
 from scraping.parse.schedules import ScheduleItem, Event

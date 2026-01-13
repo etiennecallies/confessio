@@ -4,10 +4,11 @@ from dataclasses import dataclass
 
 from django.db.models.functions import Now
 
-from home.models import Pruning, Parsing, ParsingModeration, Church
+from home.models import Pruning, Parsing, Church
 from home.utils.hash_utils import hash_string_to_hex
 from home.utils.list_utils import get_desc_by_id
 from home.utils.log_utils import info
+from scheduling.models.parsing_models import ParsingModeration
 from scheduling.services.scheduling_service import get_websites_of_parsing
 from scraping.parse.llm_client import LLMClientInterface
 from scraping.parse.parse_with_llm import parse_with_llm, get_prompt_template, get_llm_client
