@@ -16,14 +16,13 @@ class ParsingModeration(ModerationMixin):
                                          on_delete=models.SET_NULL, null=True)
     diocese = models.ForeignKey('home.Diocese', on_delete=models.CASCADE,
                                 related_name=f'{resource}_moderations', null=True)
-    history = HistoricalRecords(table_name='home_historicalparsingmoderation')
+    history = HistoricalRecords()
     parsing = models.ForeignKey('home.Parsing', on_delete=models.CASCADE,
                                 related_name='moderations')
     category = models.CharField(max_length=16, choices=Category)
 
     class Meta:
         unique_together = ('parsing', 'category')
-        db_table = "home_parsingmoderation"
 
     def delete_on_validate(self) -> bool:
         # we always keep validated ParsingModeration
