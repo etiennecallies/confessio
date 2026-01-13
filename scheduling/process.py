@@ -1,6 +1,7 @@
 from django.db import transaction
 
 from home.models import Website
+from home.utils.log_utils import info
 from scheduling.models import Scheduling, PruningParsing
 from scheduling.services.index_scheduling_service import do_index_scheduling, \
     clean_parsings_moderations
@@ -16,7 +17,7 @@ from scheduling.tasks import worker_prune_scheduling, worker_parse_scheduling
 
 
 def init_scheduling(website: Website, instant_deindex: bool = False) -> Scheduling:
-    print(f"Initializing scheduling for website {website}.")
+    info(f"Initializing scheduling for website {website}.")
 
     new_scheduling, scheduling_related_objects = build_scheduling(website)
     with transaction.atomic():
@@ -50,9 +51,9 @@ def init_scheduling(website: Website, instant_deindex: bool = False) -> Scheduli
 
 
 def prune_scheduling(scheduling: Scheduling):
-    print("Pruning scheduling.")
+    info("Pruning scheduling.")
     if scheduling.status != Scheduling.Status.BUILT:
-        print(f"Scheduling is in status {scheduling.status}; skipping pruning.")
+        info(f"Scheduling is in status {scheduling.status}; skipping pruning.")
         return
 
     scheduling_pruning_objects = do_prune_scheduling(scheduling)
@@ -65,7 +66,7 @@ def prune_scheduling(scheduling: Scheduling):
                 status=Scheduling.Status.BUILT
             )
         except Scheduling.DoesNotExist:
-            print("Aborting: Scheduling not found or status changed.")
+            info("Aborting: Scheduling not found or status changed.")
             return
 
         # 2. Save pruning objects
@@ -80,9 +81,9 @@ def prune_scheduling(scheduling: Scheduling):
 
 
 def parse_scheduling(scheduling: Scheduling):
-    print("Parsing scheduling.")
+    info("Parsing scheduling.")
     if scheduling.status != Scheduling.Status.PRUNED:
-        print(f"Scheduling is in status {scheduling.status}; skipping parsing.")
+        info(f"Scheduling is in status {scheduling.status}; skipping parsing.")
         return
 
     scheduling_parsing_objects = do_parse_scheduling(scheduling)
@@ -95,7 +96,7 @@ def parse_scheduling(scheduling: Scheduling):
                 status=Scheduling.Status.PRUNED
             )
         except Scheduling.DoesNotExist:
-            print("Aborting: Scheduling not found or status changed.")
+            info("Aborting: Scheduling not found or status changed.")
             return
 
         # 2. Save pruning objects
@@ -110,9 +111,9 @@ def parse_scheduling(scheduling: Scheduling):
 
 
 def match_scheduling(scheduling: Scheduling):
-    print("Match scheduling.")
+    info("Match scheduling.")
     if scheduling.status != Scheduling.Status.PARSED:
-        print(f"Scheduling is in status {scheduling.status}; skipping parsing.")
+        info(f"Scheduling is in status {scheduling.status}; skipping parsing.")
         return
 
     scheduling_matching_objects = do_match_scheduling(scheduling)
@@ -125,7 +126,7 @@ def match_scheduling(scheduling: Scheduling):
                 status=Scheduling.Status.PARSED
             )
         except Scheduling.DoesNotExist:
-            print("Aborting: Scheduling not found or status changed.")
+            info("Aborting: Scheduling not found or status changed.")
             return
 
         # 2. Save pruning objects
@@ -140,10 +141,10 @@ def match_scheduling(scheduling: Scheduling):
 
 
 def index_scheduling(scheduling: Scheduling):
-    print("Indexing scheduling.")
+    info("Indexing scheduling.")
 
     if scheduling.status != Scheduling.Status.MATCHED:
-        print(f"Scheduling is in status {scheduling.status}; skipping indexing.")
+        info(f"Scheduling is in status {scheduling.status}; skipping indexing.")
         return
 
     index_events = do_index_scheduling(scheduling)
@@ -156,7 +157,7 @@ def index_scheduling(scheduling: Scheduling):
                 status=Scheduling.Status.MATCHED
             )
         except Scheduling.DoesNotExist:
-            print("Aborting: Scheduling not found or status changed.")
+            info("Aborting: Scheduling not found or status changed.")
             return
 
         # 2. Delete previous INDEXED schedulings for the same website
