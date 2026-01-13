@@ -226,8 +226,6 @@ def prune_pruning(pruning: Pruning) -> ():
 
     if ml_indices != pruning.ml_indices:
         pruning.ml_indices = ml_indices
-        if pruning.human_indices is None:
-            pruning.pruned_indices = ml_indices
         pruning.save()
 
         add_necessary_moderation(pruning)

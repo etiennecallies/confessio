@@ -49,12 +49,17 @@ def get_pruning_human_pieces(pruning: Pruning) -> list[PruningHumanPiece]:
 
 
 def set_human_indices(pruning: Pruning, indices: list[int]):
-    pruning.human_indices = indices
     needs_reschedule = False
-    if pruning.pruned_indices != indices:
-        pruning.pruned_indices = indices
-        needs_reschedule = True
+    if pruning.human_indices is not None:
+        if pruning.human_indices != indices:
+            needs_reschedule = True
+    else:
+        if pruning.ml_indices != indices:
+            needs_reschedule = True
+
+    pruning.human_indices = indices
     pruning.save()
+
     if needs_reschedule:
         init_scheduling_for_pruning(pruning)
 
