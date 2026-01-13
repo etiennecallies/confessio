@@ -34,7 +34,7 @@ def get_truncated_html(pruning: Pruning) -> str:
 
     truncated_lines = []
     last_index = None
-    for index in pruning.pruned_indices:
+    for index in pruning.get_pruned_indices():
         if last_index is not None and index != last_index + 1:
             truncated_lines.append(get_truncated_line(lines[last_index + 1]))
             if index - 1 > last_index + 1:

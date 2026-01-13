@@ -11,8 +11,8 @@ def get_page_url_with_pointer_at_pruning(page: Page, pruning: Pruning):
         return page.url
 
     pointer_text = None
-    if pruning and pruning.pruned_indices:
-        first_index = pruning.pruned_indices[0]
+    if pruning and pruning.get_pruned_indices():
+        first_index = pruning.get_pruned_indices()[0]
         lines = split_lines(pruning.extracted_html)
         assert len(lines) > first_index, f'Index {first_index} out of range'
         first_line = lines[first_index]

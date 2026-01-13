@@ -223,8 +223,11 @@ class Pruning(TimeStampMixin):
         self.extracted_html_hash = hash_string_to_hex(self.extracted_html)
         super().save(*args, **kwargs)
 
+    def get_pruned_indices(self):
+        return self.human_indices if self.human_indices is not None else self.ml_indices
+
     def has_confessions(self) -> bool:
-        return bool(self.pruned_indices)
+        return bool(self.get_pruned_indices())
 
     def get_diocese(self) -> Diocese | None:
         if not self.scrapings.exists():

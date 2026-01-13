@@ -91,7 +91,7 @@ def display_schedules_list(schedules_list: SchedulesList, church_desc_by_id_json
 @register.simple_tag
 def display_expandable_pruning(pruning: Pruning):
     lines = pruning.extracted_html.split('<br>\n')
-    consecutive_indices = group_consecutive_indices(len(lines), pruning.pruned_indices)
+    consecutive_indices = group_consecutive_indices(len(lines), pruning.get_pruned_indices())
 
     spans = []
     for is_displayed, indices in consecutive_indices:
