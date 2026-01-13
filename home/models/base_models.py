@@ -286,8 +286,6 @@ class Parsing(TimeStampMixin):
     truncated_html_hash = models.CharField(max_length=32, editable=False)
     church_desc_by_id = models.JSONField(editable=False)
 
-    prunings = models.ManyToManyField('Pruning', related_name='parsings')
-
     llm_json = models.JSONField(null=True, blank=True)
     llm_json_version = models.CharField(max_length=6, default='v1.0')
     llm_provider = models.CharField(choices=LLMProvider.choices())
