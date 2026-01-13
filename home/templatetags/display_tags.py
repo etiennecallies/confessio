@@ -6,13 +6,14 @@ from django.contrib.gis.geos import Point
 from django.template.defaulttags import register
 from django.template.loader import render_to_string
 
-from home.models import Parish, Church, Website, Pruning, Image
+from home.models import Parish, Church, Website, Pruning, Image, Parsing
 from home.services.upload_image_service import get_image_public_url
 from home.services.map_service import (get_map_with_single_location,
                                        get_map_with_multiple_locations,
                                        get_map_with_alternative_locations)
 from home.services.website_schedules_service import get_color_of_nullable_church
 from home.utils.list_utils import group_consecutive_indices
+from scheduling.services.scheduling_service import get_prunings_of_parsing
 from scraping.parse.explain_schedule import get_explanation_from_schedule
 from scraping.parse.schedules import SchedulesList, Event, ScheduleItem
 
@@ -142,4 +143,12 @@ def display_image(image: Image, request) -> str:
         'image': image,
         'image_url': get_image_public_url(image),
         'request': request,
+    })
+
+
+@register.simple_tag
+def display_parsing_pages(parsing: Parsing):
+    prunings = get_prunings_of_parsing(parsing)
+    return render_to_string('displays/parsing_pages_display.html', {
+        'prunings': prunings,
     })

@@ -129,3 +129,26 @@ def get_websites_of_parsing(parsing: Parsing) -> list[Website]:
             )
         ).distinct()
     )
+
+
+################
+# GET PRUNINGS #
+################
+
+def get_prunings_of_parsing(parsing: Parsing) -> list[Pruning]:
+    history_ids = Subquery(
+        parsing.history.values('history_id')
+    )
+
+    pruning_history_ids = Subquery(
+        Scheduling.objects.filter(
+            pruning_parsings__parsing_history_id__in=history_ids,
+            status=Scheduling.Status.INDEXED,
+        ).values('pruning_parsings__pruning_history_id')
+    )
+
+    return list(
+        Pruning.history.filter(
+            history_id__in=pruning_history_ids
+        ).distinct()
+    )

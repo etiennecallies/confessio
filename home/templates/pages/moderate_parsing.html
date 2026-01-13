@@ -29,22 +29,7 @@
             </div>
         {% endif %}
     </div>
-    {% for pruning in parsing.prunings.all %}
-        {% for scraping in pruning.scrapings.all %}
-            <div>Scraping page: <a href="{{ scraping.page.url }}" target="_blank">{{ scraping.page.url }}</a>
-                <a class="btn btn-tertiary" style="background-color: darkgreen; border-color: darkgreen;"
-                   href="{% url 'admin:home_website_change' scraping.page.website.uuid %}" target="_blank" role="button">
-                Open website admin <i class="fas fa-up-right-from-square"></i>
-                </a>
-                <p>
-                <a class="link-info" href="{% url 'website_view' scraping.page.website.uuid %}">{{ scraping.page.website.name }}</a>
-                </p>
-            </div>
-        {% endfor %}
-        <p><a class="btn btn-gray-500" href="{% url 'edit_pruning_v1' pruning.uuid %}" target="_blank" role="button">
-        Edit pruning <i class="fas fa-up-right-from-square"></i>
-        </a></p>
-    {% endfor %}
+    {% display_parsing_pages parsing %}
     <form method="post">
         {% csrf_token %}
         <input type="hidden" name="reparse_parsing" />

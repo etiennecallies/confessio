@@ -1,5 +1,6 @@
 {% extends 'layouts/single_card.html' %}
 {% load static %}
+{% load display_tags %}
 
 {% load i18n %}
 
@@ -7,16 +8,7 @@
 
     <div class="col-12">
         <h2>Edit Parsing</h2>
-        {% for pruning in parsing.prunings.all %}
-            {% for scraping in pruning.scrapings.all %}
-                <p class="mb-3"> Page URL:
-                    <a class="link-info"
-                        href="{{ scraping.page.url }}">
-                        {{ scraping.page.url }}
-                    </a>
-                </p>
-            {% endfor %}
-        {% endfor %}
+        {% display_parsing_pages parsing %}
         {% if success %}
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 <span class="alert-inner--icon"><i class="far fa-thumbs-up"></i></span>
