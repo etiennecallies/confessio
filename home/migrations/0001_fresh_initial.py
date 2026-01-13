@@ -3,7 +3,6 @@
 import django.contrib.gis.db.models.fields
 import django.contrib.postgres.fields
 import django.db.models.deletion
-import home.models.custom_fields
 import pgvector.django.vector
 import simple_history.models
 import uuid
@@ -385,8 +384,8 @@ class Migration(migrations.Migration):
                 ('start_time_iso8601', models.CharField(blank=True, max_length=8, null=True)),
                 ('end_time_iso8601', models.CharField(blank=True, max_length=8, null=True)),
                 ('rrule', models.TextField()),
-                ('include_periods', home.models.custom_fields.ChoiceArrayField(base_field=models.CharField(choices=[('january', 'JANUARY'), ('february', 'FEBRUARY'), ('march', 'MARCH'), ('april', 'APRIL'), ('may', 'MAY'), ('june', 'JUNE'), ('july', 'JULY'), ('august', 'AUGUST'), ('september', 'SEPTEMBER'), ('october', 'OCTOBER'), ('november', 'NOVEMBER'), ('december', 'DECEMBER'), ('advent', 'ADVENT'), ('lent', 'LENT'), ('school_holidays', 'SCHOOL_HOLIDAYS')], max_length=16), blank=True, size=None)),
-                ('exclude_periods', home.models.custom_fields.ChoiceArrayField(base_field=models.CharField(choices=[('january', 'JANUARY'), ('february', 'FEBRUARY'), ('march', 'MARCH'), ('april', 'APRIL'), ('may', 'MAY'), ('june', 'JUNE'), ('july', 'JULY'), ('august', 'AUGUST'), ('september', 'SEPTEMBER'), ('october', 'OCTOBER'), ('november', 'NOVEMBER'), ('december', 'DECEMBER'), ('advent', 'ADVENT'), ('lent', 'LENT'), ('school_holidays', 'SCHOOL_HOLIDAYS')], max_length=16), blank=True, size=None)),
+                ('include_periods', models.CharField(choices=[('january', 'JANUARY'), ('february', 'FEBRUARY'), ('march', 'MARCH'), ('april', 'APRIL'), ('may', 'MAY'), ('june', 'JUNE'), ('july', 'JULY'), ('august', 'AUGUST'), ('september', 'SEPTEMBER'), ('october', 'OCTOBER'), ('november', 'NOVEMBER'), ('december', 'DECEMBER'), ('advent', 'ADVENT'), ('lent', 'LENT'), ('school_holidays', 'SCHOOL_HOLIDAYS')], max_length=16, blank=True)),
+                ('exclude_periods', models.CharField(choices=[('january', 'JANUARY'), ('february', 'FEBRUARY'), ('march', 'MARCH'), ('april', 'APRIL'), ('may', 'MAY'), ('june', 'JUNE'), ('july', 'JULY'), ('august', 'AUGUST'), ('september', 'SEPTEMBER'), ('october', 'OCTOBER'), ('november', 'NOVEMBER'), ('december', 'DECEMBER'), ('advent', 'ADVENT'), ('lent', 'LENT'), ('school_holidays', 'SCHOOL_HOLIDAYS')], max_length=16, blank=True)),
                 ('history_id', models.AutoField(primary_key=True, serialize=False)),
                 ('history_date', models.DateTimeField(db_index=True)),
                 ('history_change_reason', models.CharField(max_length=100, null=True)),
@@ -570,8 +569,8 @@ class Migration(migrations.Migration):
                 ('start_time_iso8601', models.CharField(blank=True, max_length=8, null=True)),
                 ('end_time_iso8601', models.CharField(blank=True, max_length=8, null=True)),
                 ('rrule', models.TextField()),
-                ('include_periods', home.models.custom_fields.ChoiceArrayField(base_field=models.CharField(choices=[('january', 'JANUARY'), ('february', 'FEBRUARY'), ('march', 'MARCH'), ('april', 'APRIL'), ('may', 'MAY'), ('june', 'JUNE'), ('july', 'JULY'), ('august', 'AUGUST'), ('september', 'SEPTEMBER'), ('october', 'OCTOBER'), ('november', 'NOVEMBER'), ('december', 'DECEMBER'), ('advent', 'ADVENT'), ('lent', 'LENT'), ('school_holidays', 'SCHOOL_HOLIDAYS')], max_length=16), blank=True, size=None)),
-                ('exclude_periods', home.models.custom_fields.ChoiceArrayField(base_field=models.CharField(choices=[('january', 'JANUARY'), ('february', 'FEBRUARY'), ('march', 'MARCH'), ('april', 'APRIL'), ('may', 'MAY'), ('june', 'JUNE'), ('july', 'JULY'), ('august', 'AUGUST'), ('september', 'SEPTEMBER'), ('october', 'OCTOBER'), ('november', 'NOVEMBER'), ('december', 'DECEMBER'), ('advent', 'ADVENT'), ('lent', 'LENT'), ('school_holidays', 'SCHOOL_HOLIDAYS')], max_length=16), blank=True, size=None)),
+                ('include_periods', models.CharField(choices=[('january', 'JANUARY'), ('february', 'FEBRUARY'), ('march', 'MARCH'), ('april', 'APRIL'), ('may', 'MAY'), ('june', 'JUNE'), ('july', 'JULY'), ('august', 'AUGUST'), ('september', 'SEPTEMBER'), ('october', 'OCTOBER'), ('november', 'NOVEMBER'), ('december', 'DECEMBER'), ('advent', 'ADVENT'), ('lent', 'LENT'), ('school_holidays', 'SCHOOL_HOLIDAYS')], max_length=16, blank=True)),
+                ('exclude_periods', models.CharField(choices=[('january', 'JANUARY'), ('february', 'FEBRUARY'), ('march', 'MARCH'), ('april', 'APRIL'), ('may', 'MAY'), ('june', 'JUNE'), ('july', 'JULY'), ('august', 'AUGUST'), ('september', 'SEPTEMBER'), ('october', 'OCTOBER'), ('november', 'NOVEMBER'), ('december', 'DECEMBER'), ('advent', 'ADVENT'), ('lent', 'LENT'), ('school_holidays', 'SCHOOL_HOLIDAYS')], max_length=16, blank=True)),
                 ('parsing', simple_history.models.HistoricForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='regular_schedules', to='home.parsing')),
             ],
             options={
