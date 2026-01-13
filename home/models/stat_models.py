@@ -14,6 +14,7 @@ class Log(TimeStampMixin):
     class Type(models.TextChoices):
         CRAWLING = "crawling"
         SCRAPING = "scraping"
+        PRUNING = "pruning"
         PARSING = "parsing"
 
     class Status(models.TextChoices):

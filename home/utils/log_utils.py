@@ -1,3 +1,4 @@
+import traceback
 from contextvars import ContextVar
 from datetime import datetime
 
@@ -34,3 +35,12 @@ def append_to_buffer(content: str):
     buffer_value = buffer.get()
     if buffer_value is not None:
         buffer.set(buffer_value + content)
+
+
+def log_stack_trace():
+    stack_trace = traceback.format_exc()
+    if len(stack_trace) > 8000:
+        info(stack_trace[:4000] + '...')
+        info('...' + stack_trace[-4000:])
+    else:
+        info(stack_trace)

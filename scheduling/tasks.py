@@ -1,4 +1,6 @@
-from home.utils.log_utils import info
+from home.models import Log
+from home.services.log_service import save_buffer
+from home.utils.log_utils import info, log_stack_trace, start_log_buffer
 from scheduling.models import Scheduling
 from background_task import background
 from background_task.tasks import TaskSchedule
@@ -13,8 +15,16 @@ def worker_prune_scheduling(scheduling_uuid: str):
         info(f'Scheduling {scheduling_uuid} does not exist for worker_prune_scheduling')
         return
 
+    start_log_buffer()
     from scheduling.process import prune_scheduling
-    prune_scheduling(scheduling)
+    try:
+        prune_scheduling(scheduling)
+    except Exception:
+        info(f'Exception while pruning scheduling {scheduling.uuid}')
+        log_stack_trace()
+        save_buffer(scheduling.website, Log.Type.PRUNING, Log.Status.FAILURE)
+
+    save_buffer(scheduling.website, Log.Type.PRUNING)
 
 
 @background(queue='main', schedule=TaskSchedule(priority=2))
@@ -26,5 +36,13 @@ def worker_parse_scheduling(scheduling_uuid: str):
         info(f'Scheduling {scheduling_uuid} does not exist for worker_parse_scheduling')
         return
 
+    start_log_buffer()
     from scheduling.process import parse_scheduling
-    parse_scheduling(scheduling)
+    try:
+        parse_scheduling(scheduling)
+    except Exception:
+        info(f'Exception while parsing scheduling {scheduling.uuid}')
+        log_stack_trace()
+        save_buffer(scheduling.website, Log.Type.PARSING, Log.Status.FAILURE)
+
+    save_buffer(scheduling.website, Log.Type.PARSING)

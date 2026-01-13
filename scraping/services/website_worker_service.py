@@ -1,12 +1,12 @@
 import time
-import traceback
 
 from background_task import background
 from background_task.tasks import TaskSchedule
 from django.db.models.functions import Now
 
 from home.models import Website, Log
-from home.utils.log_utils import info, start_log_buffer, get_log_buffer
+from home.services.log_service import save_buffer
+from home.utils.log_utils import info, start_log_buffer, log_stack_trace
 from scheduling.process import init_scheduling
 from scraping.scrape.download_refine_and_extract import get_fresh_extracted_html_list
 from scraping.services.crawl_website_service import crawl_website
@@ -43,12 +43,7 @@ def handle_crawl_website(website: Website):
         got_pages_with_content, some_pages_visited = crawl_website(website)
     except Exception:
         info(f'Exception while crawling website {website.name} {website.uuid}')
-        stack_trace = traceback.format_exc()
-        if len(stack_trace) > 8000:
-            info(stack_trace[:4000] + '...')
-            info('...' + stack_trace[-4000:])
-        else:
-            info(stack_trace)
+        log_stack_trace()
 
         save_buffer(website, Log.Type.CRAWLING, Log.Status.FAILURE)
         return
@@ -120,17 +115,3 @@ def handle_scrape_page(website: Website):
 
     info(f'Successfully scraped website {website.name} {website.uuid}')
     save_buffer(website, Log.Type.SCRAPING)
-
-
-#######
-# LOG #
-#######
-
-def save_buffer(website: Website, log_type: Log.Type, status: Log.Status = Log.Status.DONE):
-    buffer_value = get_log_buffer()
-    log = Log(type=log_type,
-              website=website,
-              content=buffer_value,
-              status=status,
-              )
-    log.save()
