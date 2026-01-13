@@ -3,7 +3,7 @@ from uuid import UUID
 
 from django.db.models import Q, Subquery
 
-from home.models import Parsing, Pruning, Website
+from home.models import Parsing, Pruning, Website, ParsingModeration
 from home.models import Scraping, Image
 from scheduling.models import Scheduling
 
@@ -152,3 +152,24 @@ def get_prunings_of_parsing(parsing: Parsing) -> list[Pruning]:
             history_id__in=pruning_history_ids
         ).distinct()
     )
+
+
+def get_parsing_moderation_of_pruning(pruning: Pruning) -> ParsingModeration | None:
+    history_ids = Subquery(
+        pruning.history.values('history_id')
+    )
+
+    parsing_history_ids = Subquery(
+        Scheduling.objects.filter(
+            pruning_parsings__pruning_history_id__in=history_ids,
+            status=Scheduling.Status.INDEXED,
+        ).values('pruning_parsings__parsing_history_id')
+    )
+
+    parsing_uuids = Parsing.history.filter(
+        history_id__in=parsing_history_ids
+    ).values_list('uuid', flat=True)
+
+    return ParsingModeration.objects.filter(
+        parsing__uuid__in=parsing_uuids
+    ).first()

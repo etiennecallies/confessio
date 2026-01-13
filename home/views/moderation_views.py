@@ -13,6 +13,7 @@ from home.services.edit_pruning_service import on_pruning_human_validation, \
     set_v2_indices_as_human, get_single_line_colored_piece, update_sentence_labels_with_request, \
     TEMPORAL_COLORS, EVENT_MENTION_COLORS
 from home.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
+from scheduling.services.scheduling_service import get_parsing_moderation_of_pruning
 from scraping.extract_v2.split_content import create_line_and_tag_v2
 from scraping.prune.models import Source
 from scraping.services.edit_parsing_service import on_parsing_human_validation, \
@@ -244,7 +245,7 @@ def render_pruning_moderation(request, moderation: PruningModeration, next_url):
             differs = 'fw-bold display-5' if differs_by_index[i] else ''
             v2_lines_and_colors.append((line, color, differs))
 
-    parsing_moderation = ParsingModeration.objects.filter(parsing__prunings=pruning).first()
+    parsing_moderation = get_parsing_moderation_of_pruning(pruning)
 
     return render(request, f'pages/moderate_pruning.html', {
         'pruning_moderation': moderation,
