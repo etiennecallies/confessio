@@ -1,0 +1,26 @@
+from django.db import models
+from simple_history.models import HistoricalRecords
+
+from home.models import TimeStampMixin
+from scraping.parse.llm_client import LLMProvider
+
+
+class Image(TimeStampMixin):
+    website = models.ForeignKey('home.Website', on_delete=models.CASCADE, related_name='images')
+    name = models.CharField(max_length=256)
+    comment = models.TextField(null=True, blank=True)
+    llm_html = models.TextField(null=True, blank=True)
+    llm_provider = models.CharField(choices=LLMProvider.choices(), null=True, blank=True)
+    llm_model = models.CharField(max_length=100, null=True, blank=True)
+    prompt_hash = models.CharField(max_length=32, null=True, blank=True)
+    llm_error_detail = models.TextField(null=True, blank=True)
+    human_html = models.TextField(null=True, blank=True)
+    prunings = models.ManyToManyField('home.Pruning', related_name='images')
+    user = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
+    user_agent = models.TextField(null=True, blank=True)
+    ip_address_hash = models.CharField(max_length=64, null=True, blank=True)
+
+    history = HistoricalRecords(table_name='home_historicalimage')
+
+    class Meta:
+        db_table = "home_image"

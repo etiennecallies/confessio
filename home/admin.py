@@ -4,7 +4,8 @@ from django.forms import ModelChoiceField
 from leaflet.admin import LeafletGeoAdmin, LeafletGeoAdminMixin
 from simple_history.admin import SimpleHistoryAdmin
 
-from .models import Church, Website, Page, Diocese, Parish, Classifier, Sentence, Report, Image, \
+from attaching.models import Image
+from .models import Church, Website, Page, Diocese, Parish, Classifier, Sentence, Report, \
     WebsiteForbiddenPath
 
 

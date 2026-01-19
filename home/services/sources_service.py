@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from uuid import UUID
 
-from home.models import Website, Parsing, Pruning, Image, Scraping
+from attaching.models import Image
+from home.models import Website, Parsing, Pruning, Scraping
 from scheduling.models import Scheduling
 from scheduling.services.scheduling_service import get_scheduling_parsings, \
     get_scheduling_prunings_and_parsings, SchedulingPruningsAndParsings

@@ -3,8 +3,9 @@ from uuid import UUID
 
 from django.db.models import Q, Subquery
 
+from attaching.models import Image
 from home.models import Parsing, Pruning, Website
-from home.models import Scraping, Image
+from home.models import Scraping
 from scheduling.models import Scheduling
 from scheduling.models.parsing_models import ParsingModeration
 

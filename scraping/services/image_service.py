@@ -1,4 +1,4 @@
-from home.models import Image
+from attaching.models import Image
 
 
 def get_image_html(image: Image) -> str | None:
