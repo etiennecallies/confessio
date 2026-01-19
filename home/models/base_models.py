@@ -157,13 +157,10 @@ class Crawling(TimeStampMixin):
 
 
 class Scraping(TimeStampMixin):
+    url = models.URLField(max_length=300)
     nb_iterations = models.PositiveSmallIntegerField()
+    website = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='scrapings')
     prunings = models.ManyToManyField('Pruning', related_name='scrapings')
-    url = models.URLField(max_length=300, null=True)  # TODO set it as non-nullable
-    website = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='scrapings',
-                                null=True)  # TODO set it as non-nullable
-    page = models.OneToOneField('Page', on_delete=models.SET_NULL, related_name='scraping',
-                                null=True)  # TODO remove
 
     history = HistoricalRecords()
 
