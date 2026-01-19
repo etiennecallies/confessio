@@ -6,7 +6,7 @@ from django.http import HttpResponseNotFound
 from django.shortcuts import render
 from pydantic import ValidationError
 
-from home.models import Page, Pruning, Sentence, Parsing
+from home.models import Pruning, Sentence, Parsing
 from home.services.edit_pruning_service import get_colored_pieces, update_sentence_action, \
     set_ml_indices_as_human, set_human_indices, \
     get_pruning_human_pieces, get_colored_pieces_v2, set_v2_indices_as_human, \
@@ -29,7 +29,7 @@ from scraping.utils.html_utils import split_lines
 def edit_pruning_v1(request, pruning_uuid):
     try:
         pruning = Pruning.objects.get(uuid=pruning_uuid)
-    except Page.DoesNotExist:
+    except Pruning.DoesNotExist:
         return HttpResponseNotFound("Pruning not found")
 
     extracted_html = pruning.extracted_html
@@ -80,7 +80,7 @@ def edit_pruning_v1(request, pruning_uuid):
 def edit_pruning_human(request, pruning_uuid):
     try:
         pruning = Pruning.objects.get(uuid=pruning_uuid)
-    except Page.DoesNotExist:
+    except Pruning.DoesNotExist:
         return HttpResponseNotFound("Pruning not found")
 
     if request.method == "POST":
@@ -104,7 +104,7 @@ def edit_pruning_human(request, pruning_uuid):
 def edit_pruning_v2(request, pruning_uuid):
     try:
         pruning = Pruning.objects.get(uuid=pruning_uuid)
-    except Page.DoesNotExist:
+    except Pruning.DoesNotExist:
         return HttpResponseNotFound("Pruning not found")
 
     extracted_html = pruning.extracted_html

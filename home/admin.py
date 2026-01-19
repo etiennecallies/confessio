@@ -5,7 +5,7 @@ from leaflet.admin import LeafletGeoAdmin, LeafletGeoAdminMixin
 from simple_history.admin import SimpleHistoryAdmin
 
 from attaching.models import Image
-from .models import Church, Website, Page, Diocese, Parish, Classifier, Sentence, Report, \
+from .models import Church, Website, Diocese, Parish, Classifier, Sentence, Report, \
     WebsiteForbiddenPath
 
 
@@ -61,20 +61,6 @@ class ChurchAdmin(LeafletGeoAdmin, SimpleHistoryAdmin):
     display_raw = True
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        return super().formfield_for_foreignkey(db_field, request, **kwargs)
-
-
-@admin.register(Page)
-class PageAdmin(ModelAdmin):
-    list_display = ["url", "get_website_name"]
-
-    @admin.display(ordering='website__name', description='Website')
-    def get_website_name(self, obj):
-        return obj.website.name
-
-    def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == 'website':
-            return WebsiteChoiceField(queryset=Website.objects.all())
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 

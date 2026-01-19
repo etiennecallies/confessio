@@ -138,17 +138,6 @@ class WebsiteForbiddenPath(TimeStampMixin):
         unique_together = ('website', 'path')
 
 
-class Page(TimeStampMixin):
-    url = models.URLField(max_length=300)
-    website = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='pages')
-    pruning_validation_counter = models.SmallIntegerField(default=0)
-    pruning_last_validated_at = models.DateTimeField(null=True, blank=True)
-    history = HistoricalRecords()
-
-    class Meta:
-        unique_together = ('url', 'website')
-
-
 class Crawling(TimeStampMixin):
     error_detail = models.TextField(null=True)
     nb_visited_links = models.PositiveSmallIntegerField()
