@@ -7,9 +7,6 @@ from scraping.refine.refine_content import get_text_if_not_table
 
 
 def get_scraping_url_with_pointer_at_pruning(scraping: Scraping, pruning: Pruning):
-    if not scraping.url:
-        return ''  # TODO there should always be a URL
-
     if scraping.url.endswith('.pdf'):
         return scraping.url
 
