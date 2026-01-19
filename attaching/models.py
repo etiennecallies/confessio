@@ -20,7 +20,4 @@ class Image(TimeStampMixin):
     user_agent = models.TextField(null=True, blank=True)
     ip_address_hash = models.CharField(max_length=64, null=True, blank=True)
 
-    history = HistoricalRecords(table_name='home_historicalimage')
-
-    class Meta:
-        db_table = "home_image"
+    history = HistoricalRecords()
