@@ -86,7 +86,7 @@
         <div>Nb success links : {{ latest_crawling.nb_success_links }}</div>
         <div>Error detail : {{ latest_crawling.error_detail }}</div>
         <h4>Scrapings</h4>
-        {% for scraping in website.get_scrapings %}
+        {% for scraping in website.scrapings.all %}
             <div>
                 <a href="{{ scraping.url }}" target="_blank">{{ scraping.url }}</a>
                 {% for pruning in scraping.prunings.all %}

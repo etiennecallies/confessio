@@ -25,11 +25,8 @@ def get_church_history_ids(website: Website) -> list[int]:
 
 def get_scraping_history_ids(website: Website) -> list[int]:
     scraping_history_ids = []
-    for page in website.get_pages():
-        if page.scraping is None:
-            continue
-
-        scraping_history_ids.append(page.scraping.history.latest().history_id)
+    for scraping in website.scrapings.all():
+        scraping_history_ids.append(scraping.history.latest().history_id)
 
     return scraping_history_ids
 
