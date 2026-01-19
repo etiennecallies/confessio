@@ -7,7 +7,7 @@ from django.utils import timezone
 
 from home.management.abstract_command import AbstractCommand
 from home.models import Pruning, Sentence, Classifier, Parsing, Log, \
-    ChurchModeration, Website, WebsiteModeration
+    ChurchModeration, Website, WebsiteModeration, Scraping
 from scheduling.models.parsing_models import ParsingModeration
 from scraping.services.parse_pruning_service import clean_parsing_moderations
 
@@ -16,6 +16,8 @@ class Command(AbstractCommand):
     help = "Command to remove useless data from the database"
 
     def handle(self, *args, **options):
+        self.clean_history(Scraping, Scraping.history.model)
+
         self.info(f'Starting cleaning old parsings')
         old_parsings = Parsing.objects.filter(website__isnull=True,
                                               human_json__isnull=True,
