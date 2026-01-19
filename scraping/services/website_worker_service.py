@@ -10,7 +10,7 @@ from home.utils.log_utils import info, start_log_buffer, log_stack_trace
 from scheduling.process import init_scheduling
 from scraping.scrape.download_refine_and_extract import get_fresh_extracted_html_list
 from scraping.services.crawl_website_service import crawl_website
-from scraping.services.page_service import delete_page
+from scraping.services.page_service import delete_scraping
 from scraping.services.scrape_page_service import upsert_extracted_html_list
 
 
@@ -90,16 +90,16 @@ def worker_scrape_page(website_uuid: str, timeout_ts: int | None):
 def handle_scrape_page(website: Website):
     info(f'Starting to scrape website {website.name} {website.uuid}')
 
-    for page in website.get_pages():
+    for scraping in website.scrapings.all():
         if website.enabled_for_crawling:
             # Actually do the scraping
-            extracted_html_list = get_fresh_extracted_html_list(page.url)
+            extracted_html_list = get_fresh_extracted_html_list(scraping.url)
         else:
             extracted_html_list = []
 
         if not extracted_html_list:
-            info(f'No more content for {page.url}, deleting page {page.uuid}')
-            delete_page(page)
+            info(f'No more content for {scraping.url}, deleting scraping {scraping.uuid}')
+            delete_scraping(scraping)
 
             # Trigger a recrawl to make sure we don't miss anything
             if website.crawling and website.enabled_for_crawling:
@@ -108,8 +108,8 @@ def handle_scrape_page(website: Website):
             continue
 
         # Insert or update scraping
-        upsert_extracted_html_list(page, extracted_html_list)
-        info(f'Successfully scraped page {page.url} {page.uuid}')
+        upsert_extracted_html_list(scraping, extracted_html_list)
+        info(f'Successfully scraped scraping {scraping.url} {scraping.uuid}')
 
     init_scheduling(website)
 

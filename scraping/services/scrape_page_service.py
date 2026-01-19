@@ -1,4 +1,4 @@
-from home.models import Page, Scraping
+from home.models import Scraping, Website
 from scraping.services.page_service import delete_scraping, check_for_orphan_prunings
 from scraping.services.prune_scraping_service import create_pruning
 
@@ -15,38 +15,36 @@ def is_extracted_html_list_identical_for_scraping(scraping: Scraping,
     return set(p.extracted_html for p in prunings) == set(extracted_html_list)
 
 
-def upsert_extracted_html_list(page: Page, extracted_html_list: list[str]):
-    old_prunings = []
-
+def upsert_extracted_html_list(scraping: Scraping, extracted_html_list: list[str]):
     # Compare result to last scraping
-    if (page.has_been_scraped()
-            and is_extracted_html_list_identical_for_scraping(page.scraping,
-                                                              extracted_html_list)):
+    if is_extracted_html_list_identical_for_scraping(scraping, extracted_html_list):
         # If a scraping exists and is identical to last one
-        page.scraping.nb_iterations += 1
-        page.scraping.save()
-    else:
-        new_prunings = []
-        for extracted_html_item in extracted_html_list:
-            new_prunings.append(create_pruning(extracted_html_item))
-
-        if page.has_been_scraped():
-            old_prunings = list(page.scraping.prunings.all())
-            page.scraping.delete()
-
-        scraping = Scraping(
-            nb_iterations=1,
-            page=page,
-            url=page.url,
-            website=page.website,
-        )
+        scraping.nb_iterations += 1
         scraping.save()
+    else:
+        old_prunings = list(scraping.prunings.all())
+        url = scraping.url
+        website = scraping.website
+        scraping.delete()
 
-        for pruning in new_prunings:
-            scraping.prunings.add(pruning)
+        create_scraping(extracted_html_list, url, website)
 
-    if old_prunings:
-        check_for_orphan_prunings(old_prunings)
+        if old_prunings:
+            check_for_orphan_prunings(old_prunings)
+
+
+def create_scraping(extracted_html_list: list[str],
+                    url: str,
+                    website: Website) -> None:
+    scraping = Scraping(
+        nb_iterations=1,
+        url=url,
+        website=website,
+    )
+    scraping.save()
+
+    for extracted_html_item in extracted_html_list:
+        scraping.prunings.add(create_pruning(extracted_html_item))
 
 
 def delete_orphan_scrapings() -> int:
