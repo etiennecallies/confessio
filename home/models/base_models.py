@@ -203,6 +203,7 @@ class Crawling(TimeStampMixin):
 class Scraping(TimeStampMixin):
     nb_iterations = models.PositiveSmallIntegerField()
     prunings = models.ManyToManyField('Pruning', related_name='scrapings')
+    url = models.URLField(max_length=300, null=True)  # TODO set it as non-nullable
     page = models.OneToOneField('Page', on_delete=models.CASCADE, related_name='scraping')
 
     history = HistoricalRecords()

@@ -37,6 +37,7 @@ def upsert_extracted_html_list(page: Page, extracted_html_list: list[str]):
         scraping = Scraping(
             nb_iterations=1,
             page=page,
+            url=page.url,
         )
         scraping.save()
 
