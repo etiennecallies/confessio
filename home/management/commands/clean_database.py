@@ -2,12 +2,13 @@ from datetime import timedelta
 from typing import Type
 
 from background_task.models import CompletedTask
-from django.db.models import Q, Model
+from django.db.models import Q, Model, Subquery
 from django.utils import timezone
 
 from home.management.abstract_command import AbstractCommand
 from home.models import Pruning, Sentence, Classifier, Parsing, Log, \
     ChurchModeration, Website, WebsiteModeration, Scraping
+from scheduling.models import PruningParsing
 from scheduling.models.parsing_models import ParsingModeration
 from scraping.services.parse_pruning_service import clean_parsing_moderations
 
@@ -19,10 +20,15 @@ class Command(AbstractCommand):
         self.clean_history(Scraping, Scraping.history.model)
 
         self.info(f'Starting cleaning old parsings')
-        old_parsings = Parsing.objects.filter(website__isnull=True,
-                                              human_json__isnull=True,
-                                              updated_at__lt=timezone.now() - timedelta(days=30)
-                                              ).all()
+        old_parsings = Parsing.objects.filter(
+            ~Q(uuid__in=Subquery(Parsing.history.filter(
+                history_id__in=Subquery(
+                    PruningParsing.objects.values('parsing_history_id').distinct()
+                ),
+            ).values('uuid').distinct())),
+            human_json__isnull=True,
+            updated_at__lt=timezone.now() - timedelta(days=30)
+        ).all()
         counter = self.delete_objects(old_parsings)
         self.success(f'Successfully cleaned {counter} old parsings')
 
