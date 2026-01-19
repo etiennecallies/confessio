@@ -1,9 +1,7 @@
-from datetime import timedelta
 from typing import Optional
 from uuid import UUID
 
 from django.db import IntegrityError, transaction
-from django.utils import timezone
 
 from home.models import Pruning, PruningModeration
 from home.models import Sentence
@@ -132,30 +130,7 @@ def delete_moderation(pruning: Pruning, category: PruningModeration.Category) ->
     PruningModeration.objects.filter(pruning=pruning, category=category).delete()
 
 
-def pruning_needs_moderation(pruning: Pruning):
-    for scraping in pruning.scrapings.all():
-        page = scraping.page
-
-        # if page has been validated less than three times or more than one year ago
-        # and if website has been validated less than seven times or more than one year ago
-        if (
-                page.pruning_validation_counter < 3
-                or page.pruning_last_validated_at is None
-                or page.pruning_last_validated_at < (timezone.now() - timedelta(days=365))
-        ) and (
-                page.website.pruning_validation_counter < 7
-                or page.website.pruning_last_validated_at is None
-                or page.website.pruning_last_validated_at < (timezone.now() - timedelta(days=365))
-        ):
-            return True
-
-    return False
-
-
 def add_new_moderation(pruning: Pruning, category):
-    if not pruning_needs_moderation(pruning):
-        return
-
     if get_current_moderation(pruning, category) is not None:
         # moderation already exists, we do not need to create a new one
         return
