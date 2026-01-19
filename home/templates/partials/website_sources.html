@@ -5,20 +5,14 @@
 {% if parsings_and_prunings.sources %}
     {% for parsing in parsings_and_prunings.sources %}
         <div class="row mt-1 mb-3 margin-left-indent" id="parsing-{{ website.uuid }}-{{ parsing.uuid }}">
-            {% with page=parsings_and_prunings.page_by_parsing_uuid|get_item:parsing.uuid %}
-            {% if page %}
+            {% with scraping=parsings_and_prunings.scraping_by_parsing_uuid|get_item:parsing.uuid %}
+            {% if scraping %}
                 <div class="col-md-9 lead">
                     [{{ forloop.counter }}]
-                    {% blocktrans with url=page_pruning_urls|get_item:page.uuid|get_item:parsing.uuid %}BeforeConfessionHTML {{ url }}{% endblocktrans %}
-                    {% with page_counter=parsings_and_prunings.all_pages_by_parsing_uuid|get_item:parsing.uuid|length %}
-                        {% if page_counter > 1 %}<span><small class="text-muted">(et {{ page_counter|subtract:1 }} autres pages)</small></span>{% endif %}
+                    {% blocktrans with url=scraping_parsing_urls|get_item:scraping.uuid|get_item:parsing.uuid %}BeforeConfessionHTML {{ url }}{% endblocktrans %}
+                    {% with scraping_counter=parsings_and_prunings.all_scrapings_by_parsing_uuid|get_item:parsing.uuid|length %}
+                        {% if scraping_counter > 1 %}<span><small class="text-muted">(et {{ scraping_counter|subtract:1 }} autres pages)</small></span>{% endif %}
                     {% endwith %}
-                    {% if page.has_been_modified_recently %}
-                        <button type="button" class="btn btn-success btn-sm" data-toggle="tooltip" data-placement="bottom"
-                                title="Contenu modifié le {{ page.scraping.created_at|date:"d M" }}">
-                            À jour
-                        </button>
-                    {% endif %}
                 </div>
             {% else %}
                 <div class="col-md-9 lead">
@@ -79,9 +73,9 @@
 {% if empty_sources %}
     <div class="margin-left-indent">
         <h5>Empty sources</h5>
-        {% for page in empty_sources.pages %}
-            <div>Page <a href="{{ page.url }}">{{ page.url }}</a></div>
-            {% for pruning in empty_sources.prunings_by_page_uuid|get_item:page.uuid %}
+        {% for scraping in empty_sources.scrapings %}
+            <div>Scraping <a href="{{ scraping.url }}">{{ scraping.url }}</a></div>
+            {% for pruning in empty_sources.prunings_by_scraping_uuid|get_item:scraping.uuid %}
                 <div class="margin-left-indent">
                     <div class="row">
                         {% with unvalidated_pruning_moderation=pruning|get_unvalidated_pruning_moderation %}
@@ -114,10 +108,10 @@
                     {% display_expandable_pruning pruning %}
                 </div>
             {% empty %}
-                <div class="margin-left-indent">No pruning found for this page.</div>
+                <div class="margin-left-indent">No pruning found for this scraping.</div>
             {% endfor %}
         {% empty %}
-            No empty pages.
+            No empty scrapings.
         {% endfor %}
         {% for image in empty_sources.images %}
             <div>

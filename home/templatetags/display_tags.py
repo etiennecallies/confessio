@@ -147,8 +147,8 @@ def display_image(image: Image, request) -> str:
 
 
 @register.simple_tag
-def display_parsing_pages(parsing: Parsing):
+def display_parsing_scrapings(parsing: Parsing):
     prunings = get_prunings_of_parsing(parsing)
-    return render_to_string('displays/parsing_pages_display.html', {
+    return render_to_string('displays/parsing_scrapings_display.html', {
         'prunings': prunings,
     })

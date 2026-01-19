@@ -1,11 +1,9 @@
 import uuid
-from datetime import timedelta
 
 from django.contrib.gis.db import models as gis_models
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.indexes import GistIndex
 from django.db import models
-from django.utils import timezone
 from pgvector.django import VectorField
 from simple_history.models import HistoricalRecords
 
@@ -65,10 +63,7 @@ class Website(TimeStampMixin):
     def has_been_crawled(self) -> bool:
         return self.crawling_id is not None
 
-    def get_pages(self) -> list['Page']:
-        return list(self.pages.all())
-
-    def one_page_has_confessions(self) -> bool:
+    def one_scraping_has_confessions(self) -> bool:
         return any(map(lambda s: s.has_confessions(), self.scrapings.all()))
 
     def delete_if_no_parish(self):
@@ -166,20 +161,6 @@ class Page(TimeStampMixin):
 
         return self.scraping.prunings.all()
 
-    def has_been_modified_recently(self) -> bool:
-        if self.scraping is None:
-            return False
-
-        # If latest scraping was created more than one year ago
-        if self.scraping.created_at < timezone.now() - timedelta(days=365):
-            return False
-
-        # If latest scraping is older than page creation
-        if self.scraping.created_at <= self.created_at + timedelta(hours=2):
-            return False
-
-        return True
-
 
 class Crawling(TimeStampMixin):
     error_detail = models.TextField(null=True)
@@ -230,7 +211,7 @@ class Pruning(TimeStampMixin):
         if not self.scrapings.exists():
             return None
 
-        return self.scrapings.first().page.website.get_diocese()
+        return self.scrapings.first().website.get_diocese()
 
 
 class Sentence(TimeStampMixin):
