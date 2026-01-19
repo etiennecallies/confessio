@@ -1,4 +1,4 @@
-from home.models import Page, Scraping, Pruning
+from home.models import Scraping, Pruning
 from home.utils.log_utils import info
 from scraping.services.prune_scraping_service import remove_pruning_moderation_if_orphan
 
@@ -6,13 +6,6 @@ from scraping.services.prune_scraping_service import remove_pruning_moderation_i
 ############
 # DELETION #
 ############
-
-def delete_page(page: Page):
-    info(f'deleting page with url {page.url} of website {page.website.uuid}')
-    if page.has_been_scraped():
-        delete_scraping(page.scraping)
-    page.delete()
-
 
 def delete_scraping(scraping: Scraping):
     info(f'deleting scraping {scraping} of website {scraping.page.website.uuid}')

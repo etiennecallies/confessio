@@ -10,8 +10,8 @@ from home.utils.log_utils import info, start_log_buffer, log_stack_trace
 from scheduling.process import init_scheduling
 from scraping.scrape.download_refine_and_extract import get_fresh_extracted_html_list
 from scraping.services.crawl_website_service import crawl_website
-from scraping.services.page_service import delete_scraping
-from scraping.services.scrape_page_service import upsert_extracted_html_list
+from scraping.services.scraping_service import delete_scraping
+from scraping.services.scrape_scraping_service import upsert_extracted_html_list
 
 
 ########################

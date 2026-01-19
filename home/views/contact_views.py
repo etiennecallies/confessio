@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 from django.utils.translation import gettext
 
 from home.models import Diocese, Website
-from home.services.page_url_service import quote_path, unquote_path
+from home.services.scraping_url_service import quote_path, unquote_path
 from home.utils.cloudflare_utils import verify_token
 from scheduling.models import IndexEvent
 

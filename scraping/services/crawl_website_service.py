@@ -3,8 +3,8 @@ from home.models import Website, Crawling, WebsiteModeration
 from home.utils.log_utils import info
 from scraping.crawl.download_and_search_urls import search_for_confession_pages, \
     get_new_url_and_aliases, forbid_diocese_home_links, CrawlingResult
-from scraping.services.page_service import delete_scraping
-from scraping.services.scrape_page_service import upsert_extracted_html_list, create_scraping
+from scraping.services.scraping_service import delete_scraping
+from scraping.services.scrape_scraping_service import upsert_extracted_html_list, create_scraping
 from scraping.services.website_moderation_service import remove_not_validated_moderation, \
     add_moderation
 from scraping.utils.url_utils import get_path, get_domain, have_similar_domain

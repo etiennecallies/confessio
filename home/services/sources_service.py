@@ -133,14 +133,14 @@ def get_empty_sources(scheduling_prunings_and_parsings: SchedulingPruningsAndPar
             scrapings.append(scraping)
             continue
 
-        is_page_to_add = handle_prunings(
+        is_scraping_to_add = handle_prunings(
             prunings,
             scheduling_prunings_and_parsings,
             prunings_by_scraping_uuid.setdefault(scraping.uuid, []),
             parsings_by_pruning_uuid
         )
 
-        if is_page_to_add:
+        if is_scraping_to_add:
             scrapings.append(scraping)
 
     images = []

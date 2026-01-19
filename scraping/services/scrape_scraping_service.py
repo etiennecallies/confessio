@@ -1,6 +1,6 @@
 from home.models import Scraping, Website
-from scraping.services.page_service import delete_scraping, check_for_orphan_prunings
 from scraping.services.prune_scraping_service import create_pruning
+from scraping.services.scraping_service import check_for_orphan_prunings
 
 
 def is_extracted_html_list_identical_for_scraping(scraping: Scraping,
@@ -45,12 +45,3 @@ def create_scraping(extracted_html_list: list[str],
 
     for extracted_html_item in extracted_html_list:
         scraping.prunings.add(create_pruning(extracted_html_item))
-
-
-def delete_orphan_scrapings() -> int:
-    delete_count = 0
-    for scraping in Scraping.objects.filter(page__isnull=True):
-        delete_scraping(scraping)
-        delete_count += 1
-
-    return delete_count

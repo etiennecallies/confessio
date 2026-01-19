@@ -148,19 +148,6 @@ class Page(TimeStampMixin):
     class Meta:
         unique_together = ('url', 'website')
 
-    def has_been_scraped(self) -> bool:
-        try:
-            return self.scraping is not None
-        except Scraping.DoesNotExist:
-            # If the page does not exist, it has not been scraped
-            return False
-
-    def get_prunings(self) -> list['Pruning'] or None:
-        if self.scraping is None:
-            return None
-
-        return self.scraping.prunings.all()
-
 
 class Crawling(TimeStampMixin):
     error_detail = models.TextField(null=True)

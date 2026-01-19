@@ -12,7 +12,7 @@ from home.models import Website, Diocese, Church
 from home.services.autocomplete_service import get_aggregated_response
 from home.services.filter_service import get_filter_days
 from home.services.map_service import prepare_map, get_center, get_cities_label
-from home.services.page_url_service import get_scraping_parsing_urls
+from home.services.scraping_url_service import get_scraping_parsing_urls
 from home.services.report_service import get_count_and_label, new_report, NewReportError, \
     get_previous_reports
 from home.services.search_service import TimeFilter, get_churches_in_box, get_churches_by_website, \
