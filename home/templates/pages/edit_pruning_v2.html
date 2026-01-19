@@ -9,12 +9,12 @@
         {% for scraping in pruning.scrapings.all %}
             <h2 class="mb-3">
                 <a class="link-info"
-                    href="{{ scraping.page.website.home_url }}">
-                    {{ scraping.page.website.name }}
+                    href="{{ scraping.website.home_url }}">
+                    {{ scraping.website.name }}
                 </a>
             </h2>
             <p class="col-md-9 lead">
-                {% blocktrans with url=scraping.page.url %}BeforeConfessionHTML {{ url }}{% endblocktrans %}
+                {% blocktrans with url=scraping.url %}BeforeConfessionHTML {{ url }}{% endblocktrans %}
             </p>
         {% endfor %}
         <p><a class="btn btn-gray-500" href="{% url 'edit_pruning_human' pruning.uuid %}" target="_blank" role="button">

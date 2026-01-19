@@ -2,7 +2,6 @@ from typing import Optional
 from uuid import UUID
 
 from django.contrib.auth.models import User
-from django.db.models.functions import Now
 from pydantic import BaseModel
 
 from home.models import Pruning, Sentence, Classifier
@@ -65,8 +64,6 @@ def set_human_indices(pruning: Pruning, indices: list[int]):
 
     add_necessary_moderation(pruning)
     add_necessary_moderation_v2(pruning)
-    if pruning.ml_indices != indices:
-        reset_pages_counter_of_pruning(pruning)
 
 
 #################
@@ -253,38 +250,9 @@ def set_v2_indices_as_human(pruning: Pruning):
     set_human_indices(pruning, pruning.v2_indices)
 
 
-######################
-# VALIDATION COUNTER #
-######################
+####################
+# HUMAN VALIDATION #
+####################
 
 def on_pruning_human_validation(pruning: Pruning):
     set_ml_indices_as_human(pruning)
-    increment_counters_of_pruning(pruning)
-
-
-def reset_pages_counter_of_pruning(pruning: Pruning):
-    websites_to_reset = set()
-    for scraping in pruning.scrapings.all():
-        page = scraping.page
-        page.pruning_validation_counter = -1
-        page.save()
-        websites_to_reset.add(page.website)
-
-    for website in websites_to_reset:
-        website.pruning_validation_counter = -1
-        website.save()
-
-
-def increment_counters_of_pruning(pruning: Pruning):
-    websites_to_increment = set()
-    for scraping in pruning.scrapings.all():
-        page = scraping.page
-        page.pruning_validation_counter += 1
-        page.pruning_last_validated_at = Now()
-        page.save()
-        websites_to_increment.add(page.website)
-
-    for website in websites_to_increment:
-        website.pruning_validation_counter += 1
-        website.pruning_last_validated_at = Now()
-        website.save()

@@ -85,11 +85,11 @@
         <div>Nb visited links : {{ latest_crawling.nb_visited_links }}</div>
         <div>Nb success links : {{ latest_crawling.nb_success_links }}</div>
         <div>Error detail : {{ latest_crawling.error_detail }}</div>
-        <h4>Pages</h4>
-        {% for page in website.get_pages %}
+        <h4>Scrapings</h4>
+        {% for scraping in website.get_scrapings %}
             <div>
-                <a href="{{ page.url }}" target="_blank">{{ page.url }}</a>
-                {% for pruning in page.get_prunings %}
+                <a href="{{ scraping.url }}" target="_blank">{{ scraping.url }}</a>
+                {% for pruning in scraping.prunings.all %}
                     <a class="btn btn-gray-500" href="{% url 'edit_pruning_v1' pruning.uuid %}" target="_blank" role="button">
                         Edit pruning <i class="fas fa-up-right-from-square"></i>
                     </a>

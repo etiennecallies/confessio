@@ -8,7 +8,7 @@ from pydantic import ValidationError
 
 from home.models import Page, Pruning, Sentence, Parsing
 from home.services.edit_pruning_service import get_colored_pieces, update_sentence_action, \
-    reset_pages_counter_of_pruning, set_ml_indices_as_human, set_human_indices, \
+    set_ml_indices_as_human, set_human_indices, \
     get_pruning_human_pieces, get_colored_pieces_v2, set_v2_indices_as_human, \
     update_sentence_labels_with_request, TEMPORAL_COLORS, EVENT_MENTION_COLORS
 from jsoneditor.forms import JSONSchemaForm
@@ -55,9 +55,6 @@ def edit_pruning_v1(request, pruning_uuid):
         set_ml_indices_as_human(pruning)
 
         if modified_sentences:
-            # reset page counter
-            reset_pages_counter_of_pruning(pruning)
-
             # re-prune affected prunings
             init_scheduling_for_sentences(modified_sentences)
 
@@ -131,9 +128,6 @@ def edit_pruning_v2(request, pruning_uuid):
             set_v2_indices_as_human(pruning)
 
         if modified_sentences:
-            # reset page counter
-            reset_pages_counter_of_pruning(pruning)
-
             # re-prune affected prunings
             init_scheduling_for_sentences(modified_sentences)
 

@@ -68,14 +68,11 @@ class Website(TimeStampMixin):
     def get_pages(self) -> list['Page']:
         return list(self.pages.all())
 
-    def has_pages(self) -> bool:
-        return len(self.get_pages()) > 0
-
-    def all_pages_scraped(self) -> bool:
-        return all(map(lambda p: p.has_been_scraped(), self.get_pages()))
+    def get_scrapings(self) -> list['Scraping']:
+        return list(self.scrapings.all())
 
     def one_page_has_confessions(self) -> bool:
-        return any(map(lambda p: p.has_confessions(), self.get_pages()))
+        return any(map(lambda s: s.has_confessions(), self.get_scrapings()))
 
     def delete_if_no_parish(self):
         if not self.parishes.exists():
@@ -166,12 +163,6 @@ class Page(TimeStampMixin):
             # If the page does not exist, it has not been scraped
             return False
 
-    def has_confessions(self) -> bool:
-        if self.get_prunings() is None:
-            return False
-
-        return any(pruning.has_confessions() for pruning in self.get_prunings())
-
     def get_prunings(self) -> list['Pruning'] or None:
         if self.scraping is None:
             return None
@@ -209,6 +200,9 @@ class Scraping(TimeStampMixin):
     page = models.OneToOneField('Page', on_delete=models.CASCADE, related_name='scraping')
 
     history = HistoricalRecords()
+
+    def has_confessions(self) -> bool:
+        return any(pruning.has_confessions() for pruning in self.prunings.all())
 
 
 class Pruning(TimeStampMixin):
