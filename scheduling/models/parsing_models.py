@@ -20,11 +20,10 @@ class Parsing(TimeStampMixin):
     human_json = models.JSONField(null=True, blank=True)
     human_json_version = models.CharField(max_length=6, default='v1.0')
 
-    history = HistoricalRecords(table_name='home_historicalparsing')
+    history = HistoricalRecords()
 
     class Meta:
         unique_together = ('truncated_html_hash', 'church_desc_by_id')
-        db_table = "home_parsing"
 
     def has_been_moderated(self) -> bool:
         return self.human_json is not None
