@@ -3,7 +3,7 @@
     <div>Ajouté le {{ image.created_at|date:"d F Y à H:i" }}</div>
     <div>{{ image.comment|urlize|linebreaksbr }}</div>
     {% if request.user.is_authenticated and request.user.is_staff %}
-        <a class="text-muted small" href="{% url 'admin:home_image_change' image.uuid %}" target="_blank">
+        <a class="text-muted small" href="{% url 'admin:attaching_image_change' image.uuid %}" target="_blank">
             - Admin <i class="fas fa-up-right-from-square"></i>
         </a>
     {% endif %}
