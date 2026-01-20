@@ -28,9 +28,6 @@ class Report(TimeStampMixin):
     user_agent = models.TextField(null=True)
     ip_address_hash = models.CharField(max_length=64, null=True)
 
-    class Meta:
-        db_table = "home_report"
-
 
 class ReportModeration(ModerationMixin):
     class Category(models.TextChoices):
@@ -46,13 +43,12 @@ class ReportModeration(ModerationMixin):
                                          on_delete=models.SET_NULL, null=True)
     diocese = models.ForeignKey('home.Diocese', on_delete=models.CASCADE,
                                 related_name=f'{resource}_moderations', null=True)
-    history = HistoricalRecords(table_name='home_historicalreportmoderation')
+    history = HistoricalRecords()
     report = models.ForeignKey('Report', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=16, choices=Category)
 
     class Meta:
         unique_together = ('report', 'category')
-        db_table = "home_reportmoderation"
 
     def delete_on_validate(self) -> bool:
         # we don't need to keep validated ReportModeration
