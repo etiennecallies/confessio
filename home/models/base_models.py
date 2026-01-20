@@ -10,7 +10,6 @@ from simple_history.models import HistoricalRecords
 from home.utils.hash_utils import hash_string_to_hex
 from home.utils.list_utils import get_desc_by_id
 from scraping.extract_v2.models import Temporal, EventMention
-from scraping.parse.llm_client import LLMProvider
 from scraping.prune.models import Action, Source
 
 
@@ -233,30 +232,3 @@ class Classifier(TimeStampMixin):
     accuracy = models.FloatField()
     test_size = models.PositiveSmallIntegerField()
     history = HistoricalRecords()
-
-
-class Parsing(TimeStampMixin):
-    truncated_html = models.TextField(editable=False)
-    truncated_html_hash = models.CharField(max_length=32, editable=False)
-    church_desc_by_id = models.JSONField(editable=False)
-
-    llm_json = models.JSONField(null=True, blank=True)
-    llm_json_version = models.CharField(max_length=6, default='v1.0')
-    llm_provider = models.CharField(choices=LLMProvider.choices())
-    llm_model = models.CharField(max_length=100)
-    prompt_template_hash = models.CharField(max_length=32)
-    llm_error_detail = models.TextField(null=True, blank=True)
-
-    human_json = models.JSONField(null=True, blank=True)
-    human_json_version = models.CharField(max_length=6, default='v1.0')
-
-    history = HistoricalRecords()
-
-    class Meta:
-        unique_together = ('truncated_html_hash', 'church_desc_by_id')
-
-    def match_website(self, website: Website) -> bool:
-        return set(self.church_desc_by_id.values()) == set(website.get_church_desc_by_id().values())
-
-    def has_been_moderated(self) -> bool:
-        return self.human_json is not None

@@ -7,13 +7,14 @@ from django.template.defaulttags import register
 from django.template.loader import render_to_string
 
 from attaching.models import Image
-from home.models import Parish, Church, Website, Pruning, Parsing
+from home.models import Parish, Church, Website, Pruning
 from home.services.upload_image_service import get_image_public_url
 from home.services.map_service import (get_map_with_single_location,
                                        get_map_with_multiple_locations,
                                        get_map_with_alternative_locations)
 from home.services.website_schedules_service import get_color_of_nullable_church
 from home.utils.list_utils import group_consecutive_indices
+from scheduling.models.parsing_models import Parsing
 from scheduling.services.scheduling_service import get_prunings_of_parsing
 from scraping.parse.explain_schedule import get_explanation_from_schedule
 from scraping.parse.schedules import SchedulesList, Event, ScheduleItem

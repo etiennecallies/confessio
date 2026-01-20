@@ -1,5 +1,5 @@
 from home.management.abstract_command import AbstractCommand
-from home.models import Parsing
+from scheduling.models.parsing_models import Parsing
 from scraping.services.parsing_service import get_parsing_schedules_list
 
 

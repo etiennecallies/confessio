@@ -1,9 +1,10 @@
-from home.models import Website, Church, Parsing
+from home.models import Website, Church
 from home.services.website_events_service import ChurchEvent
 from home.services.website_schedules_service import get_website_schedules, \
     get_color_of_nullable_church
 from home.utils.date_utils import time_plus_hours
 from scheduling.models import IndexEvent, Scheduling
+from scheduling.models.parsing_models import Parsing
 from scheduling.services.scheduling_service import get_scheduling_parsings
 
 

@@ -1,7 +1,6 @@
 from home.management.abstract_command import AbstractCommand
-from home.models import Parsing
 from home.templatetags.custom_tags import get_url
-from scheduling.models.parsing_models import ParsingModeration
+from scheduling.models.parsing_models import ParsingModeration, Parsing
 from scraping.parse.explain_schedule import get_explanation_from_schedule
 from scraping.services.parsing_service import get_parsing_schedules_list
 

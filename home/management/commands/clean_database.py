@@ -6,10 +6,10 @@ from django.db.models import Q, Model, Subquery
 from django.utils import timezone
 
 from home.management.abstract_command import AbstractCommand
-from home.models import Pruning, Sentence, Classifier, Parsing, Log, \
+from home.models import Pruning, Sentence, Classifier, Log, \
     ChurchModeration, Website, WebsiteModeration, Scraping
 from scheduling.models import PruningParsing
-from scheduling.models.parsing_models import ParsingModeration
+from scheduling.models.parsing_models import ParsingModeration, Parsing
 from scraping.services.parse_pruning_service import clean_parsing_moderations
 
 

@@ -3,12 +3,13 @@ from datetime import date, timedelta
 from typing import Optional, Callable
 from uuid import UUID
 
-from home.models import Church, Parsing, Website
+from home.models import Church, Website
 from home.services.holiday_zone_service import get_website_holiday_zone
 from home.services.sources_service import get_website_sorted_parsings
 from home.utils.date_utils import get_current_year
 from home.utils.hash_utils import hash_string_to_hex
 from scheduling.models import Scheduling
+from scheduling.models.parsing_models import Parsing
 from scraping.parse.explain_schedule import schedule_item_sort_key, get_explanation_from_schedule
 from scraping.parse.liturgical import PeriodEnum
 from scraping.parse.rrule_utils import get_events_from_schedule_item

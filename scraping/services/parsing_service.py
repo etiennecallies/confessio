@@ -1,5 +1,6 @@
-from home.models import Parsing, Church
+from home.models import Church
 from home.utils.log_utils import info
+from scheduling.models.parsing_models import Parsing
 from scraping.parse.schedules import SchedulesList, SCHEDULES_LIST_VERSION
 from scraping.parse.v1_0_to_v1_1 import from_v1_0_to_v1_1
 

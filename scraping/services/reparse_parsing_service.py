@@ -1,8 +1,8 @@
 from background_task import background
 from background_task.tasks import TaskSchedule
 
-from home.models import Parsing
 from home.utils.log_utils import info
+from scheduling.models.parsing_models import Parsing
 from scheduling.public import init_schedulings_for_parsing
 from scraping.services.parse_pruning_service import parse_parsing_preparation, \
     prepare_reparsing

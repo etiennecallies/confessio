@@ -1,5 +1,4 @@
-from home.models import Parsing
-from scheduling.models.parsing_models import ParsingModeration
+from scheduling.models.parsing_models import ParsingModeration, Parsing
 from scheduling.public import init_schedulings_for_parsing
 
 
