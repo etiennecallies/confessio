@@ -70,6 +70,3 @@ class FineTunedLLM(TimeStampMixin):
                                                  related_name='fine_tuned_llms')
     fine_tuned_model = models.CharField(max_length=100, null=True)
     error_detail = models.TextField(null=True)
-
-    class Meta:
-        db_table = "home_finetunedllm"
