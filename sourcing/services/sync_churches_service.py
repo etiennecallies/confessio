@@ -9,7 +9,6 @@ from sourcing.services.church_city_service import lower_church_city
 from sourcing.services.church_location_service import compute_church_coordinates, \
     get_church_with_same_location
 from sourcing.services.church_name_service import sort_by_name_similarity
-from sourcing.services.sync_trouverunemesse_service import sync_trouverunemesse_for_church
 from sourcing.utils.geo_utils import get_geo_distance
 
 
@@ -288,7 +287,7 @@ def save_church(church: Church, church_retriever: ChurchRetriever):
     church.save()
 
     # Sync with trouverunemesse if applicable
-    sync_trouverunemesse_for_church(church)
+    # sync_trouverunemesse_for_church(church)
 
     # Lower city name if needed
     lower_church_city(church)
