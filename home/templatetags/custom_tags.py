@@ -5,9 +5,10 @@ from django.template.defaulttags import register
 from django.urls import reverse
 
 from fetching.models import OClocherOrganizationModeration, OClocherMatchingModeration
+from front.models import ReportModeration
 from home.models import WebsiteModeration, ChurchModeration, ParishModeration, \
     PruningModeration, SentenceModeration, ModerationMixin, Pruning, \
-    ReportModeration, Diocese
+    Diocese
 from home.services.website_events_service import WebsiteEvents
 from home.services.website_schedules_service import WebsiteSchedules
 from home.utils.date_utils import get_current_year

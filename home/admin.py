@@ -5,7 +5,8 @@ from leaflet.admin import LeafletGeoAdmin, LeafletGeoAdminMixin
 from simple_history.admin import SimpleHistoryAdmin
 
 from attaching.models import Image
-from .models import Church, Website, Diocese, Parish, Classifier, Sentence, Report, \
+from front.models import Report
+from .models import Church, Website, Diocese, Parish, Classifier, Sentence, \
     WebsiteForbiddenPath
 
 

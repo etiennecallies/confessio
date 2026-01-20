@@ -1,4 +1,4 @@
-from home.models.stat_models import SearchHit
+from front.models import SearchHit
 from home.utils.web_utils import get_user_user_agent_and_ip
 
 

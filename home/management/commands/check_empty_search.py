@@ -3,8 +3,8 @@ from urllib.parse import urlparse, parse_qs
 
 from django.utils.timezone import make_aware
 
+from front.models import SearchHit
 from home.management.abstract_command import AbstractCommand
-from home.models import SearchHit
 
 
 class Command(AbstractCommand):

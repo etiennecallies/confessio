@@ -306,7 +306,7 @@
                                     <small>le {{ report.created_at|date:"d M Y" }}</small>
                                     <div>{{ report.comment|urlize|linebreaksbr }}</div>
                                     {% if request.user.is_authenticated and request.user.is_staff %}
-                                        <a class="text-muted" href="{% url 'admin:home_report_change' report.uuid %}" target="_blank">
+                                        <a class="text-muted" href="{% url 'admin:front_report_change' report.uuid %}" target="_blank">
                                             - Admin <i class="fas fa-up-right-from-square"></i>
                                         </a>
                                     {% endif %}

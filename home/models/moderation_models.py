@@ -442,29 +442,3 @@ class SentenceModeration(ModerationMixin):
             return True
 
         return False
-
-
-class ReportModeration(ModerationMixin):
-    class Category(models.TextChoices):
-        GOOD = "good"
-        OUTDATED = "outdated"
-        ERROR = "error"
-        COMMENT = "comment"
-
-    resource = 'report'
-    validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
-                                     on_delete=models.SET_NULL, null=True)
-    marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
-                                         on_delete=models.SET_NULL, null=True)
-    diocese = models.ForeignKey('Diocese', on_delete=models.CASCADE,
-                                related_name=f'{resource}_moderations', null=True)
-    history = HistoricalRecords()
-    report = models.ForeignKey('Report', on_delete=models.CASCADE, related_name='moderations')
-    category = models.CharField(max_length=16, choices=Category)
-
-    class Meta:
-        unique_together = ('report', 'category')
-
-    def delete_on_validate(self) -> bool:
-        # we don't need to keep validated ReportModeration
-        return True
