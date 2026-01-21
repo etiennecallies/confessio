@@ -8,7 +8,7 @@ from scraping.services.prune_scraping_service import remove_pruning_moderation_i
 ############
 
 def delete_scraping(scraping: Scraping):
-    info(f'deleting scraping {scraping} of website {scraping.page.website.uuid}')
+    info(f'deleting scraping {scraping} of website {scraping.website.uuid}')
     # save prunings to delete
     prunings = list(scraping.prunings.all())
 
