@@ -11,7 +11,7 @@ from home.utils.hash_utils import hash_string_to_hex
 from home.utils.list_utils import get_desc_by_id
 from scheduling.models import Scheduling
 from scheduling.models.parsing_models import Parsing
-from scheduling.services.scheduling_service import get_scheduling_parsings
+from scheduling.services.scheduling_service import get_scheduling_sources
 from scheduling.workflows.merging.merge_schedule_items import get_merged_sourced_schedule_items
 from scheduling.workflows.merging.sort_schedule_items import \
     get_sorted_sourced_schedule_items_by_church_id
@@ -69,7 +69,8 @@ def get_website_schedules(website: Website,
     if scheduling is None:
         parsings = []
     else:
-        parsings = get_scheduling_parsings(scheduling)
+        scheduling_sources = get_scheduling_sources(scheduling)
+        parsings = scheduling_sources.parsings
 
     sources = []
     for parsing in parsings:

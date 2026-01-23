@@ -1,7 +1,7 @@
 from urllib.parse import quote, unquote
 
 from home.models import Pruning, Scraping
-from scheduling.services.scheduling_service import SchedulingPruningsAndParsings
+from scheduling.services.scheduling_service import SchedulingPrimarySources
 from scraping.extract.split_content import split_lines
 from scraping.refine.refine_content import get_text_if_not_table
 
@@ -24,7 +24,7 @@ def get_scraping_url_with_pointer_at_pruning(scraping: Scraping, pruning: Prunin
     return f'{scraping.url}#:~:text={pointer_text.strip()}'
 
 
-def get_scraping_parsing_urls(scheduling_prunings_and_parsings: SchedulingPruningsAndParsings,
+def get_scraping_parsing_urls(scheduling_prunings_and_parsings: SchedulingPrimarySources,
                               ) -> dict[str, dict[str, str]]:
     scraping_parsing_urls = {}
     for scraping in scheduling_prunings_and_parsings.scrapings:

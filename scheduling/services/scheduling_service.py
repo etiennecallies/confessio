@@ -14,20 +14,16 @@ def get_indexed_scheduling(website: Website) -> Scheduling | None:
     return website.schedulings.filter(status=Scheduling.Status.INDEXED).first()
 
 
-################
-# GET PARSINGS #
-################
+##########################
+# GET SCHEDULING SOURCES #
+##########################
 
 @dataclass
-class SchedulingParsings:
-    scrapings: list[Scraping] = field(default_factory=list)
-    images: list[Image] = field(default_factory=list)
-    prunings_by_scraping_uuid: dict[UUID, list[Pruning]] = field(default_factory=dict)
-    prunings_by_image_uuid: dict[UUID, list[Pruning]] = field(default_factory=dict)
-    parsing_by_pruning_uuid: dict[UUID, Parsing] = field(default_factory=dict)
+class SchedulingSources:
+    parsings: list[Parsing] = field(default_factory=list)
 
 
-def get_scheduling_parsings(scheduling: Scheduling) -> list[Parsing]:
+def get_scheduling_sources(scheduling: Scheduling) -> SchedulingSources:
     all_parsings = []
     for pruning_parsing in scheduling.pruning_parsings.all():
         parsing_history_id = pruning_parsing.parsing_history_id
@@ -35,15 +31,17 @@ def get_scheduling_parsings(scheduling: Scheduling) -> list[Parsing]:
         parsing = historical_parsing.instance
         all_parsings.append(parsing)
 
-    return all_parsings
+    return SchedulingSources(
+        parsings=all_parsings,
+    )
 
 
-####################################
-# GET SCHEDULE OBJECTS AND RELATED #
-####################################
+##################################
+# GET SCHEDULING PRIMARY SOURCES #
+##################################
 
 @dataclass
-class SchedulingPruningsAndParsings:
+class SchedulingPrimarySources:
     scrapings: list[Scraping] = field(default_factory=list)
     images: list[Image] = field(default_factory=list)
     prunings_by_scraping_uuid: dict[UUID, list[Pruning]] = field(default_factory=dict)
@@ -62,10 +60,10 @@ def get_pruning_by_history_id(pruning_history_id: int,
     return pruning
 
 
-def get_scheduling_prunings_and_parsings(scheduling: Scheduling | None
-                                         ) -> SchedulingPruningsAndParsings:
+def get_scheduling_primary_sources(scheduling: Scheduling | None
+                                   ) -> SchedulingPrimarySources:
     if scheduling is None:
-        return SchedulingPruningsAndParsings()
+        return SchedulingPrimarySources()
 
     pruning_by_history_id = {}
 
@@ -112,7 +110,7 @@ def get_scheduling_prunings_and_parsings(scheduling: Scheduling | None
                                             pruning_by_history_id)
         prunings_by_image_uuid.setdefault(image.uuid, []).append(pruning)
 
-    return SchedulingPruningsAndParsings(
+    return SchedulingPrimarySources(
         scrapings=scrapings,
         images=images,
         prunings_by_scraping_uuid=prunings_by_scraping_uuid,

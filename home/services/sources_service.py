@@ -4,7 +4,7 @@ from uuid import UUID
 from attaching.models import Image
 from home.models import Pruning, Scraping
 from scheduling.models.parsing_models import Parsing
-from scheduling.services.scheduling_service import SchedulingPruningsAndParsings
+from scheduling.services.scheduling_service import SchedulingPrimarySources
 from scraping.services.parsing_service import has_schedules
 
 
@@ -23,7 +23,7 @@ class WebsiteParsingsAndPrunings:
 
 
 def get_website_parsings_and_prunings(
-        scheduling_prunings_and_parsings: SchedulingPruningsAndParsings
+        scheduling_prunings_and_parsings: SchedulingPrimarySources
 ) -> WebsiteParsingsAndPrunings:
     prunings_by_parsing_uuid = {}
     parsings = []
@@ -106,7 +106,7 @@ class WebsiteEmptySources:
     parsings_by_pruning_uuid: dict[UUID, list[Parsing]]
 
 
-def get_empty_sources(scheduling_prunings_and_parsings: SchedulingPruningsAndParsings
+def get_empty_sources(scheduling_prunings_and_parsings: SchedulingPrimarySources
                       ) -> WebsiteEmptySources:
     parsings_by_pruning_uuid = {}
 
@@ -167,7 +167,7 @@ def add_pruning_if_empty(parsing: Parsing | None, pruning: Pruning, prunings: li
 
 
 def handle_prunings(prunings: list[Pruning],
-                    scheduling_prunings_and_parsings: SchedulingPruningsAndParsings,
+                    scheduling_prunings_and_parsings: SchedulingPrimarySources,
                     prunings_of_object: list[Pruning],
                     parsings_by_pruning_uuid: dict[UUID, list[Parsing]]) -> bool:
     is_object_to_add = False

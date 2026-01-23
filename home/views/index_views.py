@@ -27,7 +27,7 @@ from home.utils.date_utils import get_current_day, get_current_year
 from home.utils.web_utils import redirect_with_url_params
 from scheduling.models import IndexEvent
 from scheduling.services.scheduling_service import get_indexed_scheduling, \
-    get_scheduling_prunings_and_parsings
+    get_scheduling_primary_sources
 from scraping.services.recognize_image_service import recognize_and_extract_image
 from sourcing.utils.string_utils import lower_first, city_and_prefix
 
@@ -319,15 +319,15 @@ def partial_website_sources(request, website_uuid: str):
         return HttpResponseNotFound("Website does not exist with this uuid")
 
     scheduling = get_indexed_scheduling(website)
-    prunings_and_parsings = get_scheduling_prunings_and_parsings(scheduling)
+    primary_sources = get_scheduling_primary_sources(scheduling)
     empty_sources = None
     if request.user.is_authenticated and request.user.has_perm("home.change_sentence"):
-        empty_sources = get_empty_sources(prunings_and_parsings)
+        empty_sources = get_empty_sources(primary_sources)
 
     return render(request, 'partials/website_sources.html', {
         'website': website,
-        'parsings_and_prunings': get_website_parsings_and_prunings(prunings_and_parsings),
-        'scraping_parsing_urls': get_scraping_parsing_urls(prunings_and_parsings),
+        'parsings_and_prunings': get_website_parsings_and_prunings(primary_sources),
+        'scraping_parsing_urls': get_scraping_parsing_urls(primary_sources),
         'empty_sources': empty_sources,
     })
 
