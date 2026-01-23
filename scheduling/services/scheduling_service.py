@@ -7,7 +7,7 @@ from attaching.models import Image
 from fetching.models import OClocherSchedule, OClocherMatching
 from home.models import Pruning, Website, Church
 from home.models import Scraping
-from scheduling.models import Scheduling
+from scheduling.models import Scheduling, SchedulingHistoricalOClocherMatching
 from scheduling.models.parsing_models import ParsingModeration, Parsing
 
 
@@ -24,7 +24,7 @@ class SchedulingSources:
     churches: list[Church] = field(default_factory=list)
     parsings: list[Parsing] = field(default_factory=list)
     oclocher_schedules: list[OClocherSchedule] = field(default_factory=list)
-    oclocher_matchings: list[OClocherMatching] = field(default_factory=list)
+    oclocher_matching: OClocherMatching | None = None
 
 
 def get_scheduling_sources(scheduling: Scheduling | None) -> SchedulingSources:
@@ -32,8 +32,8 @@ def get_scheduling_sources(scheduling: Scheduling | None) -> SchedulingSources:
         return SchedulingSources()
 
     all_churches = []
-    for historical_church in scheduling.historical_churches.all():
-        church_history_id = historical_church.church_history_id
+    for scheduling_church in scheduling.historical_churches.all():
+        church_history_id = scheduling_church.church_history_id
         historical_church = Church.history.get(history_id=church_history_id)
         church = historical_church.instance
         all_churches.append(church)
@@ -46,26 +46,27 @@ def get_scheduling_sources(scheduling: Scheduling | None) -> SchedulingSources:
         all_parsings.append(parsing)
 
     all_oclocher_schedules = []
-    for historical_oclocher_schedule in scheduling.historical_oclocher_schedules.all():
-        oclocher_schedule_history_id = historical_oclocher_schedule.oclocher_schedule_history_id
+    for scheduling_oclocher_schedule in scheduling.historical_oclocher_schedules.all():
+        oclocher_schedule_history_id = scheduling_oclocher_schedule.oclocher_schedule_history_id
         historical_oclocher_schedule = OClocherSchedule.history.get(
             history_id=oclocher_schedule_history_id)
         oclocher_schedule = historical_oclocher_schedule.instance
         all_oclocher_schedules.append(oclocher_schedule)
 
-    all_oclocher_matchings = []
-    for historical_oclocher_matching in scheduling.historical_oclocher_matchings.all():
-        oclocher_matching_history_id = historical_oclocher_matching.oclocher_matching_history_id
+    try:
+        scheduling_oclocher_matching = scheduling.historical_oclocher_matching
+        oclocher_matching_history_id = scheduling_oclocher_matching.oclocher_matching_history_id
         historical_oclocher_matching = OClocherMatching.history.get(
             history_id=oclocher_matching_history_id)
         oclocher_matching = historical_oclocher_matching.instance
-        all_oclocher_matchings.append(oclocher_matching)
+    except SchedulingHistoricalOClocherMatching.DoesNotExist:
+        oclocher_matching = None
 
     return SchedulingSources(
         churches=all_churches,
         parsings=all_parsings,
         oclocher_schedules=all_oclocher_schedules,
-        oclocher_matchings=all_oclocher_matchings,
+        oclocher_matching=oclocher_matching,
     )
 
 
@@ -111,8 +112,8 @@ def get_scheduling_primary_sources(scheduling: Scheduling | None
 
     scrapings = []
     scraping_by_history_id = {}
-    for historical_scraping in scheduling.historical_scrapings.all():
-        scraping_history_id = historical_scraping.scraping_history_id
+    for scheduling_scraping in scheduling.historical_scrapings.all():
+        scraping_history_id = scheduling_scraping.scraping_history_id
         historical_scraping = Scraping.history.get(history_id=scraping_history_id)
         scraping = historical_scraping.instance
         scraping_by_history_id[scraping_history_id] = scraping
@@ -128,8 +129,8 @@ def get_scheduling_primary_sources(scheduling: Scheduling | None
 
     images = []
     image_by_history_id = {}
-    for historical_image in scheduling.historical_images.all():
-        image_history_id = historical_image.image_history_id
+    for scheduling_image in scheduling.historical_images.all():
+        image_history_id = scheduling_image.image_history_id
         historical_image = Image.history.get(history_id=image_history_id)
         image = historical_image.instance
         image_by_history_id[image_history_id] = image

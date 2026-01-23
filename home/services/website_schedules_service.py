@@ -106,7 +106,8 @@ def get_website_schedules(website: Website,
             continue
 
         for schedule_item in schedules_list.schedules:
-            if church_by_id[schedule_item.church_id].uuid not in website_church_uuids:
+            if schedule_item.has_church() and \
+                    church_by_id[schedule_item.church_id].uuid not in website_church_uuids:
                 # can happen when we seek for schedules for a specific church
                 continue
 

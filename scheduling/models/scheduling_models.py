@@ -94,9 +94,6 @@ class PruningParsing(TimeStampMixin):
 
 
 class SchedulingHistoricalOClocherMatching(TimeStampMixin):
-    scheduling = models.ForeignKey('Scheduling', on_delete=models.CASCADE,
-                                   related_name='historical_oclocher_matchings')
+    scheduling = models.OneToOneField('Scheduling', on_delete=models.CASCADE,
+                                      related_name='historical_oclocher_matching')
     oclocher_matching_history_id = models.PositiveIntegerField()
-
-    class Meta:
-        unique_together = ('scheduling', 'oclocher_matching_history_id')
