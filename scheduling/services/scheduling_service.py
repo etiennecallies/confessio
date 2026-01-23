@@ -14,6 +14,19 @@ def get_indexed_scheduling(website: Website) -> Scheduling | None:
     return website.schedulings.filter(status=Scheduling.Status.INDEXED).first()
 
 
+################
+# GET PARSINGS #
+################
+
+@dataclass
+class SchedulingParsings:
+    scrapings: list[Scraping] = field(default_factory=list)
+    images: list[Image] = field(default_factory=list)
+    prunings_by_scraping_uuid: dict[UUID, list[Pruning]] = field(default_factory=dict)
+    prunings_by_image_uuid: dict[UUID, list[Pruning]] = field(default_factory=dict)
+    parsing_by_pruning_uuid: dict[UUID, Parsing] = field(default_factory=dict)
+
+
 def get_scheduling_parsings(scheduling: Scheduling) -> list[Parsing]:
     all_parsings = []
     for pruning_parsing in scheduling.pruning_parsings.all():
@@ -24,6 +37,10 @@ def get_scheduling_parsings(scheduling: Scheduling) -> list[Parsing]:
 
     return all_parsings
 
+
+####################################
+# GET SCHEDULE OBJECTS AND RELATED #
+####################################
 
 @dataclass
 class SchedulingPruningsAndParsings:
@@ -45,7 +62,11 @@ def get_pruning_by_history_id(pruning_history_id: int,
     return pruning
 
 
-def get_scheduling_prunings_and_parsings(scheduling: Scheduling) -> SchedulingPruningsAndParsings:
+def get_scheduling_prunings_and_parsings(scheduling: Scheduling | None
+                                         ) -> SchedulingPruningsAndParsings:
+    if scheduling is None:
+        return SchedulingPruningsAndParsings()
+
     pruning_by_history_id = {}
 
     parsing_by_pruning_uuid = {}

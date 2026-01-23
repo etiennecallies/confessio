@@ -2,11 +2,9 @@ from dataclasses import dataclass
 from uuid import UUID
 
 from attaching.models import Image
-from home.models import Website, Pruning, Scraping
-from scheduling.models import Scheduling
+from home.models import Pruning, Scraping
 from scheduling.models.parsing_models import Parsing
-from scheduling.services.scheduling_service import get_scheduling_prunings_and_parsings, \
-    SchedulingPruningsAndParsings
+from scheduling.services.scheduling_service import SchedulingPruningsAndParsings
 from scraping.services.parsing_service import has_schedules
 
 
@@ -22,15 +20,6 @@ class WebsiteParsingsAndPrunings:
     image_by_parsing_uuid: dict[UUID, Image]
     all_images_by_parsing_uuid: dict[UUID, list[Image]]
     prunings_by_parsing_uuid: dict[UUID, list[Pruning]]
-
-
-def get_website_scheduling_prunings_and_parsings(website: Website
-                                                 ) -> SchedulingPruningsAndParsings:
-    scheduling = website.schedulings.filter(status=Scheduling.Status.INDEXED).first()
-    if scheduling is None:
-        return SchedulingPruningsAndParsings()
-
-    return get_scheduling_prunings_and_parsings(scheduling)
 
 
 def get_website_parsings_and_prunings(

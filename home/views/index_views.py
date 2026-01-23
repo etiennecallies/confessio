@@ -18,8 +18,7 @@ from home.services.scraping_url_service import get_scraping_parsing_urls
 from home.services.search_service import TimeFilter, get_churches_in_box, get_churches_by_website, \
     get_churches_around, get_churches_by_diocese, get_popular_churches, fetch_events, \
     DEFAULT_SEARCH_BOX
-from home.services.sources_service import get_website_parsings_and_prunings, get_empty_sources, \
-    get_website_scheduling_prunings_and_parsings
+from home.services.sources_service import get_website_parsings_and_prunings, get_empty_sources
 from home.services.stat_service import new_search_hit
 from home.services.upload_image_service import upload_image, find_error_in_document_to_upload
 from home.services.website_events_service import get_website_events
@@ -27,7 +26,8 @@ from home.services.website_schedules_service import get_website_schedules
 from home.utils.date_utils import get_current_day, get_current_year
 from home.utils.web_utils import redirect_with_url_params
 from scheduling.models import IndexEvent
-from scheduling.services.scheduling_service import get_indexed_scheduling
+from scheduling.services.scheduling_service import get_indexed_scheduling, \
+    get_scheduling_prunings_and_parsings
 from scraping.services.recognize_image_service import recognize_and_extract_image
 from sourcing.utils.string_utils import lower_first, city_and_prefix
 
@@ -318,7 +318,8 @@ def partial_website_sources(request, website_uuid: str):
     except Website.DoesNotExist:
         return HttpResponseNotFound("Website does not exist with this uuid")
 
-    prunings_and_parsings = get_website_scheduling_prunings_and_parsings(website)
+    scheduling = get_indexed_scheduling(website)
+    prunings_and_parsings = get_scheduling_prunings_and_parsings(scheduling)
     empty_sources = None
     if request.user.is_authenticated and request.user.has_perm("home.change_sentence"):
         empty_sources = get_empty_sources(prunings_and_parsings)

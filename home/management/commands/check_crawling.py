@@ -7,7 +7,8 @@ from home.management.abstract_command import AbstractCommand
 from home.management.utils.heartbeat_utils import ping_heartbeat
 from home.models import Website, Crawling
 from home.utils.date_utils import get_current_day
-from scheduling.models import IndexEvent, Scheduling
+from scheduling.models import IndexEvent
+from scheduling.services.scheduling_service import get_indexed_scheduling
 from scraping.parse.holidays import check_holiday_by_zone
 from scraping.parse.liturgical import check_easter_dates
 from sourcing.services.church_location_service import find_church_geo_outliers
@@ -41,7 +42,7 @@ class Command(AbstractCommand):
                 website_not_crawled_recently.append(website)
                 continue
 
-            scheduling = website.schedulings.filter(status=Scheduling.Status.INDEXED).first()
+            scheduling = get_indexed_scheduling(website)
             if scheduling is None:
                 website_not_indexed.append(website)
                 continue
