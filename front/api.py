@@ -1,4 +1,5 @@
 from datetime import datetime, date
+from enum import Enum
 from typing import Literal
 from uuid import UUID
 
@@ -12,7 +13,9 @@ from home.services.report_service import get_count_and_label
 from home.services.search_service import TimeFilter, AggregationItem, BoundingBox, \
     get_dioceses_bounding_box
 from home.services.website_events_service import get_website_events, ChurchEvent, WebsiteEvents
-from home.services.website_schedules_service import get_website_schedules, ParsingScheduleItem
+from home.services.website_schedules_service import get_website_schedules
+from scheduling.workflows.merging.sourced_schedule_items import SourcedScheduleItem
+from scheduling.workflows.merging.sources import BaseSource, ParsingSource, OClocherSource
 
 api = NinjaAPI(urls_namespace='front_api')
 
@@ -45,16 +48,41 @@ class ChurchOut(Schema):
         )
 
 
-class ScheduleOut(Schema):
-    explanation: str
-    parsing_uuids: list[UUID]
+class SourceTypeEnum(str, Enum):
+    PARSING = 'parsing'
+    OCLOCHER = 'oclocher'
+
+
+class SourceOut(Schema):
+    source_type: SourceTypeEnum
+    parsing_uuid: UUID | None
 
     @classmethod
-    def from_parsing_schedule_item(cls,
-                                   parsing_schedule_item: ParsingScheduleItem) -> 'ScheduleOut':
+    def from_source(cls, source: BaseSource) -> 'SourceOut':
+        if isinstance(source, ParsingSource):
+            return cls(
+                source_type=SourceTypeEnum.PARSING,
+                parsing_uuid=source.parsing_uuid,
+            )
+        if isinstance(source, OClocherSource):
+            return cls(
+                source_type=SourceTypeEnum.OCLOCHER,
+                parsing_uuid=None,
+            )
+
+        raise ValueError(f'Unknown source type: {type(source)}')
+
+
+class ScheduleOut(Schema):
+    explanation: str
+    sources: list[SourceOut]
+
+    @classmethod
+    def from_sourced_schedule_item(cls,
+                                   sourced_schedule_item: SourcedScheduleItem) -> 'ScheduleOut':
         return cls(
-            explanation=parsing_schedule_item.explanation,
-            parsing_uuids=parsing_schedule_item.parsing_uuids,
+            explanation=sourced_schedule_item.explanation,
+            sources=[SourceOut.from_source(source) for source in sourced_schedule_item.sources],
         )
 
 
@@ -292,9 +320,9 @@ def api_front_church_details(request, church_uuid: UUID) -> ChurchDetails:
 
     website = church.parish.website
     website_schedules = get_website_schedules(website, [church])
-    schedules = [ScheduleOut.from_parsing_schedule_item(psi)
+    schedules = [ScheduleOut.from_sourced_schedule_item(ssi)
                  for css in website_schedules.church_sorted_schedules
-                 for psi in css.sorted_schedules]
+                 for ssi in css.sourced_schedule_items]
     return ChurchDetails.from_church_and_schedules(church, schedules)
 
 

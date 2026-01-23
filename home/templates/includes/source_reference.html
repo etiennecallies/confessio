@@ -1,4 +1,13 @@
+{% if source.source_type == 'parsing' %}
 <span class="text-muted clickable"
-   onclick="return goToParsing('{{ website.uuid }}', '{{ parsing_uuid }}');">
-    [{{ website_schedules.source_index_by_parsing_uuid|get_item:parsing_uuid|add:1 }}]
+   onclick="return goToParsing('{{ website.uuid }}', '{{ source.parsing_uuid }}');">
+    [{{ website_schedules.parsing_index_by_parsing_uuid|get_item:source.parsing_uuid|add:1 }}]
 </span>
+{% elif source.source_type == 'oclocher' %}
+<span class="text-muted clickable"
+   onclick="return goToOclocher('{{ website.uuid }}');">
+    [OClocher]
+</span>
+{% else %}
+[N/A]
+{% endif %}

@@ -35,10 +35,10 @@
                     {% trans 'UnknownChurch' %} :
                 </div>
             {% endif %}
-            {% for schedule_item in church_sorted_schedule.sorted_schedules %}
+            {% for sourced_schedule_item in church_sorted_schedule.sourced_schedule_items %}
                 <div class="margin-left-indent {% if church_sorted_schedule.is_church_explicitly_other %} explicitly-other{% endif %}">
-                    <span>{{ schedule_item.explanation }}</span>
-                    {% for parsing_uuid in schedule_item.parsing_uuids %}
+                    <span>{{ sourced_schedule_item.explanation }}</span>
+                    {% for source in sourced_schedule_item.sources %}
                         {% include 'includes/source_reference.html' %}
                     {% endfor %}
                 </div>
@@ -49,17 +49,15 @@
     {% endwith %}
 {% endfor %}
 <div class="margin-left-indent mt-1">
-    {% if website_schedules.possible_by_appointment_parsings %}
+    {% if website_schedules.possible_by_appointment_sources %}
         <div>🤝 Il est possible de se confesser sur rendez-vous.
-            {% for parsing in website_schedules.possible_by_appointment_parsings %}
-                {% with parsing_uuid=parsing.uuid %}
-                    {% include 'includes/source_reference.html' %}
-                {% endwith %}
+            {% for source in website_schedules.possible_by_appointment_sources %}
+                {% include 'includes/source_reference.html' %}
             {% endfor %}
         </div>
     {% endif %}
     {{ website_schedules|has_relation_text }}
-    {% for parsing_uuid in website_schedules|relation_parsing_uuids %}
+    {% for source in website_schedules|relation_sources %}
         {% include 'includes/source_reference.html' %}
     {% endfor %}
 </div>

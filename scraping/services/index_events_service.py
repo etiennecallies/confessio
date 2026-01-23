@@ -6,6 +6,7 @@ from home.utils.date_utils import time_plus_hours
 from scheduling.models import IndexEvent, Scheduling
 from scheduling.models.parsing_models import Parsing
 from scheduling.services.scheduling_service import get_scheduling_parsings
+from scheduling.workflows.merging.sources import ParsingSource
 
 
 def build_website_church_events(website: Website,
@@ -69,11 +70,12 @@ def get_all_church_events(website: Website, website_churches: list[Church],
     )
     for church_sorted_schedule in website_schedules.church_sorted_schedules:
         has_been_moderated_by_church_event = {}
-        for sorted_schedule in church_sorted_schedule.sorted_schedules:
-            all_parsings = [website_schedules.parsing_by_uuid[parsing_uuid]
-                            for parsing_uuid in sorted_schedule.parsing_uuids]
+        for sourced_schedule_item in church_sorted_schedule.sourced_schedule_items:
+            all_parsings = [website_schedules.parsing_by_uuid[source.parsing_uuid]
+                            for source in sourced_schedule_item.sources
+                            if isinstance(source, ParsingSource)]
             has_been_moderated = any(p.has_been_moderated() for p in all_parsings)
-            for event in sorted_schedule.events:
+            for event in sourced_schedule_item.events:
                 has_been_moderated_by_church_event[event] = \
                     has_been_moderated or has_been_moderated_by_church_event.get(event, False)
 

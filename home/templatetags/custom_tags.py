@@ -14,6 +14,7 @@ from home.services.website_schedules_service import WebsiteSchedules
 from home.utils.date_utils import get_current_year
 from home.utils.list_utils import enumerate_with_and
 from scheduling.models.parsing_models import ParsingModeration
+from scheduling.workflows.merging.sources import BaseSource
 from scraping.parse.holidays import HolidayZoneEnum
 from scraping.parse.rrule_utils import get_events_from_schedule_item
 from scraping.parse.schedules import ScheduleItem, Event
@@ -71,11 +72,11 @@ def has_relation_text(website_schedules: WebsiteSchedules | None) -> str:
         return ''
 
     relations = []
-    if website_schedules.is_related_to_mass_parsings:
+    if website_schedules.is_related_to_mass_sources:
         relations.append('messes')
-    if website_schedules.is_related_to_adoration_parsings:
+    if website_schedules.is_related_to_adoration_sources:
         relations.append('adorations')
-    if website_schedules.is_related_to_permanence_parsings:
+    if website_schedules.is_related_to_permanence_sources:
         relations.append('permanences')
 
     if relations:
@@ -87,17 +88,14 @@ def has_relation_text(website_schedules: WebsiteSchedules | None) -> str:
 
 
 @register.filter
-def relation_parsing_uuids(website_schedules: WebsiteSchedules | None
-                           ) -> list[int]:
+def relation_sources(website_schedules: WebsiteSchedules | None
+                     ) -> list[BaseSource]:
     if not website_schedules:
         return []
 
-    return list(set(
-        map(lambda parsing: parsing.uuid,
-            website_schedules.is_related_to_mass_parsings
-            + website_schedules.is_related_to_adoration_parsings
-            + website_schedules.is_related_to_permanence_parsings)
-    ))
+    return list(set(website_schedules.is_related_to_mass_sources
+                    + website_schedules.is_related_to_adoration_sources
+                    + website_schedules.is_related_to_permanence_sources))
 
 
 @register.filter
