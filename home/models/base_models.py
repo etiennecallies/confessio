@@ -8,7 +8,6 @@ from pgvector.django import VectorField
 from simple_history.models import HistoricalRecords
 
 from home.utils.hash_utils import hash_string_to_hex
-from home.utils.list_utils import get_desc_by_id
 from scraping.extract_v2.models import Temporal, EventMention
 from scraping.prune.models import Action, Source
 
@@ -75,13 +74,6 @@ class Website(TimeStampMixin):
             churches.extend(parish.churches.all())
 
         return churches
-
-    def get_church_desc_by_id(self) -> dict[int, str]:
-        church_descs = []
-        for church in self.get_churches():
-            church_descs.append(church.get_desc())
-
-        return get_desc_by_id(church_descs)
 
     def get_diocese(self) -> Diocese | None:
         if not self.parishes.exists():

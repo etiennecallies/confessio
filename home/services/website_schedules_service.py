@@ -19,7 +19,7 @@ from scheduling.workflows.merging.sourced_schedule_items import SourcedScheduleI
 from scheduling.workflows.merging.sources import ParsingSource, BaseSource
 from scraping.parse.explain_schedule import get_explanation_from_schedule
 from scraping.parse.rrule_utils import get_events_from_schedule_item
-from scraping.services.parsing_service import get_parsing_schedules_list
+from scraping.services.parsing_service import get_parsing_schedules_list, get_church_desc_by_id
 
 
 #############
@@ -58,7 +58,7 @@ class WebsiteSchedules:
 
 
 def get_website_schedules(website: Website,
-                          all_website_churches: list[Church],
+                          website_churches: list[Church],
                           scheduling: Scheduling | None,
                           max_days: int = 1,
                           ) -> WebsiteSchedules:
@@ -66,23 +66,20 @@ def get_website_schedules(website: Website,
     # Get sources #
     ###############
 
-    if scheduling is None:
-        parsings = []
-    else:
-        scheduling_sources = get_scheduling_sources(scheduling)
-        parsings = scheduling_sources.parsings
+    scheduling_sources = get_scheduling_sources(scheduling)
+
+    church_by_desc = {church.get_desc(): church for church in scheduling_sources.churches}
+    church_desc_by_id = get_desc_by_id(list(church_by_desc.keys()))
+    church_by_id = {church_id: church_by_desc[desc]
+                    for church_id, desc in church_desc_by_id.items()}
 
     sources = []
-    for parsing in parsings:
+    for parsing in scheduling_sources.parsings:
+        assert get_church_desc_by_id(parsing) == church_desc_by_id
         sources.append(ParsingSource(
             schedules_list=get_parsing_schedules_list(parsing),
             parsing_uuid=parsing.uuid,
         ))
-
-    church_by_desc = {church.get_desc(): church for church in all_website_churches}
-    church_desc_by_id = get_desc_by_id(list(church_by_desc.keys()))
-    church_by_id = {church_id: church_by_desc[desc]
-                    for church_id, desc in church_desc_by_id.items()}
 
     ###########################
     # Get SourcedScheduleItem #
@@ -94,7 +91,8 @@ def get_website_schedules(website: Website,
     current_year = get_current_year()
     end_date = start_date + timedelta(days=300)
 
-    holiday_zone = get_website_holiday_zone(website, all_website_churches)
+    holiday_zone = get_website_holiday_zone(website, website_churches)
+    website_church_uuids = set(c.uuid for c in website_churches)
 
     possible_by_appointment_sources = []
     is_related_to_mass_sources = []
@@ -108,7 +106,7 @@ def get_website_schedules(website: Website,
             continue
 
         for schedule_item in schedules_list.schedules:
-            if schedule_item.church_id not in church_by_id:
+            if church_by_id[schedule_item.church_id].uuid not in website_church_uuids:
                 # can happen when we seek for schedules for a specific church
                 continue
 
@@ -153,17 +151,19 @@ def get_website_schedules(website: Website,
     # Add churches without events
     churches_with_events = {church_by_id.get(sourced_schedule_item.item.church_id, None)
                             for sourced_schedule_item in merged_sourced_schedule_items}
+    churches_with_events_uuids = {c.uuid for c in churches_with_events if c is not None}
     church_sorted_schedules += [
         ChurchSortedSchedules(
             church=c,
             is_church_explicitly_other=False,
             sourced_schedule_items=[]
-        ) for c in all_website_churches if c not in churches_with_events
+        ) for c in website_churches if c.uuid not in churches_with_events_uuids
     ]
 
-    parsing_index_by_parsing_uuid = {parsing.uuid: i
-                                     for i, parsing in enumerate(sort_parsings(parsings))}
-    parsing_by_uuid = {parsing.uuid: parsing for parsing in parsings}
+    parsing_index_by_parsing_uuid = {
+        parsing.uuid: i for i, parsing in enumerate(sort_parsings(scheduling_sources.parsings))
+    }
+    parsing_by_uuid = {parsing.uuid: parsing for parsing in scheduling_sources. parsings}
 
     return WebsiteSchedules(
         church_sorted_schedules=church_sorted_schedules,

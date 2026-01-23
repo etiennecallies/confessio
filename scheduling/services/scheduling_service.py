@@ -4,7 +4,8 @@ from uuid import UUID
 from django.db.models import Q, Subquery
 
 from attaching.models import Image
-from home.models import Pruning, Website
+from fetching.models import OClocherSchedule, OClocherMatching
+from home.models import Pruning, Website, Church
 from home.models import Scraping
 from scheduling.models import Scheduling
 from scheduling.models.parsing_models import ParsingModeration, Parsing
@@ -20,10 +21,23 @@ def get_indexed_scheduling(website: Website) -> Scheduling | None:
 
 @dataclass
 class SchedulingSources:
+    churches: list[Church] = field(default_factory=list)
     parsings: list[Parsing] = field(default_factory=list)
+    oclocher_schedules: list[OClocherSchedule] = field(default_factory=list)
+    oclocher_matchings: list[OClocherMatching] = field(default_factory=list)
 
 
-def get_scheduling_sources(scheduling: Scheduling) -> SchedulingSources:
+def get_scheduling_sources(scheduling: Scheduling | None) -> SchedulingSources:
+    if scheduling is None:
+        return SchedulingSources()
+
+    all_churches = []
+    for historical_church in scheduling.historical_churches.all():
+        church_history_id = historical_church.church_history_id
+        historical_church = Church.history.get(history_id=church_history_id)
+        church = historical_church.instance
+        all_churches.append(church)
+
     all_parsings = []
     for pruning_parsing in scheduling.pruning_parsings.all():
         parsing_history_id = pruning_parsing.parsing_history_id
@@ -31,8 +45,27 @@ def get_scheduling_sources(scheduling: Scheduling) -> SchedulingSources:
         parsing = historical_parsing.instance
         all_parsings.append(parsing)
 
+    all_oclocher_schedules = []
+    for historical_oclocher_schedule in scheduling.historical_oclocher_schedules.all():
+        oclocher_schedule_history_id = historical_oclocher_schedule.oclocher_schedule_history_id
+        historical_oclocher_schedule = OClocherSchedule.history.get(
+            history_id=oclocher_schedule_history_id)
+        oclocher_schedule = historical_oclocher_schedule.instance
+        all_oclocher_schedules.append(oclocher_schedule)
+
+    all_oclocher_matchings = []
+    for historical_oclocher_matching in scheduling.historical_oclocher_matchings.all():
+        oclocher_matching_history_id = historical_oclocher_matching.oclocher_matching_history_id
+        historical_oclocher_matching = OClocherMatching.history.get(
+            history_id=oclocher_matching_history_id)
+        oclocher_matching = historical_oclocher_matching.instance
+        all_oclocher_matchings.append(oclocher_matching)
+
     return SchedulingSources(
+        churches=all_churches,
         parsings=all_parsings,
+        oclocher_schedules=all_oclocher_schedules,
+        oclocher_matchings=all_oclocher_matchings,
     )
 
 
