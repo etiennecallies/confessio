@@ -23,7 +23,9 @@ class OClocherLocation(TimeStampMixin):
 
 class OClocherMatching(TimeStampMixin):
     church_desc_by_id = models.JSONField(editable=False)
+    church_desc_by_id_hash = models.CharField(max_length=32, editable=False)
     location_desc_by_id = models.JSONField(editable=False)
+    location_desc_by_id_hash = models.CharField(max_length=32, editable=False)
 
     llm_matrix = models.JSONField(null=True, blank=True)
     llm_provider = models.CharField(choices=LLMProvider.choices())
@@ -36,7 +38,7 @@ class OClocherMatching(TimeStampMixin):
     history = HistoricalRecords()
 
     class Meta:
-        unique_together = ('church_desc_by_id', 'location_desc_by_id')
+        unique_together = ('church_desc_by_id_hash', 'location_desc_by_id_hash')
 
 
 class OClocherSchedule(TimeStampMixin):

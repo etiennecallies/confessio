@@ -3,6 +3,8 @@ from datetime import date, timedelta
 from typing import Optional
 from uuid import UUID
 
+from fetching.services.oclocher_matching_service import get_matching_church_desc_by_id, \
+    get_location_desc_by_id, get_matching_location_desc_by_id, get_location_desc
 from home.models import Church, Website
 from home.services.holiday_zone_service import get_website_holiday_zone
 from home.services.sources_service import sort_parsings
@@ -13,13 +15,16 @@ from scheduling.models import Scheduling
 from scheduling.models.parsing_models import Parsing
 from scheduling.services.scheduling_service import get_scheduling_sources
 from scheduling.workflows.merging.merge_schedule_items import get_merged_sourced_schedule_items
+from scheduling.workflows.merging.oclocher_schedules import \
+    get_schedules_list_from_oclocher_schedules
 from scheduling.workflows.merging.sort_schedule_items import \
     get_sorted_sourced_schedule_items_by_church_id
 from scheduling.workflows.merging.sourced_schedule_items import SourcedScheduleItem
-from scheduling.workflows.merging.sources import ParsingSource, BaseSource
+from scheduling.workflows.merging.sources import ParsingSource, BaseSource, OClocherSource
 from scraping.parse.explain_schedule import get_explanation_from_schedule
 from scraping.parse.rrule_utils import get_events_from_schedule_item
-from scraping.services.parsing_service import get_parsing_schedules_list, get_church_desc_by_id
+from scraping.services.parsing_service import get_parsing_schedules_list, \
+    get_parsing_church_desc_by_id
 
 
 #############
@@ -76,11 +81,30 @@ def get_website_schedules(website: Website,
 
     sources = []
     for parsing in scheduling_sources.parsings:
-        assert get_church_desc_by_id(parsing) == church_desc_by_id
+        assert get_parsing_church_desc_by_id(parsing) == church_desc_by_id
         sources.append(ParsingSource(
             schedules_list=get_parsing_schedules_list(parsing),
             parsing_uuid=parsing.uuid,
         ))
+
+    if scheduling_sources.oclocher_schedules:
+        oclocher_matching = scheduling_sources.oclocher_matching
+        assert oclocher_matching is not None
+        assert get_matching_church_desc_by_id(oclocher_matching) == church_desc_by_id
+
+        location_desc_by_id = get_location_desc_by_id(scheduling_sources.oclocher_locations)
+        assert get_matching_location_desc_by_id(oclocher_matching) == location_desc_by_id
+        location_by_desc = {get_location_desc(location): location
+                            for location in scheduling_sources.oclocher_locations}
+        oclocher_id_by_location_id = {location_id: location_by_desc[desc].location_id
+                                      for location_id, desc in location_desc_by_id.items()}
+
+        schedules_list = get_schedules_list_from_oclocher_schedules(
+            scheduling_sources.oclocher_schedules,
+            oclocher_matching,
+            oclocher_id_by_location_id,
+        )
+        sources.append(OClocherSource(schedules_list=schedules_list))
 
     ###########################
     # Get SourcedScheduleItem #

@@ -97,6 +97,14 @@ def run_llm_completion(
     if not llm_matrix:
         return None, message.refusal
 
+    for mapping in llm_matrix.mappings:
+        if len(mapping) != 2:
+            return None, f'Invalid mapping length {len(mapping)} in mapping {mapping}'
+        if mapping[0] not in church_desc_by_id:
+            return None, f'Invalid church id {mapping[0]} in mapping {mapping}'
+        if mapping[1] not in location_desc_by_id:
+            return None, f'Invalid location id {mapping[1]} in mapping {mapping}'
+
     return llm_matrix, None
 
 

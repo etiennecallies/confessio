@@ -2,7 +2,9 @@ from fetching.models import OClocherMatching, OClocherMatchingModeration, \
     OClocherLocation
 from fetching.services.oclocher_moderations_service import add_matching_moderation
 from fetching.workflows.oclocher.match_with_llm import match_oclocher_with_llm
+from fetching.workflows.oclocher.oclocher_matrix import OClocherMatrix
 from home.models import Church
+from home.utils.hash_utils import hash_dict_to_hex
 from home.utils.list_utils import get_desc_by_id
 
 
@@ -29,19 +31,35 @@ def get_location_desc_by_id(locations: list[OClocherLocation]) -> dict:
     for location in locations:
         location_desc_list.append(get_location_desc(location))
 
-    location_desc_by_id = {}
-    for i, desc in enumerate(sorted(location_desc_list)):
-        location_desc_by_id[i] = desc
-
-    return location_desc_by_id
+    return get_desc_by_id(location_desc_list)
 
 
-def get_existing_matching(church_desc_by_id: dict[int, str],
-                          location_desc_by_id: dict[int, str]
+def get_matching_church_desc_by_id(oclocher_matching: OClocherMatching) -> dict[int, str]:
+    return {int(church_id): church_desc
+            for church_id, church_desc in oclocher_matching.church_desc_by_id.items()}
+
+
+def get_matching_location_desc_by_id(oclocher_matching: OClocherMatching) -> dict[int, str]:
+    return {int(church_id): location_desc
+            for church_id, location_desc in oclocher_matching.location_desc_by_id.items()}
+
+
+def get_matching_matrix(oclocher_matching: OClocherMatching) -> OClocherMatrix | None:
+    if oclocher_matching.human_matrix is not None:
+        return OClocherMatrix(**oclocher_matching.human_matrix)
+
+    if oclocher_matching.llm_matrix is not None:
+        return OClocherMatrix(**oclocher_matching.llm_matrix)
+
+    return None
+
+
+def get_existing_matching(church_desc_by_id_hash: str,
+                          location_desc_by_id_hash: str
                           ) -> OClocherMatching | None:
     return OClocherMatching.objects.filter(
-        church_desc_by_id=church_desc_by_id,
-        location_desc_by_id=location_desc_by_id
+        church_desc_by_id_hash=church_desc_by_id_hash,
+        location_desc_by_id_hash=location_desc_by_id_hash
     ).first()
 
 
@@ -52,10 +70,12 @@ def match_churches_and_locations(
     assert churches and locations
 
     church_desc_by_id = get_church_desc_by_id_from_churches(churches)
+    church_desc_by_id_hash = hash_dict_to_hex(church_desc_by_id)
     location_desc_by_id = get_location_desc_by_id(locations)
+    location_desc_by_id_hash = hash_dict_to_hex(location_desc_by_id)
 
     # GET OClocherMatching if any
-    existing_matching = get_existing_matching(church_desc_by_id, location_desc_by_id)
+    existing_matching = get_existing_matching(church_desc_by_id_hash, location_desc_by_id_hash)
     if existing_matching:
         return existing_matching
 
@@ -69,7 +89,9 @@ def match_churches_and_locations(
 
     oclocher_matching = OClocherMatching(
         church_desc_by_id=church_desc_by_id,
+        church_desc_by_id_hash=church_desc_by_id_hash,
         location_desc_by_id=location_desc_by_id,
+        location_desc_by_id_hash=location_desc_by_id_hash,
         llm_matrix=llm_matrix.model_dump(mode='json') if llm_matrix else None,
         llm_provider=llm_provider,
         llm_model=llm_model,

@@ -35,7 +35,7 @@ def get_id_by_value(church_desc: str, church_desc_by_id: dict[int, str]) -> int 
 
 
 def get_church_by_id(parsing: Parsing, website_churches: list[Church]) -> dict[int, Church]:
-    church_desc_by_id = get_church_desc_by_id(parsing)
+    church_desc_by_id = get_parsing_church_desc_by_id(parsing)
 
     church_by_id = {}
     for church in website_churches:
@@ -48,7 +48,7 @@ def get_church_by_id(parsing: Parsing, website_churches: list[Church]) -> dict[i
     return church_by_id
 
 
-def get_church_desc_by_id(parsing: Parsing) -> dict[int, str]:
+def get_parsing_church_desc_by_id(parsing: Parsing) -> dict[int, str]:
     return {int(church_id): church_desc
             for church_id, church_desc in parsing.church_desc_by_id.items()}
 

@@ -4,7 +4,7 @@ from uuid import UUID
 from django.db.models import Q, Subquery
 
 from attaching.models import Image
-from fetching.models import OClocherSchedule, OClocherMatching
+from fetching.models import OClocherSchedule, OClocherMatching, OClocherLocation
 from home.models import Pruning, Website, Church
 from home.models import Scraping
 from scheduling.models import Scheduling, SchedulingHistoricalOClocherMatching
@@ -23,6 +23,7 @@ def get_indexed_scheduling(website: Website) -> Scheduling | None:
 class SchedulingSources:
     churches: list[Church] = field(default_factory=list)
     parsings: list[Parsing] = field(default_factory=list)
+    oclocher_locations: list[OClocherLocation] = field(default_factory=list)
     oclocher_schedules: list[OClocherSchedule] = field(default_factory=list)
     oclocher_matching: OClocherMatching | None = None
 
@@ -45,6 +46,14 @@ def get_scheduling_sources(scheduling: Scheduling | None) -> SchedulingSources:
         parsing = historical_parsing.instance
         all_parsings.append(parsing)
 
+    all_oclocher_locations = []
+    for scheduling_oclocher_location in scheduling.historical_oclocher_locations.all():
+        oclocher_location_history_id = scheduling_oclocher_location.oclocher_location_history_id
+        historical_oclocher_location = OClocherLocation.history.get(
+            history_id=oclocher_location_history_id)
+        oclocher_location = historical_oclocher_location.instance
+        all_oclocher_locations.append(oclocher_location)
+
     all_oclocher_schedules = []
     for scheduling_oclocher_schedule in scheduling.historical_oclocher_schedules.all():
         oclocher_schedule_history_id = scheduling_oclocher_schedule.oclocher_schedule_history_id
@@ -65,6 +74,7 @@ def get_scheduling_sources(scheduling: Scheduling | None) -> SchedulingSources:
     return SchedulingSources(
         churches=all_churches,
         parsings=all_parsings,
+        oclocher_locations=all_oclocher_locations,
         oclocher_schedules=all_oclocher_schedules,
         oclocher_matching=oclocher_matching,
     )
