@@ -93,12 +93,12 @@ def eliminate_similar_with_unknow_church(sourced_schedule_items: list[SourcedSch
                                          ) -> list[SourcedScheduleItem]:
     church_explanations = set()
     for sourced_schedule_item in sourced_schedule_items:
-        if sourced_schedule_item.item.has_church():
+        if sourced_schedule_item.item.has_real_church():
             church_explanations.add(sourced_schedule_item.explanation)
 
     schedules_by_church_id_and_explanation = {}
     for sourced_schedule_item in sourced_schedule_items:
-        if sourced_schedule_item.item.has_church() or \
+        if sourced_schedule_item.item.has_real_church() or \
                 sourced_schedule_item.explanation not in church_explanations:
             # We ignore sourced_schedule_item with no church and with real-church explanation
             schedules_by_church_id_and_explanation.setdefault(

@@ -61,6 +61,7 @@ def get_website_schedules(website: Website,
                           website_churches: list[Church],
                           scheduling: Scheduling | None,
                           max_days: int = 1,
+                          only_real_churches: bool = False,
                           ) -> WebsiteSchedules:
     ###############
     # Get sources #
@@ -106,9 +107,12 @@ def get_website_schedules(website: Website,
             continue
 
         for schedule_item in schedules_list.schedules:
-            if schedule_item.has_church() and \
+            if schedule_item.has_real_church() and \
                     church_by_id[schedule_item.church_id].uuid not in website_church_uuids:
                 # can happen when we seek for schedules for a specific church
+                continue
+
+            if only_real_churches and not schedule_item.has_real_church():
                 continue
 
             events = get_events_from_schedule_item(schedule_item, start_date,

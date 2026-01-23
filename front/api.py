@@ -322,7 +322,8 @@ def api_front_church_details(request, church_uuid: UUID) -> ChurchDetails:
     website = church.parish.website
     scheduling = get_indexed_scheduling(website)
 
-    website_schedules = get_website_schedules(website, [church], scheduling)
+    website_schedules = get_website_schedules(website, [church], scheduling,
+                                              only_real_churches=True)
     schedules = [ScheduleOut.from_sourced_schedule_item(ssi)
                  for css in website_schedules.church_sorted_schedules
                  for ssi in css.sourced_schedule_items]

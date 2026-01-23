@@ -200,7 +200,7 @@ class ScheduleItem(BaseModel, frozen=True):
 
         return time.fromisoformat(self.end_time_iso8601)
 
-    def has_church(self):
+    def has_real_church(self):
         return self.church_id is not None and self.church_id != -1
 
 
