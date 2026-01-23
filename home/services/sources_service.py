@@ -5,8 +5,8 @@ from attaching.models import Image
 from home.models import Website, Pruning, Scraping
 from scheduling.models import Scheduling
 from scheduling.models.parsing_models import Parsing
-from scheduling.services.scheduling_service import get_scheduling_parsings, \
-    get_scheduling_prunings_and_parsings, SchedulingPruningsAndParsings
+from scheduling.services.scheduling_service import get_scheduling_prunings_and_parsings, \
+    SchedulingPruningsAndParsings
 from scraping.services.parsing_service import has_schedules
 
 
@@ -16,7 +16,7 @@ from scraping.services.parsing_service import has_schedules
 
 @dataclass
 class WebsiteParsingsAndPrunings:
-    sources: list[Parsing]
+    parsings: list[Parsing]
     scraping_by_parsing_uuid: dict[UUID, Scraping]
     all_scrapings_by_parsing_uuid: dict[UUID, list[Scraping]]
     image_by_parsing_uuid: dict[UUID, Image]
@@ -87,22 +87,16 @@ def get_website_parsings_and_prunings(
                 image_last_created_at_by_parsing_uuid[parsing.uuid] = image.created_at
                 image_by_parsing_uuid[parsing.uuid] = image
 
-    sources = sort_parsings(parsings)
+    sorted_parsings = sort_parsings(parsings)
 
     return WebsiteParsingsAndPrunings(
-        sources=sources,
+        parsings=sorted_parsings,
         scraping_by_parsing_uuid=scraping_by_parsing_uuid,
         all_scrapings_by_parsing_uuid=all_scrapings_by_parsing_uuid,
         image_by_parsing_uuid=image_by_parsing_uuid,
         all_images_by_parsing_uuid=all_images_by_parsing_uuid,
         prunings_by_parsing_uuid=prunings_by_parsing_uuid,
     )
-
-
-def get_website_sorted_parsings(scheduling: Scheduling) -> list[Parsing]:
-    parsings = get_scheduling_parsings(scheduling)
-
-    return sort_parsings(parsings)
 
 
 def sort_parsings(parsings: list[Parsing]) -> list[Parsing]:

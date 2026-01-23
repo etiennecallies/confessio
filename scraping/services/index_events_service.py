@@ -4,8 +4,6 @@ from home.services.website_schedules_service import get_website_schedules, \
     get_color_of_nullable_church
 from home.utils.date_utils import time_plus_hours
 from scheduling.models import IndexEvent, Scheduling
-from scheduling.models.parsing_models import Parsing
-from scheduling.services.scheduling_service import get_scheduling_parsings
 from scheduling.workflows.merging.sources import ParsingSource
 
 
@@ -13,9 +11,8 @@ def build_website_church_events(website: Website,
                                 scheduling: Scheduling,
                                 ) -> list[IndexEvent]:
     website_churches = website.get_churches()
-    parsings = get_scheduling_parsings(scheduling)
 
-    all_church_events = get_all_church_events(website, website_churches, parsings)
+    all_church_events = get_all_church_events(website, website_churches, scheduling)
 
     start_end_with_churches = set()
     for church_event in all_church_events:
@@ -62,11 +59,11 @@ def build_website_church_events(website: Website,
 
 
 def get_all_church_events(website: Website, website_churches: list[Church],
-                          parsings: list[Parsing],
+                          scheduling: Scheduling,
                           ) -> list[ChurchEvent]:
     all_church_events = []
     website_schedules = get_website_schedules(
-        website, website_churches, max_days=10, parsings=parsings
+        website, website_churches, scheduling, max_days=10
     )
     for church_sorted_schedule in website_schedules.church_sorted_schedules:
         has_been_moderated_by_church_event = {}

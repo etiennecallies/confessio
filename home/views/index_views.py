@@ -12,9 +12,9 @@ from home.models import Website, Diocese, Church
 from home.services.autocomplete_service import get_aggregated_response
 from home.services.filter_service import get_filter_days
 from home.services.map_service import prepare_map, get_center, get_cities_label
-from home.services.scraping_url_service import get_scraping_parsing_urls
 from home.services.report_service import get_count_and_label, new_report, NewReportError, \
     get_previous_reports
+from home.services.scraping_url_service import get_scraping_parsing_urls
 from home.services.search_service import TimeFilter, get_churches_in_box, get_churches_by_website, \
     get_churches_around, get_churches_by_diocese, get_popular_churches, fetch_events, \
     DEFAULT_SEARCH_BOX
@@ -27,6 +27,7 @@ from home.services.website_schedules_service import get_website_schedules
 from home.utils.date_utils import get_current_day, get_current_year
 from home.utils.web_utils import redirect_with_url_params
 from scheduling.models import IndexEvent
+from scheduling.services.scheduling_service import get_indexed_scheduling
 from scraping.services.recognize_image_service import recognize_and_extract_image
 from sourcing.utils.string_utils import lower_first, city_and_prefix
 
@@ -339,7 +340,8 @@ def partial_website_churches(request, website_uuid: str):
     display_explicit_other_churches = extract_bool('display_explicit_other_churches', request)
 
     website_churches = [c for p in website.parishes.all() for c in p.churches.all()]
-    website_schedules = get_website_schedules(website, website_churches)
+    scheduling = get_indexed_scheduling(website)
+    website_schedules = get_website_schedules(website, website_churches, scheduling)
 
     return render(request, 'partials/website_churches.html', {
         'website': website,

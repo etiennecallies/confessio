@@ -5,12 +5,13 @@ from uuid import UUID
 
 from home.models import Church, Website
 from home.services.holiday_zone_service import get_website_holiday_zone
-from home.services.sources_service import get_website_sorted_parsings
+from home.services.sources_service import sort_parsings
 from home.utils.date_utils import get_current_year
 from home.utils.hash_utils import hash_string_to_hex
 from home.utils.list_utils import get_desc_by_id
 from scheduling.models import Scheduling
 from scheduling.models.parsing_models import Parsing
+from scheduling.services.scheduling_service import get_scheduling_parsings
 from scheduling.workflows.merging.merge_schedule_items import get_merged_sourced_schedule_items
 from scheduling.workflows.merging.sort_schedule_items import \
     get_sorted_sourced_schedule_items_by_church_id
@@ -58,19 +59,17 @@ class WebsiteSchedules:
 
 def get_website_schedules(website: Website,
                           all_website_churches: list[Church],
+                          scheduling: Scheduling | None,
                           max_days: int = 1,
-                          parsings: list[Parsing] | None = None,
                           ) -> WebsiteSchedules:
     ###############
     # Get sources #
     ###############
 
-    if parsings is None:
-        scheduling = website.schedulings.filter(status=Scheduling.Status.INDEXED).first()
-        if scheduling is None:
-            parsings = []
-        else:
-            parsings = get_website_sorted_parsings(scheduling)
+    if scheduling is None:
+        parsings = []
+    else:
+        parsings = get_scheduling_parsings(scheduling)
 
     sources = []
     for parsing in parsings:
@@ -161,7 +160,8 @@ def get_website_schedules(website: Website,
         ) for c in all_website_churches if c not in churches_with_events
     ]
 
-    parsing_index_by_parsing_uuid = {parsing.uuid: i for i, parsing in enumerate(parsings)}
+    parsing_index_by_parsing_uuid = {parsing.uuid: i
+                                     for i, parsing in enumerate(sort_parsings(parsings))}
     parsing_by_uuid = {parsing.uuid: parsing for parsing in parsings}
 
     return WebsiteSchedules(

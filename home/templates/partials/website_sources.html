@@ -2,8 +2,8 @@
 {% load display_tags %}
 {% load i18n %}
 
-{% if parsings_and_prunings.sources %}
-    {% for parsing in parsings_and_prunings.sources %}
+{% if parsings_and_prunings.parsings %}
+    {% for parsing in parsings_and_prunings.parsings %}
         <div class="row mt-1 mb-3 margin-left-indent" id="parsing-{{ website.uuid }}-{{ parsing.uuid }}">
             {% with scraping=parsings_and_prunings.scraping_by_parsing_uuid|get_item:parsing.uuid %}
             {% if scraping %}

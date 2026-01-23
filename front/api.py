@@ -14,6 +14,7 @@ from home.services.search_service import TimeFilter, AggregationItem, BoundingBo
     get_dioceses_bounding_box
 from home.services.website_events_service import get_website_events, ChurchEvent, WebsiteEvents
 from home.services.website_schedules_service import get_website_schedules
+from scheduling.services.scheduling_service import get_indexed_scheduling
 from scheduling.workflows.merging.sourced_schedule_items import SourcedScheduleItem
 from scheduling.workflows.merging.sources import BaseSource, ParsingSource, OClocherSource
 
@@ -319,7 +320,9 @@ def api_front_church_details(request, church_uuid: UUID) -> ChurchDetails:
         raise Http404(f'Church with uuid {church_uuid} not found')
 
     website = church.parish.website
-    website_schedules = get_website_schedules(website, [church])
+    scheduling = get_indexed_scheduling(website)
+
+    website_schedules = get_website_schedules(website, [church], scheduling)
     schedules = [ScheduleOut.from_sourced_schedule_item(ssi)
                  for css in website_schedules.church_sorted_schedules
                  for ssi in css.sourced_schedule_items]

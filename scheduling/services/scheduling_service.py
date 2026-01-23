@@ -10,6 +10,10 @@ from scheduling.models import Scheduling
 from scheduling.models.parsing_models import ParsingModeration, Parsing
 
 
+def get_indexed_scheduling(website: Website) -> Scheduling | None:
+    return website.schedulings.filter(status=Scheduling.Status.INDEXED).first()
+
+
 def get_scheduling_parsings(scheduling: Scheduling) -> list[Parsing]:
     all_parsings = []
     for pruning_parsing in scheduling.pruning_parsings.all():
