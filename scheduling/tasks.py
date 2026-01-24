@@ -23,6 +23,7 @@ def worker_prune_scheduling(scheduling_uuid: str):
         info(f'Exception while pruning scheduling {scheduling.uuid}')
         log_stack_trace()
         save_buffer(scheduling.website, Log.Type.PRUNING, Log.Status.FAILURE)
+        return
 
     save_buffer(scheduling.website, Log.Type.PRUNING)
 
@@ -44,5 +45,6 @@ def worker_parse_scheduling(scheduling_uuid: str):
         info(f'Exception while parsing scheduling {scheduling.uuid}')
         log_stack_trace()
         save_buffer(scheduling.website, Log.Type.PARSING, Log.Status.FAILURE)
+        return
 
     save_buffer(scheduling.website, Log.Type.PARSING)
