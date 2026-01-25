@@ -81,7 +81,9 @@ def get_website_schedules(website: Website,
 
     sources = []
     for parsing in scheduling_sources.parsings:
-        assert get_parsing_church_desc_by_id(parsing) == church_desc_by_id
+        assert get_parsing_church_desc_by_id(parsing) == church_desc_by_id, \
+            f'Parsing churches: {get_parsing_church_desc_by_id(parsing)}' \
+            f'Scheduling churches: {church_desc_by_id}'
         sources.append(ParsingSource(
             schedules_list=get_parsing_schedules_list(parsing),
             parsing_uuid=parsing.uuid,

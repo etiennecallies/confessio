@@ -157,7 +157,9 @@ def prepare_parsing(pruning: Pruning, churches: list[Church]) -> None | ParsingP
     truncated_html = get_truncated_html(pruning)
     truncated_html_hash = hash_string_to_hex(truncated_html) if truncated_html else None
 
-    church_desc_by_id = get_desc_by_id([church.get_desc() for church in churches])
+    church_desc_list = list(set(church.get_desc() for church in churches))
+    # TODO add warning if len(church_desc_list) != len(churches)
+    church_desc_by_id = get_desc_by_id(church_desc_list)
 
     if not truncated_html:
         info(f'No truncated html for pruning {pruning}')

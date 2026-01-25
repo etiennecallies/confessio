@@ -1,5 +1,3 @@
-from home.models import Church
-from home.utils.log_utils import info
 from scheduling.models.parsing_models import Parsing
 from scraping.parse.schedules import SchedulesList, SCHEDULES_LIST_VERSION
 from scraping.parse.v1_0_to_v1_1 import from_v1_0_to_v1_1
@@ -25,28 +23,6 @@ def has_schedules(parsing: Parsing) -> bool:
 ###############
 # CHURCH DESC #
 ###############
-
-def get_id_by_value(church_desc: str, church_desc_by_id: dict[int, str]) -> int | None:
-    for index, desc in church_desc_by_id.items():
-        if desc == church_desc:
-            return index
-
-    return None
-
-
-def get_church_by_id(parsing: Parsing, website_churches: list[Church]) -> dict[int, Church]:
-    church_desc_by_id = get_parsing_church_desc_by_id(parsing)
-
-    church_by_id = {}
-    for church in website_churches:
-        church_id = get_id_by_value(church.get_desc(), church_desc_by_id)
-        if church_id is not None:
-            church_by_id[church_id] = church
-        else:
-            info(f'Church {church} not found in church_desc_by_id for parsing {parsing}')
-
-    return church_by_id
-
 
 def get_parsing_church_desc_by_id(parsing: Parsing) -> dict[int, str]:
     return {int(church_id): church_desc
