@@ -8,6 +8,7 @@ from django.http import HttpResponseNotFound, JsonResponse, HttpResponseBadReque
 from django.shortcuts import render
 from django.utils.translation import gettext
 
+from fetching.models import OClocherOrganization
 from home.models import Website, Diocese, Church
 from home.services.autocomplete_service import get_aggregated_response
 from home.services.filter_service import get_filter_days
@@ -324,9 +325,15 @@ def partial_website_sources(request, website_uuid: str):
     if request.user.is_authenticated and request.user.has_perm("home.change_sentence"):
         empty_sources = get_empty_sources(primary_sources)
 
+    try:
+        oclocher_organization_id = website.oclocher_organization.organization_id
+    except OClocherOrganization.DoesNotExist:
+        oclocher_organization_id = None
+
     return render(request, 'partials/website_sources.html', {
         'website': website,
         'parsings_and_prunings': get_website_parsings_and_prunings(primary_sources),
+        'oclocher_organization_id': oclocher_organization_id,
         'scraping_parsing_urls': get_scraping_parsing_urls(primary_sources),
         'empty_sources': empty_sources,
     })

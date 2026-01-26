@@ -162,6 +162,18 @@ function goToParsing(websiteUuid, parsingUuid) {
     });
 }
 
+/**
+ * Navigate to the OClocher element.
+ */
+function goToOclocher(websiteUuid) {
+    let $websiteSource = $('#sources-'+websiteUuid);
+    let $collapsableBody = $websiteSource.find('.collapsable-body');
+    let elementId = 'oclocher-' + websiteUuid;
+    lazyLoadElement($collapsableBody, function () {
+        uncollapseAndNavigateToElement($websiteSource, elementId);
+    });
+}
+
 function uncollapseAndNavigateToElement($collapseElement, elementId) {
     if ($collapseElement.length && !$collapseElement.hasClass('show')) {
         $collapseElement.collapse('show').one('shown.bs.collapse', function () {

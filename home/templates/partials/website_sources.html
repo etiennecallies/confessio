@@ -2,7 +2,7 @@
 {% load display_tags %}
 {% load i18n %}
 
-{% if parsings_and_prunings.parsings %}
+{% if parsings_and_prunings.parsings or oclocher_organization_id %}
     {% for parsing in parsings_and_prunings.parsings %}
         <div class="row mt-1 mb-3 margin-left-indent" id="parsing-{{ website.uuid }}-{{ parsing.uuid }}">
             {% with scraping=parsings_and_prunings.scraping_by_parsing_uuid|get_item:parsing.uuid %}
@@ -64,6 +64,21 @@
             {% endwith %}
         </div>
     {% endfor %}
+    {% if oclocher_organization_id %}
+        <div class="row mt-1 mb-3 margin-left-indent" id="oclocher-{{ website.uuid }}">
+            <div class="lead">[OClocher]</div>
+            <div>Téléchargez l'application <a href="https://app.oclocher.fr/" class="link-info">OClocher</a> pour plus d'informations sur cette paroisse.</div>
+            <div>
+              <iframe
+                src="https://widget.oclocher.app/organization/{{ oclocher_organization_id }}/schedules"
+                title="Widget OClocher"
+                allowfullscreen
+                class="w-100 border-0"
+                style="height: 350px;"
+              ></iframe>
+            </div>
+        </div>
+    {% endif %}
 {% elif not website.has_been_crawled %}
     {% trans 'NotCrawledYet' %}
 {% else %}
