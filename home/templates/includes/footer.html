@@ -22,23 +22,10 @@
       <div class="row">
           <div class="col-md-12 text-center">
               <div>{% trans 'footerAboutUs' %}</div>
-              <div> <a href="{% url 'contact' %}">{% trans 'contactUs' %}</a></div>
+              <div><a href="{% url 'contact' %}">{% trans 'contactUs' %}</a></div>
           </div>
       </div>
       <div class="row mt-3">
-          <div class="col-md-12 text-center">
-              <div><a href="{% url 'dioceses_list' %}">{% trans 'footerDiocesesList' %}</a>.</div>
-              <div><a href="{% trans 'donateUrl' %}">Nous soutenir</a> afin d'étendre Confessio sur d'autres diocèses.</div>
-          </div>
-      </div>
-      <div class="row mt-3">
-          <div class="col-md-12">
-              <div class="d-flex text-center justify-content-center align-items-center" role="contentinfo">
-                  <p><a href="{% url 'login' %}">Espace administrateur</a></p>
-              </div>
-          </div>
-      </div>
-      <div class="row mb-1">
           <div class="col-md-12">
               <div class="d-flex text-center justify-content-center align-items-center" role="contentinfo">
                   <p class="fw-normal mb-0">
@@ -48,11 +35,21 @@
               </div>
           </div>
       </div>
+      <div class="row mb-3">
+          <div class="col-md-12">
+              <div class="d-flex text-center justify-content-center align-items-center" role="contentinfo">
+                  <p class="fw-normal mb-0 d-inline-flex align-items-end gap-1">
+                      <a href="https://www.oclocher.fr/"><img src="{% static 'assets/img/oclocher-logo-white.svg' %}" alt="OClocher" class="img-fluid" style="width: 2em"></a>
+                      Merci à <a href="https://www.oclocher.fr/">OClocher</a> de nous partager leurs horaires !
+                  </p>
+              </div>
+          </div>
+      </div>
       <div class="row">
           <div class="col mb-md-0">
               <div class="d-flex text-center justify-content-center align-items-center" role="contentinfo">
                   <p class="fw-normal font-small mb-0">Code open-source disponible sur
-                      <a href="https://github.com/etiennecallies/confessio">Github</a> • <a href="{% static 'html/legal_notice.html' %}" rel="nofollow">Mentions légales</a></p>
+                      <a href="https://github.com/etiennecallies/confessio">Github</a> • <a href="{% static 'html/legal_notice.html' %}" rel="nofollow">Mentions légales</a> • <a href="{% url 'login' %}">Espace administrateur</a></p>
               </div>
               <div class="d-flex text-center justify-content-center align-items-center" role="contentinfo">
                   <p class="fw-normal font-small mb-0">
