@@ -74,7 +74,7 @@ trouverunemesse_username: "{{ lookup('ansible.builtin.env', 'TROUVERUNEMESSE_USE
 trouverunemesse_password: "{{ lookup('ansible.builtin.env', 'TROUVERUNEMESSE_PASSWORD') }}"
 
 # Heartbeats
-heartbeat_trouverunemesse_url: "{{ lookup('ansible.builtin.env', 'HEARTBEAT_TROUVERUNEMESSE_URL') }}"
+heartbeat_nightly_fetching_url: "{{ lookup('ansible.builtin.env', 'HEARTBEAT_NIGHTLY_FETCHING_URL') }}"
 heartbeat_check_crawling_url: "{{ lookup('ansible.builtin.env', 'HEARTBEAT_CHECK_CRAWLING_URL') }}"
 heartbeat_train_pruning_url: "{{ lookup('ansible.builtin.env', 'HEARTBEAT_TRAIN_PRUNING_URL') }}"
 

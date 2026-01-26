@@ -63,11 +63,11 @@
       hour: "23"
       minute: 0
       memory_max: "3200M"
-#    - name: daily_sync_trouverunemesse
-#      command: "sync_trouverunemesse -t 2400"
-#      hour: "23"
-#      minute: 15
-#      memory_max: "800M"
+    - name: daily_nightly_fetching
+      command: "nightly_fetching"
+      hour: "23"
+      minute: 15
+      memory_max: "800M"
 
 - name: Add cron to unlock dead tasks every minute
   cron:
