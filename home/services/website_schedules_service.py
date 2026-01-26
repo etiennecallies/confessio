@@ -27,6 +27,8 @@ from scraping.services.parsing_service import get_parsing_schedules_list, \
     get_parsing_church_desc_by_id
 
 
+MAX_SCHEDULES_PER_CHURCH = 30
+
 #############
 # SCHEDULES #
 #############
@@ -175,14 +177,15 @@ def get_website_schedules(website: Website,
     #############################
 
     church_sorted_schedules = [
-        ChurchSortedSchedules.from_sorted_schedules(sourced_schedule_items, church_id, church_by_id)
+        ChurchSortedSchedules.from_sorted_schedules(
+            sourced_schedule_items[:MAX_SCHEDULES_PER_CHURCH], church_id, church_by_id
+        )
         for church_id, sourced_schedule_items in sorted_sourced_schedule_items_by_church_id.items()
     ]
 
     # Add churches without events
-    churches_with_events = {church_by_id.get(sourced_schedule_item.item.church_id, None)
-                            for sourced_schedule_item in merged_sourced_schedule_items}
-    churches_with_events_uuids = {c.uuid for c in churches_with_events if c is not None}
+    churches_with_events_uuids = {css.church.uuid for css in church_sorted_schedules
+                                  if css.church is not None}
     church_sorted_schedules += [
         ChurchSortedSchedules(
             church=c,
@@ -194,7 +197,7 @@ def get_website_schedules(website: Website,
     parsing_index_by_parsing_uuid = {
         parsing.uuid: i for i, parsing in enumerate(sort_parsings(scheduling_sources.parsings))
     }
-    parsing_by_uuid = {parsing.uuid: parsing for parsing in scheduling_sources. parsings}
+    parsing_by_uuid = {parsing.uuid: parsing for parsing in scheduling_sources.parsings}
 
     return WebsiteSchedules(
         church_sorted_schedules=church_sorted_schedules,
