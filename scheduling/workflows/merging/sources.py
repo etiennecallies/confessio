@@ -7,7 +7,7 @@ from scraping.parse.schedules import SchedulesList
 
 
 class BaseSource(BaseModel, ABC, frozen=True):
-    schedules_list: SchedulesList
+    schedules_list: SchedulesList | None
 
     @property
     @abstractmethod
