@@ -1,10 +1,10 @@
 from home.models import Website, Church
 from home.services.website_events_service import ChurchEvent
 from home.services.website_schedules_service import get_website_schedules, \
-    get_color_of_nullable_church
+    get_color_of_nullable_church, WebsiteSchedules
 from home.utils.date_utils import time_plus_hours
 from scheduling.models import IndexEvent, Scheduling
-from scheduling.workflows.merging.sources import ParsingSource
+from scheduling.workflows.merging.sources import ParsingSource, BaseSource, OClocherSource
 
 
 def build_website_church_events(website: Website,
@@ -58,6 +58,17 @@ def build_website_church_events(website: Website,
     return church_index_to_add
 
 
+def source_has_been_moderated(source: BaseSource,
+                              website_schedules: WebsiteSchedules) -> bool:
+    if isinstance(source, ParsingSource):
+        return website_schedules.parsing_by_uuid[source.parsing_uuid].has_been_moderated()
+
+    if isinstance(source, OClocherSource):
+        return True
+
+    raise NotImplementedError
+
+
 def get_all_church_events(website: Website, website_churches: list[Church],
                           scheduling: Scheduling,
                           ) -> list[ChurchEvent]:
@@ -68,10 +79,8 @@ def get_all_church_events(website: Website, website_churches: list[Church],
     for church_sorted_schedule in website_schedules.church_sorted_schedules:
         has_been_moderated_by_church_event = {}
         for sourced_schedule_item in church_sorted_schedule.sourced_schedule_items:
-            all_parsings = [website_schedules.parsing_by_uuid[source.parsing_uuid]
-                            for source in sourced_schedule_item.sources
-                            if isinstance(source, ParsingSource)]
-            has_been_moderated = any(p.has_been_moderated() for p in all_parsings)
+            has_been_moderated = any(source_has_been_moderated(source, website_schedules)
+                                     for source in sourced_schedule_item.sources)
             for event in sourced_schedule_item.events:
                 has_been_moderated_by_church_event[event] = \
                     has_been_moderated or has_been_moderated_by_church_event.get(event, False)
