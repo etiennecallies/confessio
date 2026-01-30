@@ -10,9 +10,6 @@ class Crawling(TimeStampMixin):
     nb_success_links = models.PositiveSmallIntegerField()
     recrawl_triggered_at = models.DateTimeField(null=True, blank=True)
 
-    class Meta:
-        db_table = "home_crawling"
-
 
 class Scraping(TimeStampMixin):
     url = models.URLField(max_length=300)
@@ -20,11 +17,10 @@ class Scraping(TimeStampMixin):
     website = models.ForeignKey('home.Website', on_delete=models.CASCADE, related_name='scrapings')
     prunings = models.ManyToManyField('scheduling.Pruning', related_name='scrapings')
 
-    history = HistoricalRecords(table_name='home_historicalscraping')
+    history = HistoricalRecords()
 
     class Meta:
         unique_together = ('url', 'website')
-        db_table = "home_scraping"
 
     def has_confessions(self) -> bool:
         return any(pruning.has_confessions() for pruning in self.prunings.all())
@@ -37,4 +33,3 @@ class WebsiteForbiddenPath(TimeStampMixin):
 
     class Meta:
         unique_together = ('website', 'path')
-        db_table = "home_websiteforbiddenpath"
