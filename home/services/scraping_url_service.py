@@ -1,6 +1,6 @@
 from urllib.parse import quote, unquote
 
-from home.models import Scraping
+from crawling.models import Scraping
 from scheduling.models.pruning_models import Pruning
 from scheduling.services.scheduling_service import SchedulingPrimarySources
 from scraping.extract.split_content import split_lines

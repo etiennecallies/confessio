@@ -40,7 +40,7 @@ class Website(TimeStampMixin):
     home_url = models.URLField(unique=True, max_length=255)
     is_active = models.BooleanField(default=True)
     enabled_for_crawling = models.BooleanField(default=True)
-    crawling = models.OneToOneField('Crawling', on_delete=models.SET_NULL,
+    crawling = models.OneToOneField('crawling.Crawling', on_delete=models.SET_NULL,
                                     related_name='website', null=True, blank=True)
     pruning_validation_counter = models.SmallIntegerField(default=0)
     pruning_last_validated_at = models.DateTimeField(null=True, blank=True)
@@ -112,34 +112,3 @@ class Church(TimeStampMixin):
 
     def get_desc(self) -> str:
         return f'{self.name} {self.city}'
-
-
-class WebsiteForbiddenPath(TimeStampMixin):
-    website = models.ForeignKey('Website', on_delete=models.CASCADE,
-                                related_name='forbidden_paths')
-    path = models.CharField(max_length=300)
-
-    class Meta:
-        unique_together = ('website', 'path')
-
-
-class Crawling(TimeStampMixin):
-    error_detail = models.TextField(null=True)
-    nb_visited_links = models.PositiveSmallIntegerField()
-    nb_success_links = models.PositiveSmallIntegerField()
-    recrawl_triggered_at = models.DateTimeField(null=True, blank=True)
-
-
-class Scraping(TimeStampMixin):
-    url = models.URLField(max_length=300)
-    nb_iterations = models.PositiveSmallIntegerField()
-    website = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='scrapings')
-    prunings = models.ManyToManyField('scheduling.Pruning', related_name='scrapings')
-
-    history = HistoricalRecords()
-
-    class Meta:
-        unique_together = ('url', 'website')
-
-    def has_confessions(self) -> bool:
-        return any(pruning.has_confessions() for pruning in self.prunings.all())

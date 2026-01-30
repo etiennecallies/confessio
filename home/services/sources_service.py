@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from uuid import UUID
 
 from attaching.models import Image
-from home.models import Scraping
+from crawling.models import Scraping
 from scheduling.models.parsing_models import Parsing
 from scheduling.models.pruning_models import Pruning
 from scheduling.services.scheduling_service import SchedulingPrimarySources

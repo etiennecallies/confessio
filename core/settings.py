@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'scheduling',
     'attaching',
     'front',
+    'crawling',
 ]
 
 MIDDLEWARE = [

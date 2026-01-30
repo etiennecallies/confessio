@@ -5,8 +5,9 @@ from background_task.models import CompletedTask
 from django.db.models import Q, Model, Subquery
 from django.utils import timezone
 
+from crawling.models import Scraping
 from home.management.abstract_command import AbstractCommand
-from home.models import Log, ChurchModeration, Website, WebsiteModeration, Scraping
+from home.models import Log, ChurchModeration, Website, WebsiteModeration
 from scheduling.models import PruningParsing
 from scheduling.models.parsing_models import ParsingModeration, Parsing
 from scheduling.models.pruning_models import Pruning, Sentence, Classifier

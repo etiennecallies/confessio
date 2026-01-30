@@ -5,9 +5,10 @@ from leaflet.admin import LeafletGeoAdmin, LeafletGeoAdminMixin
 from simple_history.admin import SimpleHistoryAdmin
 
 from attaching.models import Image
+from crawling.models import WebsiteForbiddenPath
 from front.models import Report
 from scheduling.models.pruning_models import Classifier, Sentence
-from .models import Church, Website, Diocese, Parish, WebsiteForbiddenPath
+from .models import Church, Website, Diocese, Parish
 
 
 @admin.register(Diocese)

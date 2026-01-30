@@ -1,4 +1,5 @@
-from home.models import Scraping, Website
+from crawling.models import Scraping
+from home.models import Website
 from scraping.services.prune_scraping_service import create_pruning
 from scraping.services.scraping_service import check_for_orphan_prunings
 

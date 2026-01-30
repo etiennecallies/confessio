@@ -1,5 +1,5 @@
+from crawling.models import Scraping
 from home.management.abstract_command import AbstractCommand
-from home.models import Scraping
 from scraping.services.scraping_service import delete_scraping
 
 

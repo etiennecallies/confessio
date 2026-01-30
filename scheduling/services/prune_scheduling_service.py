@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from attaching.models import Image
-from home.models import Scraping
+from crawling.models import Scraping
 from scheduling.models import Scheduling, ScrapingPruning, ImagePruning
 from scraping.services.prune_scraping_service import prune_pruning
 
