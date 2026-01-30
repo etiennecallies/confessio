@@ -17,7 +17,7 @@ class Pruning(TimeStampMixin):
     v2_indices = ArrayField(models.PositiveSmallIntegerField(), null=True)
     human_indices = ArrayField(models.PositiveSmallIntegerField(), null=True)
 
-    history = HistoricalRecords(table_name='home_historicalpruning')
+    history = HistoricalRecords()
 
     def save(self, *args, **kwargs):
         self.extracted_html_hash = hash_string_to_hex(self.extracted_html)
@@ -34,9 +34,6 @@ class Pruning(TimeStampMixin):
             return None
 
         return self.scrapings.first().website.get_diocese()
-
-    class Meta:
-        db_table = "home_pruning"
 
 
 class Sentence(TimeStampMixin):
@@ -62,10 +59,7 @@ class Sentence(TimeStampMixin):
     confession_new_classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,
                                                   related_name='confession_new_sentences',
                                                   null=True)
-    history = HistoricalRecords(table_name='home_historicalsentence')
-
-    class Meta:
-        db_table = "home_sentence"
+    history = HistoricalRecords()
 
 
 class Classifier(TimeStampMixin):
@@ -87,10 +81,7 @@ class Classifier(TimeStampMixin):
     pickle = models.CharField()
     accuracy = models.FloatField()
     test_size = models.PositiveSmallIntegerField()
-    history = HistoricalRecords(table_name='home_historicalclassifier')
-
-    class Meta:
-        db_table = "home_classifier"
+    history = HistoricalRecords()
 
 
 class PruningModeration(ModerationMixin):
@@ -106,13 +97,12 @@ class PruningModeration(ModerationMixin):
                                          on_delete=models.SET_NULL, null=True)
     diocese = models.ForeignKey('home.Diocese', on_delete=models.CASCADE,
                                 related_name=f'{resource}_moderations', null=True)
-    history = HistoricalRecords(table_name='home_historicalpruningmoderation')
+    history = HistoricalRecords()
     pruning = models.ForeignKey('Pruning', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=16, choices=Category)
 
     class Meta:
         unique_together = ('pruning', 'category')
-        db_table = "home_pruningmoderation"
 
     def delete_on_validate(self) -> bool:
         # we keep PruningModeration even if pruned_indices has changed
@@ -132,7 +122,7 @@ class SentenceModeration(ModerationMixin):
                                          on_delete=models.SET_NULL, null=True)
     diocese = models.ForeignKey('home.Diocese', on_delete=models.CASCADE,
                                 related_name=f'{resource}_moderations', null=True)
-    history = HistoricalRecords(table_name='home_historicalsentencemoderation')
+    history = HistoricalRecords()
     sentence = models.ForeignKey('Sentence', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=20, choices=Category)
     action = models.CharField(max_length=5, choices=Action.choices(), null=True)
@@ -140,7 +130,6 @@ class SentenceModeration(ModerationMixin):
 
     class Meta:
         unique_together = ('sentence', 'category')
-        db_table = "home_sentencemoderation"
 
     def delete_on_validate(self) -> bool:
         if self.category == self.Category.ML_MISMATCH and self.sentence.action != self.action:
