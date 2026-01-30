@@ -1,20 +1,9 @@
-import uuid
-
 from django.contrib.gis.db import models as gis_models
 from django.contrib.postgres.indexes import GistIndex
 from django.db import models
 from simple_history.models import HistoricalRecords
 
-
-class TimeStampMixin(models.Model):
-    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    objects = models.Manager()
-
-    class Meta:
-        abstract = True
-        get_latest_by = ['updated_at']
+from core.models.base_models import TimeStampMixin
 
 
 class Diocese(TimeStampMixin):

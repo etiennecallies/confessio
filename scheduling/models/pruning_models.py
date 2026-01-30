@@ -3,7 +3,9 @@ from django.db import models
 from pgvector.django import VectorField
 from simple_history.models import HistoricalRecords
 
-from home.models import TimeStampMixin, ModerationMixin, Diocese
+from core.models.base_models import TimeStampMixin
+from core.models.base_moderation_models import ModerationMixin
+from home.models import Diocese
 from home.utils.hash_utils import hash_string_to_hex
 from scraping.extract_v2.models import Temporal, EventMention
 from scraping.prune.models import Action, Source

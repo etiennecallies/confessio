@@ -1,5 +1,6 @@
-from home.models.base_models import TimeStampMixin
 from django.db import models
+
+from core.models.base_models import TimeStampMixin
 
 
 class ChurchLLMName(TimeStampMixin):

@@ -1,7 +1,8 @@
-from home.models import ModerationMixin, TimeStampMixin
 from django.db import models
 from simple_history.models import HistoricalRecords
 
+from core.models.base_models import TimeStampMixin
+from core.models.base_moderation_models import ModerationMixin
 from scraping.parse.llm_client import LLMProvider
 
 

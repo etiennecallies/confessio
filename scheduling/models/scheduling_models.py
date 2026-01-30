@@ -1,6 +1,6 @@
 from django.db import models
 
-from home.models import TimeStampMixin
+from core.models.base_models import TimeStampMixin
 
 
 class Scheduling(TimeStampMixin):

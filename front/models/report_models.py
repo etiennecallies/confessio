@@ -1,8 +1,8 @@
 from django.db import models
 from simple_history.models import HistoricalRecords
 
+from core.models.base_models import TimeStampMixin
 from home.models import ModerationMixin
-from home.models.base_models import TimeStampMixin
 
 
 class Report(TimeStampMixin):

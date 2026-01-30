@@ -5,10 +5,11 @@ from django.http import HttpResponseBadRequest, HttpResponseNotFound
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
+from core.models.base_moderation_models import BUG_DESCRIPTION_MAX_LENGTH, ResourceDoesNotExistError
 from fetching.models import OClocherOrganizationModeration, OClocherMatchingModeration
 from front.models import ReportModeration
 from home.models import WebsiteModeration, ChurchModeration, ModerationMixin, \
-    BUG_DESCRIPTION_MAX_LENGTH, ParishModeration, ResourceDoesNotExistError, Diocese
+    ParishModeration, Diocese
 from home.services.edit_pruning_service import on_pruning_human_validation, \
     set_v2_indices_as_human, get_single_line_colored_piece, update_sentence_labels_with_request, \
     TEMPORAL_COLORS, EVENT_MENTION_COLORS

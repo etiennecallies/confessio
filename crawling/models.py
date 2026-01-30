@@ -1,7 +1,7 @@
 from django.db import models
 from simple_history.models import HistoricalRecords
 
-from home.models import TimeStampMixin
+from core.models.base_models import TimeStampMixin
 
 
 class Crawling(TimeStampMixin):
