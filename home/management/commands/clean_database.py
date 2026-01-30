@@ -7,8 +7,10 @@ from django.utils import timezone
 
 from crawling.models import Scraping
 from home.management.abstract_command import AbstractCommand
-from home.models import Log, ChurchModeration, Website, WebsiteModeration
+from home.models import ChurchModeration, Website, WebsiteModeration
 from scheduling.models import PruningParsing
+from scheduling.models import Log as SchedulingLog
+from crawling.models import Log as CrawlingLog
 from scheduling.models.parsing_models import ParsingModeration, Parsing
 from scheduling.models.pruning_models import Pruning, Sentence, Classifier
 from scraping.services.parse_pruning_service import clean_parsing_moderations
@@ -74,11 +76,16 @@ class Command(AbstractCommand):
         self.clean_history(Classifier, Classifier.history.model)
 
         # Logs
-        self.info(f'Starting removing old logs')
-        old_logs = Log.objects.filter(
+        self.info(f'Starting removing old scheduling logs')
+        old_logs = SchedulingLog.objects.filter(
             created_at__lt=timezone.now() - timedelta(days=3)).all()
         counter = self.delete_objects(old_logs)
-        self.success(f'Done removing {counter} old logs')
+        self.success(f'Done removing {counter} old scheduling logs')
+        self.info(f'Starting removing old crawling logs')
+        old_logs = CrawlingLog.objects.filter(
+            created_at__lt=timezone.now() - timedelta(days=3)).all()
+        counter = self.delete_objects(old_logs)
+        self.success(f'Done removing {counter} old crawling logs')
 
         # Church moderation
         self.info(f'Starting cleaning church moderation items')

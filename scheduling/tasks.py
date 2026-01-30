@@ -1,9 +1,9 @@
-from home.models import Log
-from home.services.log_service import save_buffer
 from home.utils.log_utils import info, log_stack_trace, start_log_buffer
-from scheduling.models import Scheduling
+from scheduling.models import Scheduling, Log
 from background_task import background
 from background_task.tasks import TaskSchedule
+
+from scheduling.services.log_service import save_buffer
 
 
 @background(queue='main', schedule=TaskSchedule(priority=1))

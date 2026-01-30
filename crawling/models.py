@@ -33,3 +33,20 @@ class WebsiteForbiddenPath(TimeStampMixin):
 
     class Meta:
         unique_together = ('website', 'path')
+
+
+class Log(TimeStampMixin):
+    class Type(models.TextChoices):
+        CRAWLING = "crawling"
+        SCRAPING = "scraping"
+
+    class Status(models.TextChoices):
+        DONE = "done"
+        TIMEOUT = "timeout"
+        FAILURE = "failure"
+
+    website = models.ForeignKey('home.Website', on_delete=models.CASCADE,
+                                related_name='crawling_logs')
+    content = models.TextField()
+    type = models.CharField(max_length=8, choices=Type)
+    status = models.CharField(max_length=8, choices=Status)

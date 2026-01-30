@@ -1,6 +1,6 @@
-from crawling.models import Log
 from home.models import Website
 from home.utils.log_utils import get_log_buffer
+from scheduling.models import Log
 
 
 def save_buffer(website: Website, log_type: Log.Type, status: Log.Status = Log.Status.DONE):
