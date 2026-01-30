@@ -3,9 +3,8 @@ from uuid import UUID
 
 from django.db import IntegrityError, transaction
 
-from home.models import Pruning, PruningModeration
-from home.models import Sentence
 from home.utils.log_utils import info
+from scheduling.models.pruning_models import PruningModeration, Pruning, Sentence
 from scraping.extract.extract_content import BaseActionInterface
 from scraping.extract.extract_content import extract_paragraphs_lines_and_indices
 from scraping.extract.extract_interface import ExtractMode
@@ -188,7 +187,6 @@ def add_necessary_moderation_v2(pruning: Pruning):
 ########
 # MAIN #
 ########
-
 
 def prune_pruning(pruning: Pruning) -> ():
     assert pruning.extracted_html, 'Pruning must have not empty extracted_html'

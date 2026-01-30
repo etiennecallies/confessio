@@ -1,5 +1,5 @@
 from home.management.abstract_command import AbstractCommand
-from home.models import Classifier
+from scheduling.models.pruning_models import Classifier
 from scraping.prune.models import Action
 from scraping.services.classify_sentence_service import get_ml_label
 from scraping.services.sentence_outliers_service import add_sentence_moderation, \

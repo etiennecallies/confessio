@@ -6,13 +6,13 @@ from django.http import HttpResponseNotFound
 from django.shortcuts import render
 from pydantic import ValidationError
 
-from home.models import Pruning, Sentence
 from home.services.edit_pruning_service import get_colored_pieces, update_sentence_action, \
     set_ml_indices_as_human, set_human_indices, \
     get_pruning_human_pieces, get_colored_pieces_v2, set_v2_indices_as_human, \
     update_sentence_labels_with_request, TEMPORAL_COLORS, EVENT_MENTION_COLORS
 from jsoneditor.forms import JSONSchemaForm
 from scheduling.models.parsing_models import Parsing
+from scheduling.models.pruning_models import Pruning, Sentence
 from scheduling.public import init_scheduling_for_sentences
 from scraping.extract_v2.qualify_line_interfaces import DummyQualifyLineInterface
 from scraping.parse.schedules import SchedulesList, SCHEDULES_LIST_VERSION

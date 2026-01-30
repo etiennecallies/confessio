@@ -1,15 +1,9 @@
 import uuid
 
 from django.contrib.gis.db import models as gis_models
-from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.indexes import GistIndex
 from django.db import models
-from pgvector.django import VectorField
 from simple_history.models import HistoricalRecords
-
-from home.utils.hash_utils import hash_string_to_hex
-from scraping.extract_v2.models import Temporal, EventMention
-from scraping.prune.models import Action, Source
 
 
 class TimeStampMixin(models.Model):
@@ -140,7 +134,7 @@ class Scraping(TimeStampMixin):
     url = models.URLField(max_length=300)
     nb_iterations = models.PositiveSmallIntegerField()
     website = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='scrapings')
-    prunings = models.ManyToManyField('Pruning', related_name='scrapings')
+    prunings = models.ManyToManyField('scheduling.Pruning', related_name='scrapings')
 
     history = HistoricalRecords()
 
@@ -149,78 +143,3 @@ class Scraping(TimeStampMixin):
 
     def has_confessions(self) -> bool:
         return any(pruning.has_confessions() for pruning in self.prunings.all())
-
-
-class Pruning(TimeStampMixin):
-    # We can not set unique=True because size can exceed index limits
-    extracted_html = models.TextField(editable=False)
-    extracted_html_hash = models.CharField(max_length=32, unique=True, editable=False)
-    ml_indices = ArrayField(models.PositiveSmallIntegerField(), null=True)
-    v2_indices = ArrayField(models.PositiveSmallIntegerField(), null=True)
-    human_indices = ArrayField(models.PositiveSmallIntegerField(), null=True)
-
-    history = HistoricalRecords()
-
-    def save(self, *args, **kwargs):
-        self.extracted_html_hash = hash_string_to_hex(self.extracted_html)
-        super().save(*args, **kwargs)
-
-    def get_pruned_indices(self):
-        return self.human_indices if self.human_indices is not None else self.ml_indices
-
-    def has_confessions(self) -> bool:
-        return bool(self.get_pruned_indices())
-
-    def get_diocese(self) -> Diocese | None:
-        if not self.scrapings.exists():
-            return None
-
-        return self.scrapings.first().website.get_diocese()
-
-
-class Sentence(TimeStampMixin):
-    line = models.TextField(null=False, unique=True)
-    prunings = models.ManyToManyField('Pruning', related_name='sentences')
-    updated_by = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
-    updated_on_pruning = models.ForeignKey('Pruning', on_delete=models.SET_NULL, null=True)
-    transformer_name = models.CharField(max_length=100)
-    embedding = VectorField(dimensions=768)
-    # v1
-    action = models.CharField(max_length=5, choices=Action.choices())
-    source = models.CharField(max_length=5, choices=Source.choices())
-    classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,
-                                   related_name='sentences', null=True)
-    # v2
-    ml_temporal = models.CharField(max_length=5, choices=Temporal.choices())
-    human_temporal = models.CharField(max_length=5, choices=Temporal.choices(), null=True)
-    temporal_classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,
-                                            related_name='temporal_sentences', null=True)
-
-    ml_confession = models.CharField(max_length=7, choices=EventMention.choices())
-    human_confession = models.CharField(max_length=7, choices=EventMention.choices(), null=True)
-    confession_new_classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,
-                                                  related_name='confession_new_sentences',
-                                                  null=True)
-    history = HistoricalRecords()
-
-
-class Classifier(TimeStampMixin):
-    class Status(models.TextChoices):
-        DRAFT = "draft"
-        PROD = "prod"
-
-    class Target(models.TextChoices):
-        # V1
-        ACTION = "action"
-        # V2
-        TEMPORAL = "temporal"
-        CONFESSION = "confession"
-
-    transformer_name = models.CharField(max_length=100)
-    status = models.CharField(max_length=5, choices=Status)
-    target = models.CharField(max_length=10, choices=Target)
-    different_labels = models.JSONField()
-    pickle = models.CharField()
-    accuracy = models.FloatField()
-    test_size = models.PositiveSmallIntegerField()
-    history = HistoricalRecords()

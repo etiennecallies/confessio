@@ -4,7 +4,7 @@ from uuid import UUID
 from django.contrib.auth.models import User
 from pydantic import BaseModel
 
-from home.models import Pruning, Sentence, Classifier
+from scheduling.models.pruning_models import Sentence, Pruning, Classifier
 from scheduling.public import init_scheduling_for_pruning
 from scraping.extract.extract_content import split_and_tag, BaseActionInterface
 from scraping.extract.tag_line import Tag

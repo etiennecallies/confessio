@@ -11,7 +11,6 @@ from simple_history.models import HistoricalRecords
 
 from home.models.base_models import TimeStampMixin, Church, Parish, Diocese
 from home.utils.color_utils import get_color_from_string
-from scraping.prune.models import Action
 from sourcing.services.church_name_service import sort_by_name_similarity
 
 BUG_DESCRIPTION_MAX_LENGTH = 200
@@ -387,58 +386,3 @@ class ChurchModeration(ModerationMixin):
         ChurchModeration.objects.filter(church=similar_church,
                                         category=self.Category.DELETED_CHURCH,
                                         source=self.source).delete()
-
-
-class PruningModeration(ModerationMixin):
-    class Category(models.TextChoices):
-        NEW_PRUNED_HTML = "new_pruned_html"
-        V2_DIFF_HUMAN = "v2_diff_human"
-        V2_DIFF_V1 = "v2_diff_v1"
-
-    resource = 'pruning'
-    validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
-                                     on_delete=models.SET_NULL, null=True)
-    marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
-                                         on_delete=models.SET_NULL, null=True)
-    diocese = models.ForeignKey('Diocese', on_delete=models.CASCADE,
-                                related_name=f'{resource}_moderations', null=True)
-    history = HistoricalRecords()
-    pruning = models.ForeignKey('Pruning', on_delete=models.CASCADE, related_name='moderations')
-    category = models.CharField(max_length=16, choices=Category)
-
-    class Meta:
-        unique_together = ('pruning', 'category')
-
-    def delete_on_validate(self) -> bool:
-        # we keep PruningModeration even if pruned_indices has changed
-        # in order to keep track of which pruned_indices has been moderated
-        return False
-
-
-class SentenceModeration(ModerationMixin):
-    class Category(models.TextChoices):
-        ML_MISMATCH = "ml_mismatch"
-        CONFESSION_OUTLIER = "confession_outlier"
-
-    resource = 'sentence'
-    validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
-                                     on_delete=models.SET_NULL, null=True)
-    marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
-                                         on_delete=models.SET_NULL, null=True)
-    diocese = models.ForeignKey('Diocese', on_delete=models.CASCADE,
-                                related_name=f'{resource}_moderations', null=True)
-    history = HistoricalRecords()
-    sentence = models.ForeignKey('Sentence', on_delete=models.CASCADE, related_name='moderations')
-    category = models.CharField(max_length=20, choices=Category)
-    action = models.CharField(max_length=5, choices=Action.choices(), null=True)
-    other_action = models.CharField(max_length=5, choices=Action.choices(), null=True)
-
-    class Meta:
-        unique_together = ('sentence', 'category')
-
-    def delete_on_validate(self) -> bool:
-        if self.category == self.Category.ML_MISMATCH and self.sentence.action != self.action:
-            # We delete moderation if action has been changed
-            return True
-
-        return False

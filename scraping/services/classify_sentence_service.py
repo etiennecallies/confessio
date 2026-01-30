@@ -2,7 +2,7 @@ import threading
 
 from django.db import transaction, IntegrityError
 
-from home.models import Sentence, Classifier, Pruning
+from scheduling.models.pruning_models import Classifier, Sentence, Pruning
 from scraping.extract_v2.models import Temporal, EventMention
 from scraping.prune.models import Source, Action
 from scraping.prune.train_and_predict import TensorFlowModel

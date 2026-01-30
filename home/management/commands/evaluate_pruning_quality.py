@@ -1,5 +1,5 @@
 from home.management.abstract_command import AbstractCommand
-from home.models import Pruning
+from scheduling.models.pruning_models import Pruning
 
 
 class Command(AbstractCommand):

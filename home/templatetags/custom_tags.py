@@ -7,13 +7,13 @@ from django.urls import reverse
 from fetching.models import OClocherOrganizationModeration, OClocherMatchingModeration
 from front.models import ReportModeration
 from home.models import WebsiteModeration, ChurchModeration, ParishModeration, \
-    PruningModeration, SentenceModeration, ModerationMixin, Pruning, \
-    Diocese
+    ModerationMixin, Diocese
 from home.services.website_events_service import WebsiteEvents
 from home.services.website_schedules_service import WebsiteSchedules
 from home.utils.date_utils import get_current_year
 from home.utils.list_utils import enumerate_with_and
 from scheduling.models.parsing_models import ParsingModeration
+from scheduling.models.pruning_models import Pruning, PruningModeration, SentenceModeration
 from scheduling.workflows.merging.sources import BaseSource
 from scraping.parse.holidays import HolidayZoneEnum
 from scraping.parse.rrule_utils import get_events_from_schedule_item

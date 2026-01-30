@@ -5,10 +5,11 @@ from django.db.models import Q, Subquery
 
 from attaching.models import Image
 from fetching.models import OClocherSchedule, OClocherMatching, OClocherLocation
-from home.models import Pruning, Website, Church
+from home.models import Website, Church
 from home.models import Scraping
 from scheduling.models import Scheduling, SchedulingHistoricalOClocherMatching
 from scheduling.models.parsing_models import ParsingModeration, Parsing
+from scheduling.models.pruning_models import Pruning
 
 
 def get_indexed_scheduling(website: Website) -> Scheduling | None:

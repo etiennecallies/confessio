@@ -1,0 +1,150 @@
+from django.contrib.postgres.fields import ArrayField
+from django.db import models
+from pgvector.django import VectorField
+from simple_history.models import HistoricalRecords
+
+from home.models import TimeStampMixin, ModerationMixin, Diocese
+from home.utils.hash_utils import hash_string_to_hex
+from scraping.extract_v2.models import Temporal, EventMention
+from scraping.prune.models import Action, Source
+
+
+class Pruning(TimeStampMixin):
+    # We can not set unique=True because size can exceed index limits
+    extracted_html = models.TextField(editable=False)
+    extracted_html_hash = models.CharField(max_length=32, unique=True, editable=False)
+    ml_indices = ArrayField(models.PositiveSmallIntegerField(), null=True)
+    v2_indices = ArrayField(models.PositiveSmallIntegerField(), null=True)
+    human_indices = ArrayField(models.PositiveSmallIntegerField(), null=True)
+
+    history = HistoricalRecords(table_name='home_historicalpruning')
+
+    def save(self, *args, **kwargs):
+        self.extracted_html_hash = hash_string_to_hex(self.extracted_html)
+        super().save(*args, **kwargs)
+
+    def get_pruned_indices(self):
+        return self.human_indices if self.human_indices is not None else self.ml_indices
+
+    def has_confessions(self) -> bool:
+        return bool(self.get_pruned_indices())
+
+    def get_diocese(self) -> Diocese | None:
+        if not self.scrapings.exists():
+            return None
+
+        return self.scrapings.first().website.get_diocese()
+
+    class Meta:
+        db_table = "home_pruning"
+
+
+class Sentence(TimeStampMixin):
+    line = models.TextField(null=False, unique=True)
+    prunings = models.ManyToManyField('Pruning', related_name='sentences')
+    updated_by = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
+    updated_on_pruning = models.ForeignKey('Pruning', on_delete=models.SET_NULL, null=True)
+    transformer_name = models.CharField(max_length=100)
+    embedding = VectorField(dimensions=768)
+    # v1
+    action = models.CharField(max_length=5, choices=Action.choices())
+    source = models.CharField(max_length=5, choices=Source.choices())
+    classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,
+                                   related_name='sentences', null=True)
+    # v2
+    ml_temporal = models.CharField(max_length=5, choices=Temporal.choices())
+    human_temporal = models.CharField(max_length=5, choices=Temporal.choices(), null=True)
+    temporal_classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,
+                                            related_name='temporal_sentences', null=True)
+
+    ml_confession = models.CharField(max_length=7, choices=EventMention.choices())
+    human_confession = models.CharField(max_length=7, choices=EventMention.choices(), null=True)
+    confession_new_classifier = models.ForeignKey('Classifier', on_delete=models.SET_NULL,
+                                                  related_name='confession_new_sentences',
+                                                  null=True)
+    history = HistoricalRecords(table_name='home_historicalsentence')
+
+    class Meta:
+        db_table = "home_sentence"
+
+
+class Classifier(TimeStampMixin):
+    class Status(models.TextChoices):
+        DRAFT = "draft"
+        PROD = "prod"
+
+    class Target(models.TextChoices):
+        # V1
+        ACTION = "action"
+        # V2
+        TEMPORAL = "temporal"
+        CONFESSION = "confession"
+
+    transformer_name = models.CharField(max_length=100)
+    status = models.CharField(max_length=5, choices=Status)
+    target = models.CharField(max_length=10, choices=Target)
+    different_labels = models.JSONField()
+    pickle = models.CharField()
+    accuracy = models.FloatField()
+    test_size = models.PositiveSmallIntegerField()
+    history = HistoricalRecords(table_name='home_historicalclassifier')
+
+    class Meta:
+        db_table = "home_classifier"
+
+
+class PruningModeration(ModerationMixin):
+    class Category(models.TextChoices):
+        NEW_PRUNED_HTML = "new_pruned_html"
+        V2_DIFF_HUMAN = "v2_diff_human"
+        V2_DIFF_V1 = "v2_diff_v1"
+
+    resource = 'pruning'
+    validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
+                                     on_delete=models.SET_NULL, null=True)
+    marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
+                                         on_delete=models.SET_NULL, null=True)
+    diocese = models.ForeignKey('home.Diocese', on_delete=models.CASCADE,
+                                related_name=f'{resource}_moderations', null=True)
+    history = HistoricalRecords(table_name='home_historicalpruningmoderation')
+    pruning = models.ForeignKey('Pruning', on_delete=models.CASCADE, related_name='moderations')
+    category = models.CharField(max_length=16, choices=Category)
+
+    class Meta:
+        unique_together = ('pruning', 'category')
+        db_table = "home_pruningmoderation"
+
+    def delete_on_validate(self) -> bool:
+        # we keep PruningModeration even if pruned_indices has changed
+        # in order to keep track of which pruned_indices has been moderated
+        return False
+
+
+class SentenceModeration(ModerationMixin):
+    class Category(models.TextChoices):
+        ML_MISMATCH = "ml_mismatch"
+        CONFESSION_OUTLIER = "confession_outlier"
+
+    resource = 'sentence'
+    validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
+                                     on_delete=models.SET_NULL, null=True)
+    marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
+                                         on_delete=models.SET_NULL, null=True)
+    diocese = models.ForeignKey('home.Diocese', on_delete=models.CASCADE,
+                                related_name=f'{resource}_moderations', null=True)
+    history = HistoricalRecords(table_name='home_historicalsentencemoderation')
+    sentence = models.ForeignKey('Sentence', on_delete=models.CASCADE, related_name='moderations')
+    category = models.CharField(max_length=20, choices=Category)
+    action = models.CharField(max_length=5, choices=Action.choices(), null=True)
+    other_action = models.CharField(max_length=5, choices=Action.choices(), null=True)
+
+    class Meta:
+        unique_together = ('sentence', 'category')
+        db_table = "home_sentencemoderation"
+
+    def delete_on_validate(self) -> bool:
+        if self.category == self.Category.ML_MISMATCH and self.sentence.action != self.action:
+            # We delete moderation if action has been changed
+            return True
+
+        return False

@@ -1,6 +1,6 @@
 from home.management.abstract_command import AbstractCommand
 from home.management.utils.heartbeat_utils import ping_heartbeat
-from home.models import Classifier, Sentence
+from scheduling.models.pruning_models import Classifier, Sentence
 from scraping.services.classify_sentence_service import classify_line, get_classifier
 from scraping.services.train_classifier_service import train_classifier, build_sentence_dataset, \
     extract_label

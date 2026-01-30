@@ -1,6 +1,6 @@
 from typing import Type
 
-from home.models import Classifier
+from scheduling.models.pruning_models import Classifier
 from scraping.extract_v2.models import Temporal, EventMention
 from scraping.prune.models import Action
 from scraping.utils.enum_utils import StringEnum

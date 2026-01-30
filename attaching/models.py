@@ -15,7 +15,7 @@ class Image(TimeStampMixin):
     prompt_hash = models.CharField(max_length=32, null=True, blank=True)
     llm_error_detail = models.TextField(null=True, blank=True)
     human_html = models.TextField(null=True, blank=True)
-    prunings = models.ManyToManyField('home.Pruning', related_name='images')
+    prunings = models.ManyToManyField('scheduling.Pruning', related_name='images')
     user = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
     user_agent = models.TextField(null=True, blank=True)
     ip_address_hash = models.CharField(max_length=64, null=True, blank=True)
