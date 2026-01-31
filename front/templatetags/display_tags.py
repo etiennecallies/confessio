@@ -17,7 +17,7 @@ from scheduling.utils.list_utils import group_consecutive_indices
 from scheduling.models.parsing_models import Parsing
 from scheduling.models.pruning_models import Pruning
 from scheduling.services.scheduling_service import get_prunings_of_parsing
-from scraping.parse.explain_schedule import get_explanation_from_schedule
+from scheduling.workflows.parsing.explain_schedule import get_explanation_from_schedule
 from scraping.parse.schedules import SchedulesList, Event, ScheduleItem
 
 

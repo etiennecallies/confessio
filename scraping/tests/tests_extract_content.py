@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from scraping.scrape.download_refine_and_extract import get_extracted_html_list
+from crawling.workflows.scrape.download_refine_and_extract import get_extracted_html_list
 from scraping.utils.string_search import normalize_content, get_words
 from scraping.extract.tag_line import is_schedule_description, is_date_description
 

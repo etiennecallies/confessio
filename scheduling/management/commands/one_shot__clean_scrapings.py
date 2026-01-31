@@ -1,6 +1,6 @@
 from crawling.models import Scraping
 from core.management.abstract_command import AbstractCommand
-from scraping.services.scraping_service import delete_scraping
+from crawling.services.scraping_service import delete_scraping
 
 
 class Command(AbstractCommand):

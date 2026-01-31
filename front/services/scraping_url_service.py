@@ -4,7 +4,7 @@ from crawling.models import Scraping
 from scheduling.models.pruning_models import Pruning
 from scheduling.services.scheduling_service import SchedulingPrimarySources
 from scraping.extract.split_content import split_lines
-from scraping.refine.refine_content import get_text_if_not_table
+from crawling.workflows.refine.refine_content import get_text_if_not_table
 
 
 def get_scraping_url_with_pointer_at_pruning(scraping: Scraping, pruning: Pruning):

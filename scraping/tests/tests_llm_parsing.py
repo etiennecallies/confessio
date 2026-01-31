@@ -8,12 +8,12 @@ import simple_cache
 from dotenv import load_dotenv
 
 from scheduling.utils.date_utils import get_year_start, get_year_end
-from scraping.parse.holidays import HolidayZoneEnum
-from scraping.parse.llm_client import LLMClientInterface, \
+from scheduling.workflows.parsing.holidays import HolidayZoneEnum
+from scheduling.workflows.parsing.llm_client import LLMClientInterface, \
     LLMProvider
-from scraping.parse.openai_provider import OpenAILLMClient, get_openai_client
-from scraping.parse.parse_with_llm import parse_with_llm, get_prompt_template
-from scraping.parse.rrule_utils import are_schedules_list_equivalent
+from scheduling.workflows.parsing.openai_provider import OpenAILLMClient, get_openai_client
+from scheduling.workflows.parsing.parse_with_llm import parse_with_llm, get_prompt_template
+from scheduling.workflows.parsing.rrule_utils import are_schedules_list_equivalent
 from scraping.parse.schedules import SchedulesList, get_merged_schedules_list
 
 

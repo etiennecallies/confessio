@@ -1,6 +1,6 @@
 from core.management.abstract_command import AbstractCommand
 from scheduling.models.pruning_models import Sentence, Classifier
-from scraping.services.classify_sentence_service import get_ml_label
+from scheduling.services.classify_sentence_service import get_ml_label
 
 
 class Command(AbstractCommand):

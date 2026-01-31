@@ -7,7 +7,7 @@ from django.utils import timezone
 from core.management.abstract_command import AbstractCommand
 from registry.models import Website, WebsiteModeration
 from core.utils.log_utils import start_log_buffer
-from scraping.services.website_worker_service import worker_crawl_website, handle_crawl_website
+from crawling.services.website_worker_service import worker_crawl_website, handle_crawl_website
 
 
 class Command(AbstractCommand):

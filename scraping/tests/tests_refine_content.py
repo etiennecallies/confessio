@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from scraping.refine.refine_content import refine_confession_content
+from crawling.workflows.refine.refine_content import refine_confession_content
 
 
 class TestExtractLinks(unittest.TestCase):

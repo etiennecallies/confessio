@@ -7,7 +7,7 @@ from pydantic import ValidationError
 
 from fetching.workflows.oclocher.oclocher_matrix import OClocherMatrix
 from scheduling.utils.hash_utils import hash_string_to_hex
-from scraping.parse.llm_client import LLMProvider
+from scheduling.workflows.parsing.llm_client import LLMProvider
 
 
 def get_prompt_template():

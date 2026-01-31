@@ -1,9 +1,9 @@
 import os
 import unittest
 
+from crawling.workflows.scrape.download_refine_and_extract import get_extracted_html_list
 from scraping.extract_v2.extract_content import ExtractV2Interface
 from scraping.extract_v2.qualify_line_interfaces import RegexQualifyLineInterface
-from scraping.scrape.download_refine_and_extract import get_extracted_html_list
 
 
 class MyTestCase(unittest.TestCase):

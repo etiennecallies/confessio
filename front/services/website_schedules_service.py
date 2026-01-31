@@ -21,9 +21,9 @@ from scheduling.workflows.merging.sort_schedule_items import \
     get_sorted_sourced_schedule_items_by_church_id
 from scheduling.workflows.merging.sourced_schedule_items import SourcedScheduleItem
 from scheduling.workflows.merging.sources import ParsingSource, BaseSource, OClocherSource
-from scraping.parse.explain_schedule import get_explanation_from_schedule
-from scraping.parse.rrule_utils import get_events_from_schedule_item
-from scraping.services.parsing_service import get_parsing_schedules_list, \
+from scheduling.workflows.parsing.explain_schedule import get_explanation_from_schedule
+from scheduling.workflows.parsing.rrule_utils import get_events_from_schedule_item
+from scheduling.services.parsing_service import get_parsing_schedules_list, \
     get_parsing_church_desc_by_id
 
 

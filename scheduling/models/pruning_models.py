@@ -8,7 +8,7 @@ from registry.models.base_moderation_models import ModerationMixin
 from registry.models import Diocese
 from scheduling.utils.hash_utils import hash_string_to_hex
 from scraping.extract_v2.models import Temporal, EventMention
-from scraping.prune.models import Action, Source
+from scheduling.workflows.pruning.models import Action, Source
 
 
 class Pruning(TimeStampMixin):

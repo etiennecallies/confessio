@@ -4,7 +4,7 @@ from django.db.models import F, Min
 
 from core.management.abstract_command import AbstractCommand
 from registry.models import Website
-from scraping.services.website_worker_service import worker_scrape_page
+from crawling.services.website_worker_service import worker_scrape_page
 
 
 class Command(AbstractCommand):

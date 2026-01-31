@@ -10,7 +10,7 @@ from registry.models import Website
 from scheduling.utils.date_utils import get_current_day
 from scheduling.models import IndexEvent
 from scheduling.services.scheduling_service import get_indexed_scheduling
-from scraping.parse.holidays import check_holiday_by_zone
+from scheduling.workflows.parsing.holidays import check_holiday_by_zone
 from scraping.parse.liturgical import check_easter_dates
 from registry.services.church_location_service import find_church_geo_outliers
 

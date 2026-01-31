@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from attaching.models import Image
 from crawling.models import Scraping
 from scheduling.models import Scheduling, ScrapingPruning, ImagePruning
-from scraping.services.prune_scraping_service import prune_pruning
+from scheduling.services.prune_scraping_service import prune_pruning
 
 
 @dataclass

@@ -1,6 +1,6 @@
 from core.management.abstract_command import AbstractCommand
 from scheduling.models.parsing_models import FineTunedLLM
-from scraping.services.fine_tune_llm_service import build_parsing_moderation_dataset, train_llm, \
+from scheduling.services.fine_tune_llm_service import build_parsing_moderation_dataset, train_llm, \
     watch_fine_tuning_job_completion
 
 

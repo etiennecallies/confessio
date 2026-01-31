@@ -1,6 +1,6 @@
 from registry.models import Website, Diocese, Church
 from front.utils.department_utils import get_department
-from scraping.parse.holidays import HolidayZoneEnum, HOLIDAY_ZONE_PER_DEPARTMENT
+from scheduling.workflows.parsing.holidays import HolidayZoneEnum, HOLIDAY_ZONE_PER_DEPARTMENT
 
 
 def get_holiday_zone_of_churches(churches: list[Church]) -> HolidayZoneEnum | None:

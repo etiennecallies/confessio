@@ -1,7 +1,7 @@
 from scraping.extract.extract_interface import ExtractMode, BaseExtractInterface
 from scraping.extract.split_content import LineAndTag, split_and_tag
-from scraping.prune.action_interfaces import BaseActionInterface
-from scraping.prune.prune_lines import get_pruned_lines_indices
+from scheduling.workflows.pruning.action_interfaces import BaseActionInterface
+from scheduling.workflows.pruning.prune_lines import get_pruned_lines_indices
 
 
 ###########

@@ -1,8 +1,8 @@
 import unittest
 
 from scheduling.utils.date_utils import Weekday
-from scraping.parse.explain_schedule import get_explanation_from_schedule
-from scraping.parse.intervals import PeriodEnum
+from scheduling.workflows.parsing.explain_schedule import get_explanation_from_schedule
+from scheduling.workflows.parsing.intervals import PeriodEnum
 from scraping.parse.schedules import ScheduleItem, \
     RegularRule, OneOffRule, WeeklyRule, MonthlyRule, NWeekday, Position, CustomPeriod
 

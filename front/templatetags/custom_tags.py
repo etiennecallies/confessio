@@ -15,8 +15,8 @@ from scheduling.utils.list_utils import enumerate_with_and
 from scheduling.models.parsing_models import ParsingModeration
 from scheduling.models.pruning_models import Pruning, PruningModeration, SentenceModeration
 from scheduling.workflows.merging.sources import BaseSource
-from scraping.parse.holidays import HolidayZoneEnum
-from scraping.parse.rrule_utils import get_events_from_schedule_item
+from scheduling.workflows.parsing.holidays import HolidayZoneEnum
+from scheduling.workflows.parsing.rrule_utils import get_events_from_schedule_item
 from scraping.parse.schedules import ScheduleItem, Event
 
 

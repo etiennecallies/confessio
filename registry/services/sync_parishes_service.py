@@ -6,7 +6,7 @@ from django.contrib.gis.geos import Point
 
 from registry.models import Parish, Diocese, ParishModeration, Website, ExternalSource
 from front.services.autocomplete_service import get_string_similarity
-from scraping.download.download_content import redirects_to_other_url
+from crawling.workflows.download.download_content import redirects_to_other_url
 from registry.services.parish_website_service import save_website_of_parish
 from registry.utils.geo_utils import get_geo_distance
 

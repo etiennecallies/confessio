@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from registry.models import Church
 from scheduling.models import Scheduling, PruningParsing
 from scheduling.models.pruning_models import Pruning
-from scraping.services.parse_pruning_service import do_parse_pruning_for_website
+from scheduling.services.parse_pruning_service import do_parse_pruning_for_website
 
 
 @dataclass

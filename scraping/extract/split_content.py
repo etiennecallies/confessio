@@ -2,10 +2,10 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
+from crawling.workflows.refine.refine_content import stringify_html
 from scraping.extract.tag_line import Tag, get_tags_with_regex
-from scraping.prune.action_interfaces import BaseActionInterface
-from scraping.prune.models import Action, Source
-from scraping.refine.refine_content import stringify_html
+from scheduling.workflows.pruning.action_interfaces import BaseActionInterface
+from scheduling.workflows.pruning.models import Action, Source
 from scraping.utils.html_utils import split_lines
 
 

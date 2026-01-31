@@ -1,8 +1,8 @@
 import os
 import unittest
 
-from scraping.refine.pdf_utils import extract_text_from_pdf_file
-from scraping.scrape.download_refine_and_extract import get_extracted_html_list
+from crawling.workflows.refine.pdf_utils import extract_text_from_pdf_file
+from crawling.workflows.scrape.download_refine_and_extract import get_extracted_html_list
 
 
 class MyTestCase(unittest.TestCase):

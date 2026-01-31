@@ -5,7 +5,7 @@ from django.dispatch import receiver
 from attaching.models import Image
 from registry.models import Website
 from scheduling.process import init_scheduling
-from scraping.services.recognize_image_service import recognize_and_extract_image
+from attaching.services.recognize_image_service import recognize_and_extract_image
 
 
 @receiver(pre_delete, sender=Image)

@@ -29,7 +29,7 @@ from front.utils.web_utils import redirect_with_url_params
 from scheduling.models import IndexEvent
 from scheduling.services.scheduling_service import get_indexed_scheduling, \
     get_scheduling_primary_sources
-from scraping.services.recognize_image_service import recognize_and_extract_image
+from attaching.services.recognize_image_service import recognize_and_extract_image
 from registry.utils.string_utils import lower_first, city_and_prefix
 
 

@@ -2,10 +2,10 @@ import unittest
 from datetime import datetime, date
 
 from scheduling.utils.date_utils import Weekday
-from scraping.parse.holidays import HolidayZoneEnum
-from scraping.parse.intervals import PeriodEnum
+from scheduling.workflows.parsing.holidays import HolidayZoneEnum
+from scheduling.workflows.parsing.intervals import PeriodEnum
 from scraping.parse.liturgical import LiturgicalDayEnum
-from scraping.parse.rrule_utils import get_events_from_schedule_items
+from scheduling.workflows.parsing.rrule_utils import get_events_from_schedule_items
 from scraping.parse.schedules import ScheduleItem, \
     RegularRule, Event, MonthlyRule, NWeekday, Position, WeeklyRule, CustomPeriod, OneOffRule
 

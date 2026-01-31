@@ -5,7 +5,7 @@ import unittest
 from scraping.extract.extract_content import extract_lines_and_indices
 from scraping.extract.extract_interface import ExtractMode
 from scraping.extract.split_content import LineAndTag
-from scraping.prune.models import Action, Source
+from scheduling.workflows.pruning.models import Action, Source
 
 
 class TestPruneLines(unittest.TestCase):

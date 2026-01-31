@@ -1,11 +1,11 @@
 from core.management.abstract_command import AbstractCommand
 from scheduling.models.pruning_models import Classifier
-from scraping.prune.models import Action
-from scraping.services.classify_sentence_service import get_ml_label
-from scraping.services.sentence_outliers_service import add_sentence_moderation, \
+from scheduling.workflows.pruning.models import Action
+from scheduling.services.classify_sentence_service import get_ml_label
+from scheduling.services.sentence_outliers_service import add_sentence_moderation, \
     remove_sentence_not_validated_moderation, add_sentence_v2_moderation, \
     remove_sentence_not_validated_v2_moderation
-from scraping.services.train_classifier_service import build_sentence_dataset, extract_label
+from scheduling.services.train_classifier_service import build_sentence_dataset, extract_label
 
 
 class Command(AbstractCommand):

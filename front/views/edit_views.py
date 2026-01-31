@@ -16,11 +16,11 @@ from scheduling.models.pruning_models import Pruning, Sentence
 from scheduling.public import init_scheduling_for_sentences
 from scraping.extract_v2.qualify_line_interfaces import DummyQualifyLineInterface
 from scraping.parse.schedules import SchedulesList, SCHEDULES_LIST_VERSION
-from scraping.prune.action_interfaces import DummyActionInterface
-from scraping.prune.models import Action
-from scraping.services.edit_parsing_service import set_human_json
-from scraping.services.parsing_service import get_parsing_schedules_list
-from scraping.services.prune_scraping_service import SentenceFromDbActionInterface, \
+from scheduling.workflows.pruning.action_interfaces import DummyActionInterface
+from scheduling.workflows.pruning.models import Action
+from scheduling.services.edit_parsing_service import set_human_json
+from scheduling.services.parsing_service import get_parsing_schedules_list
+from scheduling.services.prune_scraping_service import SentenceFromDbActionInterface, \
     prune_pruning, SentenceQualifyLineInterface
 from scraping.utils.html_utils import split_lines
 

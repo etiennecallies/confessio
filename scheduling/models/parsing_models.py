@@ -3,7 +3,7 @@ from simple_history.models import HistoricalRecords
 
 from core.models.base_models import TimeStampMixin
 from registry.models.base_moderation_models import ModerationMixin
-from scraping.parse.llm_client import LLMProvider
+from scheduling.workflows.parsing.llm_client import LLMProvider
 
 
 class Parsing(TimeStampMixin):

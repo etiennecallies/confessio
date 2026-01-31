@@ -1,5 +1,5 @@
 from scheduling.workflows.merging.sourced_schedule_items import SourcedScheduleItem
-from scraping.parse.explain_schedule import schedule_item_sort_key
+from scheduling.workflows.parsing.explain_schedule import schedule_item_sort_key
 
 
 def sourced_schedule_item_sort_key(sourced_schedule_item: SourcedScheduleItem) -> tuple:

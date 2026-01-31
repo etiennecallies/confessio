@@ -1,0 +1,123 @@
+from pydantic import BaseModel, Field
+
+from crawling.workflows.crawl.extract_links import parse_content_links, remove_http_https_duplicate
+from crawling.workflows.crawl.extract_widgets import extract_widgets, BaseWidget
+from crawling.workflows.download.download_content import get_content_from_url, get_url_aliases
+from crawling.workflows.scrape.download_refine_and_extract import get_extracted_html_list
+from scraping.utils.ram_utils import print_memory_usage
+from scraping.utils.url_utils import get_clean_full_url, get_path, get_full_path
+
+MAX_VISITED_LINKS = 50
+
+
+class CrawlingResult(BaseModel):
+    confession_pages: dict[str, list[str]] = Field(default_factory=dict)
+    visited_links_count: int = 0
+    error_detail: str | None = None
+    widgets: list[BaseWidget] | None = None
+
+
+def forbid_diocese_home_links(diocese_url: str, aliases_domains: set[str],
+                              path_redirection: dict[str, str]) -> set[str]:
+    html_content = get_content_from_url(diocese_url)
+    if html_content is None:
+        print('no content for diocese home url')
+        return set()
+
+    new_links = parse_content_links(html_content, diocese_url, aliases_domains, set(),
+                                    path_redirection, set())
+    forbidden_paths = set()
+    for link in new_links:
+        path = get_path(link)
+        full_path = get_full_path(link)
+        if path:
+            forbidden_paths.add(path)
+        if full_path:
+            forbidden_paths.add(full_path)
+
+    print(f'found {len(forbidden_paths)} paths to forbid: {forbidden_paths}')
+
+    return forbidden_paths
+
+
+def get_new_url_and_aliases(url: str) -> tuple[str, set[str], str | None]:
+    url_aliases, error_message = get_url_aliases(url)
+    if not url_aliases:
+        return url, set(), error_message
+
+    new_url = get_clean_full_url(url_aliases[-1][0])
+
+    return new_url, set([alias[1] for alias in url_aliases]), None
+
+
+def search_for_confession_pages(home_url, aliases_domains: set[str],
+                                forbidden_outer_paths: set[str],
+                                path_redirection: dict[str, str],
+                                forbidden_paths: set[str]
+                                ) -> CrawlingResult:
+    visited_links = set()
+    links_to_visit = {home_url}
+    extracted_html_seen = set()
+
+    error_detail = None
+
+    content_by_url = {}
+    all_widgets = []
+    while len(links_to_visit) > 0 and len(visited_links) < MAX_VISITED_LINKS:
+        print_memory_usage()
+
+        link = links_to_visit.pop()
+        visited_links.add(link)
+
+        html_content = get_content_from_url(link)
+        if html_content is None:
+            # something went wrong (e.g. 404), we just ignore this page
+            print(f'no content for {link}')
+            continue
+
+        # Looking if new confession part is found
+        extracted_html_list = get_extracted_html_list(html_content)
+        if any(extracted_html not in extracted_html_seen
+               for extracted_html in extracted_html_list or []):
+            content_by_url[link] = extracted_html_list
+            extracted_html_seen.update(set(extracted_html_list))
+
+        # Looking for new links to visit
+        new_links = parse_content_links(html_content, home_url, aliases_domains,
+                                        forbidden_outer_paths, path_redirection,
+                                        forbidden_paths)
+
+        # Looking for widgets
+        widgets = extract_widgets(html_content)
+        if widgets:
+            print(f'found {len(widgets)} widgets for {link}: {widgets}')
+            all_widgets.extend(widgets)
+
+        for new_link in new_links:
+            if new_link not in visited_links:
+                links_to_visit.add(new_link)
+
+    if len(visited_links) == MAX_VISITED_LINKS:
+        error_detail = f'Reached limit of {MAX_VISITED_LINKS} visited links.'
+
+    return CrawlingResult(
+        confession_pages=remove_http_https_duplicate(content_by_url),
+        visited_links_count=len(visited_links),
+        error_detail=error_detail,
+        widgets=all_widgets,
+    )
+
+
+if __name__ == '__main__':
+    # home_url = 'https://www.eglise-saintgermaindespres.fr/'
+    # home_url = 'https://www.saintjacquesduhautpas.com/'
+    # home_url = 'https://paroisses-amplepuis-thizy.blogspot.fr/'
+    # home_url = 'https://paroissesaintbruno.pagesperso-orange.fr/'
+    # home_url_ = 'https://paroissecroixrousse.fr/'
+    # home_url_ = 'https://www.espace-saint-ignace.fr/'
+    # home_url_ = 'https://www.paroisse-st-martin-largentiere.fr'
+    home_url_ = 'https://saintetrinite78.fr'
+    confession_pages = search_for_confession_pages(home_url_,
+                                                   set('saintetrinite78.fr'),
+                                                   set(), {}, set())
+    print(confession_pages.model_dump_json())

@@ -19,13 +19,13 @@ from scheduling.models.parsing_models import ParsingModeration
 from scheduling.models.pruning_models import PruningModeration, SentenceModeration
 from scheduling.services.scheduling_service import get_parsing_moderation_of_pruning
 from scraping.extract_v2.split_content import create_line_and_tag_v2
-from scraping.prune.models import Source
-from scraping.services.edit_parsing_service import on_parsing_human_validation, \
+from scheduling.workflows.pruning.models import Source
+from scheduling.services.edit_parsing_service import on_parsing_human_validation, \
     ParsingValidationError, set_llm_json_as_human_json
-from scraping.services.parsing_service import get_schedules_list_from_dict
-from scraping.services.prune_scraping_service import SentenceQualifyLineInterface, \
+from scheduling.services.parsing_service import get_schedules_list_from_dict
+from scheduling.services.prune_scraping_service import SentenceQualifyLineInterface, \
     MLSentenceQualifyLineInterface
-from scraping.services.reparse_parsing_service import reparse_parsing
+from scheduling.services.reparse_parsing_service import reparse_parsing
 from scraping.services.website_moderation_service import suggest_alternative_website
 from registry.services.church_human_service import on_church_human_validation
 from registry.services.merge_websites_service import merge_websites

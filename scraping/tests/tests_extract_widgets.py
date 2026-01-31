@@ -2,7 +2,7 @@ import json
 import os
 import unittest
 
-from scraping.crawl.extract_widgets import extract_widgets, BaseWidget
+from crawling.workflows.crawl.extract_widgets import BaseWidget, extract_widgets
 
 
 class TestExtractLinks(unittest.TestCase):

@@ -62,12 +62,12 @@ INSTALLED_APPS = [
     'theme_pixel',
     'jsoneditor',  # json form
     "core",
-    'fetching',
-    'scheduling',
-    'attaching',
-    'front',
-    'crawling',
     'registry',
+    'front',
+    'scheduling',
+    'crawling',
+    'fetching',
+    'attaching',
 ]
 
 MIDDLEWARE = [

@@ -1,8 +1,8 @@
 from core.management.abstract_command import AbstractCommand
 from scheduling.models.pruning_models import Classifier
 from scraping.extract_v2.models import Temporal
-from scraping.services.classify_sentence_service import get_ml_label
-from scraping.services.train_classifier_service import build_sentence_dataset, extract_label
+from scheduling.services.classify_sentence_service import get_ml_label
+from scheduling.services.train_classifier_service import build_sentence_dataset, extract_label
 from scraping.utils.enum_utils import BooleanStringEnum
 
 

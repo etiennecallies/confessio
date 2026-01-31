@@ -1,7 +1,7 @@
 from scheduling.models import Scheduling, IndexEvent
 from scheduling.models.parsing_models import Parsing
-from scraping.services.index_events_service import build_website_church_events
-from scraping.services.parse_pruning_service import remove_useless_moderation_for_parsing
+from scheduling.services.index_events_service import build_website_church_events
+from scheduling.services.parse_pruning_service import remove_useless_moderation_for_parsing
 
 
 def do_index_scheduling(scheduling: Scheduling) -> list[IndexEvent]:

@@ -3,9 +3,9 @@ from tqdm import tqdm
 from core.management.abstract_command import AbstractCommand
 from scheduling.utils.list_utils import chunk_list
 from scheduling.models.pruning_models import Classifier
-from scraping.services.classify_sentence_service import get_sentences_with_wrong_classifier, \
+from scheduling.services.classify_sentence_service import get_sentences_with_wrong_classifier, \
     classify_existing_sentences
-from scraping.services.train_classifier_service import set_label
+from scheduling.services.train_classifier_service import set_label
 
 
 class Command(AbstractCommand):
