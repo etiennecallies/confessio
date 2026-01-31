@@ -1,4 +1,4 @@
-from home.models import Church
+from registry.models import Church
 from sourcing.utils.gouv_fr_utils import geocode_gouv_fr
 from sourcing.utils.string_utils import has_two_consecutive_uppercase
 

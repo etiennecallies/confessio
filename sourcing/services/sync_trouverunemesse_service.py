@@ -1,6 +1,6 @@
 from django.contrib.gis.geos import Point
 
-from home.models import Church, ChurchModeration, ExternalSource
+from registry.models import Church, ChurchModeration, ExternalSource
 from sourcing.services.church_human_service import church_location_has_been_checked_by_human
 from sourcing.utils.geo_utils import get_geo_distance
 from sourcing.utils.trouverunemesse_utils import fetch_trouverunemesse_by_messesinfo_id, \

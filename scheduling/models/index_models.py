@@ -6,7 +6,7 @@ from core.models.base_models import TimeStampMixin
 class IndexEvent(TimeStampMixin):
     scheduling = models.ForeignKey('scheduling.Scheduling', on_delete=models.CASCADE,
                                    related_name='index_events')
-    church = models.ForeignKey('home.Church', on_delete=models.CASCADE,
+    church = models.ForeignKey('registry.Church', on_delete=models.CASCADE,
                                related_name='index_events')
     day = models.DateField(db_index=True)
     start_time = models.TimeField(db_index=True)

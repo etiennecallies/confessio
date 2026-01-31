@@ -11,7 +11,7 @@ class Scheduling(TimeStampMixin):
         MATCHED = "matched"
         INDEXED = "indexed"
 
-    website = models.ForeignKey('home.Website', on_delete=models.CASCADE,
+    website = models.ForeignKey('registry.Website', on_delete=models.CASCADE,
                                 related_name='schedulings')
     status = models.CharField(max_length=16, choices=Status.choices)
 

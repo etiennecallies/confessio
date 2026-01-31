@@ -6,7 +6,7 @@ from django.db.models import Q, Subquery
 from attaching.models import Image
 from crawling.models import Scraping
 from fetching.models import OClocherSchedule, OClocherMatching, OClocherLocation
-from home.models import Website, Church
+from registry.models import Website, Church
 from scheduling.models import Scheduling, SchedulingHistoricalOClocherMatching
 from scheduling.models.parsing_models import ParsingModeration, Parsing
 from scheduling.models.pruning_models import Pruning

@@ -14,7 +14,8 @@ class Crawling(TimeStampMixin):
 class Scraping(TimeStampMixin):
     url = models.URLField(max_length=300)
     nb_iterations = models.PositiveSmallIntegerField()
-    website = models.ForeignKey('home.Website', on_delete=models.CASCADE, related_name='scrapings')
+    website = models.ForeignKey('registry.Website', on_delete=models.CASCADE,
+                                related_name='scrapings')
     prunings = models.ManyToManyField('scheduling.Pruning', related_name='scrapings')
 
     history = HistoricalRecords()
@@ -27,7 +28,7 @@ class Scraping(TimeStampMixin):
 
 
 class WebsiteForbiddenPath(TimeStampMixin):
-    website = models.ForeignKey('home.Website', on_delete=models.CASCADE,
+    website = models.ForeignKey('registry.Website', on_delete=models.CASCADE,
                                 related_name='forbidden_paths')
     path = models.CharField(max_length=300)
 
@@ -45,7 +46,7 @@ class Log(TimeStampMixin):
         TIMEOUT = "timeout"
         FAILURE = "failure"
 
-    website = models.ForeignKey('home.Website', on_delete=models.CASCADE,
+    website = models.ForeignKey('registry.Website', on_delete=models.CASCADE,
                                 related_name='crawling_logs')
     content = models.TextField()
     type = models.CharField(max_length=8, choices=Type)

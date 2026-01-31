@@ -9,7 +9,7 @@ from django.db.models import QuerySet, OuterRef, Subquery, Exists, ExpressionWra
     BooleanField, Count
 from pydantic import BaseModel
 
-from home.models import Church, Website, Diocese
+from registry.models import Church, Website, Diocese
 from home.utils.city_utils import get_municipality_name
 from home.utils.date_utils import time_from_minutes
 from scheduling.models import IndexEvent

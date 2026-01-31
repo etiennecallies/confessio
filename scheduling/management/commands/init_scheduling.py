@@ -1,5 +1,5 @@
 from home.management.abstract_command import AbstractCommand
-from home.models import Website
+from registry.models import Website
 from scheduling.process import init_scheduling
 
 

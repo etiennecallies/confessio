@@ -3,7 +3,7 @@ from typing import Optional
 
 from django.db.models.functions import Now
 
-from home.models import Parish, Diocese, Church, ExternalSource, \
+from registry.models import Parish, Diocese, Church, ExternalSource, \
     ChurchModeration
 from sourcing.services.church_city_service import lower_church_city
 from sourcing.services.church_location_service import compute_church_coordinates, \

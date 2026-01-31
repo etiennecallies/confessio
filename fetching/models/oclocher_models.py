@@ -7,7 +7,7 @@ from scraping.parse.llm_client import LLMProvider
 
 class OClocherOrganization(TimeStampMixin):
     organization_id = models.CharField(max_length=32, unique=True)
-    website = models.OneToOneField('home.Website', on_delete=models.CASCADE,
+    website = models.OneToOneField('registry.Website', on_delete=models.CASCADE,
                                    related_name='oclocher_organization')
 
 

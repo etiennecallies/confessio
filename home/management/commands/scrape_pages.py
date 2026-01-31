@@ -3,7 +3,7 @@ import time
 from django.db.models import F, Min
 
 from home.management.abstract_command import AbstractCommand
-from home.models import Website
+from registry.models import Website
 from scraping.services.website_worker_service import worker_scrape_page
 
 

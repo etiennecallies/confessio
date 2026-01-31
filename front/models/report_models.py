@@ -2,11 +2,12 @@ from django.db import models
 from simple_history.models import HistoricalRecords
 
 from core.models.base_models import TimeStampMixin
-from home.models import ModerationMixin
+from registry.models import ModerationMixin
 
 
 class Report(TimeStampMixin):
-    website = models.ForeignKey('home.Website', on_delete=models.CASCADE, related_name='reports')
+    website = models.ForeignKey('registry.Website', on_delete=models.CASCADE,
+                                related_name='reports')
 
     class FeedbackType(models.TextChoices):
         GOOD = "good"
@@ -41,7 +42,7 @@ class ReportModeration(ModerationMixin):
                                      on_delete=models.SET_NULL, null=True)
     marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
                                          on_delete=models.SET_NULL, null=True)
-    diocese = models.ForeignKey('home.Diocese', on_delete=models.CASCADE,
+    diocese = models.ForeignKey('registry.Diocese', on_delete=models.CASCADE,
                                 related_name=f'{resource}_moderations', null=True)
     history = HistoricalRecords()
     report = models.ForeignKey('Report', on_delete=models.CASCADE, related_name='moderations')

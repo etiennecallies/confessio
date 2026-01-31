@@ -1,6 +1,6 @@
 from fetching.models import OClocherOrganization, OClocherMatchingModeration, OClocherMatching
 from fetching.models.oclocher_moderation_models import OClocherOrganizationModeration
-from home.models import Website
+from registry.models import Website
 
 
 def add_organization_moderation(website: Website,

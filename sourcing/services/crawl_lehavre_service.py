@@ -5,7 +5,7 @@ import requests
 from bs4 import BeautifulSoup
 from fructose import Fructose
 
-from home.models import Diocese, Website, Church, Parish, ExternalSource
+from registry.models import Diocese, Website, Church, Parish, ExternalSource
 from sourcing.services.church_location_service import compute_church_coordinates
 
 ai = Fructose(model="gpt-3.5-turbo")

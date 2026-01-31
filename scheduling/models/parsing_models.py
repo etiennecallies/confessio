@@ -2,7 +2,7 @@ from django.db import models
 from simple_history.models import HistoricalRecords
 
 from core.models.base_models import TimeStampMixin
-from core.models.base_moderation_models import ModerationMixin
+from registry.models.base_moderation_models import ModerationMixin
 from scraping.parse.llm_client import LLMProvider
 
 
@@ -41,7 +41,7 @@ class ParsingModeration(ModerationMixin):
                                      on_delete=models.SET_NULL, null=True)
     marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
                                          on_delete=models.SET_NULL, null=True)
-    diocese = models.ForeignKey('home.Diocese', on_delete=models.CASCADE,
+    diocese = models.ForeignKey('registry.Diocese', on_delete=models.CASCADE,
                                 related_name=f'{resource}_moderations', null=True)
     history = HistoricalRecords()
     parsing = models.ForeignKey('Parsing', on_delete=models.CASCADE,

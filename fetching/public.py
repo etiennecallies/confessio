@@ -1,6 +1,6 @@
 from fetching.services.oclocher_organization_service import \
     remove_oclocher_organization_for_website, add_oclocher_organization_for_website
-from home.models import Website
+from registry.models import Website
 from scraping.crawl.extract_widgets import BaseWidget, OClocherWidget
 
 

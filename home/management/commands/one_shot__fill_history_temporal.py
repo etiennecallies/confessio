@@ -1,5 +1,5 @@
 from home.management.abstract_command import AbstractCommand
-from home.models import Sentence
+from registry.models import Sentence
 
 
 class Command(AbstractCommand):

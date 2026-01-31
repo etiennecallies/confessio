@@ -7,8 +7,8 @@ from openai import AsyncOpenAI, BadRequestError
 from pydantic import ValidationError, BaseModel
 from tqdm import tqdm
 
-from home.models import Church
-from home.models.one_shot_models import ChurchLLMName
+from registry.models import Church
+from registry.models.one_shot_models import ChurchLLMName
 from home.utils.hash_utils import hash_string_to_hex
 
 BATCH_SIZE = 20

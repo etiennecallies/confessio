@@ -5,7 +5,7 @@ from django.db.models import Q
 from django.utils.timezone import make_aware
 from request.models import Request
 
-from home.models import Website
+from registry.models import Website
 from scheduling.models import IndexEvent
 
 

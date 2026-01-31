@@ -1,6 +1,6 @@
 from crawling.models import Crawling
 from fetching.public import process_extracted_widgets
-from home.models import Website, WebsiteModeration
+from registry.models import Website, WebsiteModeration
 from home.utils.log_utils import info
 from scraping.crawl.download_and_search_urls import search_for_confession_pages, \
     get_new_url_and_aliases, forbid_diocese_home_links, CrawlingResult

@@ -7,7 +7,7 @@ from django.template.defaulttags import register
 from django.template.loader import render_to_string
 
 from attaching.models import Image
-from home.models import Parish, Church, Website
+from registry.models import Parish, Church, Website
 from home.services.upload_image_service import get_image_public_url
 from home.services.map_service import (get_map_with_single_location,
                                        get_map_with_multiple_locations,

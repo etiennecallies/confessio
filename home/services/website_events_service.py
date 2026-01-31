@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import date, timedelta, datetime
 
-from home.models import Church
+from registry.models import Church
 from scheduling.models import IndexEvent
 
 

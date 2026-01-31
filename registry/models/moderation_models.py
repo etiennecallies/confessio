@@ -2,8 +2,8 @@ from django.contrib.gis.db import models as gis_models
 from django.db import models
 from simple_history.models import HistoricalRecords
 
-from core.models.base_moderation_models import ModerationMixin, ResourceDoesNotExistError
-from home.models.base_models import Church, Parish
+from registry.models.base_moderation_models import ModerationMixin, ResourceDoesNotExistError
+from registry.models import Parish, Church
 from sourcing.services.church_name_service import sort_by_name_similarity
 
 
@@ -26,7 +26,7 @@ class WebsiteModeration(ModerationMixin):
                                          on_delete=models.SET_NULL, null=True)
     diocese = models.ForeignKey('Diocese', on_delete=models.CASCADE,
                                 related_name=f'{resource}_moderations', null=True)
-    history = HistoricalRecords()
+    history = HistoricalRecords(table_name='home_historicalwebsitemoderation')
     website = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=32, choices=Category)
 
@@ -39,6 +39,7 @@ class WebsiteModeration(ModerationMixin):
 
     class Meta:
         unique_together = ('website', 'category')
+        db_table = "home_websitemoderation"
 
     def delete_on_validate(self) -> bool:
         # If website home_url has been changed, those moderation objects are not relevant anymore
@@ -86,7 +87,7 @@ class ParishModeration(ModerationMixin):
                                          on_delete=models.SET_NULL, null=True)
     diocese = models.ForeignKey('Diocese', on_delete=models.CASCADE,
                                 related_name=f'{resource}_moderations', null=True)
-    history = HistoricalRecords()
+    history = HistoricalRecords(table_name='home_historicalparishmoderation')
     parish = models.ForeignKey('Parish', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=16, choices=Category)
     source = models.CharField(max_length=16, choices=ExternalSource)
@@ -98,6 +99,7 @@ class ParishModeration(ModerationMixin):
 
     class Meta:
         unique_together = ('parish', 'category', 'source')
+        db_table = "home_parishmoderation"
 
     def delete_on_validate(self) -> bool:
         if self.category == self.Category.NAME_DIFFERS and self.parish.name == self.name:
@@ -169,7 +171,7 @@ class ChurchModeration(ModerationMixin):
                                          on_delete=models.SET_NULL, null=True)
     diocese = models.ForeignKey('Diocese', on_delete=models.CASCADE,
                                 related_name=f'{resource}_moderations', null=True)
-    history = HistoricalRecords()
+    history = HistoricalRecords(table_name='home_historicalchurchmoderation')
     church = models.ForeignKey('Church', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=17, choices=Category)
     source = models.CharField(max_length=16, choices=ExternalSource)
@@ -187,6 +189,7 @@ class ChurchModeration(ModerationMixin):
 
     class Meta:
         unique_together = ('church', 'category', 'source')
+        db_table = "home_churchmoderation"
 
     def get_similar_churches_sorted_by_name(self) -> list[Church]:
         return sort_by_name_similarity(self.church, self.similar_churches.all())

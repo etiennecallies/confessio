@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from home.models import Website
+from registry.models import Website
 from scheduling.models import Scheduling, SchedulingHistoricalChurch, \
     SchedulingHistoricalScraping, SchedulingHistoricalImage, SchedulingHistoricalOClocherSchedule, \
     SchedulingHistoricalOClocherLocation

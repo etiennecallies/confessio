@@ -1,7 +1,7 @@
 from django.db import models
 from simple_history.models import HistoricalRecords
 
-from home.models import ModerationMixin
+from registry.models.base_moderation_models import ModerationMixin
 
 
 class OClocherOrganizationModeration(ModerationMixin):
@@ -14,12 +14,12 @@ class OClocherOrganizationModeration(ModerationMixin):
                                      on_delete=models.SET_NULL, null=True)
     marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
                                          on_delete=models.SET_NULL, null=True)
-    diocese = models.ForeignKey('home.Diocese', on_delete=models.CASCADE,
+    diocese = models.ForeignKey('registry.Diocese', on_delete=models.CASCADE,
                                 related_name=f'{resource}_moderations', null=True)
     history = HistoricalRecords()
     category = models.CharField(max_length=32, choices=Category)
 
-    website = models.ForeignKey('home.Website', on_delete=models.CASCADE,
+    website = models.ForeignKey('registry.Website', on_delete=models.CASCADE,
                                 related_name='oclocher_organization_moderations')
     oclocher_organization = models.ForeignKey('OClocherOrganization',
                                               on_delete=models.SET_NULL, related_name='moderations',
@@ -43,7 +43,7 @@ class OClocherMatchingModeration(ModerationMixin):
                                      on_delete=models.SET_NULL, null=True)
     marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
                                          on_delete=models.SET_NULL, null=True)
-    diocese = models.ForeignKey('home.Diocese', on_delete=models.CASCADE,
+    diocese = models.ForeignKey('registry.Diocese', on_delete=models.CASCADE,
                                 related_name=f'{resource}_moderations', null=True)
     history = HistoricalRecords()
     category = models.CharField(max_length=32, choices=Category)

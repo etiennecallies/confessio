@@ -3,7 +3,7 @@ from django.db.models.signals import pre_delete, pre_save, post_save
 from django.dispatch import receiver
 
 from attaching.models import Image
-from home.models import Website
+from registry.models import Website
 from scheduling.process import init_scheduling
 from scraping.services.recognize_image_service import recognize_and_extract_image
 

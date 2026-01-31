@@ -1,4 +1,4 @@
-from home.models import Website, WebsiteModeration, Diocese
+from registry.models import Website, WebsiteModeration, Diocese
 from sourcing.services.website_name_service import clean_website_name
 from sourcing.utils.extract_title import get_page_title
 

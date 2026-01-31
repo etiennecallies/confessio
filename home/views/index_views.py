@@ -9,7 +9,7 @@ from django.shortcuts import render
 from django.utils.translation import gettext
 
 from fetching.models import OClocherOrganization
-from home.models import Website, Diocese, Church
+from registry.models import Website, Diocese, Church
 from home.services.autocomplete_service import get_aggregated_response
 from home.services.filter_service import get_filter_days
 from home.services.map_service import prepare_map, get_center, get_cities_label

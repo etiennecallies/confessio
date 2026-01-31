@@ -1,6 +1,6 @@
 from datetime import date
 
-from home.models import Church, Website, WebsiteModeration
+from registry.models import Church, Website, WebsiteModeration
 from scheduling.models import IndexEvent
 from scraping.services.website_moderation_service import remove_not_validated_moderation, \
     add_moderation

@@ -6,7 +6,7 @@ from scraping.parse.llm_client import LLMProvider
 
 
 class Image(TimeStampMixin):
-    website = models.ForeignKey('home.Website', on_delete=models.CASCADE, related_name='images')
+    website = models.ForeignKey('registry.Website', on_delete=models.CASCADE, related_name='images')
     name = models.CharField(max_length=256)
     comment = models.TextField(null=True, blank=True)
     llm_html = models.TextField(null=True, blank=True)

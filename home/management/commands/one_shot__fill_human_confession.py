@@ -1,5 +1,5 @@
 from home.management.abstract_command import AbstractCommand
-from home.models import Sentence
+from registry.models import Sentence
 from scraping.extract_v2.models import EventMotion
 
 

@@ -1,4 +1,4 @@
-from home.models import Website, Diocese, Church
+from registry.models import Website, Diocese, Church
 from home.utils.department_utils import get_department
 from scraping.parse.holidays import HolidayZoneEnum, HOLIDAY_ZONE_PER_DEPARTMENT
 

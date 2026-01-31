@@ -1,4 +1,4 @@
-from home.models import Website
+from registry.models import Website
 
 
 def remove_diocese(website_name: str) -> str:

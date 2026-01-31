@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     'attaching',
     'front',
     'crawling',
+    'registry',
 ]
 
 MIDDLEWARE = [

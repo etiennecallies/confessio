@@ -8,7 +8,7 @@ from django.db.models.functions import Replace, Lower
 from django.urls import reverse
 from requests.exceptions import RequestException
 
-from home.models import Parish, Church
+from registry.models import Parish, Church
 from home.utils.department_utils import get_departments_context
 from scraping.utils.string_search import unhyphen_content, normalize_content
 from sourcing.utils.string_utils import get_string_similarity

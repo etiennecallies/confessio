@@ -1,4 +1,4 @@
-from home.models import Website
+from registry.models import Website
 from home.utils.log_utils import get_log_buffer
 from scheduling.models import Log
 

@@ -6,7 +6,7 @@ from django.urls import reverse
 
 from fetching.models import OClocherOrganizationModeration, OClocherMatchingModeration
 from front.models import ReportModeration
-from home.models import WebsiteModeration, ChurchModeration, ParishModeration, \
+from registry.models import WebsiteModeration, ChurchModeration, ParishModeration, \
     ModerationMixin, Diocese
 from home.services.website_events_service import WebsiteEvents
 from home.services.website_schedules_service import WebsiteSchedules

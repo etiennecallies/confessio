@@ -1,6 +1,6 @@
 from datetime import date
 
-from home.models import WebsiteModeration, Website, Church
+from registry.models import WebsiteModeration, Website, Church
 from sourcing.services.website_url_service import get_alternative_website_url
 
 

@@ -1,4 +1,4 @@
-from home.models import Sentence, SentenceModeration
+from registry.models import Sentence, SentenceModeration
 from scraping.prune.models import Action
 
 

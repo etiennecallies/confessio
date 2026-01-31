@@ -1,5 +1,5 @@
 from home.management.abstract_command import AbstractCommand
-from home.models import Parish
+from registry.models import Parish
 from sourcing.services.sync_parishes_service import save_parish
 
 

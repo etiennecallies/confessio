@@ -1,5 +1,5 @@
 from home.management.abstract_command import AbstractCommand
-from home.models import ChurchTrouverUneMesse, Church
+from registry.models import ChurchTrouverUneMesse, Church
 from sourcing.utils.trouverunemesse_utils import fetch_by_last_update
 
 

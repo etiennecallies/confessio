@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from home.models import Church
+from registry.models import Church
 from home.services.search_service import get_churches_in_box, MAX_CHURCHES_IN_RESULTS, \
     get_count_per_diocese, TimeFilter, get_count_per_municipality, get_count_per_parish, \
     get_churches_in_area, get_churches_around, get_popular_churches, AggregationItem, \

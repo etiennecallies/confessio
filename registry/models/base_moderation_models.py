@@ -8,8 +8,8 @@ from django.db.models.functions import Now
 from django.urls import reverse
 
 from core.models.base_models import TimeStampMixin
-from home.models.base_models import Diocese
 from home.utils.color_utils import get_color_from_string
+from registry.models import Diocese
 
 BUG_DESCRIPTION_MAX_LENGTH = 200
 

@@ -1,4 +1,4 @@
-from home.models import Website
+from registry.models import Website
 from sourcing.services.parish_website_service import get_new_website_for_parish
 
 

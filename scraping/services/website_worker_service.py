@@ -5,7 +5,7 @@ from background_task.tasks import TaskSchedule
 from django.db.models.functions import Now
 
 from crawling.models import Log
-from home.models import Website
+from registry.models import Website
 from home.services.log_service import save_buffer
 from home.utils.log_utils import info, start_log_buffer, log_stack_trace
 from scheduling.process import init_scheduling

@@ -1,4 +1,4 @@
-from home.models import Website, Church
+from registry.models import Website, Church
 from home.services.website_events_service import ChurchEvent
 from home.services.website_schedules_service import get_website_schedules, \
     get_color_of_nullable_church, WebsiteSchedules

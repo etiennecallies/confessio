@@ -3,7 +3,7 @@ from typing import Optional
 from django.contrib.gis.geos import Point
 from django.db.models.functions import Now
 
-from home.models import ChurchModeration, Church, ExternalSource, Diocese
+from registry.models import ChurchModeration, Church, ExternalSource, Diocese
 from sourcing.utils.geo_utils import get_distances_to_barycenter, check_coordinates_validity
 from sourcing.utils.google_maps_api_utils import google_maps_geocode
 from sourcing.utils.wikidata_utils import get_church_by_messesinfo_id

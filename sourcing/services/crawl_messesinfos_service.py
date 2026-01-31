@@ -4,7 +4,7 @@ from typing import Optional
 import requests
 from django.contrib.gis.geos import Point
 
-from home.models import Church, Website, Parish, Diocese
+from registry.models import Church, Website, Parish, Diocese
 from scraping.utils.url_utils import get_clean_full_url
 
 

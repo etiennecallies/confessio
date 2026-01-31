@@ -1,4 +1,4 @@
-from home.models import Church
+from registry.models import Church
 from sourcing.utils.string_utils import get_string_similarity
 
 

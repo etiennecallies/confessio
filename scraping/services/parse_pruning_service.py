@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 from django.db.models.functions import Now
 
-from home.models import Church
+from registry.models import Church
 from home.utils.hash_utils import hash_string_to_hex
 from home.utils.list_utils import get_desc_by_id
 from home.utils.log_utils import info

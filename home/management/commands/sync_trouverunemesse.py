@@ -3,7 +3,7 @@ import time
 from django.db.models import Max
 
 from home.management.abstract_command import AbstractCommand
-from home.models import Church
+from registry.models import Church
 from sourcing.services.sync_trouverunemesse_service import sync_trouverunemesse_for_church, \
     sync_trouverunemesse_location_and_name
 from sourcing.utils.trouverunemesse_utils import fetch_by_last_update, fetch_trouverunemesse_by_slug

@@ -1,7 +1,7 @@
 from tqdm import tqdm
 
 from home.management.abstract_command import AbstractCommand
-from home.models import Church
+from registry.models import Church
 from sourcing.services.church_city_service import lower_church_city
 from sourcing.utils.string_utils import has_two_consecutive_uppercase
 

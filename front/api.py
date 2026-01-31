@@ -7,7 +7,7 @@ from django.http import Http404
 from ninja import NinjaAPI, Schema
 
 from front.services.aggregation_service import get_search_results
-from home.models import Church, Website, Diocese
+from registry.models import Church, Website, Diocese
 from home.services.autocomplete_service import get_aggregated_response, AutocompleteResult
 from home.services.report_service import get_count_and_label
 from home.services.search_service import TimeFilter, AggregationItem, BoundingBox, \

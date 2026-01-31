@@ -1,4 +1,4 @@
-from home.models import Parish, Website, WebsiteModeration
+from registry.models import Parish, Website, WebsiteModeration
 from home.utils.department_utils import get_departments
 from scraping.utils.string_search import normalize_content, get_words
 from sourcing.services.merge_websites_service import add_website_moderation

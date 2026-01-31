@@ -7,8 +7,8 @@ from simple_history.admin import SimpleHistoryAdmin
 from attaching.models import Image
 from crawling.models import WebsiteForbiddenPath
 from front.models import Report
+from registry.models import Church, Parish, Diocese, Website
 from scheduling.models.pruning_models import Classifier, Sentence
-from .models import Church, Website, Diocese, Parish
 
 
 @admin.register(Diocese)

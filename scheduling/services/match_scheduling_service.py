@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from fetching.models import OClocherLocation
 from fetching.services.oclocher_matching_service import match_churches_and_locations
-from home.models import Church
+from registry.models import Church
 from scheduling.models import Scheduling, SchedulingHistoricalOClocherMatching
 
 

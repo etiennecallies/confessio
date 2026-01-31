@@ -4,8 +4,8 @@ from pgvector.django import VectorField
 from simple_history.models import HistoricalRecords
 
 from core.models.base_models import TimeStampMixin
-from core.models.base_moderation_models import ModerationMixin
-from home.models import Diocese
+from registry.models.base_moderation_models import ModerationMixin
+from registry.models import Diocese
 from home.utils.hash_utils import hash_string_to_hex
 from scraping.extract_v2.models import Temporal, EventMention
 from scraping.prune.models import Action, Source
@@ -97,7 +97,7 @@ class PruningModeration(ModerationMixin):
                                      on_delete=models.SET_NULL, null=True)
     marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
                                          on_delete=models.SET_NULL, null=True)
-    diocese = models.ForeignKey('home.Diocese', on_delete=models.CASCADE,
+    diocese = models.ForeignKey('registry.Diocese', on_delete=models.CASCADE,
                                 related_name=f'{resource}_moderations', null=True)
     history = HistoricalRecords()
     pruning = models.ForeignKey('Pruning', on_delete=models.CASCADE, related_name='moderations')
@@ -122,7 +122,7 @@ class SentenceModeration(ModerationMixin):
                                      on_delete=models.SET_NULL, null=True)
     marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
                                          on_delete=models.SET_NULL, null=True)
-    diocese = models.ForeignKey('home.Diocese', on_delete=models.CASCADE,
+    diocese = models.ForeignKey('registry.Diocese', on_delete=models.CASCADE,
                                 related_name=f'{resource}_moderations', null=True)
     history = HistoricalRecords()
     sentence = models.ForeignKey('Sentence', on_delete=models.CASCADE, related_name='moderations')

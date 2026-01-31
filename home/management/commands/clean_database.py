@@ -7,7 +7,7 @@ from django.utils import timezone
 
 from crawling.models import Scraping
 from home.management.abstract_command import AbstractCommand
-from home.models import ChurchModeration, Website, WebsiteModeration
+from registry.models import ChurchModeration, Website, WebsiteModeration
 from scheduling.models import PruningParsing
 from scheduling.models import Log as SchedulingLog
 from crawling.models import Log as CrawlingLog

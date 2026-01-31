@@ -6,7 +6,7 @@ from django.utils import timezone
 from crawling.models import Crawling
 from home.management.abstract_command import AbstractCommand
 from home.management.utils.heartbeat_utils import ping_heartbeat
-from home.models import Website
+from registry.models import Website
 from home.utils.date_utils import get_current_day
 from scheduling.models import IndexEvent
 from scheduling.services.scheduling_service import get_indexed_scheduling

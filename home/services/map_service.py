@@ -8,7 +8,7 @@ from django.contrib.gis.geos import Point
 from django.utils.translation import gettext as _
 from folium import Map, Icon, Popup, Marker
 
-from home.models import Church
+from registry.models import Church
 from home.services.website_events_service import WebsiteEvents
 from home.utils.date_utils import format_datetime_with_locale
 

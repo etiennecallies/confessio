@@ -4,7 +4,7 @@ from uuid import UUID
 from django.db.models import Exists, OuterRef
 from ninja import NinjaAPI, Schema, Field
 
-from home.models import Church, ChurchModeration, Parish, Website
+from registry.models import Church, ChurchModeration, Parish, Website
 
 api = NinjaAPI(urls_namespace='main_api')
 

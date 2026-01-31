@@ -1,5 +1,5 @@
 from home.management.abstract_command import AbstractCommand
-from home.models import Website
+from registry.models import Website
 from sourcing.services.website_name_service import clean_website_name
 
 

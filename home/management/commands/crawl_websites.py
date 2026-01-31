@@ -5,7 +5,7 @@ from django.db.models import F, Q
 from django.utils import timezone
 
 from home.management.abstract_command import AbstractCommand
-from home.models import Website, WebsiteModeration
+from registry.models import Website, WebsiteModeration
 from home.utils.log_utils import start_log_buffer
 from scraping.services.website_worker_service import worker_crawl_website, handle_crawl_website
 
