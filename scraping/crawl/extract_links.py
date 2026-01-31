@@ -44,6 +44,9 @@ CONFESSIONS_OR_SCHEDULES_MENTIONS = [
 ]
 
 IGNORED_EXTENSIONS = [
+    # word
+    '.docx',
+
     # images
     '.jpg',
     '.jpeg',
