@@ -6,7 +6,7 @@ from typing import List, Dict
 
 import httpx
 
-from home.utils.date_utils import get_current_day
+from scheduling.utils.date_utils import get_current_day
 
 
 class HolidayZoneEnum(str, Enum):

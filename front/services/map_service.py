@@ -10,7 +10,7 @@ from folium import Map, Icon, Popup, Marker
 
 from registry.models import Church
 from front.services.website_events_service import WebsiteEvents
-from home.utils.date_utils import format_datetime_with_locale
+from scheduling.utils.date_utils import format_datetime_with_locale
 
 
 ###########

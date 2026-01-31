@@ -1,6 +1,6 @@
 import unittest
 
-from home.utils.date_utils import Weekday
+from scheduling.utils.date_utils import Weekday
 from scraping.parse.explain_schedule import get_explanation_from_schedule
 from scraping.parse.intervals import PeriodEnum
 from scraping.parse.schedules import ScheduleItem, \

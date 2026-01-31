@@ -2,7 +2,7 @@ from registry.models import Website, Church
 from front.services.website_events_service import ChurchEvent
 from front.services.website_schedules_service import get_website_schedules, \
     get_color_of_nullable_church, WebsiteSchedules
-from home.utils.date_utils import time_plus_hours
+from scheduling.utils.date_utils import time_plus_hours
 from scheduling.models import IndexEvent, Scheduling
 from scheduling.workflows.merging.sources import ParsingSource, BaseSource, OClocherSource
 

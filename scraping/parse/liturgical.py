@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 from enum import Enum
 
-from home.utils.date_utils import get_current_day
+from scheduling.utils.date_utils import get_current_day
 
 
 ###################

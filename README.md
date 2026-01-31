@@ -139,14 +139,14 @@ fi
 ```
 
 ## Translations
-Inside `/home` directory:
+Inside `/front` directory:
 ```shell
 django-admin makemessages -l fr
 django-admin compilemessages
 ```
 
 ## Commands
-You'll find all self implemented commands in `home/management/commands/`. 
+You'll find all self implemented commands in `management/commands/` of any module. 
 For example, to crawl all websites:
 
 ```shell
@@ -190,14 +190,6 @@ and if you want to launch the command in tmux (in session "manage_tmux"):
 ./prod.sh manage_tmux "crawl_websites -n 'Sainte Claire Entre Loire et Rhins'"
 ```
 
-
-## Check data integrity
-```postgresql
--- Check that no home_url ends with slash
-select name, home_url from home_website hp where home_url like '%/';
--- Check that no home_url ends with space
-select name, home_url from home_website hp where home_url like '% ';
-```
 ---
 
 # Legacy documentation of  [Django Pixel Bootstrap 5](https://appseed.us/product/pixel-bootstrap/django/)
@@ -275,16 +267,16 @@ When the project requires customization, we need to copy the original file that 
 
 > For instance, if we want to **customize the index.html** these are the steps:
 
-- ✅ `Step 1`: create the `templates` DIRECTORY inside the `home` app
+- ✅ `Step 1`: create the `templates` DIRECTORY inside the `front` app
 - ✅ `Step 2`: configure the project to use this new template directory
   - `core/settings.py` TEMPLATES section
-- ✅ `Step 3`: copy the `index.html` from the original location (inside your ENV) and save it to the `home/templates` DIR
+- ✅ `Step 3`: copy the `index.html` from the original location (inside your ENV) and save it to the `front/templates` DIR
   - Source PATH: `<YOUR_ENV>/LIB/theme_pixel/template/pages/index.html`
-  - Destination PATH: `<PROJECT_ROOT>home/templates/pages/index.html`
+  - Destination PATH: `<PROJECT_ROOT>front/templates/pages/index.html`
 
 > To speed up all these steps, the **codebase is already configured** (`Steps 1, and 2`) and a `custom index` can be found at this location:
 
-`home/templates/pages/custom-index.html` 
+`front/templates/pages/custom-index.html` 
 
 By default, this file is unused because the `theme` expects `index.html` (without the `custom-` prefix). 
 

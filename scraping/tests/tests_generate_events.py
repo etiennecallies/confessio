@@ -1,7 +1,7 @@
 import unittest
 from datetime import datetime, date
 
-from home.utils.date_utils import Weekday
+from scheduling.utils.date_utils import Weekday
 from scraping.parse.holidays import HolidayZoneEnum
 from scraping.parse.intervals import PeriodEnum
 from scraping.parse.liturgical import LiturgicalDayEnum

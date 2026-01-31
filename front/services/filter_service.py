@@ -1,6 +1,6 @@
 from datetime import timedelta, date
 
-from home.utils.date_utils import get_current_day
+from scheduling.utils.date_utils import get_current_day
 
 
 def get_date_and_selected_day(day: date, day_filter: date | None) -> dict:

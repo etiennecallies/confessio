@@ -3,7 +3,7 @@ from typing import Optional
 
 from dateutil.rrule import rrule, rruleset, WEEKLY, DAILY, rrulestr
 
-from home.utils.date_utils import get_current_year, date_to_datetime, Weekday
+from scheduling.utils.date_utils import Weekday, date_to_datetime, get_current_year
 from scraping.parse.explain_schedule import get_explanation_from_schedule
 from scraping.parse.holidays import HolidayZoneEnum
 from scraping.parse.intervals import add_exrules, add_exdate

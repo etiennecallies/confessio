@@ -2,7 +2,7 @@ from datetime import date, timedelta
 
 from dateutil.rrule import rrulestr, rruleset
 
-from home.utils.date_utils import date_to_datetime
+from scheduling.utils.date_utils import date_to_datetime
 from scraping.parse.holidays import HolidayZoneEnum, HOLIDAY_BY_ZONE
 from scraping.parse.liturgical import PeriodEnum, get_advent_dates, get_liturgical_date, \
     LiturgicalDayEnum, get_solemnities_dates

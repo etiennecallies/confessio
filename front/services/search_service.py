@@ -11,7 +11,7 @@ from pydantic import BaseModel
 
 from registry.models import Church, Website, Diocese
 from front.utils.city_utils import get_municipality_name
-from home.utils.date_utils import time_from_minutes
+from scheduling.utils.date_utils import time_from_minutes
 from scheduling.models import IndexEvent
 
 MAX_CHURCHES_IN_RESULTS = 50

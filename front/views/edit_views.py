@@ -26,7 +26,7 @@ from scraping.utils.html_utils import split_lines
 
 
 @login_required
-@permission_required("home.change_sentence")
+@permission_required("scheduling.change_sentence")
 def edit_pruning_v1(request, pruning_uuid):
     try:
         pruning = Pruning.objects.get(uuid=pruning_uuid)
@@ -101,7 +101,7 @@ def edit_pruning_human(request, pruning_uuid):
 
 
 @login_required
-@permission_required("home.change_sentence")
+@permission_required("scheduling.change_sentence")
 def edit_pruning_v2(request, pruning_uuid):
     try:
         pruning = Pruning.objects.get(uuid=pruning_uuid)
@@ -144,7 +144,7 @@ def edit_pruning_v2(request, pruning_uuid):
 
 
 @login_required
-@permission_required("home.change_sentence")
+@permission_required("scheduling.change_sentence")
 def edit_parsing(request, parsing_uuid):
     try:
         parsing = Parsing.objects.get(uuid=parsing_uuid)

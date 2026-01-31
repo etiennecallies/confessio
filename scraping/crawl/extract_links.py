@@ -4,7 +4,7 @@ from urllib.parse import urlparse, ParseResult, parse_qs, urlencode
 from bs4 import BeautifulSoup, SoupStrainer, Comment
 from bs4 import element as el
 
-from home.utils.date_utils import get_current_year
+from scheduling.utils.date_utils import get_current_year
 from scraping.download.download_content import get_url_redirection
 from scraping.utils.string_search import has_any_of_words
 from scraping.utils.string_utils import remove_unsafe_chars

@@ -33,8 +33,8 @@ class ResponseTimeMetricsMiddleware:
                 url_name = 'search_view'
             elif url_name.startswith('api_front'):
                 url_name = 'api_front'
-            elif url_name.startswith('api_home'):
-                url_name = 'api_home'
+            elif url_name.startswith('api_public'):
+                url_name = 'api_public'
             elif url_name not in [
                 'index',
                 'autocomplete',

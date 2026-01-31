@@ -1,6 +1,6 @@
 import unittest
 
-from home.utils.date_utils import Weekday
+from scheduling.utils.date_utils import Weekday
 from scraping.parse.schedules import OneOffRule
 
 

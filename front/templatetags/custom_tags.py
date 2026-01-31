@@ -10,7 +10,7 @@ from registry.models import WebsiteModeration, ChurchModeration, ParishModeratio
     ModerationMixin, Diocese
 from front.services.website_events_service import WebsiteEvents
 from front.services.website_schedules_service import WebsiteSchedules
-from home.utils.date_utils import get_current_year
+from scheduling.utils.date_utils import get_current_year
 from scheduling.utils.list_utils import enumerate_with_and
 from scheduling.models.parsing_models import ParsingModeration
 from scheduling.models.pruning_models import Pruning, PruningModeration, SentenceModeration

@@ -7,7 +7,7 @@ from crawling.models import Crawling
 from core.management.abstract_command import AbstractCommand
 from core.utils.heartbeat_utils import ping_heartbeat
 from registry.models import Website
-from home.utils.date_utils import get_current_day
+from scheduling.utils.date_utils import get_current_day
 from scheduling.models import IndexEvent
 from scheduling.services.scheduling_service import get_indexed_scheduling
 from scraping.parse.holidays import check_holiday_by_zone

@@ -27,7 +27,7 @@
                 </div>
             {% endif %}
             <div class="col-md-3">
-                {% if request.user.is_authenticated and perms.home.change_sentence %}
+                {% if request.user.is_authenticated and perms.scheduling.change_sentence %}
                     <div class="row">
                         {% for pruning in parsings_and_prunings.prunings_by_parsing_uuid|get_item:parsing.uuid %}
                             {% with unvalidated_pruning_moderation=pruning|get_unvalidated_pruning_moderation %}

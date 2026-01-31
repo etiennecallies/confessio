@@ -8,7 +8,7 @@ from fetching.services.oclocher_matching_service import get_matching_church_desc
 from registry.models import Church, Website
 from front.services.holiday_zone_service import get_website_holiday_zone
 from front.services.sources_service import sort_parsings
-from home.utils.date_utils import get_current_year
+from scheduling.utils.date_utils import get_current_year
 from scheduling.utils.hash_utils import hash_string_to_hex
 from scheduling.utils.list_utils import get_desc_by_id
 from scheduling.models import Scheduling

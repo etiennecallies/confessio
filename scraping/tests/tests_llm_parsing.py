@@ -7,7 +7,7 @@ from typing import Optional
 import simple_cache
 from dotenv import load_dotenv
 
-from home.utils.date_utils import get_year_start, get_year_end
+from scheduling.utils.date_utils import get_year_start, get_year_end
 from scraping.parse.holidays import HolidayZoneEnum
 from scraping.parse.llm_client import LLMClientInterface, \
     LLMProvider
@@ -28,14 +28,13 @@ class LLMClientWithCache(LLMClientInterface):
                               temperature: float) -> tuple[Optional[SchedulesList], Optional[str]]:
         current_directory = os.path.dirname(os.path.abspath(__file__))
         cache_filename = (f'{current_directory}/fixtures/parse/'
-                          f'llm_cache_{self.get_provider().value}_{self.get_model()}.cache')
+                          f'llm_cache_{self.get_model()}.cache')
 
         key = (
             json.dumps(messages),
             json.dumps(SchedulesList.model_json_schema()),
             temperature
         )
-        # simple_cache.save_key(cache_filename, key, None, 0)
         value = simple_cache.load_key(cache_filename, key)
 
         if value is None:

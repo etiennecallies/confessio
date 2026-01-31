@@ -12,7 +12,7 @@ from registry.models import WebsiteModeration, ChurchModeration, ModerationMixin
 from scheduling.services.edit_pruning_service import on_pruning_human_validation, \
     set_v2_indices_as_human, get_single_line_colored_piece, update_sentence_labels_with_request, \
     TEMPORAL_COLORS, EVENT_MENTION_COLORS
-from home.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
+from scheduling.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 from registry.models.base_moderation_models import BUG_DESCRIPTION_MAX_LENGTH, \
     ResourceDoesNotExistError
 from scheduling.models.parsing_models import ParsingModeration
@@ -160,7 +160,7 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
 
 
 @login_required
-@permission_required("home.change_sentence")
+@permission_required("scheduling.change_sentence")
 def moderate_website(request, category, is_bug, diocese_slug, moderation_uuid=None):
     return get_moderate_response(request, category, 'website', is_bug, diocese_slug,
                                  WebsiteModeration, moderation_uuid, render_website_moderation)
@@ -177,7 +177,7 @@ def render_website_moderation(request, moderation: WebsiteModeration, next_url):
 
 
 @login_required
-@permission_required("home.change_sentence")
+@permission_required("scheduling.change_sentence")
 def moderate_parish(request, category, is_bug, diocese_slug, moderation_uuid=None):
     return get_moderate_response(request, category, 'parish', is_bug, diocese_slug,
                                  ParishModeration, moderation_uuid, render_parish_moderation)
@@ -193,7 +193,7 @@ def render_parish_moderation(request, moderation: ParishModeration, next_url):
 
 
 @login_required
-@permission_required("home.change_sentence")
+@permission_required("scheduling.change_sentence")
 def moderate_church(request, category, is_bug, diocese_slug, moderation_uuid=None):
     return get_moderate_response(request, category, 'church', is_bug, diocese_slug,
                                  ChurchModeration, moderation_uuid, render_church_moderation)
@@ -210,7 +210,7 @@ def render_church_moderation(request, moderation: ChurchModeration, next_url):
 
 
 @login_required
-@permission_required("home.change_sentence")
+@permission_required("scheduling.change_sentence")
 def moderate_pruning(request, category, is_bug, diocese_slug, moderation_uuid=None):
     return get_moderate_response(request, category, 'pruning', is_bug, diocese_slug,
                                  PruningModeration, moderation_uuid, render_pruning_moderation)
@@ -264,7 +264,7 @@ def render_pruning_moderation(request, moderation: PruningModeration, next_url):
 
 
 @login_required
-@permission_required("home.change_sentence")
+@permission_required("scheduling.change_sentence")
 def moderate_sentence(request, category, is_bug, diocese_slug, moderation_uuid=None):
     return get_moderate_response(request, category, 'sentence', is_bug, diocese_slug,
                                  SentenceModeration, moderation_uuid, render_sentence_moderation)
@@ -294,7 +294,7 @@ def render_sentence_moderation(request, moderation: SentenceModeration, next_url
 
 
 @login_required
-@permission_required("home.change_sentence")
+@permission_required("scheduling.change_sentence")
 def moderate_parsing(request, category, is_bug, diocese_slug, moderation_uuid=None):
     return get_moderate_response(request, category, 'parsing', is_bug, diocese_slug,
                                  ParsingModeration, moderation_uuid, render_parsing_moderation)
@@ -334,7 +334,7 @@ def render_parsing_moderation(request, moderation: ParsingModeration, next_url):
 
 
 @login_required
-@permission_required("home.change_sentence")
+@permission_required("scheduling.change_sentence")
 def moderate_report(request, category, is_bug, diocese_slug, moderation_uuid=None):
     return get_moderate_response(request, category, 'report', is_bug, diocese_slug,
                                  ReportModeration, moderation_uuid, render_report_moderation)
@@ -353,7 +353,7 @@ def render_report_moderation(request, moderation: ReportModeration, next_url):
 
 
 @login_required
-@permission_required("home.change_sentence")
+@permission_required("scheduling.change_sentence")
 def moderate_oclocher_organization(request, category, is_bug, diocese_slug, moderation_uuid=None):
     return get_moderate_response(request, category, 'oclocher_organization', is_bug, diocese_slug,
                                  OClocherOrganizationModeration,
@@ -374,7 +374,7 @@ def render_oclocher_organization_moderation(request, moderation: OClocherOrganiz
 
 
 @login_required
-@permission_required("home.change_sentence")
+@permission_required("scheduling.change_sentence")
 def moderate_oclocher_matching(request, category, is_bug, diocese_slug, moderation_uuid=None):
     return get_moderate_response(request, category, 'oclocher_matching', is_bug, diocese_slug,
                                  OClocherMatchingModeration,
@@ -395,7 +395,7 @@ def render_oclocher_matching_moderation(request, moderation: OClocherMatchingMod
 
 
 @login_required
-@permission_required("home.change_sentence")
+@permission_required("scheduling.change_sentence")
 def moderate_merge_websites(request, website_moderation_uuid=None):
     try:
         website_moderation = WebsiteModeration.objects.get(uuid=website_moderation_uuid)
@@ -415,7 +415,7 @@ def moderate_merge_websites(request, website_moderation_uuid=None):
 
 
 @login_required
-@permission_required("home.change_sentence")
+@permission_required("scheduling.change_sentence")
 def moderate_erase_human_by_llm(request, parsing_moderation_uuid=None):
     try:
         parsing_moderation = ParsingModeration.objects.get(uuid=parsing_moderation_uuid)
@@ -436,7 +436,7 @@ def moderate_erase_human_by_llm(request, parsing_moderation_uuid=None):
 
 
 @login_required
-@permission_required("home.change_sentence")
+@permission_required("scheduling.change_sentence")
 def moderate_set_v2_indices_as_human_by(request, pruning_moderation_uuid=None):
     try:
         pruning_moderation = PruningModeration.objects.get(uuid=pruning_moderation_uuid)

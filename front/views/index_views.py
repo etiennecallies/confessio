@@ -24,7 +24,7 @@ from front.services.stat_service import new_search_hit
 from attaching.services.upload_image_service import upload_image, find_error_in_document_to_upload
 from front.services.website_events_service import get_website_events
 from front.services.website_schedules_service import get_website_schedules
-from home.utils.date_utils import get_current_day, get_current_year
+from scheduling.utils.date_utils import get_current_day, get_current_year
 from front.utils.web_utils import redirect_with_url_params
 from scheduling.models import IndexEvent
 from scheduling.services.scheduling_service import get_indexed_scheduling, \
@@ -322,7 +322,7 @@ def partial_website_sources(request, website_uuid: str):
     scheduling = get_indexed_scheduling(website)
     primary_sources = get_scheduling_primary_sources(scheduling)
     empty_sources = None
-    if request.user.is_authenticated and request.user.has_perm("home.change_sentence"):
+    if request.user.is_authenticated and request.user.has_perm("scheduling.change_sentence"):
         empty_sources = get_empty_sources(primary_sources)
 
     try:
