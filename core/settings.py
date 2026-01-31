@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     "corsheaders",  # used to allow CORS requests
     'theme_pixel',
     'jsoneditor',  # json form
+    "core",
     "home",
     'sourcing',
     'fetching',

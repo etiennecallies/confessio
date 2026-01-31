@@ -1,5 +1,5 @@
 from fetching.models import OClocherMatching
-from home.management.abstract_command import AbstractCommand
+from core.management.abstract_command import AbstractCommand
 
 
 class Command(AbstractCommand):

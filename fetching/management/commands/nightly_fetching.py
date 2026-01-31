@@ -1,6 +1,6 @@
 from fetching.process import nightly_synchronization
-from home.management.abstract_command import AbstractCommand
-from home.management.utils.heartbeat_utils import ping_heartbeat
+from core.management.abstract_command import AbstractCommand
+from core.utils.heartbeat_utils import ping_heartbeat
 
 
 class Command(AbstractCommand):

@@ -1,4 +1,4 @@
-from home.management.abstract_command import AbstractCommand
+from core.management.abstract_command import AbstractCommand
 from scheduling.models import Scheduling
 from scheduling.process import match_scheduling
 

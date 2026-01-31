@@ -1,4 +1,4 @@
-from home.management.abstract_command import AbstractCommand
+from core.management.abstract_command import AbstractCommand
 from registry.models import Website
 from scheduling.process import init_scheduling
 
