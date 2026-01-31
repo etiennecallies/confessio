@@ -2,7 +2,7 @@
     {% for scraping in pruning.scrapings.all %}
         <div>Scraping : <a href="{{ scraping.url }}" target="_blank">{{ scraping.url }}</a>
             <a class="btn btn-tertiary" style="background-color: darkgreen; border-color: darkgreen;"
-               href="{% url 'admin:home_website_change' scraping.website.uuid %}" target="_blank" role="button">
+               href="{% url 'admin:registry_website_change' scraping.website.uuid %}" target="_blank" role="button">
             Open website admin <i class="fas fa-up-right-from-square"></i>
             </a>
             <p>

@@ -17,7 +17,7 @@
                                         {{ website.name }}
                                     </a>
                                     {% if request.user.is_authenticated and request.user.is_staff %}
-                                        <a class="text-muted small" href="{% url 'admin:home_website_change' website.uuid %}" target="_blank">
+                                        <a class="text-muted small" href="{% url 'admin:registry_website_change' website.uuid %}" target="_blank">
                                             - Admin <i class="fas fa-up-right-from-square"></i>
                                         </a>
                                     {% endif %}

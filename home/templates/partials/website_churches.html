@@ -12,7 +12,7 @@
                     <span class="church-name fw-bold">{% display_church_color church False website_schedules.church_color_by_uuid %} {{ church.name }}</span>
 
                     {% if request.user.is_authenticated and request.user.is_staff %}
-                        <a class="text-muted" href="{% url 'admin:home_church_change' church.uuid %}" target="_blank">
+                        <a class="text-muted" href="{% url 'admin:registry_church_change' church.uuid %}" target="_blank">
                             - Admin <i class="fas fa-up-right-from-square"></i>
                         </a>
                     {% endif %}

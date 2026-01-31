@@ -1,7 +1,7 @@
 <div style="color: #1d58a5">
     <p>Name : {{ parish.name }}  (messesinfo_community_id={{ parish.messesinfo_community_id }})</p>
     <p>
-        <a class="btn btn-tertiary" href="{% url 'admin:home_parish_change' parish.uuid %}" target="_blank" role="button">
+        <a class="btn btn-tertiary" href="{% url 'admin:registry_parish_change' parish.uuid %}" target="_blank" role="button">
             Open parish admin <i class="fas fa-up-right-from-square"></i>
         </a>
     </p>
