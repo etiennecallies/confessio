@@ -1,29 +1,17 @@
-from datetime import datetime, date
-from enum import Enum
-from typing import Literal
+from datetime import datetime
 from uuid import UUID
 
-from django.http import Http404
-from ninja import NinjaAPI, Schema
+from django.db.models import Exists, OuterRef
+from ninja import NinjaAPI, Schema, Field
 
-from front.services.aggregation_service import get_search_results
-from registry.models import Church, Website, Diocese
-from front.services.autocomplete_service import get_aggregated_response, AutocompleteResult
-from front.services.report_service import get_count_and_label
-from front.services.search_service import TimeFilter, AggregationItem, BoundingBox, \
-    get_dioceses_bounding_box
-from front.services.website_events_service import get_website_events, ChurchEvent, WebsiteEvents
-from front.services.website_schedules_service import get_website_schedules
-from scheduling.services.scheduling_service import get_indexed_scheduling
-from scheduling.workflows.merging.sourced_schedule_items import SourcedScheduleItem
-from scheduling.workflows.merging.sources import BaseSource, ParsingSource, OClocherSource
+from registry.models import Church, ChurchModeration, Parish, Website
 
-api = NinjaAPI(urls_namespace='front_api')
+api = NinjaAPI(urls_namespace='main_api')
 
 
-##########
-# MODELS #
-##########
+############
+# CHURCHES #
+############
 
 class ChurchOut(Schema):
     uuid: UUID
@@ -33,10 +21,23 @@ class ChurchOut(Schema):
     address: str | None
     zipcode: str | None
     city: str | None
-    website_uuid: UUID
+    messesinfo_id: str | None
+    wikidata_id: str | None
+    trouverunemesse_id: UUID | None
+    trouverunemesse_slug: str | None
+    parish_uuid: UUID
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
+    has_validated_moderation: bool = Field(
+        description="whether it has been moderated by a human"
+    )
+    has_unvalidated_moderation: bool = Field(
+        description="whether there is pending moderation for human"
+    )
 
     @classmethod
-    def from_church(cls, church: Church) -> 'ChurchOut':
+    def from_church(cls, church: Church):
         return cls(
             uuid=church.uuid,
             name=church.name,
@@ -45,293 +46,109 @@ class ChurchOut(Schema):
             address=church.address,
             zipcode=church.zipcode,
             city=church.city,
-            website_uuid=church.parish.website_id,
+            messesinfo_id=church.messesinfo_id,
+            wikidata_id=church.wikidata_id,
+            trouverunemesse_id=church.trouverunemesse_id,
+            trouverunemesse_slug=church.trouverunemesse_slug,
+            parish_uuid=church.parish_id,
+            is_active=church.is_active,
+            created_at=church.created_at,
+            updated_at=church.updated_at,
+            has_validated_moderation=church.has_validated_moderation,
+            has_unvalidated_moderation=church.has_unvalidated_moderation,
         )
 
 
-class SourceTypeEnum(str, Enum):
-    PARSING = 'parsing'
-    OCLOCHER = 'oclocher'
+@api.get("/churches", response=list[ChurchOut])
+def api_home_churches(request, limit: int = 10, offset: int = 0, updated_from: datetime = None
+                      ) -> list[ChurchOut]:
+    limit = max(0, min(100, limit))
+    offset = max(0, offset)
+
+    church_query = Church.objects.annotate(
+        has_validated_moderation=Exists(
+            ChurchModeration.history.filter(church=OuterRef('pk'), history_user_id__isnull=False)
+        ),
+        has_unvalidated_moderation=Exists(
+            ChurchModeration.objects.filter(church=OuterRef('pk'), validated_at__isnull=True)
+        ),
+    )
+    if updated_from:
+        church_query = church_query.filter(updated_at__gte=updated_from)
+    churches = church_query.order_by('updated_at').all()[offset:offset + limit]
+
+    return list(map(ChurchOut.from_church, churches))
 
 
-class SourceOut(Schema):
-    source_type: SourceTypeEnum
-    parsing_uuid: UUID | None
+############
+# PARISHES #
+############
+
+class ParishOut(Schema):
+    uuid: UUID
+    name: str
+    messesinfo_id: str | None
+    website_uuid: UUID | None
+    created_at: datetime
+    updated_at: datetime
 
     @classmethod
-    def from_source(cls, source: BaseSource) -> 'SourceOut':
-        if isinstance(source, ParsingSource):
-            return cls(
-                source_type=SourceTypeEnum.PARSING,
-                parsing_uuid=source.parsing_uuid,
-            )
-        if isinstance(source, OClocherSource):
-            return cls(
-                source_type=SourceTypeEnum.OCLOCHER,
-                parsing_uuid=None,
-            )
-
-        raise ValueError(f'Unknown source type: {type(source)}')
-
-
-class ScheduleOut(Schema):
-    explanation: str
-    sources: list[SourceOut]
-
-    @classmethod
-    def from_sourced_schedule_item(cls,
-                                   sourced_schedule_item: SourcedScheduleItem) -> 'ScheduleOut':
+    def from_parish(cls, parish: Parish):
         return cls(
-            explanation=sourced_schedule_item.explanation,
-            sources=[SourceOut.from_source(source) for source in sourced_schedule_item.sources],
+            uuid=parish.uuid,
+            name=parish.name,
+            messesinfo_id=parish.messesinfo_community_id,
+            website_uuid=parish.website.uuid if parish.website else None,
+            created_at=parish.created_at,
+            updated_at=parish.updated_at,
         )
 
 
-class ChurchDetails(ChurchOut):
-    schedules: list[ScheduleOut]
+@api.get("/parishes", response=list[ParishOut])
+def api_home_parishes(request, limit: int = 10, offset: int = 0, updated_from: datetime = None
+                      ) -> list[ParishOut]:
+    limit = max(0, min(100, limit))
+    offset = max(0, offset)
 
-    @classmethod
-    def from_church_and_schedules(cls, church: Church, schedules: list[ScheduleOut]
-                                  ) -> 'ChurchDetails':
-        base = ChurchOut.from_church(church)
+    parish_query = Parish.objects
+    if updated_from:
+        parish_query = parish_query.filter(updated_at__gte=updated_from)
+    parishes = parish_query.order_by('updated_at').all()[offset:offset + limit]
 
-        return cls(
-            **base.dict(),
-            schedules=schedules
-        )
+    return list(map(ParishOut.from_parish, parishes))
 
 
-class EventOut(Schema):
-    church_uuid: UUID | None
-    is_church_explicitly_other: bool
-    start: datetime
-    end: datetime | None
-    source_has_been_moderated: bool
-
-    @classmethod
-    def from_church_event(cls, church_event: ChurchEvent):
-        return cls(
-            church_uuid=church_event.church.uuid if church_event.church else None,
-            is_church_explicitly_other=church_event.is_church_explicitly_other,
-            start=church_event.start,
-            end=church_event.end,
-            source_has_been_moderated=church_event.has_been_moderated,
-        )
-
+############
+# WEBSITES #
+############
 
 class WebsiteOut(Schema):
     uuid: UUID
     name: str
-    events: list[EventOut]
-    has_more_events: bool
-    reports_count: list[dict]
+    home_url: str
+    created_at: datetime
+    updated_at: datetime
 
     @classmethod
-    def from_website(cls,
-                     website: Website,
-                     events: WebsiteEvents,
-                     has_more_events: bool,
-                     reports_count: list[dict]):
+    def from_website(cls, website: Website):
         return cls(
             uuid=website.uuid,
             name=website.name,
-            events=[EventOut.from_church_event(event)
-                    for events in events.church_events_by_day.values()
-                    for event in events],
-            has_more_events=has_more_events,
-            reports_count=reports_count,
+            home_url=website.home_url,
+            created_at=website.created_at,
+            updated_at=website.updated_at,
         )
 
 
-class AggregationOut(Schema):
-    type: Literal['diocese', 'parish', 'municipality']
-    name: str
-    church_count: int
-    centroid_latitude: float
-    centroid_longitude: float
-    min_latitude: float
-    max_latitude: float
-    min_longitude: float
-    max_longitude: float
+@api.get("/websites", response=list[WebsiteOut])
+def api_home_websites(request, limit: int = 10, offset: int = 0, updated_from: datetime = None
+                      ) -> list[WebsiteOut]:
+    limit = max(0, min(100, limit))
+    offset = max(0, offset)
 
-    @classmethod
-    def from_aggregation(cls, aggregation: AggregationItem):
-        return cls(
-            type=aggregation.type,
-            name=aggregation.name,
-            church_count=aggregation.church_count,
-            centroid_latitude=aggregation.centroid_latitude,
-            centroid_longitude=aggregation.centroid_longitude,
-            min_latitude=aggregation.min_latitude,
-            max_latitude=aggregation.max_latitude,
-            min_longitude=aggregation.min_longitude,
-            max_longitude=aggregation.max_longitude,
-        )
+    website_query = Website.objects
+    if updated_from:
+        website_query = website_query.filter(updated_at__gte=updated_from)
+    websites = website_query.order_by('updated_at').all()[offset:offset + limit]
 
-
-class SearchResult(Schema):
-    churches: list[ChurchOut]
-    websites: list[WebsiteOut]
-    aggregations: list[AggregationOut]
-
-    @classmethod
-    def from_result(cls,
-                    churches: list[Church],
-                    websites: list[Website],
-                    events_by_website: dict[UUID, WebsiteEvents],
-                    events_truncated_by_website_uuid: dict[UUID, bool],
-                    reports_count_by_website: dict[UUID, list[dict]],
-                    aggregation_items: list[AggregationItem]):
-        churches = [ChurchOut.from_church(church) for church in churches]
-        websites_out = []
-        for website in websites:
-            events = events_by_website.get(website.uuid, [])
-            events_truncated = events_truncated_by_website_uuid.get(website.uuid, False)
-            reports_count = reports_count_by_website.get(website.uuid, [])
-            websites_out.append(
-                WebsiteOut.from_website(website, events, events_truncated, reports_count)
-            )
-        aggregations = [AggregationOut.from_aggregation(aggregation)
-                        for aggregation in aggregation_items]
-
-        return cls(
-            churches=churches,
-            websites=websites_out,
-            aggregations=aggregations,
-        )
-
-
-class AutocompleteItem(Schema):
-    type: str
-    name: str
-    context: str | None
-    url: str
-    latitude: float | None = None
-    longitude: float | None = None
-
-    @classmethod
-    def from_autocomplete_result(cls, result: AutocompleteResult):
-        return cls(
-            type=result.type,
-            name=result.name,
-            context=result.context,
-            url=result.url,
-            latitude=result.latitude,
-            longitude=result.longitude,
-        )
-
-
-class DioceseOut(Schema):
-    uuid: UUID
-    name: str
-    slug: str
-    min_latitude: float
-    max_latitude: float
-    min_longitude: float
-    max_longitude: float
-
-    @classmethod
-    def from_diocese_and_box(cls, diocese: Diocese, bounding_box: BoundingBox) -> 'DioceseOut':
-        return cls(
-            uuid=diocese.uuid,
-            name=diocese.name,
-            slug=diocese.slug,
-            min_latitude=bounding_box.min_latitude,
-            max_latitude=bounding_box.max_latitude,
-            min_longitude=bounding_box.min_longitude,
-            max_longitude=bounding_box.max_longitude,
-        )
-
-
-class ErrorSchema(Schema):
-    detail: str
-
-
-#############
-# ENDPOINTS #
-#############
-
-@api.get("/search", response=SearchResult)
-def api_front_search(request,
-                     latitude: float | None = None,
-                     longitude: float | None = None,
-                     min_lat: float | None = None,
-                     min_lng: float | None = None,
-                     max_lat: float | None = None,
-                     max_lng: float | None = None,
-                     date_filter: date | None = None,
-                     hour_min: int = 0, hour_max: int = 24 * 60 - 1
-                     ) -> SearchResult:
-    time_filter = TimeFilter(
-        day_filter=date_filter,
-        hour_min=hour_min,
-        hour_max=hour_max,
-    )
-
-    index_events, churches, events_truncated_by_website_uuid, aggregations = \
-        get_search_results(latitude, longitude, min_lat, min_lng, max_lat, max_lng, time_filter)
-
-    # We get all websites and their churches
-    websites_by_uuid = {}
-    website_churches = {}
-    for church in churches:
-        websites_by_uuid[church.parish.website.uuid] = church.parish.website
-        website_churches.setdefault(church.parish.website.uuid, []).append(church)
-    websites = list(websites_by_uuid.values())
-
-    index_events_by_website = {}
-    for index_event in index_events:
-        index_events_by_website.setdefault(index_event.church.parish.website.uuid, []) \
-            .append(index_event)
-
-    events_by_website = {}
-    for website in websites:
-        events_by_website[website.uuid] = get_website_events(
-            index_events_by_website.get(website.uuid, []),
-            events_truncated_by_website_uuid[website.uuid],
-            time_filter.day_filter is not None
-        )
-
-    # Count reports for each website
-    reports_count_by_website = {}
-    for website in websites:
-        reports_count_by_website[website.uuid] = get_count_and_label(website)
-
-    # TODO add search hit
-    # new_search_hit(request, len(websites))
-
-    return SearchResult.from_result(
-        churches, websites, events_by_website, events_truncated_by_website_uuid,
-        reports_count_by_website, aggregations
-    )
-
-
-@api.get("/autocomplete", response=list[AutocompleteItem])
-def api_front_autocomplete(request, query: str = '') -> list[AutocompleteItem]:
-    results = get_aggregated_response(query)
-    return list(map(lambda r: AutocompleteItem.from_autocomplete_result(r), results))
-
-
-@api.get("/church/{church_uuid}", response={200: ChurchDetails, 404: ErrorSchema})
-def api_front_church_details(request, church_uuid: UUID) -> ChurchDetails:
-    try:
-        church = Church.objects.get(uuid=church_uuid)
-    except Church.DoesNotExist:
-        raise Http404(f'Church with uuid {church_uuid} not found')
-
-    website = church.parish.website
-    scheduling = get_indexed_scheduling(website)
-
-    website_schedules = get_website_schedules(website, [church], scheduling,
-                                              only_real_churches=True)
-    schedules = [ScheduleOut.from_sourced_schedule_item(ssi)
-                 for css in website_schedules.church_sorted_schedules
-                 for ssi in css.sourced_schedule_items]
-    return ChurchDetails.from_church_and_schedules(church, schedules)
-
-
-@api.get("/dioceses", response={200: list[DioceseOut], 404: ErrorSchema})
-def api_front_get_dioceses(request) -> list[DioceseOut]:
-    dioceses_and_box = get_dioceses_bounding_box()
-    return [DioceseOut.from_diocese_and_box(diocese, bounding_box)
-            for diocese, bounding_box in dioceses_and_box]
+    return list(map(WebsiteOut.from_website, websites))

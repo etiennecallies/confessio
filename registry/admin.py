@@ -1,14 +1,10 @@
 from django.contrib import admin
-from django.contrib.admin import ModelAdmin
 from django.forms import ModelChoiceField
 from leaflet.admin import LeafletGeoAdmin, LeafletGeoAdminMixin
 from simple_history.admin import SimpleHistoryAdmin
 
-from attaching.models import Image
 from crawling.models import WebsiteForbiddenPath
-from front.models import Report
 from registry.models import Church, Parish, Diocese, Website
-from scheduling.models.pruning_models import Classifier, Sentence
 
 
 @admin.register(Diocese)
@@ -80,28 +76,3 @@ class ParishChoiceField(ModelChoiceField):
 class DioceseChoiceField(ModelChoiceField):
     def label_from_instance(self, obj):
         return "Diocese: {}".format(obj.name)
-
-
-@admin.register(Classifier)
-class ClassifierAdmin(ModelAdmin):
-    list_display = ["uuid", "status", "target", "created_at", "accuracy", 'test_size']
-    ordering = ["-created_at"]
-    fields = ['status']
-
-
-@admin.register(Sentence)
-class SentenceAdmin(ModelAdmin):
-    list_display = ["line", "action", "human_temporal", "human_confession"]
-    fields = ["line", 'action', "human_temporal", "human_confession"]
-
-
-@admin.register(Report)
-class ReportAdmin(ModelAdmin):
-    list_display = ['comment', 'feedback_type', 'error_type', 'created_at']
-    fields = ['comment', 'feedback_type', 'error_type']
-
-
-@admin.register(Image)
-class ImageAdmin(ModelAdmin):
-    list_display = ['website', 'name', 'comment', 'created_at']
-    fields = ['name', 'comment', 'human_html', 'llm_html', ]
