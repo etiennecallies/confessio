@@ -8,12 +8,12 @@ from ninja import NinjaAPI, Schema
 
 from front.services.aggregation_service import get_search_results
 from registry.models import Church, Website, Diocese
-from home.services.autocomplete_service import get_aggregated_response, AutocompleteResult
-from home.services.report_service import get_count_and_label
-from home.services.search_service import TimeFilter, AggregationItem, BoundingBox, \
+from front.services.autocomplete_service import get_aggregated_response, AutocompleteResult
+from front.services.report_service import get_count_and_label
+from front.services.search_service import TimeFilter, AggregationItem, BoundingBox, \
     get_dioceses_bounding_box
-from home.services.website_events_service import get_website_events, ChurchEvent, WebsiteEvents
-from home.services.website_schedules_service import get_website_schedules
+from front.services.website_events_service import get_website_events, ChurchEvent, WebsiteEvents
+from front.services.website_schedules_service import get_website_schedules
 from scheduling.services.scheduling_service import get_indexed_scheduling
 from scheduling.workflows.merging.sourced_schedule_items import SourcedScheduleItem
 from scheduling.workflows.merging.sources import BaseSource, ParsingSource, OClocherSource

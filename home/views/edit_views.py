@@ -6,7 +6,7 @@ from django.http import HttpResponseNotFound
 from django.shortcuts import render
 from pydantic import ValidationError
 
-from home.services.edit_pruning_service import get_colored_pieces, update_sentence_action, \
+from scheduling.services.edit_pruning_service import get_colored_pieces, update_sentence_action, \
     set_ml_indices_as_human, set_human_indices, \
     get_pruning_human_pieces, get_colored_pieces_v2, set_v2_indices_as_human, \
     update_sentence_labels_with_request, TEMPORAL_COLORS, EVENT_MENTION_COLORS

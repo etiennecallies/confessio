@@ -2,7 +2,7 @@ from django.http import HttpResponse, HttpResponseBadRequest
 
 from front.models import Report, ReportModeration
 from registry.models import Website
-from home.services.admin_email_service import send_email_to_admin
+from core.services.admin_email_service import send_email_to_admin
 from home.utils.web_utils import get_user_user_agent_and_ip
 
 

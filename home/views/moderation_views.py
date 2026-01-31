@@ -9,7 +9,7 @@ from fetching.models import OClocherOrganizationModeration, OClocherMatchingMode
 from front.models import ReportModeration
 from registry.models import WebsiteModeration, ChurchModeration, ModerationMixin, \
     ParishModeration, Diocese
-from home.services.edit_pruning_service import on_pruning_human_validation, \
+from scheduling.services.edit_pruning_service import on_pruning_human_validation, \
     set_v2_indices_as_human, get_single_line_colored_piece, update_sentence_labels_with_request, \
     TEMPORAL_COLORS, EVENT_MENTION_COLORS
 from home.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime

@@ -9,7 +9,7 @@ from django.utils.translation import gettext as _
 from folium import Map, Icon, Popup, Marker
 
 from registry.models import Church
-from home.services.website_events_service import WebsiteEvents
+from front.services.website_events_service import WebsiteEvents
 from home.utils.date_utils import format_datetime_with_locale
 
 

@@ -6,8 +6,8 @@ from uuid import UUID
 from fetching.services.oclocher_matching_service import get_matching_church_desc_by_id, \
     get_location_desc_by_id, get_matching_location_desc_by_id, get_location_desc
 from registry.models import Church, Website
-from home.services.holiday_zone_service import get_website_holiday_zone
-from home.services.sources_service import sort_parsings
+from front.services.holiday_zone_service import get_website_holiday_zone
+from front.services.sources_service import sort_parsings
 from home.utils.date_utils import get_current_year
 from home.utils.hash_utils import hash_string_to_hex
 from home.utils.list_utils import get_desc_by_id

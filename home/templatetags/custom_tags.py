@@ -8,8 +8,8 @@ from fetching.models import OClocherOrganizationModeration, OClocherMatchingMode
 from front.models import ReportModeration
 from registry.models import WebsiteModeration, ChurchModeration, ParishModeration, \
     ModerationMixin, Diocese
-from home.services.website_events_service import WebsiteEvents
-from home.services.website_schedules_service import WebsiteSchedules
+from front.services.website_events_service import WebsiteEvents
+from front.services.website_schedules_service import WebsiteSchedules
 from home.utils.date_utils import get_current_year
 from home.utils.list_utils import enumerate_with_and
 from scheduling.models.parsing_models import ParsingModeration

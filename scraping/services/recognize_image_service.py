@@ -2,7 +2,7 @@ from background_task import background
 from background_task.tasks import TaskSchedule
 
 from attaching.models import Image
-from home.services.upload_image_service import get_image_public_url
+from attaching.services.upload_image_service import get_image_public_url
 from home.utils.hash_utils import hash_string_to_hex
 from home.utils.log_utils import info
 from scheduling.process import init_scheduling
