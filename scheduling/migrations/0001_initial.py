@@ -10,7 +10,6 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('home', '0098_alter_historicalwebsitemoderation_category_and_more'),
     ]
 
     operations = [

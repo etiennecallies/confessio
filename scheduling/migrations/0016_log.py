@@ -8,7 +8,6 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('home', '0122_delete_log'),
         ('scheduling', '0015_alter_classifier_options_alter_pruning_options_and_more'),
     ]
 

@@ -12,7 +12,6 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('home', '0118_remove_report_main_report_remove_report_user_and_more'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 

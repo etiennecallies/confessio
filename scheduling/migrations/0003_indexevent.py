@@ -8,7 +8,6 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('home', '0100_historicalscraping'),
         ('scheduling', '0002_alter_scheduling_website'),
     ]
 

@@ -9,7 +9,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('crawling', '0002_alter_crawling_options_alter_crawling_table_and_more'),
-        ('home', '0122_delete_log'),
     ]
 
     operations = [

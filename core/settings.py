@@ -62,7 +62,6 @@ INSTALLED_APPS = [
     'theme_pixel',
     'jsoneditor',  # json form
     "core",
-    "home",
     'sourcing',
     'fetching',
     'scheduling',

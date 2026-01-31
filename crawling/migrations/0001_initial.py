@@ -12,7 +12,6 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('home', '0120_alter_scraping_prunings_delete_classifier_and_more'),
         ('scheduling', '0015_alter_classifier_options_alter_pruning_options_and_more'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]

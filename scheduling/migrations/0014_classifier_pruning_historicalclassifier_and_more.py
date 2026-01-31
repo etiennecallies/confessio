@@ -12,7 +12,6 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('home', '0119_remove_sentence_classifier_and_more'),
         ('scheduling', '0013_alter_schedulinghistoricaloclochermatching_options_and_more'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]

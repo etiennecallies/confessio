@@ -11,7 +11,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('fetching', '0001_initial'),
-        ('home', '0098_alter_historicalwebsitemoderation_category_and_more'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
