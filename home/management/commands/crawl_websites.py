@@ -22,6 +22,7 @@ class Command(AbstractCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('-n', '--name', help='name of website to crawl')
+        parser.add_argument('-u', '--uuid', help='uuid of website to crawl')
         parser.add_argument('-t', '--timeout', help='timeout in seconds', type=int, default=0)
         parser.add_argument('-d', '--direct', action="store_true",
                             help='crawl directly without going through the queue')
@@ -33,6 +34,8 @@ class Command(AbstractCommand):
     def handle(self, *args, **options):
         if options['name']:
             websites = Website.objects.filter(is_active=True, name__contains=options['name']).all()
+        elif options['uuid']:
+            websites = Website.objects.filter(is_active=True, uuid=options['uuid']).all()
         elif options['in_error']:
             websites = Website.objects.filter(is_active=True).filter(
                 Q(moderations__category__in=[
