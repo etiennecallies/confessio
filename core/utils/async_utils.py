@@ -1,6 +1,6 @@
 import asyncio
 
-from home.utils.log_utils import get_log_buffer, append_to_buffer, start_log_buffer
+from core.utils.log_utils import get_log_buffer, append_to_buffer, start_log_buffer
 
 
 async def run_in_sync(func, *args):

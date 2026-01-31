@@ -13,7 +13,7 @@ from front.services.map_service import (get_map_with_single_location,
                                         get_map_with_multiple_locations,
                                         get_map_with_alternative_locations)
 from front.services.website_schedules_service import get_color_of_nullable_church
-from home.utils.list_utils import group_consecutive_indices
+from scheduling.utils.list_utils import group_consecutive_indices
 from scheduling.models.parsing_models import Parsing
 from scheduling.models.pruning_models import Pruning
 from scheduling.services.scheduling_service import get_prunings_of_parsing

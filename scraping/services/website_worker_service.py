@@ -7,7 +7,7 @@ from django.db.models.functions import Now
 from crawling.models import Log
 from registry.models import Website
 from crawling.services.log_service import save_buffer
-from home.utils.log_utils import info, start_log_buffer, log_stack_trace
+from core.utils.log_utils import info, start_log_buffer, log_stack_trace
 from scheduling.process import init_scheduling
 from scraping.scrape.download_refine_and_extract import get_fresh_extracted_html_list
 from scraping.services.crawl_website_service import crawl_website

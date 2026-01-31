@@ -2,7 +2,7 @@ from datetime import datetime
 
 from django.core.management import BaseCommand
 
-from home.utils.log_utils import add_line_to_buffer
+from core.utils.log_utils import add_line_to_buffer
 
 
 class AbstractCommand(BaseCommand):

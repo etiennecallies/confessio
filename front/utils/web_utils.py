@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.shortcuts import redirect
 from django.urls import reverse
 
-from home.utils.hash_utils import hash_string_to_hex
+from scheduling.utils.hash_utils import hash_string_to_hex
 
 
 def get_client_ip(request) -> str:

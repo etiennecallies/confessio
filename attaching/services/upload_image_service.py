@@ -8,7 +8,7 @@ from django.utils.timezone import make_aware
 from attaching.models import Image
 from registry.models import Website
 from core.services.admin_email_service import send_email_to_admin
-from home.utils.web_utils import get_user_user_agent_and_ip
+from front.utils.web_utils import get_user_user_agent_and_ip
 
 
 IMAGE_SIZE_LIMIT = 10 * 1024 * 1024  # 10MB limit for uploaded images

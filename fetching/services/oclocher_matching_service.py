@@ -3,8 +3,8 @@ from fetching.models import OClocherMatching, OClocherMatchingModeration, \
 from fetching.services.oclocher_moderations_service import add_matching_moderation
 from fetching.workflows.oclocher.match_with_llm import match_oclocher_with_llm
 from fetching.workflows.oclocher.oclocher_matrix import OClocherMatrix
-from home.utils.hash_utils import hash_dict_to_hex
-from home.utils.list_utils import get_desc_by_id
+from scheduling.utils.hash_utils import hash_dict_to_hex
+from scheduling.utils.list_utils import get_desc_by_id
 from registry.models import Church
 
 

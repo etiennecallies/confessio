@@ -6,7 +6,7 @@ from simple_history.models import HistoricalRecords
 from core.models.base_models import TimeStampMixin
 from registry.models.base_moderation_models import ModerationMixin
 from registry.models import Diocese
-from home.utils.hash_utils import hash_string_to_hex
+from scheduling.utils.hash_utils import hash_string_to_hex
 from scraping.extract_v2.models import Temporal, EventMention
 from scraping.prune.models import Action, Source
 

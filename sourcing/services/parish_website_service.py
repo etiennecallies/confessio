@@ -1,5 +1,5 @@
 from registry.models import Parish, Website, WebsiteModeration
-from home.utils.department_utils import get_departments
+from front.utils.department_utils import get_departments
 from scraping.utils.string_search import normalize_content, get_words
 from sourcing.services.merge_websites_service import add_website_moderation
 from sourcing.services.website_name_service import clean_website_name

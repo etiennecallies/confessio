@@ -3,7 +3,7 @@ from uuid import UUID
 
 from django.db import IntegrityError, transaction
 
-from home.utils.log_utils import info
+from core.utils.log_utils import info
 from scheduling.models.pruning_models import PruningModeration, Pruning, Sentence
 from scraping.extract.extract_content import BaseActionInterface
 from scraping.extract.extract_content import extract_paragraphs_lines_and_indices

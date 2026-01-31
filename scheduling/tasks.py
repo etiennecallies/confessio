@@ -1,4 +1,4 @@
-from home.utils.log_utils import info, log_stack_trace, start_log_buffer
+from core.utils.log_utils import info, log_stack_trace, start_log_buffer
 from scheduling.models import Scheduling, Log
 from background_task import background
 from background_task.tasks import TaskSchedule

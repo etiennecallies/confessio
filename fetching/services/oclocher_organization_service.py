@@ -1,7 +1,7 @@
 from fetching.models import OClocherOrganization
 from fetching.models.oclocher_moderation_models import OClocherOrganizationModeration
 from fetching.services.oclocher_moderations_service import add_organization_moderation
-from home.utils.log_utils import info
+from core.utils.log_utils import info
 from registry.models import Website
 from scraping.crawl.extract_widgets import OClocherWidget
 

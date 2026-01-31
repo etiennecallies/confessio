@@ -1,5 +1,5 @@
 from front.models import SearchHit
-from home.utils.web_utils import get_user_user_agent_and_ip
+from front.utils.web_utils import get_user_user_agent_and_ip
 
 
 def new_search_hit(request, nb_websites):

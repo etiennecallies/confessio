@@ -1,7 +1,7 @@
 from django.db import transaction
 
 from registry.models import Website
-from home.utils.log_utils import info
+from core.utils.log_utils import info
 from scheduling.models import Scheduling, PruningParsing
 from scheduling.services.index_scheduling_service import do_index_scheduling, \
     clean_parsings_moderations

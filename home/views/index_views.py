@@ -25,7 +25,7 @@ from attaching.services.upload_image_service import upload_image, find_error_in_
 from front.services.website_events_service import get_website_events
 from front.services.website_schedules_service import get_website_schedules
 from home.utils.date_utils import get_current_day, get_current_year
-from home.utils.web_utils import redirect_with_url_params
+from front.utils.web_utils import redirect_with_url_params
 from scheduling.models import IndexEvent
 from scheduling.services.scheduling_service import get_indexed_scheduling, \
     get_scheduling_primary_sources

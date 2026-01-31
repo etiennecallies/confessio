@@ -5,7 +5,7 @@ from typing import Optional
 from pydantic import BaseModel, model_validator, Field
 
 from home.utils.date_utils import guess_year_from_weekday, Weekday, get_python_weekday
-from home.utils.sort_utils import compare_int_or_none_tuples
+from scheduling.utils.sort_utils import compare_int_or_none_tuples
 from scraping.parse.liturgical import LiturgicalDayEnum, get_liturgical_date, PeriodEnum
 
 

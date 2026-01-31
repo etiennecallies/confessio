@@ -1,5 +1,5 @@
 from registry.models import Website
-from home.utils.log_utils import get_log_buffer
+from core.utils.log_utils import get_log_buffer
 from scheduling.models import Log
 
 

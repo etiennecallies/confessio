@@ -3,8 +3,8 @@ from background_task.tasks import TaskSchedule
 
 from attaching.models import Image
 from attaching.services.upload_image_service import get_image_public_url
-from home.utils.hash_utils import hash_string_to_hex
-from home.utils.log_utils import info
+from scheduling.utils.hash_utils import hash_string_to_hex
+from core.utils.log_utils import info
 from scheduling.process import init_scheduling
 from scraping.parse.llm_client import LLMProvider
 from scraping.recognize.recognize_image_with_llm import (get_html_from_image, get_prompt,

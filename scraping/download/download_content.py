@@ -5,7 +5,7 @@ import httpx
 from bs4 import BeautifulSoup
 from httpx import HTTPError, Response
 
-from home.utils.log_utils import info
+from core.utils.log_utils import info
 from scraping.refine.pdf_utils import extract_text_from_pdf_bytes
 from scraping.utils.url_utils import get_domain, are_similar_urls, replace_scheme_and_hostname, \
     replace_http_with_https

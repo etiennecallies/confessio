@@ -1,7 +1,7 @@
 from tqdm import tqdm
 
 from home.management.abstract_command import AbstractCommand
-from home.utils.list_utils import chunk_list
+from scheduling.utils.list_utils import chunk_list
 from scheduling.models.pruning_models import Classifier
 from scraping.services.classify_sentence_service import get_sentences_with_wrong_classifier, \
     classify_existing_sentences

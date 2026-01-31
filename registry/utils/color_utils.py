@@ -1,4 +1,4 @@
-from home.utils.hash_utils import hash_string_to_hex
+from scheduling.utils.hash_utils import hash_string_to_hex
 
 
 def get_color_from_string(s: str) -> str:

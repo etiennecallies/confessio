@@ -9,7 +9,7 @@ from tqdm import tqdm
 
 from registry.models import Church
 from registry.models.one_shot_models import ChurchLLMName
-from home.utils.hash_utils import hash_string_to_hex
+from scheduling.utils.hash_utils import hash_string_to_hex
 
 BATCH_SIZE = 20
 PARALLELING_SIZE = 20

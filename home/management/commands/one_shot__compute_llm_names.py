@@ -6,7 +6,7 @@ from tqdm import tqdm
 
 from home.management.abstract_command import AbstractCommand
 from registry.models import ChurchTrouverUneMesse, ChurchTrouverUneMesseLLMName
-from home.utils.hash_utils import hash_string_to_hex
+from scheduling.utils.hash_utils import hash_string_to_hex
 from sourcing.services.church_llm_name_service import get_prompt_template_for_name, \
     get_completions_for_name, compute_churches_llm_name
 

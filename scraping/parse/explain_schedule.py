@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from home.utils.date_utils import format_datetime_with_locale, Weekday
-from home.utils.list_utils import enumerate_with_and
+from scheduling.utils.list_utils import enumerate_with_and
 from scraping.parse.intervals import PeriodEnum, get_liturgical_date, LiturgicalDayEnum
 from scraping.parse.schedules import (ScheduleItem, OneOffRule, RegularRule, Position,
                                       WeeklyRule, MonthlyRule, CustomPeriod)

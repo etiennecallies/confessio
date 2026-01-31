@@ -5,9 +5,9 @@ from dataclasses import dataclass
 from django.db.models.functions import Now
 
 from registry.models import Church
-from home.utils.hash_utils import hash_string_to_hex
-from home.utils.list_utils import get_desc_by_id
-from home.utils.log_utils import info
+from scheduling.utils.hash_utils import hash_string_to_hex
+from scheduling.utils.list_utils import get_desc_by_id
+from core.utils.log_utils import info
 from scheduling.models.parsing_models import ParsingModeration, Parsing
 from scheduling.models.pruning_models import Pruning
 from scheduling.services.scheduling_service import get_websites_of_parsing
