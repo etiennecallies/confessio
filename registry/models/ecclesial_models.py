@@ -11,10 +11,7 @@ class Diocese(TimeStampMixin):
     slug = models.CharField(max_length=100, unique=True)
     messesinfo_network_id = models.CharField(max_length=100, unique=True)
     home_url = models.URLField(unique=True, null=True, blank=True)
-    history = HistoricalRecords(table_name='home_historicaldiocese')
-
-    class Meta:
-        db_table = "home_diocese"
+    history = HistoricalRecords()
 
 
 class Website(TimeStampMixin):
@@ -39,7 +36,7 @@ class Website(TimeStampMixin):
     unreliability_reason = models.CharField(choices=UnreliabilityReason, null=True, blank=True)
     nb_recent_hits = models.PositiveSmallIntegerField(default=0)
     is_best_diocese_hit = models.BooleanField(default=False)
-    history = HistoricalRecords(table_name='home_historicalwebsite')
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.name
@@ -67,9 +64,6 @@ class Website(TimeStampMixin):
 
         return self.parishes.first().diocese
 
-    class Meta:
-        db_table = "home_website"
-
 
 class Parish(TimeStampMixin):
     name = models.CharField(max_length=100)
@@ -78,13 +72,10 @@ class Parish(TimeStampMixin):
     website = models.ForeignKey('Website', on_delete=models.CASCADE, related_name='parishes',
                                 null=True, blank=True)
     diocese = models.ForeignKey('Diocese', on_delete=models.CASCADE, related_name='parishes')
-    history = HistoricalRecords(table_name='home_historicalparish')
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.name
-
-    class Meta:
-        db_table = "home_parish"
 
 
 class Church(TimeStampMixin):
@@ -101,13 +92,12 @@ class Church(TimeStampMixin):
     parish = models.ForeignKey('Parish', on_delete=models.CASCADE,
                                related_name='churches')
     is_active = models.BooleanField(default=True)
-    history = HistoricalRecords(table_name='home_historicalchurch')
+    history = HistoricalRecords()
 
     class Meta:
         indexes = [
             GistIndex(fields=['location']),
         ]
-        db_table = "home_church"
 
     def get_desc(self) -> str:
         return f'{self.name} {self.city}'

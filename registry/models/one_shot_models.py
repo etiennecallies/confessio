@@ -11,16 +11,12 @@ class ChurchLLMName(TimeStampMixin):
 
     class Meta:
         unique_together = ('church', 'prompt_template_hash')
-        db_table = "home_churchllmname"
 
 
 class ChurchTrouverUneMesse(TimeStampMixin):
     trouverunemesse_id = models.UUIDField(unique=True)
     trouverunemesse_slug = models.CharField(max_length=200, unique=True)
     original_name = models.CharField(max_length=255)
-
-    class Meta:
-        db_table = "home_churchtrouverunemesse"
 
 
 class ChurchTrouverUneMesseLLMName(TimeStampMixin):
@@ -33,4 +29,3 @@ class ChurchTrouverUneMesseLLMName(TimeStampMixin):
 
     class Meta:
         unique_together = ('trouverunemesse_church', 'prompt_template_hash')
-        db_table = "home_churchtrouverunemessellmname"
