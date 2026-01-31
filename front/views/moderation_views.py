@@ -27,8 +27,8 @@ from scraping.services.prune_scraping_service import SentenceQualifyLineInterfac
     MLSentenceQualifyLineInterface
 from scraping.services.reparse_parsing_service import reparse_parsing
 from scraping.services.website_moderation_service import suggest_alternative_website
-from sourcing.services.church_human_service import on_church_human_validation
-from sourcing.services.merge_websites_service import merge_websites
+from registry.services.church_human_service import on_church_human_validation
+from registry.services.merge_websites_service import merge_websites
 
 
 def redirect_to_moderation(moderation: ModerationMixin, category: str, resource: str, is_bug: bool,

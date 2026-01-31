@@ -1,5 +1,5 @@
 from registry.models import ChurchModeration, Church, ExternalSource
-from sourcing.utils.trouverunemesse_utils import fetch_trouverunemesse_by_slug, \
+from registry.utils.trouverunemesse_utils import fetch_trouverunemesse_by_slug, \
     TrouverUneMesseLocation, post_new_update_on_trouverunemesse
 
 

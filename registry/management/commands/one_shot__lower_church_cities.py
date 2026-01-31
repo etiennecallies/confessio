@@ -2,8 +2,8 @@ from tqdm import tqdm
 
 from core.management.abstract_command import AbstractCommand
 from registry.models import Church
-from sourcing.services.church_city_service import lower_church_city
-from sourcing.utils.string_utils import has_two_consecutive_uppercase
+from registry.services.church_city_service import lower_church_city
+from registry.utils.string_utils import has_two_consecutive_uppercase
 
 
 class Command(AbstractCommand):

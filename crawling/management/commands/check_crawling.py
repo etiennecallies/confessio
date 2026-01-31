@@ -12,7 +12,7 @@ from scheduling.models import IndexEvent
 from scheduling.services.scheduling_service import get_indexed_scheduling
 from scraping.parse.holidays import check_holiday_by_zone
 from scraping.parse.liturgical import check_easter_dates
-from sourcing.services.church_location_service import find_church_geo_outliers
+from registry.services.church_location_service import find_church_geo_outliers
 
 
 class Command(AbstractCommand):

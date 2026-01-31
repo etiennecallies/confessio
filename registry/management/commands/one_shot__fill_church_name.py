@@ -1,7 +1,7 @@
 from core.management.abstract_command import AbstractCommand
 from registry.models import Church
 from scheduling.utils.hash_utils import hash_string_to_hex
-from sourcing.services.church_llm_name_service import get_prompt_template_for_name
+from registry.services.church_llm_name_service import get_prompt_template_for_name
 
 
 class Command(AbstractCommand):

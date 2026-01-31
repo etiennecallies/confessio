@@ -1,6 +1,6 @@
 from registry.models import Church
-from sourcing.utils.gouv_fr_utils import geocode_gouv_fr
-from sourcing.utils.string_utils import has_two_consecutive_uppercase
+from registry.utils.gouv_fr_utils import geocode_gouv_fr
+from registry.utils.string_utils import has_two_consecutive_uppercase
 
 
 def lower_church_city(church: Church) -> None:

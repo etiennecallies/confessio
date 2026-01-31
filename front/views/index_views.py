@@ -30,7 +30,7 @@ from scheduling.models import IndexEvent
 from scheduling.services.scheduling_service import get_indexed_scheduling, \
     get_scheduling_primary_sources
 from scraping.services.recognize_image_service import recognize_and_extract_image
-from sourcing.utils.string_utils import lower_first, city_and_prefix
+from registry.utils.string_utils import lower_first, city_and_prefix
 
 
 def render_map(request, center,

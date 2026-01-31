@@ -1,5 +1,5 @@
 from registry.models import Website
-from sourcing.services.parish_website_service import get_new_website_for_parish
+from registry.services.parish_website_service import get_new_website_for_parish
 
 
 def get_alternative_website_url(website: Website) -> Website | None:

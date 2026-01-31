@@ -1,6 +1,6 @@
 from core.management.abstract_command import AbstractCommand
 from registry.models import Parish
-from sourcing.services.sync_parishes_service import save_parish
+from registry.services.sync_parishes_service import save_parish
 
 
 class Command(AbstractCommand):

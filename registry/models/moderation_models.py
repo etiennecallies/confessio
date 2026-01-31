@@ -4,7 +4,7 @@ from simple_history.models import HistoricalRecords
 
 from registry.models.base_moderation_models import ModerationMixin, ResourceDoesNotExistError
 from registry.models import Parish, Church
-from sourcing.services.church_name_service import sort_by_name_similarity
+from registry.services.church_name_service import sort_by_name_similarity
 
 
 class WebsiteModeration(ModerationMixin):

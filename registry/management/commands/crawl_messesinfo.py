@@ -1,8 +1,8 @@
 from core.management.abstract_command import AbstractCommand
 from registry.models import Diocese
-from sourcing.services.crawl_messesinfos_service import get_parishes_and_churches
-from sourcing.services.sync_churches_service import MessesinfoChurchRetriever, sync_churches
-from sourcing.services.sync_parishes_service import sync_parishes, MessesinfoParishRetriever
+from registry.services.crawl_messesinfos_service import get_parishes_and_churches
+from registry.services.sync_churches_service import MessesinfoChurchRetriever, sync_churches
+from registry.services.sync_parishes_service import sync_parishes, MessesinfoParishRetriever
 
 
 class Command(AbstractCommand):

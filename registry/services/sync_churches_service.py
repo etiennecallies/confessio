@@ -5,11 +5,11 @@ from django.db.models.functions import Now
 
 from registry.models import Parish, Diocese, Church, ExternalSource, \
     ChurchModeration
-from sourcing.services.church_city_service import lower_church_city
-from sourcing.services.church_location_service import compute_church_coordinates, \
+from registry.services.church_city_service import lower_church_city
+from registry.services.church_location_service import compute_church_coordinates, \
     get_church_with_same_location
-from sourcing.services.church_name_service import sort_by_name_similarity
-from sourcing.utils.geo_utils import get_geo_distance
+from registry.services.church_name_service import sort_by_name_similarity
+from registry.utils.geo_utils import get_geo_distance
 
 
 ####################

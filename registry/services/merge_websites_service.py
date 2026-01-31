@@ -1,6 +1,6 @@
 from registry.models import Website, WebsiteModeration, Diocese
-from sourcing.services.website_name_service import clean_website_name
-from sourcing.utils.extract_title import get_page_title
+from registry.services.website_name_service import clean_website_name
+from registry.utils.extract_title import get_page_title
 
 
 def add_website_moderation(website: Website, category: WebsiteModeration.Category,

@@ -1,7 +1,7 @@
 from datetime import date
 
 from registry.models import WebsiteModeration, Website, Church
-from sourcing.services.website_url_service import get_alternative_website_url
+from registry.services.website_url_service import get_alternative_website_url
 
 
 def remove_not_validated_moderation(website: Website, category: WebsiteModeration.Category):

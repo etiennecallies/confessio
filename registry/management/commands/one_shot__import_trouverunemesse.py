@@ -1,6 +1,6 @@
 from core.management.abstract_command import AbstractCommand
 from registry.models import ChurchTrouverUneMesse, Church
-from sourcing.utils.trouverunemesse_utils import fetch_by_last_update
+from registry.utils.trouverunemesse_utils import fetch_by_last_update
 
 
 class Command(AbstractCommand):

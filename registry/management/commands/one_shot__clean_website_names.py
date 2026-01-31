@@ -1,6 +1,6 @@
 from core.management.abstract_command import AbstractCommand
 from registry.models import Website
-from sourcing.services.website_name_service import clean_website_name
+from registry.services.website_name_service import clean_website_name
 
 
 class Command(AbstractCommand):

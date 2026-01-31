@@ -1,5 +1,5 @@
 from core.management.abstract_command import AbstractCommand
-from sourcing.services.crawl_lehavre_service import get_churches_on_lehavre
+from registry.services.crawl_lehavre_service import get_churches_on_lehavre
 
 
 class Command(AbstractCommand):

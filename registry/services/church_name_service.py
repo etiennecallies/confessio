@@ -1,5 +1,5 @@
 from registry.models import Church
-from sourcing.utils.string_utils import get_string_similarity
+from registry.utils.string_utils import get_string_similarity
 
 
 def sort_by_name_similarity(church: Church, churches: list[Church]) -> list[Church]:
