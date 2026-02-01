@@ -12,6 +12,8 @@ class Log(TimeStampMixin):
         DONE = "done"
         FAILURE = "failure"
 
+    started_at = models.DateTimeField(null=True)  # TODO make not null
+    ended_at = models.DateTimeField(null=True)  # TODO make not null
     website = models.ForeignKey('registry.Website', on_delete=models.CASCADE,
                                 related_name='scheduling_logs')
     content = models.TextField()

@@ -46,6 +46,8 @@ class Log(TimeStampMixin):
         TIMEOUT = "timeout"
         FAILURE = "failure"
 
+    started_at = models.DateTimeField(null=True)  # TODO make not null
+    end_at = models.DateTimeField(null=True)  # TODO make not null
     website = models.ForeignKey('registry.Website', on_delete=models.CASCADE,
                                 related_name='crawling_logs')
     content = models.TextField()

@@ -2,8 +2,10 @@ import traceback
 from contextvars import ContextVar
 from datetime import datetime
 
+from django.utils import timezone
 
 buffer: ContextVar[str | None] = ContextVar('buffer', default=None)
+buffer_started_at: ContextVar[datetime | None] = ContextVar('buffer_started_at', default=None)
 
 
 def info(message: any = ''):
@@ -13,13 +15,14 @@ def info(message: any = ''):
 
 
 def start_log_buffer():
-    global buffer
+    global buffer, buffer_started_at
     buffer.set('')
+    buffer_started_at.set(timezone.now())
 
 
-def get_log_buffer() -> str:
-    global buffer
-    return buffer.get()
+def get_log_buffer() -> tuple[str, datetime]:
+    global buffer, buffer_started_at
+    return buffer.get(), buffer_started_at.get()
 
 
 def add_line_to_buffer(line: str):
