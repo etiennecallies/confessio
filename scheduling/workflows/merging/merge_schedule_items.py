@@ -2,8 +2,8 @@ from typing import Callable
 
 from scheduling.workflows.merging.sourced_schedule_items import SourcedScheduleItem
 from scheduling.workflows.parsing.explain_schedule import get_explanation_from_schedule
-from scraping.parse.liturgical import PeriodEnum
-from scraping.parse.schedules import CustomPeriod, WeeklyRule
+from scheduling.workflows.parsing.liturgical import PeriodEnum
+from scheduling.workflows.parsing.schedules import CustomPeriod, WeeklyRule
 
 
 def get_periods_or_custom_periods_key(periods: list[PeriodEnum | CustomPeriod]) -> tuple:

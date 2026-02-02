@@ -1,5 +1,5 @@
-from scraping.parse.liturgical import PeriodEnum
-from scraping.parse.schedules import SchedulesList, CustomPeriod, OneOffRule, \
+from scheduling.workflows.parsing.liturgical import PeriodEnum
+from scheduling.workflows.parsing.schedules import SchedulesList, CustomPeriod, OneOffRule, \
     ScheduleItem, RegularRule
 
 

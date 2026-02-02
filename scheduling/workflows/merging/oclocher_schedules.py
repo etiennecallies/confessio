@@ -1,6 +1,6 @@
 from fetching.models import OClocherMatching, OClocherSchedule
 from fetching.services.oclocher_matching_service import get_matching_matrix
-from scraping.parse.schedules import ScheduleItem, SchedulesList, OneOffRule
+from scheduling.workflows.parsing.schedules import ScheduleItem, SchedulesList, OneOffRule
 
 
 def get_schedule_item_from_oclocher_schedule(oclocher_schedule: OClocherSchedule,

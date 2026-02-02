@@ -1,7 +1,7 @@
 import unittest
 
 from scheduling.utils.date_utils import Weekday
-from scraping.parse.schedules import OneOffRule
+from scheduling.workflows.parsing.schedules import OneOffRule
 
 
 class SortSchedulesTests(unittest.TestCase):

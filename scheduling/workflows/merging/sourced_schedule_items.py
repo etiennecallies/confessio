@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 from scheduling.workflows.merging.sources import BaseSource
-from scraping.parse.schedules import ScheduleItem, Event
+from scheduling.workflows.parsing.schedules import ScheduleItem, Event
 
 
 class SourcedScheduleItem(BaseModel):

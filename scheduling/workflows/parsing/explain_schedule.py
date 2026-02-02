@@ -4,8 +4,8 @@ from scheduling.utils.date_utils import Weekday, format_datetime_with_locale
 from scheduling.utils.list_utils import enumerate_with_and
 from scheduling.workflows.parsing.intervals import PeriodEnum, get_liturgical_date, \
     LiturgicalDayEnum
-from scraping.parse.schedules import (ScheduleItem, OneOffRule, RegularRule, Position,
-                                      WeeklyRule, MonthlyRule, CustomPeriod)
+from scheduling.workflows.parsing.schedules import (ScheduleItem, OneOffRule, RegularRule, Position,
+                                                    WeeklyRule, MonthlyRule, CustomPeriod)
 
 ################
 # TRANSLATIONS #

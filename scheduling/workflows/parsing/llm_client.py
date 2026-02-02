@@ -2,7 +2,7 @@ from abc import abstractmethod
 from enum import Enum
 from typing import Optional
 
-from scraping.parse.schedules import SchedulesList
+from scheduling.workflows.parsing.schedules import SchedulesList
 
 
 class LLMProvider(str, Enum):

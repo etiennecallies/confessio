@@ -4,9 +4,9 @@ from datetime import datetime, date
 from scheduling.utils.date_utils import Weekday
 from scheduling.workflows.parsing.holidays import HolidayZoneEnum
 from scheduling.workflows.parsing.intervals import PeriodEnum
-from scraping.parse.liturgical import LiturgicalDayEnum
+from scheduling.workflows.parsing.liturgical import LiturgicalDayEnum
 from scheduling.workflows.parsing.rrule_utils import get_events_from_schedule_items
-from scraping.parse.schedules import ScheduleItem, \
+from scheduling.workflows.parsing.schedules import ScheduleItem, \
     RegularRule, Event, MonthlyRule, NWeekday, Position, WeeklyRule, CustomPeriod, OneOffRule
 
 

@@ -5,7 +5,7 @@ from typing import Optional
 
 from scheduling.workflows.parsing.openai_provider import get_openai_client
 from scheduling.workflows.parsing.parse_with_llm import build_input_messages, get_prompt_template
-from scraping.parse.schedules import SchedulesList
+from scheduling.workflows.parsing.schedules import SchedulesList
 
 
 ###############

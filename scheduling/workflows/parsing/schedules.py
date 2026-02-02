@@ -6,7 +6,8 @@ from pydantic import BaseModel, model_validator, Field
 
 from scheduling.utils.date_utils import Weekday, guess_year_from_weekday, get_python_weekday
 from scheduling.utils.sort_utils import compare_int_or_none_tuples
-from scraping.parse.liturgical import LiturgicalDayEnum, get_liturgical_date, PeriodEnum
+from scheduling.workflows.parsing.liturgical import LiturgicalDayEnum, get_liturgical_date, \
+    PeriodEnum
 
 
 SCHEDULES_LIST_VERSION = 'v1.1'

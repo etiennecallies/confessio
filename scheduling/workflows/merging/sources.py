@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from scraping.parse.schedules import SchedulesList
+from scheduling.workflows.parsing.schedules import SchedulesList
 
 
 class BaseSource(BaseModel, ABC, frozen=True):

@@ -5,7 +5,7 @@ from openai import AsyncOpenAI, BadRequestError
 from pydantic import ValidationError
 
 from scheduling.workflows.parsing.llm_client import LLMClientInterface, LLMProvider
-from scraping.parse.schedules import SchedulesList
+from scheduling.workflows.parsing.schedules import SchedulesList
 
 
 class OpenAILLMClient(LLMClientInterface):

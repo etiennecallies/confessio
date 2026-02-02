@@ -7,8 +7,8 @@ from scheduling.utils.date_utils import Weekday, date_to_datetime, get_current_y
 from scheduling.workflows.parsing.explain_schedule import get_explanation_from_schedule
 from scheduling.workflows.parsing.holidays import HolidayZoneEnum
 from scheduling.workflows.parsing.intervals import add_exrules, add_exdate
-from scraping.parse.liturgical import PeriodEnum
-from scraping.parse.schedules import ScheduleItem, SchedulesList, Event, \
+from scheduling.workflows.parsing.liturgical import PeriodEnum
+from scheduling.workflows.parsing.schedules import ScheduleItem, SchedulesList, Event, \
     RegularRule, WeeklyRule, MonthlyRule, CustomPeriod
 
 ####################

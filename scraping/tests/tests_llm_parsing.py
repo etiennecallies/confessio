@@ -14,7 +14,7 @@ from scheduling.workflows.parsing.llm_client import LLMClientInterface, \
 from scheduling.workflows.parsing.openai_provider import OpenAILLMClient, get_openai_client
 from scheduling.workflows.parsing.parse_with_llm import parse_with_llm, get_prompt_template
 from scheduling.workflows.parsing.rrule_utils import are_schedules_list_equivalent
-from scraping.parse.schedules import SchedulesList, get_merged_schedules_list
+from scheduling.workflows.parsing.schedules import SchedulesList, get_merged_schedules_list
 
 
 class LLMClientWithCache(LLMClientInterface):
@@ -28,7 +28,7 @@ class LLMClientWithCache(LLMClientInterface):
                               temperature: float) -> tuple[Optional[SchedulesList], Optional[str]]:
         current_directory = os.path.dirname(os.path.abspath(__file__))
         cache_filename = (f'{current_directory}/fixtures/parse/'
-                          f'llm_cache_{self.get_model()}.cache')
+                          f'llm_cache_{self.get_provider().value}_{self.get_model()}.cache')
 
         key = (
             json.dumps(messages),

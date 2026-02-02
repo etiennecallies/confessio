@@ -15,7 +15,7 @@ from scheduling.models.parsing_models import Parsing
 from scheduling.models.pruning_models import Pruning, Sentence
 from scheduling.public import init_scheduling_for_sentences
 from scraping.extract_v2.qualify_line_interfaces import DummyQualifyLineInterface
-from scraping.parse.schedules import SchedulesList, SCHEDULES_LIST_VERSION
+from scheduling.workflows.parsing.schedules import SchedulesList, SCHEDULES_LIST_VERSION
 from scheduling.workflows.pruning.action_interfaces import DummyActionInterface
 from scheduling.workflows.pruning.models import Action
 from scheduling.services.edit_parsing_service import set_human_json

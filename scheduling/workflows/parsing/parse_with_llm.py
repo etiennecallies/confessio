@@ -6,7 +6,7 @@ from scheduling.workflows.parsing.llm_client import LLMClientInterface, \
 from scheduling.workflows.parsing.openai_provider import get_openai_llm_client
 from scheduling.workflows.parsing.rrule_utils import are_schedules_list_date_rule_valid, \
     is_schedules_list_explainable, filter_valid_schedules
-from scraping.parse.schedules import SchedulesList, ScheduleItem
+from scheduling.workflows.parsing.schedules import SchedulesList, ScheduleItem
 
 
 def get_prompt_template():

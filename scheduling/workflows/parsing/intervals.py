@@ -4,10 +4,10 @@ from dateutil.rrule import rrulestr, rruleset
 
 from scheduling.utils.date_utils import date_to_datetime
 from scheduling.workflows.parsing.holidays import HolidayZoneEnum, HOLIDAY_BY_ZONE
-from scraping.parse.liturgical import PeriodEnum, get_advent_dates, \
+from scheduling.workflows.parsing.liturgical import PeriodEnum, get_advent_dates, \
     get_liturgical_date, \
     LiturgicalDayEnum, get_solemnities_dates
-from scraping.parse.schedules import CustomPeriod, OneOffRule
+from scheduling.workflows.parsing.schedules import CustomPeriod, OneOffRule
 
 
 def intervals_from_period(period: PeriodEnum, year: int,

@@ -16,7 +16,7 @@ from scheduling.utils.list_utils import get_desc_by_id
 from scheduling.workflows.parsing.llm_client import LLMClientInterface
 from scheduling.workflows.parsing.parse_with_llm import parse_with_llm, get_prompt_template, \
     get_llm_client
-from scraping.parse.schedules import SchedulesList, SCHEDULES_LIST_VERSION
+from scheduling.workflows.parsing.schedules import SchedulesList, SCHEDULES_LIST_VERSION
 
 TRUNCATION_LENGTH = 32
 MAX_LENGTH_FOR_PARSING = 15000
