@@ -111,7 +111,7 @@ pip install -r ci_requirements.txt
 ### Testing
 ```shell
 # without django loading
-python -m unittest discover scraping
+python -m unittest discover -s scheduling/tests -s crawling/tests
 # OR with django loading
 python manage.py test
 ```
@@ -131,7 +131,7 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "Running unit tests..."
-python -m unittest discover scraping
+python -m unittest discover -s scheduling/tests -s crawling/tests
 if [ $? -ne 0 ]; then
     echo "Unit tests failed. Please fix the above issues before committing."
     exit 1
