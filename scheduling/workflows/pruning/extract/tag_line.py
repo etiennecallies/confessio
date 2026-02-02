@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Set
 
-from scraping.utils.string_search import has_any_of_words
+from scheduling.utils.string_search import has_any_of_words
 
 ##################
 # LEXICAL SEARCH #

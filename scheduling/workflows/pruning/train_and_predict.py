@@ -5,7 +5,7 @@ from typing import TypeVar, Generic
 
 import numpy as np
 
-from scraping.utils.enum_utils import StringEnum
+from scheduling.utils.enum_utils import StringEnum
 
 E = TypeVar('E', bound=StringEnum)
 

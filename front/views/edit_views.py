@@ -23,7 +23,7 @@ from scheduling.services.edit_parsing_service import set_human_json
 from scheduling.services.parsing_service import get_parsing_schedules_list
 from scheduling.services.prune_scraping_service import SentenceFromDbActionInterface, \
     prune_pruning, SentenceQualifyLineInterface
-from scraping.utils.html_utils import split_lines
+from scheduling.utils.html_utils import split_lines
 
 
 @login_required

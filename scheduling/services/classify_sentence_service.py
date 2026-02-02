@@ -10,7 +10,7 @@ from scheduling.workflows.pruning.transform_sentence import get_transformer, Tra
     TRANSFORMER_NAME
 from scheduling.services.classifier_target_service import get_target_enum
 from scheduling.services.train_classifier_service import set_label
-from scraping.utils.enum_utils import StringEnum
+from scheduling.utils.enum_utils import StringEnum
 
 _classifier = {}
 _classifier_lock = threading.Lock()

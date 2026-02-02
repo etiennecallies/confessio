@@ -4,8 +4,8 @@ from crawling.workflows.crawl.extract_links import parse_content_links, remove_h
 from crawling.workflows.crawl.extract_widgets import extract_widgets, BaseWidget
 from crawling.workflows.download.download_content import get_content_from_url, get_url_aliases
 from crawling.workflows.scrape.download_refine_and_extract import get_extracted_html_list
-from scraping.utils.ram_utils import print_memory_usage
-from scraping.utils.url_utils import get_clean_full_url, get_path, get_full_path
+from core.utils.ram_utils import print_memory_usage
+from crawling.utils.url_utils import get_clean_full_url, get_path, get_full_path
 
 MAX_VISITED_LINKS = 50
 

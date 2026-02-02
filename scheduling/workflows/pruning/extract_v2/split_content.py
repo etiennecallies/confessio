@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from crawling.workflows.refine.refine_content import stringify_html
 from scheduling.workflows.pruning.extract_v2.models import Temporal, EventMention
 from scheduling.workflows.pruning.extract_v2.qualify_line_interfaces import BaseQualifyLineInterface
-from scraping.utils.html_utils import split_lines
+from scheduling.utils.html_utils import split_lines
 
 
 class LineAndTagV2(BaseModel):

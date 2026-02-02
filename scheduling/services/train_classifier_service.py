@@ -6,7 +6,7 @@ from scheduling.workflows.pruning.extract_v2.models import Temporal, EventMentio
 from scheduling.workflows.pruning.models import Source, Action
 from scheduling.workflows.pruning.train_and_predict import TensorFlowModel, evaluate
 from scheduling.services.classifier_target_service import get_target_enum
-from scraping.utils.enum_utils import StringEnum
+from scheduling.utils.enum_utils import StringEnum
 
 MIN_DATASET_SIZE = 300
 

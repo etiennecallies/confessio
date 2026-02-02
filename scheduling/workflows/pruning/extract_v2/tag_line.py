@@ -1,7 +1,7 @@
 from typing import Set
 
 from scheduling.workflows.pruning.extract_v2.models import Temporal, EventMention
-from scraping.utils.string_search import has_any_of_words
+from scheduling.utils.string_search import has_any_of_words
 
 ##################
 # LEXICAL SEARCH #

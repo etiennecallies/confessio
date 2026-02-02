@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup, NavigableString, Comment, ProcessingInstruction, 
     MarkupResemblesLocatorWarning, PageElement, Tag
 
 from crawling.workflows.refine.detect_calendar import is_calendar_item
-from scraping.utils.string_utils import is_below_byte_limit, remove_unsafe_chars
+from crawling.utils.string_utils import is_below_byte_limit, remove_unsafe_chars
 
 
 ###################

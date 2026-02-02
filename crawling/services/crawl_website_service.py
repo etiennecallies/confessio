@@ -8,7 +8,7 @@ from crawling.services.scraping_service import delete_scraping
 from crawling.services.scrape_scraping_service import upsert_extracted_html_list, create_scraping
 from scraping.services.website_moderation_service import remove_not_validated_moderation, \
     add_moderation
-from scraping.utils.url_utils import get_path, get_domain, have_similar_domain
+from crawling.utils.url_utils import get_path, get_domain, have_similar_domain
 
 
 def update_home_url(website: Website, new_home_url: str):

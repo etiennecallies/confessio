@@ -5,7 +5,7 @@ import requests
 from django.contrib.gis.geos import Point
 
 from registry.models import Church, Website, Parish, Diocese
-from scraping.utils.url_utils import get_clean_full_url
+from crawling.utils.url_utils import get_clean_full_url
 
 
 def post_messesinfo_request(messesinfo_request):

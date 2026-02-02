@@ -19,7 +19,7 @@ from crawling.workflows.refine.refine_content import replace_link_by_their_conte
 from scheduling.services.prune_scraping_service import add_necessary_moderation_v2, \
     add_necessary_moderation
 from scheduling.services.train_classifier_service import extract_label
-from scraping.utils.html_utils import split_lines
+from scheduling.utils.html_utils import split_lines
 
 
 #################

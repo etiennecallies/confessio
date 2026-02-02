@@ -1,4 +1,4 @@
-from scraping.utils.enum_utils import StringEnum
+from scheduling.utils.enum_utils import StringEnum
 
 
 class Action(StringEnum):

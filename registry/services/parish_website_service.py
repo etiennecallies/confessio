@@ -1,6 +1,6 @@
 from registry.models import Parish, Website, WebsiteModeration
 from front.utils.department_utils import get_departments
-from scraping.utils.string_search import normalize_content, get_words
+from scheduling.utils.string_search import normalize_content, get_words
 from registry.services.merge_websites_service import add_website_moderation
 from registry.services.website_name_service import clean_website_name
 from registry.utils.extract_title import get_page_title

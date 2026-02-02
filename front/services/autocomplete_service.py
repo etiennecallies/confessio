@@ -10,7 +10,7 @@ from requests.exceptions import RequestException
 
 from registry.models import Parish, Church
 from front.utils.department_utils import get_departments_context
-from scraping.utils.string_search import unhyphen_content, normalize_content
+from scheduling.utils.string_search import unhyphen_content, normalize_content
 from registry.utils.string_utils import get_string_similarity
 
 MAX_AUTOCOMPLETE_RESULTS = 15

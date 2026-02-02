@@ -6,9 +6,9 @@ from bs4 import element as el
 
 from scheduling.utils.date_utils import get_current_year
 from crawling.workflows.download.download_content import get_url_redirection
-from scraping.utils.string_search import has_any_of_words
-from scraping.utils.string_utils import remove_unsafe_chars
-from scraping.utils.url_utils import is_internal_link, get_clean_full_url, \
+from scheduling.utils.string_search import has_any_of_words
+from crawling.utils.string_utils import remove_unsafe_chars
+from crawling.utils.url_utils import is_internal_link, get_clean_full_url, \
     replace_scheme_and_hostname, get_path
 
 CONFESSIONS_OR_SCHEDULES_MENTIONS = [

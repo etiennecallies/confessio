@@ -3,7 +3,7 @@ from typing import Type
 from scheduling.models.pruning_models import Classifier
 from scheduling.workflows.pruning.extract_v2.models import Temporal, EventMention
 from scheduling.workflows.pruning.models import Action
-from scraping.utils.enum_utils import StringEnum
+from scheduling.utils.enum_utils import StringEnum
 
 
 def get_target_enum(target: Classifier.Target) -> Type[StringEnum]:

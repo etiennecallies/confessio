@@ -1,6 +1,6 @@
 import re
 
-from scraping.utils.string_search import normalize_content
+from scheduling.utils.string_search import normalize_content
 
 DATES_REGEX = [
     r'(0[1-9]|[12][0-9]|3[01])/(0[1-9]|1[0-2])',
