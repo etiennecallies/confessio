@@ -23,9 +23,6 @@ class Scraping(TimeStampMixin):
     class Meta:
         unique_together = ('url', 'website')
 
-    def has_confessions(self) -> bool:
-        return any(pruning.has_confessions() for pruning in self.prunings.all())
-
 
 class WebsiteForbiddenPath(TimeStampMixin):
     website = models.ForeignKey('registry.Website', on_delete=models.CASCADE,

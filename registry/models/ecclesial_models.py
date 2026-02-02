@@ -44,9 +44,6 @@ class Website(TimeStampMixin):
     def has_been_crawled(self) -> bool:
         return self.crawling_id is not None
 
-    def one_scraping_has_confessions(self) -> bool:
-        return any(map(lambda s: s.has_confessions(), self.scrapings.all()))
-
     def delete_if_no_parish(self):
         if not self.parishes.exists():
             self.delete()

@@ -180,7 +180,7 @@ def save_crawling_and_add_moderation(website: Website,
     if crawling_result.confession_pages:
         remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_NO_RESPONSE)
 
-        if website.one_scraping_has_confessions():
+        if website.scrapings.exists():
             remove_not_validated_moderation(website,
                                             WebsiteModeration.Category.HOME_URL_NO_CONFESSION)
 
