@@ -1,6 +1,6 @@
 from core.management.abstract_command import AbstractCommand
-from registry.models import Sentence
-from scraping.extract_v2.models import Temporal
+from scheduling.models import Sentence
+from scheduling.workflows.pruning.extract_v2.models import Temporal
 
 
 class Command(AbstractCommand):

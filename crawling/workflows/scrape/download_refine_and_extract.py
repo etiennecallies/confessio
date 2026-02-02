@@ -1,8 +1,7 @@
 from crawling.workflows.download.download_content import get_content_from_url
 from crawling.workflows.refine.refine_content import refine_confession_content
-from scraping.extract.extract_content import ExtractV1Interface
-from scraping.extract.extract_interface import ExtractMode, BaseExtractInterface
-from scheduling.workflows.pruning.action_interfaces import DummyActionInterface
+from scheduling.public_workflow import extract_refined_content
+from scheduling.workflows.pruning.extract.extract_interface import BaseExtractInterface
 
 
 def get_extracted_html_list(html_content: str,
@@ -11,19 +10,7 @@ def get_extracted_html_list(html_content: str,
     if refined_content is None:
         return None
 
-    if extract_interface is None:
-        extract_interface = ExtractV1Interface(DummyActionInterface())
-
-    paragraphs_lines_and_indices = extract_interface.extract_paragraphs_lines_and_indices(
-        refined_content, ExtractMode.EXTRACT)
-    if not paragraphs_lines_and_indices:
-        return None
-
-    extracted_html_list = []
-    for paragraph_lines, paragraph_indices in paragraphs_lines_and_indices:
-        extracted_html_list.append('<br>\n'.join(paragraph_lines))
-
-    return extracted_html_list
+    return extract_refined_content(refined_content, extract_interface)
 
 
 def get_fresh_extracted_html_list(url) -> list[str] | None:

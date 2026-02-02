@@ -2,7 +2,7 @@ from django.db.models import Q
 from sklearn.model_selection import train_test_split
 
 from scheduling.models.pruning_models import Classifier, Sentence
-from scraping.extract_v2.models import Temporal, EventMention
+from scheduling.workflows.pruning.extract_v2.models import Temporal, EventMention
 from scheduling.workflows.pruning.models import Source, Action
 from scheduling.workflows.pruning.train_and_predict import TensorFlowModel, evaluate
 from scheduling.services.classifier_target_service import get_target_enum

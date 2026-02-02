@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from scraping.extract.split_content import LineAndTag
-from scraping.extract.tag_line import Tag
+from scheduling.workflows.pruning.extract.split_content import LineAndTag
+from scheduling.workflows.pruning.extract.tag_line import Tag
 from scheduling.workflows.pruning.models import Action
 
 MAX_PRE_BUFFERING_ATTEMPTS = 3

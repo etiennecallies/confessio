@@ -1,8 +1,8 @@
 from abc import abstractmethod
 from uuid import UUID
 
-from scraping.extract_v2.models import Temporal, EventMention
-from scraping.extract_v2.tag_line import get_temporal_tags_with_regex, \
+from scheduling.workflows.pruning.extract_v2.models import Temporal, EventMention
+from scheduling.workflows.pruning.extract_v2.tag_line import get_temporal_tags_with_regex, \
     get_event_mention_tags_with_regex
 
 

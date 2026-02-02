@@ -13,10 +13,11 @@ from scheduling.services.edit_pruning_service import get_colored_pieces, update_
 from jsoneditor.forms import JSONSchemaForm
 from scheduling.models.parsing_models import Parsing
 from scheduling.models.pruning_models import Pruning, Sentence
-from scheduling.public import init_scheduling_for_sentences
-from scraping.extract_v2.qualify_line_interfaces import DummyQualifyLineInterface
+from scheduling.public_service import init_scheduling_for_sentences
 from scheduling.workflows.parsing.schedules import SchedulesList, SCHEDULES_LIST_VERSION
 from scheduling.workflows.pruning.action_interfaces import DummyActionInterface
+from scheduling.workflows.pruning.extract_v2.qualify_line_interfaces import \
+    DummyQualifyLineInterface
 from scheduling.workflows.pruning.models import Action
 from scheduling.services.edit_parsing_service import set_human_json
 from scheduling.services.parsing_service import get_parsing_schedules_list

@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from scraping.extract_v2.models import Temporal, EventMention
-from scraping.extract_v2.split_content import LineAndTagV2
+from scheduling.workflows.pruning.extract_v2.models import Temporal, EventMention
+from scheduling.workflows.pruning.extract_v2.split_content import LineAndTagV2
 
 MAX_PRE_BUFFERING_ATTEMPTS = 3
 MAX_POST_BUFFERING_ATTEMPTS = 3

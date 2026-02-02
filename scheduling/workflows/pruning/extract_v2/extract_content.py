@@ -1,7 +1,7 @@
-from scraping.extract.extract_interface import ExtractMode, BaseExtractInterface
-from scraping.extract_v2.prune_lines_v2 import get_pruned_lines_indices_v2
-from scraping.extract_v2.qualify_line_interfaces import BaseQualifyLineInterface
-from scraping.extract_v2.split_content import LineAndTagV2, split_and_tag_v2
+from scheduling.workflows.pruning.extract.extract_interface import ExtractMode, BaseExtractInterface
+from scheduling.workflows.pruning.extract_v2.prune_lines_v2 import get_pruned_lines_indices_v2
+from scheduling.workflows.pruning.extract_v2.qualify_line_interfaces import BaseQualifyLineInterface
+from scheduling.workflows.pruning.extract_v2.split_content import LineAndTagV2, split_and_tag_v2
 
 
 ###########

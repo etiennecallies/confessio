@@ -2,9 +2,9 @@ import json
 import os
 import unittest
 
-from scraping.extract.extract_interface import ExtractMode
-from scraping.extract_v2.extract_content import extract_lines_and_indices
-from scraping.extract_v2.split_content import LineAndTagV2
+from scheduling.workflows.pruning.extract.extract_interface import ExtractMode
+from scheduling.workflows.pruning.extract_v2.extract_content import extract_lines_and_indices
+from scheduling.workflows.pruning.extract_v2.split_content import LineAndTagV2
 
 
 class TestPruneLines(unittest.TestCase):

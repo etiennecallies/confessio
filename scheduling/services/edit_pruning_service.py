@@ -5,13 +5,14 @@ from django.contrib.auth.models import User
 from pydantic import BaseModel
 
 from scheduling.models.pruning_models import Sentence, Pruning, Classifier
-from scheduling.public import init_scheduling_for_pruning
-from scraping.extract.extract_content import split_and_tag, BaseActionInterface
-from scraping.extract.tag_line import Tag
-from scraping.extract_v2.models import Temporal, EventMention
-from scraping.extract_v2.prune_lines_v2 import get_pruned_lines_indices_v2
-from scraping.extract_v2.qualify_line_interfaces import BaseQualifyLineInterface
-from scraping.extract_v2.split_content import split_and_tag_v2, LineAndTagV2
+from scheduling.public_service import init_scheduling_for_pruning
+from scheduling.workflows.pruning.action_interfaces import BaseActionInterface
+from scheduling.workflows.pruning.extract.split_content import split_and_tag
+from scheduling.workflows.pruning.extract.tag_line import Tag
+from scheduling.workflows.pruning.extract_v2.models import EventMention, Temporal
+from scheduling.workflows.pruning.extract_v2.prune_lines_v2 import get_pruned_lines_indices_v2
+from scheduling.workflows.pruning.extract_v2.qualify_line_interfaces import BaseQualifyLineInterface
+from scheduling.workflows.pruning.extract_v2.split_content import split_and_tag_v2, LineAndTagV2
 from scheduling.workflows.pruning.models import Action, Source
 from scheduling.workflows.pruning.prune_lines import get_pruned_lines_indices
 from crawling.workflows.refine.refine_content import replace_link_by_their_content

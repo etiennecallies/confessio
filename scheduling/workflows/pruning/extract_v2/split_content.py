@@ -3,8 +3,8 @@ from uuid import UUID
 from pydantic import BaseModel
 
 from crawling.workflows.refine.refine_content import stringify_html
-from scraping.extract_v2.models import Temporal, EventMention
-from scraping.extract_v2.qualify_line_interfaces import BaseQualifyLineInterface
+from scheduling.workflows.pruning.extract_v2.models import Temporal, EventMention
+from scheduling.workflows.pruning.extract_v2.qualify_line_interfaces import BaseQualifyLineInterface
 from scraping.utils.html_utils import split_lines
 
 

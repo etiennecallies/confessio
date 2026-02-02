@@ -7,7 +7,7 @@ from core.models.base_models import TimeStampMixin
 from registry.models.base_moderation_models import ModerationMixin
 from registry.models import Diocese
 from scheduling.utils.hash_utils import hash_string_to_hex
-from scraping.extract_v2.models import Temporal, EventMention
+from scheduling.workflows.pruning.extract_v2.models import Temporal, EventMention
 from scheduling.workflows.pruning.models import Action, Source
 
 

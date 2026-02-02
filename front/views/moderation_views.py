@@ -18,7 +18,7 @@ from registry.models.base_moderation_models import BUG_DESCRIPTION_MAX_LENGTH, \
 from scheduling.models.parsing_models import ParsingModeration
 from scheduling.models.pruning_models import PruningModeration, SentenceModeration
 from scheduling.services.scheduling_service import get_parsing_moderation_of_pruning
-from scraping.extract_v2.split_content import create_line_and_tag_v2
+from scheduling.workflows.pruning.extract_v2.split_content import create_line_and_tag_v2
 from scheduling.workflows.pruning.models import Source
 from scheduling.services.edit_parsing_service import on_parsing_human_validation, \
     ParsingValidationError, set_llm_json_as_human_json

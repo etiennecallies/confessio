@@ -1,5 +1,5 @@
 from scheduling.models.parsing_models import ParsingModeration, Parsing
-from scheduling.public import init_schedulings_for_parsing
+from scheduling.public_service import init_schedulings_for_parsing
 
 
 ################

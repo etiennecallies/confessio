@@ -2,9 +2,9 @@ import json
 import os
 import unittest
 
-from scraping.extract.extract_content import extract_lines_and_indices
-from scraping.extract.extract_interface import ExtractMode
-from scraping.extract.split_content import LineAndTag
+from scheduling.workflows.pruning.extract.extract_content import extract_lines_and_indices
+from scheduling.workflows.pruning.extract.extract_interface import ExtractMode
+from scheduling.workflows.pruning.extract.split_content import LineAndTag
 from scheduling.workflows.pruning.models import Action, Source
 
 

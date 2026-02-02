@@ -3,7 +3,8 @@ import unittest
 
 from crawling.workflows.scrape.download_refine_and_extract import get_extracted_html_list
 from scraping.utils.string_search import normalize_content, get_words
-from scraping.extract.tag_line import is_schedule_description, is_date_description
+from scheduling.workflows.pruning.extract.tag_line import is_schedule_description, \
+    is_date_description
 
 
 class MyTestCase(unittest.TestCase):

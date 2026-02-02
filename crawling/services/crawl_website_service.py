@@ -1,5 +1,5 @@
 from crawling.models import Crawling
-from fetching.public import process_extracted_widgets
+from fetching.public_service import process_extracted_widgets
 from registry.models import Website, WebsiteModeration
 from core.utils.log_utils import info
 from crawling.workflows.crawl.download_and_search_urls import search_for_confession_pages, \

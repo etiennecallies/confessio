@@ -1,7 +1,7 @@
 from typing import Type
 
 from scheduling.models.pruning_models import Classifier
-from scraping.extract_v2.models import Temporal, EventMention
+from scheduling.workflows.pruning.extract_v2.models import Temporal, EventMention
 from scheduling.workflows.pruning.models import Action
 from scraping.utils.enum_utils import StringEnum
 
