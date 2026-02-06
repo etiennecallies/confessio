@@ -1,1 +1,0 @@
-"Fork" of https://github.com/Aristotle-Metadata-Enterprises/django-jsonforms with more recent version of https://github.com/json-editor/json-editor.

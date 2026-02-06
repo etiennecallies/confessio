@@ -60,7 +60,6 @@ INSTALLED_APPS = [
     'background_task',  # worker for background tasks
     "corsheaders",  # used to allow CORS requests
     'theme_pixel',
-    'jsoneditor',  # json form
     "core",
     'registry',
     'front',

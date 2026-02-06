@@ -9,13 +9,17 @@ import json
 
 
 class JSONEditorWidget(Widget):
+    """
+    "Fork" of https://github.com/Aristotle-Metadata-Enterprises/django-jsonforms
+    with more recent version of https://github.com/json-editor/json-editor.
+    """
 
-    template_name = 'jsoneditor/jsoneditor.html'
+    template_name = 'forms/jsoneditor/jsoneditor.html'
 
     class Media:
         js = (
             'https://cdnjs.cloudflare.com/ajax/libs/json-editor/2.15.2/jsoneditor.min.js',
-            'jsoneditor/jsoneditor_init.js'
+            'js/jsoneditor_init.js'
         )
 
     def __init__(self, schema, options, *args, **kwargs):

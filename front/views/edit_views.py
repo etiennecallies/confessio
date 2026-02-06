@@ -6,7 +6,7 @@ from django.http import HttpResponseNotFound
 from django.shortcuts import render
 from pydantic import ValidationError
 
-from jsoneditor.forms import JSONSchemaForm
+from front.forms.jsoneditor_form import JSONSchemaForm
 from scheduling.models import Parsing
 from scheduling.models.pruning_models import Pruning, Sentence
 from scheduling.public_service import init_scheduling_for_sentences
