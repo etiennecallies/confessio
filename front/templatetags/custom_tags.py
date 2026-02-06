@@ -7,8 +7,8 @@ from django.urls import reverse
 from crawling.models import CrawlingModeration
 from fetching.models import OClocherOrganizationModeration, OClocherMatchingModeration
 from front.models import ReportModeration
-from front.services.website_events_service import WebsiteEvents
-from front.services.website_schedules_service import WebsiteSchedules
+from front.services.card.website_events_service import WebsiteEvents
+from front.services.card.website_schedules_service import WebsiteSchedules
 from registry.models import WebsiteModeration, ChurchModeration, ParishModeration, \
     ModerationMixin, Diocese
 from scheduling.models import ParsingModeration, SchedulingModeration

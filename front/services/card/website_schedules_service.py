@@ -5,8 +5,8 @@ from uuid import UUID
 
 from fetching.services.oclocher_matching_service import get_matching_church_desc_by_id, \
     get_location_desc_by_id, get_matching_location_desc_by_id, get_location_desc
-from front.services.holiday_zone_service import get_website_holiday_zone
-from front.services.sources_service import sort_parsings
+from front.services.card.holiday_zone_service import get_website_holiday_zone
+from front.services.card.sources_service import sort_parsings
 from registry.models import Church, Website
 from scheduling.models import Parsing
 from scheduling.models import Scheduling

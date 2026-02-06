@@ -10,20 +10,20 @@ from django.utils.translation import gettext
 
 from fetching.models import OClocherOrganization
 from registry.models import Website, Diocese, Church
-from front.services.autocomplete_service import get_aggregated_response
-from front.services.filter_service import get_filter_days
-from front.services.map_service import prepare_map, get_center, get_cities_label
-from front.services.report_service import get_count_and_label, new_report, NewReportError, \
+from front.services.search.autocomplete_service import get_aggregated_response
+from front.services.search.filter_service import get_filter_days
+from front.services.search.map_service import prepare_map, get_center, get_cities_label
+from front.services.card.report_service import get_count_and_label, new_report, NewReportError, \
     get_previous_reports
-from front.services.scraping_url_service import get_scraping_parsing_urls
-from front.services.search_service import TimeFilter, get_churches_in_box, \
+from front.services.card.scraping_url_service import get_scraping_parsing_urls
+from front.services.search.search_service import TimeFilter, get_churches_in_box, \
     get_churches_by_website, get_churches_around, get_churches_by_diocese, get_popular_churches, \
     fetch_events, DEFAULT_SEARCH_BOX
-from front.services.sources_service import get_website_parsings_and_prunings, get_empty_sources
-from front.services.stat_service import new_search_hit
+from front.services.card.sources_service import get_website_parsings_and_prunings, get_empty_sources
+from front.services.search.stat_service import new_search_hit
 from attaching.services.upload_image_service import upload_image, find_error_in_document_to_upload
-from front.services.website_events_service import get_website_events
-from front.services.website_schedules_service import get_website_schedules
+from front.services.card.website_events_service import get_website_events
+from front.services.card.website_schedules_service import get_website_schedules
 from scheduling.utils.date_utils import get_current_day, get_current_year
 from front.utils.web_utils import redirect_with_url_params
 from scheduling.models import IndexEvent
