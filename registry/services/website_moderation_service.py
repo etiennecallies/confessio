@@ -13,11 +13,11 @@ def remove_not_validated_moderation(website: Website, category: WebsiteModeratio
         pass
 
 
-def add_moderation(website: Website, category: WebsiteModeration.Category,
-                   other_website: Website | None = None,
-                   other_home_url: str | None = None,
-                   conflict_day: date | None = None,
-                   conflict_church: Church | None = None):
+def add_website_moderation(website: Website, category: WebsiteModeration.Category,
+                           other_website: Website | None = None,
+                           other_home_url: str | None = None,
+                           conflict_day: date | None = None,
+                           conflict_church: Church | None = None):
     home_url = other_home_url[:200] if other_home_url else website.home_url
     try:
         moderation = WebsiteModeration.objects.get(website=website, category=category)

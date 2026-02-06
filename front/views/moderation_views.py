@@ -9,26 +9,26 @@ from fetching.models import OClocherOrganizationModeration, OClocherMatchingMode
 from front.models import ReportModeration
 from registry.models import WebsiteModeration, ChurchModeration, ModerationMixin, \
     ParishModeration, Diocese
+from registry.models.base_moderation_models import BUG_DESCRIPTION_MAX_LENGTH, \
+    ResourceDoesNotExistError
+from registry.public_service import registry_suggest_alternative_website
+from registry.services.church_human_service import on_church_human_validation
+from registry.services.merge_websites_service import merge_websites
+from scheduling.models.parsing_models import ParsingModeration
+from scheduling.models.pruning_models import PruningModeration, SentenceModeration
+from scheduling.services.edit_parsing_service import on_parsing_human_validation, \
+    ParsingValidationError, set_llm_json_as_human_json
 from scheduling.services.edit_pruning_service import on_pruning_human_validation, \
     set_v2_indices_as_human, get_single_line_colored_piece, update_sentence_labels_with_request, \
     TEMPORAL_COLORS, EVENT_MENTION_COLORS
-from scheduling.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
-from registry.models.base_moderation_models import BUG_DESCRIPTION_MAX_LENGTH, \
-    ResourceDoesNotExistError
-from scheduling.models.parsing_models import ParsingModeration
-from scheduling.models.pruning_models import PruningModeration, SentenceModeration
-from scheduling.services.scheduling_service import get_parsing_moderation_of_pruning
-from scheduling.workflows.pruning.extract_v2.split_content import create_line_and_tag_v2
-from scheduling.workflows.pruning.models import Source
-from scheduling.services.edit_parsing_service import on_parsing_human_validation, \
-    ParsingValidationError, set_llm_json_as_human_json
 from scheduling.services.parsing_service import get_schedules_list_from_dict
 from scheduling.services.prune_scraping_service import SentenceQualifyLineInterface, \
     MLSentenceQualifyLineInterface
 from scheduling.services.reparse_parsing_service import reparse_parsing
-from scraping.services.website_moderation_service import suggest_alternative_website
-from registry.services.church_human_service import on_church_human_validation
-from registry.services.merge_websites_service import merge_websites
+from scheduling.services.scheduling_service import get_parsing_moderation_of_pruning
+from scheduling.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
+from scheduling.workflows.pruning.extract_v2.split_content import create_line_and_tag_v2
+from scheduling.workflows.pruning.models import Source
 
 
 def redirect_to_moderation(moderation: ModerationMixin, category: str, resource: str, is_bug: bool,
@@ -109,7 +109,7 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
             reparse_parsing(moderation.parsing)
             do_redirect = False
         elif 'suggest_alternative_website' in request.POST:
-            suggest_alternative_website(moderation)
+            registry_suggest_alternative_website(moderation)
             do_redirect = False
         elif 'update_human_labels' in request.POST:
             update_sentence_labels_with_request(request, "1", moderation.sentence, None)

@@ -2,8 +2,8 @@ from datetime import date
 
 from registry.models import Church, Website, WebsiteModeration
 from scheduling.models import IndexEvent
-from scraping.services.website_moderation_service import remove_not_validated_moderation, \
-    add_moderation
+from registry.services.website_moderation_service import remove_not_validated_moderation, \
+    add_website_moderation
 
 
 def website_has_schedules_conflict(church_index_events: list[IndexEvent]
@@ -34,5 +34,5 @@ def look_for_conflict(website: Website, church_index_events: list[IndexEvent]):
                                         WebsiteModeration.Category.SCHEDULES_CONFLICT)
     else:
         conflict_day, conflict_church = conflict
-        add_moderation(website, WebsiteModeration.Category.SCHEDULES_CONFLICT,
-                       conflict_day=conflict_day, conflict_church=conflict_church)
+        add_website_moderation(website, WebsiteModeration.Category.SCHEDULES_CONFLICT,
+                               conflict_day=conflict_day, conflict_church=conflict_church)

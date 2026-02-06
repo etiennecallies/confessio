@@ -1,15 +1,15 @@
+from core.utils.log_utils import info
 from crawling.models import Crawling, CrawlingModeration
 from crawling.services.crawling_moderation_service import upsert_crawling_moderation
-from fetching.public_service import process_extracted_widgets
-from registry.models import Website, WebsiteModeration
-from core.utils.log_utils import info
+from crawling.services.scrape_scraping_service import upsert_extracted_html_list, create_scraping
+from crawling.services.scraping_service import delete_scraping
+from crawling.utils.url_utils import get_path, get_domain, have_similar_domain
 from crawling.workflows.crawl.download_and_search_urls import search_for_confession_pages, \
     get_new_url_and_aliases, forbid_diocese_home_links, CrawlingResult
-from crawling.services.scraping_service import delete_scraping
-from crawling.services.scrape_scraping_service import upsert_extracted_html_list, create_scraping
-from scraping.services.website_moderation_service import remove_not_validated_moderation, \
-    add_moderation
-from crawling.utils.url_utils import get_path, get_domain, have_similar_domain
+from fetching.public_service import process_extracted_widgets
+from registry.models import Website, WebsiteModeration
+from registry.public_service import registry_add_website_moderation, \
+    registry_remove_not_validated_moderation
 
 
 def update_home_url(website: Website, new_home_url: str):
@@ -25,8 +25,8 @@ def update_home_url(website: Website, new_home_url: str):
             return
 
     if len(new_home_url) > 200:
-        add_moderation(website, WebsiteModeration.Category.HOME_URL_TOO_LONG,
-                       other_home_url=new_home_url)
+        registry_add_website_moderation(website, WebsiteModeration.Category.HOME_URL_TOO_LONG,
+                                        other_home_url=new_home_url)
         return
 
     # Check that there is not already a Website with this home_url
@@ -35,13 +35,15 @@ def update_home_url(website: Website, new_home_url: str):
         print(f'conflict between website {website.name} ({website.uuid}) '
               f'and {website_with_url.name} ({website_with_url.uuid}) '
               f'about url {new_home_url} Adding moderation.')
-        add_moderation(website, WebsiteModeration.Category.HOME_URL_CONFLICT, website_with_url)
+        registry_add_website_moderation(website, WebsiteModeration.Category.HOME_URL_CONFLICT,
+                                        website_with_url)
     except Website.DoesNotExist:
         print(f'replacing home_url from {website.home_url} to {new_home_url} '
               f'for website {website.name}')
         website.home_url = new_home_url
         website.save()
-        remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_CONFLICT)
+        registry_remove_not_validated_moderation(website,
+                                                 WebsiteModeration.Category.HOME_URL_CONFLICT)
 
 
 def handle_diocese_domain(website: Website, domain_has_changed: bool,
@@ -68,7 +70,7 @@ def handle_diocese_domain(website: Website, domain_has_changed: bool,
                                                          path_redirection)
 
         if website.home_url == diocese.home_url:
-            add_moderation(website, WebsiteModeration.Category.HOME_URL_DIOCESE)
+            registry_add_website_moderation(website, WebsiteModeration.Category.HOME_URL_DIOCESE)
 
 
 def do_crawl_website(website: Website) -> CrawlingResult:
