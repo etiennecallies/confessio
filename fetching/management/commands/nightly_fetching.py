@@ -1,4 +1,4 @@
-from fetching.process import nightly_synchronization
+from fetching.services.nightly_synchronization_service import nightly_synchronization
 from core.management.abstract_command import AbstractCommand
 from core.utils.heartbeat_utils import ping_heartbeat
 

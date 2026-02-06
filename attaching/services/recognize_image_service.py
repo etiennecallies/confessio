@@ -9,7 +9,7 @@ from attaching.workflows.recognize.recognize_image_with_llm import (get_html_fro
 from core.utils.llm_utils import LLMProvider
 from core.utils.log_utils import info
 from crawling.public_worflow import crawling_get_extracted_html_list
-from scheduling.process import init_scheduling
+from scheduling.services.scheduling.scheduling_process_service import init_scheduling
 from scheduling.public_service import scheduling_create_pruning
 from scheduling.utils.hash_utils import hash_string_to_hex
 

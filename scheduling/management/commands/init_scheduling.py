@@ -1,6 +1,6 @@
 from core.management.abstract_command import AbstractCommand
 from registry.models import Website
-from scheduling.process import init_scheduling
+from scheduling.services.scheduling.scheduling_process_service import init_scheduling
 
 
 class Command(AbstractCommand):

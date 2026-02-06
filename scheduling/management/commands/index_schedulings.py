@@ -1,6 +1,6 @@
 from core.management.abstract_command import AbstractCommand
 from scheduling.models import Scheduling
-from scheduling.process import index_scheduling
+from scheduling.services.scheduling.scheduling_process_service import index_scheduling
 
 
 class Command(AbstractCommand):

@@ -3,7 +3,7 @@ from django.db.models.signals import post_save, pre_save, post_delete
 from django.dispatch import receiver
 
 from registry.models import Church, Website, Parish
-from scheduling.process import init_scheduling
+from scheduling.services.scheduling.scheduling_process_service import init_scheduling
 
 
 ##########

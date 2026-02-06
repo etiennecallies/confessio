@@ -1,7 +1,7 @@
 from fetching.models import OClocherOrganization
 from fetching.services.oclocher_locations_service import fetch_oclocher_organization_locations
 from fetching.services.oclocher_schedules_service import fetch_oclocher_organization_schedules
-from scheduling.process import init_scheduling
+from scheduling.services.scheduling.scheduling_process_service import init_scheduling
 
 
 def nightly_synchronization():

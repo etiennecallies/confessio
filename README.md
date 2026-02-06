@@ -26,8 +26,64 @@ We'd like to thank our sponsor [Hozana](https://hozana.org/) for their continuou
 ![Hozana](static/assets/img/logo/hozana-logo-medium.png)
 
 ---
+# Project architecture
+The project is structured in a modular way, with the following Django apps:
+- `registry`: manages the registry of churches, parishes and dioceses.
+- `crawling`: crawling parish websites to extract text about confession hours.
+- `attaching`: responsible for the upload and OCR of images of schedules.
+- `fetching`: fetching data from external sources (e.g. OClocher).
+- `scheduling`: extracting and merging schedules resulting from crawling, attaching and fetching. 
+- `front`: contains the frontend code (Django templates, views, etc) and the API (Django REST Framework).
+- `core`: contains shared code and utilities.
+
+Other directories:
+- `ansible`: contains ansible playbooks and configuration for deploying to production.
+- `static`: contains static files (CSS, JS, images, etc).
+
+The django apps have this file structure:
+```
+app_name/
+├── __init__.py
+├── admin.py  # django admin configuration
+├── apps.py  # django app configuration
+├── management/
+│   └── commands/  # custom django commands
+├── migrations/  # django models migrations
+├── models.py  # django objects definitions
+├── public_service.py  # methods that use Django objects, and that can be used by other apps
+├── public_workflow.py  # methods that do not use Django objects, and that can be used by other apps
+├── services/  # methods that use Django objects
+├── signals.py  # django signals (models pre-hooks and post-hooks)
+├── tasks.py  # loaded by the background worker
+├── tests/  # unit tests (without django loading)
+├── utils/  # methods that do not use Django objects, and that can be used by other apps
+├── workflows/  # methods that do not use Django objects
+```
+
+The `front` app has these additional files and directories:
+```front/
+├── api.py  # django rest framework api views
+├── forms/  # django forms
+├── front_api.py  # django rest framework front api views
+├── locale/  # translations
+├── templates/  # django templates
+├── templatetags/  # django template tags
+├── views/  # django views
+├── urls.py  # django urls configuration
+```
+
+Django apps are designed to be as independent as possible, and to communicate through well defined interfaces (e.g. signals, or direct function calls). This allows for better maintainability and scalability of the codebase.
+
+Here are the rules about the dependencies between apps:
+- an app can use objects from another app, but in read-only mode.
+- an app can call a function in public_workflow or public_service of another app, but no other methods.
+- an app can use function in another app `utils` directory.
+- any part of `core` app can be used by any other app.
+---
 
 # Dev environment
+
+## Python install & setup
 
 ### Environment variables
 Copy the `.env.sample` file to `.env` and fill in the values.
@@ -47,7 +103,7 @@ For MacOS, follow instructions [here](https://mits003.github.io/studio_null/2021
 Also, you can configure GDAL_LIBRARY_PATH and GEOS_LIBRARY_PATH env var in .env.
 
 ## Postgresql database
-Works currently on postgresql 15.4, and requires postgis and pgvector extensions.
+Works currently on postgresql 18.1, and requires postgis and pgvector extensions.
 
 ### Create the database
 ```shell
@@ -88,9 +144,6 @@ $ python manage.py createsuperuser
 
 This will download and load the latest prod database dump in local. Your psql user must be superadmin.
 ```bash
-# Remove and recreate confessio database
-$ psql postgres -c "DROP DATABASE confessio;" && psql postgres -c "CREATE DATABASE confessio;"
-# Download and load the latest prod database dump
 $ python manage.py dbrestore --uncompress
 ```
 
@@ -103,10 +156,6 @@ $ python manage.py runserver
 At this point, the app runs at `http://127.0.0.1:8000/`.
 
 ## Continuous Integration
-To install required packages for tests and linter, run:
-```
-pip install -r ci_requirements.txt
-```
 
 ### Testing
 ```shell
@@ -121,7 +170,7 @@ flake8
 ```
 
 ### Pre-commit hook
-Consider adding a pre-commit hook (`vim .git/hooks/pre-commit`), but if you don't github actions will catch you.
+Consider adding a pre-commit hook (`vim .git/hooks/pre-commit`), however if you don't, github actions will catch you.
 ```shell
 echo "Running flake8..."
 flake8 .
@@ -146,7 +195,7 @@ django-admin compilemessages
 ```
 
 ## Commands
-You'll find all self implemented commands in `management/commands/` of any module. 
+You'll find all implemented commands in `management/commands/` of any module. 
 For example, to crawl all websites:
 
 ```shell
@@ -164,7 +213,6 @@ DJANGO_SETTINGS_MODULE=core.profiling_settings python manage.py runserver
 Then visit http://127.0.0.1:8000/silk.
 
 ---
-
 # Prod environment
 
 We use ansible to deploy to production. See [ansible README](./ansible/README.md) for instructions.
@@ -189,100 +237,3 @@ and if you want to launch the command in tmux (in session "manage_tmux"):
 ./prod.sh manage_tmux crawl_websites
 ./prod.sh manage_tmux "crawl_websites -n 'Sainte Claire Entre Loire et Rhins'"
 ```
-
----
-
-# Legacy documentation of  [Django Pixel Bootstrap 5](https://appseed.us/product/pixel-bootstrap/django/)
-
-This part is to be removed once the project has been entirely freed from Django Pixel module.
-
-Open-source **Django** project crafted on top of **[Pixel Bootstrap 5](https://appseed.us/product/pixel-bootstrap/django/)**, an open-source design from `Themesberg`.
-The product is designed to deliver the best possible user experience with highly customizable feature-rich pages. 
-
-- 👉 [Django Pixel Bootstrap 5](https://appseed.us/product/pixel-bootstrap/django/) - `Product page`
-- 👉 [Django Pixel Bootstrap 5](https://django-pixel-lite.appseed-srv1.com/) - `LIVE Demo`
-
-## Codebase structure
-
-The project is coded using a simple and intuitive structure presented below:
-
-```bash
-< PROJECT ROOT >
-   |
-   |-- core/                            
-   |    |-- settings.py                  # Project Configuration  
-   |    |-- urls.py                      # Project Routing
-   |
-   |-- home/
-   |    |-- views.py                     # APP Views 
-   |    |-- urls.py                      # APP Routing
-   |    |-- models.py                    # APP Models 
-   |    |-- tests.py                     # Tests  
-   |    |-- templates/                   # Theme Customisation 
-   |         |-- pages                   # 
-   |              |-- custom-index.html  # Custom Footer      
-   |     
-   |-- requirements.txt                  # Project Dependencies
-   |
-   |-- env.sample                        # ENV Configuration (default values)
-   |-- manage.py                         # Start the app - Django default start script
-   |
-   |-- ************************************************************************
-```
-
-<br />
-
-## How to Customize 
-
-When a template file is loaded, `Django` scans all template directories starting from the ones defined by the user, and returns the first match or an error in case the template is not found. 
-The theme used to style this starter provides the following files: 
-
-```bash
-# This exists in ENV: LIB/theme_pixel
-< UI_LIBRARY_ROOT >                      
-   |
-   |-- templates/                     # Root Templates Folder 
-   |    |          
-   |    |-- accounts/       
-   |    |    |-- sign-in.html         # Sign IN Page
-   |    |    |-- sign-up.html         # Sign UP Page
-   |    |
-   |    |-- includes/       
-   |    |    |-- footer.html          # Footer component
-   |    |    |-- navigation.html      # Navigation Bar
-   |    |    |-- scripts.html         # Scripts Component
-   |    |
-   |    |-- layouts/       
-   |    |    |-- base.html            # Masterpage
-   |    |
-   |    |-- pages/       
-   |         |-- index.html           # Dashboard Page
-   |         |-- about.html           # About Page
-   |         |-- *.html               # All other pages
-   |    
-   |-- ************************************************************************
-```
-
-When the project requires customization, we need to copy the original file that needs an update (from the virtual environment) and place it in the template folder using the same path. 
-
-> For instance, if we want to **customize the index.html** these are the steps:
-
-- ✅ `Step 1`: create the `templates` DIRECTORY inside the `front` app
-- ✅ `Step 2`: configure the project to use this new template directory
-  - `core/settings.py` TEMPLATES section
-- ✅ `Step 3`: copy the `index.html` from the original location (inside your ENV) and save it to the `front/templates` DIR
-  - Source PATH: `<YOUR_ENV>/LIB/theme_pixel/template/pages/index.html`
-  - Destination PATH: `<PROJECT_ROOT>front/templates/pages/index.html`
-
-> To speed up all these steps, the **codebase is already configured** (`Steps 1, and 2`) and a `custom index` can be found at this location:
-
-`front/templates/pages/custom-index.html` 
-
-By default, this file is unused because the `theme` expects `index.html` (without the `custom-` prefix). 
-
-In order to use it, simply rename it to `index.html`. Like this, the default version shipped in the library is ignored by Django. 
-
-In a similar way, all other files and components can be customized easily.
-
----
-[Django Pixel Bootstrap 5](https://appseed.us/product/pixel-bootstrap/django/) - **Django** Starter provided by **[AppSeed](https://appseed.us/)**

@@ -4,7 +4,7 @@ from django.dispatch import receiver
 
 from attaching.models import Image
 from registry.models import Website
-from scheduling.process import init_scheduling
+from scheduling.services.scheduling.scheduling_process_service import init_scheduling
 from attaching.services.recognize_image_service import recognize_and_extract_image
 
 

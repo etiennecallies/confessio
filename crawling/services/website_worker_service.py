@@ -9,7 +9,7 @@ from crawling.workflows.scrape.download_refine_and_extract import get_fresh_extr
 from registry.models import Website
 from crawling.services.log_service import save_buffer
 from core.utils.log_utils import info, start_log_buffer, log_stack_trace
-from scheduling.process import init_scheduling
+from scheduling.services.scheduling.scheduling_process_service import init_scheduling
 from crawling.services.crawl_website_service import crawl_website
 from crawling.services.scraping_service import delete_scraping
 from crawling.services.scrape_scraping_service import upsert_extracted_html_list

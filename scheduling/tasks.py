@@ -16,7 +16,7 @@ def worker_prune_scheduling(scheduling_uuid: str):
         return
 
     start_log_buffer()
-    from scheduling.process import prune_scheduling
+    from scheduling.services.scheduling.scheduling_process_service import prune_scheduling
     try:
         prune_scheduling(scheduling)
     except Exception:
@@ -38,7 +38,7 @@ def worker_parse_scheduling(scheduling_uuid: str):
         return
 
     start_log_buffer()
-    from scheduling.process import parse_scheduling
+    from scheduling.services.scheduling.scheduling_process_service import parse_scheduling
     try:
         parse_scheduling(scheduling)
     except Exception:
