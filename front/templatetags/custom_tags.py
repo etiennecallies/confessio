@@ -6,14 +6,14 @@ from django.urls import reverse
 
 from fetching.models import OClocherOrganizationModeration, OClocherMatchingModeration
 from front.models import ReportModeration
-from registry.models import WebsiteModeration, ChurchModeration, ParishModeration, \
-    ModerationMixin, Diocese
 from front.services.website_events_service import WebsiteEvents
 from front.services.website_schedules_service import WebsiteSchedules
+from registry.models import WebsiteModeration, ChurchModeration, ParishModeration, \
+    ModerationMixin, Diocese
+from scheduling.models import ParsingModeration
+from scheduling.models.pruning_models import Pruning, PruningModeration, SentenceModeration
 from scheduling.utils.date_utils import get_current_year
 from scheduling.utils.list_utils import enumerate_with_and
-from scheduling.models.parsing_models import ParsingModeration
-from scheduling.models.pruning_models import Pruning, PruningModeration, SentenceModeration
 from scheduling.workflows.merging.sources import BaseSource
 from scheduling.workflows.parsing.holidays import HolidayZoneEnum
 from scheduling.workflows.parsing.rrule_utils import get_events_from_schedule_item

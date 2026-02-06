@@ -5,15 +5,17 @@ from uuid import UUID
 
 from fetching.services.oclocher_matching_service import get_matching_church_desc_by_id, \
     get_location_desc_by_id, get_matching_location_desc_by_id, get_location_desc
-from registry.models import Church, Website
 from front.services.holiday_zone_service import get_website_holiday_zone
 from front.services.sources_service import sort_parsings
+from registry.models import Church, Website
+from scheduling.models import Parsing
+from scheduling.models import Scheduling
+from scheduling.services.parsing_service import get_parsing_schedules_list, \
+    get_parsing_church_desc_by_id
+from scheduling.services.scheduling_service import get_scheduling_sources
 from scheduling.utils.date_utils import get_current_year
 from scheduling.utils.hash_utils import hash_string_to_hex
 from scheduling.utils.list_utils import get_desc_by_id
-from scheduling.models import Scheduling
-from scheduling.models.parsing_models import Parsing
-from scheduling.services.scheduling_service import get_scheduling_sources
 from scheduling.workflows.merging.merge_schedule_items import get_merged_sourced_schedule_items
 from scheduling.workflows.merging.oclocher_schedules import \
     get_schedules_list_from_oclocher_schedules
@@ -23,9 +25,6 @@ from scheduling.workflows.merging.sourced_schedule_items import SourcedScheduleI
 from scheduling.workflows.merging.sources import ParsingSource, BaseSource, OClocherSource
 from scheduling.workflows.parsing.explain_schedule import get_explanation_from_schedule
 from scheduling.workflows.parsing.rrule_utils import get_events_from_schedule_item
-from scheduling.services.parsing_service import get_parsing_schedules_list, \
-    get_parsing_church_desc_by_id
-
 
 MAX_SCHEDULES_PER_CHURCH = 30
 

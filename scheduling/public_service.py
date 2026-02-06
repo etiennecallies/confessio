@@ -1,4 +1,4 @@
-from scheduling.models.parsing_models import Parsing
+from scheduling.models import Parsing
 from scheduling.models.pruning_models import Sentence, Pruning
 from scheduling.process import init_scheduling
 from scheduling.services.scheduling_service import get_websites_of_prunings, get_websites_of_parsing

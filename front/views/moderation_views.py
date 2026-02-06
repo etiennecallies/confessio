@@ -14,7 +14,7 @@ from registry.models.base_moderation_models import BUG_DESCRIPTION_MAX_LENGTH, \
 from registry.public_service import registry_suggest_alternative_website
 from registry.services.church_human_service import on_church_human_validation
 from registry.services.merge_websites_service import merge_websites
-from scheduling.models.parsing_models import ParsingModeration
+from scheduling.models import ParsingModeration
 from scheduling.models.pruning_models import PruningModeration, SentenceModeration
 from scheduling.services.edit_parsing_service import on_parsing_human_validation, \
     ParsingValidationError, set_llm_json_as_human_json

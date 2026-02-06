@@ -6,24 +6,24 @@ from django.http import HttpResponseNotFound
 from django.shortcuts import render
 from pydantic import ValidationError
 
+from jsoneditor.forms import JSONSchemaForm
+from scheduling.models import Parsing
+from scheduling.models.pruning_models import Pruning, Sentence
+from scheduling.public_service import init_scheduling_for_sentences
+from scheduling.services.edit_parsing_service import set_human_json
 from scheduling.services.edit_pruning_service import get_colored_pieces, update_sentence_action, \
     set_ml_indices_as_human, set_human_indices, \
     get_pruning_human_pieces, get_colored_pieces_v2, set_v2_indices_as_human, \
     update_sentence_labels_with_request, TEMPORAL_COLORS, EVENT_MENTION_COLORS
-from jsoneditor.forms import JSONSchemaForm
-from scheduling.models.parsing_models import Parsing
-from scheduling.models.pruning_models import Pruning, Sentence
-from scheduling.public_service import init_scheduling_for_sentences
+from scheduling.services.parsing_service import get_parsing_schedules_list
+from scheduling.services.prune_scraping_service import SentenceFromDbActionInterface, \
+    prune_pruning, SentenceQualifyLineInterface
+from scheduling.utils.html_utils import split_lines
 from scheduling.workflows.parsing.schedules import SchedulesList, SCHEDULES_LIST_VERSION
 from scheduling.workflows.pruning.action_interfaces import DummyActionInterface
 from scheduling.workflows.pruning.extract_v2.qualify_line_interfaces import \
     DummyQualifyLineInterface
 from scheduling.workflows.pruning.models import Action
-from scheduling.services.edit_parsing_service import set_human_json
-from scheduling.services.parsing_service import get_parsing_schedules_list
-from scheduling.services.prune_scraping_service import SentenceFromDbActionInterface, \
-    prune_pruning, SentenceQualifyLineInterface
-from scheduling.utils.html_utils import split_lines
 
 
 @login_required

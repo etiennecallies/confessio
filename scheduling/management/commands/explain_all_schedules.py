@@ -1,8 +1,8 @@
 from core.management.abstract_command import AbstractCommand
 from front.templatetags.custom_tags import get_url
-from scheduling.models.parsing_models import ParsingModeration, Parsing
-from scheduling.workflows.parsing.explain_schedule import get_explanation_from_schedule
+from scheduling.models import ParsingModeration, Parsing
 from scheduling.services.parsing_service import get_parsing_schedules_list
+from scheduling.workflows.parsing.explain_schedule import get_explanation_from_schedule
 
 
 class Command(AbstractCommand):

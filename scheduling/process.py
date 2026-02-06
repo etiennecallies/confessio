@@ -13,6 +13,7 @@ from scheduling.services.parse_scheduling_service import do_parse_scheduling, \
     bulk_create_scheduling_parsing_objects
 from scheduling.services.prune_scheduling_service import do_prune_scheduling, \
     bulk_create_scheduling_pruning_objects
+from scheduling.services.scheduling_moderation_service import add_necessary_scheduling_moderation
 from scheduling.tasks import worker_prune_scheduling, worker_parse_scheduling
 
 
@@ -177,4 +178,5 @@ def index_scheduling(scheduling: Scheduling):
         scheduling.status = Scheduling.Status.INDEXED
         scheduling.save()
 
+    add_necessary_scheduling_moderation(scheduling)
     clean_parsings_moderations(list(parsing_history_ids))

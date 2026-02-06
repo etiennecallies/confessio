@@ -7,7 +7,7 @@ from django.db.models.functions import Now
 from core.utils.log_utils import info
 from crawling.workflows.refine.refine_content import stringify_html
 from registry.models import Church
-from scheduling.models.parsing_models import ParsingModeration, Parsing
+from scheduling.models import ParsingModeration, Parsing
 from scheduling.models.pruning_models import Pruning
 from scheduling.services.parsing_service import get_existing_parsing
 from scheduling.services.scheduling_service import get_websites_of_parsing

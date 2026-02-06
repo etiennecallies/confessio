@@ -1,4 +1,4 @@
-from scheduling.models.parsing_models import Parsing
+from scheduling.models import Parsing
 from scheduling.workflows.parsing.schedules import SchedulesList, SCHEDULES_LIST_VERSION
 from scheduling.workflows.parsing.v1_0_to_v1_1 import from_v1_0_to_v1_1
 

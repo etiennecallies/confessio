@@ -3,10 +3,10 @@ from uuid import UUID
 
 from attaching.models import Image
 from crawling.models import Scraping
-from scheduling.models.parsing_models import Parsing
+from scheduling.models import Parsing
 from scheduling.models.pruning_models import Pruning
-from scheduling.services.scheduling_service import SchedulingPrimarySources
 from scheduling.services.parsing_service import has_schedules
+from scheduling.services.scheduling_service import SchedulingPrimarySources
 
 
 #########################

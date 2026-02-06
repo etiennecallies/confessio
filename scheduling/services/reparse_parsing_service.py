@@ -2,7 +2,7 @@ from background_task import background
 from background_task.tasks import TaskSchedule
 
 from core.utils.log_utils import info
-from scheduling.models.parsing_models import Parsing
+from scheduling.models import Parsing
 from scheduling.public_service import init_schedulings_for_parsing
 from scheduling.services.parse_pruning_service import parse_parsing_preparation, \
     prepare_reparsing

@@ -1,4 +1,4 @@
-from scheduling.models.parsing_models import ParsingModeration, FineTunedLLM
+from scheduling.models import ParsingModeration, FineTunedLLM
 from scheduling.workflows.parsing.fine_tune_llm import build_jsonl_file, upload_file_on_openai, \
     launch_fine_tuning_job, check_fine_tuning_job_completion
 from scheduling.workflows.parsing.schedules import SchedulesList
