@@ -1,4 +1,5 @@
-from crawling.models import Crawling
+from crawling.models import Crawling, CrawlingModeration
+from crawling.services.crawling_moderation_service import upsert_crawling_moderation
 from fetching.public_service import process_extracted_widgets
 from registry.models import Website, WebsiteModeration
 from core.utils.log_utils import info
@@ -113,12 +114,12 @@ def do_crawl_website(website: Website) -> CrawlingResult:
                                        path_redirection, forbidden_paths)
 
 
-def crawl_website(website: Website) -> tuple[bool, bool]:
+def crawl_website(website: Website) -> CrawlingModeration.Category:
     # check if website has parish
     if not website.parishes.exists():
         website.delete()
         info('website has no parish')
-        return False, False
+        return CrawlingModeration.Category.NO_RESPONSE
 
     crawling_result = do_crawl_website(website)
 
@@ -152,11 +153,22 @@ def process_extracted_html(
             upsert_extracted_html_list(scraping, crawling_result.confession_pages[scraping.url])
 
 
+def get_crawling_moderation_category(website: Website,
+                                     crawling_result: CrawlingResult
+                                     ) -> CrawlingModeration.Category:
+    if crawling_result.confession_pages and website.scrapings.exists():
+        return CrawlingModeration.Category.OK
+    elif crawling_result.visited_links_count > 0:
+        return CrawlingModeration.Category.NO_PAGE
+    else:
+        return CrawlingModeration.Category.NO_RESPONSE
+
+
 def save_crawling_and_add_moderation(website: Website,
                                      crawling_result: CrawlingResult,
-                                     ) -> tuple[bool, bool]:
+                                     ) -> CrawlingModeration.Category:
     if not website.enabled_for_crawling:
-        return False, False
+        return CrawlingModeration.Category.NO_RESPONSE
 
     # Inserting global statistics
     crawling = Crawling(
@@ -177,25 +189,7 @@ def save_crawling_and_add_moderation(website: Website,
         last_crawling.delete()
 
     # Add moderation
-    if crawling_result.confession_pages:
-        remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_NO_RESPONSE)
+    crawling_category = get_crawling_moderation_category(website, crawling_result)
+    upsert_crawling_moderation(website, crawling_category)
 
-        if website.scrapings.exists():
-            remove_not_validated_moderation(website,
-                                            WebsiteModeration.Category.HOME_URL_NO_CONFESSION)
-
-            return True, True
-
-        add_moderation(website, WebsiteModeration.Category.HOME_URL_NO_CONFESSION)
-        return False, True
-
-    elif crawling_result.visited_links_count > 0:
-        remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_NO_RESPONSE)
-        add_moderation(website, WebsiteModeration.Category.HOME_URL_NO_CONFESSION)
-
-        return False, True
-    else:
-        add_moderation(website, WebsiteModeration.Category.HOME_URL_NO_RESPONSE)
-        remove_not_validated_moderation(website, WebsiteModeration.Category.HOME_URL_NO_CONFESSION)
-
-        return False, False
+    return crawling_category

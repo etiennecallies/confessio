@@ -4,7 +4,7 @@ from background_task import background
 from background_task.tasks import TaskSchedule
 from django.db.models.functions import Now
 
-from crawling.models import Log
+from crawling.models import Log, CrawlingModeration
 from crawling.workflows.scrape.download_refine_and_extract import get_fresh_extracted_html_list
 from registry.models import Website
 from crawling.services.log_service import save_buffer
@@ -41,7 +41,7 @@ def handle_crawl_website(website: Website):
     info(f'Starting crawling for website {website.name} {website.uuid}')
 
     try:
-        got_pages_with_content, some_pages_visited = crawl_website(website)
+        crawling_category = crawl_website(website)
     except Exception:
         info(f'Exception while crawling website {website.name} {website.uuid}')
         log_stack_trace()
@@ -51,9 +51,9 @@ def handle_crawl_website(website: Website):
 
     if not website.enabled_for_crawling:
         info(f'Website {website.name} {website.uuid} is not enabled for crawling.')
-    elif got_pages_with_content:
+    elif crawling_category == CrawlingModeration.Category.OK:
         info(f'Successfully crawled website {website.name} {website.uuid}')
-    elif some_pages_visited:
+    elif crawling_category == CrawlingModeration.Category.NO_PAGE:
         info(f'No page found for website {website.name} {website.uuid}')
     else:
         info(f'Error while crawling website {website.name} {website.uuid}')

@@ -2,6 +2,7 @@ from django.db import models
 from simple_history.models import HistoricalRecords
 
 from core.models.base_models import TimeStampMixin
+from registry.models import ModerationMixin
 
 
 class Crawling(TimeStampMixin):
@@ -50,3 +51,25 @@ class Log(TimeStampMixin):
     content = models.TextField()
     type = models.CharField(max_length=8, choices=Type)
     status = models.CharField(max_length=8, choices=Status)
+
+
+class CrawlingModeration(ModerationMixin):
+    class Category(models.TextChoices):
+        NO_RESPONSE = "no_resp"
+        NO_PAGE = "no_page"
+        OK = "ok"
+
+    resource = 'crawling'
+    validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
+                                     on_delete=models.SET_NULL, null=True)
+    marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
+                                         on_delete=models.SET_NULL, null=True)
+    diocese = models.ForeignKey('registry.Diocese', on_delete=models.CASCADE,
+                                related_name=f'{resource}_moderations', null=True)
+    history = HistoricalRecords()
+    website = models.OneToOneField('registry.Website', on_delete=models.CASCADE,
+                                   related_name=f'{resource}_moderation')
+    category = models.CharField(max_length=8, choices=Category)
+
+    def delete_on_validate(self) -> bool:
+        return False
