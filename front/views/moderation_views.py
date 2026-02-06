@@ -168,7 +168,7 @@ def moderate_website(request, category, is_bug, diocese_slug, moderation_uuid=No
 
 
 def render_website_moderation(request, moderation: WebsiteModeration, next_url):
-    return render(request, f'pages/moderate_website.html', {
+    return render(request, f'moderations/moderate_website.html', {
         'website_moderation': moderation,
         'website': moderation.website,
         'latest_crawling': moderation.website.crawling,
@@ -185,7 +185,7 @@ def moderate_parish(request, category, is_bug, diocese_slug, moderation_uuid=Non
 
 
 def render_parish_moderation(request, moderation: ParishModeration, next_url):
-    return render(request, f'pages/moderate_parish.html', {
+    return render(request, f'moderations/moderate_parish.html', {
         'parish_moderation': moderation,
         'parish': moderation.parish,
         'next_url': next_url,
@@ -201,7 +201,7 @@ def moderate_church(request, category, is_bug, diocese_slug, moderation_uuid=Non
 
 
 def render_church_moderation(request, moderation: ChurchModeration, next_url):
-    return render(request, f'pages/moderate_church.html', {
+    return render(request, f'moderations/moderate_church.html', {
         'church_moderation': moderation,
         'church': moderation.church,
         'similar_churches': moderation.get_similar_churches_sorted_by_name(),
@@ -252,7 +252,7 @@ def render_pruning_moderation(request, moderation: PruningModeration, next_url):
 
     parsing_moderation = get_parsing_moderation_of_pruning(pruning)
 
-    return render(request, f'pages/moderate_pruning.html', {
+    return render(request, f'moderations/moderate_pruning.html', {
         'pruning_moderation': moderation,
         'pruning': pruning,
         'next_url': next_url,
@@ -283,7 +283,7 @@ def render_sentence_moderation(request, moderation: SentenceModeration, next_url
     colored_piece_ml = get_single_line_colored_piece(
         line_and_tag_ml, Source.ML, i=2, do_show=True)
 
-    return render(request, f'pages/moderate_sentence.html', {
+    return render(request, f'moderations/moderate_sentence.html', {
         'sentence_moderation': moderation,
         'sentence': moderation.sentence,
         'colored_pieces': [colored_piece_human, colored_piece_ml],
@@ -321,7 +321,7 @@ def render_parsing_moderation(request, moderation: ParsingModeration, next_url):
     church_desc_by_id_json = json.dumps(parsing.church_desc_by_id, indent=2, ensure_ascii=False)
     back_path = request.GET.get('backPath', '')
 
-    return render(request, f'pages/moderate_parsing.html', {
+    return render(request, f'moderations/moderate_parsing.html', {
         'parsing_moderation': moderation,
         'parsing': parsing,
         'church_desc_by_id_json': church_desc_by_id_json,
@@ -345,7 +345,7 @@ def render_report_moderation(request, moderation: ReportModeration, next_url):
     report = moderation.report
     assert report is not None
 
-    return render(request, f'pages/moderate_report.html', {
+    return render(request, f'moderations/moderate_report.html', {
         'report': report,
         'report_moderation': moderation,
         'next_url': next_url,
@@ -361,7 +361,7 @@ def moderate_crawling(request, category, is_bug, diocese_slug, moderation_uuid=N
 
 
 def render_crawling_moderation(request, moderation: CrawlingModeration, next_url):
-    return render(request, f'pages/moderate_crawling.html', {
+    return render(request, f'moderations/moderate_crawling.html', {
         'website': moderation.website,
         'crawling_moderation': moderation,
         'next_url': next_url,
@@ -378,7 +378,7 @@ def moderate_scheduling(request, category, is_bug, diocese_slug, moderation_uuid
 
 
 def render_scheduling_moderation(request, moderation: SchedulingModeration, next_url):
-    return render(request, f'pages/moderate_scheduling.html', {
+    return render(request, f'moderations/moderate_scheduling.html', {
         'website': moderation.website,
         'scheduling_moderation': moderation,
         'next_url': next_url,
@@ -399,7 +399,7 @@ def render_oclocher_organization_moderation(request, moderation: OClocherOrganiz
     oclocher_organization = moderation.oclocher_organization
     assert oclocher_organization is not None
 
-    return render(request, f'pages/moderate_oclocher_organization.html', {
+    return render(request, f'moderations/moderate_oclocher_organization.html', {
         'oclocher_organization': oclocher_organization,
         'moderation': moderation,
         'next_url': next_url,
@@ -420,7 +420,7 @@ def render_oclocher_matching_moderation(request, moderation: OClocherMatchingMod
     oclocher_matching = moderation.oclocher_matching
     assert oclocher_matching is not None
 
-    return render(request, f'pages/moderate_oclocher_matching.html', {
+    return render(request, f'moderations/moderate_oclocher_matching.html', {
         'oclocher_matching': oclocher_matching,
         'moderation': moderation,
         'next_url': next_url,
