@@ -3,7 +3,8 @@ from crawling.models import CrawlingModeration
 from crawling.services.crawling_moderation_service import upsert_crawling_moderation
 from registry.models import WebsiteModeration
 from scheduling.models import SchedulingModeration
-from scheduling.services.scheduling_moderation_service import upsert_scheduling_moderation
+from scheduling.services.scheduling.scheduling_moderation_service import \
+    upsert_scheduling_moderation
 
 
 class Command(AbstractCommand):

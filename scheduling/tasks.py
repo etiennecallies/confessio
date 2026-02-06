@@ -3,7 +3,7 @@ from scheduling.models import Scheduling, Log
 from background_task import background
 from background_task.tasks import TaskSchedule
 
-from scheduling.services.log_service import save_buffer
+from scheduling.services.scheduling.log_service import save_buffer
 
 
 @background(queue='main', schedule=TaskSchedule(priority=1))

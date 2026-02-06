@@ -10,13 +10,14 @@ from front.forms.jsoneditor_form import JSONSchemaForm
 from scheduling.models import Parsing
 from scheduling.models.pruning_models import Pruning, Sentence
 from scheduling.public_service import init_scheduling_for_sentences
-from scheduling.services.edit_parsing_service import set_human_json
-from scheduling.services.edit_pruning_service import get_colored_pieces, update_sentence_action, \
+from scheduling.services.parsing.edit_parsing_service import set_human_json
+from scheduling.services.parsing.parsing_service import get_parsing_schedules_list
+from scheduling.services.pruning.edit_pruning_service import get_colored_pieces, \
+    update_sentence_action, \
     set_ml_indices_as_human, set_human_indices, \
     get_pruning_human_pieces, get_colored_pieces_v2, set_v2_indices_as_human, \
     update_sentence_labels_with_request, TEMPORAL_COLORS, EVENT_MENTION_COLORS
-from scheduling.services.parsing_service import get_parsing_schedules_list
-from scheduling.services.prune_scraping_service import SentenceFromDbActionInterface, \
+from scheduling.services.pruning.prune_scraping_service import SentenceFromDbActionInterface, \
     prune_pruning, SentenceQualifyLineInterface
 from scheduling.utils.html_utils import split_lines
 from scheduling.workflows.parsing.schedules import SchedulesList, SCHEDULES_LIST_VERSION

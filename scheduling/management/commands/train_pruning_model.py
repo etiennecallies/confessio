@@ -1,8 +1,9 @@
 from core.management.abstract_command import AbstractCommand
 from core.utils.heartbeat_utils import ping_heartbeat
 from scheduling.models.pruning_models import Classifier, Sentence
-from scheduling.services.classify_sentence_service import classify_line, get_classifier
-from scheduling.services.train_classifier_service import train_classifier, build_sentence_dataset, \
+from scheduling.services.pruning.classify_sentence_service import classify_line, get_classifier
+from scheduling.services.pruning.train_classifier_service import train_classifier, \
+    build_sentence_dataset, \
     extract_label
 from scheduling.utils.stat_utils import is_significantly_different
 
@@ -44,7 +45,7 @@ class Command(AbstractCommand):
 
     def train_model_for_target(self, target: Classifier.Target, automatic: bool):
         if automatic:
-            last_training_at = Classifier.objects.filter(target=target)\
+            last_training_at = Classifier.objects.filter(target=target) \
                 .latest('created_at').created_at
             self.info(f'Last training was at {last_training_at} for target {target}')
 

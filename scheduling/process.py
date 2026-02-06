@@ -1,19 +1,21 @@
 from django.db import transaction
 
-from registry.models import Website
 from core.utils.log_utils import info
+from registry.models import Website
 from scheduling.models import Scheduling, PruningParsing
-from scheduling.services.index_scheduling_service import do_index_scheduling, \
+from scheduling.services.scheduling.index_scheduling_service import do_index_scheduling, \
     clean_parsings_moderations
-from scheduling.services.init_scheduling_service import build_scheduling, \
+from scheduling.services.scheduling.init_scheduling_service import build_scheduling, \
     bulk_create_scheduling_related_objects
-from scheduling.services.match_scheduling_service import bulk_create_scheduling_matching_objects, \
+from scheduling.services.scheduling.match_scheduling_service import \
+    bulk_create_scheduling_matching_objects, \
     do_match_scheduling
-from scheduling.services.parse_scheduling_service import do_parse_scheduling, \
+from scheduling.services.scheduling.parse_scheduling_service import do_parse_scheduling, \
     bulk_create_scheduling_parsing_objects
-from scheduling.services.prune_scheduling_service import do_prune_scheduling, \
+from scheduling.services.scheduling.prune_scheduling_service import do_prune_scheduling, \
     bulk_create_scheduling_pruning_objects
-from scheduling.services.scheduling_moderation_service import add_necessary_scheduling_moderation
+from scheduling.services.scheduling.scheduling_moderation_service import \
+    add_necessary_scheduling_moderation
 from scheduling.tasks import worker_prune_scheduling, worker_parse_scheduling
 
 

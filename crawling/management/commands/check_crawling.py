@@ -9,7 +9,7 @@ from core.utils.heartbeat_utils import ping_heartbeat
 from registry.models import Website
 from scheduling.utils.date_utils import get_current_day
 from scheduling.models import IndexEvent
-from scheduling.services.scheduling_service import get_indexed_scheduling
+from scheduling.services.scheduling.scheduling_service import get_indexed_scheduling
 from scheduling.workflows.parsing.holidays import check_holiday_by_zone
 from scheduling.workflows.parsing.liturgical import check_easter_dates
 from registry.services.church_location_service import find_church_geo_outliers

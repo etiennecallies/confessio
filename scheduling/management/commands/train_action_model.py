@@ -2,8 +2,9 @@ from django.core.management import call_command
 
 from core.management.abstract_command import AbstractCommand
 from scheduling.models.pruning_models import Classifier, Sentence
-from scheduling.services.classify_sentence_service import classify_line, get_classifier
-from scheduling.services.train_classifier_service import train_classifier, build_sentence_dataset, \
+from scheduling.services.pruning.classify_sentence_service import classify_line, get_classifier
+from scheduling.services.pruning.train_classifier_service import train_classifier, \
+    build_sentence_dataset, \
     extract_label
 from scheduling.utils.stat_utils import is_significantly_different
 

@@ -15,7 +15,7 @@ from front.services.search.search_service import TimeFilter, AggregationItem, Bo
 from front.services.card.website_events_service import get_website_events, ChurchEvent, \
     WebsiteEvents
 from front.services.card.website_schedules_service import get_website_schedules
-from scheduling.services.scheduling_service import get_indexed_scheduling
+from scheduling.services.scheduling.scheduling_service import get_indexed_scheduling
 from scheduling.workflows.merging.sourced_schedule_items import SourcedScheduleItem
 from scheduling.workflows.merging.sources import BaseSource, ParsingSource, OClocherSource
 

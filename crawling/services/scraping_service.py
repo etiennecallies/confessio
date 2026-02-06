@@ -1,7 +1,7 @@
 from crawling.models import Scraping
 from core.utils.log_utils import info
 from scheduling.models.pruning_models import Pruning
-from scheduling.services.prune_scraping_service import remove_pruning_moderation_if_orphan
+from scheduling.services.pruning.prune_scraping_service import remove_pruning_moderation_if_orphan
 
 
 ############

@@ -11,7 +11,7 @@ from attaching.workflows.recognize.recognize_image_with_llm import (get_html_fro
                                                                     get_llm_model)
 from crawling.workflows.scrape.download_refine_and_extract import get_extracted_html_list
 from attaching.services.image_service import get_image_html
-from scheduling.services.prune_scraping_service import create_pruning
+from scheduling.services.pruning.prune_scraping_service import create_pruning
 
 
 def recognize_and_extract_image(image: Image):

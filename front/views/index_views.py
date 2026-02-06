@@ -27,7 +27,7 @@ from front.services.card.website_schedules_service import get_website_schedules
 from scheduling.utils.date_utils import get_current_day, get_current_year
 from front.utils.web_utils import redirect_with_url_params
 from scheduling.models import IndexEvent
-from scheduling.services.scheduling_service import get_indexed_scheduling, \
+from scheduling.services.scheduling.scheduling_service import get_indexed_scheduling, \
     get_scheduling_primary_sources
 from attaching.services.recognize_image_service import recognize_and_extract_image
 from registry.utils.string_utils import lower_first, city_and_prefix

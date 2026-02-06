@@ -8,8 +8,8 @@ from scheduling.workflows.pruning.models import Source, Action
 from scheduling.workflows.pruning.train_and_predict import TensorFlowModel
 from scheduling.workflows.pruning.transform_sentence import get_transformer, TransformerInterface, \
     TRANSFORMER_NAME
-from scheduling.services.classifier_target_service import get_target_enum
-from scheduling.services.train_classifier_service import set_label
+from scheduling.services.pruning.classifier_target_service import get_target_enum
+from scheduling.services.pruning.train_classifier_service import set_label
 from scheduling.utils.enum_utils import StringEnum
 
 _classifier = {}

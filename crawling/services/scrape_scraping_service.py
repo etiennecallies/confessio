@@ -1,6 +1,6 @@
 from crawling.models import Scraping
 from registry.models import Website
-from scheduling.services.prune_scraping_service import create_pruning
+from scheduling.services.pruning.prune_scraping_service import create_pruning
 from crawling.services.scraping_service import check_for_orphan_prunings
 
 

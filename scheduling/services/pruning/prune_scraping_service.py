@@ -5,7 +5,7 @@ from django.db import IntegrityError, transaction
 
 from core.utils.log_utils import info
 from scheduling.models.pruning_models import PruningModeration, Pruning, Sentence
-from scheduling.services.classify_sentence_service import classify_and_create_sentence
+from scheduling.services.pruning.classify_sentence_service import classify_and_create_sentence
 from scheduling.workflows.pruning.action_interfaces import BaseActionInterface
 from scheduling.workflows.pruning.extract.extract_content import \
     extract_paragraphs_lines_and_indices

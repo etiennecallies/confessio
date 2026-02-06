@@ -13,7 +13,7 @@ from scheduling.models import Log as SchedulingLog
 from scheduling.models import ParsingModeration, Parsing
 from scheduling.models import PruningParsing
 from scheduling.models.pruning_models import Pruning, Sentence, Classifier
-from scheduling.services.parse_pruning_service import clean_parsing_moderations
+from scheduling.services.parsing.parse_pruning_service import clean_parsing_moderations
 
 
 class Command(AbstractCommand):

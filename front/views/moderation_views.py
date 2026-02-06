@@ -17,16 +17,16 @@ from registry.services.church_human_service import on_church_human_validation
 from registry.services.merge_websites_service import merge_websites
 from scheduling.models import ParsingModeration, SchedulingModeration
 from scheduling.models.pruning_models import PruningModeration, SentenceModeration
-from scheduling.services.edit_parsing_service import on_parsing_human_validation, \
+from scheduling.services.parsing.edit_parsing_service import on_parsing_human_validation, \
     ParsingValidationError, set_llm_json_as_human_json
-from scheduling.services.edit_pruning_service import on_pruning_human_validation, \
+from scheduling.services.pruning.edit_pruning_service import on_pruning_human_validation, \
     set_v2_indices_as_human, get_single_line_colored_piece, update_sentence_labels_with_request, \
     TEMPORAL_COLORS, EVENT_MENTION_COLORS
-from scheduling.services.parsing_service import get_schedules_list_from_dict
-from scheduling.services.prune_scraping_service import SentenceQualifyLineInterface, \
+from scheduling.services.parsing.parsing_service import get_schedules_list_from_dict
+from scheduling.services.pruning.prune_scraping_service import SentenceQualifyLineInterface, \
     MLSentenceQualifyLineInterface
-from scheduling.services.reparse_parsing_service import reparse_parsing
-from scheduling.services.scheduling_service import get_parsing_moderation_of_pruning
+from scheduling.services.parsing.reparse_parsing_service import reparse_parsing
+from scheduling.services.scheduling.scheduling_service import get_parsing_moderation_of_pruning
 from scheduling.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 from scheduling.workflows.pruning.extract_v2.split_content import create_line_and_tag_v2
 from scheduling.workflows.pruning.models import Source

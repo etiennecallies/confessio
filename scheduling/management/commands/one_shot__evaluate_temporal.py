@@ -1,9 +1,10 @@
 from core.management.abstract_command import AbstractCommand
 from scheduling.models.pruning_models import Classifier
-from scheduling.workflows.pruning.extract_v2.models import Temporal
-from scheduling.services.classify_sentence_service import get_ml_label
-from scheduling.services.train_classifier_service import build_sentence_dataset, extract_label
+from scheduling.services.pruning.classify_sentence_service import get_ml_label
+from scheduling.services.pruning.train_classifier_service import build_sentence_dataset, \
+    extract_label
 from scheduling.utils.enum_utils import BooleanStringEnum
+from scheduling.workflows.pruning.extract_v2.models import Temporal
 
 
 class Command(AbstractCommand):

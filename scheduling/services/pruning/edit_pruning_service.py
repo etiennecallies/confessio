@@ -16,9 +16,9 @@ from scheduling.workflows.pruning.extract_v2.split_content import split_and_tag_
 from scheduling.workflows.pruning.models import Action, Source
 from scheduling.workflows.pruning.prune_lines import get_pruned_lines_indices
 from crawling.workflows.refine.refine_content import replace_link_by_their_content
-from scheduling.services.prune_scraping_service import add_necessary_moderation_v2, \
+from scheduling.services.pruning.prune_scraping_service import add_necessary_moderation_v2, \
     add_necessary_moderation
-from scheduling.services.train_classifier_service import extract_label
+from scheduling.services.pruning.train_classifier_service import extract_label
 from scheduling.utils.html_utils import split_lines
 
 

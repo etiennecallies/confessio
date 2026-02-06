@@ -15,7 +15,7 @@ from front.services.card.website_schedules_service import get_color_of_nullable_
 from registry.models import Parish, Church, Website
 from scheduling.models import Parsing
 from scheduling.models.pruning_models import Pruning
-from scheduling.services.scheduling_service import get_prunings_of_parsing
+from scheduling.services.scheduling.scheduling_service import get_prunings_of_parsing
 from scheduling.utils.list_utils import group_consecutive_indices
 from scheduling.workflows.parsing.explain_schedule import get_explanation_from_schedule
 from scheduling.workflows.parsing.schedules import SchedulesList, Event, ScheduleItem

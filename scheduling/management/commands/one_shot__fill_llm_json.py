@@ -1,6 +1,6 @@
 from core.management.abstract_command import AbstractCommand
 from scheduling.models import Parsing
-from scheduling.services.parsing_service import get_parsing_schedules_list
+from scheduling.services.parsing.parsing_service import get_parsing_schedules_list
 
 
 class Command(AbstractCommand):

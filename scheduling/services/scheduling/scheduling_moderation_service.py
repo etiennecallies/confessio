@@ -4,7 +4,7 @@ from crawling.models import CrawlingModeration
 from registry.models import Website
 from scheduling.models import Scheduling
 from scheduling.models.scheduling_moderation_models import SchedulingModeration
-from scheduling.services.scheduling_service import get_scheduling_sources
+from scheduling.services.scheduling.scheduling_service import get_scheduling_sources
 
 
 def upsert_scheduling_moderation(website: Website, category: SchedulingModeration.Category,

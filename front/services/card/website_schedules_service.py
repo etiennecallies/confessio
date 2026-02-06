@@ -10,9 +10,9 @@ from front.services.card.sources_service import sort_parsings
 from registry.models import Church, Website
 from scheduling.models import Parsing
 from scheduling.models import Scheduling
-from scheduling.services.parsing_service import get_parsing_schedules_list, \
+from scheduling.services.parsing.parsing_service import get_parsing_schedules_list, \
     get_parsing_church_desc_by_id
-from scheduling.services.scheduling_service import get_scheduling_sources
+from scheduling.services.scheduling.scheduling_service import get_scheduling_sources
 from scheduling.utils.date_utils import get_current_year
 from scheduling.utils.hash_utils import hash_string_to_hex
 from scheduling.utils.list_utils import get_desc_by_id
