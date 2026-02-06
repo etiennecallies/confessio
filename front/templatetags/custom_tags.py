@@ -4,13 +4,14 @@ from typing import Optional
 from django.template.defaulttags import register
 from django.urls import reverse
 
+from crawling.models import CrawlingModeration
 from fetching.models import OClocherOrganizationModeration, OClocherMatchingModeration
 from front.models import ReportModeration
 from front.services.website_events_service import WebsiteEvents
 from front.services.website_schedules_service import WebsiteSchedules
 from registry.models import WebsiteModeration, ChurchModeration, ParishModeration, \
     ModerationMixin, Diocese
-from scheduling.models import ParsingModeration
+from scheduling.models import ParsingModeration, SchedulingModeration
 from scheduling.models.pruning_models import Pruning, PruningModeration, SentenceModeration
 from scheduling.utils.date_utils import get_current_year
 from scheduling.utils.list_utils import enumerate_with_and
@@ -133,6 +134,8 @@ def get_moderation_stats(diocese: Diocese | None):
         SentenceModeration.get_stats_by_category(diocese),
         ParsingModeration.get_stats_by_category(diocese),
         ReportModeration.get_stats_by_category(diocese),
+        CrawlingModeration.get_stats_by_category(diocese),
+        SchedulingModeration.get_stats_by_category(diocese),
         OClocherOrganizationModeration.get_stats_by_category(diocese),
         OClocherMatchingModeration.get_stats_by_category(diocese),
     ], [])

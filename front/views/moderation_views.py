@@ -5,6 +5,7 @@ from django.http import HttpResponseBadRequest, HttpResponseNotFound
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
+from crawling.models import CrawlingModeration
 from fetching.models import OClocherOrganizationModeration, OClocherMatchingModeration
 from front.models import ReportModeration
 from registry.models import WebsiteModeration, ChurchModeration, ModerationMixin, \
@@ -14,7 +15,7 @@ from registry.models.base_moderation_models import BUG_DESCRIPTION_MAX_LENGTH, \
 from registry.public_service import registry_suggest_alternative_website
 from registry.services.church_human_service import on_church_human_validation
 from registry.services.merge_websites_service import merge_websites
-from scheduling.models import ParsingModeration
+from scheduling.models import ParsingModeration, SchedulingModeration
 from scheduling.models.pruning_models import PruningModeration, SentenceModeration
 from scheduling.services.edit_parsing_service import on_parsing_human_validation, \
     ParsingValidationError, set_llm_json_as_human_json
@@ -347,6 +348,39 @@ def render_report_moderation(request, moderation: ReportModeration, next_url):
     return render(request, f'pages/moderate_report.html', {
         'report': report,
         'report_moderation': moderation,
+        'next_url': next_url,
+        'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
+    })
+
+
+@login_required
+@permission_required("scheduling.change_sentence")
+def moderate_crawling(request, category, is_bug, diocese_slug, moderation_uuid=None):
+    return get_moderate_response(request, category, 'crawling', is_bug, diocese_slug,
+                                 CrawlingModeration, moderation_uuid, render_crawling_moderation)
+
+
+def render_crawling_moderation(request, moderation: CrawlingModeration, next_url):
+    return render(request, f'pages/moderate_crawling.html', {
+        'website': moderation.website,
+        'crawling_moderation': moderation,
+        'next_url': next_url,
+        'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
+    })
+
+
+@login_required
+@permission_required("scheduling.change_sentence")
+def moderate_scheduling(request, category, is_bug, diocese_slug, moderation_uuid=None):
+    return get_moderate_response(request, category, 'scheduling', is_bug, diocese_slug,
+                                 SchedulingModeration, moderation_uuid,
+                                 render_scheduling_moderation)
+
+
+def render_scheduling_moderation(request, moderation: SchedulingModeration, next_url):
+    return render(request, f'pages/moderate_scheduling.html', {
+        'website': moderation.website,
+        'scheduling_moderation': moderation,
         'next_url': next_url,
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
     })

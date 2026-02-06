@@ -1,0 +1,45 @@
+{% extends 'layouts/moderation_card.html' %}
+
+{% block card %}
+    <h2 class="mb-3">
+        Crawling: {{ crawling_moderation.get_category_display }}
+    </h2>
+    {% if crawling_moderation.bug_description %}
+        <p>Bug description : {{ crawling_moderation.bug_description }}</p>
+    {% endif %}
+    <div>
+        <div class="d-inline-block">
+            <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Validate & next</button>
+            </form>
+        </div>
+        <div class="d-inline-block">
+            <a class="btn btn-info" role="button" href="{{ next_url }}">Next</a>
+        </div>
+    </div>
+
+    Website: {{ website.name }}<br>
+    Link: <a href="{% url 'website_view' website.uuid %}" target="_blank">Go to website</a>
+
+    {% if not crawling_moderation.marked_as_bug_at %}
+        <div>
+            <form method="post">
+                <label>
+                    <input type="text" name="bug_description" maxlength="{{ bug_description_max_length }}">
+                </label>
+                {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Report bug & next</button>
+            </form>
+        </div>
+    {% endif %}
+    <div>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="delete_moderation" />
+            <button type="submit" class="btn btn-gray-700">
+                 <i class="fas fa-xmark"></i>
+                Delete moderation</button>
+        </form>
+    </div>
+{% endblock card %}
