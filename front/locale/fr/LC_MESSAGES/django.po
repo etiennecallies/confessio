@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-01-24 16:27+0100\n"
+"POT-Creation-Date: 2026-02-06 15:08+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,39 +18,68 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: services/map_service.py:112
+#: forms/themepixel_forms.py:10
+msgid "Your Password"
+msgstr ""
+
+#: forms/themepixel_forms.py:14
+msgid "Confirm Password"
+msgstr ""
+
+#: forms/themepixel_forms.py:24
+msgid "Your Username"
+msgstr ""
+
+#: forms/themepixel_forms.py:25 forms/themepixel_forms.py:53
+msgid "Your Email"
+msgstr ""
+
+#: forms/themepixel_forms.py:43
+msgid "Password"
+msgstr ""
+
+#: forms/themepixel_forms.py:59 forms/themepixel_forms.py:71
+msgid "New Password"
+msgstr ""
+
+#: forms/themepixel_forms.py:62 forms/themepixel_forms.py:74
+msgid "Confirm New Password"
+msgstr ""
+
+#: forms/themepixel_forms.py:68
+msgid "Old Password"
+msgstr ""
+
+#: services/map_service.py:47
+msgid "NextEvent"
+msgstr "Prochaine confession"
+
+#: services/map_service.py:50
 msgid "ConfessionsExist"
 msgstr "Des confessions existent dans la paroisse"
 
-#: services/map_service.py:116 templates/includes/website_schedules.html:55
-#: templates/includes/website_sources.html:63
+#: services/map_service.py:53 templates/partials/website_events.html:69
+#: templates/partials/website_sources.html:83
 msgid "NotCrawledYet"
 msgstr "Traitement en cours pour cette paroisse"
 
-#: services/map_service.py:119 templates/includes/website_sources.html:65
+#: services/map_service.py:56
 msgid "NoConfessionFound"
 msgstr "Pas de confessions trouvées"
 
-msgid "NoConfessionExtractFound"
-msgstr "Pas d'extraits trouvés concernant les confessions."
-
-#: services/map_service.py:122
+#: services/map_service.py:59
 msgid "JumpBelow"
 msgstr "Voir ci-dessous"
 
-#: templates/includes/footer.html:9
+#: templates/includes/footer.html:24
 msgid "footerAboutUs"
 msgstr "Ce site, d'initiative laïque, est en phase de développement."
 
-#: templates/includes/footer.html:9 templates/pages/contact.html:14
+#: templates/includes/footer.html:25 templates/pages/contact.html:11
 msgid "contactUs"
 msgstr "Nous contacter"
 
-#: templates/includes/footer.html:16
-msgid "footerDiocesesList"
-msgstr "Voir la liste des diocèses opérés"
-
-#: templates/includes/footer.html:44
+#: templates/includes/footer.html:56
 msgid "footerFranceCookie"
 msgstr "Made in 🇫🇷 with ✝️ without 🍪"
 
@@ -58,139 +87,162 @@ msgstr "Made in 🇫🇷 with ✝️ without 🍪"
 msgid "navContact"
 msgstr "Contact"
 
-#: templates/includes/navigation.html:31
-msgid "navLogout"
-msgstr "Se déconnecter"
+#: templates/includes/navigation.html:36 templates/pages/dioceses.html:11
+#: templates/pages/index.html:127
+msgid "donateUrl"
+msgstr ""
+"https://www.leetchi.com/fr/c/confessio--participation-aux-frais-de-"
+"serveur-3379251"
 
-#: templates/includes/navigation.html:33
+#: templates/includes/navigation.html:36 templates/pages/index.html:127
 msgid "navDonate"
 msgstr "Nous soutenir 💙"
 
-#: templates/includes/navigation.html:33
-msgid "donateUrl"
-msgstr "https://www.leetchi.com/fr/c/confessio--participation-aux-frais-de-serveur-3379251"
+#: templates/includes/navigation.html:40
+msgid "navLogout"
+msgstr "Se déconnecter"
 
-#: templates/includes/navigation.html:39
+#: templates/includes/navigation.html:46
 msgid "moderationMenu"
 msgstr "Modération"
 
-#: templates/includes/website_card.html:25
+#: templates/includes/schedules_table.html:32
+#: templates/partials/website_churches.html:28
+msgid "OutsideThisParish"
+msgstr "En dehors de cette paroisse (consulter les sources)"
+
+#: templates/includes/schedules_table.html:32
+#: templates/partials/website_churches.html:35
+msgid "UnknownChurch"
+msgstr "Lieu inconnu (consulter les sources)"
+
+#: templates/includes/website_card.html:29
 msgid "goToParishSite"
 msgstr "Aller sur le site"
 
-#: templates/includes/website_sources.html:12
-#: templates/pages/edit_pruning.html:17
-#, python-format
-msgid "BeforeConfessionHTML %(url)s"
-msgstr "Extrait de cette <a href=\"%(url)s\" class=\"link-info\">page</a> : "
-
-#: templates/includes/website_sources.html:32
-msgid "EditPruning"
-msgstr "Corriger"
-
-#: templates/includes/website_sources.html:45
-msgid "EditParsing"
-msgstr "Corriger"
-
 #: templates/layouts/base.html:26 templates/layouts/base.html:28
-#: templates/layouts/base.html:40 templates/layouts/base.html:47
+#: templates/layouts/base.html:40 templates/layouts/base.html:48
+#: views/index_views.py:212
 msgid "confessioPageTitle"
 msgstr "Confessio - Horaires des confessions"
 
 #: templates/layouts/base.html:29 templates/layouts/base.html:41
-#: templates/layouts/base.html:48 templates/pages/index.html:14
+#: templates/layouts/base.html:49 templates/pages/index.html:16
 msgid "confessioDescription"
 msgstr "Planifiez votre prochaine confession !"
 
 #: templates/layouts/base.html:30 templates/layouts/base.html:31
-#: templates/pages/index.html:13
+#: templates/layouts/base.html:43 views/index_views.py:211
+#: views/index_views.py:250 views/index_views.py:261 views/index_views.py:283
 msgid "confessioTitle"
 msgstr "Confessio"
 
-#: templates/pages/contact.html:4 templates/pages/contact.html:5
-msgid "contactPageTitle"
-msgstr "Confessio - Nous contacter"
-
-#: templates/pages/contact.html:27
+#: templates/pages/contact.html:24
 msgid "contactTitle"
-msgstr "Prendre contact, signaler une erreur, suggérer une amélioration, contribuer au projet ?"
+msgstr ""
+"Prendre contact, signaler une erreur, suggérer une amélioration, contribuer "
+"au projet ?"
 
-#: templates/pages/contact.html:28
+#: templates/pages/contact.html:25
 msgid "contactSubTitle"
 msgstr "Laissez-nous un message 🙂"
 
-#: templates/pages/contact.html:34
+#: templates/pages/contact.html:31
 msgid "contactSuccessStrong"
 msgstr "Merci !"
 
-#: templates/pages/contact.html:34
+#: templates/pages/contact.html:31
 msgid "contactSuccess"
 msgstr "Votre message a bien été envoyé."
 
-#: templates/pages/contact.html:42
+#: templates/pages/contact.html:39
 msgid "contactFailureStrong"
 msgstr "Oh zut !"
 
-#: templates/pages/contact.html:42
+#: templates/pages/contact.html:39
 msgid "contactFailure"
 msgstr "Quelque chose n'a pas fonctionné, veuillez réessayer un autre jour."
 
-#: templates/pages/dioceses.html:6 templates/pages/dioceses.html:7
-msgid "diocesesPageTitle"
-msgstr "Confessio - Liste des diocèses"
-
-#: templates/pages/dioceses.html:10
+#: templates/pages/dioceses.html:7
 msgid "diocesesTitle"
 msgstr "Liste des diocèses opérés"
 
-#: templates/pages/index.html:26
+#: templates/pages/edit_pruning_human.html:17
+#: templates/pages/edit_pruning_v1.html:17
+#: templates/pages/edit_pruning_v2.html:17
+#: templates/partials/website_sources.html:12
+#, python-format
+msgid "BeforeConfessionHTML %(url)s"
+msgstr "Extrait de cette <a href=\"%(url)s\" class=\"link-info\">page</a> : "
+
+#: templates/pages/index.html:53
 msgid "searchPlaceHolder"
 msgstr "🔍 Chercher une ville, une paroisse, une église ..."
 
-#: templates/pages/index.html:42
+#: templates/pages/index.html:112
 msgid "tooManyResultsStrong"
 msgstr "Beaucoup d'églises dans cette région !"
 
-#: templates/pages/index.html:42
-msgid "tooManyResultsWithoutDate"
-msgstr "Veuillez zoomer ou bien préciser le jour souhaité."
-
-#: templates/pages/index.html:42
+#: templates/pages/index.html:112
 msgid "tooManyResultsWithDate"
 msgstr "Veuillez zoomer et cliquer sur 'Rechercher dans cette zone'."
 
-#: templates/pages/index.html:51
+#: templates/pages/index.html:112
+msgid "tooManyResultsWithoutDate"
+msgstr "Veuillez zoomer ou bien préciser le jour souhaité."
+
+#: templates/pages/index.html:122
 msgid "noResultsStrong"
 msgstr "Pas de résultats..."
 
+#: templates/pages/index.html:124
 msgid "noResultsWithDate"
 msgstr "Essayez sans filtre de date et heure."
 
-#: templates/pages/index.html:64
+#: templates/pages/index.html:145
 msgid "searchAroundMe"
 msgstr "Autour de moi"
 
-#: templates/pages/index.html:77
+#: templates/pages/index.html:161
 msgid "searchInThisArea"
 msgstr "Dans cette zone"
 
-#: templates/pages/report.html:42
+#: templates/pages/index.html:251 templates/pages/index.html:297
 msgid "report_feedback_good"
 msgstr "👍 Tout semble bon !"
 
-#: templates/pages/report.html:49
+#: templates/pages/index.html:257 templates/pages/index.html:299
 msgid "report_feedback_outdated"
-msgstr "👎 L'analyse est correcte, mais le site de la paroisse n'est pas à jour"
+msgstr ""
+"👎 L'analyse est correcte, mais le site de la paroisse n'est pas à jour"
 
-#: templates/pages/report.html:56
+#: templates/pages/index.html:263 templates/pages/index.html:295
 msgid "report_feedback_error"
 msgstr "❌ Il y a une erreur"
 
-msgid "NextEvent"
-msgstr "Prochaine confession"
+#: templates/partials/website_sources.html:42
+#: templates/partials/website_sources.html:105
+#: templates/partials/website_sources.html:148
+msgid "EditPruning"
+msgstr "Corriger"
 
-msgid "OutsideThisParish"
-msgstr "En dehors de cette paroisse (consulter les sources)"
+#: templates/partials/website_sources.html:54
+#: templates/partials/website_sources.html:117
+#: templates/partials/website_sources.html:160
+msgid "EditParsing"
+msgstr "Corriger"
 
-msgid "UnknownChurch"
-msgstr "Lieu inconnu (consulter les sources)"
+#: templates/partials/website_sources.html:85
+msgid "NoConfessionExtractFound"
+msgstr "Pas d'extraits trouvés concernant les confessions."
+
+#: views/contact_views.py:22
+msgid "contactPageTitle"
+msgstr "Confessio - Nous contacter"
+
+#: views/index_views.py:405
+msgid "diocesesPageTitle"
+msgstr "Confessio - Liste des diocèses"
+
+#~ msgid "footerDiocesesList"
+#~ msgstr "Voir la liste des diocèses opérés"
