@@ -6,12 +6,12 @@ from attaching.services.image_service import get_image_html
 from attaching.services.upload_image_service import get_image_public_url
 from attaching.workflows.recognize.recognize_image_with_llm import (get_html_from_image, get_prompt,
                                                                     get_llm_model)
+from core.utils.llm_utils import LLMProvider
 from core.utils.log_utils import info
 from crawling.public_worflow import crawling_get_extracted_html_list
 from scheduling.process import init_scheduling
 from scheduling.public_service import scheduling_create_pruning
 from scheduling.utils.hash_utils import hash_string_to_hex
-from scheduling.workflows.parsing.llm_client import LLMProvider
 
 
 def recognize_and_extract_image(image: Image):

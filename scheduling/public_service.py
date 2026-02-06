@@ -1,3 +1,4 @@
+from registry.models import Website
 from scheduling.models import Parsing
 from scheduling.models.pruning_models import Sentence, Pruning
 from scheduling.process import init_scheduling
@@ -39,3 +40,11 @@ def init_schedulings_for_parsing(parsing: Parsing):
     websites = get_websites_of_parsing(parsing)
     for website in websites:
         init_scheduling(website)
+
+
+###################
+# RELATED OBJECTS #
+###################
+
+def scheduling_get_websites_of_parsing(parsing: Parsing) -> list[Website]:
+    return get_websites_of_parsing(parsing)

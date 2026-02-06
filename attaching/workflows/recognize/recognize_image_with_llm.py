@@ -3,7 +3,7 @@ import os
 
 from openai import BadRequestError
 
-from scheduling.workflows.parsing.llm_client import LLMProvider
+from core.utils.llm_utils import LLMProvider
 
 
 def get_prompt() -> str:

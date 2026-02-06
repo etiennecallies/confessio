@@ -2,7 +2,7 @@ from django.db import models
 from simple_history.models import HistoricalRecords
 
 from core.models.base_models import TimeStampMixin
-from scheduling.workflows.parsing.llm_client import LLMProvider
+from core.utils.llm_utils import LLMProvider
 
 
 class OClocherOrganization(TimeStampMixin):

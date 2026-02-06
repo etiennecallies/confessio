@@ -1,16 +1,8 @@
 from abc import abstractmethod
-from enum import Enum
 from typing import Optional
 
+from core.utils.llm_utils import LLMProvider
 from scheduling.workflows.parsing.schedules import SchedulesList
-
-
-class LLMProvider(str, Enum):
-    OPENAI = "openai"
-
-    @classmethod
-    def choices(cls):
-        return [(item.value, item.name) for item in cls]
 
 
 class LLMClientInterface:

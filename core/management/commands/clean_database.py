@@ -13,7 +13,7 @@ from scheduling.models import Log as SchedulingLog
 from scheduling.models import ParsingModeration, Parsing
 from scheduling.models import PruningParsing
 from scheduling.models.pruning_models import Pruning, Sentence, Classifier
-from scheduling.services.parsing.parse_pruning_service import clean_parsing_moderations
+from scheduling.public_service import scheduling_get_websites_of_parsing
 
 
 class Command(AbstractCommand):
@@ -38,7 +38,7 @@ class Command(AbstractCommand):
         self.clean_history(Parsing, Parsing.history.model)
 
         self.info(f'Starting cleaning parsing moderations')
-        delete_count = clean_parsing_moderations()
+        delete_count = self.clean_parsing_moderations()
         self.success(f'Successfully cleaning {delete_count} parsing moderations')
 
         self.clean_history(ParsingModeration, ParsingModeration.history.model)
@@ -134,6 +134,16 @@ class Command(AbstractCommand):
             if getattr(old, field) != getattr(new, field):
                 diff.add(field)
         return diff
+
+    @staticmethod
+    def clean_parsing_moderations() -> int:
+        counter = 0
+        for parsing_moderation in ParsingModeration.objects.filter(validated_at__isnull=True).all():
+            if not scheduling_get_websites_of_parsing(parsing_moderation.parsing):
+                parsing_moderation.delete()
+                counter += 1
+
+        return counter
 
     def delete_irrelevant_history(self, model: Type[Model], fields_to_ignore: set[str]):
         total_deleted = 0

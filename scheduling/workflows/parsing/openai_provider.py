@@ -4,7 +4,8 @@ from typing import Optional
 from openai import AsyncOpenAI, BadRequestError
 from pydantic import ValidationError
 
-from scheduling.workflows.parsing.llm_client import LLMClientInterface, LLMProvider
+from core.utils.llm_utils import LLMProvider
+from scheduling.workflows.parsing.llm_client import LLMClientInterface
 from scheduling.workflows.parsing.schedules import SchedulesList
 
 

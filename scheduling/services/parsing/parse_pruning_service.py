@@ -120,16 +120,6 @@ def parsing_needs_moderation(parsing: Parsing):
 # MODERATION CLEAN #
 ####################
 
-def clean_parsing_moderations() -> int:
-    counter = 0
-    for parsing_moderation in ParsingModeration.objects.filter(validated_at__isnull=True).all():
-        if not get_websites_of_parsing(parsing_moderation.parsing):
-            parsing_moderation.delete()
-            counter += 1
-
-    return counter
-
-
 def remove_useless_moderation_for_parsing(parsing: Parsing):
     if get_websites_of_parsing(parsing):
         return
