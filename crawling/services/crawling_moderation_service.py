@@ -6,7 +6,7 @@ from registry.models import Website
 
 
 def upsert_crawling_moderation(website: Website, category: CrawlingModeration.Category,
-                               moderation_validated: bool):
+                               moderation_validated: bool) -> CrawlingModeration:
     try:
         moderation = CrawlingModeration.objects.get(website=website)
         if moderation.category != category:
@@ -21,6 +21,8 @@ def upsert_crawling_moderation(website: Website, category: CrawlingModeration.Ca
             validated_at=Now() if moderation_validated else None,
         )
         moderation.save()
+
+    return moderation
 
 
 def get_crawling_moderation_category(website: Website,
