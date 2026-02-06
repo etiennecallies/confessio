@@ -5,9 +5,10 @@ from django.db.models import F, Q
 from django.utils import timezone
 
 from core.management.abstract_command import AbstractCommand
-from registry.models import Website, WebsiteModeration
 from core.utils.log_utils import start_log_buffer
+from crawling.models import CrawlingModeration
 from crawling.services.website_worker_service import worker_crawl_website, handle_crawl_website
+from registry.models import Website
 
 
 class Command(AbstractCommand):
@@ -38,9 +39,9 @@ class Command(AbstractCommand):
             websites = Website.objects.filter(is_active=True, uuid=options['uuid']).all()
         elif options['in_error']:
             websites = Website.objects.filter(is_active=True).filter(
-                Q(moderations__category__in=[
-                    WebsiteModeration.Category.HOME_URL_NO_RESPONSE,
-                    WebsiteModeration.Category.HOME_URL_NO_CONFESSION],
+                Q(crawling_moderation__category__in=[
+                    CrawlingModeration.Category.NO_RESPONSE,
+                    CrawlingModeration.Category.NO_PAGE],
                     moderations__validated_at__isnull=True)
                 | Q(crawling__recrawl_triggered_at__isnull=False)).all()
         elif options['no_recent']:

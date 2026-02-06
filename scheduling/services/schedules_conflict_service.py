@@ -28,6 +28,7 @@ def website_has_schedules_conflict(church_index_events: list[IndexEvent]
 
 
 def look_for_conflict(website: Website, church_index_events: list[IndexEvent]):
+    # TODO migrate to SchedulingModeration and remove this function
     conflict = website_has_schedules_conflict(church_index_events)
     if conflict is None:
         remove_not_validated_moderation(website,

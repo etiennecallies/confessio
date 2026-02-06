@@ -11,13 +11,10 @@ class WebsiteModeration(ModerationMixin):
     class Category(models.TextChoices):
         NAME_CONCATENATED = "name_concat"
         NAME_WEBSITE_TITLE = "name_websit"
-        HOME_URL_NO_RESPONSE = "hu_no_resp"
-        HOME_URL_NO_CONFESSION = "hu_no_conf"
         HOME_URL_CONFLICT = "hu_conflict"
         HOME_URL_TOO_LONG = "hu_too_long"
         HOME_URL_DIOCESE = "hu_diocese"
         GOOGLE_SEARCH = "google_search"
-        SCHEDULES_CONFLICT = "sched_conflict"
 
     resource = 'website'
     validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
@@ -41,13 +38,6 @@ class WebsiteModeration(ModerationMixin):
         unique_together = ('website', 'category')
 
     def delete_on_validate(self) -> bool:
-        # If website home_url has been changed, those moderation objects are not relevant anymore
-        if self.category in [self.Category.HOME_URL_NO_RESPONSE,
-                             self.Category.HOME_URL_NO_CONFESSION]\
-                and (self.home_url != self.website.home_url
-                     or not self.website.enabled_for_crawling):
-            return True
-
         # If other_website has been merged, we can delete this moderation
         if self.category == self.Category.HOME_URL_CONFLICT\
                 and self.other_website is None:
