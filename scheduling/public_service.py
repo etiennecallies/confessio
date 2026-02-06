@@ -1,8 +1,17 @@
 from scheduling.models import Parsing
 from scheduling.models.pruning_models import Sentence, Pruning
 from scheduling.process import init_scheduling
+from scheduling.services.pruning.prune_scraping_service import create_pruning
 from scheduling.services.scheduling.scheduling_service import get_websites_of_prunings, \
     get_websites_of_parsing
+
+
+###########
+# PRUNING #
+###########
+
+def scheduling_create_pruning(extracted_html: str | None) -> Pruning | None:
+    return create_pruning(extracted_html)
 
 
 ###################

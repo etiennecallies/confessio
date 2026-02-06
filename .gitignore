@@ -23,3 +23,6 @@ profiling_prof_files/
 
 # Direnv
 .envrc
+
+# Tach
+tach.toml

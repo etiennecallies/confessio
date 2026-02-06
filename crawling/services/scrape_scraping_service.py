@@ -1,7 +1,7 @@
 from crawling.models import Scraping
-from registry.models import Website
-from scheduling.services.pruning.prune_scraping_service import create_pruning
 from crawling.services.scraping_service import check_for_orphan_prunings
+from registry.models import Website
+from scheduling.public_service import scheduling_create_pruning
 
 
 def is_extracted_html_list_identical_for_scraping(scraping: Scraping,
@@ -45,4 +45,4 @@ def create_scraping(extracted_html_list: list[str],
     scraping.save()
 
     for extracted_html_item in extracted_html_list:
-        scraping.prunings.add(create_pruning(extracted_html_item))
+        scraping.prunings.add(scheduling_create_pruning(extracted_html_item))
