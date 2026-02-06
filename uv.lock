@@ -239,7 +239,6 @@ dependencies = [
     { name = "django-ses" },
     { name = "django-simple-history" },
     { name = "django-storages" },
-    { name = "django-theme-pixel" },
     { name = "folium" },
     { name = "fructose" },
     { name = "gunicorn" },
@@ -305,7 +304,6 @@ requires-dist = [
     { name = "django-ses", specifier = "==3.5.2" },
     { name = "django-simple-history", specifier = "==3.7.0" },
     { name = "django-storages", specifier = "==1.14.2" },
-    { name = "django-theme-pixel", specifier = "==1.0.3" },
     { name = "folium", specifier = "==0.14.0" },
     { name = "fructose", specifier = "==0.0.11" },
     { name = "gunicorn", specifier = "==23.0.0" },
@@ -603,12 +601,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/25/27/49e42e29a069c3e31
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b2/5f/124d304984bbec65a925b5fec38dcda159a32422101f115b9cf66678ead1/django_storages-1.14.2-py3-none-any.whl", hash = "sha256:1db759346b52ada6c2efd9f23d8241ecf518813eb31db9e2589207174f58f6ad", size = 47105, upload-time = "2023-10-09T01:37:41.897Z" },
 ]
-
-[[package]]
-name = "django-theme-pixel"
-version = "1.0.3"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/98/9b/16c1113a9c0098be2c2b1498e86c71704c5e4fe61ed0325670782abf2e58/django-theme-pixel-1.0.3.tar.gz", hash = "sha256:3b43aa34720cf0cb484e23643fbd8f0022769912685da1587271db755d66e639", size = 8391946, upload-time = "2023-02-09T06:02:55.196Z" }
 
 [[package]]
 name = "filelock"

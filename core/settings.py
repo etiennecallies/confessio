@@ -59,7 +59,7 @@ INSTALLED_APPS = [
     'simple_history',  # object versioning
     'background_task',  # worker for background tasks
     "corsheaders",  # used to allow CORS requests
-    'theme_pixel',
+
     "core",
     'registry',
     'front',
