@@ -1,6 +1,7 @@
 from core.utils.log_utils import info
 from crawling.models import Crawling, CrawlingModeration
-from crawling.services.crawling_moderation_service import upsert_crawling_moderation
+from crawling.services.crawling_moderation_service import upsert_crawling_moderation, \
+    get_crawling_moderation_category
 from crawling.services.scrape_scraping_service import upsert_extracted_html_list, create_scraping
 from crawling.services.scraping_service import delete_scraping
 from crawling.utils.url_utils import get_path, get_domain, have_similar_domain
@@ -155,17 +156,6 @@ def process_extracted_html(
             upsert_extracted_html_list(scraping, crawling_result.confession_pages[scraping.url])
 
 
-def get_crawling_moderation_category(website: Website,
-                                     crawling_result: CrawlingResult
-                                     ) -> CrawlingModeration.Category:
-    if crawling_result.confession_pages and website.scrapings.exists():
-        return CrawlingModeration.Category.OK
-    elif crawling_result.visited_links_count > 0:
-        return CrawlingModeration.Category.NO_PAGE
-    else:
-        return CrawlingModeration.Category.NO_RESPONSE
-
-
 def save_crawling_and_add_moderation(website: Website,
                                      crawling_result: CrawlingResult,
                                      ) -> CrawlingModeration.Category:
@@ -191,7 +181,8 @@ def save_crawling_and_add_moderation(website: Website,
         last_crawling.delete()
 
     # Add moderation
-    crawling_category = get_crawling_moderation_category(website, crawling_result)
-    upsert_crawling_moderation(website, crawling_category)
+    crawling_category, moderation_validated = get_crawling_moderation_category(website,
+                                                                               crawling_result)
+    upsert_crawling_moderation(website, crawling_category, moderation_validated)
 
     return crawling_category
