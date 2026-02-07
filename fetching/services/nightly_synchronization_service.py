@@ -1,7 +1,7 @@
 from fetching.models import OClocherOrganization
 from fetching.services.oclocher_locations_service import fetch_oclocher_organization_locations
 from fetching.services.oclocher_schedules_service import fetch_oclocher_organization_schedules
-from scheduling.services.scheduling.scheduling_process_service import init_scheduling
+from scheduling.public_service import scheduling_init_scheduling
 
 
 def nightly_synchronization():
@@ -14,6 +14,6 @@ def nightly_synchronization():
         has_changed2 = fetch_oclocher_organization_schedules(oclocher_organization)
         if has_changed1 or has_changed2:
             counter += 1
-            init_scheduling(oclocher_organization.website)
+            scheduling_init_scheduling(oclocher_organization.website)
 
     print(f"Got {counter} OClocher organization with change in locations or schedules.")

@@ -1,5 +1,5 @@
 from registry.models import Website
-from scheduling.models import Parsing
+from scheduling.models import Parsing, Scheduling
 from scheduling.models.pruning_models import Sentence, Pruning
 from scheduling.services.scheduling.scheduling_process_service import init_scheduling
 from scheduling.services.pruning.prune_scraping_service import create_pruning
@@ -18,6 +18,10 @@ def scheduling_create_pruning(extracted_html: str | None) -> Pruning | None:
 ###################
 # INIT SCHEDULING #
 ###################
+
+def scheduling_init_scheduling(website: Website, instant_deindex: bool = False) -> Scheduling:
+    return init_scheduling(website, instant_deindex)
+
 
 def init_scheduling_for_sentences(sentences: list[Sentence]):
     affected_prunings = []

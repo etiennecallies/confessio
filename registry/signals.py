@@ -3,7 +3,7 @@ from django.db.models.signals import post_save, pre_save, post_delete
 from django.dispatch import receiver
 
 from registry.models import Church, Website, Parish
-from scheduling.services.scheduling.scheduling_process_service import init_scheduling
+from scheduling.public_service import scheduling_init_scheduling
 
 
 ##########
@@ -54,7 +54,7 @@ def church_post_save(sender, instance, created, update_fields=None, **kwargs):
         if website:
             print(f'Church post_save signal triggered for church {instance.name},'
                   f' website {website.name}')
-            transaction.on_commit(lambda: init_scheduling(website))
+            transaction.on_commit(lambda: scheduling_init_scheduling(website))
 
 
 @receiver(post_delete, sender=Church)
@@ -67,7 +67,7 @@ def church_post_delete(sender, instance, origin, **kwargs):
     if website:
         print(f'Church post_delete signal triggered for church {instance.name},'
               f' website {website.name}')
-        transaction.on_commit(lambda: init_scheduling(website))
+        transaction.on_commit(lambda: scheduling_init_scheduling(website))
 
 
 ##########
@@ -112,7 +112,7 @@ def parish_post_delete(sender, instance, origin, **kwargs):
     if website:
         print(f'Parish post_delete signal triggered for parish {instance.name},'
               f' website {website.name}')
-        transaction.on_commit(lambda: init_scheduling(website))
+        transaction.on_commit(lambda: scheduling_init_scheduling(website))
 
 
 ##########
@@ -124,7 +124,7 @@ def reindex_old_and_new_website(old_website, new_website):
         print(f'website differs, reinitializing scheduling for both websites,'
               f' deindexing old website')
         transaction.on_commit(lambda:
-                              init_scheduling(old_website, instant_deindex=True)
-                              and init_scheduling(new_website))
+                              scheduling_init_scheduling(old_website, instant_deindex=True)
+                              and scheduling_init_scheduling(new_website))
     elif old_website or new_website:
-        transaction.on_commit(lambda: init_scheduling(old_website or new_website))
+        transaction.on_commit(lambda: scheduling_init_scheduling(old_website or new_website))

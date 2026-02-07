@@ -3,9 +3,9 @@ from django.db.models.signals import pre_delete, pre_save, post_save
 from django.dispatch import receiver
 
 from attaching.models import Image
-from registry.models import Website
-from scheduling.services.scheduling.scheduling_process_service import init_scheduling
 from attaching.services.recognize_image_service import recognize_and_extract_image
+from registry.models import Website
+from scheduling.public_service import scheduling_init_scheduling
 
 
 @receiver(pre_delete, sender=Image)
@@ -16,7 +16,7 @@ def image_pre_delete(sender, instance, origin, **kwargs):
 
     print(f'Image pre_delete signal triggered for image {instance.uuid} {instance.name},'
           f' website {instance.website.name}')
-    transaction.on_commit(lambda: init_scheduling(instance.website))
+    transaction.on_commit(lambda: scheduling_init_scheduling(instance.website))
 
 
 @receiver(pre_save, sender=Image)

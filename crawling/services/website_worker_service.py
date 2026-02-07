@@ -8,7 +8,7 @@ from crawling.services.scrape_scraping_service import upsert_extracted_html_list
 from crawling.services.scraping_service import delete_scraping
 from crawling.workflows.scrape.download_refine_and_extract import get_fresh_extracted_html_list
 from registry.models import Website
-from scheduling.services.scheduling.scheduling_process_service import init_scheduling
+from scheduling.public_service import scheduling_init_scheduling
 
 
 ########################
@@ -40,7 +40,7 @@ def handle_crawl_website(website: Website):
         else:
             info('No crawling found')
 
-    init_scheduling(website)
+    scheduling_init_scheduling(website)
     save_buffer(website, Log.Type.CRAWLING)
 
 
@@ -72,7 +72,7 @@ def handle_scrape_page(website: Website):
         upsert_extracted_html_list(scraping, extracted_html_list)
         info(f'Successfully scraped scraping {scraping.url} {scraping.uuid}')
 
-    init_scheduling(website)
+    scheduling_init_scheduling(website)
 
     info(f'Successfully scraped website {website.name} {website.uuid}')
     save_buffer(website, Log.Type.SCRAPING)
