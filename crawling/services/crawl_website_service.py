@@ -4,10 +4,10 @@ from crawling.services.crawling_moderation_service import upsert_crawling_modera
     get_crawling_moderation_category
 from crawling.services.scrape_scraping_service import upsert_extracted_html_list, create_scraping
 from crawling.services.scraping_service import delete_scraping
+from crawling.services.widget_extraction_service import process_extracted_widgets
 from crawling.utils.url_utils import get_path, get_domain, have_similar_domain
 from crawling.workflows.crawl.download_and_search_urls import search_for_confession_pages, \
     get_new_url_and_aliases, forbid_diocese_home_links, CrawlingResult
-from fetching.public_service import process_extracted_widgets
 from registry.models import Website, WebsiteModeration
 from registry.public_service import registry_add_website_moderation, \
     registry_remove_not_validated_moderation
