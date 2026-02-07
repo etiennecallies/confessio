@@ -28,14 +28,16 @@ We'd like to thank our sponsor [Hozana](https://hozana.org/) for their continuou
 ---
 # Project architecture
 
+The software architecture is inspired by the [Modular Monolith](https://www.milanjovanovic.tech/blog/what-is-a-modular-monolith) architecture, which consists in structuring the codebase in independent modules (Django apps) that communicate through well defined interfaces (e.g. signals, or direct function calls). This allows for better maintainability and scalability of the codebase.
+
 ## Project apps structure
 The project is structured in a modular way, with the following Django apps:
 - `registry`: manages the registry of churches, parishes and dioceses.
-- `crawling`: crawling parish websites to extract text about confession hours.
-- `attaching`: responsible for the upload and OCR of images of schedules.
-- `fetching`: fetching data from external sources (e.g. OClocher).
-- `scheduling`: extracting and merging schedules resulting from crawling, attaching and fetching. 
-- `front`: contains the frontend code (Django templates, views, etc) and the API (Django REST Framework).
+- `crawling`: manages the crawling of parish websites to extract text about confession hours.
+- `attaching`: manages the upload and OCR of images of schedules.
+- `fetching`: manages the fetching of external sources (e.g. OClocher).
+- `scheduling`: gathers the outcome of crawling, attaching and fetching, to produce schedules.
+- `front`: is responsible for the broadcasting of schedules. It contains the frontend code (Django templates, views, etc) and the API (Django REST Framework).
 - `core`: contains shared code and utilities.
 
 Other directories:
@@ -57,7 +59,7 @@ app_name/
 ├── public_workflow.py  # methods that do not use Django objects, and that can be used by other apps
 ├── services/  # methods that use Django objects
 ├── signals.py  # django signals (models pre-hooks and post-hooks)
-├── tasks.py  # loaded by the background worker
+├── tasks.py  # entrypoint of the background worker
 ├── tests/  # unit tests (without django loading)
 ├── utils/  # utilitary methods that do not use Django objects, and that can be used by other apps
 ├── workflows/  # business-related methods that do not use Django objects
@@ -78,7 +80,6 @@ Also, the `core` app contains the different settings files.
 
 
 ## App dependencies rules
-Django apps are designed to be as independent as possible, and to communicate through well defined interfaces (e.g. signals, or direct function calls). This allows for better maintainability and scalability of the codebase.
 
 Here are the rules about the dependencies between apps:
 - an app can use objects from another app, but in read-only mode.
