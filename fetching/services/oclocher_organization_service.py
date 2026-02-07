@@ -1,8 +1,7 @@
-from crawling.workflows.crawl.extract_widgets import OClocherWidget
+from core.utils.log_utils import info
 from fetching.models import OClocherOrganization
 from fetching.models.oclocher_moderation_models import OClocherOrganizationModeration
 from fetching.services.oclocher_moderations_service import add_organization_moderation
-from core.utils.log_utils import info
 from registry.models import Website
 
 
@@ -16,8 +15,7 @@ def remove_oclocher_organization_for_website(website: Website):
         pass
 
 
-def add_oclocher_organization_for_website(website: Website, oclocher_widgets: list[OClocherWidget]):
-    organization_ids = set([w.organization_id for w in oclocher_widgets])
+def add_oclocher_organization_for_website(website: Website, organization_ids: set[str]):
     if len(organization_ids) > 1:
         info(f"Multiple oclocher organization IDs found for website {website}: "
              f"{organization_ids}. Not updating.")

@@ -1,14 +1,11 @@
-from crawling.workflows.crawl.extract_widgets import BaseWidget, OClocherWidget
-from fetching.services.oclocher_organization_service import \
-    remove_oclocher_organization_for_website, add_oclocher_organization_for_website
+from fetching.services.oclocher_organization_service import add_oclocher_organization_for_website, \
+    remove_oclocher_organization_for_website
 from registry.models import Website
 
 
-def process_extracted_widgets(website: Website, widgets: list[BaseWidget]):
-    if not widgets:
-        remove_oclocher_organization_for_website(website)
-        return
+def fetching_add_oclocher_organization_for_website(website: Website, organization_ids: set[str]):
+    return add_oclocher_organization_for_website(website, organization_ids)
 
-    oclocher_widgets = [w for w in widgets if isinstance(w, OClocherWidget)]
-    if oclocher_widgets:
-        add_oclocher_organization_for_website(website, oclocher_widgets)
+
+def fetching_remove_oclocher_organization_for_website(website: Website):
+    return remove_oclocher_organization_for_website(website)
