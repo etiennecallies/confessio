@@ -27,6 +27,8 @@ We'd like to thank our sponsor [Hozana](https://hozana.org/) for their continuou
 
 ---
 # Project architecture
+
+## Project apps structure
 The project is structured in a modular way, with the following Django apps:
 - `registry`: manages the registry of churches, parishes and dioceses.
 - `crawling`: crawling parish websites to extract text about confession hours.
@@ -40,6 +42,7 @@ Other directories:
 - `ansible`: contains ansible playbooks and configuration for deploying to production.
 - `static`: contains static files (CSS, JS, images, etc).
 
+## Django app directory structure
 The django apps have this file structure:
 ```
 app_name/
@@ -56,8 +59,8 @@ app_name/
 ├── signals.py  # django signals (models pre-hooks and post-hooks)
 ├── tasks.py  # loaded by the background worker
 ├── tests/  # unit tests (without django loading)
-├── utils/  # methods that do not use Django objects, and that can be used by other apps
-├── workflows/  # methods that do not use Django objects
+├── utils/  # utilitary methods that do not use Django objects, and that can be used by other apps
+├── workflows/  # business-related methods that do not use Django objects
 ```
 
 The `front` app has these additional files and directories:
@@ -71,14 +74,19 @@ The `front` app has these additional files and directories:
 ├── views/  # django views
 ├── urls.py  # django urls configuration
 ```
+Also, the `core` app contains the different settings files.
 
+
+## App dependencies rules
 Django apps are designed to be as independent as possible, and to communicate through well defined interfaces (e.g. signals, or direct function calls). This allows for better maintainability and scalability of the codebase.
 
 Here are the rules about the dependencies between apps:
 - an app can use objects from another app, but in read-only mode.
 - an app can call a function in public_workflow or public_service of another app, but no other methods.
 - an app can use function in another app `utils` directory.
+- a utils or workflow method can not call a service method, and can not use Django objects.
 - any part of `core` app can be used by any other app.
+- the import of background.tasks must be done exclusively in `tasks.py` files.
 ---
 
 # Dev environment

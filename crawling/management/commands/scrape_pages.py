@@ -3,8 +3,8 @@ import time
 from django.db.models import F, Min
 
 from core.management.abstract_command import AbstractCommand
+from crawling.tasks import worker_scrape_page
 from registry.models import Website
-from crawling.services.website_worker_service import worker_scrape_page
 
 
 class Command(AbstractCommand):

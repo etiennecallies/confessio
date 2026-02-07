@@ -7,7 +7,8 @@ from django.utils import timezone
 from core.management.abstract_command import AbstractCommand
 from core.utils.log_utils import start_log_buffer
 from crawling.models import CrawlingModeration
-from crawling.services.website_worker_service import worker_crawl_website, handle_crawl_website
+from crawling.services.website_worker_service import handle_crawl_website
+from crawling.tasks import worker_crawl_website
 from registry.models import Website
 
 
