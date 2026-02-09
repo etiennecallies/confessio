@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from uuid import UUID
 
-from scheduling.workflows.pruning.models import Action, Source
+from scheduling.workflows.pruning.extract.models import Action, Source
 
 
 class BaseActionInterface:

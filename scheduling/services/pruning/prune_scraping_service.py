@@ -6,15 +6,15 @@ from django.db import IntegrityError, transaction
 from core.utils.log_utils import info
 from scheduling.models.pruning_models import PruningModeration, Pruning, Sentence
 from scheduling.services.pruning.classify_sentence_service import classify_and_create_sentence
-from scheduling.workflows.pruning.action_interfaces import BaseActionInterface
+from scheduling.workflows.pruning.extract.action_interfaces import BaseActionInterface
 from scheduling.workflows.pruning.extract.extract_content import \
     extract_paragraphs_lines_and_indices
-from scheduling.workflows.pruning.extract.extract_interface import ExtractMode
+from scheduling.workflows.pruning.extract_interface import ExtractMode
 from scheduling.workflows.pruning.extract_v2.extract_content import \
     extract_paragraphs_lines_and_indices_v2
 from scheduling.workflows.pruning.extract_v2.models import EventMention, Temporal
 from scheduling.workflows.pruning.extract_v2.qualify_line_interfaces import BaseQualifyLineInterface
-from scheduling.workflows.pruning.models import Action, Source
+from scheduling.workflows.pruning.extract.models import Action, Source
 
 
 ######################

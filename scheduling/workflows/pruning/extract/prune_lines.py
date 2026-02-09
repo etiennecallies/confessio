@@ -3,7 +3,7 @@ from typing import Optional
 
 from scheduling.workflows.pruning.extract.split_content import LineAndTag
 from scheduling.workflows.pruning.extract.tag_line import Tag
-from scheduling.workflows.pruning.models import Action
+from scheduling.workflows.pruning.extract.models import Action
 
 MAX_PRE_BUFFERING_ATTEMPTS = 3
 MAX_POST_BUFFERING_ATTEMPTS = 3

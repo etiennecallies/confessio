@@ -2,7 +2,7 @@ import json
 import os
 import unittest
 
-from scheduling.workflows.pruning.extract.extract_interface import ExtractMode
+from scheduling.workflows.pruning.extract_interface import ExtractMode
 from scheduling.workflows.pruning.extract_v2.extract_content import extract_lines_and_indices
 from scheduling.workflows.pruning.extract_v2.split_content import LineAndTagV2
 

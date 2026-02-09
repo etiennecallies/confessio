@@ -4,7 +4,7 @@ from django.db import transaction, IntegrityError
 
 from scheduling.models.pruning_models import Classifier, Sentence, Pruning
 from scheduling.workflows.pruning.extract_v2.models import Temporal, EventMention
-from scheduling.workflows.pruning.models import Source, Action
+from scheduling.workflows.pruning.extract.models import Source, Action
 from scheduling.workflows.pruning.train_and_predict import TensorFlowModel
 from scheduling.workflows.pruning.transform_sentence import get_transformer, TransformerInterface, \
     TRANSFORMER_NAME

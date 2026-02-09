@@ -6,7 +6,7 @@ from scheduling.services.pruning.sentence_outliers_service import add_sentence_m
     remove_sentence_not_validated_v2_moderation
 from scheduling.services.pruning.train_classifier_service import build_sentence_dataset, \
     extract_label
-from scheduling.workflows.pruning.models import Action
+from scheduling.workflows.pruning.extract.models import Action
 
 
 class Command(AbstractCommand):

@@ -1,5 +1,5 @@
 from registry.models import Sentence, SentenceModeration
-from scheduling.workflows.pruning.models import Action
+from scheduling.workflows.pruning.extract.models import Action
 
 
 ##############

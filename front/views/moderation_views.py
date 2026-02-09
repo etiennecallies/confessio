@@ -29,7 +29,7 @@ from scheduling.services.parsing.reparse_parsing_service import reparse_parsing
 from scheduling.services.scheduling.scheduling_service import get_parsing_moderation_of_pruning
 from scheduling.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 from scheduling.workflows.pruning.extract_v2.split_content import create_line_and_tag_v2
-from scheduling.workflows.pruning.models import Source
+from scheduling.workflows.pruning.extract.models import Source
 
 
 def redirect_to_moderation(moderation: ModerationMixin, category: str, resource: str, is_bug: bool,

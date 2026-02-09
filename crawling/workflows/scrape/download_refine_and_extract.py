@@ -1,16 +1,23 @@
 from crawling.workflows.download.download_content import get_content_from_url
 from crawling.workflows.refine.refine_content import refine_confession_content
-from scheduling.public_workflow import extract_refined_content
-from scheduling.workflows.pruning.extract.extract_interface import BaseExtractInterface
+from scheduling.public_workflow import scheduling_extract_refined_content, \
+    scheduling_extract_v2_refined_content
 
 
-def get_extracted_html_list(html_content: str,
-                            extract_interface: BaseExtractInterface = None) -> list[str] | None:
+def get_extracted_html_list(html_content: str) -> list[str] | None:
     refined_content = refine_confession_content(html_content)
     if refined_content is None:
         return None
 
-    return extract_refined_content(refined_content, extract_interface)
+    return scheduling_extract_refined_content(refined_content)
+
+
+def get_extracted_v2_html_list(html_content: str) -> list[str] | None:
+    refined_content = refine_confession_content(html_content)
+    if refined_content is None:
+        return None
+
+    return scheduling_extract_v2_refined_content(refined_content)
 
 
 def get_fresh_extracted_html_list(url) -> list[str] | None:

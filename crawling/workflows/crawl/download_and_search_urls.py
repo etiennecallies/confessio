@@ -14,7 +14,7 @@ class CrawlingResult(BaseModel):
     confession_pages: dict[str, list[str]] = Field(default_factory=dict)
     visited_links_count: int = 0
     error_detail: str | None = None
-    widgets: list[BaseWidget] | None = None
+    widgets: list[BaseWidget] = Field(default_factory=list)
 
 
 def forbid_diocese_home_links(diocese_url: str, aliases_domains: set[str],

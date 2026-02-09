@@ -1,10 +1,7 @@
 import os
 import unittest
 
-from crawling.workflows.scrape.download_refine_and_extract import get_extracted_html_list
-from scheduling.workflows.pruning.extract_v2.extract_content import ExtractV2Interface
-from scheduling.workflows.pruning.extract_v2.qualify_line_interfaces import \
-    RegexQualifyLineInterface
+from crawling.workflows.scrape.download_refine_and_extract import get_extracted_v2_html_list
 
 
 class MyTestCase(unittest.TestCase):
@@ -57,8 +54,7 @@ class MyTestCase(unittest.TestCase):
                 content_html = ''.join(lines)
                 expected_confession_part = ''.join(expected_lines)
 
-                extract_interface = ExtractV2Interface(RegexQualifyLineInterface())
-                confession_parts = get_extracted_html_list(content_html, extract_interface)
+                confession_parts = get_extracted_v2_html_list(content_html)
                 confession_part = '\n\n'.join(confession_parts) if confession_parts else None
                 # print(confession_part)
 

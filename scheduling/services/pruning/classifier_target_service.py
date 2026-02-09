@@ -2,7 +2,7 @@ from typing import Type
 
 from scheduling.models.pruning_models import Classifier
 from scheduling.workflows.pruning.extract_v2.models import Temporal, EventMention
-from scheduling.workflows.pruning.models import Action
+from scheduling.workflows.pruning.extract.models import Action
 from scheduling.utils.enum_utils import StringEnum
 
 

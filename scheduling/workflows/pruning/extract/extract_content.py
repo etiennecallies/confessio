@@ -1,7 +1,7 @@
-from scheduling.workflows.pruning.extract.extract_interface import ExtractMode, BaseExtractInterface
+from scheduling.workflows.pruning.extract_interface import ExtractMode, BaseExtractInterface
 from scheduling.workflows.pruning.extract.split_content import LineAndTag, split_and_tag
-from scheduling.workflows.pruning.action_interfaces import BaseActionInterface
-from scheduling.workflows.pruning.prune_lines import get_pruned_lines_indices
+from scheduling.workflows.pruning.extract.action_interfaces import BaseActionInterface
+from scheduling.workflows.pruning.extract.prune_lines import get_pruned_lines_indices
 
 
 ###########

@@ -21,10 +21,10 @@ from scheduling.services.pruning.prune_scraping_service import SentenceFromDbAct
     prune_pruning, SentenceQualifyLineInterface
 from scheduling.utils.html_utils import split_lines
 from scheduling.workflows.parsing.schedules import SchedulesList, SCHEDULES_LIST_VERSION
-from scheduling.workflows.pruning.action_interfaces import DummyActionInterface
+from scheduling.workflows.pruning.extract.action_interfaces import DummyActionInterface
 from scheduling.workflows.pruning.extract_v2.qualify_line_interfaces import \
     DummyQualifyLineInterface
-from scheduling.workflows.pruning.models import Action
+from scheduling.workflows.pruning.extract.models import Action
 
 
 @login_required

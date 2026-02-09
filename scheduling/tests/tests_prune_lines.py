@@ -3,9 +3,9 @@ import os
 import unittest
 
 from scheduling.workflows.pruning.extract.extract_content import extract_lines_and_indices
-from scheduling.workflows.pruning.extract.extract_interface import ExtractMode
+from scheduling.workflows.pruning.extract_interface import ExtractMode
 from scheduling.workflows.pruning.extract.split_content import LineAndTag
-from scheduling.workflows.pruning.models import Action, Source
+from scheduling.workflows.pruning.extract.models import Action, Source
 
 
 class TestPruneLines(unittest.TestCase):
