@@ -99,20 +99,11 @@ class MLSentenceQualifyLineInterface(SentenceQualifyLineInterface):
 # REPRUNE AFFECTED SCRAPINGS #
 ##############################
 
-def remove_pruning_moderation_if_orphan(pruning: Optional[Pruning]):
-    """
-    :return: True if the pruning has been deleted
-    """
-    if not pruning:
-        return True
-
+def remove_pruning_moderation_if_orphan(pruning: Pruning):
     if not pruning.scrapings.exists() and not pruning.images.exists():
         info(f'deleting not validated moderation for pruning {pruning} since it has no scraping '
              f'nor image any more')
         PruningModeration.objects.filter(pruning=pruning, validated_at__isnull=True).delete()
-        return True
-
-    return False
 
 
 ##############

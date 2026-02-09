@@ -3,16 +3,16 @@ from datetime import timedelta
 from django.core.mail import mail_admins
 from django.utils import timezone
 
-from crawling.models import Crawling
 from core.management.abstract_command import AbstractCommand
 from core.utils.heartbeat_utils import ping_heartbeat
+from crawling.models import Crawling
 from registry.models import Website
-from scheduling.utils.date_utils import get_current_day
+from registry.public_service import registry_find_church_geo_outliers
 from scheduling.models import IndexEvent
-from scheduling.services.scheduling.scheduling_service import get_indexed_scheduling
-from scheduling.workflows.parsing.holidays import check_holiday_by_zone
-from scheduling.workflows.parsing.liturgical import check_easter_dates
-from registry.services.church_location_service import find_church_geo_outliers
+from scheduling.public_service import scheduling_get_indexed_scheduling
+from scheduling.public_workflow import scheduling_check_holiday_by_zone, \
+    scheduling_check_easter_dates
+from scheduling.utils.date_utils import get_current_day
 
 
 class Command(AbstractCommand):
@@ -43,7 +43,7 @@ class Command(AbstractCommand):
                 website_not_crawled_recently.append(website)
                 continue
 
-            scheduling = get_indexed_scheduling(website)
+            scheduling = scheduling_get_indexed_scheduling(website)
             if scheduling is None:
                 website_not_indexed.append(website)
                 continue
@@ -93,8 +93,8 @@ class Command(AbstractCommand):
             self.success(f'All websites have been crawled recently')
 
         self.info(f'Starting checking future holidays and easter dates')
-        holiday_ok = check_holiday_by_zone()
-        easter_ok = check_easter_dates()
+        holiday_ok = scheduling_check_holiday_by_zone()
+        easter_ok = scheduling_check_easter_dates()
         if not holiday_ok or not easter_ok:
             error_message = (f'Holiday failure: future holidays or easter dates are not '
                              f'implemented')
@@ -112,7 +112,7 @@ class Command(AbstractCommand):
             self.success(f'All future holidays and easter dates are implemented')
 
         self.info('Starting checking church location are not absurd')
-        outliers_count = find_church_geo_outliers()
+        outliers_count = registry_find_church_geo_outliers()
         self.success(f'{outliers_count} outliers found')
 
         self.info(f'Starting checking index events')

@@ -8,29 +8,29 @@ from django.http import HttpResponseNotFound, JsonResponse, HttpResponseBadReque
 from django.shortcuts import render
 from django.utils.translation import gettext
 
+from attaching.services.recognize_image_service import recognize_and_extract_image
+from attaching.services.upload_image_service import upload_image, find_error_in_document_to_upload
 from fetching.models import OClocherOrganization
-from registry.models import Website, Diocese, Church
-from front.services.search.autocomplete_service import get_aggregated_response
-from front.services.search.filter_service import get_filter_days
-from front.services.search.map_service import prepare_map, get_center, get_cities_label
 from front.services.card.report_service import get_count_and_label, new_report, NewReportError, \
     get_previous_reports
 from front.services.card.scraping_url_service import get_scraping_parsing_urls
+from front.services.card.sources_service import get_website_parsings_and_prunings, get_empty_sources
+from front.services.card.website_events_service import get_website_events
+from front.services.card.website_schedules_service import get_website_schedules
+from front.services.search.autocomplete_service import get_aggregated_response
+from front.services.search.filter_service import get_filter_days
+from front.services.search.map_service import prepare_map, get_center, get_cities_label
 from front.services.search.search_service import TimeFilter, get_churches_in_box, \
     get_churches_by_website, get_churches_around, get_churches_by_diocese, get_popular_churches, \
     fetch_events, DEFAULT_SEARCH_BOX
-from front.services.card.sources_service import get_website_parsings_and_prunings, get_empty_sources
 from front.services.search.stat_service import new_search_hit
-from attaching.services.upload_image_service import upload_image, find_error_in_document_to_upload
-from front.services.card.website_events_service import get_website_events
-from front.services.card.website_schedules_service import get_website_schedules
-from scheduling.utils.date_utils import get_current_day, get_current_year
 from front.utils.web_utils import redirect_with_url_params
-from scheduling.models import IndexEvent
-from scheduling.services.scheduling.scheduling_service import get_indexed_scheduling, \
-    get_scheduling_primary_sources
-from attaching.services.recognize_image_service import recognize_and_extract_image
+from registry.models import Website, Diocese, Church
 from registry.utils.string_utils import lower_first, city_and_prefix
+from scheduling.models import IndexEvent
+from scheduling.public_service import scheduling_get_indexed_scheduling
+from scheduling.services.scheduling.scheduling_service import get_scheduling_primary_sources
+from scheduling.utils.date_utils import get_current_day, get_current_year
 
 
 def render_map(request, center,
@@ -319,7 +319,7 @@ def partial_website_sources(request, website_uuid: str):
     except Website.DoesNotExist:
         return HttpResponseNotFound("Website does not exist with this uuid")
 
-    scheduling = get_indexed_scheduling(website)
+    scheduling = scheduling_get_indexed_scheduling(website)
     primary_sources = get_scheduling_primary_sources(scheduling)
     empty_sources = None
     if request.user.is_authenticated and request.user.has_perm("scheduling.change_sentence"):
@@ -348,7 +348,7 @@ def partial_website_churches(request, website_uuid: str):
     display_explicit_other_churches = extract_bool('display_explicit_other_churches', request)
 
     website_churches = [c for p in website.parishes.all() for c in p.churches.all()]
-    scheduling = get_indexed_scheduling(website)
+    scheduling = scheduling_get_indexed_scheduling(website)
     website_schedules = get_website_schedules(website, website_churches, scheduling)
 
     return render(request, 'partials/website_churches.html', {
