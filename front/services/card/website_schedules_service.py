@@ -17,7 +17,7 @@ from scheduling.utils.date_utils import get_current_year
 from scheduling.utils.hash_utils import hash_string_to_hex
 from scheduling.utils.list_utils import get_desc_by_id
 from scheduling.workflows.merging.merge_schedule_items import get_merged_sourced_schedule_items
-from scheduling.workflows.merging.oclocher_schedules import \
+from scheduling.services.merging.oclocher_schedules_services import \
     get_schedules_list_from_oclocher_schedules
 from scheduling.workflows.merging.sort_schedule_items import \
     get_sorted_sourced_schedule_items_by_church_id

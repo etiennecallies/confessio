@@ -1,6 +1,6 @@
 from scheduling.models import Parsing
 from scheduling.models import Scheduling, IndexEvent
-from scheduling.services.scheduling.index_events_service import build_website_church_events
+from scheduling.services.merging.index_events_service import build_website_church_events
 from scheduling.services.parsing.parse_pruning_service import remove_useless_moderation_for_parsing
 
 

@@ -4,7 +4,7 @@ from crawling.models import CrawlingModeration
 from registry.models import Website
 from scheduling.models import Scheduling, IndexEvent
 from scheduling.models.scheduling_moderation_models import SchedulingModeration
-from scheduling.services.scheduling.schedules_conflict_service import website_has_schedules_conflict
+from scheduling.services.merging.schedules_conflict_service import website_has_schedules_conflict
 from scheduling.services.scheduling.scheduling_service import get_scheduling_sources
 
 

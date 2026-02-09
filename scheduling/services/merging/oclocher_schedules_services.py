@@ -1,5 +1,5 @@
 from fetching.models import OClocherMatching, OClocherSchedule
-from fetching.services.oclocher_matching_service import get_matching_matrix
+from fetching.public_service import fetching_get_matching_matrix
 from scheduling.workflows.parsing.schedules import ScheduleItem, SchedulesList, OneOffRule
 
 
@@ -26,7 +26,7 @@ def get_schedules_list_from_oclocher_schedules(oclocher_schedules: list[OClocher
                                                oclocher_matching: OClocherMatching,
                                                oclocher_id_by_location_id: dict[int, str],
                                                ) -> SchedulesList:
-    matching_matrix = get_matching_matrix(oclocher_matching)
+    matching_matrix = fetching_get_matching_matrix(oclocher_matching)
 
     church_id_by_oclocher_id = {}
     for mapping in matching_matrix.mappings:
