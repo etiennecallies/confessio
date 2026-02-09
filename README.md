@@ -88,6 +88,9 @@ Here are the rules about the dependencies between apps:
 - a utils or workflow method can not call a service method, and can not use Django objects.
 - any part of `core` app can be used by any other app.
 - the import of background.tasks must be done exclusively in `tasks.py` files.
+
+A good dependency visualization tool is [tach](https://github.com/tach-org/tach): `tach init` (at first time) and then `tach show --web`.
+
 ---
 
 # Dev environment
