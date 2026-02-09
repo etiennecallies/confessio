@@ -8,8 +8,8 @@ from django.http import HttpResponseNotFound, JsonResponse, HttpResponseBadReque
 from django.shortcuts import render
 from django.utils.translation import gettext
 
-from attaching.services.recognize_image_service import recognize_and_extract_image
-from attaching.services.upload_image_service import upload_image, find_error_in_document_to_upload
+from attaching.public_service import attaching_upload_image, attaching_recognize_and_extract_image
+from attaching.services.upload_image_service import find_error_in_document_to_upload
 from fetching.models import OClocherOrganization
 from front.services.card.report_service import get_count_and_label, new_report, NewReportError, \
     get_previous_reports
@@ -418,10 +418,10 @@ def website_upload_image(request, website_uuid: str):
         document = request.FILES.get('file-input', None)
         upload_error_message = find_error_in_document_to_upload(document)
         if not upload_error_message:
-            image, error_message = upload_image(document, website, request)
+            image, error_message = attaching_upload_image(document, website, request)
             if image:
                 success = True
-                recognize_and_extract_image(image)
+                attaching_recognize_and_extract_image(image)
             else:
                 success = False
 

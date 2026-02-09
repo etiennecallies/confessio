@@ -3,7 +3,7 @@ from django.db.models.signals import pre_delete, pre_save, post_save
 from django.dispatch import receiver
 
 from attaching.models import Image
-from attaching.services.recognize_image_service import recognize_and_extract_image
+from attaching.public_service import attaching_recognize_and_extract_image
 from registry.models import Website
 from scheduling.public_service import scheduling_init_scheduling
 
@@ -41,4 +41,4 @@ def image_post_save(sender, instance, created, update_fields=None, **kwargs):
     if instance._human_html_changed:
         print(f'Image post_save signal triggered for image {instance.uuid},'
               f' website {instance.website.name}')
-        transaction.on_commit(lambda: recognize_and_extract_image(instance))
+        transaction.on_commit(lambda: attaching_recognize_and_extract_image(instance))

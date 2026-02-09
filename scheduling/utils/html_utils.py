@@ -35,3 +35,11 @@ def replace_link_by_their_content(html: str) -> str:
         else:
             a.decompose()  # Remove the link if it has no text
     return str(soup)
+
+
+def get_text_if_not_table(html: str) -> str | None:
+    element = BeautifulSoup(html, 'html.parser')
+    if element.name in ['table']:
+        return None
+
+    return element.text

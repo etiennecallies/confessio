@@ -1,6 +1,5 @@
 import re
 import string
-from typing import Optional
 
 from bs4 import BeautifulSoup, NavigableString, Comment, ProcessingInstruction, \
     PageElement, Tag
@@ -300,19 +299,6 @@ def build_text(soup: BeautifulSoup) -> tuple[str, int]:
             return calendar_html, 0
 
     return result_line, total_calendar_items
-
-
-###############
-# REMOVE LINK #
-###############
-
-
-def get_text_if_not_table(html: str) -> Optional[str]:
-    element = BeautifulSoup(html, 'html.parser')
-    if is_table(element):
-        return None
-
-    return element.text
 
 
 ##############
