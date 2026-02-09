@@ -7,11 +7,11 @@ from django.template.defaulttags import register
 from django.template.loader import render_to_string
 
 from attaching.models import Image
-from attaching.services.upload_image_service import get_image_public_url
+from attaching.public_service import attaching_get_image_public_url
+from front.services.card.website_schedules_service import get_color_of_nullable_church
 from front.services.search.map_service import (get_map_with_single_location,
                                                get_map_with_multiple_locations,
                                                get_map_with_alternative_locations)
-from front.services.card.website_schedules_service import get_color_of_nullable_church
 from registry.models import Parish, Church, Website
 from scheduling.models import Parsing
 from scheduling.models.pruning_models import Pruning
@@ -144,7 +144,7 @@ def display_other_church_icon(is_church_explicitly_other: bool) -> str:
 def display_image(image: Image, request) -> str:
     return render_to_string('displays/image_display.html', {
         'image': image,
-        'image_url': get_image_public_url(image),
+        'image_url': attaching_get_image_public_url(image),
         'request': request,
     })
 
