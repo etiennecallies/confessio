@@ -8,7 +8,11 @@ class OClocherWidget(BaseModel):
     organization_id: str
 
 
-BaseWidget = OClocherWidget
+class ContactWidget(BaseModel, frozen=True):
+    email: str
+
+
+BaseWidget = OClocherWidget | ContactWidget
 
 
 def extract_oclocher_widgets(html: str) -> list[OClocherWidget]:
@@ -29,5 +33,25 @@ def extract_oclocher_widgets(html: str) -> list[OClocherWidget]:
     return widgets
 
 
+def extract_contact_widgets(html: str) -> list[ContactWidget]:
+    soup = BeautifulSoup(html, 'html.parser')
+    widgets = []
+
+    # look for mailto links in the page and extract the email addresses
+    potential_emails = set()
+    for mailto_links in soup.find_all('a', href=True):
+        href = mailto_links['href']
+        if href.startswith('mailto:'):
+            potential_emails.add(href[len('mailto:'):])
+
+    # search for email addresses in the text of the page using a regex
+    email_regex = r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
+    for text in list(soup.stripped_strings) + list(potential_emails):
+        for match in re.findall(email_regex, text):
+            widgets.append(ContactWidget(email=match))
+
+    return list(set(widgets))  # remove duplicates
+
+
 def extract_widgets(html: str) -> list[BaseWidget]:
-    return extract_oclocher_widgets(html)
+    return extract_oclocher_widgets(html) + extract_contact_widgets(html)

@@ -2,6 +2,8 @@ import json
 import os
 import unittest
 
+from pydantic import TypeAdapter
+
 from crawling.workflows.crawl.extract_widgets import BaseWidget, extract_widgets
 
 
@@ -10,6 +12,8 @@ class TestExtractLinks(unittest.TestCase):
     def widgets_fixtures():
         return [
             'ancenis',
+            'nd-aquitaine',
+            'nd-de-chatey',
         ]
 
     def test_extract_widgets(self):
@@ -19,7 +23,8 @@ class TestExtractLinks(unittest.TestCase):
                 with open(f'{tests_dir}/fixtures/widgets/{file_name}.html') as f:
                     lines = f.readlines()
                 with open(f'{tests_dir}/fixtures/widgets/{file_name}.json') as f:
-                    expected_result = [BaseWidget(**w) for w in json.load(f)]
+                    expected_result = [TypeAdapter(BaseWidget).validate_python(w)
+                                       for w in json.load(f)]
                 content = ''.join(lines)
                 result = extract_widgets(content)
                 # print(json.dumps(list(result), indent=2))

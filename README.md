@@ -164,6 +164,12 @@ $ python manage.py runserver
 
 At this point, the app runs at `http://127.0.0.1:8000/`.
 
+## Launch the background worker
+```bash
+$ python manage.py process_tasks --queue main --sleep 1
+```
+
+
 ## Continuous Integration
 
 ### Testing
