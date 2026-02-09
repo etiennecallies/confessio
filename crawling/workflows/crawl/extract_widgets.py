@@ -1,7 +1,7 @@
 import re
 
 from bs4 import BeautifulSoup
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class OClocherWidget(BaseModel):
@@ -9,7 +9,7 @@ class OClocherWidget(BaseModel):
 
 
 class ContactWidget(BaseModel, frozen=True):
-    email: str
+    email: str = Field(max_length=100)
 
 
 BaseWidget = OClocherWidget | ContactWidget
@@ -48,7 +48,8 @@ def extract_contact_widgets(html: str) -> list[ContactWidget]:
     email_regex = r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
     for text in list(soup.stripped_strings) + list(potential_emails):
         for match in re.findall(email_regex, text):
-            widgets.append(ContactWidget(email=match))
+            if len(match) <= 100:  # only consider emails with a reasonable length
+                widgets.append(ContactWidget(email=match))
 
     return list(set(widgets))  # remove duplicates
 

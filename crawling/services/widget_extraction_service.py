@@ -2,6 +2,7 @@ from crawling.workflows.crawl.extract_widgets import BaseWidget, OClocherWidget,
 from fetching.public_service import fetching_remove_oclocher_organization_for_website, \
     fetching_add_oclocher_organization_for_website
 from registry.models import Website
+from registry.public_service import registry_set_emails_for_website
 
 
 def process_oclocher_widgets(website: Website, widgets: list[OClocherWidget]):
@@ -14,8 +15,8 @@ def process_oclocher_widgets(website: Website, widgets: list[OClocherWidget]):
 
 
 def process_contact_widgets(website: Website, widgets: list[ContactWidget]):
-    # TODO
-    pass
+    emails = set([w.email for w in widgets])
+    registry_set_emails_for_website(website, emails)
 
 
 def process_extracted_widgets(website: Website, widgets: list[BaseWidget]):

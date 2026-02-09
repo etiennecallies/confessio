@@ -1,4 +1,5 @@
 from django.contrib.gis.db import models as gis_models
+from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.indexes import GistIndex
 from django.db import models
 from simple_history.models import HistoricalRecords
@@ -36,6 +37,7 @@ class Website(TimeStampMixin):
     unreliability_reason = models.CharField(choices=UnreliabilityReason, null=True, blank=True)
     nb_recent_hits = models.PositiveSmallIntegerField(default=0)
     is_best_diocese_hit = models.BooleanField(default=False)
+    contact_emails = ArrayField(models.CharField(max_length=100), null=True, blank=True)
     history = HistoricalRecords()
 
     def __str__(self):
