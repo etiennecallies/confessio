@@ -2,11 +2,10 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from crawling.workflows.refine.refine_content import stringify_html
-from scheduling.workflows.pruning.extract.tag_line import Tag, get_tags_with_regex
+from scheduling.utils.html_utils import split_lines, stringify_html
 from scheduling.workflows.pruning.extract.action_interfaces import BaseActionInterface
 from scheduling.workflows.pruning.extract.models import Action, Source
-from scheduling.utils.html_utils import split_lines
+from scheduling.workflows.pruning.extract.tag_line import Tag, get_tags_with_regex
 
 
 class LineAndTag(BaseModel):

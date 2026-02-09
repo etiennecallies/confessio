@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from fetching.models import OClocherLocation
-from fetching.services.oclocher_matching_service import match_churches_and_locations
+from fetching.public_service import fetching_match_churches_and_locations
 from registry.models import Church
 from scheduling.models import Scheduling, SchedulingHistoricalOClocherMatching
 
@@ -34,7 +34,7 @@ def do_match_scheduling(scheduling: Scheduling) -> SchedulingMatchingObjects:
             oclocher_matching_history_ids=[],
         )
 
-    oclocher_matching = match_churches_and_locations(churches, locations)
+    oclocher_matching = fetching_match_churches_and_locations(churches, locations)
     oclocher_matching_history_id = oclocher_matching.history.latest().history_id
 
     return SchedulingMatchingObjects(

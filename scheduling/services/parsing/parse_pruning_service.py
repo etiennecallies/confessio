@@ -5,13 +5,13 @@ from dataclasses import dataclass
 from django.db.models.functions import Now
 
 from core.utils.log_utils import info
-from crawling.workflows.refine.refine_content import stringify_html
 from registry.models import Church
 from scheduling.models import ParsingModeration, Parsing
 from scheduling.models.pruning_models import Pruning
 from scheduling.services.parsing.parsing_service import get_existing_parsing
 from scheduling.services.scheduling.scheduling_service import get_websites_of_parsing
 from scheduling.utils.hash_utils import hash_string_to_hex
+from scheduling.utils.html_utils import stringify_html
 from scheduling.utils.list_utils import get_desc_by_id
 from scheduling.workflows.parsing.llm_client import LLMClientInterface
 from scheduling.workflows.parsing.parse_with_llm import parse_with_llm, get_prompt_template, \

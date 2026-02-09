@@ -1,13 +1,13 @@
 import re
 import string
-import warnings
 from typing import Optional
 
 from bs4 import BeautifulSoup, NavigableString, Comment, ProcessingInstruction, \
-    MarkupResemblesLocatorWarning, PageElement, Tag
+    PageElement, Tag
 
-from crawling.workflows.refine.detect_calendar import is_calendar_item
 from crawling.utils.string_utils import is_below_byte_limit, remove_unsafe_chars
+from crawling.workflows.refine.detect_calendar import is_calendar_item
+from scheduling.utils.html_utils import remove_spaces, stringify_html
 
 
 ###################
@@ -158,12 +158,7 @@ def clean_text(text: str):
     text = text.replace("", "")
     text = text.replace('\u200b', '')
     text = text.replace('\u00A0', ' ')  # replace non-breaking space by space
-    text = re.sub(r'^\s*', '', text)
-    text = re.sub(r'( )+', r' ', text)
-    text = re.sub(r'\n ', r'\n', text)
-    text = re.sub(r' \n', r'\n', text)
-    text = re.sub(r'(\n)+', r'\n', text)
-    text = re.sub(r'\s*$', '', text)
+    text = remove_spaces(text)
     # TODO remove this hack by not adding space between two spans
     text = re.sub('o nfession', 'onfession', text)
     # text = re.sub('’', "'", text)
@@ -310,13 +305,6 @@ def build_text(soup: BeautifulSoup) -> tuple[str, int]:
 ###############
 # REMOVE LINK #
 ###############
-
-def stringify_html(html: str) -> str:
-    # https://stackoverflow.com/a/41496131
-    warnings.filterwarnings("ignore", category=MarkupResemblesLocatorWarning)
-
-    return clean_text(BeautifulSoup(html, 'html.parser').text)
-
 
 def replace_link_by_their_content(html: str) -> str:
     soup = BeautifulSoup(html, 'html.parser')
