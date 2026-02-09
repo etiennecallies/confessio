@@ -25,3 +25,13 @@ def remove_spaces(text: str):
     text = text.strip()
 
     return text
+
+
+def replace_link_by_their_content(html: str) -> str:
+    soup = BeautifulSoup(html, 'html.parser')
+    for a in soup.find_all('a'):
+        if a.string:
+            a.replace_with(a.string)
+        else:
+            a.decompose()  # Remove the link if it has no text
+    return str(soup)

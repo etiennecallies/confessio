@@ -12,24 +12,23 @@ from registry.models import WebsiteModeration, ChurchModeration, ModerationMixin
     ParishModeration, Diocese
 from registry.models.base_moderation_models import BUG_DESCRIPTION_MAX_LENGTH, \
     ResourceDoesNotExistError
-from registry.public_service import registry_suggest_alternative_website
-from registry.services.church_human_service import on_church_human_validation
-from registry.services.merge_websites_service import merge_websites
+from registry.public_service import registry_suggest_alternative_website, registry_merge_websites, \
+    registry_on_church_human_validation
 from scheduling.models import ParsingModeration, SchedulingModeration
 from scheduling.models.pruning_models import PruningModeration, SentenceModeration
 from scheduling.services.parsing.edit_parsing_service import on_parsing_human_validation, \
     ParsingValidationError, set_llm_json_as_human_json
+from scheduling.services.parsing.parsing_service import get_schedules_list_from_dict
+from scheduling.services.parsing.reparse_parsing_service import reparse_parsing
 from scheduling.services.pruning.edit_pruning_service import on_pruning_human_validation, \
     set_v2_indices_as_human, get_single_line_colored_piece, update_sentence_labels_with_request, \
     TEMPORAL_COLORS, EVENT_MENTION_COLORS
-from scheduling.services.parsing.parsing_service import get_schedules_list_from_dict
 from scheduling.services.pruning.prune_scraping_service import SentenceQualifyLineInterface, \
     MLSentenceQualifyLineInterface
-from scheduling.services.parsing.reparse_parsing_service import reparse_parsing
 from scheduling.services.scheduling.scheduling_service import get_parsing_moderation_of_pruning
 from scheduling.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
-from scheduling.workflows.pruning.extract_v2.split_content import create_line_and_tag_v2
 from scheduling.workflows.pruning.extract.models import Source
+from scheduling.workflows.pruning.extract_v2.split_content import create_line_and_tag_v2
 
 
 def redirect_to_moderation(moderation: ModerationMixin, category: str, resource: str, is_bug: bool,
@@ -150,7 +149,7 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
                 except ParsingValidationError as e:
                     return HttpResponseBadRequest(str(e))
             elif class_moderation == ChurchModeration:
-                on_church_human_validation(moderation)
+                registry_on_church_human_validation(moderation)
 
             moderation.validate(request.user)
 
@@ -441,7 +440,7 @@ def moderate_merge_websites(request, website_moderation_uuid=None):
         return HttpResponseBadRequest(f'website moderation does not have other website')
 
     # other_website is the primary website
-    merge_websites(website_moderation.website, website_moderation.other_website)
+    registry_merge_websites(website_moderation.website, website_moderation.other_website)
 
     return redirect_to_moderation(website_moderation, website_moderation.category, 'website',
                                   website_moderation.marked_as_bug_at is not None,
