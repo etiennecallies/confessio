@@ -1,6 +1,4 @@
-from datetime import date
-
-from registry.models import WebsiteModeration, Website, Church
+from registry.models import WebsiteModeration, Website
 from registry.services.church_location_service import find_church_geo_outliers
 from registry.services.website_contact_service import set_emails_for_website
 from registry.services.website_moderation_service import remove_not_validated_moderation, \
@@ -14,11 +12,8 @@ def registry_remove_not_validated_moderation(website: Website,
 
 def registry_add_website_moderation(website: Website, category: WebsiteModeration.Category,
                                     other_website: Website | None = None,
-                                    other_home_url: str | None = None,
-                                    conflict_day: date | None = None,
-                                    conflict_church: Church | None = None):
-    return add_website_moderation(website, category, other_website, other_home_url, conflict_day,
-                                  conflict_church)
+                                    other_home_url: str | None = None):
+    return add_website_moderation(website, category, other_website, other_home_url)
 
 
 def registry_suggest_alternative_website(website_moderation: WebsiteModeration):

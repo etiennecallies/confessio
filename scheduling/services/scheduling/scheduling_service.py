@@ -123,37 +123,39 @@ def get_scheduling_primary_sources(scheduling: Scheduling | None
 
     scrapings = []
     scraping_by_history_id = {}
+    prunings_by_scraping_uuid = {}
     for scheduling_scraping in scheduling.historical_scrapings.all():
         scraping_history_id = scheduling_scraping.scraping_history_id
         historical_scraping = Scraping.history.get(history_id=scraping_history_id)
         scraping = historical_scraping.instance
         scraping_by_history_id[scraping_history_id] = scraping
         scrapings.append(scraping)
+        prunings_by_scraping_uuid[scraping.uuid] = []
 
-    prunings_by_scraping_uuid = {}
     for scraping_pruning in scheduling.scraping_prunings.all():
         scraping_history_id = scraping_pruning.scraping_history_id
         scraping = scraping_by_history_id[scraping_history_id]
         pruning = get_pruning_by_history_id(scraping_pruning.pruning_history_id,
                                             pruning_by_history_id)
-        prunings_by_scraping_uuid.setdefault(scraping.uuid, []).append(pruning)
+        prunings_by_scraping_uuid[scraping.uuid].append(pruning)
 
     images = []
     image_by_history_id = {}
+    prunings_by_image_uuid = {}
     for scheduling_image in scheduling.historical_images.all():
         image_history_id = scheduling_image.image_history_id
         historical_image = Image.history.get(history_id=image_history_id)
         image = historical_image.instance
         image_by_history_id[image_history_id] = image
         images.append(image)
+        prunings_by_image_uuid[image.uuid] = []
 
-    prunings_by_image_uuid = {}
     for image_pruning in scheduling.image_prunings.all():
         image_history_id = image_pruning.image_history_id
         image = image_by_history_id[image_history_id]
         pruning = get_pruning_by_history_id(image_pruning.pruning_history_id,
                                             pruning_by_history_id)
-        prunings_by_image_uuid.setdefault(image.uuid, []).append(pruning)
+        prunings_by_image_uuid[image.uuid].append(pruning)
 
     return SchedulingPrimarySources(
         scrapings=scrapings,

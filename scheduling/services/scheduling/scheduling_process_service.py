@@ -180,5 +180,5 @@ def index_scheduling(scheduling: Scheduling):
         scheduling.status = Scheduling.Status.INDEXED
         scheduling.save()
 
-    add_necessary_scheduling_moderation(scheduling)
+    add_necessary_scheduling_moderation(scheduling, index_events)
     clean_parsings_moderations(list(parsing_history_ids))

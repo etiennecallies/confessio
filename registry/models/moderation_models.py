@@ -30,9 +30,6 @@ class WebsiteModeration(ModerationMixin):
     home_url = models.URLField(null=True, max_length=255)
     other_website = models.ForeignKey('Website', on_delete=models.SET_NULL,
                                       related_name='other_moderations', null=True)
-    conflict_day = models.DateField(null=True)
-    conflict_church = models.ForeignKey('Church', on_delete=models.SET_NULL,
-                                        related_name='conflict_moderations', null=True)
 
     class Meta:
         unique_together = ('website', 'category')

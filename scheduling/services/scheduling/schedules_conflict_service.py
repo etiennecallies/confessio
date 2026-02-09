@@ -1,9 +1,7 @@
 from datetime import date
 
-from registry.models import Church, Website, WebsiteModeration
+from registry.models import Church
 from scheduling.models import IndexEvent
-from registry.services.website_moderation_service import remove_not_validated_moderation, \
-    add_website_moderation
 
 
 def website_has_schedules_conflict(church_index_events: list[IndexEvent]
@@ -25,15 +23,3 @@ def website_has_schedules_conflict(church_index_events: list[IndexEvent]
             .append(church_event)
 
     return None
-
-
-def look_for_conflict(website: Website, church_index_events: list[IndexEvent]):
-    # TODO migrate to SchedulingModeration and remove this function
-    conflict = website_has_schedules_conflict(church_index_events)
-    if conflict is None:
-        remove_not_validated_moderation(website,
-                                        WebsiteModeration.Category.SCHEDULES_CONFLICT)
-    else:
-        conflict_day, conflict_church = conflict
-        add_website_moderation(website, WebsiteModeration.Category.SCHEDULES_CONFLICT,
-                               conflict_day=conflict_day, conflict_church=conflict_church)
