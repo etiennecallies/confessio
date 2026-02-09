@@ -4,11 +4,11 @@ from typing import Optional
 
 from django.contrib.gis.geos import Point
 
+from crawling.public_worflow import ccrawling_redirects_to_other_url
 from registry.models import Parish, Diocese, ParishModeration, Website, ExternalSource
-from front.services.search.autocomplete_service import get_string_similarity
-from crawling.workflows.download.download_content import redirects_to_other_url
 from registry.services.parish_website_service import save_website_of_parish
 from registry.utils.geo_utils import get_geo_distance
+from registry.utils.string_utils import get_string_similarity
 
 
 ####################
@@ -102,8 +102,8 @@ def update_parish(parish: Parish,
     # Check website
     if external_parish.website:
         if parish.website \
-                and redirects_to_other_url(external_parish.website.home_url,
-                                           parish.website.home_url):
+                and ccrawling_redirects_to_other_url(external_parish.website.home_url,
+                                                     parish.website.home_url):
             return
 
         try:
