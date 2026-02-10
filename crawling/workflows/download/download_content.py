@@ -10,7 +10,13 @@ from crawling.workflows.refine.pdf_utils import extract_text_from_pdf_bytes
 from crawling.utils.url_utils import get_domain, are_similar_urls, replace_scheme_and_hostname, \
     replace_http_with_https
 
-DOWNLOAD_TIMEOUT = 20
+DOWNLOAD_TIMEOUT = 40
+TIMEOUT = httpx.Timeout(
+    connect=DOWNLOAD_TIMEOUT / 4,
+    read=DOWNLOAD_TIMEOUT / 2,
+    write=DOWNLOAD_TIMEOUT / 8,
+    pool=DOWNLOAD_TIMEOUT / 8,
+)
 MAX_SIZE = 1_000_000
 
 
@@ -27,7 +33,7 @@ def get_content_length(url):
     headers = get_headers()
     try:
         with httpx.Client() as client:
-            r = client.get(url, headers=headers, timeout=DOWNLOAD_TIMEOUT)
+            r = client.get(url, headers=headers, timeout=TIMEOUT)
             r.raise_for_status()
     except httpx.HTTPError as e:
         info(e)
@@ -90,7 +96,7 @@ def get_content_from_url(url: str) -> str | None:
     headers = get_headers()
     try:
         with httpx.Client() as client:
-            r = client.get(url, headers=headers, timeout=DOWNLOAD_TIMEOUT, follow_redirects=True)
+            r = client.get(url, headers=headers, timeout=TIMEOUT, follow_redirects=True)
     except HTTPError as e:
         info(e)
         return None
@@ -148,7 +154,7 @@ def get_url_aliases(url, already_seen: set | None = None
     headers = get_headers()
     try:
         with httpx.Client() as client:
-            r = client.get(url, headers=headers, follow_redirects=False, timeout=DOWNLOAD_TIMEOUT)
+            r = client.get(url, headers=headers, follow_redirects=False, timeout=TIMEOUT)
     except HTTPError as e:
         attempt_with_https = replace_http_with_https(url)
         if attempt_with_https:
