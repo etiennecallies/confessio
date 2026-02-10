@@ -6,6 +6,7 @@ from crawling.services.crawl_website_service import crawl_website
 from crawling.services.log_service import save_buffer
 from crawling.services.scrape_scraping_service import upsert_extracted_html_list
 from crawling.services.scraping_service import delete_scraping
+from crawling.workflows.crawl.download_and_search_urls import CrawlingTimeoutError
 from crawling.workflows.scrape.download_refine_and_extract import get_fresh_extracted_html_list
 from registry.models import Website
 from scheduling.public_service import scheduling_init_scheduling
@@ -20,6 +21,10 @@ def handle_crawl_website(website: Website):
 
     try:
         crawling_category = crawl_website(website)
+    except CrawlingTimeoutError:
+        info(f'Timeout reached while crawling website {website.name} {website.uuid}')
+        save_buffer(website, Log.Type.CRAWLING, Log.Status.TIMEOUT)
+        return
     except Exception:
         info(f'Exception while crawling website {website.name} {website.uuid}')
         log_stack_trace()

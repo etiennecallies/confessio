@@ -1,11 +1,14 @@
+import time
+
 from pydantic import BaseModel, Field
 
-from crawling.workflows.crawl.extract_links import parse_content_links, remove_http_https_duplicate
-from crawling.workflows.crawl.extract_widgets import extract_widgets, BaseWidget
-from crawling.workflows.download.download_content import get_content_from_url, get_url_aliases
-from crawling.workflows.scrape.download_refine_and_extract import get_extracted_html_list
 from core.utils.ram_utils import print_memory_usage
 from crawling.utils.url_utils import get_clean_full_url, get_path, get_full_path
+from crawling.workflows.crawl.extract_links import parse_content_links, remove_http_https_duplicate
+from crawling.workflows.crawl.extract_widgets import extract_widgets, BaseWidget
+from crawling.workflows.download.download_content import get_content_from_url, get_url_aliases, \
+    DOWNLOAD_TIMEOUT
+from crawling.workflows.scrape.download_refine_and_extract import get_extracted_html_list
 
 MAX_VISITED_LINKS = 50
 
@@ -50,11 +53,17 @@ def get_new_url_and_aliases(url: str) -> tuple[str, set[str], str | None]:
     return new_url, set([alias[1] for alias in url_aliases]), None
 
 
+class CrawlingTimeoutError(Exception):
+    pass
+
+
 def search_for_confession_pages(home_url, aliases_domains: set[str],
                                 forbidden_outer_paths: set[str],
                                 path_redirection: dict[str, str],
                                 forbidden_paths: set[str]
                                 ) -> CrawlingResult:
+    deadline = time.time() + (1 + MAX_VISITED_LINKS) * (1 + DOWNLOAD_TIMEOUT)
+
     visited_links = set()
     links_to_visit = {home_url}
     extracted_html_seen = set()
@@ -64,6 +73,9 @@ def search_for_confession_pages(home_url, aliases_domains: set[str],
     content_by_url = {}
     all_widgets = []
     while len(links_to_visit) > 0 and len(visited_links) < MAX_VISITED_LINKS:
+        if deadline is not None and time.time() > deadline:
+            raise CrawlingTimeoutError()
+
         print_memory_usage()
 
         link = links_to_visit.pop()
