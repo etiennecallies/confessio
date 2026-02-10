@@ -128,6 +128,7 @@ class WebsiteOut(Schema):
     home_url: str
     created_at: datetime
     updated_at: datetime
+    contact_emails: list[str]
 
     @classmethod
     def from_website(cls, website: Website):
@@ -137,6 +138,7 @@ class WebsiteOut(Schema):
             home_url=website.home_url,
             created_at=website.created_at,
             updated_at=website.updated_at,
+            contact_emails=website.contact_emails or [],
         )
 
 
