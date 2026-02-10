@@ -13,6 +13,10 @@ from front.utils.web_utils import get_user_user_agent_and_ip
 class NewReportError(Exception):
     response: HttpResponse
 
+    def __init__(self, response: HttpResponse):
+        self.response = response
+        super().__init__()
+
 
 def new_report(request, website: Website) -> str:
     feedback_type_str = request.POST.get('feedback_type')
