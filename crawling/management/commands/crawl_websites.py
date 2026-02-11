@@ -48,7 +48,7 @@ class Command(AbstractCommand):
         elif options['no_recent']:
             websites = Website.objects.filter(is_active=True) \
                 .filter(Q(crawling__isnull=True)
-                        | Q(crawling__created_at__lt=timezone.now() - timedelta(hours=16))) \
+                        | Q(crawling__created_at__lt=timezone.now() - timedelta(hours=14))) \
                 .order_by(F('crawling').asc(nulls_first=True)).all()
         else:
             websites = Website.objects.filter(is_active=True) \
