@@ -12,7 +12,7 @@ ExecStart=/bin/bash -c '. {{ app_dir }}/.env && {{ venv_python }} {{ app_dir }}/
 Restart=always
 KillSignal=SIGINT
 TimeoutStopSec=10
-MemoryMax=1600M
+MemoryMax=3200M
 
 [Install]
 WantedBy=multi-user.target
