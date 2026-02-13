@@ -1,0 +1,18 @@
+#!/bin/sh
+
+[Unit]
+Description=Django command to consume messages from the crawling queue number {{ item }}
+After=network.target
+
+[Service]
+PIDFile=/var/run/background_crawling{{ item }}.pid
+User={{ deployer_user }}
+Group={{ deployer_group }}
+ExecStart=/bin/bash -c '. {{ app_dir }}/.env && {{ venv_python }} {{ app_dir }}/manage.py process_tasks --queue crawling --sleep 1'
+Restart=always
+KillSignal=SIGINT
+TimeoutStopSec=10
+MemoryMax=1600M
+
+[Install]
+WantedBy=multi-user.target

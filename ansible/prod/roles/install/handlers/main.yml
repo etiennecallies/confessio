@@ -6,13 +6,22 @@
   service: name=nginx state=restarted enabled=yes
   become: yes
 
-- name: restart app
-  service: name=confessio state=restarted enabled=yes
+- name: restart app daemon_reloaded
+  systemd: name=confessio state=restarted enabled=yes daemon_reload=yes
   become: yes
 
-- name: restart background_main
-  service: name=background_main state=restarted enabled=yes
+- name: restart background_main daemon_reloaded
+  systemd: name=background_main state=restarted enabled=yes daemon_reload=yes
   become: yes
+
+- name: restart background_crawling daemon_reloaded
+  systemd:
+    name: "background_crawling{{ item }}.service"
+    state: restarted
+    enabled: yes
+    daemon_reload: yes
+  become: yes
+  loop: "{{ range(1, nb_crawling_workers + 1) | list }}"
 
 - name: reload tmux
   shell: tmux source ~/.tmux.conf

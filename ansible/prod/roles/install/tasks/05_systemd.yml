@@ -6,11 +6,19 @@
                     dest=/etc/systemd/system
   become: yes
   notify:
-    - restart app
+    - restart app daemon_reloaded
 
-- name: write a systemd service file for django background tasks
+- name: write a systemd service file for django background tasks of queue main
   template: src=background_main.service
                     dest=/etc/systemd/system
   become: yes
   notify:
-    - restart background_main
+    - restart background_main daemon_reloaded
+
+- name: write systemd service files for django background tasks of queue crawling
+  template: src=background_crawling.service
+                    dest=/etc/systemd/system/background_crawling{{ item }}.service
+  become: yes
+  loop: "{{ range(1, nb_crawling_workers + 1) | list }}"
+  notify:
+    - restart background_crawling daemon_reloaded

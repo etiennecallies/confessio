@@ -40,6 +40,9 @@ deploy_dir: '/home/{{ deployer_user }}/deploy'
 django_wsgi_module: core.wsgi
 django_settings_module: core.production_settings
 
+# Workers
+nb_crawling_workers: 2
+
 # Email
 contact_email: "{{ lookup('ansible.builtin.env', 'CONTACT_EMAIL') }}"
 admin_email: "{{ lookup('ansible.builtin.env', 'ADMIN_EMAIL') }}"

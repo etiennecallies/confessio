@@ -4,6 +4,3 @@
     chdir: "{{ app_dir }}"
   environment:
     UV_PYTHON: "python3.13"
-  notify:
-    - restart app
-    - restart background_main

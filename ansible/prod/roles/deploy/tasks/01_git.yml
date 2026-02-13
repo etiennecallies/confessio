@@ -12,6 +12,7 @@
   notify:
     - restart app
     - restart background_main
+    - restart background_crawling
 
 - name: Create the .env file
   template: src=env.j2 dest={{ app_dir }}/.env
@@ -19,3 +20,4 @@
   notify:
     - restart app
     - restart background_main
+    - restart background_crawling

@@ -1,7 +1,14 @@
 - name: restart app
-  service: name=confessio state=restarted enabled=yes
+  service: name=confessio state=restarted
   become: yes
 
 - name: restart background_main
-  service: name=background_main state=restarted enabled=yes
+  service: name=background_main state=restarted
   become: yes
+
+- name: restart background_crawling
+  service:
+    name: "background_crawling{{ item }}.service"
+    state: restarted
+  become: yes
+  loop: "{{ range(1, nb_crawling_workers + 1) | list }}"
