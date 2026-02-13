@@ -2,9 +2,9 @@
 {% load display_tags %}
 {% load i18n %}
 
-{% for church_sorted_schedule in website_schedules.church_sorted_schedules %}
-    {% with church=church_sorted_schedule.church %}
-        <div id="{% if church %}church-{{ church.uuid }}{% else %}nochurch-{{ website.uuid }}-{{ church_sorted_schedule.is_church_explicitly_other|lower }}{% endif %}"
+{% for sourced_schedules_of_church in website_schedules.sourced_schedules_list.sourced_schedules_of_churches %}
+    {% with church=website_schedules.church_by_id|get_item:sourced_schedules_of_church.church_id %}
+        <div id="{% if church %}church-{{ church.uuid }}{% else %}nochurch-{{ website.uuid }}-{{ sourced_schedules_of_church.is_church_explicitly_other|lower }}{% endif %}"
              class="{% if church %}church-container {% endif %}margin-left-indent mb-3"
              {% if church %}data-church-uuid="{{ church.uuid }}"{% endif %}>
             {% if church %}
@@ -21,7 +21,7 @@
                         <span class="text-muted copy-to-clipboard clickable"><i class="far fa-copy"></i></span>
                     </div>
                 </div>
-            {% elif church_sorted_schedule.is_church_explicitly_other %}
+            {% elif sourced_schedules_of_church.is_church_explicitly_other %}
                 <div>
                     {% display_church_color church True website_schedules.church_color_by_uuid %}
                     {% display_other_church_icon True %}
@@ -35,8 +35,8 @@
                     {% trans 'UnknownChurch' %} :
                 </div>
             {% endif %}
-            {% for sourced_schedule_item in church_sorted_schedule.sourced_schedule_items %}
-                <div class="margin-left-indent {% if church_sorted_schedule.is_church_explicitly_other %} explicitly-other{% endif %}">
+            {% for sourced_schedule_item in sourced_schedules_of_church.sourced_schedules %}
+                <div class="margin-left-indent {% if sourced_schedules_of_church.is_church_explicitly_other %} explicitly-other{% endif %}">
                     <span>{{ sourced_schedule_item.explanation }}</span>
                     {% for source in sourced_schedule_item.sources %}
                         {% include 'includes/source_reference.html' %}
@@ -49,9 +49,9 @@
     {% endwith %}
 {% endfor %}
 <div class="margin-left-indent mt-1">
-    {% if website_schedules.possible_by_appointment_sources %}
+    {% if website_schedules.sourced_schedules_list.possible_by_appointment_sources %}
         <div>🤝 Il est possible de se confesser sur rendez-vous.
-            {% for source in website_schedules.possible_by_appointment_sources %}
+            {% for source in website_schedules.sourced_schedules_list.possible_by_appointment_sources %}
                 {% include 'includes/source_reference.html' %}
             {% endfor %}
         </div>

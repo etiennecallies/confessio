@@ -16,7 +16,7 @@ from front.services.search.search_service import TimeFilter, AggregationItem, Bo
     get_dioceses_bounding_box
 from registry.models import Church, Website, Diocese
 from scheduling.public_service import scheduling_get_indexed_scheduling
-from scheduling.workflows.merging.sourced_schedule_items import SourcedScheduleItem
+from scheduling.workflows.merging.sourced_schedules import SourcedScheduleItem
 from scheduling.workflows.merging.sources import BaseSource, ParsingSource, OClocherSource
 
 api = NinjaAPI(urls_namespace='front_api')
@@ -326,8 +326,8 @@ def api_front_church_details(request, church_uuid: UUID) -> ChurchDetails:
     website_schedules = get_website_schedules(website, [church], scheduling,
                                               only_real_churches=True)
     schedules = [ScheduleOut.from_sourced_schedule_item(ssi)
-                 for css in website_schedules.church_sorted_schedules
-                 for ssi in css.sourced_schedule_items]
+                 for ssc in website_schedules.sourced_schedules_list.sourced_schedules_of_churches
+                 for ssi in ssc.sourced_schedules]
     return ChurchDetails.from_church_and_schedules(church, schedules)
 
 

@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from datetime import date, timedelta
-from typing import Optional
 from uuid import UUID
 
 from fetching.services.oclocher_matching_service import get_matching_church_desc_by_id, \
@@ -10,54 +9,31 @@ from front.services.card.sources_service import sort_parsings
 from registry.models import Church, Website
 from scheduling.models import Parsing
 from scheduling.models import Scheduling
+from scheduling.services.merging.oclocher_schedules_services import \
+    get_schedules_list_from_oclocher_schedules
 from scheduling.services.parsing.parsing_service import get_parsing_schedules_list, \
     get_parsing_church_desc_by_id
-from scheduling.services.scheduling.scheduling_service import get_scheduling_sources
+from scheduling.services.scheduling.scheduling_service import get_scheduling_sources, \
+    SchedulingSources
 from scheduling.utils.date_utils import get_current_year
 from scheduling.utils.hash_utils import hash_string_to_hex
 from scheduling.utils.list_utils import get_desc_by_id
 from scheduling.workflows.merging.merge_schedule_items import get_merged_sourced_schedule_items
-from scheduling.services.merging.oclocher_schedules_services import \
-    get_schedules_list_from_oclocher_schedules
 from scheduling.workflows.merging.sort_schedule_items import \
     get_sorted_sourced_schedule_items_by_church_id
-from scheduling.workflows.merging.sourced_schedule_items import SourcedScheduleItem
+from scheduling.workflows.merging.sourced_schedules import SourcedScheduleItem, \
+    SourcedSchedulesList, SourcedSchedulesOfChurch
 from scheduling.workflows.merging.sources import ParsingSource, BaseSource, OClocherSource
 from scheduling.workflows.parsing.explain_schedule import get_explanation_from_schedule
 from scheduling.workflows.parsing.rrule_utils import get_events_from_schedule_item
 
 MAX_SCHEDULES_PER_CHURCH = 30
 
-#############
-# SCHEDULES #
-#############
-
-
-@dataclass
-class ChurchSortedSchedules:
-    church: Optional[Church]
-    is_church_explicitly_other: bool
-    sourced_schedule_items: list[SourcedScheduleItem]
-
-    @classmethod
-    def from_sorted_schedules(cls, sourced_schedule_items: list[SourcedScheduleItem],
-                              church_id: int | None,
-                              church_by_id: dict[int, Church]) -> 'ChurchSortedSchedules':
-        return cls(
-            church=church_by_id[church_id] if church_id is not None and church_id != -1 else None,
-            is_church_explicitly_other=church_id == -1,
-            sourced_schedule_items=sourced_schedule_items,
-        )
-
 
 @dataclass
 class WebsiteSchedules:
-    church_sorted_schedules: list[ChurchSortedSchedules]
-    possible_by_appointment_sources: list[BaseSource]
-    is_related_to_mass_sources: list[BaseSource]
-    is_related_to_adoration_sources: list[BaseSource]
-    is_related_to_permanence_sources: list[BaseSource]
-    will_be_seasonal_events_sources: list[BaseSource]
+    sourced_schedules_list: SourcedSchedulesList
+    church_by_id: dict[int, Church]
     parsing_index_by_parsing_uuid: dict[UUID, int]
     parsing_by_uuid: dict[UUID, Parsing]
     church_color_by_uuid: dict[UUID, str]
@@ -69,12 +45,33 @@ def get_website_schedules(website: Website,
                           max_days: int = 1,
                           only_real_churches: bool = False,
                           ) -> WebsiteSchedules:
-    ###############
-    # Get sources #
-    ###############
-
     scheduling_sources = get_scheduling_sources(scheduling)
+    church_by_id, sources = get_church_by_id_and_sources(scheduling_sources)
 
+    sourced_schedules_list = get_sourced_schedules_list(
+        website, website_churches, church_by_id, sources, max_days, only_real_churches
+    )
+
+    parsing_index_by_parsing_uuid = {
+        parsing.uuid: i for i, parsing in enumerate(sort_parsings(scheduling_sources.parsings))
+    }
+    parsing_by_uuid = {parsing.uuid: parsing for parsing in scheduling_sources.parsings}
+
+    return WebsiteSchedules(
+        sourced_schedules_list=sourced_schedules_list,
+        church_by_id=church_by_id,
+        parsing_index_by_parsing_uuid=parsing_index_by_parsing_uuid,
+        parsing_by_uuid=parsing_by_uuid,
+        church_color_by_uuid=get_church_color_by_uuid(sourced_schedules_list, church_by_id),
+    )
+
+
+############################
+# CHURCH BY ID AND SOURCES #
+############################
+
+def get_church_by_id_and_sources(scheduling_sources: SchedulingSources,
+                                 ) -> tuple[dict[int, Church], list[BaseSource]]:
     church_by_desc = {church.get_desc(): church for church in scheduling_sources.churches}
     church_desc_by_id = get_desc_by_id(list(church_by_desc.keys()))
     church_by_id = {church_id: church_by_desc[desc]
@@ -109,6 +106,20 @@ def get_website_schedules(website: Website,
         )
         sources.append(OClocherSource(schedules_list=schedules_list))
 
+    return church_by_id, sources
+
+
+########################
+# SourcedSchedulesList #
+########################
+
+def get_sourced_schedules_list(website: Website,
+                               website_churches: list[Church],
+                               church_by_id: dict[int, Church],
+                               sources: list[BaseSource],
+                               max_days: int,
+                               only_real_churches: bool,
+                               ) -> SourcedSchedulesList:
     ###########################
     # Get SourcedScheduleItem #
     ###########################
@@ -171,43 +182,34 @@ def get_website_schedules(website: Website,
         merged_sourced_schedule_items
     )
 
-    #############################
-    # Get ChurchSortedSchedules #
-    #############################
+    #####################################
+    # Get sourced_schedules_of_churches #
+    #####################################
 
-    church_sorted_schedules = [
-        ChurchSortedSchedules.from_sorted_schedules(
-            sourced_schedule_items[:MAX_SCHEDULES_PER_CHURCH], church_id, church_by_id
+    sourced_schedules_of_churches = [
+        SourcedSchedulesOfChurch(
+            church_id=church_id,
+            sourced_schedules=sourced_schedule_items[:MAX_SCHEDULES_PER_CHURCH],
         )
         for church_id, sourced_schedule_items in sorted_sourced_schedule_items_by_church_id.items()
     ]
 
     # Add churches without events
-    churches_with_events_uuids = {css.church.uuid for css in church_sorted_schedules
-                                  if css.church is not None}
-    church_sorted_schedules += [
-        ChurchSortedSchedules(
-            church=c,
-            is_church_explicitly_other=False,
-            sourced_schedule_items=[]
-        ) for c in website_churches if c.uuid not in churches_with_events_uuids
+    church_ids_with_events = {ssc.church_id for ssc in sourced_schedules_of_churches}
+    sourced_schedules_of_churches += [
+        SourcedSchedulesOfChurch(
+            church_id=church_id,
+            sourced_schedules=[]
+        ) for church_id in church_by_id if church_id not in church_ids_with_events
     ]
 
-    parsing_index_by_parsing_uuid = {
-        parsing.uuid: i for i, parsing in enumerate(sort_parsings(scheduling_sources.parsings))
-    }
-    parsing_by_uuid = {parsing.uuid: parsing for parsing in scheduling_sources.parsings}
-
-    return WebsiteSchedules(
-        church_sorted_schedules=church_sorted_schedules,
+    return SourcedSchedulesList(
+        sourced_schedules_of_churches=sourced_schedules_of_churches,
         possible_by_appointment_sources=possible_by_appointment_sources,
         is_related_to_mass_sources=is_related_to_mass_sources,
         is_related_to_adoration_sources=is_related_to_adoration_sources,
         is_related_to_permanence_sources=is_related_to_permanence_sources,
         will_be_seasonal_events_sources=will_be_seasonal_events_sources,
-        parsing_index_by_parsing_uuid=parsing_index_by_parsing_uuid,
-        parsing_by_uuid=parsing_by_uuid,
-        church_color_by_uuid=get_church_color_by_uuid(church_sorted_schedules),
     )
 
 
@@ -215,13 +217,14 @@ def get_website_schedules(website: Website,
 # COLORS #
 ##########
 
-def get_church_color_by_uuid(church_sorted_schedules: list[ChurchSortedSchedules]
-                             ) -> dict[UUID, str]:
+def get_church_color_by_uuid(sourced_schedules_list: SourcedSchedulesList,
+                             church_by_id: dict[int, Church]) -> dict[UUID, str]:
     church_color_by_uuid = {}
     index = 0
-    for church_schedule in church_sorted_schedules:
-        if church_schedule.church:
-            church_color_by_uuid[church_schedule.church.uuid] = get_church_color(index)
+    for sourced_schedules_of_church in sourced_schedules_list.sourced_schedules_of_churches:
+        church = church_by_id.get(sourced_schedules_of_church.church_id, None)
+        if church:
+            church_color_by_uuid[church.uuid] = get_church_color(index)
             index += 1
 
     return church_color_by_uuid

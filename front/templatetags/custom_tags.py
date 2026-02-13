@@ -73,11 +73,11 @@ def has_relation_text(website_schedules: WebsiteSchedules | None) -> str:
         return ''
 
     relations = []
-    if website_schedules.is_related_to_mass_sources:
+    if website_schedules.sourced_schedules_list.is_related_to_mass_sources:
         relations.append('messes')
-    if website_schedules.is_related_to_adoration_sources:
+    if website_schedules.sourced_schedules_list.is_related_to_adoration_sources:
         relations.append('adorations')
-    if website_schedules.is_related_to_permanence_sources:
+    if website_schedules.sourced_schedules_list.is_related_to_permanence_sources:
         relations.append('permanences')
 
     if relations:
@@ -94,9 +94,9 @@ def relation_sources(website_schedules: WebsiteSchedules | None
     if not website_schedules:
         return []
 
-    return list(set(website_schedules.is_related_to_mass_sources
-                    + website_schedules.is_related_to_adoration_sources
-                    + website_schedules.is_related_to_permanence_sources))
+    return list(set(website_schedules.sourced_schedules_list.is_related_to_mass_sources
+                    + website_schedules.sourced_schedules_list.is_related_to_adoration_sources
+                    + website_schedules.sourced_schedules_list.is_related_to_permanence_sources))
 
 
 @register.filter

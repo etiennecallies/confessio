@@ -76,9 +76,12 @@ def get_all_church_events(website: Website, website_churches: list[Church],
     website_schedules = get_website_schedules(
         website, website_churches, scheduling, max_days=10
     )
-    for church_sorted_schedule in website_schedules.church_sorted_schedules:
+    for sourced_schedules_of_church in \
+            website_schedules.sourced_schedules_list.sourced_schedules_of_churches:
+        church = website_schedules.church_by_id.get(sourced_schedules_of_church.church_id, None)
+
         has_been_moderated_by_church_event = {}
-        for sourced_schedule_item in church_sorted_schedule.sourced_schedule_items:
+        for sourced_schedule_item in sourced_schedules_of_church.sourced_schedules:
             has_been_moderated = any(source_has_been_moderated(source, website_schedules)
                                      for source in sourced_schedule_item.sources)
             for event in sourced_schedule_item.events:
@@ -87,15 +90,15 @@ def get_all_church_events(website: Website, website_churches: list[Church],
 
         for event, has_been_moderated in has_been_moderated_by_church_event.items():
             church_event = ChurchEvent(
-                church=church_sorted_schedule.church,
-                is_church_explicitly_other=church_sorted_schedule.is_church_explicitly_other,
+                church=church,
+                is_church_explicitly_other=sourced_schedules_of_church.is_church_explicitly_other(),
                 start=event.start,
                 end=event.end,
                 has_been_moderated=has_been_moderated,
                 church_color=get_color_of_nullable_church(
-                    church_sorted_schedule.church,
+                    church,
                     website_schedules.church_color_by_uuid,
-                    church_sorted_schedule.is_church_explicitly_other
+                    sourced_schedules_of_church.is_church_explicitly_other()
                 )
             )
             all_church_events.append(church_event)

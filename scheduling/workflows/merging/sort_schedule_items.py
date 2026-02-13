@@ -1,4 +1,4 @@
-from scheduling.workflows.merging.sourced_schedule_items import SourcedScheduleItem
+from scheduling.workflows.merging.sourced_schedules import SourcedScheduleItem
 from scheduling.workflows.parsing.explain_schedule import schedule_item_sort_key
 
 

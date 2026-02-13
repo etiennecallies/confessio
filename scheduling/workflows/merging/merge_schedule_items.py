@@ -1,6 +1,6 @@
 from typing import Callable
 
-from scheduling.workflows.merging.sourced_schedule_items import SourcedScheduleItem
+from scheduling.workflows.merging.sourced_schedules import SourcedScheduleItem
 from scheduling.workflows.parsing.explain_schedule import get_explanation_from_schedule
 from scheduling.workflows.parsing.liturgical import PeriodEnum
 from scheduling.workflows.parsing.schedules import CustomPeriod, WeeklyRule
