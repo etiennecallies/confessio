@@ -14,6 +14,11 @@ def fetch_oclocher_url(oclocher_url: str) -> list[dict]:
             raise
 
 
+def fetch_organizations() -> list[dict]:
+    url = f"https://api.oclocher.fr/organizations/"
+    return fetch_oclocher_url(url)
+
+
 def fetch_organization_locations(oclocher_organization_id: str) -> list[dict]:
     url = f"https://api.oclocher.fr/organizations/{oclocher_organization_id}/locations"
     return fetch_oclocher_url(url)

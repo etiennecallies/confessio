@@ -54,6 +54,20 @@ def get_new_url_and_aliases(url: str) -> tuple[str, set[str], str | None]:
     return new_url, set([alias[1] for alias in url_aliases]), None
 
 
+def is_new_url_valid(new_url: str) -> bool:
+    not_eligible_urls = [
+        'google.com/sorry',
+        'google.com/v3/signin',
+        'accounts.google.com',
+        'wp-admin/install.php',
+    ]
+    for not_eligible_url in not_eligible_urls:
+        if not_eligible_url in new_url:
+            return False
+
+    return True
+
+
 class CrawlingTimeoutError(Exception):
     pass
 

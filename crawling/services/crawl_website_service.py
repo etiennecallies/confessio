@@ -7,23 +7,16 @@ from crawling.services.scraping_service import delete_scraping
 from crawling.services.widget_extraction_service import process_extracted_widgets
 from crawling.utils.url_utils import get_path, get_domain, have_similar_domain
 from crawling.workflows.crawl.download_and_search_urls import search_for_confession_pages, \
-    get_new_url_and_aliases, forbid_diocese_home_links, CrawlingResult
+    get_new_url_and_aliases, forbid_diocese_home_links, CrawlingResult, is_new_url_valid
 from registry.models import Website, WebsiteModeration
 from registry.public_service import registry_add_website_moderation, \
     registry_remove_not_validated_moderation
 
 
 def update_home_url(website: Website, new_home_url: str):
-    not_eligible_urls = [
-        'google.com/sorry',
-        'google.com/v3/signin',
-        'accounts.google.com',
-        'wp-admin/install.php',
-    ]
-    for not_eligible_url in not_eligible_urls:
-        if not_eligible_url in new_home_url:
-            print(f'This url is not eligible to home url update: {new_home_url}')
-            return
+    if not is_new_url_valid(new_home_url):
+        print(f'This url is not eligible to home url update: {new_home_url}')
+        return
 
     if len(new_home_url) > 200:
         registry_add_website_moderation(website, WebsiteModeration.Category.HOME_URL_TOO_LONG,
@@ -60,9 +53,12 @@ def handle_diocese_domain(website: Website, domain_has_changed: bool,
                 info(f'error in get_new_url_and_aliases for diocese with url {diocese.home_url}: '
                      f'{error_message}')
             elif new_diocese_url != diocese.home_url:
-                info(f'it has changed! Replacing it. New url: {new_diocese_url}')
-                diocese.home_url = new_diocese_url
-                diocese.save()
+                if not is_new_url_valid(new_diocese_url):
+                    print(f'This url is not eligible to diocese url update: {new_diocese_url}')
+                else:
+                    info(f'it has changed! Replacing it. New url: {new_diocese_url}')
+                    diocese.home_url = new_diocese_url
+                    diocese.save()
 
         if have_similar_domain(website.home_url, diocese.home_url):
             info('Website and diocese have similar domain, forbidding diocese home links')

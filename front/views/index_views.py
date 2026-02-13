@@ -325,9 +325,12 @@ def partial_website_sources(request, website_uuid: str):
     if request.user.is_authenticated and request.user.has_perm("scheduling.change_sentence"):
         empty_sources = get_empty_sources(primary_sources)
 
-    try:
-        oclocher_organization_id = website.oclocher_organization.organization_id
-    except OClocherOrganization.DoesNotExist:
+    if scheduling.historical_oclocher_schedules.count() > 0:
+        try:
+            oclocher_organization_id = website.oclocher_organization.organization_id
+        except OClocherOrganization.DoesNotExist:
+            oclocher_organization_id = None
+    else:
         oclocher_organization_id = None
 
     return render(request, 'partials/website_sources.html', {

@@ -7,8 +7,11 @@ from core.utils.llm_utils import LLMProvider
 
 class OClocherOrganization(TimeStampMixin):
     organization_id = models.CharField(max_length=32, unique=True)
-    website = models.OneToOneField('registry.Website', on_delete=models.CASCADE,
-                                   related_name='oclocher_organization')
+    website = models.OneToOneField('registry.Website', on_delete=models.SET_NULL,
+                                   related_name='oclocher_organization', null=True)
+    hypertext = models.URLField(max_length=255, null=True, blank=True)
+    hypertext_redirected = models.URLField(max_length=255, null=True, blank=True)
+    redirected_at = models.DateTimeField(null=True, blank=True)
 
 
 class OClocherLocation(TimeStampMixin):

@@ -8,6 +8,7 @@ class OClocherOrganizationModeration(ModerationMixin):
     class Category(models.TextChoices):
         MULTIPLE_WIDGETS = "mutliple_widgets"
         SHARED_WIDGET = "shared_widget"
+        NOT_FOUND = "not_found"
 
     resource = 'oclocher_organization'
     validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
