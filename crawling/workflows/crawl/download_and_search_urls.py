@@ -9,6 +9,7 @@ from crawling.workflows.crawl.extract_widgets import extract_widgets, BaseWidget
 from crawling.workflows.download.download_content import get_content_from_url, get_url_aliases, \
     DOWNLOAD_TIMEOUT
 from crawling.workflows.scrape.download_refine_and_extract import get_extracted_html_list
+from scheduling.utils.html_utils import split_lines
 
 MAX_VISITED_LINKS = 50
 
@@ -128,8 +129,14 @@ if __name__ == '__main__':
     # home_url_ = 'https://paroissecroixrousse.fr/'
     # home_url_ = 'https://www.espace-saint-ignace.fr/'
     # home_url_ = 'https://www.paroisse-st-martin-largentiere.fr'
-    home_url_ = 'https://saintetrinite78.fr'
+    home_url_ = 'https://paroisses-nanterre.fr/sacrements/recevoir-le-sacrement-de-reconciliation/'
     confession_pages = search_for_confession_pages(home_url_,
                                                    set('saintetrinite78.fr'),
                                                    set(), {}, set())
-    print(confession_pages.model_dump_json())
+    for cr in confession_pages.confession_pages:
+        print(f'url: {cr}')
+        for paragraph in confession_pages.confession_pages[cr]:
+            print('<<<')
+            for line in split_lines(paragraph):
+                print(line)
+            print('>>>')
