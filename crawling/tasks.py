@@ -10,7 +10,7 @@ from crawling.services.website_worker_service import handle_crawl_website, handl
 from registry.models import Website
 
 
-@background(queue='main', schedule=TaskSchedule(priority=2))
+@background(queue='crawling', schedule=TaskSchedule(priority=2))
 def worker_crawl_website(website_uuid: str, timeout_ts: int | None):
     try:
         website = Website.objects.get(uuid=website_uuid)
@@ -28,7 +28,7 @@ def worker_crawl_website(website_uuid: str, timeout_ts: int | None):
     handle_crawl_website(website)
 
 
-@background(queue='main', schedule=TaskSchedule(priority=1))
+@background(queue='crawling', schedule=TaskSchedule(priority=1))
 def worker_scrape_page(website_uuid: str, timeout_ts: int | None):
     try:
         website = Website.objects.get(uuid=website_uuid)

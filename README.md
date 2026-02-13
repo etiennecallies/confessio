@@ -167,11 +167,20 @@ $ python manage.py runserver
 
 At this point, the app runs at `http://127.0.0.1:8000/`.
 
-## Launch the background worker
+## Launch the background workers
+
+In production, there are separate workers for the main tasks and crawling tasks,
+but in local you can launch a single worker for all tasks, or separate workers if you want.
+
+All queues:
 ```bash
-$ python manage.py process_tasks --queue main --sleep 1
+$ python manage.py process_tasks --sleep 1
 ```
 
+A specific queue, and with `--dev` flag to enable auto-reload on code changes:
+```bash
+$ python manage.py process_tasks --queue main --sleep 1 --dev
+```
 
 ## Continuous Integration
 
