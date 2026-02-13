@@ -31,7 +31,7 @@ dependencies = [
     "haversine==2.8.1",
     "scikit-learn==1.5.1",
     "pandas==2.3.3",
-    "keras==3.13.1",
+    "keras==3.13.2",
     "numpy==2.3.5",
     "scipy==1.16.3",
     "tqdm==4.66.3",
@@ -65,11 +65,11 @@ dev = [
     "tensorflow==2.20.0",
 
     # Used to deploy
-    "ansible==12.2.0",
+    "ansible==13.3.0",
 
     # Used to investigate RAM usage
     "memory-profiler==0.61.0",
-    "matplotlib==3.9.2",
+    "matplotlib==3.10.8",
 
     # Used to investigate performance
     "django-silk==5.3.1",
