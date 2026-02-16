@@ -105,7 +105,7 @@ ALL_FRENCH_DEPARTMENTS = {
 
 
 def get_department(zipcode: str) -> str:
-    if zipcode.startswith('97'):
+    if zipcode.startswith('97') or zipcode.startswith('98'):
         return zipcode[:3]
     else:
         return zipcode[:2]

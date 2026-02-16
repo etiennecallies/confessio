@@ -6,6 +6,7 @@ from fetching.services.oclocher_matching_service import get_matching_church_desc
     get_location_desc_by_id, get_matching_location_desc_by_id, get_location_desc
 from front.services.card.holiday_zone_service import get_website_holiday_zone
 from front.services.card.sources_service import sort_parsings
+from front.services.card.timezone_service import get_timezone_of_churches
 from registry.models import Church, Website
 from scheduling.models import Parsing
 from scheduling.models import Scheduling
@@ -99,10 +100,13 @@ def get_church_by_id_and_sources(scheduling_sources: SchedulingSources,
         oclocher_id_by_location_id = {location_id: location_by_desc[desc].location_id
                                       for location_id, desc in location_desc_by_id.items()}
 
+        timezone_str = get_timezone_of_churches(scheduling_sources.churches)
+
         schedules_list = get_schedules_list_from_oclocher_schedules(
             scheduling_sources.oclocher_schedules,
             oclocher_matching,
             oclocher_id_by_location_id,
+            timezone_str,
         )
         sources.append(OClocherSource(schedules_list=schedules_list))
 
