@@ -323,11 +323,19 @@ def api_front_church_details(request, church_uuid: UUID) -> ChurchDetails:
     website = church.parish.website
     scheduling = scheduling_get_indexed_scheduling(website)
 
-    website_schedules = get_website_schedules(website, [church], scheduling,
-                                              only_real_churches=True)
+    website_schedules = get_website_schedules(website, scheduling)
+    church_id_list = [church_id for (church_id, church)
+                      in website_schedules.church_by_id.items() if church.uuid == church_uuid]
+    if not church_id_list:
+        # Church is not indexed yet, we return it with no schedule
+        return ChurchDetails.from_church_and_schedules(church, [])
+
+    assert len(church_id_list) == 1, f'Multiple church ids found for church uuid {church_uuid}'
+    church_id = church_id_list[0]
+
     schedules = [ScheduleOut.from_sourced_schedule_item(ssi)
                  for ssc in website_schedules.sourced_schedules_list.sourced_schedules_of_churches
-                 for ssi in ssc.sourced_schedules]
+                 for ssi in ssc.sourced_schedules if ssc.church_id == church_id]
     return ChurchDetails.from_church_and_schedules(church, schedules)
 
 

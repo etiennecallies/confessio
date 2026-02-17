@@ -350,9 +350,8 @@ def partial_website_churches(request, website_uuid: str):
 
     display_explicit_other_churches = extract_bool('display_explicit_other_churches', request)
 
-    website_churches = [c for p in website.parishes.all() for c in p.churches.all()]
     scheduling = scheduling_get_indexed_scheduling(website)
-    website_schedules = get_website_schedules(website, website_churches, scheduling)
+    website_schedules = get_website_schedules(website, scheduling)
 
     return render(request, 'partials/website_churches.html', {
         'website': website,

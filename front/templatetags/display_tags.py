@@ -8,7 +8,7 @@ from django.template.loader import render_to_string
 
 from attaching.models import Image
 from attaching.public_service import attaching_get_image_public_url
-from front.services.card.website_schedules_service import get_color_of_nullable_church
+from front.services.card.church_color_service import get_color_of_nullable_church
 from front.services.search.map_service import (get_map_with_single_location,
                                                get_map_with_multiple_locations,
                                                get_map_with_alternative_locations)

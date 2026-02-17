@@ -1,24 +1,25 @@
-from registry.models import Website, Church
+from front.services.card.church_color_service import get_color_of_nullable_church
 from front.services.card.website_events_service import ChurchEvent
 from front.services.card.website_schedules_service import get_website_schedules, \
-    get_color_of_nullable_church, WebsiteSchedules
-from scheduling.utils.date_utils import time_plus_hours
+    WebsiteSchedules
+from registry.models import Website
 from scheduling.models import IndexEvent, Scheduling
+from scheduling.utils.date_utils import time_plus_hours
 from scheduling.workflows.merging.sources import ParsingSource, BaseSource, OClocherSource
 
 
 def build_website_church_events(website: Website,
                                 scheduling: Scheduling,
                                 ) -> list[IndexEvent]:
-    website_churches = website.get_churches()
 
-    all_church_events = get_all_church_events(website, website_churches, scheduling)
+    all_church_events = get_all_church_events(website, scheduling)
 
     start_end_with_churches = set()
     for church_event in all_church_events:
         if church_event.church:
             start_end_with_churches.add((church_event.start, church_event.end))
 
+    website_churches = website.get_churches()
     church_index_to_add = []
     for church_event in all_church_events:
         event_day = church_event.start.date()
@@ -69,12 +70,11 @@ def source_has_been_moderated(source: BaseSource,
     raise NotImplementedError
 
 
-def get_all_church_events(website: Website, website_churches: list[Church],
-                          scheduling: Scheduling,
+def get_all_church_events(website: Website, scheduling: Scheduling,
                           ) -> list[ChurchEvent]:
     all_church_events = []
     website_schedules = get_website_schedules(
-        website, website_churches, scheduling, max_days=10
+        website, scheduling, max_days=10
     )
     for sourced_schedules_of_church in \
             website_schedules.sourced_schedules_list.sourced_schedules_of_churches:
