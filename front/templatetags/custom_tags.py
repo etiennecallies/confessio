@@ -63,8 +63,9 @@ def get_schedule_item_events(schedule_item: ScheduleItem) -> list[Event]:
     default_year = get_current_year()
     default_holiday_zone = HolidayZoneEnum.FR_ZONE_A
 
-    return get_events_from_schedule_item(schedule_item, start_date, default_year,
-                                         default_holiday_zone, end_date)[:7]
+    return get_events_from_schedule_item(schedule_item, default_holiday_zone,
+                                         start_date, default_year,
+                                         end_date)[:7]
 
 
 @register.filter

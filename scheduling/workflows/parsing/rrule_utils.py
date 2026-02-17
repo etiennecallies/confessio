@@ -84,9 +84,9 @@ def get_rruleset_from_schedule(schedule: ScheduleItem, default_year: int,
 #####################
 
 def get_events_from_schedule_item(schedule: ScheduleItem,
-                                  start_date: date,
-                                  default_year: int,
                                   holiday_zone: HolidayZoneEnum,
+                                  start_date: date | None = None,
+                                  default_year: int | None = None,
                                   end_date: date | None = None,
                                   max_events: int | None = None,
                                   max_days: int | None = None) -> list[Event]:
@@ -99,17 +99,23 @@ def get_events_from_schedule_item(schedule: ScheduleItem,
     if schedule.get_start_time() is None:
         return []
 
-    assert end_date is None or end_date >= start_date
-    assert end_date is not None or max_days is not None or max_events is not None
+    if start_date is None:
+        start_date = date.today()
+    if default_year is None:
+        default_year = get_current_year()
+    if end_date is None:
+        end_date = start_date + timedelta(days=300)
+
+    assert end_date >= start_date
 
     start_datetime = date_to_datetime(start_date)
-    end_datetime = date_to_datetime(end_date) if end_date else None
+    end_datetime = date_to_datetime(end_date)
 
     rset = get_rruleset_from_schedule(schedule, default_year, holiday_zone)
 
     events = []
     for one_date in rset.xafter(start_datetime, count=max_events, inc=True):
-        if end_datetime is not None and one_date > end_datetime:
+        if one_date > end_datetime:
             break
 
         if max_days is not None:
@@ -137,12 +143,10 @@ def get_events_from_schedule_items(schedules: list[ScheduleItem],
                                    start_date: date,
                                    default_year: int,
                                    holiday_zone: HolidayZoneEnum,
-                                   end_date: date | None = None,
-                                   max_events: int = None,
-                                   max_days: int = None) -> list[Event]:
-    all_events = sum((get_events_from_schedule_item(schedule, start_date, default_year,
-                                                    holiday_zone, end_date,
-                                                    max_events, max_days)
+                                   end_date: date) -> list[Event]:
+    all_events = sum((get_events_from_schedule_item(schedule, holiday_zone,
+                                                    start_date, default_year,
+                                                    end_date)
                       for schedule in schedules), [])
 
     return list(sorted(list(set(all_events))))

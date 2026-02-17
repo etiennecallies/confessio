@@ -1,9 +1,6 @@
-from datetime import date, timedelta
-
 from front.services.card.holiday_zone_service import get_website_holiday_zone
 from registry.models import Church, Website
 from scheduling.public_model import SourcedSchedulesList
-from scheduling.utils.date_utils import get_current_year
 from scheduling.workflows.merging.merge_schedule_items import get_merged_sourced_schedule_items
 from scheduling.workflows.merging.sort_schedule_items import \
     get_sorted_sourced_schedule_items_by_church_id
@@ -20,17 +17,12 @@ MAX_SCHEDULES_PER_CHURCH = 30
 def get_sourced_schedules_list(website: Website,
                                church_by_id: dict[int, Church],
                                sources: list[BaseSource],
-                               max_days: int,
                                ) -> SourcedSchedulesList:
     ###########################
     # Get SourcedScheduleItem #
     ###########################
 
     all_sourced_schedule_items = []
-
-    start_date = date.today()
-    current_year = get_current_year()
-    end_date = start_date + timedelta(days=300)
 
     holiday_zone = get_website_holiday_zone(website, list(church_by_id.values()))
 
@@ -46,16 +38,12 @@ def get_sourced_schedules_list(website: Website,
             continue
 
         for schedule_item in schedules_list.schedules:
-            events = get_events_from_schedule_item(schedule_item, start_date,
-                                                   current_year, holiday_zone,
-                                                   end_date, max_days=max_days)
-            if events:
+            if get_events_from_schedule_item(schedule_item, holiday_zone, max_events=1):
                 all_sourced_schedule_items.append(
                     SourcedScheduleItem(
                         item=schedule_item,
                         explanation=get_explanation_from_schedule(schedule_item),
                         sources=[source],
-                        events=events,
                     )
                 )
 

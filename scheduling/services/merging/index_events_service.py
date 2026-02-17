@@ -1,4 +1,5 @@
 from front.services.card.church_color_service import get_color_of_nullable_church
+from front.services.card.holiday_zone_service import get_website_holiday_zone
 from front.services.card.website_events_service import ChurchEvent
 from front.services.card.website_schedules_service import get_website_schedules, \
     WebsiteSchedules
@@ -6,6 +7,7 @@ from registry.models import Website
 from scheduling.models import IndexEvent, Scheduling
 from scheduling.utils.date_utils import time_plus_hours
 from scheduling.workflows.merging.sources import ParsingSource, BaseSource, OClocherSource
+from scheduling.workflows.parsing.rrule_utils import get_events_from_schedule_item
 
 
 def build_website_church_events(website: Website,
@@ -73,9 +75,9 @@ def source_has_been_moderated(source: BaseSource,
 def get_all_church_events(website: Website, scheduling: Scheduling,
                           ) -> list[ChurchEvent]:
     all_church_events = []
-    website_schedules = get_website_schedules(
-        website, scheduling, max_days=10
-    )
+    website_schedules = get_website_schedules(website, scheduling)
+
+    holiday_zone = get_website_holiday_zone(website, list(website_schedules.church_by_id.values()))
     for sourced_schedules_of_church in \
             website_schedules.sourced_schedules_list.sourced_schedules_of_churches:
         church = website_schedules.church_by_id.get(sourced_schedules_of_church.church_id, None)
@@ -84,7 +86,9 @@ def get_all_church_events(website: Website, scheduling: Scheduling,
         for sourced_schedule_item in sourced_schedules_of_church.sourced_schedules:
             has_been_moderated = any(source_has_been_moderated(source, website_schedules)
                                      for source in sourced_schedule_item.sources)
-            for event in sourced_schedule_item.events:
+            events = get_events_from_schedule_item(sourced_schedule_item.item, holiday_zone,
+                                                   max_days=10)
+            for event in events:
                 has_been_moderated_by_church_event[event] = \
                     has_been_moderated or has_been_moderated_by_church_event.get(event, False)
 

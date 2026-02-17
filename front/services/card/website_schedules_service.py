@@ -23,25 +23,19 @@ class WebsiteSchedules:
 
 def get_scheduling_elements(website: Website,
                             scheduling: Scheduling | None,
-                            max_days: int,
                             ) -> tuple[SourcedSchedulesList, dict[int, Church], list[Parsing]]:
     scheduling_sources = get_scheduling_sources(scheduling)
     church_by_id, sources = get_church_by_id_and_sources(scheduling_sources)
 
-    sourced_schedules_list = get_sourced_schedules_list(
-        website, church_by_id, sources, max_days
-    )
+    sourced_schedules_list = get_sourced_schedules_list(website, church_by_id, sources)
 
     return sourced_schedules_list, church_by_id, scheduling_sources.parsings
 
 
 def get_website_schedules(website: Website,
                           scheduling: Scheduling | None,
-                          max_days: int = 1,
                           ) -> WebsiteSchedules:
-    sourced_schedules_list, church_by_id, parsings = get_scheduling_elements(
-        website, scheduling, max_days
-    )
+    sourced_schedules_list, church_by_id, parsings = get_scheduling_elements(website, scheduling)
 
     parsing_index_by_parsing_uuid = {
         parsing.uuid: i for i, parsing in enumerate(sort_parsings(parsings))

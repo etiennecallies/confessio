@@ -57,13 +57,11 @@ def merge_similar_weekly_rules_of_church(sourced_schedule_items: list[SourcedSch
         )
 
         sources = list(set(sum((cs.sources for cs in schedules_group), [])))
-        combined_events = list(sorted(set(sum((cs.events for cs in schedules_group), []))))
 
         combined_parsing_schedule_item = SourcedScheduleItem(
             item=combined_schedule_item,
             explanation=get_explanation_from_schedule(combined_schedule_item),
             sources=sources,
-            events=combined_events
         )
 
         results.append(combined_parsing_schedule_item)
