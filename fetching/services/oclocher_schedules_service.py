@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from django.db import DataError
+
 from fetching.models import OClocherOrganization
 from fetching.workflows.oclocher.fetch_oclocher_api import fetch_organization_schedules
 
@@ -63,15 +65,20 @@ def fetch_oclocher_organization_schedules(oclocher_organization: OClocherOrganiz
                 has_changed = True
                 continue
 
-            oclocher_organization.schedules.create(
-                schedule_id=schedule_id,
-                location=oclocher_location,
-                name=name,
-                selection=selection,
-                datetime_start=datetime_start,
-                datetime_end=datetime_end,
-                recurrence_id=recurrence_id,
-            )
+            try:
+                oclocher_organization.schedules.create(
+                    schedule_id=schedule_id,
+                    location=oclocher_location,
+                    name=name,
+                    selection=selection,
+                    datetime_start=datetime_start,
+                    datetime_end=datetime_end,
+                    recurrence_id=recurrence_id,
+                )
+            except DataError as e:
+                print(f"{schedules_as_dict=}")
+                print(e)
+                raise
             has_changed = True
 
     # Delete schedules that are no longer present
