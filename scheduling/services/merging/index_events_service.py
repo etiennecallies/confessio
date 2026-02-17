@@ -1,10 +1,12 @@
-from front.services.card.church_color_service import get_color_of_nullable_church
+from uuid import UUID
+
+from front.services.card.church_color_service import get_color_of_nullable_church, \
+    get_church_color_by_uuid
 from front.services.card.holiday_zone_service import get_website_holiday_zone
 from front.services.card.website_events_service import ChurchEvent
-from front.services.card.website_schedules_service import get_website_schedules, \
-    WebsiteSchedules
 from registry.models import Website
-from scheduling.models import IndexEvent, Scheduling
+from scheduling.models import IndexEvent, Scheduling, Parsing
+from scheduling.services.merging.sourced_schedules_service import build_scheduling_elements
 from scheduling.utils.date_utils import time_plus_hours
 from scheduling.workflows.merging.sources import ParsingSource, BaseSource, OClocherSource
 from scheduling.workflows.parsing.rrule_utils import get_events_from_schedule_item
@@ -62,9 +64,9 @@ def build_website_church_events(website: Website,
 
 
 def source_has_been_moderated(source: BaseSource,
-                              website_schedules: WebsiteSchedules) -> bool:
+                              parsing_by_uuid: dict[UUID, Parsing]) -> bool:
     if isinstance(source, ParsingSource):
-        return website_schedules.parsing_by_uuid[source.parsing_uuid].has_been_moderated()
+        return parsing_by_uuid[source.parsing_uuid].has_been_moderated()
 
     if isinstance(source, OClocherSource):
         return True
@@ -75,16 +77,20 @@ def source_has_been_moderated(source: BaseSource,
 def get_all_church_events(website: Website, scheduling: Scheduling,
                           ) -> list[ChurchEvent]:
     all_church_events = []
-    website_schedules = get_website_schedules(website, scheduling)
+    scheduling_elements = build_scheduling_elements(website, scheduling)
+    parsing_by_uuid = {parsing.uuid: parsing for parsing in scheduling_elements.parsings}
 
-    holiday_zone = get_website_holiday_zone(website, list(website_schedules.church_by_id.values()))
+    holiday_zone = get_website_holiday_zone(website,
+                                            list(scheduling_elements.church_by_id.values()))
+    church_color_by_uuid = get_church_color_by_uuid(scheduling_elements.sourced_schedules_list,
+                                                    scheduling_elements.church_by_id)
     for sourced_schedules_of_church in \
-            website_schedules.sourced_schedules_list.sourced_schedules_of_churches:
-        church = website_schedules.church_by_id.get(sourced_schedules_of_church.church_id, None)
+            scheduling_elements.sourced_schedules_list.sourced_schedules_of_churches:
+        church = scheduling_elements.church_by_id.get(sourced_schedules_of_church.church_id, None)
 
         has_been_moderated_by_church_event = {}
         for sourced_schedule_item in sourced_schedules_of_church.sourced_schedules:
-            has_been_moderated = any(source_has_been_moderated(source, website_schedules)
+            has_been_moderated = any(source_has_been_moderated(source, parsing_by_uuid)
                                      for source in sourced_schedule_item.sources)
             events = get_events_from_schedule_item(sourced_schedule_item.item, holiday_zone,
                                                    max_days=10)
@@ -101,7 +107,7 @@ def get_all_church_events(website: Website, scheduling: Scheduling,
                 has_been_moderated=has_been_moderated,
                 church_color=get_color_of_nullable_church(
                     church,
-                    website_schedules.church_color_by_uuid,
+                    church_color_by_uuid,
                     sourced_schedules_of_church.is_church_explicitly_other()
                 )
             )

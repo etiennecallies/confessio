@@ -9,13 +9,13 @@ from ninja import NinjaAPI, Schema
 from front.services.card.report_service import get_count_and_label
 from front.services.card.website_events_service import get_website_events, ChurchEvent, \
     WebsiteEvents
-from front.services.card.website_schedules_service import get_website_schedules
 from front.services.search.aggregation_service import get_search_results
 from front.services.search.autocomplete_service import get_aggregated_response, AutocompleteResult
 from front.services.search.search_service import TimeFilter, AggregationItem, BoundingBox, \
     get_dioceses_bounding_box
 from registry.models import Church, Website, Diocese
 from scheduling.public_service import scheduling_get_indexed_scheduling
+from scheduling.services.merging.sourced_schedules_service import build_scheduling_elements
 from scheduling.workflows.merging.sourced_schedules import SourcedScheduleItem
 from scheduling.workflows.merging.sources import BaseSource, ParsingSource, OClocherSource
 
@@ -323,9 +323,10 @@ def api_front_church_details(request, church_uuid: UUID) -> ChurchDetails:
     website = church.parish.website
     scheduling = scheduling_get_indexed_scheduling(website)
 
-    website_schedules = get_website_schedules(website, scheduling)
+    # TODO replace by get_scheduling_elements
+    scheduling_elements = build_scheduling_elements(website, scheduling)
     church_id_list = [church_id for (church_id, church)
-                      in website_schedules.church_by_id.items() if church.uuid == church_uuid]
+                      in scheduling_elements.church_by_id.items() if church.uuid == church_uuid]
     if not church_id_list:
         # Church is not indexed yet, we return it with no schedule
         return ChurchDetails.from_church_and_schedules(church, [])
@@ -334,7 +335,7 @@ def api_front_church_details(request, church_uuid: UUID) -> ChurchDetails:
     church_id = church_id_list[0]
 
     schedules = [ScheduleOut.from_sourced_schedule_item(ssi)
-                 for ssc in website_schedules.sourced_schedules_list.sourced_schedules_of_churches
+                 for ssc in scheduling_elements.sourced_schedules_list.sourced_schedules_of_churches
                  for ssi in ssc.sourced_schedules if ssc.church_id == church_id]
     return ChurchDetails.from_church_and_schedules(church, schedules)
 

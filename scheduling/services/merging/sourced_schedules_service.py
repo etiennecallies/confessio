@@ -1,6 +1,12 @@
+from dataclasses import dataclass
+
 from front.services.card.holiday_zone_service import get_website_holiday_zone
 from registry.models import Church, Website
+from scheduling.models import Parsing
+from scheduling.models import Scheduling
 from scheduling.public_model import SourcedSchedulesList
+from scheduling.services.merging.sources_service import get_church_by_id_and_sources
+from scheduling.services.scheduling.scheduling_service import get_scheduling_sources
 from scheduling.workflows.merging.merge_schedule_items import get_merged_sourced_schedule_items
 from scheduling.workflows.merging.sort_schedule_items import \
     get_sorted_sourced_schedule_items_by_church_id
@@ -9,7 +15,6 @@ from scheduling.workflows.merging.sourced_schedules import SourcedScheduleItem, 
 from scheduling.workflows.merging.sources import BaseSource
 from scheduling.workflows.parsing.explain_schedule import get_explanation_from_schedule
 from scheduling.workflows.parsing.rrule_utils import get_events_from_schedule_item
-
 
 MAX_SCHEDULES_PER_CHURCH = 30
 
@@ -91,4 +96,25 @@ def get_sourced_schedules_list(website: Website,
         is_related_to_adoration_sources=is_related_to_adoration_sources,
         is_related_to_permanence_sources=is_related_to_permanence_sources,
         will_be_seasonal_events_sources=will_be_seasonal_events_sources,
+    )
+
+
+@dataclass
+class SchedulingElements:
+    sourced_schedules_list: SourcedSchedulesList
+    church_by_id: dict[int, Church]
+    parsings: list[Parsing]
+
+
+def build_scheduling_elements(website: Website, scheduling: Scheduling | None
+                              ) -> SchedulingElements:
+    scheduling_sources = get_scheduling_sources(scheduling)
+    church_by_id, sources = get_church_by_id_and_sources(scheduling_sources)
+
+    sourced_schedules_list = get_sourced_schedules_list(website, church_by_id, sources)
+
+    return SchedulingElements(
+        sourced_schedules_list=sourced_schedules_list,
+        church_by_id=church_by_id,
+        parsings=scheduling_sources.parsings
     )
