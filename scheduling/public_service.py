@@ -1,6 +1,8 @@
 from registry.models import Website
 from scheduling.models import Parsing, Scheduling
 from scheduling.models.pruning_models import Sentence, Pruning
+from scheduling.services.merging.sourced_schedules_service import SchedulingElements, \
+    retrieve_scheduling_elements
 from scheduling.services.scheduling.scheduling_process_service import init_scheduling
 from scheduling.services.pruning.prune_scraping_service import create_pruning, \
     remove_pruning_moderation_if_orphan
@@ -65,3 +67,7 @@ def scheduling_get_indexed_scheduling(website: Website) -> Scheduling | None:
 
 def scheduling_get_websites_of_parsing(parsing: Parsing) -> list[Website]:
     return get_websites_of_parsing(parsing)
+
+
+def scheduling_retrieve_scheduling_elements(scheduling: Scheduling) -> SchedulingElements:
+    return retrieve_scheduling_elements(scheduling)

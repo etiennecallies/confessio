@@ -361,7 +361,7 @@ def partial_website_churches(request, website_uuid: str):
                             "pour le moment. "
                             "Merci de patienter et de revenir dans quelques minutes.")
 
-    website_schedules = get_website_schedules(website, scheduling)
+    website_schedules = get_website_schedules(scheduling)
 
     return render(request, 'partials/website_churches.html', {
         'website': website,

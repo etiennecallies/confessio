@@ -78,12 +78,6 @@ def get_all_church_events(website: Website, scheduling: Scheduling,
                           ) -> list[ChurchEvent]:
     all_church_events = []
     scheduling_elements = build_scheduling_elements(website, scheduling)
-    # TODO save in build_scheduling_elements
-    scheduling.sourced_schedules_list = scheduling_elements.sourced_schedules_list\
-        .model_dump(mode='json')
-    scheduling.church_uuid_by_id = {church_id: str(church.uuid) for church_id, church
-                                    in scheduling_elements.church_by_id.items()}
-    scheduling.save()
 
     parsing_by_uuid = {parsing.uuid: parsing for parsing in scheduling_elements.parsings}
 

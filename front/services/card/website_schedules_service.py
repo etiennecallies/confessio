@@ -3,10 +3,10 @@ from uuid import UUID
 
 from front.services.card.church_color_service import get_church_color_by_uuid
 from front.services.card.sources_service import sort_parsings
-from registry.models import Church, Website
+from registry.models import Church
 from scheduling.models import Scheduling
 from scheduling.public_model import SourcedSchedulesList
-from scheduling.services.merging.sourced_schedules_service import build_scheduling_elements
+from scheduling.public_service import scheduling_retrieve_scheduling_elements
 
 
 @dataclass
@@ -17,11 +17,9 @@ class WebsiteSchedules:
     church_color_by_uuid: dict[UUID, str]
 
 
-def get_website_schedules(website: Website,
-                          scheduling: Scheduling | None,
+def get_website_schedules(scheduling: Scheduling | None,
                           ) -> WebsiteSchedules:
-    # TODO replace by get_scheduling_elements
-    scheduling_elements = build_scheduling_elements(website, scheduling)
+    scheduling_elements = scheduling_retrieve_scheduling_elements(scheduling)
 
     parsing_index_by_parsing_uuid = {
         parsing.uuid: i for i, parsing in enumerate(sort_parsings(scheduling_elements.parsings))
