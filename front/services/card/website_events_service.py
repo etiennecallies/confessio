@@ -1,43 +1,8 @@
 from dataclasses import dataclass
-from datetime import date, timedelta, datetime
+from datetime import date, timedelta
 
 from registry.models import Church
 from scheduling.models import IndexEvent
-
-
-@dataclass
-class ChurchEvent:
-    church: Church | None
-    is_church_explicitly_other: bool
-    start: datetime
-    end: datetime | None
-    has_been_moderated: bool
-    church_color: str
-
-    @classmethod
-    def from_index_event(cls, index_event: IndexEvent) -> 'ChurchEvent':
-        start = datetime.combine(index_event.day, index_event.start_time)
-        end = datetime.combine(index_event.day, index_event.displayed_end_time) \
-            if index_event.displayed_end_time else None
-
-        return cls(
-            church=index_event.church if index_event.is_explicitely_other is None else None,
-            is_church_explicitly_other=bool(index_event.is_explicitely_other),
-            start=start,
-            end=end,
-            has_been_moderated=index_event.has_been_moderated,
-            church_color=index_event.church_color,
-        )
-
-    def __lt__(self, other: 'ChurchEvent'):
-        return (self.start, self.church_color) < (other.start, other.church_color)
-
-    def __hash__(self):
-        return hash((
-            self.start,
-            self.end,
-            self.church_color
-        ))
 
 
 @dataclass
