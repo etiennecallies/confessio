@@ -1,13 +1,13 @@
 from pydantic import BaseModel
 
-from scheduling.workflows.merging.sources import BaseSource
+from scheduling.workflows.merging.sources import UnionSource
 from scheduling.workflows.parsing.schedules import ScheduleItem
 
 
 class SourcedScheduleItem(BaseModel):
     item: ScheduleItem
     explanation: str
-    sources: list[BaseSource]
+    sources: list[UnionSource]
 
 
 class SourcedSchedulesOfChurch(BaseModel):

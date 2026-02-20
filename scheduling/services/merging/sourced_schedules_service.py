@@ -108,13 +108,39 @@ class SchedulingElements:
 
 def build_scheduling_elements(website: Website, scheduling: Scheduling | None
                               ) -> SchedulingElements:
+    assert scheduling.status == Scheduling.Status.MATCHED
+
     scheduling_sources = get_scheduling_sources(scheduling)
     church_by_id, sources = get_church_by_id_and_sources(scheduling_sources)
 
     sourced_schedules_list = get_sourced_schedules_list(website, church_by_id, sources)
 
+    # Save in scheduling for later retrieval
+    scheduling.sourced_schedules_list = sourced_schedules_list.model_dump(mode='json')
+    scheduling.church_uuid_by_id = {church_id: str(church.uuid) for church_id, church
+                                    in church_by_id.items()}
+    scheduling.save()
+
     return SchedulingElements(
         sourced_schedules_list=sourced_schedules_list,
         church_by_id=church_by_id,
         parsings=scheduling_sources.parsings
+    )
+
+
+def retrieve_scheduling_elements(scheduling: Scheduling) -> SchedulingElements:
+    assert scheduling.status == Scheduling.Status.INDEXED
+    assert scheduling.sourced_schedules_list is not None
+    assert scheduling.church_uuid_by_id is not None
+
+    sourced_schedules_list = SourcedSchedulesList(**scheduling.sourced_schedules_list)
+    scheduling_sources = get_scheduling_sources(scheduling)
+    church_by_uuid = {str(church.uuid): church for church in scheduling_sources.churches}
+    church_by_id = {int(church_id): church_by_uuid[church_uuid]
+                    for church_id, church_uuid in scheduling.church_uuid_by_id.items()}
+
+    return SchedulingElements(
+        sourced_schedules_list=sourced_schedules_list,
+        church_by_id=church_by_id,
+        parsings=scheduling_sources.parsings,
     )

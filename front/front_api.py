@@ -14,8 +14,8 @@ from front.services.search.autocomplete_service import get_aggregated_response, 
 from front.services.search.search_service import TimeFilter, AggregationItem, BoundingBox, \
     get_dioceses_bounding_box
 from registry.models import Church, Website, Diocese
-from scheduling.public_service import scheduling_get_indexed_scheduling
-from scheduling.services.merging.sourced_schedules_service import build_scheduling_elements
+from scheduling.public_service import scheduling_get_indexed_scheduling, \
+    scheduling_retrieve_scheduling_elements
 from scheduling.workflows.merging.sourced_schedules import SourcedScheduleItem
 from scheduling.workflows.merging.sources import BaseSource, ParsingSource, OClocherSource
 
@@ -323,8 +323,7 @@ def api_front_church_details(request, church_uuid: UUID) -> ChurchDetails:
     website = church.parish.website
     scheduling = scheduling_get_indexed_scheduling(website)
 
-    # TODO replace by get_scheduling_elements
-    scheduling_elements = build_scheduling_elements(website, scheduling)
+    scheduling_elements = scheduling_retrieve_scheduling_elements(scheduling)
     church_id_list = [church_id for (church_id, church)
                       in scheduling_elements.church_by_id.items() if church.uuid == church_uuid]
     if not church_id_list:

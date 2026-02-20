@@ -38,3 +38,6 @@ class OClocherSource(BaseSource):
 
     def __hash__(self):
         return hash(self.source_type)
+
+
+UnionSource = ParsingSource | OClocherSource
