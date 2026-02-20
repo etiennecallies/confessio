@@ -90,7 +90,7 @@ def build_index_events(scheduling: Scheduling,
     index_events = []
     for church_id, event_and_moderations in events_by_church_id.items():
         church = scheduling_elements.church_by_id.get(church_id, None)
-        is_explicitely_other = church_id == -1
+        is_explicitely_other = None if church else church_id == -1
         church_color = front_get_color_of_nullable_church(church, church_color_by_uuid,
                                                           is_explicitely_other)
 
@@ -101,6 +101,7 @@ def build_index_events(scheduling: Scheduling,
             indexed_end_time = displayed_end_time or time_plus_hours(event_start_time, 4)
 
             if church:
+                assert is_explicitely_other is None
                 index_events.append(IndexEvent(
                     scheduling=scheduling,
                     church=church,
@@ -113,6 +114,7 @@ def build_index_events(scheduling: Scheduling,
                     church_color=church_color,
                 ))
             else:
+                assert is_explicitely_other is not None
                 for website_church in scheduling_elements.church_by_id.values():
                     index_events.append(IndexEvent(
                         scheduling=scheduling,

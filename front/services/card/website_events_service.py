@@ -38,9 +38,8 @@ def get_website_events(index_events: list[IndexEvent],
         if all_index_events else None
     has_explicit_other_churches = display_explicit_other_churches and \
         any(c.is_explicitely_other for c in all_index_events)
-    has_unknown_churches = any(c.church is None and not c.is_explicitely_other
-                               for c in all_index_events)
-    has_different_churches = len(set(c.church for c in all_index_events if c.church)) > 1
+    has_unknown_churches = any(c.is_explicitely_other is False for c in all_index_events)
+    has_different_churches = len(set(c.church for c in all_index_events if c.is_real_church())) > 1
 
     return WebsiteEvents(
         index_events_by_day=index_events_by_day,
@@ -62,12 +61,26 @@ def get_website_events(index_events: list[IndexEvent],
 def get_index_events_by_day(index_events: list[IndexEvent],
                             unique_day: bool) -> dict[date, list[IndexEvent]]:
     today = date.today()
-    sorted_index_events = list(sorted(list(set(
-        index_event for index_event in index_events if index_event.day >= today
-    ))))
+
+    # We remove old index and deduplicate
+    index_events_by_event = {}
+    for index_event in index_events:
+        if index_event.day < today:
+            continue
+
+        index_events_by_event[(
+            index_event.day,
+            index_event.start_time,
+            index_event.displayed_end_time,
+            index_event.church_color,
+        )] = index_event
+
+    # We sort events
+    sorted_index_events = list(sorted(index_events_by_event.values()))
 
     max_days = 1 if unique_day else 8
 
+    # We group events by day
     index_events_by_day = {}
     if sorted_index_events:
         first_day = sorted_index_events[0].day

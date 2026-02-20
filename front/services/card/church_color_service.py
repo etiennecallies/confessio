@@ -54,7 +54,7 @@ def get_no_church_color(is_church_explicitly_other: bool) -> str:
 
 def get_color_of_nullable_church(church: Church | None,
                                  church_color_by_uuid: dict[UUID, str],
-                                 is_church_explicitly_other: bool) -> str:
+                                 is_church_explicitly_other: bool | None) -> str:
     if church:
         return church_color_by_uuid[church.uuid]
 

@@ -23,3 +23,6 @@ class IndexEvent(TimeStampMixin):
     def __lt__(self, other: 'IndexEvent'):
         return (self.day, self.start_time, self.church_color) < \
             (other.day, other.start_time, other.church_color)
+
+    def is_real_church(self) -> bool:
+        return self.is_explicitely_other is None

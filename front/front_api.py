@@ -116,7 +116,7 @@ class EventOut(Schema):
             if index_event.displayed_end_time else None
 
         return cls(
-            church_uuid=index_event.church.uuid if index_event.church else None,
+            church_uuid=index_event.church.uuid if index_event.is_real_church() else None,
             is_church_explicitly_other=bool(index_event.is_explicitely_other),
             start=start,
             end=end,

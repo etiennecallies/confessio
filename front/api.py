@@ -5,6 +5,7 @@ from django.db.models import Exists, OuterRef
 from ninja import NinjaAPI, Schema, Field
 
 from registry.models import Church, ChurchModeration, Parish, Website
+from scheduling.models import Scheduling, IndexEvent
 
 api = NinjaAPI(urls_namespace='main_api')
 
@@ -154,3 +155,77 @@ def api_public_websites(request, limit: int = 10, offset: int = 0, updated_from:
     websites = website_query.order_by('updated_at').all()[offset:offset + limit]
 
     return list(map(WebsiteOut.from_website, websites))
+
+
+###############
+# SCHEDULINGS #
+###############
+
+class ScheduleOut(Schema):
+    explanation: str
+
+
+class SchedulesByChurchOut(Schema):
+    church_uuid: UUID
+    church_version: int
+    schedules: list[ScheduleOut]
+
+
+class EventOut(Schema):
+    start: datetime
+    end: datetime | None
+
+    @classmethod
+    def from_index_event(cls, index_event: IndexEvent) -> 'EventOut':
+        start = datetime.combine(index_event.day, index_event.start_time)
+        end = datetime.combine(index_event.day, index_event.displayed_end_time) \
+            if index_event.displayed_end_time else None
+
+        return cls(
+            start=start,
+            end=end,
+        )
+
+
+class EventsByChurchOut(Schema):
+    church_uuid: UUID
+    church_version: int
+    events: list[EventOut]
+
+    @classmethod
+    def from_index_events(cls, index_events: list[IndexEvent]) -> 'EventOut':
+        # TODO
+        pass
+
+
+class SchedulingOut(Schema):
+    uuid: UUID
+    created_at: datetime
+    updated_at: datetime
+    website_uuid: UUID
+    schedules_by_church: SchedulesByChurchOut
+    events_by_church: EventsByChurchOut
+
+    @classmethod
+    def from_scheduling(cls, scheduling: Scheduling):
+        return cls(
+            uuid=scheduling.uuid,
+            created_at=scheduling.created_at,
+            updated_at=scheduling.updated_at,
+        )
+        # TODO
+
+
+@api.get("/schedulings", response=list[SchedulingOut])
+def api_public_schedulings(request, limit: int = 10, offset: int = 0, updated_from: datetime = None
+                           ) -> list[SchedulingOut]:
+    limit = max(0, min(100, limit))
+    offset = max(0, offset)
+
+    scheduling_query = Scheduling.objects.filter(status=Scheduling.Status.INDEXED)
+    if updated_from:
+        scheduling_query = scheduling_query.filter(updated_at__gte=updated_from)
+    schedulings = scheduling_query.order_by('updated_at').all()[offset:offset + limit]\
+        .prefetch_related('index_events')
+
+    return list(map(SchedulingOut.from_scheduling, schedulings))
