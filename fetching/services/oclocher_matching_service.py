@@ -34,14 +34,11 @@ def get_location_desc_by_id(locations: list[OClocherLocation]) -> dict:
     return get_desc_by_id(location_desc_list)
 
 
-def get_matching_church_desc_by_id(oclocher_matching: OClocherMatching) -> dict[int, str]:
-    return {int(church_id): church_desc
-            for church_id, church_desc in oclocher_matching.church_desc_by_id.items()}
-
-
-def get_matching_location_desc_by_id(oclocher_matching: OClocherMatching) -> dict[int, str]:
-    return {int(church_id): location_desc
-            for church_id, location_desc in oclocher_matching.location_desc_by_id.items()}
+def get_oclocher_id_by_location_id(locations: list[OClocherLocation]):
+    location_desc_by_id = get_location_desc_by_id(locations)
+    location_by_desc = {get_location_desc(location): location for location in locations}
+    return {location_id: location_by_desc[desc].location_id
+            for location_id, desc in location_desc_by_id.items()}
 
 
 def get_matching_matrix(oclocher_matching: OClocherMatching) -> OClocherMatrix | None:

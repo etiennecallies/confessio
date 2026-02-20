@@ -1,9 +1,8 @@
-from fetching.services.oclocher_matching_service import get_matching_church_desc_by_id, \
-    get_location_desc_by_id, get_matching_location_desc_by_id, get_location_desc
-from scheduling.services.merging.timezone_service import get_timezone_of_churches
+from fetching.public_service import fetching_get_oclocher_id_by_location_id
 from registry.models import Church
 from scheduling.services.merging.oclocher_schedules_services import \
     get_schedules_list_from_oclocher_schedules
+from scheduling.services.merging.timezone_service import get_timezone_of_churches
 from scheduling.services.parsing.parsing_service import get_parsing_schedules_list, \
     get_parsing_church_desc_by_id
 from scheduling.services.scheduling.scheduling_service import SchedulingSources
@@ -31,14 +30,9 @@ def get_church_by_id_and_sources(scheduling_sources: SchedulingSources,
     if scheduling_sources.oclocher_schedules:
         oclocher_matching = scheduling_sources.oclocher_matching
         assert oclocher_matching is not None
-        assert get_matching_church_desc_by_id(oclocher_matching) == church_desc_by_id
 
-        location_desc_by_id = get_location_desc_by_id(scheduling_sources.oclocher_locations)
-        assert get_matching_location_desc_by_id(oclocher_matching) == location_desc_by_id
-        location_by_desc = {get_location_desc(location): location
-                            for location in scheduling_sources.oclocher_locations}
-        oclocher_id_by_location_id = {location_id: location_by_desc[desc].location_id
-                                      for location_id, desc in location_desc_by_id.items()}
+        oclocher_id_by_location_id = fetching_get_oclocher_id_by_location_id(
+            scheduling_sources.oclocher_locations)
 
         timezone_str = get_timezone_of_churches(scheduling_sources.churches)
 
