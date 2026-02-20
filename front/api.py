@@ -6,6 +6,8 @@ from ninja import NinjaAPI, Schema, Field
 
 from registry.models import Church, ChurchModeration, Parish, Website
 from scheduling.models import Scheduling, IndexEvent
+from scheduling.services.merging.sourced_schedules_service import retrieve_scheduling_elements
+from scheduling.workflows.merging.sourced_schedules import SourcedScheduleItem
 
 api = NinjaAPI(urls_namespace='main_api')
 
@@ -164,11 +166,26 @@ def api_public_websites(request, limit: int = 10, offset: int = 0, updated_from:
 class ScheduleOut(Schema):
     explanation: str
 
+    @classmethod
+    def from_sourced_schedule_item(cls, sourced_schedule_item: SourcedScheduleItem
+                                   ) -> 'ScheduleOut':
+        return cls(
+            explanation=sourced_schedule_item.explanation,
+        )
+
 
 class SchedulesByChurchOut(Schema):
     church_uuid: UUID
-    church_version: int
     schedules: list[ScheduleOut]
+
+    @classmethod
+    def from_sourced_schedule_item(cls, church_uuid: UUID,
+                                   sourced_schedules: list[SourcedScheduleItem]
+                                   ) -> 'SchedulesByChurchOut':
+        return cls(
+            church_uuid=church_uuid,
+            schedules=list(map(ScheduleOut.from_sourced_schedule_item, sourced_schedules)),
+        )
 
 
 class EventOut(Schema):
@@ -189,13 +206,15 @@ class EventOut(Schema):
 
 class EventsByChurchOut(Schema):
     church_uuid: UUID
-    church_version: int
     events: list[EventOut]
 
     @classmethod
-    def from_index_events(cls, index_events: list[IndexEvent]) -> 'EventOut':
-        # TODO
-        pass
+    def from_index_events(cls, church_uuid: UUID,
+                          index_events: list[IndexEvent]) -> 'EventsByChurchOut':
+        return cls(
+            church_uuid=church_uuid,
+            events=list(map(EventOut.from_index_event, index_events)),
+        )
 
 
 class SchedulingOut(Schema):
@@ -203,17 +222,50 @@ class SchedulingOut(Schema):
     created_at: datetime
     updated_at: datetime
     website_uuid: UUID
-    schedules_by_church: SchedulesByChurchOut
-    events_by_church: EventsByChurchOut
+    schedules_by_churches: list[SchedulesByChurchOut]
+    events_by_churches: list[EventsByChurchOut]
 
     @classmethod
     def from_scheduling(cls, scheduling: Scheduling):
+        # Events
+        index_events_by_church_uuid = {}
+        for index_event in scheduling.index_events.all():
+            if not index_event.is_real_church():
+                continue
+
+            index_events_by_church_uuid.setdefault(index_event.church_id, []).append(index_event)
+
+        events_by_churches = []
+        for church_uuid, index_events in index_events_by_church_uuid.items():
+            events_by_churches.append(
+                EventsByChurchOut.from_index_events(church_uuid, index_events)
+            )
+
+        # Schedules
+        schedules_by_churches = []
+        scheduling_elements = retrieve_scheduling_elements(scheduling)
+        for schedules_of_church in scheduling_elements.sourced_schedules_list\
+                .sourced_schedules_of_churches:
+            church = scheduling_elements.church_by_id.get(schedules_of_church.church_id, None)
+            if church is None:
+                continue
+
+            if not schedules_of_church.sourced_schedules:
+                continue
+
+            schedules_by_churches.append(
+                SchedulesByChurchOut.from_sourced_schedule_item(
+                    church.uuid, schedules_of_church.sourced_schedules)
+            )
+
         return cls(
             uuid=scheduling.uuid,
             created_at=scheduling.created_at,
             updated_at=scheduling.updated_at,
+            website_uuid=scheduling.website_id,
+            schedules_by_churches=schedules_by_churches,
+            events_by_churches=events_by_churches,
         )
-        # TODO
 
 
 @api.get("/schedulings", response=list[SchedulingOut])
