@@ -76,7 +76,7 @@ def fetch_oclocher_organization_schedules(oclocher_organization: OClocherOrganiz
                     recurrence_id=recurrence_id,
                 )
             except DataError as e:
-                print(f"{schedules_as_dict=}")
+                print(f"{schedules_as_dict_=}")
                 print(e)
                 raise
             has_changed = True

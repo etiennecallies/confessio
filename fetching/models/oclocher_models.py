@@ -54,6 +54,6 @@ class OClocherSchedule(TimeStampMixin):
     selection = models.CharField(max_length=16)
     datetime_start = models.DateTimeField()
     datetime_end = models.DateTimeField(null=True, blank=True)
-    recurrence_id = models.CharField(max_length=32, null=True, blank=True)
+    recurrence_id = models.CharField(max_length=36, null=True, blank=True)
 
     history = HistoricalRecords()
