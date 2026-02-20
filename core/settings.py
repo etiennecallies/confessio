@@ -70,7 +70,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'core.otel.middlewares.RequestStartTimeMiddleware',
+    'core.otel.middlewares.TelemetryMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -83,7 +83,6 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "request.middleware.RequestMiddleware",
     'simple_history.middleware.HistoryRequestMiddleware',
-    'core.otel.middlewares.ResponseTimeMetricsMiddleware',
 ]
 
 ROOT_URLCONF = "core.urls"
