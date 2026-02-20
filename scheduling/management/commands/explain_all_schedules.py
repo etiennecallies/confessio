@@ -1,6 +1,7 @@
+from django.urls import reverse
+
 from core.management.abstract_command import AbstractCommand
-from front.templatetags.custom_tags import get_url
-from scheduling.models import ParsingModeration, Parsing
+from scheduling.models import Parsing
 from scheduling.services.parsing.parsing_service import get_parsing_schedules_list
 from scheduling.workflows.parsing.explain_schedule import get_explanation_from_schedule
 
@@ -23,9 +24,7 @@ class Command(AbstractCommand):
                 except Exception as e:
                     self.error(f'Error explaining schedule {schedule}: {e}')
                     print(parsing.uuid)
-                    for parsing_moderation in ParsingModeration.objects.filter(
-                            parsing=parsing).all():
-                        print(f"https://confessio.fr{get_url(parsing_moderation)}")
+                    print(reverse('edit_parsing', parsing.uuid))
                     print(schedules_list)
                 counter += 1
 

@@ -1,6 +1,6 @@
 from fetching.services.oclocher_matching_service import get_matching_church_desc_by_id, \
     get_location_desc_by_id, get_matching_location_desc_by_id, get_location_desc
-from front.services.card.timezone_service import get_timezone_of_churches
+from scheduling.services.merging.timezone_service import get_timezone_of_churches
 from registry.models import Church
 from scheduling.services.merging.oclocher_schedules_services import \
     get_schedules_list_from_oclocher_schedules

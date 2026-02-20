@@ -1,10 +1,9 @@
 from uuid import UUID
 
-from front.services.card.church_color_service import get_color_of_nullable_church, \
-    get_church_color_by_uuid
-from front.services.card.holiday_zone_service import get_website_holiday_zone
+from front.public_service import front_get_color_of_nullable_church, front_get_church_color_by_uuid
 from registry.models import Website
 from scheduling.models import IndexEvent, Scheduling, Parsing
+from scheduling.services.merging.holiday_zone_service import get_website_holiday_zone
 from scheduling.services.merging.sourced_schedules_service import build_scheduling_elements, \
     SchedulingElements
 from scheduling.utils.date_utils import time_plus_hours
@@ -83,15 +82,17 @@ def build_index_events(scheduling: Scheduling,
                        scheduling_elements: SchedulingElements,
                        events_by_church_id: dict[int | None, list[tuple[Event, bool]]]
                        ) -> list[IndexEvent]:
-    church_color_by_uuid = get_church_color_by_uuid(scheduling_elements.sourced_schedules_list,
-                                                    scheduling_elements.church_by_id)
+    church_color_by_uuid = front_get_church_color_by_uuid(
+        scheduling_elements.sourced_schedules_list,
+        scheduling_elements.church_by_id
+    )
 
     index_events = []
     for church_id, event_and_moderations in events_by_church_id.items():
         church = scheduling_elements.church_by_id.get(church_id, None)
         is_explicitely_other = church_id == -1
-        church_color = get_color_of_nullable_church(church, church_color_by_uuid,
-                                                    is_explicitely_other)
+        church_color = front_get_color_of_nullable_church(church, church_color_by_uuid,
+                                                          is_explicitely_other)
 
         for event, has_been_moderated in event_and_moderations:
             event_day = event.start.date()

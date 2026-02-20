@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from front.services.card.holiday_zone_service import get_website_holiday_zone
+from scheduling.services.merging.holiday_zone_service import get_website_holiday_zone
 from registry.models import Church, Website
 from scheduling.models import Parsing
 from scheduling.models import Scheduling
