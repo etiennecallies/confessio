@@ -1,5 +1,5 @@
 import json
-from datetime import date
+from datetime import date, datetime
 from statistics import mean
 from typing import List, Tuple, Dict, Optional
 from uuid import UUID
@@ -41,10 +41,11 @@ def get_popup_and_color(church: Church,
     next_event = website_events.next_event_in_church(church) \
         if website_events else None
     if next_event is not None:
-        date_str = format_datetime_with_locale(next_event.start, "%A %d %B", 'fr_FR.UTF-8')
-        year_str = f" {next_event.start.year}" \
-            if next_event.start.year != date.today().year else ''
-        wording = f'{_("NextEvent")}<br>le {date_str.lower()}{year_str} à {next_event.start:%H:%M}'
+        start = datetime.combine(next_event.day, next_event.start_time)
+        date_str = format_datetime_with_locale(start, "%A %d %B", 'fr_FR.UTF-8')
+        year_str = f" {start.year}" \
+            if start.year != date.today().year else ''
+        wording = f'{_("NextEvent")}<br>le {date_str.lower()}{year_str} à {start:%H:%M}'
         color = 'darkblue'
     elif website_events.confession_exists:
         wording = _("ConfessionsExist")

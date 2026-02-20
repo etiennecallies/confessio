@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import time
 from uuid import UUID
 
 from django.contrib.gis.geos import Point
@@ -45,9 +45,9 @@ def display_event(event: Event):
 
 
 @register.simple_tag
-def display_hour(dt: datetime):
-    m = f'{dt.minute:02}' if dt.minute else ''
-    return f'{dt.hour}h{m}'
+def display_hour(t: time):
+    m = f'{t.minute:02}' if t.minute else ''
+    return f'{t.hour}h{m}'
 
 
 @register.simple_tag

@@ -2,7 +2,7 @@
 {% load i18n %}
 
 <div class="website-event-container"{% if website_events.events_truncated %} data-lazy-load-url="{% url 'website_events' website.uuid %}?church_uuids_json={{ church_uuids_json_by_website|get_item:website.uuid }}&dateFilter={{ date_filter_value }}&hourMin={{ hour_min }}&hourMax={{ hour_max }}"{% endif %}>
-    {% if website_events.church_events_by_day %}
+    {% if website_events.index_events_by_day %}
         <h6>Prochaines confessions :</h6>
         <div class="row text-center mt-1 calendar-table-container">
             {% if website_events.page_range == "12" %}

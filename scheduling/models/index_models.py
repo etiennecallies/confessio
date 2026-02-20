@@ -19,3 +19,7 @@ class IndexEvent(TimeStampMixin):
     class Meta:
         unique_together = ('church', 'day', 'start_time', 'displayed_end_time',
                            'is_explicitely_other')
+
+    def __lt__(self, other: 'IndexEvent'):
+        return (self.day, self.start_time, self.church_color) < \
+            (other.day, other.start_time, other.church_color)

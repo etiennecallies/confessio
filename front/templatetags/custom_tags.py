@@ -34,7 +34,7 @@ def get_item_str(dictionary, key):
 @register.filter
 def days_of_range(website_events: WebsiteEvents,
                   range_number_as_str: str) -> list[date]:
-    sorted_days = sorted(website_events.church_events_by_day.keys())
+    sorted_days = sorted(website_events.index_events_by_day.keys())
     nb_days = 4
     range_number = int(range_number_as_str) - 1
 

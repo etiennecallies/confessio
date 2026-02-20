@@ -7,13 +7,13 @@ from django.http import Http404
 from ninja import NinjaAPI, Schema
 
 from front.services.card.report_service import get_count_and_label
-from front.services.card.website_events_service import get_website_events, ChurchEvent, \
-    WebsiteEvents
+from front.services.card.website_events_service import get_website_events, WebsiteEvents
 from front.services.search.aggregation_service import get_search_results
 from front.services.search.autocomplete_service import get_aggregated_response, AutocompleteResult
 from front.services.search.search_service import TimeFilter, AggregationItem, BoundingBox, \
     get_dioceses_bounding_box
 from registry.models import Church, Website, Diocese
+from scheduling.models import IndexEvent
 from scheduling.public_service import scheduling_get_indexed_scheduling, \
     scheduling_retrieve_scheduling_elements
 from scheduling.workflows.merging.sourced_schedules import SourcedScheduleItem
@@ -110,13 +110,17 @@ class EventOut(Schema):
     source_has_been_moderated: bool
 
     @classmethod
-    def from_church_event(cls, church_event: ChurchEvent):
+    def from_index_event(cls, index_event: IndexEvent) -> 'EventOut':
+        start = datetime.combine(index_event.day, index_event.start_time)
+        end = datetime.combine(index_event.day, index_event.displayed_end_time) \
+            if index_event.displayed_end_time else None
+
         return cls(
-            church_uuid=church_event.church.uuid if church_event.church else None,
-            is_church_explicitly_other=church_event.is_church_explicitly_other,
-            start=church_event.start,
-            end=church_event.end,
-            source_has_been_moderated=church_event.has_been_moderated,
+            church_uuid=index_event.church.uuid if index_event.church else None,
+            is_church_explicitly_other=bool(index_event.is_explicitely_other),
+            start=start,
+            end=end,
+            source_has_been_moderated=index_event.has_been_moderated,
         )
 
 
@@ -136,8 +140,8 @@ class WebsiteOut(Schema):
         return cls(
             uuid=website.uuid,
             name=website.name,
-            events=[EventOut.from_church_event(event)
-                    for events in events.church_events_by_day.values()
+            events=[EventOut.from_index_event(event)
+                    for events in events.index_events_by_day.values()
                     for event in events],
             has_more_events=has_more_events,
             reports_count=reports_count,
