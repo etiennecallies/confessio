@@ -4,7 +4,7 @@ from datetime import date
 from uuid import UUID
 
 from django.core.exceptions import ValidationError
-from django.http import HttpResponseNotFound, JsonResponse, HttpResponseBadRequest
+from django.http import HttpResponseNotFound, JsonResponse, HttpResponseBadRequest, HttpResponse
 from django.shortcuts import render
 from django.utils.translation import gettext
 
@@ -320,6 +320,11 @@ def partial_website_sources(request, website_uuid: str):
         return HttpResponseNotFound("Website does not exist with this uuid")
 
     scheduling = scheduling_get_indexed_scheduling(website)
+    if scheduling is None:
+        return HttpResponse("Traitement en cours pour cette paroisse, aucune source n'est affichée "
+                            "pour le moment. "
+                            "Merci de patienter et de revenir dans quelques minutes.")
+
     primary_sources = get_scheduling_primary_sources(scheduling)
     empty_sources = None
     if request.user.is_authenticated and request.user.has_perm("scheduling.change_sentence"):
@@ -351,6 +356,11 @@ def partial_website_churches(request, website_uuid: str):
     display_explicit_other_churches = extract_bool('display_explicit_other_churches', request)
 
     scheduling = scheduling_get_indexed_scheduling(website)
+    if scheduling is None:
+        return HttpResponse("Traitement en cours pour cette paroisse, aucune église n'est affichée "
+                            "pour le moment. "
+                            "Merci de patienter et de revenir dans quelques minutes.")
+
     website_schedules = get_website_schedules(website, scheduling)
 
     return render(request, 'partials/website_churches.html', {
