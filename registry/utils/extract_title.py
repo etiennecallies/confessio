@@ -8,7 +8,12 @@ def get_page_title(url):
     if not html:
         return None
 
-    soup = BeautifulSoup(html, 'html.parser')
+    try:
+        soup = BeautifulSoup(html, 'html.parser')
+    except Exception as e:
+        print(e)
+        return None
+
     title = soup.find('title')
     if not title:
         return None

@@ -16,7 +16,12 @@ BaseWidget = OClocherWidget | ContactWidget
 
 
 def extract_oclocher_widgets(html: str) -> list[OClocherWidget]:
-    soup = BeautifulSoup(html, 'html.parser')
+    try:
+        soup = BeautifulSoup(html, 'html.parser')
+    except Exception as e:
+        print(e)
+        return []
+
     widgets = []
 
     for iframes in soup.find_all('iframe'):
@@ -34,7 +39,12 @@ def extract_oclocher_widgets(html: str) -> list[OClocherWidget]:
 
 
 def extract_contact_widgets(html: str) -> list[ContactWidget]:
-    soup = BeautifulSoup(html, 'html.parser')
+    try:
+        soup = BeautifulSoup(html, 'html.parser')
+    except Exception as e:
+        print(e)
+        return []
+
     widgets = []
 
     # look for mailto links in the page and extract the email addresses
