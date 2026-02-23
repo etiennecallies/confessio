@@ -418,12 +418,18 @@ def render_oclocher_matching_moderation(request, moderation: OClocherMatchingMod
                                         next_url):
     oclocher_matching = moderation.oclocher_matching
     assert oclocher_matching is not None
+    church_desc_by_id_json = json.dumps(oclocher_matching.church_desc_by_id,
+                                        indent=2, ensure_ascii=False)
+    location_desc_by_id_json = json.dumps(oclocher_matching.location_desc_by_id,
+                                          indent=2, ensure_ascii=False)
 
     return render(request, f'moderations/moderate_oclocher_matching.html', {
         'oclocher_matching': oclocher_matching,
         'moderation': moderation,
         'next_url': next_url,
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
+        'church_desc_by_id_json': church_desc_by_id_json,
+        'location_desc_by_id_json': location_desc_by_id_json,
     })
 
 

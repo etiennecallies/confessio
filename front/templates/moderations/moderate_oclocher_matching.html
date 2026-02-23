@@ -19,7 +19,22 @@
         </div>
     </div>
 
+    <p>
+        <a class="btn btn-tertiary" href="{% url 'admin:fetching_oclochermatching_change' oclocher_matching.uuid %}" target="_blank" role="button">
+            Open OClocherMatching admin <i class="fas fa-up-right-from-square"></i>
+        </a>
+    </p>
+
     LLM error detail: {{ oclocher_matching.llm_error_detail }}<br>
+    LLM matrix: <pre>{{ oclocher_matching.llm_matrix }}</pre><br>
+
+    Church description by id : <pre>{{ church_desc_by_id_json }}</pre><br>
+    Location description by id : <pre>{{ location_desc_by_id_json }}</pre><br>
+
+    {% if moderation.oclocher_organization %}
+        Website: {{ moderation.oclocher_organization.website.name }}<br>
+        Link: <a href="{% url 'website_view' moderation.oclocher_organization.website.uuid %}" target="_blank">Go to website</a>
+    {% endif %}
 
     {% if not moderation.marked_as_bug_at %}
         <div>
