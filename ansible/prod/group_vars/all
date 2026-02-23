@@ -81,6 +81,9 @@ heartbeat_nightly_fetching_url: "{{ lookup('ansible.builtin.env', 'HEARTBEAT_NIG
 heartbeat_check_crawling_url: "{{ lookup('ansible.builtin.env', 'HEARTBEAT_CHECK_CRAWLING_URL') }}"
 heartbeat_train_pruning_url: "{{ lookup('ansible.builtin.env', 'HEARTBEAT_TRAIN_PRUNING_URL') }}"
 
+# Discord Webhooks
+discord_webhooks_json: "{{ lookup('ansible.builtin.env', 'DISCORD_WEBHOOKS_JSON') }}"
+
 # Cloudflare Turnstile
 cloudflare_turnstile_site_key: "{{ lookup('ansible.builtin.env', 'CLOUDFLARE_TURNSTILE_SITE_KEY') }}"
 cloudflare_turnstile_secret_key: "{{ lookup('ansible.builtin.env', 'CLOUDFLARE_TURNSTILE_SECRET_KEY') }}"
