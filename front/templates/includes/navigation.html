@@ -35,18 +35,34 @@
                     <li class="nav-item">
                         <a href="{% trans 'donateUrl' %}" class="nav-link">{% trans 'navDonate' %}</a>
                     </li>
-                    <li class="nav-item">
-                        {% if request.user.is_authenticated %}
-                            <a href="{% url 'logout' %}" class="nav-link">{% trans 'navLogout' %}</a>
-                        {% endif %}
-                    </li>
+                    {% if request.user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="accountNavbarDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Compte
+                            <i class="fas fa-angle-down nav-link-arrow ml-2"></i>
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="accountNavbarDropdown">
+                                <ul class="list-style-none">
+                                    <li>
+                                        <a href="{% url 'admin:index' %}" class="dropdown-item">Admin</a>
+                                    </li>
+                                    <li>
+                                        <a href="{% url 'password_change' %}" class="dropdown-item">Changer de mot de passe</a>
+                                    </li>
+                                    <li>
+                                        <a href="{% url 'logout' %}" class="dropdown-item">{% trans 'navLogout' %}</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                    {% endif %}
                     {% if request.user.is_authenticated and perms.scheduling.change_sentence %}
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <a class="nav-link dropdown-toggle" href="#" id="moderationNavbarDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             {% trans 'moderationMenu' %}
                             <i class="fas fa-angle-down nav-link-arrow ml-2"></i>
                             </a>
-                            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                            <div class="dropdown-menu" aria-labelledby="moderationNavbarDropdown">
                                 <ul class="list-style-none">
                                     {% get_dioceses as dioceses %}
                                     {% for diocese in dioceses %}
