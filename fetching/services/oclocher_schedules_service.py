@@ -32,7 +32,7 @@ def fetch_oclocher_organization_schedules(oclocher_organization: OClocherOrganiz
         if not oclocher_location:
             print(f"Location with id {location_id} not found for organization "
                   f"{oclocher_organization.organization_id} but schedules exist. "
-                  f"{schedules_as_dict=}")
+                  f"{schedules_as_dict_=}")
             continue
 
         for schedule in schedules_as_dict_:

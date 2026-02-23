@@ -1,11 +1,11 @@
 from fetching.models import OClocherMatching, OClocherMatchingModeration, \
     OClocherLocation
-from fetching.services.oclocher_moderations_service import add_matching_moderation
+from fetching.services.oclocher_moderations_service import upsert_matching_moderation
 from fetching.workflows.oclocher.match_with_llm import match_oclocher_with_llm
 from fetching.workflows.oclocher.oclocher_matrix import OClocherMatrix
+from registry.models import Church
 from scheduling.utils.hash_utils import hash_dict_to_hex
 from scheduling.utils.list_utils import get_desc_by_id
-from registry.models import Church
 
 
 def get_church_desc_by_id_from_churches(churches: list[Church]) -> dict[int, str]:
@@ -99,10 +99,13 @@ def match_churches_and_locations(
 
     # moderation
     if llm_error_detail:
+        moderation_validated = False
         category = OClocherMatchingModeration.Category.LLM_ERROR
     else:
-        category = OClocherMatchingModeration.Category.NEW_MATCHING
+        moderation_validated = True
+        category = OClocherMatchingModeration.Category.OK
 
-    add_matching_moderation(oclocher_organization, oclocher_matching, category)
+    upsert_matching_moderation(oclocher_organization, oclocher_matching, category,
+                               moderation_validated)
 
     return oclocher_matching

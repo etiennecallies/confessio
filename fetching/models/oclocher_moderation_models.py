@@ -16,7 +16,7 @@ class OClocherOrganizationModeration(ModerationMixin):
     marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
                                          on_delete=models.SET_NULL, null=True)
     diocese = models.ForeignKey('registry.Diocese', on_delete=models.CASCADE,
-                                related_name=f'{resource}_moderations', null=True)
+                                related_name=f'{resource}_moderations')
     history = HistoricalRecords()
     category = models.CharField(max_length=32, choices=Category)
 
@@ -35,9 +35,9 @@ class OClocherOrganizationModeration(ModerationMixin):
 
 class OClocherMatchingModeration(ModerationMixin):
     class Category(models.TextChoices):
-        NEW_MATCHING = "new_matching"
-        MATCHING = "matching_differ"
         LLM_ERROR = "llm_error"
+        CHURCHES_MISSING = "churches_missing"
+        OK = "ok"
 
     resource = 'oclocher_matching'
     validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
@@ -45,15 +45,15 @@ class OClocherMatchingModeration(ModerationMixin):
     marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
                                          on_delete=models.SET_NULL, null=True)
     diocese = models.ForeignKey('registry.Diocese', on_delete=models.CASCADE,
-                                related_name=f'{resource}_moderations', null=True)
+                                related_name=f'{resource}_moderations')
     history = HistoricalRecords()
-    category = models.CharField(max_length=32, choices=Category)
+    category = models.CharField(max_length=16, choices=Category)
 
-    oclocher_matching = models.ForeignKey('OClocherMatching',
-                                          on_delete=models.CASCADE, related_name='moderations')
-
-    class Meta:
-        unique_together = ('oclocher_matching', 'category')
+    oclocher_matching = models.OneToOneField('OClocherMatching',
+                                             on_delete=models.CASCADE, related_name='moderation')
+    oclocher_organization = models.ForeignKey('OClocherOrganization',
+                                              on_delete=models.SET_NULL,
+                                              related_name='matching_moderations', null=True)
 
     def delete_on_validate(self) -> bool:
         return False
