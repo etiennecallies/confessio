@@ -29,7 +29,7 @@ urlpatterns = [
     # Authentication
     path('accounts/login/', themepixel_views.UserLoginView.as_view(), name='login'),
     path('accounts/logout/', themepixel_views.logout_view, name='logout'),
-    path('accounts/register/', themepixel_views.register, name='register'),
+    # path('accounts/register/', themepixel_views.register, name='register'),
     path('accounts/password-change/', themepixel_views.UserPasswordChangeView.as_view(),
          name='password_change'),
     path('accounts/password-change-done/', auth_views.PasswordChangeDoneView.as_view(

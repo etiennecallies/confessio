@@ -1,7 +1,7 @@
-from django.shortcuts import render, redirect
+from django.contrib.auth import logout
 from django.contrib.auth.views import LoginView, PasswordChangeView, PasswordResetView, \
     PasswordResetConfirmView
-from django.contrib.auth import logout
+from django.shortcuts import render, redirect
 
 from front.forms.themepixel_forms import RegistrationForm, UserLoginForm, UserPasswordResetForm, \
     UserPasswordChangeForm, UserSetPasswordForm
