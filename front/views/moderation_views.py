@@ -7,6 +7,7 @@ from django.urls import reverse
 
 from crawling.models import CrawlingModeration
 from fetching.models import OClocherOrganizationModeration, OClocherMatchingModeration
+from fetching.services.oclocher_matching_service import get_location_desc
 from front.models import ReportModeration
 from registry.models import WebsiteModeration, ChurchModeration, ModerationMixin, \
     ParishModeration, Diocese
@@ -422,6 +423,11 @@ def render_oclocher_matching_moderation(request, moderation: OClocherMatchingMod
                                         indent=2, ensure_ascii=False)
     location_desc_by_id_json = json.dumps(oclocher_matching.location_desc_by_id,
                                           indent=2, ensure_ascii=False)
+    locations_desc_with_schedules = []
+    if moderation.oclocher_organization:
+        for location in moderation.oclocher_organization.locations:
+            if location.schedules:
+                locations_desc_with_schedules.append(get_location_desc(location))
 
     return render(request, f'moderations/moderate_oclocher_matching.html', {
         'oclocher_matching': oclocher_matching,
@@ -430,6 +436,7 @@ def render_oclocher_matching_moderation(request, moderation: OClocherMatchingMod
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
         'church_desc_by_id_json': church_desc_by_id_json,
         'location_desc_by_id_json': location_desc_by_id_json,
+        'locations_desc_with_schedules': locations_desc_with_schedules,
     })
 
 
