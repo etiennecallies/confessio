@@ -46,6 +46,20 @@
   notify:
     - restart postgres
 
+- name: Optimize JIT settings to prevent overhead on small queries
+  lineinfile:
+    path: /etc/postgresql/18/main/postgresql.conf
+    regexp: "^#?{{ item.key }} = .*"
+    line: "{{ item.key }} = {{ item.value }}"
+    state: present
+  become: true
+  loop:
+    - { key: 'jit_above_cost', value: '750000' }
+    - { key: 'jit_inline_above_cost', value: '1000000' }
+    - { key: 'jit_optimize_above_cost', value: '1000000' }
+  notify:
+    - restart postgres
+
 - name: Configure a new postgresql user
   postgresql_user:
     name: "{{ db_user }}"
