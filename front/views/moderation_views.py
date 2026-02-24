@@ -425,8 +425,8 @@ def render_oclocher_matching_moderation(request, moderation: OClocherMatchingMod
                                           indent=2, ensure_ascii=False)
     locations_desc_with_schedules = []
     if moderation.oclocher_organization:
-        for location in moderation.oclocher_organization.locations:
-            if location.schedules:
+        for location in moderation.oclocher_organization.locations.all():
+            if location.schedules.exists():
                 locations_desc_with_schedules.append(get_location_desc(location))
 
     return render(request, f'moderations/moderate_oclocher_matching.html', {

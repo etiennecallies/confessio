@@ -31,7 +31,12 @@
     Church description by id : <pre>{{ church_desc_by_id_json }}</pre><br>
     Location description by id : <pre>{{ location_desc_by_id_json }}</pre><br>
 
-    Locations with schedules : <pre>{{ locations_desc_with_schedules }}</pre><br>
+    {% if locations_desc_with_schedules %}
+        Locations with schedules :
+        {% for location_desc in locations_desc_with_schedules%}
+            <pre>{{ location_desc }}</pre>
+        {% endfor %}
+    {% endif %}
 
     {% if moderation.oclocher_organization %}
         Website: {{ moderation.oclocher_organization.website.name }}<br>
