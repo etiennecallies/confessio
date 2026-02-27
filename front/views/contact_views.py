@@ -5,6 +5,7 @@ from django.http import HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.utils.translation import gettext
 
+from core.utils.discord_utils import send_discord_alert, DiscordChanel
 from registry.models import Diocese, Website
 from front.services.card.scraping_url_service import quote_path, unquote_path
 from front.utils.cloudflare_utils import verify_token
@@ -50,6 +51,9 @@ def contact(request, message=None, email=None, name_text=None, message_text=None
             message_text = quote_path(message)
             return redirect("contact_failure", message='failure',
                             name_text=name_text, email=from_email, message_text=message_text)
+
+        send_discord_alert(message=email_body, channel=DiscordChanel.CONTACT_FORM)
+
         return redirect("contact_success", message='success')
 
 
