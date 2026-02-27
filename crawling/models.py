@@ -14,7 +14,6 @@ class Crawling(TimeStampMixin):
 
 class Scraping(TimeStampMixin):
     url = models.URLField(max_length=300)
-    nb_iterations = models.PositiveSmallIntegerField()
     website = models.ForeignKey('registry.Website', on_delete=models.CASCADE,
                                 related_name='scrapings')
     prunings = models.ManyToManyField('scheduling.Pruning', related_name='scrapings')
