@@ -6,11 +6,11 @@ import httpx
 
 
 class DiscordChanel(Enum):
-    PB_MODO_CATHO = "pb_modo_catho"
-    PB_MODO_TECHNIQUE = "pb_modo_technique"
-    ALERTE_TECHNIQUE = "alerte_technique"
-    ALERTE_CONFLIT = "alerte_conflit"
-    ALERTE_BUG = "alerte_bug"
+    NEW_REPORTS = "nouveaux-retours"
+    NEW_IMAGES = "nouvelles-images"
+    INFRA_ALERTS = "infra-alerts"
+    CRAWLING_ALERTS = "crawling-alerts"
+    CONTACT_FORM = "formulaire-de-contact"
 
 
 def send_discord_alert(message: str, channel: DiscordChanel):
@@ -38,4 +38,4 @@ def send_discord_alert(message: str, channel: DiscordChanel):
 if __name__ == '__main__':
     from dotenv import load_dotenv
     load_dotenv()
-    send_discord_alert("Test d'alerte Discord depuis Confessio.", DiscordChanel.ALERTE_BUG)
+    send_discord_alert("Test d'alerte Discord depuis Confessio.", DiscordChanel.CRAWLING_ALERTS)

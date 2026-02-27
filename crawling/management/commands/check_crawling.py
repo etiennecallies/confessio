@@ -4,6 +4,7 @@ from django.core.mail import mail_admins
 from django.utils import timezone
 
 from core.management.abstract_command import AbstractCommand
+from core.utils.discord_utils import DiscordChanel, send_discord_alert
 from core.utils.heartbeat_utils import ping_heartbeat
 from crawling.models import Crawling
 from registry.models import Website
@@ -88,6 +89,7 @@ class Command(AbstractCommand):
             {website_not_indexed_recently_str}
             """
             mail_admins(subject=error_message, message=message)
+            send_discord_alert(message=message, channel=DiscordChanel.CRAWLING_ALERTS)
             self.success(f'Email sent to admins')
         else:
             self.success(f'All websites have been crawled recently')
@@ -107,6 +109,7 @@ class Command(AbstractCommand):
             Easter: {easter_ok}
             """
             mail_admins(subject=error_message, message=message)
+            send_discord_alert(message=message, channel=DiscordChanel.CRAWLING_ALERTS)
             self.success(f'Email sent to admins')
         else:
             self.success(f'All future holidays and easter dates are implemented')
@@ -126,6 +129,7 @@ class Command(AbstractCommand):
             You shall check the index_events job.
             """
             mail_admins(subject=error_message, message=message)
+            send_discord_alert(message=message, channel=DiscordChanel.CRAWLING_ALERTS)
             self.success(f'Email sent to admins')
         else:
             self.success(f'All index events are up to date')
