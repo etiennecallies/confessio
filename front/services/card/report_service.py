@@ -1,5 +1,6 @@
 from django.http import HttpResponse, HttpResponseBadRequest
 
+from core.utils.discord_utils import send_discord_alert, DiscordChanel
 from front.models import Report, ReportModeration
 from registry.models import Website
 from core.services.admin_email_service import send_email_to_admin
@@ -67,6 +68,7 @@ def new_report(request, website: Website) -> str:
                       f"error_type: {error_type}\n\ncomment:\n{comment}")
         subject = f'New report on confessio for {website.name}'
         send_email_to_admin(subject, email_body)
+        send_discord_alert(message=email_body, channel=DiscordChanel.NEW_REPORTS)
 
     return 'Merci pour votre retour !'
 

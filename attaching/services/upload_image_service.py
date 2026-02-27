@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.utils.timezone import make_aware
 
 from attaching.models import Image
+from core.utils.discord_utils import send_discord_alert, DiscordChanel
 from registry.models import Website
 from core.services.admin_email_service import send_email_to_admin
 from front.utils.web_utils import get_user_user_agent_and_ip
@@ -32,6 +33,7 @@ def upload_image(document, website: Website, request
     if too_many_recent_images():
         subject = 'Too many images uploaded recently'
         send_email_to_admin(subject, subject)
+        send_discord_alert(message=subject, channel=DiscordChanel.NEW_IMAGES)
 
         return None, "Trop d'images ont été téléchargées récemment. Veuillez réessayer plus tard."
 
@@ -64,6 +66,7 @@ def upload_image(document, website: Website, request
                           f"\n\ncomment:\n{comment}")
             subject = f'New image on confessio for {website.name}'
             send_email_to_admin(subject, email_body)
+            send_discord_alert(message=email_body, channel=DiscordChanel.NEW_IMAGES)
 
         return image, None
 
