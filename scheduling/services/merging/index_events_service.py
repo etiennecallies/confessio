@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from front.public_service import front_get_color_of_nullable_church, front_get_church_color_by_uuid
+from front.public_service import front_get_church_color_by_uuid
 from registry.models import Website
 from scheduling.models import IndexEvent, Scheduling, Parsing
 from scheduling.services.merging.holiday_zone_service import get_website_holiday_zone
@@ -31,6 +31,10 @@ def generate_unique_events_by_church_id(website: Website, scheduling_elements: S
     events_by_church_id = {}
     for sourced_schedules_of_church in \
             scheduling_elements.sourced_schedules_list.sourced_schedules_of_churches:
+        if not sourced_schedules_of_church.is_real_church():
+            # We do not create events if not real church
+            continue
+
         has_been_moderated_by_church_event = {}
         for sourced_schedule_item in sourced_schedules_of_church.sourced_schedules:
             has_been_moderated = any(source_has_been_moderated(source, parsing_by_uuid)
@@ -50,33 +54,6 @@ def generate_unique_events_by_church_id(website: Website, scheduling_elements: S
     return events_by_church_id
 
 
-def keep_only_real_church_events(events_by_church_id: dict[int | None, list[tuple[Event, bool]]]
-                                 ) -> dict[int, list[tuple[Event, bool]]]:
-    start_end_with_churches = set()
-    for church_id, event_and_moderations in events_by_church_id.items():
-        if church_id is None or church_id == -1:
-            continue
-
-        for event, has_been_moderated in event_and_moderations:
-            start_end_with_churches.add((event.start, event.end))
-
-    new_events_by_church_id = {}
-    for church_id, event_and_moderations in events_by_church_id.items():
-        if church_id is None or church_id == -1:
-            new_event_and_moderations = []
-            for event, has_been_moderated in event_and_moderations:
-                if (event.start, event.end) in start_end_with_churches:
-                    # We ignore event with no church having similar real-church event
-                    continue
-
-                new_event_and_moderations.append((event, has_been_moderated))
-            new_events_by_church_id[church_id] = new_event_and_moderations
-        else:
-            new_events_by_church_id[church_id] = event_and_moderations
-
-    return new_events_by_church_id
-
-
 def build_index_events(scheduling: Scheduling,
                        scheduling_elements: SchedulingElements,
                        events_by_church_id: dict[int | None, list[tuple[Event, bool]]]
@@ -88,10 +65,8 @@ def build_index_events(scheduling: Scheduling,
 
     index_events = []
     for church_id, event_and_moderations in events_by_church_id.items():
-        church = scheduling_elements.church_by_id.get(church_id, None)
-        is_explicitely_other = None if church else church_id == -1
-        church_color = front_get_color_of_nullable_church(church, church_color_by_uuid,
-                                                          is_explicitely_other)
+        church = scheduling_elements.church_by_id[church_id]
+        church_color = church_color_by_uuid[church.uuid]
 
         for event, has_been_moderated in event_and_moderations:
             event_day = event.start.date()
@@ -99,33 +74,17 @@ def build_index_events(scheduling: Scheduling,
             displayed_end_time = event.end.time() if event.end else None
             indexed_end_time = displayed_end_time or time_plus_hours(event_start_time, 4)
 
-            if church:
-                assert is_explicitely_other is None
-                index_events.append(IndexEvent(
-                    scheduling=scheduling,
-                    church=church,
-                    day=event_day,
-                    start_time=event_start_time,
-                    indexed_end_time=indexed_end_time,
-                    displayed_end_time=displayed_end_time,
-                    is_explicitely_other=is_explicitely_other,
-                    has_been_moderated=has_been_moderated,
-                    church_color=church_color,
-                ))
-            else:
-                assert is_explicitely_other is not None
-                for website_church in scheduling_elements.church_by_id.values():
-                    index_events.append(IndexEvent(
-                        scheduling=scheduling,
-                        church=website_church,
-                        day=event_day,
-                        start_time=event_start_time,
-                        indexed_end_time=indexed_end_time,
-                        displayed_end_time=displayed_end_time,
-                        is_explicitely_other=is_explicitely_other,
-                        has_been_moderated=has_been_moderated,
-                        church_color=church_color,
-                    ))
+            index_events.append(IndexEvent(
+                scheduling=scheduling,
+                church=church,
+                day=event_day,
+                start_time=event_start_time,
+                indexed_end_time=indexed_end_time,
+                displayed_end_time=displayed_end_time,
+                is_explicitely_other=None,  # TODO remove this field from IndexEvent
+                has_been_moderated=has_been_moderated,
+                church_color=church_color,
+            ))
 
     return index_events
 
@@ -135,9 +94,6 @@ def build_sourced_schedules_and_index_events(website: Website, scheduling: Sched
                                              ) -> list[IndexEvent]:
     # Generate events by church_id
     events_by_church_id = generate_unique_events_by_church_id(website, scheduling_elements)
-
-    # Keep only real-church events or not-seen events
-    events_by_church_id = keep_only_real_church_events(events_by_church_id)
 
     # Build index events
     index_event = build_index_events(scheduling, scheduling_elements, events_by_church_id)

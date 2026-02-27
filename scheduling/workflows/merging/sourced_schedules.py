@@ -20,6 +20,9 @@ class SourcedSchedulesOfChurch(BaseModel):
     def is_church_explicitly_other(self) -> bool:
         return self.church_id == -1
 
+    def is_real_church(self) -> bool:
+        return self.church_id is not None and not self.is_church_explicitly_other()
+
     def hash_key(self):
         return (
             self.church_id if self.church_id is not None else -2,
