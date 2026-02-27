@@ -16,6 +16,7 @@ from scheduling.services.scheduling.prune_scheduling_service import do_prune_sch
     bulk_create_scheduling_pruning_objects
 from scheduling.services.scheduling.scheduling_moderation_service import \
     add_necessary_scheduling_moderation
+from scheduling.services.scheduling.scheduling_service import build_resources_hash
 from scheduling.tasks import worker_prune_scheduling, worker_parse_scheduling
 
 
@@ -152,6 +153,9 @@ def index_scheduling(scheduling: Scheduling):
 
     index_events = do_index_scheduling(scheduling)
 
+    # We build the resources hash to avoid doing it inside the transaction
+    resources_hash = build_resources_hash(scheduling, index_events)
+
     with transaction.atomic():
         # 1. Verify the scheduling is still in MATCHED status
         try:
@@ -167,6 +171,11 @@ def index_scheduling(scheduling: Scheduling):
         # This will cascade delete related indexed events
         indexed_schedulings = Scheduling.objects.filter(website=scheduling.website,
                                                         status=Scheduling.Status.INDEXED)
+        if resources_hash in \
+                indexed_schedulings.values_list('resources_hash', flat=True).distinct():
+            info("Aborting: An identical scheduling has already been indexed.")
+            return
+
         # we save parsing_history_ids to later clean up moderations
         parsing_history_ids = PruningParsing.objects.filter(scheduling__in=indexed_schedulings)\
             .values_list('parsing_history_id', flat=True).distinct()
@@ -178,6 +187,7 @@ def index_scheduling(scheduling: Scheduling):
 
         # 4. Mark scheduling as INDEXED
         scheduling.status = Scheduling.Status.INDEXED
+        scheduling.resources_hash = resources_hash
         scheduling.save()
 
     add_necessary_scheduling_moderation(scheduling, index_events)

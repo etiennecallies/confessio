@@ -15,8 +15,11 @@ class BaseSource(BaseModel, ABC, frozen=True):
         pass
 
     @abstractmethod
-    def __hash__(self):
+    def hash_key(self):
         pass
+
+    def __hash__(self):
+        return hash(self.hash_key())
 
 
 class ParsingSource(BaseSource):
@@ -26,8 +29,8 @@ class ParsingSource(BaseSource):
     def source_type(self) -> str:
         return 'parsing'
 
-    def __hash__(self):
-        return hash((self.source_type, self.parsing_uuid))
+    def hash_key(self):
+        return self.source_type, self.parsing_uuid
 
 
 class OClocherSource(BaseSource):
@@ -36,8 +39,8 @@ class OClocherSource(BaseSource):
     def source_type(self) -> str:
         return 'oclocher'
 
-    def __hash__(self):
-        return hash(self.source_type)
+    def hash_key(self):
+        return self.source_type
 
 
 UnionSource = ParsingSource | OClocherSource

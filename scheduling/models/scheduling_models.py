@@ -14,6 +14,7 @@ class Scheduling(TimeStampMixin):
     website = models.ForeignKey('registry.Website', on_delete=models.CASCADE,
                                 related_name='schedulings')
     status = models.CharField(max_length=16, choices=Status.choices)
+    resources_hash = models.CharField(max_length=32, null=True, blank=True)
 
     sourced_schedules_list = models.JSONField(null=True, blank=True)
     church_uuid_by_id = models.JSONField(null=True, blank=True)

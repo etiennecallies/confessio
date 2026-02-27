@@ -11,3 +11,13 @@ class SourcedSchedulesList(BaseModel):
     is_related_to_adoration_sources: list[UnionSource]
     is_related_to_permanence_sources: list[UnionSource]
     will_be_seasonal_events_sources: list[UnionSource]
+
+    def hash_key(self):
+        return (
+            tuple(sorted(map(lambda s: s.hash_key(), self.sourced_schedules_of_churches))),
+            tuple(sorted(map(lambda s: s.hash_key(), self.possible_by_appointment_sources))),
+            tuple(sorted(map(lambda s: s.hash_key(), self.is_related_to_mass_sources))),
+            tuple(sorted(map(lambda s: s.hash_key(), self.is_related_to_adoration_sources))),
+            tuple(sorted(map(lambda s: s.hash_key(), self.is_related_to_permanence_sources))),
+            tuple(sorted(map(lambda s: s.hash_key(), self.will_be_seasonal_events_sources))),
+        )

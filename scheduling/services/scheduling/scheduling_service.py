@@ -7,9 +7,11 @@ from attaching.models import Image
 from crawling.models import Scraping
 from fetching.models import OClocherSchedule, OClocherMatching, OClocherLocation
 from registry.models import Website, Church
-from scheduling.models import ParsingModeration, Parsing
+from scheduling.models import ParsingModeration, Parsing, IndexEvent
 from scheduling.models import Scheduling, SchedulingHistoricalOClocherMatching
 from scheduling.models.pruning_models import Pruning
+from scheduling.public_model import SourcedSchedulesList
+from scheduling.utils.hash_utils import hash_string_to_hex
 
 
 def get_indexed_scheduling(website: Website) -> Scheduling | None:
@@ -164,6 +166,77 @@ def get_scheduling_primary_sources(scheduling: Scheduling | None
         prunings_by_image_uuid=prunings_by_image_uuid,
         parsing_by_pruning_uuid=parsing_by_pruning_uuid,
     )
+
+
+##################
+# RESOURCES HASH #
+##################
+
+def build_resources_hash(scheduling: Scheduling, index_events: list[IndexEvent]) -> str:
+    elements_to_hash = []
+
+    # Churches
+    elements_to_hash += sorted(map(
+        lambda historical_church: historical_church.church_history_id,
+        scheduling.historical_churches.all()))
+
+    # Scrapings & Images
+    elements_to_hash += sorted(map(
+        lambda historical_scraping: historical_scraping.scraping_history_id,
+        scheduling.historical_scrapings.all()))
+    elements_to_hash += sorted(map(
+        lambda historical_image: historical_image.image_history_id,
+        scheduling.historical_images.all()))
+
+    # Prunings & Parsings
+    elements_to_hash += sorted(map(
+        lambda scraping_pruning: (scraping_pruning.scraping_history_id,
+                                  scraping_pruning.pruning_history_id),
+        scheduling.scraping_prunings.all()
+    ))
+    elements_to_hash += sorted(map(
+        lambda image_pruning: (image_pruning.image_history_id,
+                               image_pruning.pruning_history_id),
+        scheduling.image_prunings.all()
+    ))
+    elements_to_hash += sorted(map(
+        lambda pruning_parsing: (pruning_parsing.pruning_history_id,
+                                 pruning_parsing.parsing_history_id),
+        scheduling.pruning_parsings.all()
+    ))
+
+    # OClocher
+    elements_to_hash += sorted(map(
+        lambda hol: hol.oclocher_location_history_id,
+        scheduling.historical_oclocher_locations.all()))
+    elements_to_hash += sorted(map(
+        lambda hos: hos.oclocher_schedule_history_id,
+        scheduling.historical_oclocher_schedules.all()))
+    try:
+        elements_to_hash += [scheduling.historical_oclocher_matching.oclocher_matching_history_id]
+    except SchedulingHistoricalOClocherMatching.DoesNotExist:
+        pass
+
+    # sourced_schedules_list & church_uuid_by_id
+    # TODO this should not be loaded.
+    elements_to_hash += [SourcedSchedulesList(**scheduling.sourced_schedules_list).hash_key()]
+    elements_to_hash += sorted(scheduling.church_uuid_by_id.items())
+    # Index events
+    elements_to_hash += sorted(map(
+        lambda index_event: (
+            index_event.church_id,
+            index_event.day,
+            index_event.start_time,
+            index_event.indexed_end_time,
+            index_event.displayed_end_time,
+            index_event.is_explicitely_other,
+            index_event.has_been_moderated,
+            index_event.church_color,
+        ),
+        index_events
+    ))
+
+    return hash_string_to_hex(''.join(map(str, elements_to_hash)))
 
 
 ################

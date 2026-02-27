@@ -9,6 +9,9 @@ class SourcedScheduleItem(BaseModel):
     explanation: str
     sources: list[UnionSource]
 
+    def hash_key(self):
+        return self.explanation, tuple(sorted(map(lambda s: s.hash_key(), self.sources)))
+
 
 class SourcedSchedulesOfChurch(BaseModel):
     church_id: int | None
@@ -16,3 +19,9 @@ class SourcedSchedulesOfChurch(BaseModel):
 
     def is_church_explicitly_other(self) -> bool:
         return self.church_id == -1
+
+    def hash_key(self):
+        return (
+            self.church_id if self.church_id is not None else -2,
+            tuple(sorted(map(lambda s: s.hash_key(), self.sourced_schedules)))
+        )
