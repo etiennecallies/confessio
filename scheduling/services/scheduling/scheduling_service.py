@@ -172,7 +172,10 @@ def get_scheduling_primary_sources(scheduling: Scheduling | None
 # RESOURCES HASH #
 ##################
 
-def build_resources_hash(scheduling: Scheduling, index_events: list[IndexEvent]) -> str:
+def build_resources_hash(scheduling: Scheduling,
+                         sourced_schedules_list: SourcedSchedulesList,
+                         church_uuid_by_id: dict[int, str],
+                         index_events: list[IndexEvent]) -> str:
     elements_to_hash = []
 
     # Churches
@@ -218,9 +221,8 @@ def build_resources_hash(scheduling: Scheduling, index_events: list[IndexEvent])
         pass
 
     # sourced_schedules_list & church_uuid_by_id
-    # TODO this should not be loaded.
-    elements_to_hash += [SourcedSchedulesList(**scheduling.sourced_schedules_list).hash_key()]
-    elements_to_hash += sorted(scheduling.church_uuid_by_id.items())
+    elements_to_hash += [sourced_schedules_list.hash_key()]
+    elements_to_hash += sorted(church_uuid_by_id.items())
     # Index events
     elements_to_hash += sorted(map(
         lambda index_event: (

@@ -4,8 +4,7 @@ from front.public_service import front_get_color_of_nullable_church, front_get_c
 from registry.models import Website
 from scheduling.models import IndexEvent, Scheduling, Parsing
 from scheduling.services.merging.holiday_zone_service import get_website_holiday_zone
-from scheduling.services.merging.sourced_schedules_service import build_scheduling_elements, \
-    SchedulingElements
+from scheduling.services.merging.sourced_schedules_service import SchedulingElements
 from scheduling.utils.date_utils import time_plus_hours
 from scheduling.workflows.merging.sources import ParsingSource, BaseSource, OClocherSource
 from scheduling.workflows.parsing.rrule_utils import get_events_from_schedule_item
@@ -132,10 +131,8 @@ def build_index_events(scheduling: Scheduling,
 
 
 def build_sourced_schedules_and_index_events(website: Website, scheduling: Scheduling,
+                                             scheduling_elements: SchedulingElements
                                              ) -> list[IndexEvent]:
-    # Build scheduling elements
-    scheduling_elements = build_scheduling_elements(website, scheduling)
-
     # Generate events by church_id
     events_by_church_id = generate_unique_events_by_church_id(website, scheduling_elements)
 
@@ -143,4 +140,6 @@ def build_sourced_schedules_and_index_events(website: Website, scheduling: Sched
     events_by_church_id = keep_only_real_church_events(events_by_church_id)
 
     # Build index events
-    return build_index_events(scheduling, scheduling_elements, events_by_church_id)
+    index_event = build_index_events(scheduling, scheduling_elements, events_by_church_id)
+
+    return index_event

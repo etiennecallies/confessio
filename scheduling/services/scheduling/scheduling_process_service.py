@@ -16,7 +16,6 @@ from scheduling.services.scheduling.prune_scheduling_service import do_prune_sch
     bulk_create_scheduling_pruning_objects
 from scheduling.services.scheduling.scheduling_moderation_service import \
     add_necessary_scheduling_moderation
-from scheduling.services.scheduling.scheduling_service import build_resources_hash
 from scheduling.tasks import worker_prune_scheduling, worker_parse_scheduling
 
 
@@ -151,10 +150,7 @@ def index_scheduling(scheduling: Scheduling):
         info(f"Scheduling is in status {scheduling.status}; skipping indexing.")
         return
 
-    index_events = do_index_scheduling(scheduling)
-
-    # We build the resources hash to avoid doing it inside the transaction
-    resources_hash = build_resources_hash(scheduling, index_events)
+    indexing_objects = do_index_scheduling(scheduling)
 
     with transaction.atomic():
         # 1. Verify the scheduling is still in MATCHED status
@@ -171,7 +167,7 @@ def index_scheduling(scheduling: Scheduling):
         # This will cascade delete related indexed events
         indexed_schedulings = Scheduling.objects.filter(website=scheduling.website,
                                                         status=Scheduling.Status.INDEXED)
-        if resources_hash in \
+        if indexing_objects.resources_hash in \
                 indexed_schedulings.values_list('resources_hash', flat=True).distinct():
             info("Aborting: An identical scheduling has already been indexed.")
             return
@@ -182,13 +178,16 @@ def index_scheduling(scheduling: Scheduling):
         indexed_schedulings.delete()
 
         # 3. Save index events
-        for index_event in index_events:
+        for index_event in indexing_objects.index_events:
             index_event.save()
 
         # 4. Mark scheduling as INDEXED
         scheduling.status = Scheduling.Status.INDEXED
-        scheduling.resources_hash = resources_hash
+        scheduling.sourced_schedules_list = \
+            indexing_objects.sourced_schedules_list.model_dump(mode='json')
+        scheduling.church_uuid_by_id = indexing_objects.church_uuid_by_id
+        scheduling.resources_hash = indexing_objects.resources_hash
         scheduling.save()
 
-    add_necessary_scheduling_moderation(scheduling, index_events)
+    add_necessary_scheduling_moderation(scheduling, indexing_objects.index_events)
     clean_parsings_moderations(list(parsing_history_ids))

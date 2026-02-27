@@ -112,14 +112,7 @@ def build_scheduling_elements(website: Website, scheduling: Scheduling | None
 
     scheduling_sources = get_scheduling_sources(scheduling)
     church_by_id, sources = get_church_by_id_and_sources(scheduling_sources)
-
     sourced_schedules_list = get_sourced_schedules_list(website, church_by_id, sources)
-
-    # Save in scheduling for later retrieval
-    scheduling.sourced_schedules_list = sourced_schedules_list.model_dump(mode='json')
-    scheduling.church_uuid_by_id = {church_id: str(church.uuid) for church_id, church
-                                    in church_by_id.items()}
-    scheduling.save()
 
     return SchedulingElements(
         sourced_schedules_list=sourced_schedules_list,
