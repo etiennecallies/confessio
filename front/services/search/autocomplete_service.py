@@ -6,7 +6,7 @@ from django.contrib.postgres.lookups import Unaccent
 from django.db.models import Value
 from django.db.models.functions import Replace, Lower
 from django.urls import reverse
-from requests.exceptions import RequestException
+from requests.exceptions import RequestException, JSONDecodeError
 
 from registry.models import Parish, Church
 from front.utils.department_utils import get_departments_context
@@ -84,18 +84,28 @@ def get_data_gouv_response(query: str) -> list[AutocompleteResult]:
         })
     except RequestException as e:
         print(f'Exception in get_data_gouv_response: {e}')
+        print(f"Query: {query}")
         from core.otel.metrics_service import metrics_service
         metrics_service.increment_warning_counter('data_gouv_error')
         return []
 
     if response.status_code != 200:
         print(f'Error in get_data_gouv_response: {response.status_code}')
-        print(response.text)
+        print(f"Query: {query}, Response code {response.status_code}, "
+              f"Response text: {response.text}")
         from core.otel.metrics_service import metrics_service
         metrics_service.increment_warning_counter('data_gouv_error')
         return []
 
-    data = response.json()
+    try:
+        data = response.json()
+    except JSONDecodeError as e:
+        print(f'JSON decode error in get_data_gouv_response: {e}')
+        print(f'Query: {query}, Response text: {response.text}')
+        from core.otel.metrics_service import metrics_service
+        metrics_service.increment_warning_counter('data_gouv_error')
+        return []
+
     if 'features' not in data or not data['features']:
         return []
 
