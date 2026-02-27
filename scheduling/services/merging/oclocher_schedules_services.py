@@ -8,16 +8,13 @@ from scheduling.workflows.parsing.schedules import ScheduleItem, SchedulesList, 
 def get_schedule_item_from_oclocher_schedule(oclocher_schedule: OClocherSchedule,
                                              church_id_by_oclocher_id: dict[str, int],
                                              timezone_str: str,
-                                             ) -> ScheduleItem | None:
-    if oclocher_schedule.location.location_id not in church_id_by_oclocher_id:
-        return None
-
+                                             ) -> ScheduleItem:
     datetime_start = datetime_in_timezone(oclocher_schedule.datetime_start, timezone_str)
     datetime_end = datetime_in_timezone(oclocher_schedule.datetime_end, timezone_str) \
         if oclocher_schedule.datetime_end else None
 
     return ScheduleItem(
-        church_id=church_id_by_oclocher_id[oclocher_schedule.location.location_id],
+        church_id=church_id_by_oclocher_id.get(oclocher_schedule.location.location_id, -1),
         date_rule=OneOffRule(
             year=datetime_start.year,
             month=datetime_start.month,
@@ -49,7 +46,7 @@ def get_schedules_list_from_oclocher_schedules(oclocher_schedules: list[OClocher
         for oclocher_schedule in oclocher_schedules
     ]
 
-    if any(s is None for s in schedules):
+    if any(not s.has_real_church() for s in schedules):
         one_schedule = oclocher_schedules[0]
         oclocher_organization = one_schedule.organization
         upsert_matching_moderation(oclocher_organization, oclocher_matching,
@@ -58,5 +55,5 @@ def get_schedules_list_from_oclocher_schedules(oclocher_schedules: list[OClocher
                                    )
 
     return SchedulesList(
-        schedules=[s for s in schedules if s is not None],
+        schedules=schedules,
     )
