@@ -82,7 +82,11 @@ heartbeat_check_crawling_url: "{{ lookup('ansible.builtin.env', 'HEARTBEAT_CHECK
 heartbeat_train_pruning_url: "{{ lookup('ansible.builtin.env', 'HEARTBEAT_TRAIN_PRUNING_URL') }}"
 
 # Discord Webhooks
-discord_webhooks_json: "{{ lookup('ansible.builtin.env', 'DISCORD_WEBHOOKS_JSON') }}"
+discord_new_reports_url: "{{ lookup('ansible.builtin.env', 'DISCORD_NEW_REPORTS_URL') }}"
+discord_new_images_url: "{{ lookup('ansible.builtin.env', 'DISCORD_NEW_IMAGES_URL') }}"
+discord_infra_alerts_url: "{{ lookup('ansible.builtin.env', 'DISCORD_INFRA_ALERTS_URL') }}"
+discord_crawling_alerts_url: "{{ lookup('ansible.builtin.env', 'DISCORD_CRAWLING_ALERTS_URL') }}"
+discord_contact_form_url: "{{ lookup('ansible.builtin.env', 'DISCORD_CONTACT_FORM_URL') }}"
 
 # Cloudflare Turnstile
 cloudflare_turnstile_site_key: "{{ lookup('ansible.builtin.env', 'CLOUDFLARE_TURNSTILE_SITE_KEY') }}"

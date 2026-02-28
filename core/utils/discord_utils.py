@@ -1,4 +1,3 @@
-import json
 import os
 from enum import Enum
 
@@ -6,27 +5,25 @@ import httpx
 
 
 class DiscordChanel(Enum):
-    NEW_REPORTS = "nouveaux-retours"
-    NEW_IMAGES = "nouvelles-images"
-    INFRA_ALERTS = "infra-alerts"
-    CRAWLING_ALERTS = "crawling-alerts"
-    CONTACT_FORM = "formulaire-de-contact"
+    NEW_REPORTS = "NEW_REPORTS"
+    NEW_IMAGES = "NEW_IMAGES"
+    INFRA_ALERTS = "INFRA_ALERTS"
+    CRAWLING_ALERTS = "CRAWLING_ALERTS"
+    CONTACT_FORM = "CONTACT_FORM"
 
 
 def send_discord_alert(message: str, channel: DiscordChanel):
-    discord_webhooks_json = os.getenv("DISCORD_WEBHOOKS_JSON")
+    discord_webhook_url = os.getenv(f"DISCORD_{channel.name}_URL")
 
-    try:
-        discord_webhooks_dict = json.loads(discord_webhooks_json)
-        webhook_url = discord_webhooks_dict[channel.value]
-    except (TypeError, json.JSONDecodeError, KeyError) as e:
-        print(f"Erreur lors du chargement des webhooks Discord : {e}")
+    if not discord_webhook_url:
+        print(f"Impossible d'envoyer l'alerte Discord : la variable d'environnement "
+              f"DISCORD_{channel.name}_URL n'est pas définie.")
         return
 
     data = {
         "content": message
     }
-    response = httpx.post(webhook_url, json=data)
+    response = httpx.post(discord_webhook_url, json=data)
 
     if response.status_code != 204:
         print(f"Erreur lors de l'envoi de l'alerte Discord : "
