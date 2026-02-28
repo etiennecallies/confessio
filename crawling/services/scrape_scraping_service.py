@@ -37,7 +37,6 @@ def create_scraping(extracted_html_list: list[str],
                     url: str,
                     website: Website) -> None:
     scraping = Scraping(
-        nb_iterations=1,
         url=url,
         website=website,
     )
