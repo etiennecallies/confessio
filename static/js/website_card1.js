@@ -32,7 +32,6 @@ function lazyLoadElement($element, callback) {
         if (callback) callback();
         setTimeout(function() {
             activateExpandable($element);
-            activateToggleExplicitlyOther($element);
             activateCopyToClipboard($element);
             activateSeeChurchOnMap($element);
             activateNextButton($element);
@@ -46,17 +45,6 @@ function lazyLoadElement($element, callback) {
 function activateExpandable($element) {
     $element.find('.expandable').on('click', function () {
         $(this).children('.expandable-item').toggle();
-    });
-}
-
-function activateToggleExplicitlyOther($element) {
-    // Handle mute/display explicitly other church
-    $element.find('.hide-explicitly-other-btn').on('click', function() {
-      let $this = $(this);
-      $this.closest('.website-card').toggleClass('hide-explicitly-other');
-
-      // Toggle text "afficher" / "masquer"
-      $this.text($this.text() === 'Afficher' ? 'Masquer' : 'Afficher');
     });
 }
 

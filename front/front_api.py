@@ -103,8 +103,7 @@ class ChurchDetails(ChurchOut):
 
 
 class EventOut(Schema):
-    church_uuid: UUID | None
-    is_church_explicitly_other: bool
+    church_uuid: UUID
     start: datetime
     end: datetime | None
     source_has_been_moderated: bool
@@ -116,8 +115,7 @@ class EventOut(Schema):
             if index_event.displayed_end_time else None
 
         return cls(
-            church_uuid=index_event.church.uuid if index_event.is_real_church() else None,
-            is_church_explicitly_other=bool(index_event.is_explicitely_other),
+            church_uuid=index_event.church.uuid,
             start=start,
             end=end,
             source_has_been_moderated=index_event.has_been_moderated,

@@ -26,7 +26,6 @@
                     {% display_church_color church True website_schedules.church_color_by_uuid %}
                     {% display_other_church_icon True %}
                     <span class="text-danger">{% trans 'OutsideThisParish' %} :</span>
-                    <span class="hide-explicitly-other-btn text-muted clickable small">{% if display_explicit_other_churches %}Masquer{% else %}Afficher{% endif %}</span>
                 </div>
             {% else %}
                 <div>
@@ -36,7 +35,7 @@
                 </div>
             {% endif %}
             {% for sourced_schedule_item in sourced_schedules_of_church.sourced_schedules %}
-                <div class="margin-left-indent {% if sourced_schedules_of_church.is_church_explicitly_other %} explicitly-other{% endif %}">
+                <div class="margin-left-indent">
                     <span>{{ sourced_schedule_item.explanation }}</span>
                     {% for source in sourced_schedule_item.sources %}
                         {% include 'includes/source_reference.html' %}

@@ -11,9 +11,6 @@ class WebsiteEvents:
     page_range: str
     confession_exists: bool
     parsings_have_been_moderated: bool | None
-    display_explicit_other_churches: bool
-    has_explicit_other_churches: bool
-    has_unknown_churches: bool
     has_different_churches: bool
     events_truncated: bool
 
@@ -33,22 +30,15 @@ def get_website_events(index_events: list[IndexEvent],
 
     all_index_events = sum(index_events_by_day.values(), [])
     confession_exists = len(all_index_events) > 0
-    display_explicit_other_churches = all(ie.is_explicitely_other for ie in all_index_events)
     parsings_have_been_moderated = all(ie.has_been_moderated for ie in all_index_events) \
         if all_index_events else None
-    has_explicit_other_churches = display_explicit_other_churches and \
-        any(c.is_explicitely_other for c in all_index_events)
-    has_unknown_churches = any(c.is_explicitely_other is False for c in all_index_events)
-    has_different_churches = len(set(c.church for c in all_index_events if c.is_real_church())) > 1
+    has_different_churches = len(set(c.church for c in all_index_events)) > 1
 
     return WebsiteEvents(
         index_events_by_day=index_events_by_day,
         page_range=get_page_range(index_events_by_day),
         confession_exists=confession_exists,
         parsings_have_been_moderated=parsings_have_been_moderated,
-        display_explicit_other_churches=display_explicit_other_churches,
-        has_explicit_other_churches=has_explicit_other_churches,
-        has_unknown_churches=has_unknown_churches,
         has_different_churches=has_different_churches,
         events_truncated=events_truncated,
     )

@@ -8,9 +8,6 @@ def website_has_schedules_conflict(church_index_events: list[IndexEvent]
                                    ) -> tuple[date, Church] | None:
     events_by_church_and_day = {}
     for church_event in church_index_events:
-        if church_event.is_explicitely_other is not None:
-            continue
-
         if church_event.displayed_end_time is None:
             continue
 

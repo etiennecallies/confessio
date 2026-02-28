@@ -59,8 +59,7 @@ def update_popularity_of_websites():
 
 def get_best_website_for_diocese(count_by_website: dict[Website, int], ) -> Website:
     for website, count in sorted(count_by_website.items(), key=lambda item: item[1], reverse=True):
-        if IndexEvent.objects.filter(church__parish__website=website,
-                                     is_explicitely_other__isnull=True).exists():
+        if IndexEvent.objects.filter(church__parish__website=website).exists():
             return website
 
     return max(count_by_website, key=count_by_website.get)

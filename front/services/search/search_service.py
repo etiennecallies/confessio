@@ -5,14 +5,14 @@ from uuid import UUID
 from django.contrib.gis.db.models import Collect, Extent
 from django.contrib.gis.db.models.functions import Distance, Centroid
 from django.contrib.gis.geos import Point, Polygon
-from django.db.models import QuerySet, OuterRef, Subquery, Exists, ExpressionWrapper, Q, \
-    BooleanField, Count
+from django.db.models import QuerySet, OuterRef, Subquery, Exists, Q, \
+    Count
 from pydantic import BaseModel
 
-from registry.models import Church, Website, Diocese
 from front.utils.city_utils import get_municipality_name
-from scheduling.utils.date_utils import time_from_minutes
+from registry.models import Church, Website, Diocese
 from scheduling.models import IndexEvent
+from scheduling.utils.date_utils import time_from_minutes
 
 MAX_CHURCHES_IN_RESULTS = 50
 MAX_WEBSITES_IN_RESULTS = 10
@@ -53,11 +53,7 @@ def build_base_church_query() -> QuerySet[Church]:
 
 
 def build_church_query(time_filter: TimeFilter) -> QuerySet[Church]:
-    event_query = build_event_subquery(time_filter).annotate(
-        located_event=ExpressionWrapper(Q(is_explicitely_other__isnull=True),
-                                        output_field=BooleanField())
-    ).order_by(
-        '-located_event',
+    event_query = build_event_subquery(time_filter).order_by(
         'day',
         'start_time'
     ).values('uuid')
@@ -213,11 +209,11 @@ def get_churches_by_diocese(
         diocese: Diocese,
         time_filter: TimeFilter,
 ) -> tuple[list[IndexEvent], list[Church], bool, dict[UUID, bool]]:
-    event_query = build_event_subquery(time_filter).filter(is_explicitely_other__isnull=True)
-    church_query = build_church_query(time_filter).annotate(has_located_event=Exists(event_query))\
+    event_query = build_event_subquery(time_filter)
+    church_query = build_church_query(time_filter).annotate(has_event=Exists(event_query))\
         .filter(parish__diocese=diocese)\
         .order_by(
-        '-has_located_event',
+        '-has_event',
         '-parish__website__nb_recent_hits'
     )
 
@@ -226,12 +222,12 @@ def get_churches_by_diocese(
 
 def get_popular_churches(min_lat, max_lat, min_long, max_long, time_filter: TimeFilter,
                          ) -> tuple[list[IndexEvent], list[Church], bool, dict[UUID, bool]]:
-    event_query = build_event_subquery(time_filter).filter(is_explicitely_other__isnull=True)
+    event_query = build_event_subquery(time_filter)
     church_query = filter_in_box(build_church_query(time_filter),
                                  min_lat, max_lat, min_long, max_long)\
-        .annotate(has_located_event=Exists(event_query))\
+        .annotate(has_event=Exists(event_query))\
         .order_by(
-        '-has_located_event',
+        '-has_event',
         '-parish__website__is_best_diocese_hit',
         '-parish__website__nb_recent_hits',
     )

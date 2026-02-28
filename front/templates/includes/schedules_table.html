@@ -27,12 +27,11 @@
                 <td{% if day == current_day %} class="bg-gradient-gray-200"{% endif %}>
                     {% with index_events=website_events.index_events_by_day|get_item:day %}
                         {% for index_event in index_events %}
-                            <div class="text-center {% if index_event.is_explicitely_other %}explicitly-other text-white{% endif %}">
-                                <div class="colored-schedule d-inline-block clickable" onclick="return goToChurch('{{ website.uuid }}', '{{ index_event.church.uuid }}', '{{ index_event.is_church_explicitly_other|lower }}')"
-                                          title="{% if index_event.is_real_church %}{{ index_event.church.name }}{% elif index_event.is_explicitely_other %}{% trans 'OutsideThisParish' %}{% else %}{% trans 'UnknownChurch' %}{% endif %}"
+                            <div class="text-center">
+                                <div class="colored-schedule d-inline-block clickable" onclick="return goToChurch('{{ website.uuid }}', '{{ index_event.church.uuid }}', 'false')"
+                                          title="{{ index_event.church.name }}"
                                           style="background-color: {{ index_event.church_color }}"
                                     >{% display_hour index_event.start_time %} - {% if index_event.displayed_end_time %}{% display_hour index_event.displayed_end_time %}{% else %}?{% endif %}
-                                    {% if not index_event.is_real_church %}<br>{% display_other_church_icon index_event.is_explicitely_other %}{% endif %}
                                 </div>
                             </div>
                         {% empty %}

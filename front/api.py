@@ -230,9 +230,6 @@ class SchedulingOut(Schema):
         # Events
         index_events_by_church_uuid = {}
         for index_event in scheduling.index_events.all():
-            if not index_event.is_real_church():
-                continue
-
             index_events_by_church_uuid.setdefault(index_event.church_id, []).append(index_event)
 
         events_by_churches = []

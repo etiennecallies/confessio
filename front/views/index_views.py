@@ -353,8 +353,6 @@ def partial_website_churches(request, website_uuid: str):
     except Website.DoesNotExist:
         return HttpResponseNotFound("Website does not exist with this uuid")
 
-    display_explicit_other_churches = extract_bool('display_explicit_other_churches', request)
-
     scheduling = scheduling_get_indexed_scheduling(website)
     if scheduling is None:
         return HttpResponse("Traitement en cours pour cette paroisse, aucune église n'est affichée "
@@ -366,7 +364,6 @@ def partial_website_churches(request, website_uuid: str):
     return render(request, 'partials/website_churches.html', {
         'website': website,
         'website_schedules': website_schedules,
-        'display_explicit_other_churches': display_explicit_other_churches,
     })
 
 

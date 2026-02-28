@@ -3,7 +3,7 @@
 {% load i18n %}
 
 {% with website_events=events_by_website|get_item:website.uuid %}
-<div class="row mt-4 website-card{% if not website_events.display_explicit_other_churches %} hide-explicitly-other{% endif %}" id="{{ website.uuid }}">
+<div class="row mt-4 website-card" id="{{ website.uuid }}">
     <div class="col-12">
         <div class="card shadow">
             <div class="card-body px-3 py-3 px-md-5 py-md-5 text-left">
@@ -41,7 +41,7 @@
                                 <h6><span class="toggle-symbol collapsed-symbol text-gray-600"></span>Églises et horaires ⛪️</h6>
                             </div>
                             <div id="churches-{{ website.uuid }}" class="collapse">
-                                <div class="collapsable-body" data-lazy-load-url="{% url 'website_churches' website.uuid %}?display_explicit_other_churches={{ website_events.display_explicit_other_churches|yesno:"true,false" }}">
+                                <div class="collapsable-body" data-lazy-load-url="{% url 'website_churches' website.uuid %}">
                                 </div>
                             </div>
                         </div>

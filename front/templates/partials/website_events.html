@@ -32,30 +32,22 @@
                 <a class="link-info" onclick="loadMoreEvents(this);">Afficher plus d'horaires ...</a>
             </div>
         {% else %}
-            {% if website_events.has_explicit_same_churches %}
-                <div class="alert alert-info alert-dismissible fade show mt-3" role="alert">
-                    <span class="alert-inner--text">ℹ️ Tous les horaires de confession sont dans la même église.</span>
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-            {% endif %}
-            {% if website_events.has_explicit_other_churches %}
-                <div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">
-                    <span class="alert-inner--text">⚠️ Attention certains horaires ont lieu en dehors de cette paroisse, lire les détails dans les sources.</span>
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-            {% endif %}
-            {% if website_events.has_unknown_churches %}
-                <div class="alert alert-gray-500 alert-dismissible fade show mt-3" role="alert">
-                    <span class="alert-inner--text">❔ Certains horaires ne spécifient pas explicitement le lieu de la confession, consulter le site de la paroisse.</span>
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-            {% endif %}
+{#            {% if website_events.has_explicit_other_churches %}#}
+{#                <div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">#}
+{#                    <span class="alert-inner--text">⚠️ Attention certains horaires ont lieu en dehors de cette paroisse, lire les détails dans les sources.</span>#}
+{#                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">#}
+{#                        <span aria-hidden="true">&times;</span>#}
+{#                    </button>#}
+{#                </div>#}
+{#            {% endif %}#}
+{#            {% if website_events.has_unknown_churches %}#}
+{#                <div class="alert alert-gray-500 alert-dismissible fade show mt-3" role="alert">#}
+{#                    <span class="alert-inner--text">❔ Certains horaires ne spécifient pas explicitement le lieu de la confession, consulter le site de la paroisse.</span>#}
+{#                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">#}
+{#                        <span aria-hidden="true">&times;</span>#}
+{#                    </button>#}
+{#                </div>#}
+{#            {% endif %}#}
             {% if website_events.has_different_churches %}
                 <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
                     <span class="alert-inner--text">💡 Cliquer sur l'horaire pour connaître le lieu de la confession.</span>
