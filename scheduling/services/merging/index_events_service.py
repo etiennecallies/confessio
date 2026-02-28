@@ -81,7 +81,6 @@ def build_index_events(scheduling: Scheduling,
                 start_time=event_start_time,
                 indexed_end_time=indexed_end_time,
                 displayed_end_time=displayed_end_time,
-                is_explicitely_other=None,  # TODO remove this field from IndexEvent
                 has_been_moderated=has_been_moderated,
                 church_color=church_color,
             ))
