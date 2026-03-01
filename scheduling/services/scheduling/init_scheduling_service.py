@@ -45,7 +45,7 @@ def get_oclocher_location_history_ids(website: Website) -> list[int]:
         return []
 
     oclocher_location_history_ids = []
-    for location in oclocher_organization.locations.all():
+    for location in oclocher_organization.locations.filter(schedules__isnull=False).distinct():
         oclocher_location_history_ids.append(location.history.latest().history_id)
 
     return oclocher_location_history_ids
