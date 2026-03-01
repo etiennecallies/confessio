@@ -11,25 +11,31 @@ from core.utils.llm_utils import LLMProvider
 
 
 def get_prompt_template():
-    return """Please help me match churches from Source A to Source B.
-Please return a json dict with key "mappings" being a list of pairs of int.
-Each pair [a,b] indicates that Source A church with id a matches Source B church with id b.
+    return """Please help me match locations (Source B) to churches (Source A).
+Please return a json dict with key "mappings", a list of json with two fields:
+- [Source B] location_id (int)
+- [Source A] church_id (int or null)
+Please return as many items as Source B locations.
 
 Example:
 Source A churches:
 1: St. Peter's Church
 2: Church of the Holy Trinity
-Source B churches:
+Source B locations:
 10: St. John's Parish
 20: Holy Trinity Church
 30: St. James' Cathedral
 Would output:
-{{"mappings": [[2,20]]}}
+{{"mappings": [
+    {{"location_id": 10, "church_id": null}},
+    {{"location_id": 20, "church_id": 2}},
+    {{"location_id": 30, "church_id": null}}
+]}}
 
-The Source A churches ids and locations to consider:
+The Source A churches ids to consider:
 {church_description}
 
-The Source B churches ids and locations to consider:
+The Source B locations ids to consider:
 {location_description}"""
 
 
@@ -97,13 +103,23 @@ def run_llm_completion(
     if not llm_matrix:
         return None, message.refusal
 
-    for mapping in llm_matrix.mappings:
-        if len(mapping) != 2:
-            return None, f'Invalid mapping length {len(mapping)} in mapping {mapping}'
-        if mapping[0] not in church_desc_by_id:
-            return None, f'Invalid church id {mapping[0]} in mapping {mapping}'
-        if mapping[1] not in location_desc_by_id:
-            return None, f'Invalid location id {mapping[1]} in mapping {mapping}'
+    if not llm_matrix.mappings:
+        return None, 'LLM did not return any match'
+
+    if len(llm_matrix.mappings) != len(location_desc_by_id):
+        return None, (f'LLM did not return a match for each location, expected '
+                      f'{len(location_desc_by_id)} but got '
+                      f'{len(llm_matrix.mappings)}')
+
+    for location_church_mapping in llm_matrix.mappings:
+        church_id = location_church_mapping.church_id
+        location_id = location_church_mapping.location_id
+        if church_id is not None and church_id not in church_desc_by_id:
+            return None, (f'Invalid church_id id {church_id} in '
+                          f'{llm_matrix.mappings=}')
+        if location_id not in location_desc_by_id:
+            return None, (f'Invalid location id {location_id} in '
+                          f'{llm_matrix.mappings=}')
 
     return llm_matrix, None
 

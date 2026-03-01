@@ -33,11 +33,18 @@ def get_schedules_list_from_oclocher_schedules(oclocher_schedules: list[OClocher
     assert oclocher_schedules
 
     matching_matrix = fetching_get_matching_matrix(oclocher_matching)
+    if not matching_matrix:
+        print(f'No matching matrix for OClocherMatching for this reason'
+              f' {oclocher_matching.llm_error_detail}')
+        return SchedulesList(schedules=[])
 
     church_id_by_oclocher_id = {}
-    for mapping in matching_matrix.mappings:
-        church_id = mapping[0]
-        location_id = mapping[1]
+    for location_church_mapping in matching_matrix.mappings:
+        church_id = location_church_mapping.church_id
+        location_id = location_church_mapping.location_id
+        if church_id is None:
+            continue
+
         church_id_by_oclocher_id[oclocher_id_by_location_id[location_id]] = church_id
 
     schedules = [
