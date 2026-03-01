@@ -10,6 +10,7 @@ from crawling.models import Crawling
 from registry.models import Website
 from registry.public_service import registry_find_church_geo_outliers
 from scheduling.models import IndexEvent
+from scheduling.models import Log as SchedulingLog
 from scheduling.public_service import scheduling_get_indexed_scheduling
 from scheduling.public_workflow import scheduling_check_holiday_by_zone, \
     scheduling_check_easter_dates
@@ -45,12 +46,15 @@ class Command(AbstractCommand):
                 continue
 
             scheduling = scheduling_get_indexed_scheduling(website)
-            if scheduling is None:
+            scheduling_log = SchedulingLog.objects.filter(
+                website=website, status=SchedulingLog.Status.DONE, type=SchedulingLog.Type.PARSING
+            ).order_by('-created_at').first()
+            if scheduling is None or scheduling_log is None:
                 website_not_indexed.append(website)
                 continue
 
-            # check that latest scheduling is no older than 24 hours
-            if scheduling.created_at < timezone.now() - timedelta(days=1):
+            # check that latest scheduling_log is no older than 24 hours
+            if scheduling_log.created_at < timezone.now() - timedelta(days=1):
                 website_not_indexed_recently.append(website)
                 continue
 
