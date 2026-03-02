@@ -1,4 +1,5 @@
 {% extends 'layouts/moderation_card.html' %}
+{% load display_tags %}
 
 {% block card %}
     <h2 class="mb-3">
@@ -31,16 +32,20 @@
     Church description by id : <pre>{{ church_desc_by_id_json }}</pre><br>
     Location description by id : <pre>{{ location_desc_by_id_json }}</pre><br>
 
-    {% if locations_desc_with_schedules %}
+    {% if locations_with_schedules %}
         Locations with schedules :
-        {% for location_desc in locations_desc_with_schedules%}
-            <pre>{{ location_desc }}</pre>
+        {% for location in locations_with_schedules %}
+            <pre>ID:{{ location.location_id }}<br>NAME:{{ location.name }}<br>ADDRESS:{{ location.address }}</pre>
         {% endfor %}
     {% endif %}
 
     {% if moderation.oclocher_organization %}
         Website: {{ moderation.oclocher_organization.website.name }}<br>
         Link: <a href="{% url 'website_view' moderation.oclocher_organization.website.uuid %}" target="_blank">Go to website</a>
+            <h4>Parishes</h4>
+        {% for parish in moderation.oclocher_organization.website.parishes.all %}
+            {% display_parish parish %}
+        {% endfor %}
     {% endif %}
 
     {% if not moderation.marked_as_bug_at %}
