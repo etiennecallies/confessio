@@ -40,7 +40,7 @@ class OClocherSource(BaseSource):
         return 'oclocher'
 
     def hash_key(self):
-        return self.source_type
+        return (self.source_type,)
 
 
 UnionSource = ParsingSource | OClocherSource
