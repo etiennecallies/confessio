@@ -51,9 +51,9 @@ class OClocherMatchingModeration(ModerationMixin):
 
     oclocher_matching = models.OneToOneField('OClocherMatching',
                                              on_delete=models.CASCADE, related_name='moderation')
-    oclocher_organization = models.ForeignKey('OClocherOrganization',
-                                              on_delete=models.SET_NULL,
-                                              related_name='matching_moderations', null=True)
+    oclocher_organization = models.OneToOneField('OClocherOrganization',
+                                                 on_delete=models.CASCADE,
+                                                 related_name='matching_moderation')
 
     def delete_on_validate(self) -> bool:
         return False
