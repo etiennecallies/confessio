@@ -43,7 +43,7 @@ class ReportModeration(ModerationMixin):
     marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
                                          on_delete=models.SET_NULL, null=True)
     diocese = models.ForeignKey('registry.Diocese', on_delete=models.CASCADE,
-                                related_name=f'{resource}_moderations', null=True)
+                                related_name=f'{resource}_moderations')
     history = HistoricalRecords()
     report = models.ForeignKey('Report', on_delete=models.CASCADE, related_name='moderations')
     category = models.CharField(max_length=16, choices=Category)

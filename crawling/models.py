@@ -64,7 +64,7 @@ class CrawlingModeration(ModerationMixin):
     marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
                                          on_delete=models.SET_NULL, null=True)
     diocese = models.ForeignKey('registry.Diocese', on_delete=models.CASCADE,
-                                related_name=f'{resource}_moderations', null=True)
+                                related_name=f'{resource}_moderations')
     history = HistoricalRecords()
     website = models.OneToOneField('registry.Website', on_delete=models.CASCADE,
                                    related_name=f'{resource}_moderation')
