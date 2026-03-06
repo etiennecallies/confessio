@@ -46,7 +46,7 @@ def contact(request, message=None, email=None, name_text=None, message_text=None
             send_mail(subject,
                       email_body,
                       None,  # Default to DEFAULT_FROM_EMAIL
-                      [os.environ.get('CONTACT_EMAIL')])
+                      [os.environ.get('CONTACT_FORWARD_EMAIL')])
         except BadHeaderError as e:
             print(e)
             name_text = quote_path(name)
@@ -95,6 +95,7 @@ def contact_mail_webhook(request):
                   f"SUBJECT:{subject}\n\n{stripped_text or body_plain}"
                   )
 
-    send_discord_alert(message=email_body, channel=DiscordChanel.CONTACT_FORM)
+    if recipient == os.environ.get('CONTACT_EMAIL'):
+        send_discord_alert(message=email_body, channel=DiscordChanel.CONTACT_FORM)
 
     return HttpResponse(status=200)

@@ -45,6 +45,7 @@ nb_crawling_workers: 2
 
 # Email
 contact_email: "{{ lookup('ansible.builtin.env', 'CONTACT_EMAIL') }}"
+contact_forward_email: "{{ lookup('ansible.builtin.env', 'CONTACT_FORWARD_EMAIL') }}"
 admin_email: "{{ lookup('ansible.builtin.env', 'ADMIN_EMAIL') }}"
 letsencrypt_email: "{{ lookup('ansible.builtin.env', 'PROD_LETSENCRYPT_EMAIL') }}"
 
