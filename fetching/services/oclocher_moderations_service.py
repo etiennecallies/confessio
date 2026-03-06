@@ -28,8 +28,10 @@ def upsert_matching_moderation(oclocher_organization: OClocherOrganization,
                                category: OClocherMatchingModeration.Category,
                                moderation_validated: bool):
     try:
-        moderation = OClocherMatchingModeration.objects.get(oclocher_matching=oclocher_matching)
-        if moderation.category != category:
+        moderation = OClocherMatchingModeration.objects.get(
+            oclocher_organization=oclocher_organization)
+        if moderation.oclocher_matching != oclocher_matching or moderation.category != category:
+            moderation.oclocher_matching = oclocher_matching
             moderation.category = category
             moderation.validated_at = Now() if moderation_validated else None
             moderation.validated_by = None
