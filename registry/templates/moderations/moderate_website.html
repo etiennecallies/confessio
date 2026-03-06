@@ -3,29 +3,14 @@
 {% load display_tags %}
 
 {% block card %}
-    <h2 class="mb-3">
-        Website: {{ website_moderation.get_category_display }}
-    </h2>
-    {% if website_moderation.bug_description %}
-        <p>Bug description : {{ website_moderation.bug_description }}</p>
-    {% endif %}
-    <div>
-        <div class="d-inline-block">
-            <form method="post">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-primary">Validate & next</button>
-            </form>
-        </div>
-        <div class="d-inline-block">
-            <a class="btn btn-info" role="button" href="{{ next_url }}">Next</a>
-        </div>
-    </div>
+    {% include 'moderations/_header.html' with title_prefix='Website' %}
+    {% include 'moderations/_validate_next.html' %}
 
     {% display_website website %}
 
-    {% if website_moderation.home_url and website.home_url != website_moderation.home_url %}
+    {% if moderation.home_url and website.home_url != moderation.home_url %}
         Other home_url:
-        <a href="{{ website_moderation.home_url }}" target="_blank">{{ website_moderation.home_url }}</a>
+        <a href="{{ moderation.home_url }}" target="_blank">{{ moderation.home_url }}</a>
         <form method="post">
             {% csrf_token %}
             <input type="hidden" name="replace_home_url" />
@@ -52,12 +37,12 @@
         {% display_churches_location parish.churches.all %}
     {% endfor %}
 
-    {% if website_moderation.other_website %}
+    {% if moderation.other_website %}
         <h3>Conflicting with other website</h3>
-        {% display_website website_moderation.other_website %}
+        {% display_website moderation.other_website %}
 
         <h4>Parishes & Churches of this website</h4>
-        {% for parish in website_moderation.other_website.parishes.all %}
+        {% for parish in moderation.other_website.parishes.all %}
             {% display_parish parish %}
             {% for church in parish.churches.all %}
                 {% display_church church false %}
@@ -66,7 +51,7 @@
         {% endfor %}
 
         <div>
-            <form action="{% url 'moderate_merge_websites' website_moderation.uuid %}" method="post">
+            <form action="{% url 'moderate_merge_websites' moderation.uuid %}" method="post">
                 {% csrf_token %}
             <button type="submit" class="btn btn-warning">Merge Websites</button>
             </form>
@@ -94,25 +79,6 @@
         <h3>No crawling yet</h3>
     {% endif %}
 
-    {% if not website_moderation.marked_as_bug_at %}
-        <div>
-            <form method="post">
-                <label>
-                    <input type="text" name="bug_description" maxlength="{{ bug_description_max_length }}">
-                </label>
-                {% csrf_token %}
-            <button type="submit" class="btn btn-danger">Report bug & next</button>
-            </form>
-        </div>
-    {% endif %}
-    <div>
-        <form method="post">
-            {% csrf_token %}
-            <input type="hidden" name="delete_moderation" />
-            <button type="submit" class="btn btn-gray-700">
-                 <i class="fas fa-xmark"></i>
-                Delete moderation
-            </button>
-        </form>
-    </div>
+    {% include 'moderations/_mark_as_bug.html' %}
+    {% include 'moderations/_delete.html' %}
 {% endblock card %}

@@ -4,33 +4,18 @@
 {% load display_tags %}
 
 {% block card %}
-    <h2 class="mb-3">
-        Church: {{ church_moderation.get_category_display }}
-    </h2>
-    {% if church_moderation.bug_description %}
-        <p>Bug description : {{ church_moderation.bug_description }}</p>
-    {% endif %}
+    {% include 'moderations/_header.html' with title_prefix='Church' %}
 
-    <div>
-        <div class="d-inline-block">
-            <form method="post">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-primary">Validate & next</button>
-            </form>
-        </div>
-        <div class="d-inline-block">
-            <a class="btn btn-info" role="button" href="{{ next_url }}">Next</a>
-        </div>
-    </div>
+    {% include 'moderations/_validate_next.html' %}
 
-    {% if church_moderation.source %}
-        <p>External source : {{ church_moderation.source }}</p>
+    {% if moderation.source %}
+        <p>External source : {{ moderation.source }}</p>
     {% endif %}
     {% display_church church similar_churches|negate %}
     {% display_parish church.parish %}
 
-    {% if church_moderation.name and church.name != church_moderation.name %}
-        <div>Other name : {{ church_moderation.name }}
+    {% if moderation.name and church.name != moderation.name %}
+        <div>Other name : {{ moderation.name }}
             <form method="post">
                 {% csrf_token %}
                 <input type="hidden" name="replace_name" />
@@ -38,45 +23,45 @@
             </form>
         </div>
     {% endif %}
-    {% if church_moderation.location_desc_differs %}
+    {% if moderation.location_desc_differs %}
         <div>Other location desc:
             <form method="post">
                 {% csrf_token %}
                 <div>
-                    {% if church_moderation.location and church_moderation.location != church.location %}
+                    {% if moderation.location and moderation.location != church.location %}
                         <label>
                             <input type="checkbox" name="replace_location" checked>
-                            Location : {% display_location church_moderation.location %}
+                            Location : {% display_location moderation.location %}
                         </label>
                     {% else %}
                         Same location
                     {% endif %}
                 </div>
                 <div>
-                    {% if church_moderation.address != church.address %}
+                    {% if moderation.address != church.address %}
                         <label>
                             <input type="checkbox" name="replace_address" checked>
-                            Address : {{ church_moderation.address }}
+                            Address : {{ moderation.address }}
                         </label>
                     {% else %}
                         Same address
                     {% endif %}
                 </div>
                 <div>
-                    {% if church_moderation.zipcode != church.zipcode %}
+                    {% if moderation.zipcode != church.zipcode %}
                         <label>
                             <input type="checkbox" name="replace_zipcode" checked>
-                            Zipcode : {{ church_moderation.zipcode }}
+                            Zipcode : {{ moderation.zipcode }}
                         </label>
                     {% else %}
                         Same zipcode
                     {% endif %}
                 </div>
                 <div>
-                    {% if church_moderation.city != church.city %}
+                    {% if moderation.city != church.city %}
                         <label>
                             <input type="checkbox" name="replace_city" checked>
-                            City : {{ church_moderation.city }}
+                            City : {{ moderation.city }}
                         </label>
                     {% else %}
                         Same city
@@ -86,8 +71,8 @@
             </form>
         </div>
     {% endif %}
-    {% if church_moderation.parish %}
-        <div>Other parish : {% display_parish church_moderation.parish %}
+    {% if moderation.parish %}
+        <div>Other parish : {% display_parish moderation.parish %}
             <form method="post">
                 {% csrf_token %}
                 <input type="hidden" name="replace_parish" />
@@ -95,8 +80,8 @@
             </form>
         </div>
     {% endif %}
-    {% if church_moderation.messesinfo_id and church.messesinfo_id != church_moderation.messesinfo_id %}
-        <div>Other messesinfo_id : {{ church_moderation.messesinfo_id }}
+    {% if moderation.messesinfo_id and church.messesinfo_id != moderation.messesinfo_id %}
+        <div>Other messesinfo_id : {{ moderation.messesinfo_id }}
             <form method="post">
                 {% csrf_token %}
                 <input type="hidden" name="replace_messesinfo_id" />
@@ -120,25 +105,6 @@
         {% endfor %}
     {% endif %}
 
-    {% if not church_moderation.marked_as_bug_at %}
-        <div>
-            <form method="post">
-                <label>
-                    <input type="text" name="bug_description" maxlength="{{ bug_description_max_length }}">
-                </label>
-                {% csrf_token %}
-            <button type="submit" class="btn btn-danger">Report bug & next</button>
-            </form>
-        </div>
-    {% endif %}
-    <div>
-        <form method="post">
-            {% csrf_token %}
-            <input type="hidden" name="delete_moderation" />
-            <button type="submit" class="btn btn-gray-700">
-                 <i class="fas fa-xmark"></i>
-                Delete moderation
-            </button>
-        </form>
-    </div>
+    {% include 'moderations/_mark_as_bug.html' %}
+    {% include 'moderations/_delete.html' %}
 {% endblock card %}

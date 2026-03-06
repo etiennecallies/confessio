@@ -3,12 +3,7 @@
 {% load custom_tags %}
 
 {% block card %}
-    <h2 class="mb-3">
-        Pruning: {{ pruning_moderation.get_category_display }}
-    </h2>
-    {% if pruning_moderation.bug_description %}
-        <p>Bug description : {{ pruning_moderation.bug_description }}</p>
-    {% endif %}
+    {% include 'moderations/_header.html' with title_prefix='Pruning' %}
     <div>
         <div class="d-inline-block">
             <form method="post">
@@ -60,7 +55,7 @@
                 <div class="{{ color }} {{ differs }}">{{ line|safe }}</div>
             {% endfor %}
             <div>
-                <form action="{% url 'set_v2_as_human' pruning_moderation.uuid %}" method="post">
+                <form action="{% url 'set_v2_as_human' moderation.uuid %}" method="post">
                     {% csrf_token %}
                 <button type="submit" class="btn btn-warning">Set v2 as human</button>
                 </form>
@@ -78,31 +73,13 @@
     {% if parsing_moderation %}
         <div>
             <a class="btn {% if parsing_moderation.validated_at %}btn-primary{% else %}btn-success{% endif %}"
-                       href="{{ parsing_moderation|get_url }}?backPath={{ pruning_moderation|get_url }}" role="button">
+                       href="{{ parsing_moderation|get_url }}?backPath={{ moderation|get_url }}" role="button">
                 {% if parsing_moderation.validated_at %}View {% endif %}
                 Parsing moderation
             </a>
         </div>
     {% endif %}
 
-    {% if not pruning_moderation.marked_as_bug_at %}
-        <div>
-            <form method="post">
-                <label>
-                    <input type="text" name="bug_description" maxlength="{{ bug_description_max_length }}">
-                </label>
-                {% csrf_token %}
-            <button type="submit" class="btn btn-danger">Report bug & next</button>
-            </form>
-        </div>
-    {% endif %}
-    <div>
-        <form method="post">
-            {% csrf_token %}
-            <input type="hidden" name="delete_moderation" />
-            <button type="submit" class="btn btn-gray-700">
-                 <i class="fas fa-xmark"></i>
-                Delete moderation</button>
-        </form>
-    </div>
+    {% include 'moderations/_mark_as_bug.html' %}
+    {% include 'moderations/_delete.html' %}
 {% endblock card %}

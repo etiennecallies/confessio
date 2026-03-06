@@ -17,7 +17,7 @@ def moderate_website(request, category, is_bug, diocese_slug, moderation_uuid=No
 
 def render_website_moderation(request, moderation: WebsiteModeration, next_url):
     return render(request, f'moderations/moderate_website.html', {
-        'website_moderation': moderation,
+        'moderation': moderation,
         'website': moderation.website,
         'latest_crawling': moderation.website.crawling,
         'next_url': next_url,
@@ -34,7 +34,7 @@ def moderate_parish(request, category, is_bug, diocese_slug, moderation_uuid=Non
 
 def render_parish_moderation(request, moderation: ParishModeration, next_url):
     return render(request, f'moderations/moderate_parish.html', {
-        'parish_moderation': moderation,
+        'moderation': moderation,
         'parish': moderation.parish,
         'next_url': next_url,
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
@@ -50,7 +50,7 @@ def moderate_church(request, category, is_bug, diocese_slug, moderation_uuid=Non
 
 def render_church_moderation(request, moderation: ChurchModeration, next_url):
     return render(request, f'moderations/moderate_church.html', {
-        'church_moderation': moderation,
+        'moderation': moderation,
         'church': moderation.church,
         'similar_churches': moderation.get_similar_churches_sorted_by_name(),
         'next_url': next_url,

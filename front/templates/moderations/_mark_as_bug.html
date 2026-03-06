@@ -1,0 +1,11 @@
+{% if not moderation.marked_as_bug_at %}
+    <div>
+        <form method="post">
+            <label>
+                <input type="text" name="bug_description" maxlength="{{ bug_description_max_length }}">
+            </label>
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Report bug & {% if back_path %}back{% else %}next{% endif %}</button>
+        </form>
+    </div>
+{% endif %}

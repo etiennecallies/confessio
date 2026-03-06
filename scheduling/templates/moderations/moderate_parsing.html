@@ -2,15 +2,10 @@
 {% load display_tags %}
 
 {% block card %}
-    <h2 class="mb-3">
-        Parsing: {{ parsing_moderation.get_category_display }}
-    </h2>
-    {% if parsing_moderation.bug_description %}
-        <p>Bug description : {{ parsing_moderation.bug_description }}</p>
-    {% endif %}
+    {% include 'moderations/_header.html' with title_prefix='Parsing' %}
     <div>
-        {% if parsing_moderation.validated_at %}
-            <p>Validated at: {{ parsing_moderation.validated_at }}</p>
+        {% if moderation.validated_at %}
+            <p>Validated at: {{ moderation.validated_at }}</p>
         {% else %}
             <div class="d-inline-block">
                 <form method="post">
@@ -64,7 +59,7 @@
         {% if not llm_schedules_list or human_schedules_list != llm_schedules_list %}
             {% display_schedules_list human_schedules_list church_desc_by_id_json %}<br>
             <div>
-                <form action="{% url 'moderate_erase_human_by_llm' parsing_moderation.uuid %}" method="post">
+                <form action="{% url 'moderate_erase_human_by_llm' moderation.uuid %}" method="post">
                     {% csrf_token %}
                 <button type="submit" class="btn btn-warning">Erase human by llm</button>
                 </form>
@@ -79,24 +74,6 @@
         </a>
     </p>
 
-    {% if not parsing_moderation.marked_as_bug_at %}
-        <div>
-            <form method="post">
-                <label>
-                    <input type="text" name="bug_description" maxlength="{{ bug_description_max_length }}">
-                </label>
-                {% csrf_token %}
-            <button type="submit" class="btn btn-danger">Report bug & {% if back_path %}back{% else %}next{% endif %}</button>
-            </form>
-        </div>
-    {% endif %}
-    <div>
-        <form method="post">
-            {% csrf_token %}
-            <input type="hidden" name="delete_moderation" />
-            <button type="submit" class="btn btn-gray-700">
-                 <i class="fas fa-xmark"></i>
-                Delete moderation</button>
-        </form>
-    </div>
+    {% include 'moderations/_mark_as_bug.html' %}
+    {% include 'moderations/_delete.html' %}
 {% endblock card %}

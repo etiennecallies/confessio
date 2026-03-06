@@ -3,23 +3,8 @@
 {% load display_tags %}
 
 {% block card %}
-    <h2 class="mb-3">
-        Parish: {{ parish_moderation.get_category_display }}
-    </h2>
-    {% if parish_moderation.bug_description %}
-        <p>Bug description : {{ parish_moderation.bug_description }}</p>
-    {% endif %}
-    <div>
-        <div class="d-inline-block">
-            <form method="post">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-primary">Validate & next</button>
-            </form>
-        </div>
-        <div class="d-inline-block">
-            <a class="btn btn-info" role="button" href="{{ next_url }}">Next</a>
-        </div>
-    </div>
+    {% include 'moderations/_header.html' with title_prefix='Parish' %}
+    {% include 'moderations/_validate_next.html' %}
 
     {% display_parish parish %}
     {% if parish.website %}
@@ -28,9 +13,9 @@
         <p>No website</p>
     {% endif %}
 
-    <p>Source : {{ parish_moderation.source }}</p>
-    {% if parish_moderation.name and parish.name != parish_moderation.name %}
-        <div>Other name : {{ parish_moderation.name }}
+    <p>Source : {{ moderation.source }}</p>
+    {% if moderation.name and parish.name != moderation.name %}
+        <div>Other name : {{ moderation.name }}
             <form method="post">
                 {% csrf_token %}
                 <input type="hidden" name="replace_name" />
@@ -38,9 +23,9 @@
             </form>
         </div>
     {% endif %}
-    {% if parish_moderation.website %}
+    {% if moderation.website %}
         <div>Other website :
-            <a href="{{ parish_moderation.website.home_url }}" target="_blank">{{ parish_moderation.website.home_url }}</a>
+            <a href="{{ moderation.website.home_url }}" target="_blank">{{ moderation.website.home_url }}</a>
             <form method="post">
                 {% csrf_token %}
                 <input type="hidden" name="replace_website" />
@@ -49,7 +34,7 @@
         </div>
     {% endif %}
 
-    {% for similar_parish in parish_moderation.similar_parishes.all %}
+    {% for similar_parish in moderation.similar_parishes.all %}
         <div>
             Similar parish {{ forloop.counter }} : {% display_parish similar_parish %}
             <form method="post">
@@ -60,25 +45,6 @@
         </div>
     {% endfor %}
 
-    {% if not parish_moderation.marked_as_bug_at %}
-        <div>
-            <form method="post">
-                <label>
-                    <input type="text" name="bug_description" maxlength="{{ bug_description_max_length }}">
-                </label>
-                {% csrf_token %}
-            <button type="submit" class="btn btn-danger">Report bug & next</button>
-            </form>
-        </div>
-    {% endif %}
-    <div>
-        <form method="post">
-            {% csrf_token %}
-            <input type="hidden" name="delete_moderation" />
-            <button type="submit" class="btn btn-gray-700">
-                 <i class="fas fa-xmark"></i>
-                Delete moderation
-            </button>
-        </form>
-    </div>
+    {% include 'moderations/_mark_as_bug.html' %}
+    {% include 'moderations/_delete.html' %}
 {% endblock card %}

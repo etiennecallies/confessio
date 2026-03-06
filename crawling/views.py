@@ -16,7 +16,7 @@ def moderate_crawling(request, category, is_bug, diocese_slug, moderation_uuid=N
 def render_crawling_moderation(request, moderation: CrawlingModeration, next_url):
     return render(request, f'moderations/moderate_crawling.html', {
         'website': moderation.website,
-        'crawling_moderation': moderation,
+        'moderation': moderation,
         'next_url': next_url,
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
     })

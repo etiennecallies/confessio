@@ -160,7 +160,7 @@ def render_report_moderation(request, moderation: ReportModeration, next_url):
 
     return render(request, f'moderations/moderate_report.html', {
         'report': report,
-        'report_moderation': moderation,
+        'moderation': moderation,
         'next_url': next_url,
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
     })

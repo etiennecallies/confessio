@@ -65,7 +65,7 @@ def render_pruning_moderation(request, moderation: PruningModeration, next_url):
     parsing_moderation = get_parsing_moderation_of_pruning(pruning)
 
     return render(request, f'moderations/moderate_pruning.html', {
-        'pruning_moderation': moderation,
+        'moderation': moderation,
         'pruning': pruning,
         'next_url': next_url,
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
@@ -96,7 +96,7 @@ def render_sentence_moderation(request, moderation: SentenceModeration, next_url
         line_and_tag_ml, Source.ML, i=2, do_show=True)
 
     return render(request, f'moderations/moderate_sentence.html', {
-        'sentence_moderation': moderation,
+        'moderation': moderation,
         'sentence': moderation.sentence,
         'colored_pieces': [colored_piece_human, colored_piece_ml],
         'temporal_colors': TEMPORAL_COLORS,
@@ -134,7 +134,7 @@ def render_parsing_moderation(request, moderation: ParsingModeration, next_url):
     back_path = request.GET.get('backPath', '')
 
     return render(request, f'moderations/moderate_parsing.html', {
-        'parsing_moderation': moderation,
+        'moderation': moderation,
         'parsing': parsing,
         'church_desc_by_id_json': church_desc_by_id_json,
         'truncated_html': truncated_html,
@@ -157,7 +157,7 @@ def moderate_scheduling(request, category, is_bug, diocese_slug, moderation_uuid
 def render_scheduling_moderation(request, moderation: SchedulingModeration, next_url):
     return render(request, f'moderations/moderate_scheduling.html', {
         'website': moderation.website,
-        'scheduling_moderation': moderation,
+        'moderation': moderation,
         'next_url': next_url,
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
     })
