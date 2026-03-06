@@ -1,14 +1,15 @@
 import os
 
 from django.core.mail import send_mail, BadHeaderError
-from django.http import HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.utils.translation import gettext
+from django.views.decorators.csrf import csrf_exempt
 
 from core.utils.discord_utils import send_discord_alert, DiscordChanel
-from registry.models import Diocese, Website
 from front.services.card.scraping_url_service import quote_path, unquote_path
 from front.utils.cloudflare_utils import verify_token
+from registry.models import Diocese, Website
 from scheduling.models import IndexEvent
 
 
@@ -68,3 +69,36 @@ def about(request):
         'website_count': website_count,
         'index_events_count': index_events_count,
     })
+
+
+@csrf_exempt
+def contact_mail_webhook(request):
+    if request.method != 'POST':
+        return HttpResponse(status=405)
+
+    token = request.POST.get('token', '')
+    timestamp = int(request.POST.get('timestamp', 0))
+    signature = request.POST.get('signature', '')
+
+    # if not validate_token(token, timestamp, signature):
+    #     return HttpResponse(status=403)
+
+    sender = request.POST.get('sender', '')
+    recipient = request.POST.get('recipient', '')
+    from_header = request.POST.get('from', '')
+    subject = request.POST.get('subject', '')
+    body_plain = request.POST.get('body-plain', '')
+    stripped_text = request.POST.get('stripped-text', '')
+
+    email_body = (f"FROM:{from_header} <{sender}>\nTO:{recipient}\n"
+                  f"SUBJECT:{subject}\n\n{stripped_text or body_plain}"
+                  f"{token=}, {timestamp=}, {signature=}"
+                  )
+    send_mail(subject,
+              email_body,
+              None,  # Default to DEFAULT_FROM_EMAIL
+              [os.environ.get('CONTACT_EMAIL')])
+
+    # send_discord_alert(message=email_body, channel=DiscordChanel.CONTACT_FORM)
+
+    return HttpResponse(status=200)

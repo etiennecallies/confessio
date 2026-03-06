@@ -109,6 +109,9 @@ urlpatterns = [
     path('moderate/set_v2_as_human/<uuid:pruning_moderation_uuid>',
          views.moderate_set_v2_indices_as_human_by, name='set_v2_as_human'),
 
+    # webhooks
+    path('webhooks/contact_mail', views.contact_mail_webhook, name='contact_mail_webhook'),
+
     # contact
     path('contact', views.contact, name='contact'),
     path('contact/<message>', views.contact, name='contact_success'),
