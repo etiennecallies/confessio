@@ -29,7 +29,8 @@ from registry.models import Website, Diocese, Church
 from registry.utils.string_utils import lower_first, city_and_prefix
 from scheduling.models import IndexEvent
 from scheduling.public_service import scheduling_get_indexed_scheduling
-from scheduling.services.scheduling.scheduling_service import get_scheduling_primary_sources
+from scheduling.services.scheduling.scheduling_service import get_scheduling_primary_sources, \
+    get_scheduling_sources
 from scheduling.utils.date_utils import get_current_day, get_current_year
 
 
@@ -335,13 +336,18 @@ def partial_website_sources(request, website_uuid: str):
             oclocher_organization_id = website.oclocher_organization.organization_id
         except OClocherOrganization.DoesNotExist:
             oclocher_organization_id = None
+
+        scheduling_sources = get_scheduling_sources(scheduling)
+        oclocher_schedules = scheduling_sources.oclocher_schedules
     else:
         oclocher_organization_id = None
+        oclocher_schedules = []
 
     return render(request, 'partials/website_sources.html', {
         'website': website,
         'parsings_and_prunings': get_website_parsings_and_prunings(primary_sources),
         'oclocher_organization_id': oclocher_organization_id,
+        'oclocher_schedules': oclocher_schedules,
         'scraping_parsing_urls': get_scraping_parsing_urls(primary_sources),
         'empty_sources': empty_sources,
     })

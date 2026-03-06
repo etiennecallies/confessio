@@ -68,14 +68,23 @@
         <div class="row mt-1 mb-3 margin-left-indent" id="oclocher-{{ website.uuid }}">
             <div class="lead">[OClocher]</div>
             <div>Téléchargez l'application <a href="https://app.oclocher.fr/" class="link-info">OClocher</a> pour plus d'informations sur cette paroisse.</div>
-            <div>
-              <iframe
-                src="https://widget.oclocher.app/organization/{{ oclocher_organization_id }}/schedules"
-                title="Widget OClocher"
-                allowfullscreen
-                class="w-100 border-0"
-                style="height: 350px;"
-              ></iframe>
+{#        OCLOCHER IFRAME IS AVAILABLE ONLY FOR CERTAIN ORGANIZATIONS...#}
+{#            <div>#}
+{#              <iframe#}
+{#                src="https://widget.oclocher.app/organization/{{ oclocher_organization_id }}/schedules"#}
+{#                title="Widget OClocher"#}
+{#                allowfullscreen#}
+{#                class="w-100 border-0"#}
+{#                style="height: 350px;"#}
+{#              ></iframe>#}
+{#            </div>#}
+             <div class="margin-left-indent">
+                {% for oclocher_schedule in oclocher_schedules %}
+                {{ oclocher_schedule.name }} :
+                 {{ oclocher_schedule.datetime_start|date:"l j F Y H:i" }}
+                 {% if oclocher_schedule.datetime_end %}- {{ oclocher_schedule.datetime_end|date:"H:i" }}{% endif %}
+                    <span class="text-muted">{{ oclocher_schedule.location.name }} ({{ oclocher_schedule.location.address }})</span><br>
+             {% endfor %}
             </div>
         </div>
     {% endif %}
