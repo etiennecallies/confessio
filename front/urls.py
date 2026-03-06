@@ -49,10 +49,6 @@ urlpatterns = [
          views.moderate_report, name='moderate_next_report'),
     path('moderate/report/<category>/<str:is_bug>/<str:diocese_slug>/<uuid:moderation_uuid>',
          views.moderate_report, name='moderate_one_report'),
-    path('moderate/crawling/<category>/<str:is_bug>/<str:diocese_slug>',
-         views.moderate_crawling, name='moderate_next_crawling'),
-    path('moderate/crawling/<category>/<str:is_bug>/<str:diocese_slug>/<uuid:moderation_uuid>',
-         views.moderate_crawling, name='moderate_one_crawling'),
 
     # contact
     path('contact', views.contact, name='contact'),

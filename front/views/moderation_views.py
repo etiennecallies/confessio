@@ -3,7 +3,6 @@ from django.http import HttpResponseBadRequest, HttpResponseNotFound
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
-from crawling.models import CrawlingModeration
 from front.models import ReportModeration
 from registry.models import ChurchModeration, ModerationMixin, Diocese
 from registry.models.base_moderation_models import BUG_DESCRIPTION_MAX_LENGTH, \
@@ -162,22 +161,6 @@ def render_report_moderation(request, moderation: ReportModeration, next_url):
     return render(request, f'moderations/moderate_report.html', {
         'report': report,
         'report_moderation': moderation,
-        'next_url': next_url,
-        'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
-    })
-
-
-@login_required
-@permission_required("scheduling.change_sentence")
-def moderate_crawling(request, category, is_bug, diocese_slug, moderation_uuid=None):
-    return get_moderate_response(request, category, 'crawling', is_bug, diocese_slug,
-                                 CrawlingModeration, moderation_uuid, render_crawling_moderation)
-
-
-def render_crawling_moderation(request, moderation: CrawlingModeration, next_url):
-    return render(request, f'moderations/moderate_crawling.html', {
-        'website': moderation.website,
-        'crawling_moderation': moderation,
         'next_url': next_url,
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
     })

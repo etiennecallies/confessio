@@ -21,5 +21,6 @@ urlpatterns = [
     path('', include('registry.urls')),
     path('', include('scheduling.urls')),
     path('', include('fetching.urls')),
+    path('', include('crawling.urls')),
     path("admin/", admin.site.urls),
 ]
