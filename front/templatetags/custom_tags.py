@@ -13,12 +13,8 @@ from registry.models import WebsiteModeration, ChurchModeration, ParishModeratio
     ModerationMixin, Diocese
 from scheduling.models import ParsingModeration, SchedulingModeration
 from scheduling.models.pruning_models import Pruning, PruningModeration, SentenceModeration
-from scheduling.utils.date_utils import get_current_year
 from scheduling.utils.list_utils import enumerate_with_and
 from scheduling.workflows.merging.sources import BaseSource
-from scheduling.workflows.parsing.holidays import HolidayZoneEnum
-from scheduling.workflows.parsing.rrule_utils import get_events_from_schedule_item
-from scheduling.workflows.parsing.schedules import ScheduleItem, Event
 
 
 @register.filter
@@ -54,18 +50,6 @@ def get_ith(some_list: list, i):
 @register.filter
 def negate(value):
     return not value
-
-
-@register.filter
-def get_schedule_item_events(schedule_item: ScheduleItem) -> list[Event]:
-    start_date = date(2000, 1, 1)
-    end_date = date(2040, 1, 1)
-    default_year = get_current_year()
-    default_holiday_zone = HolidayZoneEnum.FR_ZONE_A
-
-    return get_events_from_schedule_item(schedule_item, default_holiday_zone,
-                                         start_date, default_year,
-                                         end_date)[:7]
 
 
 @register.filter
