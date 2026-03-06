@@ -5,10 +5,10 @@ from django.urls import reverse
 
 from crawling.models import CrawlingModeration
 from front.models import ReportModeration
-from registry.models import WebsiteModeration, ChurchModeration, ModerationMixin, Diocese
+from registry.models import ChurchModeration, ModerationMixin, Diocese
 from registry.models.base_moderation_models import BUG_DESCRIPTION_MAX_LENGTH, \
     ResourceDoesNotExistError
-from registry.public_service import registry_suggest_alternative_website, registry_merge_websites, \
+from registry.public_service import registry_suggest_alternative_website, \
     registry_on_church_human_validation
 from scheduling.models import ParsingModeration
 from scheduling.models.pruning_models import PruningModeration
@@ -181,23 +181,3 @@ def render_crawling_moderation(request, moderation: CrawlingModeration, next_url
         'next_url': next_url,
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
     })
-
-
-@login_required
-@permission_required("scheduling.change_sentence")
-def moderate_merge_websites(request, website_moderation_uuid=None):
-    try:
-        website_moderation = WebsiteModeration.objects.get(uuid=website_moderation_uuid)
-    except WebsiteModeration.DoesNotExist:
-        return HttpResponseNotFound(f'website moderation not found with uuid '
-                                    f'{website_moderation_uuid}')
-
-    if website_moderation.other_website is None:
-        return HttpResponseBadRequest(f'website moderation does not have other website')
-
-    # other_website is the primary website
-    registry_merge_websites(website_moderation.website, website_moderation.other_website)
-
-    return redirect_to_moderation(website_moderation, website_moderation.category, 'website',
-                                  website_moderation.marked_as_bug_at is not None,
-                                  website_moderation.get_diocese_slug())

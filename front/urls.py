@@ -54,10 +54,6 @@ urlpatterns = [
     path('moderate/crawling/<category>/<str:is_bug>/<str:diocese_slug>/<uuid:moderation_uuid>',
          views.moderate_crawling, name='moderate_one_crawling'),
 
-    # moderation actions
-    path('moderate/merge_websites/<uuid:website_moderation_uuid>',
-         views.moderate_merge_websites, name='moderate_merge_websites'),
-
     # contact
     path('contact', views.contact, name='contact'),
     path('contact/<message>', views.contact, name='contact_success'),

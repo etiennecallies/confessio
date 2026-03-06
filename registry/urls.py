@@ -16,4 +16,8 @@ urlpatterns = [
          views.moderate_church, name='moderate_next_church'),
     path('moderate/church/<category>/<str:is_bug>/<str:diocese_slug>/<uuid:moderation_uuid>',
          views.moderate_church, name='moderate_one_church'),
+
+    # moderation actions
+    path('moderate/merge_websites/<uuid:website_moderation_uuid>',
+         views.moderate_merge_websites, name='moderate_merge_websites'),
 ]
