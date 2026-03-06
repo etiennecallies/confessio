@@ -91,3 +91,6 @@ discord_contact_form_url: "{{ lookup('ansible.builtin.env', 'DISCORD_CONTACT_FOR
 # Cloudflare Turnstile
 cloudflare_turnstile_site_key: "{{ lookup('ansible.builtin.env', 'CLOUDFLARE_TURNSTILE_SITE_KEY') }}"
 cloudflare_turnstile_secret_key: "{{ lookup('ansible.builtin.env', 'CLOUDFLARE_TURNSTILE_SECRET_KEY') }}"
+
+# MailGun
+mailgun_webhook_signing_key: "{{ lookup('ansible.builtin.env', 'MAILGUN_WEBHOOK_SIGNING_KEY') }}"

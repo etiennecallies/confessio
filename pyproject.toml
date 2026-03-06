@@ -6,7 +6,6 @@ requires-python = "~= 3.13.0"
 dependencies = [
     # Used by django
     "Django==5.2.12",
-    "cryptography==46.0.5",
     "gunicorn==23.0.0",
     "python-dotenv==1.0.0",
     "whitenoise==6.6.0",

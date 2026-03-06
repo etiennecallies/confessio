@@ -9,6 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from core.utils.discord_utils import send_discord_alert, DiscordChanel
 from front.services.card.scraping_url_service import quote_path, unquote_path
 from front.utils.cloudflare_utils import verify_token
+from front.utils.mailgun_utils import validate_token
 from registry.models import Diocese, Website
 from scheduling.models import IndexEvent
 
@@ -80,8 +81,8 @@ def contact_mail_webhook(request):
     timestamp = int(request.POST.get('timestamp', 0))
     signature = request.POST.get('signature', '')
 
-    # if not validate_token(token, timestamp, signature):
-    #     return HttpResponse(status=403)
+    if not validate_token(token, timestamp, signature):
+        return HttpResponse(status=403)
 
     sender = request.POST.get('sender', '')
     recipient = request.POST.get('recipient', '')
@@ -92,13 +93,8 @@ def contact_mail_webhook(request):
 
     email_body = (f"FROM:{from_header} <{sender}>\nTO:{recipient}\n"
                   f"SUBJECT:{subject}\n\n{stripped_text or body_plain}"
-                  f"{token=}, {timestamp=}, {signature=}"
                   )
-    send_mail(subject,
-              email_body,
-              None,  # Default to DEFAULT_FROM_EMAIL
-              [os.environ.get('CONTACT_EMAIL')])
 
-    # send_discord_alert(message=email_body, channel=DiscordChanel.CONTACT_FORM)
+    send_discord_alert(message=email_body, channel=DiscordChanel.CONTACT_FORM)
 
     return HttpResponse(status=200)
