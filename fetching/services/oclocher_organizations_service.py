@@ -1,7 +1,6 @@
 from django.db.models.functions import Now
 
-from crawling.public_worflow import crawling_get_new_url_and_aliases
-from crawling.workflows.crawl.download_and_search_urls import is_new_url_valid
+from crawling.public_worflow import crawling_get_new_url_and_aliases, crawling_is_new_url_valid
 from fetching.models import OClocherOrganization
 from fetching.workflows.oclocher.fetch_oclocher_api import fetch_organizations
 
@@ -65,7 +64,7 @@ def redirect_hypertext(oclocher_organization: OClocherOrganization):
 
     new_home_url, aliases_domains, error_message = \
         crawling_get_new_url_and_aliases(oclocher_organization.hypertext)
-    if not is_new_url_valid(new_home_url):
+    if not crawling_is_new_url_valid(new_home_url):
         print(f'This url is not eligible to hypertext redirect: {new_home_url}')
         set_redirect_hypertext(oclocher_organization, None)
         return

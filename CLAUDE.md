@@ -83,6 +83,10 @@ django-ninja API defined in `front/api.py`, mounted in `front/urls.py`. Namespac
 - **sentence-transformers** + **keras** for ML models (pruning, action classification)
 - **uv** for dependency management (`pyproject.toml`)
 
+## Code style
+
+- Max line length: 100 characters (enforced by flake8)
+
 ## Project structure conventions
 
 - Models use `TimeStampMixin` (from `core.models.base_models`) for `created_at`/`updated_at`
