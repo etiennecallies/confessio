@@ -18,11 +18,11 @@ def moderate_oclocher_organization(request, category, is_bug, diocese_slug, mode
 
 def render_oclocher_organization_moderation(request, moderation: OClocherOrganizationModeration,
                                             next_url):
-    oclocher_organization = moderation.oclocher_organization
-    assert oclocher_organization is not None
+    website = moderation.website
+    assert website is not None
 
     return render(request, f'moderations/moderate_oclocher_organization.html', {
-        'oclocher_organization': oclocher_organization,
+        'website': website,
         'moderation': moderation,
         'next_url': next_url,
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
