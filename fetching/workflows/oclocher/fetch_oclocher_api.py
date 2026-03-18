@@ -4,7 +4,14 @@ import httpx
 
 
 def fetch_oclocher_url(oclocher_url: str) -> list[dict]:
-    with httpx.Client(timeout=10.0) as client:
+    timeout = httpx.Timeout(
+        connect=10.0,
+        read=30.0,
+        write=10.0,
+        pool=10.0
+    )
+
+    with httpx.Client(timeout=timeout) as client:
         try:
             resp = client.get(oclocher_url)
             resp.raise_for_status()
