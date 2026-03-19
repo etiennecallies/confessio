@@ -2,7 +2,7 @@ from urllib.parse import quote
 
 import requests
 from pydantic import BaseModel
-from requests import RequestException
+from requests import RequestException, JSONDecodeError
 
 
 class GouvFrGeocodingResult(BaseModel):
@@ -31,7 +31,13 @@ def geocode_gouv_fr(name, address, city, zipcode) -> GouvFrGeocodingResult | Non
         print(r.text)
         return None
 
-    data = r.json()
+    try:
+        data = r.json()
+    except JSONDecodeError as e:
+        print('invalid json response', e)
+        print(r.text)
+        return None
+
     if 'features' not in data or not data['features']:
         print('got no geocoding results', data)
         return None
