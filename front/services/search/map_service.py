@@ -72,7 +72,12 @@ def prepare_map(center, churches: List[Church], bounds,
                 is_around_me: bool
                 ) -> Tuple[Map, Dict[UUID, str]]:
     # Create Map Object
-    folium_map = Map(location=center)
+    folium_map = Map(
+        location=center,
+        tiles="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+        attr='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> '
+             'contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    )
 
     if is_around_me:
         marker = Marker(center,
