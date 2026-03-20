@@ -29,7 +29,7 @@ def get_fresh_extracted_html_list(url) -> list[str] | None:
 
 
 if __name__ == '__main__':
-    url_ = ('https://strasbourg.fraternites-jerusalem.org/agenda-de-la-semaine/')
+    url_ = ('https://www.bayonnecentre.fr/index.php/s-informer/la-reconciliation')
     extracted_html_list_ = get_fresh_extracted_html_list(url_)
 
     print()

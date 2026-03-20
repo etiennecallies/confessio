@@ -35,6 +35,7 @@ CONFESSIONS_OR_SCHEDULES_MENTIONS = [
     'info',
     'infos',
     'informations',
+    'informer',
     'vivre',
     'demarche',
     'demarches',

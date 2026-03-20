@@ -40,6 +40,7 @@ def is_link_ok(link: str) -> bool:
         'ouest-france.fr',
         'letelegramme.fr',
         'infobretagne.com',
+        'mappy.com',
 
         'facebook.com',
         'instagram.com',
