@@ -1,4 +1,5 @@
 import json
+import os
 from datetime import date, datetime
 from statistics import mean
 from typing import List, Tuple, Dict, Optional
@@ -8,8 +9,8 @@ from django.contrib.gis.geos import Point
 from django.utils.translation import gettext as _
 from folium import Map, Icon, Popup, Marker
 
-from registry.models import Church
 from front.services.card.website_events_service import WebsiteEvents
+from registry.models import Church
 from scheduling.utils.date_utils import format_datetime_with_locale
 
 
@@ -72,11 +73,14 @@ def prepare_map(center, churches: List[Church], bounds,
                 is_around_me: bool
                 ) -> Tuple[Map, Dict[UUID, str]]:
     # Create Map Object
+    jawg_api_key = os.environ['JAWG_API_KEY']
     folium_map = Map(
         location=center,
-        tiles="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
-        attr='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> '
-             'contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        tiles="https://tile.jawg.io/jawg-sunny/{z}/{x}/{y}{r}.png?"
+              f"access-token={jawg_api_key}",
+        attr='<a href="https://jawg.io" title="Tiles Courtesy of Jawg Maps" target="_blank">'
+             '&copy; <b>Jawg</b>Maps</a> &copy; <a href="https://www.openstreetmap.org/copyright">'
+             'OpenStreetMap</a> contributors',
     )
 
     if is_around_me:
