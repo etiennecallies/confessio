@@ -115,9 +115,9 @@ def do_crawl_website(website: Website) -> CrawlingResult:
 
 def crawl_website(website: Website) -> CrawlingModeration.Category:
     # check if website has parish
-    if not website.parishes.exists():
+    if not website.parishes.exists() or not website.get_churches():
         website.delete()
-        info('website has no parish')
+        info('website has no parish or no churches, deleting it')
         return CrawlingModeration.Category.NO_RESPONSE
 
     crawling_result = do_crawl_website(website)
