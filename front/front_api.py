@@ -211,6 +211,7 @@ class AutocompleteItem(Schema):
     url: str
     latitude: float | None = None
     longitude: float | None = None
+    uuid: UUID | None = None
 
     @classmethod
     def from_autocomplete_result(cls, result: AutocompleteResult):
@@ -221,6 +222,7 @@ class AutocompleteItem(Schema):
             url=result.url,
             latitude=result.latitude,
             longitude=result.longitude,
+            uuid=result.uuid,
         )
 
 

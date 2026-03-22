@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional
+from uuid import UUID
 
 import requests
 from django.contrib.postgres.lookups import Unaccent
@@ -24,6 +25,7 @@ class AutocompleteResult:
     url: str
     latitude: Optional[float] = None
     longitude: Optional[float] = None
+    uuid: UUID | None = None
 
     @classmethod
     def from_parish(cls, parish: Parish) -> 'AutocompleteResult':
@@ -48,6 +50,7 @@ class AutocompleteResult:
             name=parish.name,
             context=context,
             url=reverse('website_view', kwargs={'website_uuid': parish.website.uuid}),
+            uuid=parish.uuid,
         )
 
     @classmethod
@@ -66,6 +69,7 @@ class AutocompleteResult:
             url=reverse('website_view', kwargs={'website_uuid': church.parish.website.uuid}),
             latitude=church.location.y,
             longitude=church.location.x,
+            uuid=church.uuid,
         )
 
 
