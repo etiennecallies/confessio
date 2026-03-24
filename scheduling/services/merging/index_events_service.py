@@ -22,7 +22,8 @@ def source_has_been_moderated(source: BaseSource,
     raise NotImplementedError
 
 
-def generate_unique_events_by_church_id(website: Website, scheduling_elements: SchedulingElements
+def generate_unique_events_by_church_id(website: Website, scheduling_elements: SchedulingElements,
+                                        schedules_match_with_validated: bool | None
                                         ) -> dict[int | None, list[tuple[Event, bool]]]:
     parsing_by_uuid = {parsing.uuid: parsing for parsing in scheduling_elements.parsings}
     holiday_zone = get_website_holiday_zone(website,
@@ -37,8 +38,9 @@ def generate_unique_events_by_church_id(website: Website, scheduling_elements: S
 
         has_been_moderated_by_church_event = {}
         for sourced_schedule_item in sourced_schedules_of_church.sourced_schedules:
-            has_been_moderated = any(source_has_been_moderated(source, parsing_by_uuid)
-                                     for source in sourced_schedule_item.sources)
+            has_been_moderated = schedules_match_with_validated or \
+                any(source_has_been_moderated(source, parsing_by_uuid)
+                    for source in sourced_schedule_item.sources)
             events = get_events_from_schedule_item(sourced_schedule_item.item, holiday_zone,
                                                    max_days=10)
             for event in events:
@@ -89,10 +91,12 @@ def build_index_events(scheduling: Scheduling,
 
 
 def build_sourced_schedules_and_index_events(website: Website, scheduling: Scheduling,
-                                             scheduling_elements: SchedulingElements
+                                             scheduling_elements: SchedulingElements,
+                                             schedules_match_with_validated: bool | None
                                              ) -> list[IndexEvent]:
     # Generate events by church_id
-    events_by_church_id = generate_unique_events_by_church_id(website, scheduling_elements)
+    events_by_church_id = generate_unique_events_by_church_id(website, scheduling_elements,
+                                                              schedules_match_with_validated)
 
     # Build index events
     index_event = build_index_events(scheduling, scheduling_elements, events_by_church_id)

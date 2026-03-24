@@ -5,6 +5,7 @@ from scheduling.models import Scheduling, IndexEvent
 from scheduling.public_model import SourcedSchedulesList
 from scheduling.services.merging.index_events_service import \
     build_sourced_schedules_and_index_events
+from scheduling.services.merging.schedules_diff_service import check_schedules_match
 from scheduling.services.merging.sourced_schedules_service import build_scheduling_elements
 from scheduling.services.parsing.parse_pruning_service import remove_useless_moderation_for_parsing
 from scheduling.services.scheduling.scheduling_service import build_resources_hash
@@ -16,6 +17,7 @@ class SchedulingIndexingObjects:
     church_uuid_by_id: dict[int, str]
     index_events: list[IndexEvent]
     resources_hash: str
+    schedules_match_with_validated: bool | None
 
 
 def do_index_scheduling(scheduling: Scheduling) -> SchedulingIndexingObjects:
@@ -25,9 +27,14 @@ def do_index_scheduling(scheduling: Scheduling) -> SchedulingIndexingObjects:
     church_uuid_by_id = {church_id: str(church.uuid) for church_id, church
                          in scheduling_elements.church_by_id.items()}
 
+    # We check if schedules differs from validated schedules for website
+    schedules_match_with_validated = check_schedules_match(
+        scheduling.website, scheduling_elements.sourced_schedules_list)
+
     # Build index events
     index_events = build_sourced_schedules_and_index_events(scheduling.website, scheduling,
-                                                            scheduling_elements)
+                                                            scheduling_elements,
+                                                            schedules_match_with_validated)
 
     # We build the resources hash to avoid doing it inside the transaction
     resources_hash = build_resources_hash(scheduling, scheduling_elements.sourced_schedules_list,
@@ -38,6 +45,7 @@ def do_index_scheduling(scheduling: Scheduling) -> SchedulingIndexingObjects:
         church_uuid_by_id=church_uuid_by_id,
         index_events=index_events,
         resources_hash=resources_hash,
+        schedules_match_with_validated=schedules_match_with_validated,
     )
 
 

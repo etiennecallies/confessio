@@ -189,5 +189,5 @@ def index_scheduling(scheduling: Scheduling):
         scheduling.resources_hash = indexing_objects.resources_hash
         scheduling.save()
 
-    add_necessary_scheduling_moderation(scheduling, indexing_objects.index_events)
+    add_necessary_scheduling_moderation(scheduling, indexing_objects)
     clean_parsings_moderations(list(parsing_history_ids))

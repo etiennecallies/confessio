@@ -26,3 +26,25 @@ class SchedulingModeration(ModerationMixin):
 
     def delete_on_validate(self) -> bool:
         return False
+
+
+class WebsiteSchedulesModeration(ModerationMixin):
+    class Category(models.TextChoices):
+        SCHEDULES_DIFFERS = "schedules_differs"
+        OK = "ok"
+
+    resource = 'website_schedules'
+    validated_by = models.ForeignKey('auth.User',
+                                     related_name=f'{resource}_moderation_validated_by',
+                                     on_delete=models.SET_NULL, null=True)
+    marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
+                                         on_delete=models.SET_NULL, null=True)
+    diocese = models.ForeignKey('registry.Diocese', on_delete=models.CASCADE,
+                                related_name=f'{resource}_moderations')
+    history = HistoricalRecords()
+    website = models.OneToOneField('registry.Website', on_delete=models.CASCADE,
+                                   related_name=f'{resource}_moderation')
+    category = models.CharField(max_length=32, choices=Category)
+
+    def delete_on_validate(self) -> bool:
+        return False

@@ -2,9 +2,11 @@ from django.db.models.functions import Now
 
 from crawling.models import CrawlingModeration
 from registry.models import Website
-from scheduling.models import Scheduling, IndexEvent
-from scheduling.models.scheduling_moderation_models import SchedulingModeration
+from scheduling.models import Scheduling
+from scheduling.models.scheduling_moderation_models import SchedulingModeration, \
+    WebsiteSchedulesModeration
 from scheduling.services.merging.schedules_conflict_service import website_has_schedules_conflict
+from scheduling.services.scheduling.index_scheduling_service import SchedulingIndexingObjects
 from scheduling.services.scheduling.scheduling_service import get_scheduling_sources
 
 
@@ -35,24 +37,74 @@ def has_crawling_moderation_been_validated(scheduling: Scheduling) -> bool:
 
 
 def get_scheduling_moderation_category(scheduling: Scheduling,
-                                       index_events: list[IndexEvent]
+                                       indexing_objects: SchedulingIndexingObjects
                                        ) -> tuple[SchedulingModeration.Category, bool]:
     scheduling_sources = get_scheduling_sources(scheduling)
     if not scheduling_sources.parsings and not scheduling_sources.oclocher_schedules:
         moderation_validated = has_crawling_moderation_been_validated(scheduling)
         return SchedulingModeration.Category.NO_SOURCE, moderation_validated
 
-    if not index_events:
+    if not indexing_objects.index_events:
         return SchedulingModeration.Category.NO_SCHEDULE, False
 
-    # TODO add UNKNOWN_PLACE
+    if not all(map(lambda s: s.is_real_church(),
+                   indexing_objects.sourced_schedules_list.sourced_schedules_of_churches)):
+        return SchedulingModeration.Category.UNKNOWN_PLACE, False
 
-    if website_has_schedules_conflict(index_events):
+    if website_has_schedules_conflict(indexing_objects.index_events):
         return SchedulingModeration.Category.SCHEDULES_CONFLICT, False
 
-    return SchedulingModeration.Category.OK, False
+    return SchedulingModeration.Category.OK, True
 
 
-def add_necessary_scheduling_moderation(scheduling: Scheduling, index_events: list[IndexEvent]):
-    category, moderation_validated = get_scheduling_moderation_category(scheduling, index_events)
+def handle_scheduling_moderation(scheduling: Scheduling,
+                                 indexing_objects: SchedulingIndexingObjects):
+    category, moderation_validated = get_scheduling_moderation_category(scheduling,
+                                                                        indexing_objects)
     upsert_scheduling_moderation(scheduling.website, category, moderation_validated)
+
+
+def upsert_website_schedules_moderation(website: Website,
+                                        category: WebsiteSchedulesModeration.Category,
+                                        moderation_validated: bool):
+    try:
+        moderation = WebsiteSchedulesModeration.objects.get(website=website)
+        if moderation.category != category:
+            moderation.category = category
+            moderation.validated_at = Now() if moderation_validated else None
+            moderation.validated_by = None
+            moderation.save()
+    except WebsiteSchedulesModeration.DoesNotExist:
+        moderation = WebsiteSchedulesModeration(
+            website=website, category=category,
+            diocese=website.get_diocese(),
+            validated_at=Now() if moderation_validated else None,
+        )
+        moderation.save()
+
+
+def get_website_schedules_moderation_category(
+        indexing_objects: SchedulingIndexingObjects
+) -> tuple[WebsiteSchedulesModeration.Category, bool] | None:
+    if indexing_objects.schedules_match_with_validated is None:
+        return None
+
+    if not indexing_objects.schedules_match_with_validated:
+        return WebsiteSchedulesModeration.Category.SCHEDULES_DIFFERS, False
+
+    return WebsiteSchedulesModeration.Category.OK, True
+
+
+def handle_website_schedules_moderation(scheduling: Scheduling,
+                                        indexing_objects: SchedulingIndexingObjects):
+    category_and_validation = get_website_schedules_moderation_category(indexing_objects)
+    if category_and_validation is None:
+        return
+    category, moderation_validated = category_and_validation
+    upsert_website_schedules_moderation(scheduling.website, category, moderation_validated)
+
+
+def add_necessary_scheduling_moderation(scheduling: Scheduling,
+                                        indexing_objects: SchedulingIndexingObjects):
+    handle_scheduling_moderation(scheduling, indexing_objects)
+    handle_website_schedules_moderation(scheduling, indexing_objects)
