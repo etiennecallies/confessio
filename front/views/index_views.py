@@ -16,6 +16,7 @@ from front.services.card.report_service import get_count_and_label, new_report, 
 from front.services.card.scraping_url_service import get_scraping_parsing_urls
 from front.services.card.sources_service import get_website_parsings_and_prunings, get_empty_sources
 from front.services.card.website_events_service import get_website_events
+from front.services.card.website_moderations_service import get_all_website_moderations
 from front.services.card.website_schedules_service import get_website_schedules
 from front.services.search.autocomplete_service import get_aggregated_response
 from front.services.search.filter_service import get_filter_days
@@ -108,6 +109,14 @@ def render_map(request, center,
     for website in websites:
         website_reports_count[website.uuid] = get_count_and_label(website)
 
+    # moderations (for admin)
+    scheduling_moderation_by_website = {}
+    crawling_moderation_by_website = {}
+    website_schedules_moderation_by_website = {}
+    if request.user.is_authenticated and request.user.has_perm("scheduling.change_sentence"):
+        scheduling_moderation_by_website, crawling_moderation_by_website, \
+            website_schedules_moderation_by_website = get_all_website_moderations(websites)
+
     hidden_inputs = {}
     for key in request.GET:
         if key not in ['dateFilter', 'hourMin', 'hourMax']:
@@ -144,6 +153,9 @@ def render_map(request, center,
         'previous_reports': get_previous_reports(page_website) if page_website else None,
         'upload_error_message': upload_error_message,
         'website_images': page_website.images.all() if page_website else None,
+        'scheduling_moderation_by_website': scheduling_moderation_by_website,
+        'crawling_moderation_by_website': crawling_moderation_by_website,
+        'website_schedules_moderation_by_website': website_schedules_moderation_by_website,
     })
 
 
