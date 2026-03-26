@@ -39,5 +39,6 @@ urlpatterns = [
          views.moderate_erase_human_by_llm, name='moderate_erase_human_by_llm'),
     path('moderate/set_v2_as_human/<uuid:pruning_moderation_uuid>',
          views.moderate_set_v2_indices_as_human_by, name='set_v2_as_human'),
-
+    path('moderate/validate_schedules/<uuid:website_uuid>',
+         views.validate_schedules_for_website, name='validate_schedules'),
 ]

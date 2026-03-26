@@ -2,7 +2,8 @@ import json
 
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponseNotFound, HttpResponseBadRequest
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.views.decorators.http import require_POST
 
 from front.views import get_moderate_response, redirect_to_moderation
 from registry.models.base_moderation_models import BUG_DESCRIPTION_MAX_LENGTH
@@ -220,3 +221,12 @@ def moderate_set_v2_indices_as_human_by(request, pruning_moderation_uuid=None):
     return redirect_to_moderation(pruning_moderation, pruning_moderation.category, 'pruning',
                                   pruning_moderation.marked_as_bug_at is not None,
                                   pruning_moderation.get_diocese_slug())
+
+
+@login_required
+@permission_required("scheduling.change_sentence")
+@require_POST
+def validate_schedules_for_website(request, website_uuid=None):
+    next_url = request.POST.get('next', '/')
+    # TODO validate things
+    return redirect(next_url)

@@ -20,48 +20,70 @@
                                         <a class="text-muted small" href="{% url 'admin:registry_website_change' website.uuid %}" target="_blank">
                                             - Admin <i class="fas fa-up-right-from-square"></i>
                                         </a>
-                                        {% with scheduling_moderation=scheduling_moderation_by_website|get_item:website.uuid %}
-                                            {% if scheduling_moderation %}
-                                                {% if scheduling_moderation.category == 'no_source' %}
-                                                    {% with crawling_moderation=crawling_moderation_by_website|get_item:website.uuid %}
-                                                        {% if crawling_moderation %}
-                                                            {% if crawling_moderation.category == 'no_response' %}
-                                                                <a href="{{ crawling_moderation|get_url }}" class="link-info" target="_blank">
-                                                                    <span>erreur sur le site web</span>
-                                                                </a>
-                                                            {% elif crawling_moderation.category == 'no_page' %}
-                                                                <a href="{{ crawling_moderation|get_url }}" class="link-info" target="_blank">
-                                                                    <span>pas d’extrait trouvé</span>
-                                                                </a>
-                                                            {% endif %}
-                                                        {% else %}
-                                                            <a href="{{ scheduling_moderation|get_url }}" class="link-info" target="_blank">
-                                                                <span>aucune page retenue (cf empty sources)</span>
-                                                            </a>
-                                                        {% endif %}
-                                                    {% endwith %}
-                                                {% elif scheduling_moderation.category == 'no_schedule' %}
-                                                    <a href="{{ scheduling_moderation|get_url }}" class="link-info" target="_blank">
-                                                        <span>pas d’horaire extrait</span>
-                                                    </a>
-                                                {% elif scheduling_moderation.category == 'unknown_place' %}
-                                                    <a href="{{ scheduling_moderation|get_url }}" class="link-info" target="_blank">
-                                                        <span>des lieux inconnus</span>
-                                                    </a>
-                                                {% elif scheduling_moderation.category == 'sched_conflict' %}
-                                                    <a href="{{ scheduling_moderation|get_url }}" class="link-info" target="_blank">
-                                                        <span>des conflits entre les pages</span>
-                                                    </a>
-                                                {% else %}
-                                                    <a href="{{ scheduling_moderation|get_url }}" class="link-info" target="_blank">
-                                                        <span>tout a fonctionné ✅</span>
-                                                    </a>
-                                                {% endif %}
-                                            {% endif %}
-                                        {% endwith %}
                                     {% endif %}
                                 </h3>
                                 <h6 class="text-gray-600 fw-light">{{ website_city_label|get_item:website.uuid }}</h6>
+                                {% if request.user.is_authenticated and request.user.is_staff %}
+                                    {% with scheduling_moderation=scheduling_moderation_by_website|get_item:website.uuid %}
+                                        {% if scheduling_moderation %}
+                                            {% if scheduling_moderation.category == 'no_source' %}
+                                                {% with crawling_moderation=crawling_moderation_by_website|get_item:website.uuid %}
+                                                    {% if crawling_moderation %}
+                                                        {% if crawling_moderation.category == 'no_response' %}
+                                                            <a href="{{ crawling_moderation|get_url }}" class="link-info" target="_blank">
+                                                                <span>erreur sur le site web</span>
+                                                            </a>
+                                                        {% elif crawling_moderation.category == 'no_page' %}
+                                                            <a href="{{ crawling_moderation|get_url }}" class="link-info" target="_blank">
+                                                                <span>pas d’extrait trouvé</span>
+                                                            </a>
+                                                        {% endif %}
+                                                    {% else %}
+                                                        <a href="{{ scheduling_moderation|get_url }}" class="link-info" target="_blank">
+                                                            <span>aucune page retenue (cf empty sources)</span>
+                                                        </a>
+                                                    {% endif %}
+                                                {% endwith %}
+                                            {% elif scheduling_moderation.category == 'no_schedule' %}
+                                                <a href="{{ scheduling_moderation|get_url }}" class="link-info" target="_blank">
+                                                    <span>pas d’horaire extrait</span>
+                                                </a>
+                                            {% elif scheduling_moderation.category == 'unknown_place' %}
+                                                <a href="{{ scheduling_moderation|get_url }}" class="link-info" target="_blank">
+                                                    <span>des lieux inconnus</span>
+                                                </a>
+                                            {% elif scheduling_moderation.category == 'sched_conflict' %}
+                                                <a href="{{ scheduling_moderation|get_url }}" class="link-info" target="_blank">
+                                                    <span>des conflits entre les pages</span>
+                                                </a>
+                                            {% else %}
+                                                <a href="{{ scheduling_moderation|get_url }}" class="link-info" target="_blank">
+                                                    <span>tout a fonctionné ✅</span>
+                                                </a>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endwith %}
+                                    {% with website_schedules_moderation=website_schedules_moderation_by_website|get_item:website.uuid %}
+                                        {% if website_schedules_moderation %}
+                                            {% if website_schedules_moderation.category == 'schedules_differs' %}
+                                                <a href="{{ website_schedules_moderation|get_url }}" class="link-info" target="_blank">
+                                                    <span>changement détecté ⚠️</span>
+                                                </a>
+                                            {% else %}
+                                                <a href="{{ website_schedules_moderation|get_url }}" class="link-info" target="_blank">
+                                                    <span>horaire validé ✅</span>
+                                                </a>
+                                            {% endif %}
+                                        {% else %}
+                                            <span>site non surveillé 🚫</span>
+                                        {% endif %}
+                                    {% endwith %}
+                                    <form method="post" action="{% url 'validate_schedules' website.uuid %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                        <button type="submit">Valider</button>
+                                    </form>
+                                {% endif %}
                             </div>
                             <h3 class="col-md-4 text-md-end">
                                 <span class="small"><span class="small">
