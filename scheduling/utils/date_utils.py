@@ -27,11 +27,6 @@ def time_from_minutes(minutes: int) -> time:
     return time(hour=hours, minute=minutes)
 
 
-def time_plus_hours(t: time, hours: int) -> time:
-    total_minutes = min(t.hour * 60 + t.minute + hours * 60, 24 * 60 - 1)
-    return time_from_minutes(total_minutes)
-
-
 def datetime_in_timezone(dt: datetime, timezone_str: str) -> datetime:
     return dt.astimezone(ZoneInfo(timezone_str))
 

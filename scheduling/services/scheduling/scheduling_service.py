@@ -1,3 +1,4 @@
+import datetime
 from dataclasses import dataclass, field
 from uuid import UUID
 
@@ -230,7 +231,9 @@ def build_resources_hash(scheduling: Scheduling,
             index_event.day,
             index_event.start_time,
             index_event.indexed_end_time,
-            index_event.displayed_end_time,
+            index_event.displayed_end_time or datetime.time(0, 0),
+            index_event.start_tz_datetime,
+            index_event.indexed_end_tz_datetime,
             index_event.has_been_moderated,
             index_event.church_color,
         ),

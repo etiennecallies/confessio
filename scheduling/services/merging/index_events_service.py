@@ -1,3 +1,4 @@
+from datetime import timedelta
 from uuid import UUID
 
 from front.public_service import front_get_church_color_by_uuid
@@ -5,7 +6,8 @@ from registry.models import Website
 from scheduling.models import IndexEvent, Scheduling, Parsing
 from scheduling.services.merging.holiday_zone_service import get_website_holiday_zone
 from scheduling.services.merging.sourced_schedules_service import SchedulingElements
-from scheduling.utils.date_utils import time_plus_hours
+from scheduling.services.merging.timezone_service import get_timezone_of_church
+from scheduling.utils.date_utils import datetime_in_timezone
 from scheduling.workflows.merging.sources import ParsingSource, BaseSource, OClocherSource
 from scheduling.workflows.parsing.rrule_utils import get_events_from_schedule_item
 from scheduling.workflows.parsing.schedules import Event
@@ -69,20 +71,35 @@ def build_index_events(scheduling: Scheduling,
     for church_id, event_and_moderations in events_by_church_id.items():
         church = scheduling_elements.church_by_id[church_id]
         church_color = church_color_by_uuid[church.uuid]
+        church_tz = get_timezone_of_church(church)
 
         for event, has_been_moderated in event_and_moderations:
+            midnight = event.start.replace(hour=23, minute=59, second=0, microsecond=0)
+            if event.end is None:
+                indexed_end_datetime = min(event.start + timedelta(hours=4), midnight)
+            elif event.end < event.start:
+                indexed_end_datetime = midnight
+            else:
+                indexed_end_datetime = event.end
+            assert event.start <= indexed_end_datetime
+            assert event.start.date() == indexed_end_datetime.date()
+
             event_day = event.start.date()
-            event_start_time = event.start.time()
+            start_time = event.start.time()
             displayed_end_time = event.end.time() if event.end else None
-            indexed_end_time = displayed_end_time or time_plus_hours(event_start_time, 4)
+            indexed_end_time = indexed_end_datetime.time()
+            start_tz_datetime = datetime_in_timezone(event.start, church_tz)
+            indexed_end_tz_datetime = datetime_in_timezone(indexed_end_datetime, church_tz)
 
             index_events.append(IndexEvent(
                 scheduling=scheduling,
                 church=church,
                 day=event_day,
-                start_time=event_start_time,
+                start_time=start_time,
                 indexed_end_time=indexed_end_time,
                 displayed_end_time=displayed_end_time,
+                start_tz_datetime=start_tz_datetime,
+                indexed_end_tz_datetime=indexed_end_tz_datetime,
                 has_been_moderated=has_been_moderated,
                 church_color=church_color,
             ))

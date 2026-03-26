@@ -1,5 +1,5 @@
 from front.utils.department_utils import get_department
-from registry.models import Church
+from registry.models import Church, Diocese
 
 
 def get_timezone_of_zipcode(zipcode: str) -> str:
@@ -21,7 +21,7 @@ def get_timezone_of_zipcode(zipcode: str) -> str:
     raise ValueError(f"get_timezone_of_zipcode not implemented for department {department}")
 
 
-def get_timezone_of_churches(churches: list[Church]) -> str:
+def get_timezone_of_churches(churches: list[Church]) -> str | None:
     count_per_timezone = {}
     for church in churches:
         if church.zipcode:
@@ -30,4 +30,27 @@ def get_timezone_of_churches(churches: list[Church]) -> str:
                 count_per_timezone[timezone] = 0
             count_per_timezone[timezone] += 1
 
+    if not count_per_timezone:
+        return None
+
     return max(count_per_timezone, key=count_per_timezone.get)
+
+
+def get_diocese_timezone(diocese: Diocese) -> str:
+    diocese_churches = [c for p in diocese.parishes.all() for c in p.churches.all()]
+    return get_timezone_of_churches(diocese_churches)
+
+
+def get_website_timezone(website_churches: list[Church]) -> str:
+    timezone = get_timezone_of_churches(website_churches)
+    if timezone:
+        return timezone
+
+    return get_diocese_timezone(website_churches[0].parish.diocese)
+
+
+def get_timezone_of_church(church: Church) -> str:
+    if church.zipcode:
+        return get_timezone_of_zipcode(church.zipcode)
+
+    return get_diocese_timezone(church.parish.diocese)
