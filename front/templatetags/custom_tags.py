@@ -11,7 +11,7 @@ from front.services.card.website_events_service import WebsiteEvents
 from front.services.card.website_schedules_service import WebsiteSchedules
 from registry.models import WebsiteModeration, ChurchModeration, ParishModeration, \
     ModerationMixin, Diocese
-from scheduling.models import ParsingModeration, SchedulingModeration
+from scheduling.models import ParsingModeration, SchedulingModeration, WebsiteSchedulesModeration
 from scheduling.models.pruning_models import Pruning, PruningModeration, SentenceModeration
 from scheduling.utils.list_utils import enumerate_with_and
 from scheduling.workflows.merging.sources import BaseSource
@@ -121,6 +121,7 @@ def get_moderation_stats(diocese: Diocese | None):
         ReportModeration.get_stats_by_category(diocese),
         CrawlingModeration.get_stats_by_category(diocese),
         SchedulingModeration.get_stats_by_category(diocese),
+        WebsiteSchedulesModeration.get_stats_by_category(diocese),
         OClocherOrganizationModeration.get_stats_by_category(diocese),
         OClocherMatchingModeration.get_stats_by_category(diocese),
     ], [])

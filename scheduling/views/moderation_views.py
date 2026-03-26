@@ -7,7 +7,7 @@ from django.shortcuts import render
 from front.views import get_moderate_response, redirect_to_moderation
 from registry.models.base_moderation_models import BUG_DESCRIPTION_MAX_LENGTH
 from scheduling.models import ParsingModeration
-from scheduling.models import SchedulingModeration
+from scheduling.models import SchedulingModeration, WebsiteSchedulesModeration
 from scheduling.models.pruning_models import PruningModeration
 from scheduling.models.pruning_models import SentenceModeration
 from scheduling.services.parsing.edit_parsing_service import set_llm_json_as_human_json
@@ -156,6 +156,23 @@ def moderate_scheduling(request, category, is_bug, diocese_slug, moderation_uuid
 
 def render_scheduling_moderation(request, moderation: SchedulingModeration, next_url):
     return render(request, f'moderations/moderate_scheduling.html', {
+        'website': moderation.website,
+        'moderation': moderation,
+        'next_url': next_url,
+        'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
+    })
+
+
+@login_required
+@permission_required("scheduling.change_sentence")
+def moderate_website_schedules(request, category, is_bug, diocese_slug, moderation_uuid=None):
+    return get_moderate_response(request, category, 'website_schedules', is_bug, diocese_slug,
+                                 WebsiteSchedulesModeration, moderation_uuid,
+                                 render_website_schedules_moderation)
+
+
+def render_website_schedules_moderation(request, moderation: WebsiteSchedulesModeration, next_url):
+    return render(request, 'moderations/moderate_website_schedules.html', {
         'website': moderation.website,
         'moderation': moderation,
         'next_url': next_url,
