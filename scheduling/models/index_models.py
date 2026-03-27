@@ -12,8 +12,8 @@ class IndexEvent(TimeStampMixin):
     start_time = models.TimeField(db_index=True)
     indexed_end_time = models.TimeField(db_index=True)
     displayed_end_time = models.TimeField(db_index=False, null=True)
-    start_tz_datetime = models.DateTimeField(db_index=True, null=True)  # TODO not null
-    indexed_end_tz_datetime = models.DateTimeField(db_index=True, null=True)  # TODO not null
+    start_tz_datetime = models.DateTimeField(db_index=True)
+    indexed_end_tz_datetime = models.DateTimeField(db_index=True)
     has_been_moderated = models.BooleanField()
     church_color = models.CharField(max_length=9)
 
