@@ -4,15 +4,13 @@ from scheduling.services.merging.holiday_zone_service import get_website_holiday
 from registry.models import Church, Website
 from scheduling.models import Parsing
 from scheduling.models import Scheduling
-from scheduling.public_model import SourcedSchedulesList
+from scheduling.public_model import SourcedSchedulesList, SourcedScheduleItem, \
+    SourcedSchedulesOfChurch, BaseSource
 from scheduling.services.merging.sources_service import get_church_by_id_and_sources
 from scheduling.services.scheduling.scheduling_service import get_scheduling_sources
 from scheduling.workflows.merging.merge_schedule_items import get_merged_sourced_schedule_items
 from scheduling.workflows.merging.sort_schedule_items import \
     get_sorted_sourced_schedule_items_by_church_id
-from scheduling.workflows.merging.sourced_schedules import SourcedScheduleItem, \
-    SourcedSchedulesOfChurch
-from scheduling.workflows.merging.sources import BaseSource
 from scheduling.workflows.parsing.explain_schedule import get_explanation_from_schedule
 from scheduling.workflows.parsing.rrule_utils import get_events_from_schedule_item
 

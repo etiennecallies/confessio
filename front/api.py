@@ -6,8 +6,8 @@ from ninja import NinjaAPI, Schema, Field
 
 from registry.models import Church, ChurchModeration, Parish, Website
 from scheduling.models import Scheduling, IndexEvent
+from scheduling.public_model import SourcedScheduleItem
 from scheduling.services.merging.sourced_schedules_service import retrieve_scheduling_elements
-from scheduling.workflows.merging.sourced_schedules import SourcedScheduleItem
 
 api = NinjaAPI(urls_namespace='main_api')
 

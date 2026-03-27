@@ -3,10 +3,8 @@ from django.db.models.functions import Now
 
 from registry.models import Website
 from scheduling.models import ValidatedSchedules
-from scheduling.public_model import SourcedSchedulesList
+from scheduling.public_model import SourcedSchedulesList, SourcedScheduleItem, ParsingSource
 from scheduling.services.scheduling.scheduling_service import get_indexed_scheduling
-from scheduling.workflows.merging.sourced_schedules import SourcedScheduleItem
-from scheduling.workflows.merging.sources import ParsingSource
 from scheduling.workflows.parsing.schedules import ScheduleItem
 
 

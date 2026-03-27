@@ -13,10 +13,9 @@ from front.services.search.search_service import TimeFilter, AggregationItem, Bo
     get_dioceses_bounding_box, get_churches_by_uuid
 from registry.models import Church, Website, Diocese
 from scheduling.models import IndexEvent
+from scheduling.public_model import SourcedScheduleItem, BaseSource, ParsingSource, OClocherSource
 from scheduling.public_service import scheduling_get_indexed_scheduling, \
     scheduling_retrieve_scheduling_elements
-from scheduling.workflows.merging.sourced_schedules import SourcedScheduleItem
-from scheduling.workflows.merging.sources import BaseSource, ParsingSource, OClocherSource
 
 api = NinjaAPI(urls_namespace='front_api')
 

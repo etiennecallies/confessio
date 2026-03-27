@@ -14,8 +14,8 @@ from registry.models import WebsiteModeration, ChurchModeration, ParishModeratio
 from scheduling.models import ParsingModeration, SchedulingModeration, \
     ValidatedSchedulesModeration, ValidatedSchedules
 from scheduling.models.pruning_models import Pruning, PruningModeration, SentenceModeration
+from scheduling.public_model import BaseSource
 from scheduling.utils.list_utils import enumerate_with_and
-from scheduling.workflows.merging.sources import BaseSource
 
 
 @register.filter

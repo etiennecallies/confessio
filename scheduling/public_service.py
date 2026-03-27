@@ -3,9 +3,9 @@ from scheduling.models import Parsing, Scheduling
 from scheduling.models.pruning_models import Sentence, Pruning
 from scheduling.services.merging.sourced_schedules_service import SchedulingElements, \
     retrieve_scheduling_elements
-from scheduling.services.scheduling.scheduling_process_service import init_scheduling
 from scheduling.services.pruning.prune_scraping_service import create_pruning, \
     remove_pruning_moderation_if_orphan
+from scheduling.services.scheduling.scheduling_process_service import init_scheduling
 from scheduling.services.scheduling.scheduling_service import get_websites_of_prunings, \
     get_websites_of_parsing, get_indexed_scheduling
 

@@ -3,8 +3,7 @@ from urllib.parse import quote, unquote
 from crawling.models import Scraping
 from scheduling.models.pruning_models import Pruning
 from scheduling.services.scheduling.scheduling_service import SchedulingPrimarySources
-from scheduling.utils.html_utils import get_text_if_not_table
-from scheduling.workflows.pruning.extract.split_content import split_lines
+from scheduling.utils.html_utils import get_text_if_not_table, split_lines
 
 
 def get_scraping_url_with_pointer_at_pruning(scraping: Scraping, pruning: Pruning):

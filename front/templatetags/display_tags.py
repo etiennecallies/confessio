@@ -16,7 +16,6 @@ from scheduling.models import Parsing
 from scheduling.models.pruning_models import Pruning
 from scheduling.services.scheduling.scheduling_service import get_prunings_of_parsing
 from scheduling.utils.list_utils import group_consecutive_indices
-from scheduling.workflows.parsing.schedules import SchedulesList, Event
 
 
 @register.simple_tag
@@ -35,11 +34,6 @@ def display_church(church: Church, with_map=True):
         'church': church,
         'with_map': with_map,
     })
-
-
-@register.simple_tag
-def display_event(event: Event):
-    return render_to_string('displays/event_display.html', {'event': event})
 
 
 @register.simple_tag
@@ -78,15 +72,6 @@ def display_similar_churches_location(church: Church, sorted_similar_churches: l
     map_html = folimum_map._repr_html_()
 
     return render_to_string('displays/location_display.html', {'map_html': map_html})
-
-
-@register.simple_tag
-def display_schedules_list(schedules_list: SchedulesList, church_desc_by_id_json: str):
-    return render_to_string('displays/schedules_display.html', {
-        'schedules_list': schedules_list,
-        'schedules_list_json': schedules_list.model_dump_json(),
-        'church_desc_by_id_json': church_desc_by_id_json,
-    })
 
 
 @register.simple_tag

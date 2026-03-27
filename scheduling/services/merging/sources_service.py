@@ -1,5 +1,6 @@
 from fetching.public_service import fetching_get_oclocher_id_by_location_id
 from registry.models import Church
+from scheduling.public_model import BaseSource, ParsingSource, OClocherSource
 from scheduling.services.merging.oclocher_schedules_services import \
     get_schedules_list_from_oclocher_schedules
 from scheduling.services.merging.timezone_service import get_website_timezone
@@ -7,7 +8,6 @@ from scheduling.services.parsing.parsing_service import get_parsing_schedules_li
     get_parsing_church_desc_by_id
 from scheduling.services.scheduling.scheduling_service import SchedulingSources
 from scheduling.utils.list_utils import get_desc_by_id
-from scheduling.workflows.merging.sources import ParsingSource, BaseSource, OClocherSource
 
 
 def get_church_by_id_and_sources(scheduling_sources: SchedulingSources,

@@ -4,11 +4,11 @@ from uuid import UUID
 from front.public_service import front_get_church_color_by_uuid
 from registry.models import Website
 from scheduling.models import IndexEvent, Scheduling, Parsing
+from scheduling.public_model import BaseSource, ParsingSource, OClocherSource
 from scheduling.services.merging.holiday_zone_service import get_website_holiday_zone
 from scheduling.services.merging.sourced_schedules_service import SchedulingElements
 from scheduling.services.merging.timezone_service import get_timezone_of_church
 from scheduling.utils.date_utils import datetime_in_timezone
-from scheduling.workflows.merging.sources import ParsingSource, BaseSource, OClocherSource
 from scheduling.workflows.parsing.rrule_utils import get_events_from_schedule_item
 from scheduling.workflows.parsing.schedules import Event
 

@@ -8,7 +8,7 @@ from scheduling.utils.date_utils import get_current_year
 from scheduling.workflows.parsing.explain_schedule import get_explanation_from_schedule
 from scheduling.workflows.parsing.holidays import HolidayZoneEnum
 from scheduling.workflows.parsing.rrule_utils import get_events_from_schedule_item
-from scheduling.workflows.parsing.schedules import ScheduleItem, Event
+from scheduling.workflows.parsing.schedules import ScheduleItem, Event, SchedulesList
 
 
 @register.simple_tag
@@ -37,3 +37,21 @@ def get_schedule_item_events(schedule_item: ScheduleItem) -> list[Event]:
     return get_events_from_schedule_item(schedule_item, default_holiday_zone,
                                          start_date, default_year,
                                          end_date)[:7]
+
+
+###########
+# DISPLAY #
+###########
+
+@register.simple_tag
+def display_schedules_list(schedules_list: SchedulesList, church_desc_by_id_json: str):
+    return render_to_string('displays/schedules_display.html', {
+        'schedules_list': schedules_list,
+        'schedules_list_json': schedules_list.model_dump_json(),
+        'church_desc_by_id_json': church_desc_by_id_json,
+    })
+
+
+@register.simple_tag
+def display_event(event: Event):
+    return render_to_string('displays/event_display.html', {'event': event})
