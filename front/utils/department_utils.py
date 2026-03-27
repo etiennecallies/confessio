@@ -96,11 +96,12 @@ ALL_FRENCH_DEPARTMENTS = {
     "93": "93, Seine-Saint-Denis, Île-de-France",
     "94": "94, Val-de-Marne, Île-de-France",
     "95": "95, Val-d'Oise, Île-de-France",
-    "971": "971, Guadeloupe, Guadeloupe",
-    "972": "972, Martinique, Martinique",
-    "973": "973, Guyane, Guyane",
-    "974": "974, La Réunion, La Réunion",
-    "976": "976, Mayotte, Mayotte",
+    "971": "971, Guadeloupe",
+    "972": "972, Martinique",
+    "973": "973, Guyane",
+    "974": "974, La Réunion",
+    "975": "975, Saint-Pierre-et-Miquelon",
+    "976": "976, Mayotte",
 }
 
 
