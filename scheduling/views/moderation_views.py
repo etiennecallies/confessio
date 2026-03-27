@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
 
 from crawling.models import CrawlingModeration
-from front.views import get_moderate_response, redirect_to_moderation
+from front.views import get_moderate_response, redirect_to_moderation, ModerationPostError
 from registry.models import Website
 from registry.models.base_moderation_models import BUG_DESCRIPTION_MAX_LENGTH
 from scheduling.models import ParsingModeration
@@ -14,10 +14,13 @@ from scheduling.models import SchedulingModeration, ValidatedSchedulesModeration
 from scheduling.models.pruning_models import PruningModeration
 from scheduling.models.pruning_models import SentenceModeration
 from scheduling.services.merging.schedules_diff_service import validate_website_indexed_schedules
-from scheduling.services.parsing.edit_parsing_service import set_llm_json_as_human_json
+from scheduling.services.parsing.edit_parsing_service import set_llm_json_as_human_json, \
+    on_parsing_human_validation, ParsingValidationError
 from scheduling.services.parsing.parsing_service import get_schedules_list_from_dict
+from scheduling.services.parsing.reparse_parsing_service import reparse_parsing
 from scheduling.services.pruning.edit_pruning_service import get_single_line_colored_piece, \
-    TEMPORAL_COLORS, EVENT_MENTION_COLORS
+    TEMPORAL_COLORS, EVENT_MENTION_COLORS, on_pruning_human_validation, \
+    update_sentence_labels_with_request
 from scheduling.services.pruning.edit_pruning_service import set_v2_indices_as_human
 from scheduling.services.pruning.prune_scraping_service import SentenceQualifyLineInterface, \
     MLSentenceQualifyLineInterface
@@ -31,7 +34,8 @@ from scheduling.workflows.pruning.extract_v2.split_content import create_line_an
 @permission_required("scheduling.change_sentence")
 def moderate_pruning(request, category, is_bug, diocese_slug, moderation_uuid=None):
     return get_moderate_response(request, category, 'pruning', is_bug, diocese_slug,
-                                 PruningModeration, moderation_uuid, render_pruning_moderation)
+                                 PruningModeration, moderation_uuid, render_pruning_moderation,
+                                 pruning_moderation_post_process)
 
 
 def render_pruning_moderation(request, moderation: PruningModeration, next_url):
@@ -81,11 +85,17 @@ def render_pruning_moderation(request, moderation: PruningModeration, next_url):
     })
 
 
+def pruning_moderation_post_process(request, moderation: PruningModeration) -> bool:
+    on_pruning_human_validation(moderation.pruning)
+    return True
+
+
 @login_required
 @permission_required("scheduling.change_sentence")
 def moderate_sentence(request, category, is_bug, diocese_slug, moderation_uuid=None):
     return get_moderate_response(request, category, 'sentence', is_bug, diocese_slug,
-                                 SentenceModeration, moderation_uuid, render_sentence_moderation)
+                                 SentenceModeration, moderation_uuid, render_sentence_moderation,
+                                 sentence_moderation_post_process)
 
 
 def render_sentence_moderation(request, moderation: SentenceModeration, next_url):
@@ -111,11 +121,19 @@ def render_sentence_moderation(request, moderation: SentenceModeration, next_url
     })
 
 
+def sentence_moderation_post_process(request, moderation: SentenceModeration) -> bool:
+    if 'update_human_labels' in request.POST:
+        update_sentence_labels_with_request(request, "1", moderation.sentence, None)
+        return False
+    return True
+
+
 @login_required
 @permission_required("scheduling.change_sentence")
 def moderate_parsing(request, category, is_bug, diocese_slug, moderation_uuid=None):
     return get_moderate_response(request, category, 'parsing', is_bug, diocese_slug,
-                                 ParsingModeration, moderation_uuid, render_parsing_moderation)
+                                 ParsingModeration, moderation_uuid, render_parsing_moderation,
+                                 parsing_moderation_post_process)
 
 
 def render_parsing_moderation(request, moderation: ParsingModeration, next_url):
@@ -149,6 +167,19 @@ def render_parsing_moderation(request, moderation: ParsingModeration, next_url):
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
         'back_path': back_path,
     })
+
+
+def parsing_moderation_post_process(request, moderation: ParsingModeration) -> bool:
+    if 'reparse_parsing' in request.POST:
+        reparse_parsing(moderation.parsing)
+        return False
+
+    try:
+        on_parsing_human_validation(moderation)
+    except ParsingValidationError as e:
+        raise ModerationPostError(response=HttpResponseBadRequest(str(e)))
+
+    return True
 
 
 @login_required

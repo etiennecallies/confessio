@@ -1,21 +1,11 @@
 from django.contrib.auth.decorators import login_required, permission_required
-from django.http import HttpResponseBadRequest, HttpResponseNotFound
+from django.http import HttpResponseBadRequest, HttpResponseNotFound, HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 
 from front.models import ReportModeration
-from registry.models import ChurchModeration, ModerationMixin, Diocese
-from registry.models.base_moderation_models import BUG_DESCRIPTION_MAX_LENGTH, \
-    ResourceDoesNotExistError
-from registry.public_service import registry_suggest_alternative_website, \
-    registry_on_church_human_validation
-from scheduling.models import ParsingModeration
-from scheduling.models.pruning_models import PruningModeration
-from scheduling.services.parsing.edit_parsing_service import on_parsing_human_validation, \
-    ParsingValidationError
-from scheduling.services.parsing.reparse_parsing_service import reparse_parsing
-from scheduling.services.pruning.edit_pruning_service import on_pruning_human_validation, \
-    update_sentence_labels_with_request
+from registry.models import ModerationMixin, Diocese
+from registry.models.base_moderation_models import BUG_DESCRIPTION_MAX_LENGTH
 from scheduling.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 
 
@@ -31,8 +21,16 @@ def redirect_to_moderation(moderation: ModerationMixin, category: str, resource:
                         diocese_slug=diocese_slug)
 
 
+class ModerationPostError(Exception):
+    response: HttpResponse
+
+    def __init__(self, response: HttpResponse):
+        self.response = response
+
+
 def get_moderate_response(request, category: str, resource: str, is_bug_as_str: bool,
-                          diocese_slug: str, class_moderation, moderation_uuid, render_moderation):
+                          diocese_slug: str, class_moderation, moderation_uuid, render_moderation,
+                          moderation_post_process=None):
     if is_bug_as_str not in ['True', 'False']:
         return HttpResponseBadRequest(f"is_bug_as_str {is_bug_as_str} is not valid")
 
@@ -93,53 +91,14 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
             moderation.mark_as_bug(request.user, bug_description)
         elif 'delete_moderation' in request.POST:
             moderation.delete()
-        elif 'reparse_parsing' in request.POST:
-            reparse_parsing(moderation.parsing)
-            do_redirect = False
-        elif 'suggest_alternative_website' in request.POST:
-            registry_suggest_alternative_website(moderation)
-            do_redirect = False
-        elif 'update_human_labels' in request.POST:
-            update_sentence_labels_with_request(request, "1", moderation.sentence, None)
-            do_redirect = False
-        else:
-            if 'replace_home_url' in request.POST:
-                moderation.replace_home_url()
-            if 'replace_name' in request.POST:
-                moderation.replace_name()
-            if 'replace_website' in request.POST:
-                moderation.replace_website()
-            if 'replace_parish' in request.POST:
-                moderation.replace_parish()
-            if 'replace_location' in request.POST:
-                moderation.replace_location()
-            if 'replace_address' in request.POST:
-                moderation.replace_address()
-            if 'replace_zipcode' in request.POST:
-                moderation.replace_zipcode()
-            if 'replace_city' in request.POST:
-                moderation.replace_city()
-            if 'replace_messesinfo_id' in request.POST:
-                moderation.replace_messesinfo_id()
-            if 'assign_external_id' in request.POST:
-                similar_uuid = request.POST.get('assign_external_id')
-                try:
-                    moderation.assign_external_id(similar_uuid)
-                except ResourceDoesNotExistError:
-                    return HttpResponseNotFound(
-                        f"resource {resource} not found with uuid {similar_uuid}")
+        elif moderation_post_process is not None:
+            try:
+                do_redirect = moderation_post_process(request, moderation)
+            except ModerationPostError as e:
+                return e.response
 
-            if class_moderation == PruningModeration:
-                on_pruning_human_validation(moderation.pruning)
-            elif class_moderation == ParsingModeration:
-                try:
-                    on_parsing_human_validation(moderation)
-                except ParsingValidationError as e:
-                    return HttpResponseBadRequest(str(e))
-            elif class_moderation == ChurchModeration:
-                registry_on_church_human_validation(moderation)
-
-            moderation.validate(request.user)
+            if do_redirect:
+                moderation.validate(request.user)
 
         if do_redirect:
             return redirect(next_url)
