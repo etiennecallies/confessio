@@ -10,8 +10,9 @@ from front.models import ReportModeration
 from front.services.card.website_events_service import WebsiteEvents
 from front.services.card.website_schedules_service import WebsiteSchedules
 from registry.models import WebsiteModeration, ChurchModeration, ParishModeration, \
-    ModerationMixin, Diocese
-from scheduling.models import ParsingModeration, SchedulingModeration, ValidatedSchedulesModeration
+    ModerationMixin, Diocese, Website
+from scheduling.models import ParsingModeration, SchedulingModeration, \
+    ValidatedSchedulesModeration, ValidatedSchedules
 from scheduling.models.pruning_models import Pruning, PruningModeration, SentenceModeration
 from scheduling.utils.list_utils import enumerate_with_and
 from scheduling.workflows.merging.sources import BaseSource
@@ -82,6 +83,15 @@ def relation_sources(website_schedules: WebsiteSchedules | None
     return list(set(website_schedules.sourced_schedules_list.is_related_to_mass_sources
                     + website_schedules.sourced_schedules_list.is_related_to_adoration_sources
                     + website_schedules.sourced_schedules_list.is_related_to_permanence_sources))
+
+
+@register.filter
+def has_validated_schedules(website: Website) -> bool:
+    try:
+        validated_schedules = website.validated_schedules
+        return validated_schedules is not None
+    except ValidatedSchedules.DoesNotExist:
+        return False
 
 
 @register.filter

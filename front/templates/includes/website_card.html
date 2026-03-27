@@ -31,49 +31,53 @@
                                                     {% if crawling_moderation %}
                                                         {% if crawling_moderation.category == 'no_response' %}
                                                             <a href="{{ crawling_moderation|get_url }}" class="link-info" target="_blank">
-                                                                <span>erreur sur le site web</span>
+                                                                <span>erreur sur le site web {% display_moderation_status_emoji crawling_moderation %}</span>
                                                             </a>
                                                         {% elif crawling_moderation.category == 'no_page' %}
                                                             <a href="{{ crawling_moderation|get_url }}" class="link-info" target="_blank">
-                                                                <span>pas d’extrait trouvé</span>
+                                                                <span>pas d’extrait trouvé {% display_moderation_status_emoji crawling_moderation %}</span>
                                                             </a>
                                                         {% endif %}
                                                     {% else %}
                                                         <a href="{{ scheduling_moderation|get_url }}" class="link-info" target="_blank">
-                                                            <span>aucune page retenue (cf empty sources)</span>
+                                                            <span>aucune page retenue (cf empty sources) {% display_moderation_status_emoji scheduling_moderation %}</span>
                                                         </a>
                                                     {% endif %}
                                                 {% endwith %}
                                             {% elif scheduling_moderation.category == 'no_schedule' %}
                                                 <a href="{{ scheduling_moderation|get_url }}" class="link-info" target="_blank">
-                                                    <span>pas d’horaire extrait</span>
+                                                    <span>pas d’horaire extrait {% display_moderation_status_emoji scheduling_moderation %}</span>
                                                 </a>
                                             {% elif scheduling_moderation.category == 'unknown_place' %}
                                                 <a href="{{ scheduling_moderation|get_url }}" class="link-info" target="_blank">
-                                                    <span>des lieux inconnus</span>
+                                                    <span>des lieux inconnus {% display_moderation_status_emoji scheduling_moderation %}</span>
                                                 </a>
                                             {% elif scheduling_moderation.category == 'sched_conflict' %}
                                                 <a href="{{ scheduling_moderation|get_url }}" class="link-info" target="_blank">
-                                                    <span>des conflits entre les pages</span>
+                                                    <span>des conflits entre les pages {% display_moderation_status_emoji scheduling_moderation %}</span>
                                                 </a>
                                             {% else %}
                                                 <a href="{{ scheduling_moderation|get_url }}" class="link-info" target="_blank">
-                                                    <span>tout a fonctionné ✅</span>
+                                                    <span>tout a fonctionné {% display_moderation_status_emoji scheduling_moderation %}</span>
                                                 </a>
                                             {% endif %}
+                                        {% else %}
+                                            <span>traitement en cours 🌀</span>
                                         {% endif %}
                                     {% endwith %}
                                     {% with validated_schedules_moderation=validated_schedules_moderation_by_website|get_item:website.uuid %}
                                         {% if validated_schedules_moderation %}
                                             {% if validated_schedules_moderation.category == 'schedules_differs' %}
                                                 <a href="{{ validated_schedules_moderation|get_url }}" class="link-info" target="_blank">
-                                                    <span>changement détecté ⚠️</span>
+                                                    <span>changement détecté {% display_moderation_status_emoji validated_schedules_moderation %}</span>
                                                 </a>
                                             {% else %}
                                                 <a href="{{ validated_schedules_moderation|get_url }}" class="link-info" target="_blank">
-                                                    <span>horaire validé ✅</span>
+                                                    <span>horaire validé {% display_moderation_status_emoji validated_schedules_moderation %}</span>
                                                 </a>
                                             {% endif %}
+                                        {% elif website|has_validated_schedules %}
+                                            <span>traitement en cours 🌀</span>
                                         {% else %}
                                             <span>site non surveillé 🚫</span>
                                         {% endif %}

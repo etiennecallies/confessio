@@ -11,7 +11,7 @@ from front.services.card.church_color_service import get_color_of_nullable_churc
 from front.services.search.map_service import (get_map_with_single_location,
                                                get_map_with_multiple_locations,
                                                get_map_with_alternative_locations)
-from registry.models import Parish, Church, Website
+from registry.models import Parish, Church, Website, ModerationMixin
 from scheduling.models import Parsing
 from scheduling.models.pruning_models import Pruning
 from scheduling.services.scheduling.scheduling_service import get_prunings_of_parsing
@@ -137,3 +137,8 @@ def display_parsing_scrapings(parsing: Parsing):
     return render_to_string('displays/parsing_scrapings_display.html', {
         'prunings': prunings,
     })
+
+
+@register.simple_tag
+def display_moderation_status_emoji(moderation: ModerationMixin):
+    return '✅' if moderation.validated_at is not None else '⚠️'
