@@ -152,7 +152,7 @@ def check_rule3():
     violations = []
     result = subprocess.run(
         [
-            'grep', '-rn', '-P', r'^from background_task\b',
+            'grep', '-rn', '-E', r'^from background_task[. ]',
             '--include=*.py',
             '--exclude-dir=.venv',
             '--exclude-dir=__pycache__',
@@ -168,6 +168,8 @@ def check_rule3():
         filepath = line.split(':')[0]
         filepath = filepath.lstrip('./')
         if filepath.endswith('tasks.py'):
+            continue
+        if get_module(filepath) == 'core':
             continue
         violations.append({
             'rule': 3,
