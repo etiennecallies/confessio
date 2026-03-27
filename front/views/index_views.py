@@ -112,10 +112,10 @@ def render_map(request, center,
     # moderations (for admin)
     scheduling_moderation_by_website = {}
     crawling_moderation_by_website = {}
-    website_schedules_moderation_by_website = {}
+    validated_schedules_moderation_by_website = {}
     if request.user.is_authenticated and request.user.has_perm("scheduling.change_sentence"):
         scheduling_moderation_by_website, crawling_moderation_by_website, \
-            website_schedules_moderation_by_website = get_all_website_moderations(websites)
+            validated_schedules_moderation_by_website = get_all_website_moderations(websites)
 
     hidden_inputs = {}
     for key in request.GET:
@@ -155,7 +155,7 @@ def render_map(request, center,
         'website_images': page_website.images.all() if page_website else None,
         'scheduling_moderation_by_website': scheduling_moderation_by_website,
         'crawling_moderation_by_website': crawling_moderation_by_website,
-        'website_schedules_moderation_by_website': website_schedules_moderation_by_website,
+        'validated_schedules_moderation_by_website': validated_schedules_moderation_by_website,
     })
 
 

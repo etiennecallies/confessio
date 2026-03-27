@@ -64,9 +64,9 @@ def handle_scheduling_moderation(scheduling: Scheduling,
     upsert_scheduling_moderation(scheduling.website, category, moderation_validated)
 
 
-def upsert_website_schedules_moderation(website: Website,
-                                        category: ValidatedSchedulesModeration.Category,
-                                        moderation_validated: bool):
+def upsert_validated_schedules_moderation(website: Website,
+                                          category: ValidatedSchedulesModeration.Category,
+                                          moderation_validated: bool):
     try:
         moderation = ValidatedSchedulesModeration.objects.get(website=website)
         if moderation.category != category:
@@ -83,7 +83,7 @@ def upsert_website_schedules_moderation(website: Website,
         moderation.save()
 
 
-def get_website_schedules_moderation_category(
+def get_validated_schedules_moderation_category(
         indexing_objects: SchedulingIndexingObjects
 ) -> tuple[ValidatedSchedulesModeration.Category, bool] | None:
     if indexing_objects.schedules_match_with_validated is None:
@@ -95,16 +95,16 @@ def get_website_schedules_moderation_category(
     return ValidatedSchedulesModeration.Category.OK, True
 
 
-def handle_website_schedules_moderation(scheduling: Scheduling,
-                                        indexing_objects: SchedulingIndexingObjects):
-    category_and_validation = get_website_schedules_moderation_category(indexing_objects)
+def handle_validated_schedules_moderation(scheduling: Scheduling,
+                                          indexing_objects: SchedulingIndexingObjects):
+    category_and_validation = get_validated_schedules_moderation_category(indexing_objects)
     if category_and_validation is None:
         return
     category, moderation_validated = category_and_validation
-    upsert_website_schedules_moderation(scheduling.website, category, moderation_validated)
+    upsert_validated_schedules_moderation(scheduling.website, category, moderation_validated)
 
 
 def add_necessary_scheduling_moderation(scheduling: Scheduling,
                                         indexing_objects: SchedulingIndexingObjects):
     handle_scheduling_moderation(scheduling, indexing_objects)
-    handle_website_schedules_moderation(scheduling, indexing_objects)
+    handle_validated_schedules_moderation(scheduling, indexing_objects)

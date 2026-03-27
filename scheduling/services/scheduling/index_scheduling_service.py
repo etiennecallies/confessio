@@ -38,7 +38,8 @@ def do_index_scheduling(scheduling: Scheduling) -> SchedulingIndexingObjects:
 
     # We build the resources hash to avoid doing it inside the transaction
     resources_hash = build_resources_hash(scheduling, scheduling_elements.sourced_schedules_list,
-                                          church_uuid_by_id, index_events)
+                                          church_uuid_by_id, index_events,
+                                          schedules_match_with_validated)
 
     return SchedulingIndexingObjects(
         sourced_schedules_list=scheduling_elements.sourced_schedules_list,

@@ -170,15 +170,15 @@ def render_scheduling_moderation(request, moderation: SchedulingModeration, next
 
 @login_required
 @permission_required("scheduling.change_sentence")
-def moderate_website_schedules(request, category, is_bug, diocese_slug, moderation_uuid=None):
-    return get_moderate_response(request, category, 'website_schedules', is_bug, diocese_slug,
+def moderate_validated_schedules(request, category, is_bug, diocese_slug, moderation_uuid=None):
+    return get_moderate_response(request, category, 'validated_schedules', is_bug, diocese_slug,
                                  ValidatedSchedulesModeration, moderation_uuid,
-                                 render_website_schedules_moderation)
+                                 render_validated_schedules_moderation)
 
 
-def render_website_schedules_moderation(request, moderation: ValidatedSchedulesModeration,
-                                        next_url):
-    return render(request, 'moderations/moderate_website_schedules.html', {
+def render_validated_schedules_moderation(request, moderation: ValidatedSchedulesModeration,
+                                          next_url):
+    return render(request, 'moderations/moderate_validated_schedules.html', {
         'website': moderation.website,
         'moderation': moderation,
         'next_url': next_url,

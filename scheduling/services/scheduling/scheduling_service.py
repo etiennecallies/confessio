@@ -176,7 +176,8 @@ def get_scheduling_primary_sources(scheduling: Scheduling | None
 def build_resources_hash(scheduling: Scheduling,
                          sourced_schedules_list: SourcedSchedulesList,
                          church_uuid_by_id: dict[int, str],
-                         index_events: list[IndexEvent]) -> str:
+                         index_events: list[IndexEvent],
+                         schedules_match_with_validated: bool | None) -> str:
     elements_to_hash = []
 
     # Churches
@@ -239,6 +240,8 @@ def build_resources_hash(scheduling: Scheduling,
         ),
         index_events
     ))
+    # schedules_match_with_validated
+    elements_to_hash += [schedules_match_with_validated]
 
     return hash_string_to_hex(''.join(map(str, elements_to_hash)))
 

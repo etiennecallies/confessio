@@ -33,7 +33,7 @@ class ValidatedSchedulesModeration(ModerationMixin):
         SCHEDULES_DIFFERS = "schedules_differs"
         OK = "ok"
 
-    resource = 'website_schedules'
+    resource = 'validated_schedules'
     validated_by = models.ForeignKey('auth.User',
                                      related_name=f'{resource}_moderation_validated_by',
                                      on_delete=models.SET_NULL, null=True)

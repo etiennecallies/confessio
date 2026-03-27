@@ -21,12 +21,12 @@ def get_all_website_moderations(websites: list[Website]
     for crawling_moderation in all_crawling_moderations:
         crawling_moderation_by_website[crawling_moderation.website.uuid] = crawling_moderation
 
-    all_website_schedules_moderations = ValidatedSchedulesModeration.objects\
+    all_validated_schedules_moderations = ValidatedSchedulesModeration.objects\
         .filter(website__in=websites).all()
-    website_schedules_moderation_by_website = {}
-    for website_schedules_moderation in all_website_schedules_moderations:
-        website_schedules_moderation_by_website[website_schedules_moderation.website.uuid] = \
-            website_schedules_moderation
+    validated_schedules_moderation_by_website = {}
+    for validated_schedules_moderation in all_validated_schedules_moderations:
+        validated_schedules_moderation_by_website[validated_schedules_moderation.website.uuid] = \
+            validated_schedules_moderation
 
     return scheduling_moderation_by_website, crawling_moderation_by_website, \
-        website_schedules_moderation_by_website
+        validated_schedules_moderation_by_website

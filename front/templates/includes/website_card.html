@@ -63,14 +63,14 @@
                                             {% endif %}
                                         {% endif %}
                                     {% endwith %}
-                                    {% with website_schedules_moderation=website_schedules_moderation_by_website|get_item:website.uuid %}
-                                        {% if website_schedules_moderation %}
-                                            {% if website_schedules_moderation.category == 'schedules_differs' %}
-                                                <a href="{{ website_schedules_moderation|get_url }}" class="link-info" target="_blank">
+                                    {% with validated_schedules_moderation=validated_schedules_moderation_by_website|get_item:website.uuid %}
+                                        {% if validated_schedules_moderation %}
+                                            {% if validated_schedules_moderation.category == 'schedules_differs' %}
+                                                <a href="{{ validated_schedules_moderation|get_url }}" class="link-info" target="_blank">
                                                     <span>changement détecté ⚠️</span>
                                                 </a>
                                             {% else %}
-                                                <a href="{{ website_schedules_moderation|get_url }}" class="link-info" target="_blank">
+                                                <a href="{{ validated_schedules_moderation|get_url }}" class="link-info" target="_blank">
                                                     <span>horaire validé ✅</span>
                                                 </a>
                                             {% endif %}

@@ -28,11 +28,11 @@ urlpatterns = [
          views.moderate_scheduling, name='moderate_next_scheduling'),
     path('moderate/scheduling/<category>/<str:is_bug>/<str:diocese_slug>/<uuid:moderation_uuid>',
          views.moderate_scheduling, name='moderate_one_scheduling'),
-    path('moderate/website_schedules/<category>/<str:is_bug>/<str:diocese_slug>',
-         views.moderate_website_schedules, name='moderate_next_website_schedules'),
-    path('moderate/website_schedules/<category>/<str:is_bug>/<str:diocese_slug>'
+    path('moderate/validated_schedules/<category>/<str:is_bug>/<str:diocese_slug>',
+         views.moderate_validated_schedules, name='moderate_next_validated_schedules'),
+    path('moderate/validated_schedules/<category>/<str:is_bug>/<str:diocese_slug>'
          '/<uuid:moderation_uuid>',
-         views.moderate_website_schedules, name='moderate_one_website_schedules'),
+         views.moderate_validated_schedules, name='moderate_one_validated_schedules'),
 
     # moderation actions
     path('moderate/erase_human_by_llm/<uuid:parsing_moderation_uuid>',

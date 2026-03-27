@@ -33,7 +33,7 @@ def get_schedule_items(sourced_schedules_list: SourcedSchedulesList) -> set[Sche
 def check_schedules_match(website: Website,
                           sourced_schedules_list: SourcedSchedulesList) -> bool | None:
     try:
-        website_schedules = website.schedules
+        website_schedules = website.validated_schedules
     except ValidatedSchedules.DoesNotExist:
         return None
 
@@ -51,16 +51,16 @@ def validate_website_indexed_schedules(website: Website, user: User):
         return
 
     try:
-        website_schedules = website.schedules
-        website_schedules.validated_sourced_schedules_list = scheduling.sourced_schedules_list
-        website_schedules.validated_at = Now()
-        website_schedules.validated_by = user
+        validated_schedules = website.validated_schedules
+        validated_schedules.validated_sourced_schedules_list = scheduling.sourced_schedules_list
+        validated_schedules.validated_at = Now()
+        validated_schedules.validated_by = user
     except ValidatedSchedules.DoesNotExist:
-        website_schedules = ValidatedSchedules(
+        validated_schedules = ValidatedSchedules(
             website=website,
             validated_sourced_schedules_list=scheduling.sourced_schedules_list,
             validated_at=Now(),
             validated_by=user
         )
 
-    website_schedules.save()
+    validated_schedules.save()
