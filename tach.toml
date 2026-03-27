@@ -1,0 +1,39 @@
+interfaces = []
+exclude = [
+    "**/*__pycache__",
+    "**/*egg-info",
+    "**/docs",
+    "**/tests",
+    "**/venv",
+]
+source_roots = [
+    ".",
+]
+
+[[modules ]]
+path = "attaching"
+depends_on = ["registry", "crawling", "front", "scheduling", "core"]
+
+[[modules ]]
+path = "fetching"
+depends_on = ["crawling", "scheduling", "core", "registry"]
+
+[[modules ]]
+path = "front"
+depends_on = ["attaching", "core", "crawling", "fetching", "scheduling", "registry"]
+
+[[modules ]]
+path = "scheduling"
+depends_on = ["front", "crawling", "attaching", "fetching", "core", "registry"]
+
+[[modules ]]
+path = "crawling"
+depends_on = ["scheduling", "registry", "core", "fetching"]
+
+[[modules ]]
+path = "registry"
+depends_on = ["crawling", "scheduling", "front", "core"]
+
+[[modules ]]
+path = "core"
+depends_on = ["registry", "crawling", "scheduling"]
