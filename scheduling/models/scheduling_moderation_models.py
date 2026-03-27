@@ -35,7 +35,7 @@ class ValidatedSchedulesModeration(ModerationMixin):
 
     resource = 'validated_schedules'
     validated_by = models.ForeignKey('auth.User',
-                                     related_name=f'{resource}_moderation_validated_by',
+                                     related_name=f'{resource}_validated_by',
                                      on_delete=models.SET_NULL, null=True)
     marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
                                          on_delete=models.SET_NULL, null=True)
