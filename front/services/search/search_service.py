@@ -212,6 +212,16 @@ def get_churches_by_website(
     return truncate_results(church_query, time_filter)
 
 
+def get_churches_by_uuid(
+        church_uuid: UUID,
+        time_filter: TimeFilter,
+) -> tuple[list[IndexEvent], list[Church], bool, dict[UUID, bool]]:
+    church_query = build_church_query(time_filter)\
+        .filter(uuid=church_uuid)
+
+    return truncate_results(church_query, time_filter)
+
+
 def get_churches_by_diocese(
         diocese: Diocese,
         time_filter: TimeFilter,

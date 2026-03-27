@@ -7,11 +7,10 @@ from django.http import Http404
 from ninja import NinjaAPI, Schema
 
 from front.services.card.report_service import get_count_and_label
-from front.services.card.website_events_service import get_website_events, WebsiteEvents
 from front.services.search.aggregation_service import get_search_results
 from front.services.search.autocomplete_service import get_aggregated_response, AutocompleteResult
 from front.services.search.search_service import TimeFilter, AggregationItem, BoundingBox, \
-    get_dioceses_bounding_box
+    get_dioceses_bounding_box, get_churches_by_uuid
 from registry.models import Church, Website, Diocese
 from scheduling.models import IndexEvent
 from scheduling.public_service import scheduling_get_indexed_scheduling, \
@@ -26,6 +25,27 @@ api = NinjaAPI(urls_namespace='front_api')
 # MODELS #
 ##########
 
+
+class EventOut(Schema):
+    church_uuid: UUID  # TODO remove
+    start: datetime
+    end: datetime | None
+    source_has_been_moderated: bool
+
+    @classmethod
+    def from_index_event(cls, index_event: IndexEvent) -> 'EventOut':
+        start = datetime.combine(index_event.day, index_event.start_time)
+        end = datetime.combine(index_event.day, index_event.displayed_end_time) \
+            if index_event.displayed_end_time else None
+
+        return cls(
+            church_uuid=index_event.church.uuid,
+            start=start,
+            end=end,
+            source_has_been_moderated=index_event.has_been_moderated,
+        )
+
+
 class ChurchOut(Schema):
     uuid: UUID
     name: str
@@ -35,9 +55,10 @@ class ChurchOut(Schema):
     zipcode: str | None
     city: str | None
     website_uuid: UUID
+    events: list[EventOut]
 
     @classmethod
-    def from_church(cls, church: Church) -> 'ChurchOut':
+    def from_church_and_events(cls, church: Church, index_events: list[IndexEvent]) -> 'ChurchOut':
         return cls(
             uuid=church.uuid,
             name=church.name,
@@ -47,6 +68,7 @@ class ChurchOut(Schema):
             zipcode=church.zipcode,
             city=church.city,
             website_uuid=church.parish.website_id,
+            events=[EventOut.from_index_event(event) for event in sorted(index_events)],
         )
 
 
@@ -92,9 +114,10 @@ class ChurchDetails(ChurchOut):
     schedules: list[ScheduleOut]
 
     @classmethod
-    def from_church_and_schedules(cls, church: Church, schedules: list[ScheduleOut]
+    def from_church_and_schedules(cls, church: Church, index_events: list[IndexEvent],
+                                  schedules: list[ScheduleOut]
                                   ) -> 'ChurchDetails':
-        base = ChurchOut.from_church(church)
+        base = ChurchOut.from_church_and_events(church, index_events)
 
         return cls(
             **base.dict(),
@@ -102,45 +125,23 @@ class ChurchDetails(ChurchOut):
         )
 
 
-class EventOut(Schema):
-    church_uuid: UUID
-    start: datetime
-    end: datetime | None
-    source_has_been_moderated: bool
-
-    @classmethod
-    def from_index_event(cls, index_event: IndexEvent) -> 'EventOut':
-        start = datetime.combine(index_event.day, index_event.start_time)
-        end = datetime.combine(index_event.day, index_event.displayed_end_time) \
-            if index_event.displayed_end_time else None
-
-        return cls(
-            church_uuid=index_event.church.uuid,
-            start=start,
-            end=end,
-            source_has_been_moderated=index_event.has_been_moderated,
-        )
-
-
 class WebsiteOut(Schema):
     uuid: UUID
     name: str
-    events: list[EventOut]
-    has_more_events: bool
+    events: list[EventOut]  # TODO remove
+    has_more_events: bool  # TODO remove
     reports_count: list[dict]
 
     @classmethod
     def from_website(cls,
                      website: Website,
-                     events: WebsiteEvents,
+                     index_events: list[IndexEvent],  # TODO remove
                      has_more_events: bool,
                      reports_count: list[dict]):
         return cls(
             uuid=website.uuid,
             name=website.name,
-            events=[EventOut.from_index_event(event)
-                    for events in events.index_events_by_day.values()
-                    for event in events],
+            events=[EventOut.from_index_event(event) for event in sorted(index_events)],
             has_more_events=has_more_events,
             reports_count=reports_count,
         )
@@ -181,18 +182,21 @@ class SearchResult(Schema):
     def from_result(cls,
                     churches: list[Church],
                     websites: list[Website],
-                    events_by_website: dict[UUID, WebsiteEvents],
+                    index_events_by_website: dict[UUID, list[IndexEvent]],
+                    index_events_by_church: dict[UUID, list[IndexEvent]],
                     events_truncated_by_website_uuid: dict[UUID, bool],
                     reports_count_by_website: dict[UUID, list[dict]],
                     aggregation_items: list[AggregationItem]):
-        churches = [ChurchOut.from_church(church) for church in churches]
+        churches = [ChurchOut.from_church_and_events(church,
+                                                     index_events_by_church.get(church.uuid, []))
+                    for church in churches]
         websites_out = []
         for website in websites:
-            events = events_by_website.get(website.uuid, [])
+            index_events = index_events_by_website.get(website.uuid, [])
             events_truncated = events_truncated_by_website_uuid.get(website.uuid, False)
             reports_count = reports_count_by_website.get(website.uuid, [])
             websites_out.append(
-                WebsiteOut.from_website(website, events, events_truncated, reports_count)
+                WebsiteOut.from_website(website, index_events, events_truncated, reports_count)
             )
         aggregations = [AggregationOut.from_aggregation(aggregation)
                         for aggregation in aggregation_items]
@@ -285,18 +289,12 @@ def api_front_search(request,
         website_churches.setdefault(church.parish.website.uuid, []).append(church)
     websites = list(websites_by_uuid.values())
 
-    index_events_by_website = {}
+    index_events_by_website = {}  # TODO remove
+    index_events_by_church = {}
     for index_event in index_events:
         index_events_by_website.setdefault(index_event.church.parish.website.uuid, []) \
-            .append(index_event)
-
-    events_by_website = {}
-    for website in websites:
-        events_by_website[website.uuid] = get_website_events(
-            index_events_by_website.get(website.uuid, []),
-            events_truncated_by_website_uuid[website.uuid],
-            time_filter.day_filter is not None
-        )
+            .append(index_event)  # TODO remove
+        index_events_by_church.setdefault(index_event.church.uuid, []).append(index_event)
 
     # Count reports for each website
     reports_count_by_website = {}
@@ -307,8 +305,10 @@ def api_front_search(request,
     # new_search_hit(request, len(websites))
 
     return SearchResult.from_result(
-        churches, websites, events_by_website, events_truncated_by_website_uuid,
-        reports_count_by_website, aggregations
+        churches, websites,
+        index_events_by_website,  # TODO remove
+        index_events_by_church,
+        events_truncated_by_website_uuid, reports_count_by_website, aggregations
     )
 
 
@@ -319,11 +319,25 @@ def api_front_autocomplete(request, query: str = '') -> list[AutocompleteItem]:
 
 
 @api.get("/church/{church_uuid}", response={200: ChurchDetails, 404: ErrorSchema})
-def api_front_church_details(request, church_uuid: UUID) -> ChurchDetails:
-    try:
-        church = Church.objects.get(uuid=church_uuid)
-    except Church.DoesNotExist:
+def api_front_church_details(request, church_uuid: UUID,
+                             date_filter: date | None = None,
+                             hour_min: int = 0,
+                             hour_max: int = 24 * 60 - 1,
+                             ) -> ChurchDetails:
+    time_filter = TimeFilter(
+        day_filter=date_filter,
+        hour_min=hour_min,
+        hour_max=hour_max,
+    )
+
+    index_events, churches, too_many_results, events_truncated_by_website_uuid = \
+        get_churches_by_uuid(church_uuid, time_filter)
+    churches = list(churches)
+
+    if not churches:
         raise Http404(f'Church with uuid {church_uuid} not found')
+
+    church = churches[0]
 
     website = church.parish.website
     scheduling = scheduling_get_indexed_scheduling(website)
@@ -333,7 +347,7 @@ def api_front_church_details(request, church_uuid: UUID) -> ChurchDetails:
                       in scheduling_elements.church_by_id.items() if church.uuid == church_uuid]
     if not church_id_list:
         # Church is not indexed yet, we return it with no schedule
-        return ChurchDetails.from_church_and_schedules(church, [])
+        return ChurchDetails.from_church_and_schedules(church, index_events, [])
 
     assert len(church_id_list) == 1, f'Multiple church ids found for church uuid {church_uuid}'
     church_id = church_id_list[0]
@@ -341,7 +355,7 @@ def api_front_church_details(request, church_uuid: UUID) -> ChurchDetails:
     schedules = [ScheduleOut.from_sourced_schedule_item(ssi)
                  for ssc in scheduling_elements.sourced_schedules_list.sourced_schedules_of_churches
                  for ssi in ssc.sourced_schedules if ssc.church_id == church_id]
-    return ChurchDetails.from_church_and_schedules(church, schedules)
+    return ChurchDetails.from_church_and_schedules(church, index_events, schedules)
 
 
 @api.get("/dioceses", response={200: list[DioceseOut], 404: ErrorSchema})
