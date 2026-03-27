@@ -1,10 +1,10 @@
 from uuid import UUID
 
-from registry.models import Church
 from front.services.search.search_service import get_churches_in_box, MAX_CHURCHES_IN_RESULTS, \
     get_count_per_diocese, TimeFilter, get_count_per_municipality, get_count_per_parish, \
-    get_churches_in_area, get_churches_around, get_popular_churches, AggregationItem, \
+    get_churches_in_area, get_churches_around, AggregationItem, \
     DEFAULT_SEARCH_BOX
+from registry.models import Church
 from scheduling.models import IndexEvent
 
 
@@ -52,8 +52,7 @@ def get_search_results(
         aggregations = []
     else:
         min_lat, max_lat, min_lng, max_lng = DEFAULT_SEARCH_BOX
-        index_events, churches, _, events_truncated_by_website_uuid = \
-            get_popular_churches(min_lat, max_lat, min_lng, max_lng, time_filter)
-        aggregations = []
+        return get_search_results(latitude, longitude, min_lat, min_lng, max_lat, max_lng,
+                                  time_filter)
 
     return index_events, churches, events_truncated_by_website_uuid, aggregations

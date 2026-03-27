@@ -7,6 +7,7 @@ from django.contrib.gis.db.models.functions import Distance, Centroid
 from django.contrib.gis.geos import Point, Polygon
 from django.db.models import QuerySet, OuterRef, Subquery, Exists, Q, \
     Count
+from django.utils.timezone import make_aware
 from pydantic import BaseModel
 
 from front.utils.city_utils import get_municipality_name
@@ -27,6 +28,7 @@ class TimeFilter(BaseModel):
     day_filter: date | None
     hour_min: int | None
     hour_max: int | None
+    single_event: bool = False
 
     def is_null(self):
         return self.day_filter is None \
@@ -86,7 +88,7 @@ def build_events_query(church_by_uuid: dict[UUID, Church],
 
 def add_event_filters(event_query: QuerySet[IndexEvent],
                       time_filter: TimeFilter) -> QuerySet[IndexEvent]:
-    event_query = event_query.filter(indexed_end_tz_datetime__gte=datetime.now())
+    event_query = event_query.filter(indexed_end_tz_datetime__gte=make_aware(datetime.now()))
 
     if time_filter.day_filter:
         event_query = event_query.filter(day=time_filter.day_filter)
@@ -104,34 +106,40 @@ def truncate_results(church_query: QuerySet[Church],
                      ) -> tuple[list[IndexEvent], list[Church], bool, dict[UUID, bool]]:
     churches = church_query.all()[:MAX_CHURCHES_IN_RESULTS]
 
-    non_truncated_count = 0
-    non_truncated_churches = []
-    truncated_churches = []
+    if time_filter.single_event:
+        church_by_uuid = {church.uuid: church for church in churches}
+        events = fetch_next_event(church_by_uuid)
+        all_churches_have_events = all(church.next_event_uuid is not None for church in churches)
+        events_truncated_by_website_uuid = {church.parish.website.uuid: True for church in churches}
+    else:
+        non_truncated_count = 0
+        non_truncated_churches = []
+        truncated_churches = []
 
-    all_churches_have_events = True
+        all_churches_have_events = True
 
-    events_truncated_by_website_uuid = {}
-    for church in churches:
-        website_uuid = church.parish.website.uuid
-        if website_uuid not in events_truncated_by_website_uuid:
-            if non_truncated_count >= MAX_WEBSITES_IN_RESULTS:
-                events_truncated_by_website_uuid[website_uuid] = True
+        events_truncated_by_website_uuid = {}
+        for church in churches:
+            website_uuid = church.parish.website.uuid
+            if website_uuid not in events_truncated_by_website_uuid:
+                if non_truncated_count >= MAX_WEBSITES_IN_RESULTS:
+                    events_truncated_by_website_uuid[website_uuid] = True
+                else:
+                    events_truncated_by_website_uuid[website_uuid] = False
+                    non_truncated_count += 1
+
+            if events_truncated_by_website_uuid[website_uuid]:
+                truncated_churches.append(church)
             else:
-                events_truncated_by_website_uuid[website_uuid] = False
-                non_truncated_count += 1
+                non_truncated_churches.append(church)
 
-        if events_truncated_by_website_uuid[website_uuid]:
-            truncated_churches.append(church)
-        else:
-            non_truncated_churches.append(church)
+            if church.next_event_uuid is None:
+                all_churches_have_events = False
 
-        if church.next_event_uuid is None:
-            all_churches_have_events = False
-
-    non_truncated_church_by_uuid = {church.uuid: church for church in non_truncated_churches}
-    truncated_church_by_uuid = {church.uuid: church for church in truncated_churches}
-    events = fetch_events(non_truncated_church_by_uuid, time_filter) \
-        + fetch_next_event(truncated_church_by_uuid)
+        non_truncated_church_by_uuid = {church.uuid: church for church in non_truncated_churches}
+        truncated_church_by_uuid = {church.uuid: church for church in truncated_churches}
+        events = fetch_events(non_truncated_church_by_uuid, time_filter) \
+            + fetch_next_event(truncated_church_by_uuid)
 
     return (events, churches, all_churches_have_events and len(churches) == MAX_CHURCHES_IN_RESULTS,
             events_truncated_by_website_uuid)

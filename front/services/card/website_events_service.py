@@ -50,23 +50,8 @@ def get_website_events(index_events: list[IndexEvent],
 
 def get_index_events_by_day(index_events: list[IndexEvent],
                             unique_day: bool) -> dict[date, list[IndexEvent]]:
-    today = date.today()
-
-    # We remove old index and deduplicate
-    index_events_by_event = {}
-    for index_event in index_events:
-        if index_event.day < today:
-            continue
-
-        index_events_by_event[(
-            index_event.day,
-            index_event.start_time,
-            index_event.displayed_end_time,
-            index_event.church_color,
-        )] = index_event
-
     # We sort events
-    sorted_index_events = list(sorted(index_events_by_event.values()))
+    sorted_index_events = list(sorted(index_events))
 
     max_days = 1 if unique_day else 8
 
