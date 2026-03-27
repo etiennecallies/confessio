@@ -5,12 +5,15 @@ from django.http import HttpResponseNotFound, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
 
+from crawling.models import CrawlingModeration
 from front.views import get_moderate_response, redirect_to_moderation
+from registry.models import Website
 from registry.models.base_moderation_models import BUG_DESCRIPTION_MAX_LENGTH
 from scheduling.models import ParsingModeration
 from scheduling.models import SchedulingModeration, WebsiteSchedulesModeration
 from scheduling.models.pruning_models import PruningModeration
 from scheduling.models.pruning_models import SentenceModeration
+from scheduling.services.merging.schedules_diff_service import validate_website_indexed_schedules
 from scheduling.services.parsing.edit_parsing_service import set_llm_json_as_human_json
 from scheduling.services.parsing.parsing_service import get_schedules_list_from_dict
 from scheduling.services.pruning.edit_pruning_service import get_single_line_colored_piece, \
@@ -18,6 +21,7 @@ from scheduling.services.pruning.edit_pruning_service import get_single_line_col
 from scheduling.services.pruning.edit_pruning_service import set_v2_indices_as_human
 from scheduling.services.pruning.prune_scraping_service import SentenceQualifyLineInterface, \
     MLSentenceQualifyLineInterface
+from scheduling.services.scheduling.scheduling_process_service import init_scheduling
 from scheduling.services.scheduling.scheduling_service import get_parsing_moderation_of_pruning
 from scheduling.workflows.pruning.extract.models import Source
 from scheduling.workflows.pruning.extract_v2.split_content import create_line_and_tag_v2
@@ -227,6 +231,24 @@ def moderate_set_v2_indices_as_human_by(request, pruning_moderation_uuid=None):
 @permission_required("scheduling.change_sentence")
 @require_POST
 def validate_schedules_for_website(request, website_uuid=None):
+    try:
+        website = Website.objects.get(uuid=website_uuid)
+    except PruningModeration.DoesNotExist:
+        return HttpResponseNotFound(f'website not found with uuid {website_uuid}')
+
+    assert request.user is not None
+
+    scheduling_moderation = SchedulingModeration.objects.get(website=website)
+    if scheduling_moderation is not None:
+        if scheduling_moderation.validated_at is None:
+            scheduling_moderation.validate(request.user)
+    crawling_moderation = CrawlingModeration.objects.get(website=website)
+    if crawling_moderation is not None:
+        if crawling_moderation.validated_at is None:
+            crawling_moderation.validate(request.user)
+
+    validate_website_indexed_schedules(website, request.user)
+    init_scheduling(website)
+
     next_url = request.POST.get('next', '/')
-    # TODO validate things
     return redirect(next_url)
