@@ -24,6 +24,7 @@
                                 </h3>
                                 <h6 class="text-gray-600 fw-light">{{ website_city_label|get_item:website.uuid }}</h6>
                                 {% if request.user.is_authenticated and request.user.is_staff %}
+                                    <div class="d-inline-block">
                                     {% with scheduling_moderation=scheduling_moderation_by_website|get_item:website.uuid %}
                                         {% if scheduling_moderation %}
                                             {% if scheduling_moderation.category == 'no_source' %}
@@ -31,62 +32,67 @@
                                                     {% if crawling_moderation %}
                                                         {% if crawling_moderation.category == 'no_response' %}
                                                             <a href="{{ crawling_moderation|get_url }}" class="link-info" target="_blank">
-                                                                <span>erreur sur le site web {% display_moderation_status_emoji crawling_moderation %}</span>
+                                                                <span class="border rounded px-2 py-1">Erreur sur le site web {% display_moderation_status_emoji crawling_moderation %}</span>
                                                             </a>
                                                         {% elif crawling_moderation.category == 'no_page' %}
                                                             <a href="{{ crawling_moderation|get_url }}" class="link-info" target="_blank">
-                                                                <span>pas d’extrait trouvé {% display_moderation_status_emoji crawling_moderation %}</span>
+                                                                <span class="border rounded px-2 py-1">Pas d’extrait trouvé {% display_moderation_status_emoji crawling_moderation %}</span>
                                                             </a>
                                                         {% endif %}
                                                     {% else %}
                                                         <a href="{{ scheduling_moderation|get_url }}" class="link-info" target="_blank">
-                                                            <span>aucune page retenue (cf empty sources) {% display_moderation_status_emoji scheduling_moderation %}</span>
+                                                            <span class="border rounded px-2 py-1">Aucune page retenue (cf empty sources) {% display_moderation_status_emoji scheduling_moderation %}</span>
                                                         </a>
                                                     {% endif %}
                                                 {% endwith %}
                                             {% elif scheduling_moderation.category == 'no_schedule' %}
                                                 <a href="{{ scheduling_moderation|get_url }}" class="link-info" target="_blank">
-                                                    <span>pas d’horaire extrait {% display_moderation_status_emoji scheduling_moderation %}</span>
+                                                    <span class="border rounded px-2 py-1">Pas d’horaire extrait {% display_moderation_status_emoji scheduling_moderation %}</span>
                                                 </a>
                                             {% elif scheduling_moderation.category == 'unknown_place' %}
                                                 <a href="{{ scheduling_moderation|get_url }}" class="link-info" target="_blank">
-                                                    <span>des lieux inconnus {% display_moderation_status_emoji scheduling_moderation %}</span>
+                                                    <span class="border rounded px-2 py-1">Des lieux inconnus {% display_moderation_status_emoji scheduling_moderation %}</span>
                                                 </a>
                                             {% elif scheduling_moderation.category == 'sched_conflict' %}
                                                 <a href="{{ scheduling_moderation|get_url }}" class="link-info" target="_blank">
-                                                    <span>des conflits entre les pages {% display_moderation_status_emoji scheduling_moderation %}</span>
+                                                    <span class="border rounded px-2 py-1">Des conflits entre les pages {% display_moderation_status_emoji scheduling_moderation %}</span>
                                                 </a>
                                             {% else %}
                                                 <a href="{{ scheduling_moderation|get_url }}" class="link-info" target="_blank">
-                                                    <span>tout a fonctionné {% display_moderation_status_emoji scheduling_moderation %}</span>
+                                                    <span class="border rounded px-2 py-1">Tout a fonctionné {% display_moderation_status_emoji scheduling_moderation %}</span>
                                                 </a>
                                             {% endif %}
                                         {% else %}
-                                            <span>traitement en cours 🌀</span>
+                                            <span class="border rounded px-2 py-1">Traitement en cours 🌀</span>
                                         {% endif %}
                                     {% endwith %}
+                                    </div>
+                                    <div class="d-inline-block">
                                     {% with validated_schedules_moderation=validated_schedules_moderation_by_website|get_item:website.uuid %}
                                         {% if validated_schedules_moderation %}
                                             {% if validated_schedules_moderation.category == 'schedules_differs' %}
                                                 <a href="{{ validated_schedules_moderation|get_url }}" class="link-info" target="_blank">
-                                                    <span>changement détecté {% display_moderation_status_emoji validated_schedules_moderation %}</span>
+                                                    <span class="border rounded px-2 py-1">Changement détecté {% display_moderation_status_emoji validated_schedules_moderation %}</span>
                                                 </a>
                                             {% else %}
                                                 <a href="{{ validated_schedules_moderation|get_url }}" class="link-info" target="_blank">
-                                                    <span>horaire validé {% display_moderation_status_emoji validated_schedules_moderation %}</span>
+                                                    <span class="border rounded px-2 py-1">Horaire validé {% display_moderation_status_emoji validated_schedules_moderation %}</span>
                                                 </a>
                                             {% endif %}
                                         {% elif website|has_validated_schedules %}
-                                            <span>traitement en cours 🌀</span>
+                                            <span class="border rounded px-2 py-1">Traitement en cours 🌀</span>
                                         {% else %}
-                                            <span>site non surveillé 🚫</span>
+                                            <span class="border rounded px-2 py-1">Site non surveillé 🚫</span>
                                         {% endif %}
                                     {% endwith %}
-                                    <form method="post" action="{% url 'validate_schedules' website.uuid %}">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                                        <button type="submit">Valider</button>
-                                    </form>
+                                    </div>
+                                    <div class="d-inline-block">
+                                        <form method="post" action="{% url 'validate_schedules' website.uuid %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                            <button type="submit" class="btn btn-success">Valider</button>
+                                        </form>
+                                    </div>
                                 {% endif %}
                             </div>
                             <h3 class="col-md-4 text-md-end">
