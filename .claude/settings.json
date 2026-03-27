@@ -12,8 +12,7 @@
       "Read(local_static/**)",
       "Read(profiling_prof_files/**)",
       "Read(**/fixtures/**)",
-      "Read(.python-version)",
-      "Read(tach.toml)"
+      "Read(.python-version)"
     ]
   }
 }

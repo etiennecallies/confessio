@@ -22,6 +22,11 @@ flake8 .
 python -m unittest discover -s scheduling/tests -s crawling/tests
 ```
 
+### Check module dependencies
+```bash
+python scripts/check_dependencies.py
+```
+
 ### Translations (front app only)
 ```bash
 # Extract strings

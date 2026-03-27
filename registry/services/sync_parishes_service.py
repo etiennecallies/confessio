@@ -4,7 +4,7 @@ from typing import Optional
 
 from django.contrib.gis.geos import Point
 
-from crawling.public_worflow import crawling_redirects_to_other_url
+from crawling.public_workflow import crawling_redirects_to_other_url
 from registry.models import Parish, Diocese, ParishModeration, Website, ExternalSource
 from registry.services.parish_website_service import save_website_of_parish
 from registry.utils.geo_utils import get_geo_distance

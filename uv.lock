@@ -273,6 +273,7 @@ ci = [
     { name = "flake8" },
     { name = "pep8-naming" },
     { name = "simple-cache" },
+    { name = "tach" },
 ]
 dev = [
     { name = "ansible" },
@@ -339,6 +340,7 @@ ci = [
     { name = "flake8", specifier = "==7.1.1" },
     { name = "pep8-naming", specifier = "==0.14.1" },
     { name = "simple-cache", specifier = "==0.35" },
+    { name = "tach", specifier = "==0.33.2" },
 ]
 dev = [
     { name = "ansible", specifier = "==13.3.0" },

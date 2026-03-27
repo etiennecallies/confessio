@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 
-from crawling.public_worflow import crawling_get_content_from_url
+from crawling.public_workflow import crawling_get_content_from_url
 
 
 def get_page_title(url):

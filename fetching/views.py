@@ -3,8 +3,8 @@ import json
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render
 
+from core.views import get_moderate_response
 from fetching.models import OClocherOrganizationModeration, OClocherMatchingModeration
-from front.views import get_moderate_response
 from registry.models.base_moderation_models import BUG_DESCRIPTION_MAX_LENGTH
 
 

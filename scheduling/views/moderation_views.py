@@ -5,8 +5,8 @@ from django.http import HttpResponseNotFound, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
 
+from core.views import get_moderate_response, ModerationPostError, redirect_to_moderation
 from crawling.models import CrawlingModeration
-from front.views import get_moderate_response, redirect_to_moderation, ModerationPostError
 from registry.models import Website
 from registry.models.base_moderation_models import BUG_DESCRIPTION_MAX_LENGTH
 from scheduling.models import ParsingModeration

@@ -51,6 +51,7 @@ app_name/
 ├── __init__.py
 ├── admin.py  # django admin configuration
 ├── apps.py  # django app configuration
+├── forms/  # django forms
 ├── management/
 │   └── commands/  # custom django commands
 ├── migrations/  # django models migrations
@@ -60,21 +61,20 @@ app_name/
 ├── services/  # methods that use Django objects
 ├── signals.py  # django signals (models pre-hooks and post-hooks)
 ├── tasks.py  # entrypoint of the background worker
+├── templates/  # django templates
+├── templatetags/  # django template tags
 ├── tests/  # unit tests (without django loading)
+├── urls.py  # django urls configuration
 ├── utils/  # utilitary methods that do not use Django objects, and that can be used by other apps
+├── views/  # django views
 ├── workflows/  # business-related methods that do not use Django objects
 ```
 
 The `front` app has these additional files and directories:
 ```front/
 ├── api.py  # django rest framework api views
-├── forms/  # django forms
 ├── front_api.py  # django rest framework front api views
 ├── locale/  # translations
-├── templates/  # django templates
-├── templatetags/  # django template tags
-├── views/  # django views
-├── urls.py  # django urls configuration
 ```
 Also, the `core` app contains the different settings files.
 
@@ -203,6 +203,13 @@ echo "Running flake8..."
 flake8 .
 if [ $? -ne 0 ]; then
     echo "flake8 failed. Please fix the above issues before committing."
+    exit 1
+fi
+
+echo "Checking module dependencies..."
+python scripts/check_dependencies.py
+if [ $? -ne 0 ]; then
+    echo "Module dependency check failed. Please fix the above issues before committing."
     exit 1
 fi
 

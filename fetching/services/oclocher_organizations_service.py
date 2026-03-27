@@ -1,6 +1,6 @@
 from django.db.models.functions import Now
 
-from crawling.public_worflow import crawling_get_new_url_and_aliases, crawling_is_new_url_valid
+from crawling.public_workflow import crawling_get_new_url_and_aliases, crawling_is_new_url_valid
 from fetching.models import OClocherOrganization
 from fetching.workflows.oclocher.fetch_oclocher_api import fetch_organizations
 

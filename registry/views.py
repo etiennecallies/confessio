@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponseNotFound, HttpResponseBadRequest
 from django.shortcuts import render
 
-from front.views import get_moderate_response, redirect_to_moderation, ModerationPostError
+from core.views import get_moderate_response, ModerationPostError, redirect_to_moderation
 from registry.models import WebsiteModeration, ChurchModeration, ParishModeration
 from registry.models.base_moderation_models import BUG_DESCRIPTION_MAX_LENGTH, \
     ResourceDoesNotExistError
