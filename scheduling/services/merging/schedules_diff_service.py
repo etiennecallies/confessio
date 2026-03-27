@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.db.models.functions import Now
 
 from registry.models import Website
-from scheduling.models import WebsiteSchedules
+from scheduling.models import ValidatedSchedules
 from scheduling.public_model import SourcedSchedulesList
 from scheduling.services.scheduling.scheduling_service import get_indexed_scheduling
 from scheduling.workflows.merging.sourced_schedules import SourcedScheduleItem
@@ -34,7 +34,7 @@ def check_schedules_match(website: Website,
                           sourced_schedules_list: SourcedSchedulesList) -> bool | None:
     try:
         website_schedules = website.schedules
-    except WebsiteSchedules.DoesNotExist:
+    except ValidatedSchedules.DoesNotExist:
         return None
 
     validated_sourced_schedules_list = \
@@ -55,8 +55,8 @@ def validate_website_indexed_schedules(website: Website, user: User):
         website_schedules.validated_sourced_schedules_list = scheduling.sourced_schedules_list
         website_schedules.validated_at = Now()
         website_schedules.validated_by = user
-    except WebsiteSchedules.DoesNotExist:
-        website_schedules = WebsiteSchedules(
+    except ValidatedSchedules.DoesNotExist:
+        website_schedules = ValidatedSchedules(
             website=website,
             validated_sourced_schedules_list=scheduling.sourced_schedules_list,
             validated_at=Now(),
