@@ -15,6 +15,8 @@ def get_timezone_of_zipcode(zipcode: str) -> str:
         return "America/Cayenne"
     if department == "974":
         return "Indian/Reunion"
+    if department == "975":
+        return "America/Miquelon"
     if department == "976":
         return "Indian/Mayotte"
 
