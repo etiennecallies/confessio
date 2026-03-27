@@ -2,7 +2,7 @@ from urllib.parse import quote, unquote
 
 from crawling.models import Scraping
 from scheduling.models.pruning_models import Pruning
-from scheduling.services.scheduling.scheduling_service import SchedulingPrimarySources
+from scheduling.public_service import SchedulingPrimarySources
 from scheduling.utils.html_utils import get_text_if_not_table, split_lines
 
 

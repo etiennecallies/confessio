@@ -3,11 +3,13 @@ from scheduling.models import Parsing, Scheduling
 from scheduling.models.pruning_models import Sentence, Pruning
 from scheduling.services.merging.sourced_schedules_service import SchedulingElements, \
     retrieve_scheduling_elements
+from scheduling.services.parsing.parsing_service import has_schedules
 from scheduling.services.pruning.prune_scraping_service import create_pruning, \
     remove_pruning_moderation_if_orphan
 from scheduling.services.scheduling.scheduling_process_service import init_scheduling
 from scheduling.services.scheduling.scheduling_service import get_websites_of_prunings, \
-    get_websites_of_parsing, get_indexed_scheduling
+    get_websites_of_parsing, get_indexed_scheduling, SchedulingSources, get_scheduling_sources, \
+    SchedulingPrimarySources, get_scheduling_primary_sources
 
 
 ###########
@@ -20,6 +22,14 @@ def scheduling_create_pruning(extracted_html: str | None) -> Pruning | None:
 
 def scheduling_remove_pruning_moderation_if_orphan(pruning: Pruning):
     remove_pruning_moderation_if_orphan(pruning)
+
+
+###########
+# PARSING #
+###########
+
+def scheduling_has_schedules(parsing: Parsing) -> bool:
+    return has_schedules(parsing)
 
 
 ###################
@@ -71,3 +81,12 @@ def scheduling_get_websites_of_parsing(parsing: Parsing) -> list[Website]:
 
 def scheduling_retrieve_scheduling_elements(scheduling: Scheduling) -> SchedulingElements:
     return retrieve_scheduling_elements(scheduling)
+
+
+def scheduling_get_scheduling_sources(scheduling: Scheduling | None) -> SchedulingSources:
+    return get_scheduling_sources(scheduling)
+
+
+def scheduling_get_scheduling_primary_sources(scheduling: Scheduling | None
+                                              ) -> SchedulingPrimarySources:
+    return get_scheduling_primary_sources(scheduling)

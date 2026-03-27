@@ -12,9 +12,7 @@ from front.services.search.map_service import (get_map_with_single_location,
                                                get_map_with_multiple_locations,
                                                get_map_with_alternative_locations)
 from registry.models import Parish, Church, Website, ModerationMixin
-from scheduling.models import Parsing
 from scheduling.models.pruning_models import Pruning
-from scheduling.services.scheduling.scheduling_service import get_prunings_of_parsing
 from scheduling.utils.list_utils import group_consecutive_indices
 
 
@@ -113,14 +111,6 @@ def display_image(image: Image, request) -> str:
         'image': image,
         'image_url': attaching_get_image_public_url(image),
         'request': request,
-    })
-
-
-@register.simple_tag
-def display_parsing_scrapings(parsing: Parsing):
-    prunings = get_prunings_of_parsing(parsing)
-    return render_to_string('displays/parsing_scrapings_display.html', {
-        'prunings': prunings,
     })
 
 

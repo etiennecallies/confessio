@@ -5,8 +5,7 @@ from attaching.models import Image
 from crawling.models import Scraping
 from scheduling.models import Parsing
 from scheduling.models.pruning_models import Pruning
-from scheduling.services.parsing.parsing_service import has_schedules
-from scheduling.services.scheduling.scheduling_service import SchedulingPrimarySources
+from scheduling.public_service import scheduling_has_schedules, SchedulingPrimarySources
 
 
 #########################
@@ -158,7 +157,7 @@ def get_empty_sources(scheduling_prunings_and_parsings: SchedulingPrimarySources
 
 def add_pruning_if_empty(parsing: Parsing | None, pruning: Pruning, prunings: list[Pruning],
                          parsings_by_pruning_uuid: dict[UUID, list[Parsing]]) -> bool:
-    if parsing is None or not has_schedules(parsing):
+    if parsing is None or not scheduling_has_schedules(parsing):
         prunings.append(pruning)
         if parsing:
             parsings_by_pruning_uuid.setdefault(pruning.uuid, []).append(parsing)

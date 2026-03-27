@@ -7,7 +7,7 @@ from ninja import NinjaAPI, Schema, Field
 from registry.models import Church, ChurchModeration, Parish, Website
 from scheduling.models import Scheduling, IndexEvent
 from scheduling.public_model import SourcedScheduleItem
-from scheduling.services.merging.sourced_schedules_service import retrieve_scheduling_elements
+from scheduling.public_service import scheduling_retrieve_scheduling_elements
 
 api = NinjaAPI(urls_namespace='main_api')
 
@@ -240,7 +240,7 @@ class SchedulingOut(Schema):
 
         # Schedules
         schedules_by_churches = []
-        scheduling_elements = retrieve_scheduling_elements(scheduling)
+        scheduling_elements = scheduling_retrieve_scheduling_elements(scheduling)
         for schedules_of_church in scheduling_elements.sourced_schedules_list\
                 .sourced_schedules_of_churches:
             church = scheduling_elements.church_by_id.get(schedules_of_church.church_id, None)

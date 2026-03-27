@@ -29,9 +29,8 @@ from front.utils.web_utils import redirect_with_url_params
 from registry.models import Website, Diocese, Church
 from registry.utils.string_utils import lower_first, city_and_prefix
 from scheduling.models import IndexEvent
-from scheduling.public_service import scheduling_get_indexed_scheduling
-from scheduling.services.scheduling.scheduling_service import get_scheduling_primary_sources, \
-    get_scheduling_sources
+from scheduling.public_service import scheduling_get_indexed_scheduling, \
+    scheduling_get_scheduling_sources, scheduling_get_scheduling_primary_sources
 from scheduling.utils.date_utils import get_current_day, get_current_year
 
 
@@ -338,7 +337,7 @@ def partial_website_sources(request, website_uuid: str):
                             "pour le moment. "
                             "Merci de patienter et de revenir dans quelques minutes.")
 
-    primary_sources = get_scheduling_primary_sources(scheduling)
+    primary_sources = scheduling_get_scheduling_primary_sources(scheduling)
     empty_sources = None
     if request.user.is_authenticated and request.user.has_perm("scheduling.change_sentence"):
         empty_sources = get_empty_sources(primary_sources)
@@ -349,7 +348,7 @@ def partial_website_sources(request, website_uuid: str):
         except OClocherOrganization.DoesNotExist:
             oclocher_organization_id = None
 
-        scheduling_sources = get_scheduling_sources(scheduling)
+        scheduling_sources = scheduling_get_scheduling_sources(scheduling)
         oclocher_schedules = scheduling_sources.oclocher_schedules
     else:
         oclocher_organization_id = None
