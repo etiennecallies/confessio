@@ -4,7 +4,7 @@ from crawling.models import CrawlingModeration
 from registry.models import Website
 from scheduling.models import Scheduling
 from scheduling.models.scheduling_moderation_models import SchedulingModeration, \
-    WebsiteSchedulesModeration
+    ValidatedSchedulesModeration
 from scheduling.services.merging.schedules_conflict_service import website_has_schedules_conflict
 from scheduling.services.scheduling.index_scheduling_service import SchedulingIndexingObjects
 from scheduling.services.scheduling.scheduling_service import get_scheduling_sources
@@ -65,17 +65,17 @@ def handle_scheduling_moderation(scheduling: Scheduling,
 
 
 def upsert_website_schedules_moderation(website: Website,
-                                        category: WebsiteSchedulesModeration.Category,
+                                        category: ValidatedSchedulesModeration.Category,
                                         moderation_validated: bool):
     try:
-        moderation = WebsiteSchedulesModeration.objects.get(website=website)
+        moderation = ValidatedSchedulesModeration.objects.get(website=website)
         if moderation.category != category:
             moderation.category = category
             moderation.validated_at = Now() if moderation_validated else None
             moderation.validated_by = None
             moderation.save()
-    except WebsiteSchedulesModeration.DoesNotExist:
-        moderation = WebsiteSchedulesModeration(
+    except ValidatedSchedulesModeration.DoesNotExist:
+        moderation = ValidatedSchedulesModeration(
             website=website, category=category,
             diocese=website.get_diocese(),
             validated_at=Now() if moderation_validated else None,
@@ -85,14 +85,14 @@ def upsert_website_schedules_moderation(website: Website,
 
 def get_website_schedules_moderation_category(
         indexing_objects: SchedulingIndexingObjects
-) -> tuple[WebsiteSchedulesModeration.Category, bool] | None:
+) -> tuple[ValidatedSchedulesModeration.Category, bool] | None:
     if indexing_objects.schedules_match_with_validated is None:
         return None
 
     if not indexing_objects.schedules_match_with_validated:
-        return WebsiteSchedulesModeration.Category.SCHEDULES_DIFFERS, False
+        return ValidatedSchedulesModeration.Category.SCHEDULES_DIFFERS, False
 
-    return WebsiteSchedulesModeration.Category.OK, True
+    return ValidatedSchedulesModeration.Category.OK, True
 
 
 def handle_website_schedules_moderation(scheduling: Scheduling,

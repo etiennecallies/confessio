@@ -28,7 +28,7 @@ class SchedulingModeration(ModerationMixin):
         return False
 
 
-class WebsiteSchedulesModeration(ModerationMixin):
+class ValidatedSchedulesModeration(ModerationMixin):
     class Category(models.TextChoices):
         SCHEDULES_DIFFERS = "schedules_differs"
         OK = "ok"

@@ -103,9 +103,9 @@ class SchedulingHistoricalOClocherMatching(TimeStampMixin):
 
 class ValidatedSchedules(TimeStampMixin):
     website = models.OneToOneField('registry.Website', on_delete=models.CASCADE,
-                                   related_name='schedules')
+                                   related_name='validated_schedules')
     validated_sourced_schedules_list = models.JSONField()
     validated_by = models.ForeignKey('auth.User',
-                                     related_name=f'website_schedules_validated_by',
+                                     related_name=f'validated_schedules',
                                      on_delete=models.SET_NULL, null=True)
     validated_at = models.DateTimeField()
