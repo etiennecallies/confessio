@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from typing import Literal
 from uuid import UUID
 
@@ -39,11 +39,8 @@ class TimeFilter(BaseModel):
 ###############
 
 def build_event_subquery(time_filter: TimeFilter):
-    event_query = IndexEvent.objects.filter(church_id=OuterRef('pk'),
-                                            day__gte=date.today())
-
-    if not time_filter.is_null():
-        event_query = add_event_filters(event_query, time_filter)
+    event_query = IndexEvent.objects.filter(church_id=OuterRef('pk'))
+    event_query = add_event_filters(event_query, time_filter)
 
     return event_query
 
@@ -89,6 +86,8 @@ def build_events_query(church_by_uuid: dict[UUID, Church],
 
 def add_event_filters(event_query: QuerySet[IndexEvent],
                       time_filter: TimeFilter) -> QuerySet[IndexEvent]:
+    event_query = event_query.filter(indexed_end_tz_datetime__gte=datetime.now())
+
     if time_filter.day_filter:
         event_query = event_query.filter(day=time_filter.day_filter)
 
