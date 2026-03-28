@@ -6,7 +6,11 @@ from uuid import UUID
 from django.http import Http404
 from ninja import NinjaAPI, Schema
 
+from attaching.public_service import attaching_get_image_public_url
 from front.services.card.report_service import get_count_and_label
+from front.services.card.scraping_url_service import get_scraping_parsing_urls
+from front.services.card.sources_service import get_website_parsings_and_prunings, \
+    WebsiteParsingsAndPrunings
 from front.services.search.aggregation_service import get_search_results
 from front.services.search.autocomplete_service import get_aggregated_response, AutocompleteResult
 from front.services.search.search_service import TimeFilter, AggregationItem, BoundingBox, \
@@ -15,7 +19,7 @@ from registry.models import Church, Website, Diocese
 from scheduling.models import IndexEvent
 from scheduling.public_model import SourcedScheduleItem, BaseSource, ParsingSource, OClocherSource
 from scheduling.public_service import scheduling_get_indexed_scheduling, \
-    scheduling_retrieve_scheduling_elements
+    scheduling_retrieve_scheduling_elements, scheduling_get_scheduling_primary_sources
 
 api = NinjaAPI(urls_namespace='front_api')
 
@@ -109,18 +113,42 @@ class ScheduleOut(Schema):
         )
 
 
+class ParsingOut(Schema):
+    uuid: UUID
+    scraping_url: str | None
+    image_url: str | None
+
+    @classmethod
+    def from_parsing_and_related(cls, parsing_uuid: UUID,
+                                 parsings_and_prunings: WebsiteParsingsAndPrunings,
+                                 scraping_parsing_urls: dict[UUID, dict[UUID, str]],
+                                 ) -> 'ParsingOut':
+        scraping = parsings_and_prunings.scraping_by_parsing_uuid.get(parsing_uuid)
+        scraping_url = scraping_parsing_urls[scraping.uuid][parsing_uuid] \
+            if scraping else None
+        image = parsings_and_prunings.image_by_parsing_uuid.get(parsing_uuid)
+        return cls(
+            uuid=parsing_uuid,
+            scraping_url=scraping_url,
+            image_url=attaching_get_image_public_url(image) if image else None,
+        )
+
+
 class ChurchDetails(ChurchOut):
     schedules: list[ScheduleOut]
+    parsings: list[ParsingOut]
 
     @classmethod
     def from_church_and_schedules(cls, church: Church, index_events: list[IndexEvent],
-                                  schedules: list[ScheduleOut]
+                                  schedules: list[ScheduleOut],
+                                  parsings: list[ParsingOut],
                                   ) -> 'ChurchDetails':
         base = ChurchOut.from_church_and_events(church, index_events)
 
         return cls(
             **base.dict(),
-            schedules=schedules
+            schedules=schedules,
+            parsings=parsings,
         )
 
 
@@ -346,15 +374,27 @@ def api_front_church_details(request, church_uuid: UUID,
                       in scheduling_elements.church_by_id.items() if church.uuid == church_uuid]
     if not church_id_list:
         # Church is not indexed yet, we return it with no schedule
-        return ChurchDetails.from_church_and_schedules(church, index_events, [])
+        return ChurchDetails.from_church_and_schedules(church, index_events, [], [])
 
     assert len(church_id_list) == 1, f'Multiple church ids found for church uuid {church_uuid}'
     church_id = church_id_list[0]
 
-    schedules = [ScheduleOut.from_sourced_schedule_item(ssi)
-                 for ssc in scheduling_elements.sourced_schedules_list.sourced_schedules_of_churches
-                 for ssi in ssc.sourced_schedules if ssc.church_id == church_id]
-    return ChurchDetails.from_church_and_schedules(church, index_events, schedules)
+    sourced_schedules = [
+        ssi for ssc in scheduling_elements.sourced_schedules_list.sourced_schedules_of_churches
+        for ssi in ssc.sourced_schedules if ssc.church_id == church_id]
+    schedules = [ScheduleOut.from_sourced_schedule_item(ssi) for ssi in sourced_schedules]
+
+    primary_sources = scheduling_get_scheduling_primary_sources(scheduling)
+    parsings_and_prunings = get_website_parsings_and_prunings(primary_sources)
+    scraping_parsing_urls = get_scraping_parsing_urls(primary_sources)
+    parsing_uuids = {source.parsing_uuid for ssi in sourced_schedules
+                     for source in ssi.sources if isinstance(source, ParsingSource)}
+    parsings = [ParsingOut.from_parsing_and_related(parsing_uuid,
+                                                    parsings_and_prunings,
+                                                    scraping_parsing_urls)
+                for parsing_uuid in parsing_uuids]
+
+    return ChurchDetails.from_church_and_schedules(church, index_events, schedules, parsings)
 
 
 @api.get("/dioceses", response={200: list[DioceseOut], 404: ErrorSchema})

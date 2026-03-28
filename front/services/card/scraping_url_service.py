@@ -1,4 +1,5 @@
 from urllib.parse import quote, unquote
+from uuid import UUID
 
 from crawling.models import Scraping
 from scheduling.models.pruning_models import Pruning
@@ -25,7 +26,7 @@ def get_scraping_url_with_pointer_at_pruning(scraping: Scraping, pruning: Prunin
 
 
 def get_scraping_parsing_urls(scheduling_prunings_and_parsings: SchedulingPrimarySources,
-                              ) -> dict[str, dict[str, str]]:
+                              ) -> dict[UUID, dict[UUID, str]]:
     scraping_parsing_urls = {}
     for scraping in scheduling_prunings_and_parsings.scrapings:
         prunings = scheduling_prunings_and_parsings.prunings_by_scraping_uuid[scraping.uuid]
