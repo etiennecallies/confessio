@@ -26,7 +26,7 @@ def source_has_been_moderated(source: BaseSource,
 
 def generate_unique_events_by_church_id(website: Website, scheduling_elements: SchedulingElements,
                                         schedules_match_with_validated: bool | None
-                                        ) -> dict[int | None, list[tuple[Event, bool]]]:
+                                        ) -> dict[int | None, list[tuple[Event, list[int], bool]]]:
     parsing_by_uuid = {parsing.uuid: parsing for parsing in scheduling_elements.parsings}
     holiday_zone = get_website_holiday_zone(website,
                                             list(scheduling_elements.church_by_id.values()))
@@ -38,20 +38,23 @@ def generate_unique_events_by_church_id(website: Website, scheduling_elements: S
             # We do not create events if not real church
             continue
 
-        has_been_moderated_by_church_event = {}
-        for sourced_schedule_item in sourced_schedules_of_church.sourced_schedules:
-            has_been_moderated = schedules_match_with_validated or \
+        tuple_by_event = {}
+        for i, sourced_schedule_item in enumerate(sourced_schedules_of_church.sourced_schedules):
+            schedule_has_been_moderated = schedules_match_with_validated or \
                 any(source_has_been_moderated(source, parsing_by_uuid)
                     for source in sourced_schedule_item.sources)
             events = get_events_from_schedule_item(sourced_schedule_item.item, holiday_zone,
                                                    max_days=10)
             for event in events:
-                has_been_moderated_by_church_event[event] = \
-                    has_been_moderated or has_been_moderated_by_church_event.get(event, False)
+                schedules_indices, has_been_moderated = tuple_by_event.get(event, ([], False))
+                tuple_by_event[event] = (
+                    schedules_indices + [i],
+                    has_been_moderated or schedule_has_been_moderated,
+                )
 
         unique_events = []
-        for event, has_been_moderated in has_been_moderated_by_church_event.items():
-            unique_events.append((event, has_been_moderated))
+        for event, (schedules_indices, has_been_moderated) in tuple_by_event.items():
+            unique_events.append((event, schedules_indices, has_been_moderated))
 
         events_by_church_id[sourced_schedules_of_church.church_id] = unique_events
 
@@ -60,7 +63,7 @@ def generate_unique_events_by_church_id(website: Website, scheduling_elements: S
 
 def build_index_events(scheduling: Scheduling,
                        scheduling_elements: SchedulingElements,
-                       events_by_church_id: dict[int | None, list[tuple[Event, bool]]]
+                       events_by_church_id: dict[int | None, list[tuple[Event, list[int], bool]]]
                        ) -> list[IndexEvent]:
     church_color_by_uuid = front_get_church_color_by_uuid(
         scheduling_elements.sourced_schedules_list,
@@ -73,7 +76,7 @@ def build_index_events(scheduling: Scheduling,
         church_color = church_color_by_uuid[church.uuid]
         church_tz = get_timezone_of_church(church)
 
-        for event, has_been_moderated in event_and_moderations:
+        for event, schedules_indices, has_been_moderated in event_and_moderations:
             midnight = event.start.replace(hour=23, minute=59, second=0, microsecond=0)
             if event.end is None:
                 indexed_end_datetime = min(event.start + timedelta(hours=4), midnight)
@@ -100,6 +103,7 @@ def build_index_events(scheduling: Scheduling,
                 displayed_end_time=displayed_end_time,
                 start_tz_datetime=start_tz_datetime,
                 indexed_end_tz_datetime=indexed_end_tz_datetime,
+                schedules_indices=schedules_indices,
                 has_been_moderated=has_been_moderated,
                 church_color=church_color,
             ))
