@@ -1,3 +1,4 @@
+import difflib
 import json
 
 from django.contrib.auth.decorators import login_required, permission_required
@@ -13,7 +14,9 @@ from scheduling.models import ParsingModeration
 from scheduling.models import SchedulingModeration, ValidatedSchedulesModeration
 from scheduling.models.pruning_models import PruningModeration
 from scheduling.models.pruning_models import SentenceModeration
-from scheduling.services.merging.schedules_diff_service import validate_website_indexed_schedules
+from scheduling.services.merging.validated_schedules_service import \
+    validate_website_indexed_schedules, retrieve_validated_schedule
+from scheduling.services.merging.sourced_schedules_service import retrieve_scheduling_elements
 from scheduling.services.parsing.edit_parsing_service import set_llm_json_as_human_json, \
     on_parsing_human_validation, ParsingValidationError
 from scheduling.services.parsing.parsing_service import get_schedules_list_from_dict
@@ -25,7 +28,8 @@ from scheduling.services.pruning.edit_pruning_service import set_v2_indices_as_h
 from scheduling.services.pruning.prune_scraping_service import SentenceQualifyLineInterface, \
     MLSentenceQualifyLineInterface
 from scheduling.services.scheduling.scheduling_process_service import init_scheduling
-from scheduling.services.scheduling.scheduling_service import get_parsing_moderation_of_pruning
+from scheduling.services.scheduling.scheduling_service import get_parsing_moderation_of_pruning, \
+    get_indexed_scheduling
 from scheduling.workflows.pruning.extract.models import Source
 from scheduling.workflows.pruning.extract_v2.split_content import create_line_and_tag_v2
 
@@ -209,11 +213,29 @@ def moderate_validated_schedules(request, category, is_bug, diocese_slug, modera
 
 def render_validated_schedules_moderation(request, moderation: ValidatedSchedulesModeration,
                                           next_url):
+    scheduling = get_indexed_scheduling(moderation.website)
+    scheduling_elements = retrieve_scheduling_elements(scheduling)
+
+    validated_sourced_schedules_list = retrieve_validated_schedule(moderation.website)
+
+    indexed_str = scheduling_elements.sourced_schedules_list.model_dump_json(indent=2)
+    validated_str = validated_sourced_schedules_list.model_dump_json(indent=2)
+
+    diff = difflib.unified_diff(
+        indexed_str.splitlines(),
+        validated_str.splitlines(),
+        fromfile='indexed',
+        tofile='validated',
+        lineterm=''
+    )
+    printable_diff = '\n'.join(diff)
+
     return render(request, 'moderations/moderate_validated_schedules.html', {
         'website': moderation.website,
         'moderation': moderation,
         'next_url': next_url,
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
+        'printable_diff': printable_diff,
     })
 
 

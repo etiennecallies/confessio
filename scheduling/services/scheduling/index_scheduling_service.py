@@ -5,7 +5,7 @@ from scheduling.models import Scheduling, IndexEvent
 from scheduling.public_model import SourcedSchedulesList
 from scheduling.services.merging.index_events_service import \
     build_sourced_schedules_and_index_events
-from scheduling.services.merging.schedules_diff_service import check_schedules_match
+from scheduling.services.merging.validated_schedules_service import check_schedules_match
 from scheduling.services.merging.sourced_schedules_service import build_scheduling_elements
 from scheduling.services.parsing.parse_pruning_service import remove_useless_moderation_for_parsing
 from scheduling.services.scheduling.scheduling_service import build_resources_hash
