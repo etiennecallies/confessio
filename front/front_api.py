@@ -34,6 +34,7 @@ class EventOut(Schema):
     church_uuid: UUID  # TODO remove
     start: datetime
     end: datetime | None
+    schedules_indices: list[int] | None  # TODO set it not null
     source_has_been_moderated: bool
 
     @classmethod
@@ -46,6 +47,7 @@ class EventOut(Schema):
             church_uuid=index_event.church.uuid,
             start=start,
             end=end,
+            schedules_indices=index_event.schedules_indices,
             source_has_been_moderated=index_event.has_been_moderated,
         )
 
