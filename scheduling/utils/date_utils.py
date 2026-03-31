@@ -80,6 +80,10 @@ class Weekday(Enum):
     SATURDAY = 'saturday'
     SUNDAY = 'sunday'
 
+    def __lt__(self, other: 'Weekday'):
+        order = list(Weekday)
+        return order.index(self) < order.index(other)
+
 
 PYTHON_WEEKDAY = {
     Weekday.MONDAY: 0,

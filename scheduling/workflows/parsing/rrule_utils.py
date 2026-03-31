@@ -7,9 +7,8 @@ from scheduling.utils.date_utils import Weekday, date_to_datetime, get_current_y
 from scheduling.workflows.parsing.explain_schedule import get_explanation_from_schedule
 from scheduling.workflows.parsing.holidays import HolidayZoneEnum
 from scheduling.workflows.parsing.intervals import add_exrules, add_exdate
-from scheduling.workflows.parsing.liturgical import PeriodEnum
 from scheduling.workflows.parsing.schedules import ScheduleItem, SchedulesList, Event, \
-    RegularRule, WeeklyRule, MonthlyRule, CustomPeriod
+    RegularRule, WeeklyRule, MonthlyRule
 
 ####################
 # RRULE GENERATION #
@@ -211,43 +210,8 @@ def is_valid_schedule(schedule: ScheduleItem) -> bool:
     return True
 
 
-def is_valid_period(period: PeriodEnum | CustomPeriod) -> bool:
-    if isinstance(period, PeriodEnum):
-        return True
-
-    if isinstance(period, CustomPeriod):
-        return period.start.is_valid() and period.end.is_valid()
-
-    raise ValueError(f'Period of type {period} not implemented')
-
-
-def get_valid_schedule(schedule: ScheduleItem) -> ScheduleItem:
-    if schedule.is_regular_rule():
-        return schedule.model_copy(
-            update={
-                'date_rule': schedule.date_rule.model_copy(
-                    update={
-                        'only_in_periods': [
-                            period for period in schedule.date_rule.only_in_periods
-                            if is_valid_period(period)],
-                        'not_in_periods': [
-                            period for period in schedule.date_rule.not_in_periods
-                            if is_valid_period(period)
-                        ],
-                        'not_on_dates': [
-                            one_off_rule for one_off_rule in schedule.date_rule.not_on_dates
-                            if one_off_rule.is_valid()],
-                    }
-                )
-            }
-        )
-
-    return schedule
-
-
 def filter_valid_schedules(schedules: list[ScheduleItem]) -> list[ScheduleItem]:
-    return [get_valid_schedule(schedule)
-            for schedule in schedules if is_valid_schedule(schedule)]
+    return [schedule.get_valid() for schedule in schedules if is_valid_schedule(schedule)]
 
 
 ###########

@@ -120,6 +120,10 @@ class PeriodEnum(str, Enum):
     def choices(cls):
         return [(item.value, item.name) for item in cls]
 
+    @staticmethod
+    def is_valid_period() -> bool:
+        return True
+
 
 def get_advent_dates(year: int) -> tuple[date, date]:
     christmas = date(year, 12, 25)

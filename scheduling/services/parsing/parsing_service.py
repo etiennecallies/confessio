@@ -1,6 +1,7 @@
 from scheduling.models import Parsing
 from scheduling.workflows.parsing.schedules import SchedulesList, SCHEDULES_LIST_VERSION
 from scheduling.workflows.parsing.v1_0_to_v1_1 import from_v1_0_to_v1_1
+from scheduling.workflows.parsing.v1_1_to_v1_2 import from_v1_1_to_v1_2
 
 
 ######################
@@ -55,7 +56,9 @@ def get_dict_and_version(parsing: Parsing) -> tuple[dict, str]:
 def get_schedules_list_from_dict(schedules_list_as_dict: dict, version: str
                                  ) -> SchedulesList | None:
     if version == 'v1.0':
-        return from_v1_0_to_v1_1(schedules_list_as_dict)
+        return from_v1_1_to_v1_2(from_v1_0_to_v1_1(schedules_list_as_dict).model_dump(mode='json'))
+    if version == 'v1.1':
+        return from_v1_1_to_v1_2(schedules_list_as_dict)
     if version == SCHEDULES_LIST_VERSION:
         return SchedulesList(**schedules_list_as_dict)
 

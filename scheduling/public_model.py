@@ -61,7 +61,11 @@ class SourcedScheduleItem(BaseModel):
     sources: list[UnionSource]
 
     def hash_key(self):
-        return self.explanation, tuple(sorted(map(lambda s: s.hash_key(), self.sources)))
+        return (
+            self.item.model_dump_json(),
+            self.explanation,
+            tuple(sorted(map(lambda s: s.hash_key(), self.sources)))
+        )
 
 
 class SourcedSchedulesOfChurch(BaseModel):

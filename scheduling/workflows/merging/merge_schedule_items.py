@@ -8,8 +8,8 @@ from scheduling.workflows.parsing.schedules import CustomPeriod, WeeklyRule
 
 def get_periods_or_custom_periods_key(periods: list[PeriodEnum | CustomPeriod]) -> tuple:
     return (
-        tuple(sorted(p for p in periods if isinstance(p, PeriodEnum))),
-        tuple(sorted(p for p in periods if isinstance(p, CustomPeriod)))
+        tuple(p for p in periods if isinstance(p, PeriodEnum)),
+        tuple(p for p in periods if isinstance(p, CustomPeriod))
     )
 
 
@@ -30,7 +30,7 @@ def merge_similar_weekly_rules_of_church(sourced_schedule_items: list[SourcedSch
             sourced_schedule_item.item.end_time_iso8601,
             get_periods_or_custom_periods_key(date_rule.only_in_periods),
             get_periods_or_custom_periods_key(date_rule.not_in_periods),
-            tuple(sorted(date_rule.not_on_dates)),
+            tuple(date_rule.not_on_dates),
         )
         schedules_by_key.setdefault(key, []).append(sourced_schedule_item)
 
@@ -50,7 +50,7 @@ def merge_similar_weekly_rules_of_church(sourced_schedule_items: list[SourcedSch
             update={
                 'date_rule': first_item.date_rule.model_copy(
                     update={
-                        'rule': WeeklyRule(by_weekdays=list(combined_weekdays_days))
+                        'rule': WeeklyRule(by_weekdays=list(sorted(combined_weekdays_days)))
                     }
                 )
             }
