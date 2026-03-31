@@ -222,10 +222,10 @@ def render_validated_schedules_moderation(request, moderation: ValidatedSchedule
     validated_str = validated_sourced_schedules_list.model_dump_json(indent=2)
 
     diff = difflib.unified_diff(
-        indexed_str.splitlines(),
         validated_str.splitlines(),
-        fromfile='indexed',
-        tofile='validated',
+        indexed_str.splitlines(),
+        fromfile='validated',
+        tofile='indexed',
         lineterm=''
     )
     printable_diff = '\n'.join(diff)
