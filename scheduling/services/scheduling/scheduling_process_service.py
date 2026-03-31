@@ -170,6 +170,7 @@ def index_scheduling(scheduling: Scheduling):
         if indexing_objects.resources_hash in \
                 indexed_schedulings.values_list('resources_hash', flat=True).distinct():
             info("Aborting: An identical scheduling has already been indexed.")
+            scheduling.delete()
             return
 
         # we save parsing_history_ids to later clean up moderations

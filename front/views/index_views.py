@@ -112,9 +112,11 @@ def render_map(request, center,
     scheduling_moderation_by_website = {}
     crawling_moderation_by_website = {}
     validated_schedules_moderation_by_website = {}
+    pending_scheduling_by_website = {}
     if request.user.is_authenticated and request.user.has_perm("scheduling.change_sentence"):
         scheduling_moderation_by_website, crawling_moderation_by_website, \
-            validated_schedules_moderation_by_website = get_all_website_moderations(websites)
+            validated_schedules_moderation_by_website, pending_scheduling_by_website = \
+            get_all_website_moderations(websites)
 
     hidden_inputs = {}
     for key in request.GET:
@@ -155,6 +157,7 @@ def render_map(request, center,
         'scheduling_moderation_by_website': scheduling_moderation_by_website,
         'crawling_moderation_by_website': crawling_moderation_by_website,
         'validated_schedules_moderation_by_website': validated_schedules_moderation_by_website,
+        'pending_scheduling_by_website': pending_scheduling_by_website,
     })
 
 

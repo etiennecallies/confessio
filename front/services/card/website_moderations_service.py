@@ -2,7 +2,7 @@ from uuid import UUID
 
 from crawling.models import CrawlingModeration
 from registry.models import Website
-from scheduling.models import SchedulingModeration, ValidatedSchedulesModeration
+from scheduling.models import SchedulingModeration, ValidatedSchedulesModeration, Scheduling
 
 
 def get_all_website_moderations(websites: list[Website]
@@ -10,6 +10,7 @@ def get_all_website_moderations(websites: list[Website]
     dict[UUID, SchedulingModeration],
     dict[UUID, CrawlingModeration],
     dict[UUID, ValidatedSchedulesModeration],
+    dict[UUID, Scheduling],
 ]:
     all_scheduling_moderations = SchedulingModeration.objects.filter(website__in=websites).all()
     scheduling_moderation_by_website = {}
@@ -28,5 +29,11 @@ def get_all_website_moderations(websites: list[Website]
         validated_schedules_moderation_by_website[validated_schedules_moderation.website.uuid] = \
             validated_schedules_moderation
 
+    all_pending_schedulings = Scheduling.objects.filter(website__in=websites)\
+        .exclude(status=Scheduling.Status.INDEXED).all()
+    pending_scheduling_by_website = {}
+    for pending_scheduling in all_pending_schedulings:
+        pending_scheduling_by_website[pending_scheduling.website.uuid] = pending_scheduling
+
     return scheduling_moderation_by_website, crawling_moderation_by_website, \
-        validated_schedules_moderation_by_website
+        validated_schedules_moderation_by_website, pending_scheduling_by_website
