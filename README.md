@@ -251,7 +251,6 @@ Then visit http://127.0.0.1:8000/silk.
 
 We use ansible to deploy to production. See [ansible README](./ansible/README.md) for instructions.
 
-
 ### Database backup on S3
 On local machine you can check S3 backups like this:
 ```shell
