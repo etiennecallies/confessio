@@ -8,7 +8,6 @@ from ninja import NinjaAPI, Schema
 
 from attaching.public_service import attaching_get_image_public_url
 from front.models import Report
-from front.services.card.report_service import get_count_and_label
 from front.services.card.scraping_url_service import get_scraping_parsing_urls
 from front.services.card.sources_service import get_website_parsings_and_prunings, \
     WebsiteParsingsAndPrunings
@@ -31,7 +30,6 @@ api = NinjaAPI(urls_namespace='front_api')
 
 
 class EventOut(Schema):
-    church_uuid: UUID  # TODO remove
     start: datetime
     end: datetime | None
     schedules_indices: list[int]
@@ -44,7 +42,6 @@ class EventOut(Schema):
             if index_event.displayed_end_time else None
 
         return cls(
-            church_uuid=index_event.church.uuid,
             start=start,
             end=end,
             schedules_indices=index_event.schedules_indices,
@@ -60,7 +57,6 @@ class ChurchOut(Schema):
     address: str | None
     zipcode: str | None
     city: str | None
-    website_uuid: UUID  # TODO remove
     events: list[EventOut]
 
     @classmethod
@@ -73,7 +69,6 @@ class ChurchOut(Schema):
             address=church.address,
             zipcode=church.zipcode,
             city=church.city,
-            website_uuid=church.parish.website_id,
             events=[EventOut.from_index_event(event) for event in sorted(index_events)],
         )
 
@@ -164,26 +159,17 @@ class WebsiteOut(Schema):
     uuid: UUID
     name: str
     home_url: str
-    events: list[EventOut]  # TODO remove
-    has_more_events: bool  # TODO remove
-    reports_count: list[dict]  # TODO remove
     reports: list[ReportOut]
 
     @classmethod
     def from_website(cls,
                      website: Website,
-                     index_events: list[IndexEvent],  # TODO remove
-                     has_more_events: bool,
-                     reports_count: list[dict],
                      reports: list[ReportOut],
                      ):
         return cls(
             uuid=website.uuid,
             name=website.name,
             home_url=website.home_url,
-            events=[EventOut.from_index_event(event) for event in sorted(index_events)],
-            has_more_events=has_more_events,
-            reports_count=reports_count,
             reports=reports,
         )
 
@@ -237,38 +223,21 @@ class AggregationOut(Schema):
 
 class SearchResult(Schema):
     churches: list[ChurchOut]
-    websites: list[WebsiteOut]  # TODO remove
     aggregations: list[AggregationOut]
 
     @classmethod
     def from_result(cls,
                     churches: list[Church],
-                    websites: list[Website],
-                    index_events_by_website: dict[UUID, list[IndexEvent]],
                     index_events_by_church: dict[UUID, list[IndexEvent]],
-                    events_truncated_by_website_uuid: dict[UUID, bool],
-                    reports_count_by_website: dict[UUID, list[dict]],
                     aggregation_items: list[AggregationItem]):
         churches = [ChurchOut.from_church_and_events(church,
                                                      index_events_by_church.get(church.uuid, []))
                     for church in churches]
-        websites_out = []
-
-        # TODO remove websites
-        for website in websites:
-            index_events = index_events_by_website.get(website.uuid, [])
-            events_truncated = events_truncated_by_website_uuid.get(website.uuid, False)
-            reports_count = reports_count_by_website.get(website.uuid, [])
-            websites_out.append(
-                WebsiteOut.from_website(website, index_events, events_truncated, reports_count, [])
-            )
-
         aggregations = [AggregationOut.from_aggregation(aggregation)
                         for aggregation in aggregation_items]
 
         return cls(
             churches=churches,
-            websites=websites_out,
             aggregations=aggregations,
         )
 
@@ -346,36 +315,16 @@ def api_front_search(request,
     index_events, churches, events_truncated_by_website_uuid, aggregations = \
         get_search_results(latitude, longitude, min_lat, min_lng, max_lat, max_lng, time_filter)
 
-    # We get all websites and their churches
-    websites_by_uuid = {}
-    website_churches = {}
-    for church in churches:
-        websites_by_uuid[church.parish.website.uuid] = church.parish.website
-        website_churches.setdefault(church.parish.website.uuid, []).append(church)
-    websites = list(websites_by_uuid.values())
-
-    index_events_by_website = {}  # TODO remove
     index_events_by_church = {}
     for index_event in index_events:
-        index_events_by_website.setdefault(index_event.church.parish.website.uuid, []) \
-            .append(index_event)  # TODO remove
         index_events_by_church.setdefault(index_event.church.uuid, []).append(index_event)
-
-    # Count reports for each website
-    reports_count_by_website = {}  # TODO remove
-    for website in websites:
-        reports_count_by_website[website.uuid] = get_count_and_label(website)
 
     # TODO add search hit
     # new_search_hit(request, len(websites))
 
     return SearchResult.from_result(
         churches,
-        websites,  # TODO remove
-        index_events_by_website,  # TODO remove
         index_events_by_church,
-        events_truncated_by_website_uuid,  # TODO remove
-        reports_count_by_website,  # TODO remove
         aggregations
     )
 
@@ -421,13 +370,7 @@ def api_front_church_details(request, church_uuid: UUID,
             sub_reports_by_main_report[report.uuid] = []
     reports = [ReportOut.from_report(main_report, sub_reports_by_main_report[main_report.uuid])
                for main_report in reversed(main_reports)]
-    website_out = WebsiteOut.from_website(website,
-                                          index_events,  # TODO remove
-                                          # TODO remove
-                                          events_truncated_by_website_uuid[website.uuid],
-                                          [],  # TODO remove
-                                          reports,
-                                          )
+    website_out = WebsiteOut.from_website(website, reports)
 
     # Schedules
     scheduling = scheduling_get_indexed_scheduling(website)
