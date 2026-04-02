@@ -58,11 +58,6 @@ msgstr "Prochaine confession"
 msgid "ConfessionsExist"
 msgstr "Des confessions existent dans la paroisse"
 
-#: services/map_service.py:53 templates/partials/website_events.html:69
-#: templates/partials/website_sources.html:83
-msgid "NotCrawledYet"
-msgstr "Traitement en cours pour cette paroisse"
-
 #: services/map_service.py:56
 msgid "NoConfessionFound"
 msgstr "Pas de confessions trouvées"

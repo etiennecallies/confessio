@@ -51,9 +51,6 @@ def get_popup_and_color(church: Church,
     elif website_events.confession_exists:
         wording = _("ConfessionsExist")
         color = 'blue'
-    elif not church.parish.website.has_been_crawled():
-        wording = _("NotCrawledYet")
-        color = 'beige'
     else:
         wording = _("NoConfessionFound")
         color = 'lightgray'

@@ -43,9 +43,6 @@ class Website(TimeStampMixin):
     def __str__(self):
         return self.name
 
-    def has_been_crawled(self) -> bool:
-        return self.crawling_id is not None
-
     def delete_if_no_parish(self):
         if not self.parishes.exists():
             self.delete()
