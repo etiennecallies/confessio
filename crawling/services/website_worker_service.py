@@ -1,11 +1,10 @@
-from django.db.models.functions import Now
-
 from core.utils.log_utils import info, log_stack_trace
 from crawling.models import Log, CrawlingModeration
 from crawling.services.crawl_website_service import crawl_website
 from crawling.services.log_service import save_buffer
 from crawling.services.scrape_scraping_service import upsert_extracted_html_list
 from crawling.services.scraping_service import delete_scraping
+from crawling.tasks import worker_crawl_website
 from crawling.workflows.crawl.download_and_search_urls import CrawlingTimeoutError
 from crawling.workflows.scrape.download_refine_and_extract import get_fresh_extracted_html_list
 from registry.models import Website
@@ -55,6 +54,7 @@ def handle_crawl_website(website: Website):
 
 def handle_scrape_page(website: Website):
     info(f'Starting to scrape website {website.name} {website.uuid}')
+    needs_complete_recrawl = False
 
     for scraping in website.scrapings.all():
         if website.enabled_for_crawling:
@@ -68,16 +68,18 @@ def handle_scrape_page(website: Website):
             delete_scraping(scraping)
 
             # Trigger a recrawl to make sure we don't miss anything
-            if website.crawling and website.enabled_for_crawling:
-                website.crawling.recrawl_triggered_at = Now()
-                website.crawling.save()
+            if website.enabled_for_crawling:
+                needs_complete_recrawl = True
             continue
 
         # Insert or update scraping
         upsert_extracted_html_list(scraping, extracted_html_list)
         info(f'Successfully scraped scraping {scraping.url} {scraping.uuid}')
 
-    scheduling_init_scheduling(website)
+    if needs_complete_recrawl:
+        worker_crawl_website(str(website.uuid), None)
+    else:
+        scheduling_init_scheduling(website)
 
     info(f'Successfully scraped website {website.name} {website.uuid}')
     save_buffer(website, Log.Type.SCRAPING)

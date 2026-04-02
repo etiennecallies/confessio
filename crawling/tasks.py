@@ -6,7 +6,6 @@ from background_task.tasks import TaskSchedule
 from core.utils.log_utils import info, start_log_buffer
 from crawling.models import Log
 from crawling.services.log_service import save_buffer
-from crawling.services.website_worker_service import handle_crawl_website, handle_scrape_page
 from registry.models import Website
 
 
@@ -25,6 +24,7 @@ def worker_crawl_website(website_uuid: str, timeout_ts: int | None):
         save_buffer(website, Log.Type.CRAWLING, Log.Status.TIMEOUT)
         return
 
+    from crawling.services.website_worker_service import handle_crawl_website
     handle_crawl_website(website)
 
 
@@ -43,4 +43,5 @@ def worker_scrape_page(website_uuid: str, timeout_ts: int | None):
         save_buffer(website, Log.Type.SCRAPING, Log.Status.TIMEOUT)
         return
 
+    from crawling.services.website_worker_service import handle_scrape_page
     handle_scrape_page(website)
