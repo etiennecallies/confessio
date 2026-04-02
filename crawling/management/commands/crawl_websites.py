@@ -1,12 +1,13 @@
 import time
 from datetime import timedelta
 
-from django.db.models import F, Q
+from django.db.models import F, Q, Max
 from django.utils import timezone
 
 from core.management.abstract_command import AbstractCommand
 from core.utils.log_utils import start_log_buffer
 from crawling.models import CrawlingModeration
+from crawling.models import Log as CrawlingLog
 from crawling.services.website_worker_service import handle_crawl_website
 from crawling.tasks import worker_crawl_website
 from registry.models import Website
@@ -47,12 +48,22 @@ class Command(AbstractCommand):
                 | Q(crawling__recrawl_triggered_at__isnull=False)).all()
         elif options['no_recent']:
             websites = Website.objects.filter(is_active=True) \
-                .filter(Q(crawling__isnull=True)
-                        | Q(crawling__created_at__lt=timezone.now() - timedelta(hours=14))) \
-                .order_by(F('crawling').asc(nulls_first=True)).all()
+                .annotate(
+                last_done_crawl=Max(
+                    'crawling_logs__created_at',
+                    filter=Q(crawling_logs__status=CrawlingLog.Status.DONE)
+                )) \
+                .filter(Q(last_done_crawl__isnull=True)
+                        | Q(last_done_crawl__lt=timezone.now() - timedelta(hours=14))) \
+                .order_by(F('last_done_crawl').asc(nulls_first=True)).all()
         else:
             websites = Website.objects.filter(is_active=True) \
-                .order_by(F('crawling').asc(nulls_first=True)).all()
+                .annotate(
+                last_done_crawl=Max(
+                    'crawling_logs__created_at',
+                    filter=Q(crawling_logs__status=CrawlingLog.Status.DONE)
+                )) \
+                .order_by(F('last_done_crawl').asc(nulls_first=True)).all()
 
         timeout_ts = None
         if options['timeout']:

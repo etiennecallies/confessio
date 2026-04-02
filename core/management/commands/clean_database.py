@@ -106,7 +106,7 @@ class Command(AbstractCommand):
 
         # Website history
         self.delete_irrelevant_history(Website, {
-            'updated_at', 'crawling', 'nb_recent_hits', 'is_best_diocese_hit'})
+            'updated_at', 'nb_recent_hits', 'is_best_diocese_hit'})
 
         # Website moderation history
         self.delete_irrelevant_history(WebsiteModeration, {'updated_at'})
