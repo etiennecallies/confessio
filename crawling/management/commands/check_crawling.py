@@ -6,7 +6,7 @@ from django.utils import timezone
 from core.management.abstract_command import AbstractCommand
 from core.utils.discord_utils import DiscordChanel, send_discord_alert
 from core.utils.heartbeat_utils import ping_heartbeat
-from crawling.models import Crawling
+from crawling.models import Log as CrawlingLog
 from registry.models import Website
 from registry.public_service import registry_find_church_geo_outliers
 from scheduling.models import IndexEvent
@@ -31,16 +31,17 @@ class Command(AbstractCommand):
         website_not_indexed_recently = []
         for website in active_websites:
             try:
-                crawling = website.crawling
-            except Crawling.DoesNotExist:
-                crawling = None
+                crawling_log = website.crawling_logs.filter(status=CrawlingLog.Status.DONE)\
+                    .order_by('-created_at').first()
+            except CrawlingLog.DoesNotExist:
+                crawling_log = None
 
-            if crawling is None:
+            if crawling_log is None:
                 website_not_crawled.append(website)
                 continue
 
             # check that latest crawling is no older than 24 hours
-            if crawling.created_at < timezone.now() - timedelta(days=1) \
+            if crawling_log.created_at < timezone.now() - timedelta(days=1) \
                     and website.enabled_for_crawling:
                 website_not_crawled_recently.append(website)
                 continue
