@@ -41,11 +41,10 @@ class Command(AbstractCommand):
             websites = Website.objects.filter(is_active=True, uuid=options['uuid']).all()
         elif options['in_error']:
             websites = Website.objects.filter(is_active=True).filter(
-                Q(crawling_moderation__category__in=[
+                crawling_moderation__category__in=[
                     CrawlingModeration.Category.NO_RESPONSE,
                     CrawlingModeration.Category.NO_PAGE],
-                    moderations__validated_at__isnull=True)
-                | Q(crawling__recrawl_triggered_at__isnull=False)).all()
+                moderations__validated_at__isnull=True).all()
         elif options['no_recent']:
             websites = Website.objects.filter(is_active=True) \
                 .annotate(
