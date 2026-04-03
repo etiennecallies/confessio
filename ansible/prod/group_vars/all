@@ -88,6 +88,8 @@ discord_new_images_url: "{{ lookup('ansible.builtin.env', 'DISCORD_NEW_IMAGES_UR
 discord_infra_alerts_url: "{{ lookup('ansible.builtin.env', 'DISCORD_INFRA_ALERTS_URL') }}"
 discord_crawling_alerts_url: "{{ lookup('ansible.builtin.env', 'DISCORD_CRAWLING_ALERTS_URL') }}"
 discord_contact_form_url: "{{ lookup('ansible.builtin.env', 'DISCORD_CONTACT_FORM_URL') }}"
+discord_pb_oclocher_url: "{{ lookup('ansible.builtin.env', 'DISCORD_PB_OCLOCHER_URL') }}"
+discord_new_schedules_url: "{{ lookup('ansible.builtin.env', 'DISCORD_NEW_SCHEDULES_URL') }}"
 
 # Cloudflare Turnstile
 cloudflare_turnstile_site_key: "{{ lookup('ansible.builtin.env', 'CLOUDFLARE_TURNSTILE_SITE_KEY') }}"

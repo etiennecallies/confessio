@@ -10,6 +10,8 @@ class DiscordChanel(Enum):
     INFRA_ALERTS = "INFRA_ALERTS"
     CRAWLING_ALERTS = "CRAWLING_ALERTS"
     CONTACT_FORM = "CONTACT_FORM"
+    PB_OCLOCHER = "PB_OCLOCHER"
+    NEW_SCHEDULES = "NEW_SCHEDULES"
 
 
 def send_discord_alert(message: str, channel: DiscordChanel):

@@ -51,6 +51,10 @@ def get_matching_matrix(oclocher_matching: OClocherMatching) -> OClocherMatrix |
     return None
 
 
+def has_matched_every_location(llm_matrix: OClocherMatrix) -> bool:
+    return all(mapping.church_id is not None for mapping in llm_matrix.mappings)
+
+
 def get_existing_matching(church_desc_by_id_hash: str,
                           location_desc_by_id_hash: str
                           ) -> OClocherMatching | None:
@@ -101,6 +105,9 @@ def match_churches_and_locations(
     if llm_error_detail:
         moderation_validated = False
         category = OClocherMatchingModeration.Category.LLM_ERROR
+    elif not has_matched_every_location(llm_matrix):
+        moderation_validated = False
+        category = OClocherMatchingModeration.Category.CHURCHES_MISSING
     else:
         moderation_validated = True
         category = OClocherMatchingModeration.Category.OK

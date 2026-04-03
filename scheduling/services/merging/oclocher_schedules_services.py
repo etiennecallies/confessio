@@ -1,6 +1,5 @@
-from fetching.models import OClocherMatching, OClocherSchedule, OClocherMatchingModeration
-from fetching.public_service import fetching_get_matching_matrix, \
-    fetching_upsert_matching_moderation
+from fetching.models import OClocherMatching, OClocherSchedule
+from fetching.public_service import fetching_get_matching_matrix
 from scheduling.utils.date_utils import datetime_in_timezone
 from scheduling.workflows.parsing.schedules import ScheduleItem, SchedulesList, OneOffRule
 
@@ -52,14 +51,6 @@ def get_schedules_list_from_oclocher_schedules(oclocher_schedules: list[OClocher
                                                  timezone_str)
         for oclocher_schedule in oclocher_schedules
     ]
-
-    if any(not s.has_real_church() for s in schedules):
-        one_schedule = oclocher_schedules[0]
-        oclocher_organization = one_schedule.organization
-        fetching_upsert_matching_moderation(oclocher_organization, oclocher_matching,
-                                            OClocherMatchingModeration.Category.CHURCHES_MISSING,
-                                            moderation_validated=False,
-                                            )
 
     return SchedulesList(
         schedules=schedules,

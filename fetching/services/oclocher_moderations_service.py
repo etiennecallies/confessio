@@ -1,5 +1,8 @@
 from django.db.models.functions import Now
 
+from django.conf import settings
+from core.utils.discord_utils import send_discord_alert, DiscordChanel
+from core.views import get_moderation_url
 from fetching.models import OClocherOrganization, OClocherMatchingModeration, OClocherMatching
 from fetching.models.oclocher_moderation_models import OClocherOrganizationModeration
 from registry.models import Website
@@ -23,6 +26,17 @@ def add_organization_moderation(website: Website,
         moderation.save()
 
 
+def notify_if_relevant(moderation: OClocherMatchingModeration,):
+    if moderation.category == OClocherMatchingModeration.Category.OK:
+        return
+
+    moderation_url = settings.REQUEST_BASE_URL + get_moderation_url(moderation)
+    send_discord_alert(f"OClocher matching issue ({moderation.category}) "
+                       f"on website {moderation.oclocher_organization.website.name} "
+                       f"{moderation_url}",
+                       DiscordChanel.PB_OCLOCHER)
+
+
 def upsert_matching_moderation(oclocher_organization: OClocherOrganization,
                                oclocher_matching: OClocherMatching,
                                category: OClocherMatchingModeration.Category,
@@ -36,6 +50,7 @@ def upsert_matching_moderation(oclocher_organization: OClocherOrganization,
             moderation.validated_at = Now() if moderation_validated else None
             moderation.validated_by = None
             moderation.save()
+            notify_if_relevant(moderation)
     except OClocherMatchingModeration.DoesNotExist:
         moderation = OClocherMatchingModeration(
             oclocher_matching=oclocher_matching, category=category,
@@ -44,3 +59,4 @@ def upsert_matching_moderation(oclocher_organization: OClocherOrganization,
             validated_at=Now() if moderation_validated else None,
         )
         moderation.save()
+        notify_if_relevant(moderation)

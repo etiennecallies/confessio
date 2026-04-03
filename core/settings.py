@@ -36,6 +36,8 @@ DEBUG = True
 # Docker HOST
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
+REQUEST_BASE_URL = f'http://127.0.0.1:8000'
+
 # Add here your deployment HOSTS
 CSRF_TRUSTED_ORIGINS = ['http://localhost:8000', 'http://localhost:5085']
 

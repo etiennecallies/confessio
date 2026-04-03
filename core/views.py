@@ -8,6 +8,16 @@ from registry.models.base_moderation_models import BUG_DESCRIPTION_MAX_LENGTH
 from scheduling.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 
 
+def get_moderation_url(moderation: ModerationMixin):
+    return reverse(f'moderate_one_' + moderation.resource,
+                   kwargs={
+                       'category': moderation.category,
+                       'is_bug': moderation.marked_as_bug_at is not None,
+                       'moderation_uuid': moderation.uuid,
+                       'diocese_slug': moderation.get_diocese_slug(),
+                   })
+
+
 def redirect_to_moderation(moderation: ModerationMixin, category: str, resource: str, is_bug: bool,
                            diocese_slug: str):
     if moderation is None:
