@@ -5,24 +5,17 @@ from django.utils import timezone
 
 from core.management.abstract_command import AbstractCommand
 from core.utils.discord_utils import DiscordChanel, send_discord_alert
-from core.utils.heartbeat_utils import ping_heartbeat
 from crawling.models import Log as CrawlingLog
 from registry.models import Website
-from registry.public_service import registry_find_church_geo_outliers
-from scheduling.models import IndexEvent
 from scheduling.models import Log as SchedulingLog
 from scheduling.public_service import scheduling_get_indexed_scheduling
-from scheduling.public_workflow import scheduling_check_holiday_by_zone, \
-    scheduling_check_easter_dates
-from scheduling.utils.date_utils import get_current_day
 
 
 class Command(AbstractCommand):
-    help = ("Check that latest nightly crawling has worked properly and sends an email to admins "
-            "if not")
+    help = "Check that websites have been crawled and indexed recently"
 
     def handle(self, *args, **options):
-        self.info(f'Starting checking crawling')
+        self.info('Starting checking crawling data')
 
         active_websites = Website.objects.filter(is_active=True).all()
         website_not_crawled = []
@@ -49,7 +42,8 @@ class Command(AbstractCommand):
 
             scheduling = scheduling_get_indexed_scheduling(website)
             scheduling_log = SchedulingLog.objects.filter(
-                website=website, status=SchedulingLog.Status.DONE, type=SchedulingLog.Type.PARSING
+                website=website, status=SchedulingLog.Status.DONE,
+                type=SchedulingLog.Type.PARSING
             ).order_by('-created_at').first()
             if scheduling is None or scheduling_log is None:
                 website_not_indexed.append(website)
@@ -62,19 +56,22 @@ class Command(AbstractCommand):
 
         if website_not_crawled or website_not_crawled_recently or website_not_indexed \
                 or website_not_indexed_recently:
-            error_message = (f'Crawling failure: {len(website_not_crawled)} websites have never '
-                             f'been crawled and {len(website_not_crawled_recently)} have '
-                             f'not been crawled recently and {len(website_not_indexed)} have not '
-                             f'been indexed and {len(website_not_indexed_recently)} have not '
-                             f'been indexed recently')
+            error_message = (
+                f'Crawling failure: {len(website_not_crawled)} websites have never '
+                f'been crawled and {len(website_not_crawled_recently)} have '
+                f'not been crawled recently and {len(website_not_indexed)} have not '
+                f'been indexed and {len(website_not_indexed_recently)} have not '
+                f'been indexed recently')
             self.error(error_message)
             website_not_crawled_str = "\n".join(
-                [f" - {website.name} {website.uuid}" for website in website_not_crawled[:5]])
+                [f" - {website.name} {website.uuid}"
+                 for website in website_not_crawled[:5]])
             website_not_crawled_recently_str = "\n".join(
                 [f" - {cl.created_at} {ws.name} {ws.uuid}"
                  for ws, cl in website_not_crawled_recently[:5]])
             website_not_indexed_str = "\n".join(
-                [f" - {website.name} {website.uuid}" for website in website_not_indexed[:5]])
+                [f" - {website.name} {website.uuid}"
+                 for website in website_not_indexed[:5]])
             website_not_indexed_recently_str = "\n".join(
                 [f" - {website.name} {website.uuid}"
                  for website in website_not_indexed_recently[:5]])
@@ -96,48 +93,6 @@ class Command(AbstractCommand):
             """
             mail_admins(subject=error_message, message=message)
             send_discord_alert(message=message, channel=DiscordChanel.CRAWLING_ALERTS)
-            self.success(f'Email sent to admins')
+            self.success('Email sent to admins')
         else:
-            self.success(f'All websites have been crawled recently')
-
-        self.info(f'Starting checking future holidays and easter dates')
-        holiday_ok = scheduling_check_holiday_by_zone()
-        easter_ok = scheduling_check_easter_dates()
-        if not holiday_ok or not easter_ok:
-            error_message = (f'Holiday failure: future holidays or easter dates are not '
-                             f'implemented')
-            self.error(error_message)
-            message = f"""
-            Holiday failure
-
-            Future holidays or easter dates are not implemented
-            Holiday: {holiday_ok}
-            Easter: {easter_ok}
-            """
-            mail_admins(subject=error_message, message=message)
-            send_discord_alert(message=message, channel=DiscordChanel.CRAWLING_ALERTS)
-            self.success(f'Email sent to admins')
-        else:
-            self.success(f'All future holidays and easter dates are implemented')
-
-        self.info('Starting checking church location are not absurd')
-        outliers_count = registry_find_church_geo_outliers()
-        self.success(f'{outliers_count} outliers found')
-
-        self.info(f'Starting checking index events')
-        yesterday = get_current_day() - timedelta(days=1)
-        if IndexEvent.objects.filter(day__lt=yesterday).exists():
-            error_message = f'Index events exist from yesterday or before'
-            self.error(error_message)
-            message = f"""
-            Index events exist from yesterday or before
-
-            You shall check the index_events job.
-            """
-            mail_admins(subject=error_message, message=message)
-            send_discord_alert(message=message, channel=DiscordChanel.CRAWLING_ALERTS)
-            self.success(f'Email sent to admins')
-        else:
-            self.success(f'All index events are up to date')
-
-        ping_heartbeat("HEARTBEAT_CHECK_CRAWLING_URL")
+            self.success('All websites have been crawled recently')
