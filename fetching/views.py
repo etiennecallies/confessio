@@ -1,11 +1,9 @@
 import json
 
 from django.contrib.auth.decorators import login_required, permission_required
-from django.shortcuts import render
 
 from core.views import get_moderate_response
 from fetching.models import OClocherOrganizationModeration, OClocherMatchingModeration
-from registry.models.base_moderation_models import BUG_DESCRIPTION_MAX_LENGTH
 
 
 @login_required
@@ -13,20 +11,18 @@ from registry.models.base_moderation_models import BUG_DESCRIPTION_MAX_LENGTH
 def moderate_oclocher_organization(request, category, is_bug, diocese_slug, moderation_uuid=None):
     return get_moderate_response(request, category, 'oclocher_organization', is_bug, diocese_slug,
                                  OClocherOrganizationModeration,
-                                 moderation_uuid, render_oclocher_organization_moderation)
+                                 moderation_uuid,
+                                 create_oclocher_organization_moderation_context)
 
 
-def render_oclocher_organization_moderation(request, moderation: OClocherOrganizationModeration,
-                                            next_url):
+def create_oclocher_organization_moderation_context(
+        moderation: OClocherOrganizationModeration) -> dict:
     website = moderation.website
     assert website is not None
 
-    return render(request, f'moderations/moderate_oclocher_organization.html', {
+    return {
         'website': website,
-        'moderation': moderation,
-        'next_url': next_url,
-        'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
-    })
+    }
 
 
 @login_required
@@ -34,11 +30,12 @@ def render_oclocher_organization_moderation(request, moderation: OClocherOrganiz
 def moderate_oclocher_matching(request, category, is_bug, diocese_slug, moderation_uuid=None):
     return get_moderate_response(request, category, 'oclocher_matching', is_bug, diocese_slug,
                                  OClocherMatchingModeration,
-                                 moderation_uuid, render_oclocher_matching_moderation)
+                                 moderation_uuid,
+                                 create_oclocher_matching_moderation_context)
 
 
-def render_oclocher_matching_moderation(request, moderation: OClocherMatchingModeration,
-                                        next_url):
+def create_oclocher_matching_moderation_context(
+        moderation: OClocherMatchingModeration) -> dict:
     oclocher_matching = moderation.oclocher_matching
     assert oclocher_matching is not None
     church_desc_by_id_json = json.dumps(oclocher_matching.church_desc_by_id,
@@ -51,12 +48,9 @@ def render_oclocher_matching_moderation(request, moderation: OClocherMatchingMod
             if location.schedules.exists():
                 locations_with_schedules.append(location)
 
-    return render(request, f'moderations/moderate_oclocher_matching.html', {
+    return {
         'oclocher_matching': oclocher_matching,
-        'moderation': moderation,
-        'next_url': next_url,
-        'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
         'church_desc_by_id_json': church_desc_by_id_json,
         'location_desc_by_id_json': location_desc_by_id_json,
         'locations_with_schedules': locations_with_schedules,
-    })
+    }

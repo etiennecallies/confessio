@@ -3,13 +3,12 @@ import json
 
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponseNotFound, HttpResponseBadRequest
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.views.decorators.http import require_POST
 
 from core.views import get_moderate_response, ModerationPostError, redirect_to_moderation
 from crawling.models import CrawlingModeration
 from registry.models import Website
-from registry.models.base_moderation_models import BUG_DESCRIPTION_MAX_LENGTH
 from scheduling.models import ParsingModeration
 from scheduling.models import SchedulingModeration, ValidatedSchedulesModeration
 from scheduling.models.pruning_models import PruningModeration
@@ -38,11 +37,12 @@ from scheduling.workflows.pruning.extract_v2.split_content import create_line_an
 @permission_required("scheduling.change_sentence")
 def moderate_pruning(request, category, is_bug, diocese_slug, moderation_uuid=None):
     return get_moderate_response(request, category, 'pruning', is_bug, diocese_slug,
-                                 PruningModeration, moderation_uuid, render_pruning_moderation,
+                                 PruningModeration, moderation_uuid,
+                                 create_pruning_moderation_context,
                                  pruning_moderation_post_process)
 
 
-def render_pruning_moderation(request, moderation: PruningModeration, next_url):
+def create_pruning_moderation_context(moderation: PruningModeration) -> dict:
     pruning = moderation.pruning
     assert pruning is not None
 
@@ -77,16 +77,13 @@ def render_pruning_moderation(request, moderation: PruningModeration, next_url):
 
     parsing_moderation = get_parsing_moderation_of_pruning(pruning)
 
-    return render(request, f'moderations/moderate_pruning.html', {
-        'moderation': moderation,
+    return {
         'pruning': pruning,
-        'next_url': next_url,
-        'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
         'ml_lines_and_colors': ml_lines_and_colors,
         'human_lines_and_colors': human_lines_and_colors,
         'v2_lines_and_colors': v2_lines_and_colors,
         'parsing_moderation': parsing_moderation,
-    })
+    }
 
 
 def pruning_moderation_post_process(request, moderation: PruningModeration) -> bool:
@@ -98,11 +95,12 @@ def pruning_moderation_post_process(request, moderation: PruningModeration) -> b
 @permission_required("scheduling.change_sentence")
 def moderate_sentence(request, category, is_bug, diocese_slug, moderation_uuid=None):
     return get_moderate_response(request, category, 'sentence', is_bug, diocese_slug,
-                                 SentenceModeration, moderation_uuid, render_sentence_moderation,
+                                 SentenceModeration, moderation_uuid,
+                                 create_sentence_moderation_context,
                                  sentence_moderation_post_process)
 
 
-def render_sentence_moderation(request, moderation: SentenceModeration, next_url):
+def create_sentence_moderation_context(moderation: SentenceModeration) -> dict:
     assert moderation.sentence is not None
 
     line_and_tag_human = create_line_and_tag_v2(moderation.sentence.line,
@@ -114,15 +112,12 @@ def render_sentence_moderation(request, moderation: SentenceModeration, next_url
     colored_piece_ml = get_single_line_colored_piece(
         line_and_tag_ml, Source.ML, i=2, do_show=True)
 
-    return render(request, f'moderations/moderate_sentence.html', {
-        'moderation': moderation,
+    return {
         'sentence': moderation.sentence,
         'colored_pieces': [colored_piece_human, colored_piece_ml],
         'temporal_colors': TEMPORAL_COLORS,
         'event_mention_colors': EVENT_MENTION_COLORS,
-        'next_url': next_url,
-        'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
-    })
+    }
 
 
 def sentence_moderation_post_process(request, moderation: SentenceModeration) -> bool:
@@ -136,11 +131,12 @@ def sentence_moderation_post_process(request, moderation: SentenceModeration) ->
 @permission_required("scheduling.change_sentence")
 def moderate_parsing(request, category, is_bug, diocese_slug, moderation_uuid=None):
     return get_moderate_response(request, category, 'parsing', is_bug, diocese_slug,
-                                 ParsingModeration, moderation_uuid, render_parsing_moderation,
+                                 ParsingModeration, moderation_uuid,
+                                 create_parsing_moderation_context,
                                  parsing_moderation_post_process)
 
 
-def render_parsing_moderation(request, moderation: ParsingModeration, next_url):
+def create_parsing_moderation_context(moderation: ParsingModeration) -> dict:
     parsing = moderation.parsing
     assert parsing is not None
 
@@ -158,19 +154,14 @@ def render_parsing_moderation(request, moderation: ParsingModeration, next_url):
         human_schedules_list = None
 
     church_desc_by_id_json = json.dumps(parsing.church_desc_by_id, indent=2, ensure_ascii=False)
-    back_path = request.GET.get('backPath', '')
 
-    return render(request, f'moderations/moderate_parsing.html', {
-        'moderation': moderation,
+    return {
         'parsing': parsing,
         'church_desc_by_id_json': church_desc_by_id_json,
         'truncated_html': truncated_html,
         'llm_schedules_list': llm_schedules_list,
         'human_schedules_list': human_schedules_list,
-        'next_url': next_url,
-        'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
-        'back_path': back_path,
-    })
+    }
 
 
 def parsing_moderation_post_process(request, moderation: ParsingModeration) -> bool:
@@ -191,16 +182,13 @@ def parsing_moderation_post_process(request, moderation: ParsingModeration) -> b
 def moderate_scheduling(request, category, is_bug, diocese_slug, moderation_uuid=None):
     return get_moderate_response(request, category, 'scheduling', is_bug, diocese_slug,
                                  SchedulingModeration, moderation_uuid,
-                                 render_scheduling_moderation)
+                                 create_scheduling_moderation_context)
 
 
-def render_scheduling_moderation(request, moderation: SchedulingModeration, next_url):
-    return render(request, f'moderations/moderate_scheduling.html', {
+def create_scheduling_moderation_context(moderation: SchedulingModeration) -> dict:
+    return {
         'website': moderation.website,
-        'moderation': moderation,
-        'next_url': next_url,
-        'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
-    })
+    }
 
 
 @login_required
@@ -208,11 +196,11 @@ def render_scheduling_moderation(request, moderation: SchedulingModeration, next
 def moderate_validated_schedules(request, category, is_bug, diocese_slug, moderation_uuid=None):
     return get_moderate_response(request, category, 'validated_schedules', is_bug, diocese_slug,
                                  ValidatedSchedulesModeration, moderation_uuid,
-                                 render_validated_schedules_moderation)
+                                 create_validated_schedules_moderation_context)
 
 
-def render_validated_schedules_moderation(request, moderation: ValidatedSchedulesModeration,
-                                          next_url):
+def create_validated_schedules_moderation_context(
+        moderation: ValidatedSchedulesModeration) -> dict:
     scheduling = get_indexed_scheduling(moderation.website)
     scheduling_elements = retrieve_scheduling_elements(scheduling)
 
@@ -230,13 +218,10 @@ def render_validated_schedules_moderation(request, moderation: ValidatedSchedule
     )
     printable_diff = '\n'.join(diff)
 
-    return render(request, 'moderations/moderate_validated_schedules.html', {
+    return {
         'website': moderation.website,
-        'moderation': moderation,
-        'next_url': next_url,
-        'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
         'printable_diff': printable_diff,
-    })
+    }
 
 
 @login_required

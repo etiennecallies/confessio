@@ -1,5 +1,5 @@
 from django.http import HttpResponseBadRequest, HttpResponseNotFound, HttpResponse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.urls import reverse
 
 from registry.models import ModerationMixin, Diocese
@@ -26,8 +26,30 @@ class ModerationPostError(Exception):
         self.response = response
 
 
+def get_next_url(request, moderation: ModerationMixin) -> str:
+    created_at_ts_us = datetime_to_ts_us(moderation.created_at)
+    back_path = request.GET.get('backPath', '')
+    if back_path:
+        return back_path
+
+    next_url = \
+        reverse('moderate_next_' + moderation.resource,
+                kwargs={
+                    'category': moderation.category,
+                    'is_bug': moderation.marked_as_bug_at is not None,
+                    'diocese_slug': moderation.diocese.slug
+                }) \
+        + f'?created_after={created_at_ts_us}'
+
+    related_url = request.POST.get('related_url')
+    if related_url:
+        return f"{related_url}?backPath={next_url}"
+
+    return next_url
+
+
 def get_moderate_response(request, category: str, resource: str, is_bug_as_str: bool,
-                          diocese_slug: str, class_moderation, moderation_uuid, render_moderation,
+                          diocese_slug: str, class_moderation, moderation_uuid, create_context,
                           moderation_post_process=None):
     if is_bug_as_str not in ['True', 'False']:
         return HttpResponseBadRequest(f"is_bug_as_str {is_bug_as_str} is not valid")
@@ -66,19 +88,6 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
         return redirect('moderate_next_' + resource, category=category, is_bug=is_bug,
                         diocese_slug=diocese_slug)
 
-    created_at_ts_us = datetime_to_ts_us(moderation.created_at)
-    back_path = request.GET.get('backPath', '')
-    if back_path:
-        next_url = back_path
-    else:
-        next_url = \
-            reverse('moderate_next_' + resource,
-                    kwargs={'category': category, 'is_bug': is_bug, 'diocese_slug': diocese_slug}) \
-            + f'?created_after={created_at_ts_us}'
-    related_url = request.POST.get('related_url')
-    if related_url:
-        next_url = f"{related_url}?backPath={next_url}"
-
     do_redirect = True
     if request.method == "POST":
         if 'bug_description' in request.POST:
@@ -99,6 +108,11 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
                 moderation.validate(request.user)
 
         if do_redirect:
-            return redirect(next_url)
+            return redirect(get_next_url(request, moderation))
 
-    return render_moderation(request, moderation, next_url)
+    return render(request, f'moderations/moderate_{moderation.resource}.html', {
+        'moderation': moderation,
+        'next_url': get_next_url(request, moderation),
+        'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
+        'back_path': request.GET.get('backPath', ''),
+    } | create_context(moderation))

@@ -1,11 +1,9 @@
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import HttpResponseNotFound, HttpResponseBadRequest
-from django.shortcuts import render
 
 from core.views import get_moderate_response, ModerationPostError, redirect_to_moderation
 from registry.models import WebsiteModeration, ChurchModeration, ParishModeration
-from registry.models.base_moderation_models import BUG_DESCRIPTION_MAX_LENGTH, \
-    ResourceDoesNotExistError
+from registry.models.base_moderation_models import ResourceDoesNotExistError
 from registry.public_service import registry_merge_websites
 from registry.services.church_human_service import on_church_human_validation
 from registry.services.website_moderation_service import suggest_alternative_website
@@ -15,18 +13,16 @@ from registry.services.website_moderation_service import suggest_alternative_web
 @permission_required("scheduling.change_sentence")
 def moderate_website(request, category, is_bug, diocese_slug, moderation_uuid=None):
     return get_moderate_response(request, category, 'website', is_bug, diocese_slug,
-                                 WebsiteModeration, moderation_uuid, render_website_moderation,
+                                 WebsiteModeration, moderation_uuid,
+                                 create_website_moderation_context,
                                  website_moderation_post_process)
 
 
-def render_website_moderation(request, moderation: WebsiteModeration, next_url):
-    return render(request, f'moderations/moderate_website.html', {
-        'moderation': moderation,
+def create_website_moderation_context(moderation: WebsiteModeration) -> dict:
+    return {
         'website': moderation.website,
         'latest_crawling': moderation.website.crawling,
-        'next_url': next_url,
-        'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
-    })
+    }
 
 
 def website_moderation_post_process(request, moderation: WebsiteModeration) -> bool:
@@ -44,16 +40,14 @@ def website_moderation_post_process(request, moderation: WebsiteModeration) -> b
 @permission_required("scheduling.change_sentence")
 def moderate_parish(request, category, is_bug, diocese_slug, moderation_uuid=None):
     return get_moderate_response(request, category, 'parish', is_bug, diocese_slug,
-                                 ParishModeration, moderation_uuid, render_parish_moderation)
+                                 ParishModeration, moderation_uuid,
+                                 create_parish_moderation_context)
 
 
-def render_parish_moderation(request, moderation: ParishModeration, next_url):
-    return render(request, f'moderations/moderate_parish.html', {
-        'moderation': moderation,
+def create_parish_moderation_context(moderation: ParishModeration) -> dict:
+    return {
         'parish': moderation.parish,
-        'next_url': next_url,
-        'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
-    })
+    }
 
 
 def parish_moderation_post_process(request, moderation: ParishModeration) -> bool:
@@ -76,17 +70,15 @@ def parish_moderation_post_process(request, moderation: ParishModeration) -> boo
 @permission_required("scheduling.change_sentence")
 def moderate_church(request, category, is_bug, diocese_slug, moderation_uuid=None):
     return get_moderate_response(request, category, 'church', is_bug, diocese_slug,
-                                 ChurchModeration, moderation_uuid, render_church_moderation)
+                                 ChurchModeration, moderation_uuid,
+                                 create_church_moderation_context)
 
 
-def render_church_moderation(request, moderation: ChurchModeration, next_url):
-    return render(request, f'moderations/moderate_church.html', {
-        'moderation': moderation,
+def create_church_moderation_context(moderation: ChurchModeration) -> dict:
+    return {
         'church': moderation.church,
         'similar_churches': moderation.get_similar_churches_sorted_by_name(),
-        'next_url': next_url,
-        'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
-    })
+    }
 
 
 def church_moderation_post_process(request, moderation: ChurchModeration) -> bool:
