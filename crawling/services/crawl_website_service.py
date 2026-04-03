@@ -1,5 +1,5 @@
 from core.utils.log_utils import info
-from crawling.models import Crawling, CrawlingModeration
+from crawling.models import CrawlingModeration
 from crawling.services.crawling_moderation_service import upsert_crawling_moderation, \
     get_crawling_moderation_category
 from crawling.services.scrape_scraping_service import upsert_extracted_html_list, create_scraping
@@ -127,7 +127,7 @@ def crawl_website(
     process_extracted_html(website, crawling_result)
     process_extracted_widgets(website, crawling_result.widgets)
 
-    category = save_crawling_and_add_moderation(website, crawling_result)
+    category = add_crawling_moderation(website, crawling_result)
     return category, crawling_result
 
 
@@ -155,29 +155,11 @@ def process_extracted_html(
             upsert_extracted_html_list(scraping, crawling_result.confession_pages[scraping.url])
 
 
-def save_crawling_and_add_moderation(website: Website,
-                                     crawling_result: CrawlingResult,
-                                     ) -> CrawlingModeration.Category:
+def add_crawling_moderation(website: Website,
+                            crawling_result: CrawlingResult,
+                            ) -> CrawlingModeration.Category:
     if not website.enabled_for_crawling:
         return CrawlingModeration.Category.NO_RESPONSE
-
-    # Inserting global statistics
-    crawling = Crawling(
-        nb_visited_links=crawling_result.visited_links_count,
-        nb_success_links=len(crawling_result.confession_pages),
-        error_detail=crawling_result.error_detail,
-    )
-    crawling.save()
-
-    try:
-        last_crawling = website.crawling
-    except Crawling.DoesNotExist:
-        last_crawling = None
-
-    website.crawling = crawling
-    website.save()
-    if last_crawling:
-        last_crawling.delete()
 
     # Add moderation
     crawling_category, moderation_validated = get_crawling_moderation_category(website,

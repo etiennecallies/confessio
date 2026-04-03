@@ -5,13 +5,6 @@ from core.models.base_models import TimeStampMixin
 from registry.models import ModerationMixin
 
 
-class Crawling(TimeStampMixin):
-    error_detail = models.TextField(null=True)
-    nb_visited_links = models.PositiveSmallIntegerField()
-    nb_success_links = models.PositiveSmallIntegerField()
-    recrawl_triggered_at = models.DateTimeField(null=True, blank=True)
-
-
 class Scraping(TimeStampMixin):
     url = models.URLField(max_length=300)
     website = models.ForeignKey('registry.Website', on_delete=models.CASCADE,
