@@ -75,10 +75,6 @@ def scheduling_get_indexed_scheduling(website: Website) -> Scheduling | None:
 # RELATED OBJECTS #
 ###################
 
-def scheduling_get_websites_of_parsing(parsing: Parsing) -> list[Website]:
-    return get_websites_of_parsing(parsing)
-
-
 def scheduling_retrieve_scheduling_elements(scheduling: Scheduling) -> SchedulingElements:
     return retrieve_scheduling_elements(scheduling)
 
