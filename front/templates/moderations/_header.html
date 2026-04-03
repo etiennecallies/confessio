@@ -1,4 +1,4 @@
-<h2 class="mb-3">{{ title_prefix }}: {{ moderation.get_category_display }}</h2>
+<h2 class="mb-3">{{ title_prefix }}: {{ moderation.get_category_display }} ({{ position }} / {{ count }})</h2>
 {% if moderation.bug_description %}
     <p>Bug description : {{ moderation.bug_description }}</p>
 {% endif %}

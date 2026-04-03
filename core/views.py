@@ -1,3 +1,4 @@
+from django.db.models import Count, Q
 from django.http import HttpResponseBadRequest, HttpResponseNotFound, HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -26,7 +27,7 @@ class ModerationPostError(Exception):
         self.response = response
 
 
-def get_next_url(request, moderation: ModerationMixin) -> str:
+def get_next_url(request, moderation: ModerationMixin, diocese_slug: str) -> str:
     created_at_ts_us = datetime_to_ts_us(moderation.created_at)
     back_path = request.GET.get('backPath', '')
     if back_path:
@@ -37,7 +38,7 @@ def get_next_url(request, moderation: ModerationMixin) -> str:
                 kwargs={
                     'category': moderation.category,
                     'is_bug': moderation.marked_as_bug_at is not None,
-                    'diocese_slug': moderation.get_diocese_slug()
+                    'diocese_slug': diocese_slug,
                 }) \
         + f'?created_after={created_at_ts_us}'
 
@@ -46,6 +47,24 @@ def get_next_url(request, moderation: ModerationMixin) -> str:
         return f"{related_url}?backPath={next_url}"
 
     return next_url
+
+
+def get_position_and_count(moderation: ModerationMixin,
+                           diocese: Diocese | None,
+                           is_bug: bool,
+                           ) -> tuple[int, int]:
+    objects_filter = moderation.__class__.objects.filter(
+        category=moderation.category,
+        validated_at__isnull=True,
+        marked_as_bug_at__isnull=not is_bug,
+    )
+    if diocese:
+        objects_filter = objects_filter.filter(diocese=diocese)
+    counts = objects_filter.aggregate(
+        position=Count("uuid", filter=Q(created_at__lte=moderation.created_at)),
+        total=Count("uuid"),
+    )
+    return counts["position"], counts["total"]
 
 
 def get_moderate_response(request, category: str, resource: str, is_bug_as_str: bool,
@@ -89,6 +108,7 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
                         diocese_slug=diocese_slug)
 
     do_redirect = True
+    next_url = get_next_url(request, moderation, diocese_slug)
     if request.method == "POST":
         if 'bug_description' in request.POST:
             bug_description = request.POST.get('bug_description')
@@ -108,11 +128,15 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
                 moderation.validate(request.user)
 
         if do_redirect:
-            return redirect(get_next_url(request, moderation))
+            return redirect(next_url)
+
+    position, count = get_position_and_count(moderation, diocese, is_bug)
 
     return render(request, f'moderations/moderate_{moderation.resource}.html', {
         'moderation': moderation,
-        'next_url': get_next_url(request, moderation),
+        'next_url': next_url,
         'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
         'back_path': request.GET.get('backPath', ''),
+        'position': position,
+        'count': count,
     } | create_context(moderation))
