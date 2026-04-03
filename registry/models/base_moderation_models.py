@@ -24,6 +24,7 @@ class ModerationMixin(TimeStampMixin):
     marked_as_bug_at = models.DateTimeField(null=True)
     bug_description = models.CharField(max_length=BUG_DESCRIPTION_MAX_LENGTH, null=True,
                                        default=None)
+    comment = models.TextField(null=True, default=None, blank=True)
 
     @property
     @abstractmethod

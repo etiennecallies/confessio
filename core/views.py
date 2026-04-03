@@ -120,7 +120,12 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
     do_redirect = True
     next_url = get_next_url(request, moderation, diocese_slug)
     if request.method == "POST":
-        if 'bug_description' in request.POST:
+        if 'comment' in request.POST:
+            comment = request.POST.get('comment') or None
+            moderation.comment = comment
+            moderation.save()
+            do_redirect = False
+        elif 'bug_description' in request.POST:
             bug_description = request.POST.get('bug_description')
             if bug_description is not None and len(bug_description) > BUG_DESCRIPTION_MAX_LENGTH:
                 return HttpResponseBadRequest(f"bug_description is len {len(bug_description)} but "
