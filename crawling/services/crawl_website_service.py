@@ -113,19 +113,22 @@ def do_crawl_website(website: Website) -> CrawlingResult:
                                        path_redirection, forbidden_paths)
 
 
-def crawl_website(website: Website) -> CrawlingModeration.Category:
+def crawl_website(
+        website: Website,
+) -> tuple[CrawlingModeration.Category, CrawlingResult]:
     # check if website has parish
     if not website.parishes.exists() or not website.get_churches():
         website.delete()
         info('website has no parish or no churches, deleting it')
-        return CrawlingModeration.Category.NO_RESPONSE
+        return CrawlingModeration.Category.NO_RESPONSE, CrawlingResult()
 
     crawling_result = do_crawl_website(website)
 
     process_extracted_html(website, crawling_result)
     process_extracted_widgets(website, crawling_result.widgets)
 
-    return save_crawling_and_add_moderation(website, crawling_result)
+    category = save_crawling_and_add_moderation(website, crawling_result)
+    return category, crawling_result
 
 
 def process_extracted_html(

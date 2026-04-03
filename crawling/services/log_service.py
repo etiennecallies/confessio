@@ -5,13 +5,19 @@ from crawling.models import Log
 from registry.models import Website
 
 
-def save_buffer(website: Website, log_type: Log.Type, status: Log.Status = Log.Status.DONE):
+def save_buffer(website: Website, log_type: Log.Type, status: Log.Status = Log.Status.DONE,
+                error_detail: str | None = None,
+                nb_visited_links: int | None = None,
+                nb_success_links: int | None = None):
     buffer_value, buffer_started_at = get_log_buffer()
     log = Log(type=log_type,
               website=website,
               content=buffer_value,
               status=status,
               started_at=buffer_started_at,
-              end_at=timezone.now()
+              end_at=timezone.now(),
+              error_detail=error_detail,
+              nb_visited_links=nb_visited_links,
+              nb_success_links=nb_success_links,
               )
     log.save()

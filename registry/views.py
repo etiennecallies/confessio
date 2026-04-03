@@ -7,6 +7,7 @@ from registry.models.base_moderation_models import ResourceDoesNotExistError
 from registry.public_service import registry_merge_websites
 from registry.services.church_human_service import on_church_human_validation
 from registry.services.website_moderation_service import suggest_alternative_website
+from crawling.models import Log as CrawlingLog
 
 
 @login_required
@@ -19,9 +20,12 @@ def moderate_website(request, category, is_bug, diocese_slug, moderation_uuid=No
 
 
 def create_website_moderation_context(moderation: WebsiteModeration) -> dict:
+    latest_crawling_log = moderation.website.crawling_logs.filter(
+        type=CrawlingLog.Type.CRAWLING, status=CrawlingLog.Status.DONE
+    ).order_by('-created_at').first()
     return {
         'website': moderation.website,
-        'latest_crawling': moderation.website.crawling,
+        'latest_crawling_log': latest_crawling_log,
     }
 
 

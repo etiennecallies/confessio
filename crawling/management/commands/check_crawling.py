@@ -31,7 +31,8 @@ class Command(AbstractCommand):
         website_not_indexed_recently = []
         for website in active_websites:
             try:
-                crawling_log = website.crawling_logs.filter(status=CrawlingLog.Status.DONE)\
+                crawling_log = website.crawling_logs.filter(
+                    type=CrawlingLog.Type.CRAWLING, status=CrawlingLog.Status.DONE)\
                     .order_by('-created_at').first()
             except CrawlingLog.DoesNotExist:
                 crawling_log = None
@@ -43,7 +44,7 @@ class Command(AbstractCommand):
             # check that latest crawling is no older than 24 hours
             if crawling_log.created_at < timezone.now() - timedelta(days=1) \
                     and website.enabled_for_crawling:
-                website_not_crawled_recently.append(website)
+                website_not_crawled_recently.append((website, crawling_log))
                 continue
 
             scheduling = scheduling_get_indexed_scheduling(website)
@@ -70,8 +71,8 @@ class Command(AbstractCommand):
             website_not_crawled_str = "\n".join(
                 [f" - {website.name} {website.uuid}" for website in website_not_crawled[:5]])
             website_not_crawled_recently_str = "\n".join(
-                [f" - {website.crawling.created_at} {website.name} {website.uuid}"
-                 for website in website_not_crawled_recently[:5]])
+                [f" - {cl.created_at} {ws.name} {ws.uuid}"
+                 for ws, cl in website_not_crawled_recently[:5]])
             website_not_indexed_str = "\n".join(
                 [f" - {website.name} {website.uuid}" for website in website_not_indexed[:5]])
             website_not_indexed_recently_str = "\n".join(

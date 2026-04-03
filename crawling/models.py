@@ -50,6 +50,9 @@ class Log(TimeStampMixin):
     content = models.TextField()
     type = models.CharField(max_length=8, choices=Type)
     status = models.CharField(max_length=8, choices=Status)
+    error_detail = models.TextField(null=True, blank=True)
+    nb_visited_links = models.PositiveSmallIntegerField(null=True, blank=True)
+    nb_success_links = models.PositiveSmallIntegerField(null=True, blank=True)
 
 
 class CrawlingModeration(ModerationMixin):

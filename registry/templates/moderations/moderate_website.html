@@ -57,12 +57,12 @@
         </div>
     {% endif %}
 
-    {% if latest_crawling %}
+    {% if latest_crawling_log %}
         <h3>Latest crawling</h3>
-        <div>Date : {{ latest_crawling.created_at }}</div>
-        <div>Nb visited links : {{ latest_crawling.nb_visited_links }}</div>
-        <div>Nb success links : {{ latest_crawling.nb_success_links }}</div>
-        <div>Error detail : {{ latest_crawling.error_detail }}</div>
+        <div>Date : {{ latest_crawling_log.created_at }}</div>
+        <div>Nb visited links : {{ latest_crawling_log.nb_visited_links }}</div>
+        <div>Nb success links : {{ latest_crawling_log.nb_success_links }}</div>
+        <div>Error detail : {{ latest_crawling_log.error_detail }}</div>
         <h4>Scrapings</h4>
         {% for scraping in website.scrapings.all %}
             <div>

@@ -50,7 +50,9 @@ class Command(AbstractCommand):
                 .annotate(
                 last_done_crawl=Max(
                     'crawling_logs__created_at',
-                    filter=Q(crawling_logs__status=CrawlingLog.Status.DONE)
+                    filter=Q(
+                        crawling_logs__type=CrawlingLog.Type.CRAWLING,
+                        crawling_logs__status=CrawlingLog.Status.DONE)
                 )) \
                 .filter(Q(last_done_crawl__isnull=True)
                         | Q(last_done_crawl__lt=timezone.now() - timedelta(hours=14))) \
@@ -60,7 +62,9 @@ class Command(AbstractCommand):
                 .annotate(
                 last_done_crawl=Max(
                     'crawling_logs__created_at',
-                    filter=Q(crawling_logs__status=CrawlingLog.Status.DONE)
+                    filter=Q(
+                        crawling_logs__type=CrawlingLog.Type.CRAWLING,
+                        crawling_logs__status=CrawlingLog.Status.DONE)
                 )) \
                 .order_by(F('last_done_crawl').asc(nulls_first=True)).all()
 

@@ -19,7 +19,7 @@ def handle_crawl_website(website: Website):
     info(f'Starting crawling for website {website.name} {website.uuid}')
 
     try:
-        crawling_category = crawl_website(website)
+        crawling_category, crawling_result = crawl_website(website)
     except CrawlingTimeoutError:
         info(f'Timeout reached while crawling website {website.name} {website.uuid}')
         save_buffer(website, Log.Type.CRAWLING, Log.Status.TIMEOUT)
@@ -39,13 +39,14 @@ def handle_crawl_website(website: Website):
         info(f'No page found for website {website.name} {website.uuid}')
     else:
         info(f'Error while crawling website {website.name} {website.uuid}')
-        if website.crawling:
-            info(website.crawling.error_detail)
-        else:
-            info('No crawling found')
+        if crawling_result.error_detail:
+            info(crawling_result.error_detail)
 
     scheduling_init_scheduling(website)
-    save_buffer(website, Log.Type.CRAWLING)
+    save_buffer(website, Log.Type.CRAWLING,
+                error_detail=crawling_result.error_detail,
+                nb_visited_links=crawling_result.visited_links_count,
+                nb_success_links=len(crawling_result.confession_pages))
 
 
 ######################
