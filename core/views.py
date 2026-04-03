@@ -37,7 +37,7 @@ def get_next_url(request, moderation: ModerationMixin) -> str:
                 kwargs={
                     'category': moderation.category,
                     'is_bug': moderation.marked_as_bug_at is not None,
-                    'diocese_slug': moderation.diocese.slug
+                    'diocese_slug': moderation.get_diocese_slug()
                 }) \
         + f'?created_after={created_at_ts_us}'
 

@@ -9,3 +9,13 @@
         </form>
     </div>
 {% endif %}
+<div>
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="delete_moderation" />
+        <button type="submit" class="btn btn-gray-700">
+             <i class="fas fa-xmark"></i>
+            Delete moderation
+        </button>
+    </form>
+</div>

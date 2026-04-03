@@ -2,7 +2,6 @@
 
 {% block card %}
     {% include 'moderations/_header.html' with title_prefix='Sentence' %}
-    {% include 'moderations/_validate_next.html' %}
     <p>
         <a class="btn btn-tertiary" href="{% url 'admin:scheduling_sentence_change' sentence.uuid %}" target="_blank" role="button">
             Open sentence admin <i class="fas fa-up-right-from-square"></i>
@@ -37,6 +36,5 @@
         {% endif %}
     {% endfor %}
 
-    {% include 'moderations/_mark_as_bug.html' %}
-    {% include 'moderations/_delete.html' %}
+    {% include 'moderations/_footer.html' %}
 {% endblock card %}

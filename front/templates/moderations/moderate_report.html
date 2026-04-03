@@ -2,12 +2,10 @@
 
 {% block card %}
     {% include 'moderations/_header.html' with title_prefix='Report' %}
-    {% include 'moderations/_validate_next.html' %}
 
     Website: {{ report.website.name }}<br>
     Comment: {{ report.comment }}<br>
     Link: <a href="{% url 'website_view' report.website.uuid %}" target="_blank">Go to report</a>
 
-    {% include 'moderations/_mark_as_bug.html' %}
-    {% include 'moderations/_delete.html' %}
+    {% include 'moderations/_footer.html' %}
 {% endblock card %}

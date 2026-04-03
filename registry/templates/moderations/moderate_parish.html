@@ -4,7 +4,6 @@
 
 {% block card %}
     {% include 'moderations/_header.html' with title_prefix='Parish' %}
-    {% include 'moderations/_validate_next.html' %}
 
     {% display_parish parish %}
     {% if parish.website %}
@@ -45,6 +44,5 @@
         </div>
     {% endfor %}
 
-    {% include 'moderations/_mark_as_bug.html' %}
-    {% include 'moderations/_delete.html' %}
+    {% include 'moderations/_footer.html' %}
 {% endblock card %}

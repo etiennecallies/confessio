@@ -2,11 +2,9 @@
 
 {% block card %}
     {% include 'moderations/_header.html' with title_prefix='Scheduling' %}
-    {% include 'moderations/_validate_next.html' %}
 
     Website: {{ website.name }}<br>
     Link: <a href="{% url 'website_view' website.uuid %}" target="_blank">Go to website</a>
 
-    {% include 'moderations/_mark_as_bug.html' %}
-    {% include 'moderations/_delete.html' %}
+    {% include 'moderations/_footer.html' %}
 {% endblock card %}

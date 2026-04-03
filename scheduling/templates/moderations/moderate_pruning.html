@@ -4,26 +4,15 @@
 
 {% block card %}
     {% include 'moderations/_header.html' with title_prefix='Pruning' %}
-    <div>
+    {% if parsing_moderation %}
         <div class="d-inline-block">
             <form method="post">
             {% csrf_token %}
-            <button type="submit" class="btn btn-primary">Validate & next</button>
+            <input type="hidden" name="related_url" value="{{ parsing_moderation|get_url }}">
+            <button type="submit" class="btn {% if parsing_moderation.validated_at %}btn-primary{% else %}btn-success{% endif %}">Validate & related</button>
             </form>
         </div>
-        {% if parsing_moderation %}
-            <div class="d-inline-block">
-                <form method="post">
-                {% csrf_token %}
-                <input type="hidden" name="related_url" value="{{ parsing_moderation|get_url }}">
-                <button type="submit" class="btn {% if parsing_moderation.validated_at %}btn-primary{% else %}btn-success{% endif %}">Validate & related</button>
-                </form>
-            </div>
-        {% endif %}
-        <div class="d-inline-block">
-            <a class="btn btn-info" role="button" href="{{ next_url }}">Next</a>
-        </div>
-    </div>
+    {% endif %}
     {% for scraping in pruning.scrapings.all %}
         <div>Scraping :
             <a href="{{ scraping.url }}" target="_blank">{{ scraping.url }}</a>
@@ -80,6 +69,5 @@
         </div>
     {% endif %}
 
-    {% include 'moderations/_mark_as_bug.html' %}
-    {% include 'moderations/_delete.html' %}
+    {% include 'moderations/_footer.html' %}
 {% endblock card %}

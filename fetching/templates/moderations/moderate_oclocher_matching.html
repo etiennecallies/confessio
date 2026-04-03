@@ -3,7 +3,6 @@
 
 {% block card %}
     {% include 'moderations/_header.html' with title_prefix='OClocher Matching' %}
-    {% include 'moderations/_validate_next.html' %}
 
     <p>
         <a class="btn btn-tertiary" href="{% url 'admin:fetching_oclochermatching_change' oclocher_matching.uuid %}" target="_blank" role="button">
@@ -33,6 +32,5 @@
         {% endfor %}
     {% endif %}
 
-    {% include 'moderations/_mark_as_bug.html' %}
-    {% include 'moderations/_delete.html' %}
+    {% include 'moderations/_footer.html' %}
 {% endblock card %}

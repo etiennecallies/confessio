@@ -6,8 +6,6 @@
 {% block card %}
     {% include 'moderations/_header.html' with title_prefix='Church' %}
 
-    {% include 'moderations/_validate_next.html' %}
-
     {% if moderation.source %}
         <p>External source : {{ moderation.source }}</p>
     {% endif %}
@@ -105,6 +103,5 @@
         {% endfor %}
     {% endif %}
 
-    {% include 'moderations/_mark_as_bug.html' %}
-    {% include 'moderations/_delete.html' %}
+    {% include 'moderations/_footer.html' %}
 {% endblock card %}

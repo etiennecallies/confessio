@@ -2,3 +2,22 @@
 {% if moderation.bug_description %}
     <p>Bug description : {{ moderation.bug_description }}</p>
 {% endif %}
+{% if moderation.validated_at %}
+    <p>Validated at: {{ moderation.validated_at }}</p>
+{% else %}
+    <div class="d-inline-block">
+        <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Validate & {% if back_path %}back{% else %}next{% endif %}</button>
+        </form>
+    </div>
+{% endif %}
+{% if back_path %}
+    <div class="d-inline-block">
+        <a class="btn btn-info" role="button" href="{{ back_path }}">Back</a>
+    </div>
+{% else %}
+    <div class="d-inline-block">
+        <a class="btn btn-info" role="button" href="{{ next_url }}">Next</a>
+    </div>
+{% endif %}
