@@ -78,7 +78,6 @@ The `front` app has these additional files and directories:
 ```
 Also, the `core` app contains the different settings files.
 
-
 ## App dependencies rules
 
 Here are the rules about the dependencies between apps:
