@@ -309,7 +309,6 @@ def api_front_search(request,
         day_filter=date_filter,
         hour_min=hour_min,
         hour_max=hour_max,
-        single_event=True,
     )
 
     index_events, churches, events_truncated_by_website_uuid, aggregations = \

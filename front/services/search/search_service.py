@@ -28,7 +28,7 @@ class TimeFilter(BaseModel):
     day_filter: date | None
     hour_min: int | None
     hour_max: int | None
-    single_event: bool = False
+    legacy_search: bool = False
 
     def is_null(self):
         return self.day_filter is None \
@@ -57,10 +57,12 @@ def build_church_query(time_filter: TimeFilter) -> QuerySet[Church]:
         'start_time'
     ).values('uuid')
 
-    church_query = build_base_church_query().select_related('parish__website') \
-        .prefetch_related('parish__website__reports') \
-        .annotate(next_event_uuid=Subquery(event_query[:1])) \
+    church_query = build_base_church_query().select_related('parish__website')
+    if time_filter.legacy_search:
+        church_query = church_query.prefetch_related('parish__website__reports')
+    church_query = church_query.annotate(next_event_uuid=Subquery(event_query[:1])) \
         .only("name",
+              "address",
               "city",
               "zipcode",
               "location",
@@ -106,9 +108,9 @@ def truncate_results(church_query: QuerySet[Church],
                      ) -> tuple[list[IndexEvent], list[Church], bool, dict[UUID, bool]]:
     churches = church_query.all()[:MAX_CHURCHES_IN_RESULTS]
 
-    if time_filter.single_event:
+    if not time_filter.legacy_search:
         church_by_uuid = {church.uuid: church for church in churches}
-        events = fetch_next_event(church_by_uuid)
+        events = fetch_events(church_by_uuid, time_filter)
         all_churches_have_events = all(church.next_event_uuid is not None for church in churches)
         events_truncated_by_website_uuid = {church.parish.website.uuid: True for church in churches}
     else:

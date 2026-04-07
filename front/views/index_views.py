@@ -206,6 +206,7 @@ def extract_temporal_filters(request) -> TimeFilter:
         day_filter=extract_day_filter(request),
         hour_min=extract_int('hourMin', request, 0),
         hour_max=extract_int('hourMax', request, 24 * 60 - 1),
+        legacy_search=True,
     )
 
 
