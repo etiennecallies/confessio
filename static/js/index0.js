@@ -21,6 +21,8 @@ function popupChurch(markerName){
  */
 $( function() {
     let autocompleteUrl = $('#search-input').attr('data-autocomplete-url');
+    let latitude = $('#search-input').attr('data-autocomplete-latitude') || '';
+    let longitude = $('#search-input').attr('data-autocomplete-longitude') || '';
 
     let cache = {};
     $( "#search-input" ).autocomplete({
@@ -34,6 +36,8 @@ $( function() {
 
         $.getJSON( autocompleteUrl, {
           query: request.term,
+          latitude: latitude,
+          longitude: longitude,
         }, function( data, status, xhr ) {
           let optionList = [];
           data.forEach(obj => {

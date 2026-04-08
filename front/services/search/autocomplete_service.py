@@ -1,20 +1,29 @@
+import asyncio
 from dataclasses import dataclass
+from json import JSONDecodeError
+from statistics import mean
 from typing import Optional
 from uuid import UUID
 
-import requests
+import httpx
+from django.contrib.gis.db.models import Collect
+from django.contrib.gis.db.models.functions import Distance, Centroid
+from django.contrib.gis.geos import Point
 from django.contrib.postgres.lookups import Unaccent
+from django.db.models import F
 from django.db.models import Value
 from django.db.models.functions import Replace, Lower
 from django.urls import reverse
-from requests.exceptions import RequestException, JSONDecodeError
+from httpx import RequestError
 
-from registry.models import Parish, Church
 from front.utils.department_utils import get_departments_context
-from scheduling.utils.string_search import unhyphen_content, normalize_content
+from front.utils.distance_utils import distance
+from registry.models import Parish, Church
 from registry.utils.string_utils import get_string_similarity
+from scheduling.utils.string_search import unhyphen_content, normalize_content
 
 MAX_AUTOCOMPLETE_RESULTS = 15
+HALF_LIFE_DISTANCE = 5000
 
 
 @dataclass
@@ -31,13 +40,22 @@ class AutocompleteResult:
     def from_parish(cls, parish: Parish) -> 'AutocompleteResult':
         # TODO save context in parish, and create a command to fill it
 
+        longitudes = []
+        latitudes = []
         cities = set()
         zipcodes = set()
         for church in parish.churches.all():
+            longitudes.append(church.location.x)
+            latitudes.append(church.location.y)
             if church.city:
                 cities.add(church.city)
             if church.zipcode:
                 zipcodes.add(church.zipcode)
+        latitude = longitude = None
+        if latitudes and longitudes:
+            latitude = mean(latitudes)
+            longitude = mean(longitudes)
+
         if len(zipcodes) == 0:
             context = None
         elif len(cities) == 1 and len(zipcodes) == 1:
@@ -50,6 +68,8 @@ class AutocompleteResult:
             name=parish.name,
             context=context,
             url=reverse('website_view', kwargs={'website_uuid': parish.website.uuid}),
+            latitude=latitude,
+            longitude=longitude,
             uuid=parish.uuid,
         )
 
@@ -73,20 +93,27 @@ class AutocompleteResult:
         )
 
 
-def get_data_gouv_response(query: str) -> list[AutocompleteResult]:
+async def get_data_gouv_response(query: str, latitude: float | None, longitude: float | None
+                                 ) -> list[AutocompleteResult]:
     if not query or len(query) > 200 or len(query) < 3 or not query[0].isalnum():
         return []
 
-    url = f'https://api-adresse.data.gouv.fr/search/'
+    # https://cartes.gouv.fr/aide/fr/guides-utilisateur/utiliser-les-services-de-la-geoplateforme/autocompletion/
+    url = f'https://data.geopf.fr/geocodage/completion/'
+    lonlat_dict = {}
+    if latitude is not None and longitude is not None:
+        lonlat_dict = {'lonlat': f'{longitude},{latitude}'}
 
     try:
-        response = requests.get(url, params={
-            'q': query,
-            'limit': MAX_AUTOCOMPLETE_RESULTS,
-            'autocomplete': 1,
-            'type': 'municipality',
-        })
-    except RequestException as e:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                url, params={
+                    'text': query,
+                    'maximumResponses': MAX_AUTOCOMPLETE_RESULTS,
+                    'type': 'PositionOfInterest',
+                    'poiType': 'commune',
+                } | lonlat_dict)
+    except RequestError as e:
         print(f'Exception in get_data_gouv_response: {e}')
         print(f"Query: {query}")
         from core.otel.metrics_service import metrics_service
@@ -110,60 +137,104 @@ def get_data_gouv_response(query: str) -> list[AutocompleteResult]:
         metrics_service.increment_warning_counter('data_gouv_error')
         return []
 
-    if 'features' not in data or not data['features']:
+    if 'results' not in data or not data['results']:
         return []
 
     results = []
-    for result in data['features']:
+    for result in data['results']:
         results.append(AutocompleteResult(
             type='municipality',
-            name=result['properties']['name'],
-            context=result['properties']['context'],
-            latitude=result['geometry']['coordinates'][1],
-            longitude=result['geometry']['coordinates'][0],
+            name=result['names'][0],
+            context=result.get('zipcode', ''),
+            latitude=result['y'],
+            longitude=result['x'],
             url=reverse('around_place_view'),
         ))
 
     return results
 
 
-def get_parish_by_name_response(query) -> list[AutocompleteResult]:
+async def get_parish_by_name_response(query, latitude: float | None,
+                                      longitude: float | None) -> list[AutocompleteResult]:
     query_term = unhyphen_content(normalize_content(query))
-    parishes = Parish.objects.annotate(
+    parishes = Parish.objects.select_related('website').prefetch_related('churches').annotate(
         search_name=Replace(Unaccent(Lower('name')), Value('-'), Value(' '))
-    ).filter(website__is_active=True, search_name__contains=query_term)[:MAX_AUTOCOMPLETE_RESULTS]
+    ).filter(website__is_active=True, search_name__contains=query_term) \
+        .only("name",
+              "website__uuid",
+              )
 
-    return list(map(AutocompleteResult.from_parish, parishes))
+    if latitude is not None and longitude is not None:
+        user_location = Point(longitude, latitude, srid=4326)
+        parishes = parishes.annotate(
+            centroid=Centroid(Collect('churches__location')),
+        ).annotate(
+            distance=Distance('centroid', user_location),
+        ).order_by(F('distance').asc(nulls_last=True))
+
+    parishes = parishes[:MAX_AUTOCOMPLETE_RESULTS]
+
+    return [AutocompleteResult.from_parish(parish) async for parish in parishes]
 
 
-def get_church_by_name_response(query) -> list[AutocompleteResult]:
+async def get_church_by_name_response(query, latitude: float | None,
+                                      longitude: float | None) -> list[AutocompleteResult]:
     query_term = unhyphen_content(normalize_content(query))
-    churches = Church.objects.annotate(
+    churches = Church.objects.select_related('parish__website').annotate(
         search_name=Replace(Unaccent(Lower('name')), Value('-'), Value(' '))
     ).filter(is_active=True, parish__website__is_active=True,
-             search_name__contains=query_term)[:MAX_AUTOCOMPLETE_RESULTS]
+             search_name__contains=query_term) \
+        .only("name",
+              "city",
+              "zipcode",
+              "location",
+              "parish__website__uuid",
+              )
 
-    return list(map(AutocompleteResult.from_church, churches))
+    if latitude is not None and longitude is not None:
+        user_location = Point(longitude, latitude, srid=4326)
+        churches = churches.annotate(
+            distance=Distance('location', user_location)
+        ).order_by(F('distance').asc(nulls_last=True))
+
+    churches = churches[:MAX_AUTOCOMPLETE_RESULTS]
+
+    return [AutocompleteResult.from_church(church) async for church in churches]
 
 
-def sort_results(query, results: list[AutocompleteResult]) -> list[AutocompleteResult]:
+def get_score(query, latitude: float | None, longitude: float | None,
+              result: AutocompleteResult) -> float:
+    string_similarity = get_string_similarity(query, result.name)
+    d = 0.0
+    if latitude is not None and longitude is not None \
+            and result.latitude is not None and result.longitude is not None:
+        d = distance(latitude, longitude, result.latitude, result.longitude)
+
+    return string_similarity * HALF_LIFE_DISTANCE / (HALF_LIFE_DISTANCE + d)
+
+
+def sort_results(query, latitude: float | None, longitude: float | None,
+                 results: list[AutocompleteResult]) -> list[AutocompleteResult]:
     if not results:
         return []
 
-    tuples = zip(map(lambda r: get_string_similarity(query, r.name), results), results)
+    tuples = zip(map(lambda r: get_score(query, latitude, longitude, r), results), results)
     sorted_tuples = sorted(tuples, key=lambda t: t[0], reverse=True)
     _, sorted_values = zip(*sorted_tuples)
 
     return sorted_values
 
 
-def get_aggregated_response(query) -> list[AutocompleteResult]:
-    # TODO async call
-    data_gouv_results = get_data_gouv_response(query)
-    parish_by_name_results = get_parish_by_name_response(query)
-    church_by_name_results = get_church_by_name_response(query)
+async def get_aggregated_response(query, latitude: float | None, longitude: float | None
+                                  ) -> list[AutocompleteResult]:
+    data_gouv_results, parish_by_name_results, church_by_name_results = await asyncio.gather(
+        get_data_gouv_response(query, latitude, longitude),
+        get_parish_by_name_response(query, latitude, longitude),
+        get_church_by_name_response(query, latitude, longitude),
+    )
 
     sorted_results = sort_results(
-        query, data_gouv_results + parish_by_name_results + church_by_name_results)
+        query, latitude, longitude,
+        data_gouv_results + parish_by_name_results + church_by_name_results)
 
     return sorted_results[:MAX_AUTOCOMPLETE_RESULTS]

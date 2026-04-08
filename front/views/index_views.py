@@ -126,11 +126,15 @@ def render_map(request, center,
     if request.resolver_match.url_name != 'index' and upload_success is None:
         new_search_hit(request, len(websites))
 
+    latitude, longitude = center
+
     return render(request, 'pages/index.html', {
         'h1_title': h1_title,
         'meta_title': meta_title,
         'display_sub_title': display_sub_title,
         'location': location,
+        'latitude': latitude,
+        'longitude': longitude,
         'map_html': map_html,
         'church_marker_names_json_by_website': church_marker_names_json_by_website,
         'church_uuids_json_by_website': church_uuids_json_by_website,
@@ -419,9 +423,11 @@ def partial_website_events(request, website_uuid: str):
     })
 
 
-def autocomplete(request):
+async def autocomplete(request):
     query = request.GET.get('query', '')
-    results = get_aggregated_response(query)
+    latitude = extract_float('latitude', request)
+    longitude = extract_float('longitude', request)
+    results = await get_aggregated_response(query, latitude, longitude)
     response = list(map(dataclasses.asdict, results))
 
     return JsonResponse(response, safe=False)

@@ -329,8 +329,10 @@ def api_front_search(request,
 
 
 @api.get("/autocomplete", response=list[AutocompleteItem])
-def api_front_autocomplete(request, query: str = '') -> list[AutocompleteItem]:
-    results = get_aggregated_response(query)
+async def api_front_autocomplete(request, query: str,
+                                 latitude: float | None = None,
+                                 longitude: float | None = None) -> list[AutocompleteItem]:
+    results = await get_aggregated_response(query, latitude, longitude)
     return list(map(lambda r: AutocompleteItem.from_autocomplete_result(r), results))
 
 

@@ -1,4 +1,5 @@
 {% extends 'layouts/base.html' %}
+{% load l10n %}
 {% load display_tags %}
 {% load static %}
 {% load i18n %}
@@ -53,6 +54,8 @@
                                    placeholder="{% trans 'searchPlaceHolder' %}"
                                    value="{{ location }}"
                                    data-autocomplete-url="{% url 'autocomplete' %}"
+                                   data-autocomplete-latitude="{{ latitude|unlocalize }}"
+                                   data-autocomplete-longitude="{{ longitude|unlocalize }}"
                                    >
                         </div>
                     </div>
