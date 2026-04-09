@@ -134,7 +134,6 @@ class ParsingOut(Schema):
 
 class FeedbackTypeEnum(str, Enum):
     GOOD = "good"
-    OUTDATED = "outdated"
     ERROR = "error"
     COMMENT = "comment"
 

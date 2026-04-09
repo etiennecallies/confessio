@@ -11,7 +11,6 @@ class Report(TimeStampMixin):
 
     class FeedbackType(models.TextChoices):
         GOOD = "good"
-        OUTDATED = "outdated"
         ERROR = "error"
         COMMENT = "comment"
 
@@ -34,7 +33,6 @@ class Report(TimeStampMixin):
 class ReportModeration(ModerationMixin):
     class Category(models.TextChoices):
         GOOD = "good"
-        OUTDATED = "outdated"
         ERROR = "error"
         COMMENT = "comment"
 
