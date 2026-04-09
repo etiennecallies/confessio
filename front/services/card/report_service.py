@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest, HttpRequest
 
 from core.utils.discord_utils import send_discord_alert, DiscordChanel
 from front.models import Report, ReportModeration
@@ -17,6 +17,25 @@ class NewReportError(Exception):
     def __init__(self, response: HttpResponse):
         self.response = response
         super().__init__()
+
+
+def save_report(request: HttpRequest, report: Report):
+    user, user_agent, ip_address_hash = get_user_user_agent_and_ip(request)
+
+    report.user_agent = user_agent
+    report.ip_address_hash = ip_address_hash
+    report.user = user
+    report.save()
+
+    if not user:
+        add_necessary_moderation_for_report(report)
+
+        email_body = (f"New report on website {report.website.name}\n"
+                      f"feedback_type: {report.feedback_type}\n"
+                      f"error_type: {report.error_type}\n\ncomment:\n{report.comment}")
+        subject = f'New report on confessio for {report.website.name}'
+        send_email_to_admin(subject, email_body)
+        send_discord_alert(message=email_body, channel=DiscordChanel.NEW_REPORTS)
 
 
 def new_report(request, website: Website) -> str:
@@ -46,29 +65,14 @@ def new_report(request, website: Website) -> str:
     except ValueError:
         raise NewReportError(HttpResponseBadRequest(f'Invalid error type: {error_type_str}'))
 
-    user, user_agent, ip_address_hash = get_user_user_agent_and_ip(request)
-
     report = Report(
         website=website,
         feedback_type=feedback_type,
         error_type=error_type,
         comment=comment,
-        user_agent=user_agent,
-        ip_address_hash=ip_address_hash,
-        user=user,
         main_report=main_report,
     )
-    report.save()
-
-    if not user:
-        add_necessary_moderation_for_report(report)
-
-        email_body = (f"New report on website {website.name}\n"
-                      f"feedback_type: {feedback_type}\n"
-                      f"error_type: {error_type}\n\ncomment:\n{comment}")
-        subject = f'New report on confessio for {website.name}'
-        send_email_to_admin(subject, email_body)
-        send_discord_alert(message=email_body, channel=DiscordChanel.NEW_REPORTS)
+    save_report(request, report)
 
     return 'Merci pour votre retour !'
 

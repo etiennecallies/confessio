@@ -8,6 +8,7 @@ from ninja import NinjaAPI, Schema
 
 from attaching.public_service import attaching_get_image_public_url
 from front.models import Report
+from front.services.card.report_service import save_report
 from front.services.card.scraping_url_service import get_scraping_parsing_urls
 from front.services.card.sources_service import get_website_parsings_and_prunings, \
     WebsiteParsingsAndPrunings
@@ -136,6 +137,20 @@ class FeedbackTypeEnum(str, Enum):
     GOOD = "good"
     ERROR = "error"
     COMMENT = "comment"
+
+
+class ErrorTypeEnum(str, Enum):
+    OUTDATED = "outdated"
+    CHURCHES = "churches"
+    PARAGRAPHS = "paragraphs"
+    SCHEDULES = "schedules"
+
+
+class ReportIn(Schema):
+    website_uuid: UUID
+    feedback_type: FeedbackTypeEnum
+    error_type: ErrorTypeEnum | None = None
+    comment: str | None = None
 
 
 class ReportOut(Schema):
@@ -410,3 +425,22 @@ def api_front_get_dioceses(request) -> list[DioceseOut]:
     dioceses_and_box = get_dioceses_bounding_box()
     return [DioceseOut.from_diocese_and_box(diocese, bounding_box)
             for diocese, bounding_box in dioceses_and_box]
+
+
+@api.post("/reports", response={200: ReportOut, 404: ErrorSchema})
+def api_front_post_reports(request, report_in: ReportIn) -> ReportOut:
+    try:
+        website = Website.objects.get(uuid=report_in.website_uuid)
+    except Website.DoesNotExist:
+        raise Http404(f'Website {report_in.website_uuid} does not exist')
+
+    report = Report(
+        website=website,
+        feedback_type=Report.FeedbackType(report_in.feedback_type),
+        error_type=Report.ErrorType(report_in.error_type) if report_in.error_type else None,
+        comment=report_in.comment,
+    )
+    save_report(request, report)
+    report.refresh_from_db()
+
+    return ReportOut.from_report(report, [])
