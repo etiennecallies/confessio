@@ -16,6 +16,7 @@ class Report(TimeStampMixin):
         COMMENT = "comment"
 
     class ErrorType(models.TextChoices):
+        OUTDATED = "outdated"
         CHURCHES = "churches"
         PARAGRAPHS = "paragraphs"
         SCHEDULES = "schedules"

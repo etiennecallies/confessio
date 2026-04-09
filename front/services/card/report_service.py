@@ -76,8 +76,6 @@ def new_report(request, website: Website) -> str:
 def get_report_moderation_category(report: Report) -> ReportModeration.Category:
     if report.feedback_type == Report.FeedbackType.GOOD:
         return ReportModeration.Category.GOOD
-    elif report.feedback_type == Report.FeedbackType.OUTDATED:
-        return ReportModeration.Category.OUTDATED
     elif report.feedback_type == Report.FeedbackType.ERROR:
         return ReportModeration.Category.ERROR
     elif report.feedback_type == Report.FeedbackType.COMMENT:
@@ -124,8 +122,7 @@ def get_count_and_label(website: Website):
     count_and_label = []
     for feedback_type, label, singular_tooltip, plural_tooltip in [
         (Report.FeedbackType.GOOD, '👍', 'avis positif', 'avis positifs'),
-        (Report.FeedbackType.OUTDATED, '👎', 'erreur signalée', 'erreurs signalées'),
-        (Report.FeedbackType.ERROR, '❌', 'bug signalé', 'bugs signalés'),
+        (Report.FeedbackType.ERROR, '👎', 'erreur signalée', 'erreurs signalées'),
         (Report.FeedbackType.COMMENT, '💬', 'commentaire', 'commentaires'),
     ]:
         if feedback_type in count_by_type:
