@@ -22,12 +22,8 @@ class ModerationMixin(TimeStampMixin):
     def resource(self):
         pass
 
+    status = models.CharField(max_length=12, choices=ModerationStatus)
     comment = models.TextField(null=True, default=None, blank=True)
-    status = models.CharField(
-        max_length=12,
-        choices=ModerationStatus,
-        default=ModerationStatus.TO_VALIDATE,
-    )
 
     @property
     @abstractmethod
