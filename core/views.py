@@ -4,7 +4,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 
 from registry.models import ModerationMixin, Diocese
-from registry.models.base_moderation_models import BUG_DESCRIPTION_MAX_LENGTH, ModerationStatus
+from registry.models.base_moderation_models import ModerationStatus
 from scheduling.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 
 
@@ -118,17 +118,18 @@ def get_moderate_response(request, category: str, resource: str, status: str,
     do_redirect = True
     next_url = get_next_url(request, moderation, diocese_slug)
     if request.method == "POST":
-        if 'comment' in request.POST:
+        if 'change_status' in request.POST:
+            new_status = request.POST.get('change_status')
+            if new_status not in ModerationStatus.values:
+                return HttpResponseBadRequest(
+                    f"status {new_status} is not valid")
             comment = request.POST.get('comment') or None
             moderation.comment = comment
-            moderation.save()
+            if new_status != moderation.status:
+                moderation.set_status(new_status, request.user)
+            else:
+                moderation.save()
             do_redirect = False
-        elif 'bug_description' in request.POST:
-            bug_description = request.POST.get('bug_description')
-            if bug_description is not None and len(bug_description) > BUG_DESCRIPTION_MAX_LENGTH:
-                return HttpResponseBadRequest(f"bug_description is len {len(bug_description)} but "
-                                              f"max size is {BUG_DESCRIPTION_MAX_LENGTH}")
-            moderation.mark_as_bug(request.user, bug_description)
         elif 'delete_moderation' in request.POST:
             moderation.delete()
         elif moderation_post_process is not None:
@@ -148,8 +149,8 @@ def get_moderate_response(request, category: str, resource: str, status: str,
     return render(request, f'moderations/moderate_{moderation.resource}.html', {
         'moderation': moderation,
         'next_url': next_url,
-        'bug_description_max_length': BUG_DESCRIPTION_MAX_LENGTH,
         'back_path': request.GET.get('backPath', ''),
         'position': position,
         'count': count,
+        'moderation_statuses': ModerationStatus,
     } | create_context(moderation))

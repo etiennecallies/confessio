@@ -136,6 +136,18 @@ class ModerationMixin(TimeStampMixin):
         self.status = ModerationStatus.BUG
         self.save()
 
+    def set_status(self, new_status: str, user: User):
+        if new_status == ModerationStatus.VALIDATED:
+            self.validate(user)
+        elif new_status == ModerationStatus.BUG:
+            self.marked_as_bug_at = Now()
+            self.marked_as_bug_by = user
+            self.status = ModerationStatus.BUG
+            self.save()
+        elif new_status == ModerationStatus.TO_VALIDATE:
+            self.status = ModerationStatus.TO_VALIDATE
+            self.save()
+
     def get_diocese_slug(self) -> str:
         return self.diocese.slug if self.diocese else 'no_diocese'
 
