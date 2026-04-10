@@ -27,20 +27,23 @@
         <a class="link-info" href="{% url 'website_view' website.uuid %}">{{ website.name }}</a>
     </p>
 
-    <h4>Parishes & Churches</h4>
-    {% for parish in website.parishes.all %}
-        {% display_parish parish %}
-        {% for church in parish.churches.all %}
-            {% display_church church False %}
+    <details class="mt-3">
+        <summary class="h4">Parishes & Churches</summary>
+        {% for parish in website.parishes.all %}
+            {% display_parish parish %}
+            {% for church in parish.churches.all %}
+                {% display_church church False %}
+            {% endfor %}
+            {% display_churches_location parish.churches.all %}
         {% endfor %}
-        {% display_churches_location parish.churches.all %}
-    {% endfor %}
+    </details>
 
     {% if moderation.other_website %}
         <h3>Conflicting with other website</h3>
         {% display_website moderation.other_website %}
 
-        <h4>Parishes & Churches of this website</h4>
+        <details class="mt-3">
+        <summary class="h4">Parishes & Churches of this website</summary>
         {% for parish in moderation.other_website.parishes.all %}
             {% display_parish parish %}
             {% for church in parish.churches.all %}
@@ -48,6 +51,7 @@
             {% endfor %}
             {% display_churches_location parish.churches.all %}
         {% endfor %}
+        </details>
 
         <div>
             <form action="{% url 'moderate_merge_websites' moderation.uuid %}" method="post">
