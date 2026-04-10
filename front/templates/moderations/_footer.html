@@ -28,3 +28,30 @@
         </button>
     </form>
 </div>
+{% if history_entries %}
+<details class="mt-3" open>
+    <summary><strong>History ({{ history_entries|length }})</strong></summary>
+    <ul class="list-unstyled mt-2">
+        {% for entry in history_entries %}
+        <li class="mb-1">
+            <small class="text-muted">{{ entry.date|date:"Y-m-d H:i" }}</small>
+            {% if entry.user %}<strong>{{ entry.user.username }}</strong>{% else %}<em>system</em>{% endif %}
+            —
+            {% if entry.is_creation %}
+                Created (status: {{ entry.new_status }}, category: {{ entry.new_category }})
+            {% else %}
+                {% if entry.old_status %}
+                    status: {{ entry.old_status }} &rarr; {{ entry.new_status }}
+                {% endif %}
+                {% if entry.old_category %}
+                    category: {{ entry.old_category }} &rarr; {{ entry.new_category }}
+                {% endif %}
+                {% if entry.comment %}
+                    comment: &laquo;{{ entry.comment }}&raquo;
+                {% endif %}
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+</details>
+{% endif %}

@@ -1,3 +1,7 @@
+from dataclasses import dataclass
+from datetime import datetime
+
+from django.contrib.auth.models import User
 from django.db.models import Count, Q
 from django.http import HttpResponseBadRequest, HttpResponseNotFound, HttpResponse
 from django.shortcuts import redirect, render
@@ -76,6 +80,59 @@ def get_position_and_count(moderation: ModerationMixin,
     return counts["position"], counts["total"]
 
 
+@dataclass
+class HistoryEntry:
+    date: datetime
+    user: User | None
+    is_creation: bool = False
+    old_status: ModerationStatus | None = None
+    new_status: ModerationStatus | None = None
+    old_category: str | None = None
+    new_category: str | None = None
+    comment: str | None = None
+
+
+def get_moderation_history(
+    moderation: ModerationMixin,
+) -> list[HistoryEntry]:
+    records = list(
+        moderation.history.all()
+        .select_related('history_user')
+        .order_by('-history_date')[:21]
+    )
+    entries: list[HistoryEntry] = []
+    for i, record in enumerate(records):
+        if record.history_type == '+':
+            entries.append(HistoryEntry(
+                date=record.history_date,
+                user=record.history_user,
+                is_creation=True,
+                new_status=ModerationStatus(record.status),
+                new_category=record.category,
+            ))
+        elif i + 1 < len(records):
+            prev = records[i + 1]
+            entry = HistoryEntry(
+                date=record.history_date,
+                user=record.history_user,
+            )
+            has_change = False
+            if record.status != prev.status:
+                entry.old_status = ModerationStatus(prev.status)
+                entry.new_status = ModerationStatus(record.status)
+                has_change = True
+            if record.category != prev.category:
+                entry.old_category = prev.category
+                entry.new_category = record.category
+                has_change = True
+            if record.comment != prev.comment and record.comment:
+                entry.comment = record.comment
+                has_change = True
+            if has_change:
+                entries.append(entry)
+    return entries
+
+
 def get_moderate_response(request, category: str, resource: str, status: str,
                           diocese_slug: str, class_moderation, moderation_uuid, create_context,
                           moderation_post_process=None):
@@ -145,6 +202,7 @@ def get_moderate_response(request, category: str, resource: str, status: str,
             return redirect(next_url)
 
     position, count = get_position_and_count(moderation, diocese, status)
+    history_entries = get_moderation_history(moderation)
 
     return render(request, f'moderations/moderate_{moderation.resource}.html', {
         'moderation': moderation,
@@ -153,4 +211,5 @@ def get_moderate_response(request, category: str, resource: str, status: str,
         'position': position,
         'count': count,
         'moderation_statuses': ModerationStatus,
+        'history_entries': history_entries,
     } | create_context(moderation))
