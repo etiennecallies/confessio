@@ -14,6 +14,12 @@ from registry.models import Diocese
 BUG_DESCRIPTION_MAX_LENGTH = 200
 
 
+class ModerationStatus(models.TextChoices):
+    TO_VALIDATE = 'to_validate'
+    VALIDATED = 'validated'
+    BUG = 'bug'
+
+
 class ModerationMixin(TimeStampMixin):
     @property
     @abstractmethod
@@ -25,6 +31,11 @@ class ModerationMixin(TimeStampMixin):
     bug_description = models.CharField(max_length=BUG_DESCRIPTION_MAX_LENGTH, null=True,
                                        default=None)
     comment = models.TextField(null=True, default=None, blank=True)
+    status = models.CharField(
+        max_length=12,
+        choices=ModerationStatus,
+        default=ModerationStatus.TO_VALIDATE,
+    )
 
     @property
     @abstractmethod
