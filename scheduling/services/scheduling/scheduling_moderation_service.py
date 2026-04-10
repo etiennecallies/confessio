@@ -1,5 +1,8 @@
+from django.conf import settings
 from django.db.models.functions import Now
 
+from core.utils.discord_utils import send_discord_alert, DiscordChanel
+from core.views import get_moderation_url
 from crawling.models import CrawlingModeration
 from registry.models import Website
 from scheduling.models import Scheduling
@@ -9,6 +12,10 @@ from scheduling.services.merging.schedules_conflict_service import website_has_s
 from scheduling.services.scheduling.index_scheduling_service import SchedulingIndexingObjects
 from scheduling.services.scheduling.scheduling_service import get_scheduling_sources
 
+
+#########################
+# SCHEDULING MODERATION #
+#########################
 
 def upsert_scheduling_moderation(website: Website, category: SchedulingModeration.Category,
                                  moderation_validated: bool):
@@ -64,6 +71,21 @@ def handle_scheduling_moderation(scheduling: Scheduling,
     upsert_scheduling_moderation(scheduling.website, category, moderation_validated)
 
 
+##################################
+# VALIDATED SCHEDULES MODERATION #
+##################################
+
+def notify_if_relevant(moderation: ValidatedSchedulesModeration,):
+    if moderation.category == ValidatedSchedulesModeration.Category.OK:
+        return
+
+    moderation_url = settings.REQUEST_BASE_URL + get_moderation_url(moderation)
+    send_discord_alert(f"Schedules differ "
+                       f"on website {moderation.website.name} "
+                       f"{moderation_url}",
+                       DiscordChanel.NEW_SCHEDULES)
+
+
 def upsert_validated_schedules_moderation(website: Website,
                                           category: ValidatedSchedulesModeration.Category,
                                           moderation_validated: bool):
@@ -74,6 +96,7 @@ def upsert_validated_schedules_moderation(website: Website,
             moderation.validated_at = Now() if moderation_validated else None
             moderation.validated_by = None
             moderation.save()
+            notify_if_relevant(moderation)
     except ValidatedSchedulesModeration.DoesNotExist:
         moderation = ValidatedSchedulesModeration(
             website=website, category=category,
@@ -81,6 +104,7 @@ def upsert_validated_schedules_moderation(website: Website,
             validated_at=Now() if moderation_validated else None,
         )
         moderation.save()
+        notify_if_relevant(moderation)
 
 
 def get_validated_schedules_moderation_category(
@@ -103,6 +127,10 @@ def handle_validated_schedules_moderation(scheduling: Scheduling,
     category, moderation_validated = category_and_validation
     upsert_validated_schedules_moderation(scheduling.website, category, moderation_validated)
 
+
+########
+# MAIN #
+########
 
 def add_necessary_scheduling_moderation(scheduling: Scheduling,
                                         indexing_objects: SchedulingIndexingObjects):
