@@ -84,13 +84,13 @@
                                         {% endif %}
                                     {% endwith %}
                                     </div>
-                                    <div class="d-inline-block">
                                     {% with pending_scheduling=pending_scheduling_by_website|get_item:website.uuid %}
                                         {% if pending_scheduling %}
+                                        <div class="d-inline-block">
                                             <span class="border rounded px-2 py-1">Scheduling en cours ({{ pending_scheduling.status }}) 🌀</span>
+                                        </div>
                                         {% endif %}
                                     {% endwith %}
-                                    </div>
                                     <div class="d-inline-block">
                                         <form method="post" action="{% url 'validate_schedules' website.uuid %}">
                                             {% csrf_token %}

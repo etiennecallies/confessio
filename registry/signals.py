@@ -2,6 +2,7 @@ from django.db import transaction
 from django.db.models.signals import post_save, pre_save, post_delete
 from django.dispatch import receiver
 
+from crawling.public_service import crawling_crawl_website
 from registry.models import Church, Website, Parish
 from scheduling.public_service import scheduling_init_scheduling
 
@@ -113,6 +114,35 @@ def parish_post_delete(sender, instance, origin, **kwargs):
         print(f'Parish post_delete signal triggered for parish {instance.name},'
               f' website {website.name}')
         transaction.on_commit(lambda: scheduling_init_scheduling(website))
+
+
+###########
+# Website #
+###########
+
+@receiver(pre_save, sender=Website)
+def website_pre_save(sender, instance, update_fields=None, **kwargs):
+    instance._home_url_changed = False
+    if update_fields is None:
+        # Full save - need to check against DB value
+        try:
+            old_instance = sender.objects.get(pk=instance.pk)
+            if old_instance.home_url != instance.home_url:
+                instance._home_url_changed = True
+        except sender.DoesNotExist:
+            instance._home_url_changed = True
+    else:
+        if 'home_url' in update_fields:
+            instance._home_url_changed = True
+
+
+@receiver(post_save, sender=Website)
+def website_post_save(sender, instance, created, update_fields=None, **kwargs):
+    if instance._home_url_changed:
+        print(f'Website post_save signal triggered for website {instance.name}')
+
+        crawling_crawl_website(instance)
+        return
 
 
 ##########
