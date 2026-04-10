@@ -87,7 +87,7 @@ def add_church_moderation_if_not_exists(church: Church, category: ChurchModerati
         source = get_church_external_source(church)
     church_moderation = get_church_moderation(church, category, source)
     if church_moderation:
-        if validated and church_moderation.validated_at is None:
+        if validated and church_moderation.status != ModerationStatus.VALIDATED:
             church_moderation.validated_at = Now()
             church_moderation.status = ModerationStatus.VALIDATED
             church_moderation.save()
@@ -177,8 +177,7 @@ def find_church_geo_outliers() -> int:
                 ChurchModeration.objects.filter(
                     church=church,
                     category=ChurchModeration.Category.LOCATION_OUTLIER,
-                    validated_at__isnull=True,
-                ).delete()
+                ).exclude(status=ModerationStatus.VALIDATED).delete()
 
         outliers_count += len(outliers_churches)
 

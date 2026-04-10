@@ -9,6 +9,7 @@ from django.views.decorators.http import require_POST
 from core.views import get_moderate_response, ModerationPostError, redirect_to_moderation
 from crawling.models import CrawlingModeration
 from registry.models import Website
+from registry.models.base_moderation_models import ModerationStatus
 from scheduling.models import ParsingModeration
 from scheduling.models import SchedulingModeration, ValidatedSchedulesModeration
 from scheduling.models.pruning_models import PruningModeration
@@ -241,7 +242,7 @@ def moderate_erase_human_by_llm(request, parsing_moderation_uuid=None):
     set_llm_json_as_human_json(parsing)
 
     return redirect_to_moderation(parsing_moderation, parsing_moderation.category, 'parsing',
-                                  parsing_moderation.marked_as_bug_at is not None,
+                                  parsing_moderation.status == ModerationStatus.BUG,
                                   parsing_moderation.get_diocese_slug())
 
 
@@ -262,7 +263,7 @@ def moderate_set_v2_indices_as_human_by(request, pruning_moderation_uuid=None):
     set_v2_indices_as_human(pruning)
 
     return redirect_to_moderation(pruning_moderation, pruning_moderation.category, 'pruning',
-                                  pruning_moderation.marked_as_bug_at is not None,
+                                  pruning_moderation.status == ModerationStatus.BUG,
                                   pruning_moderation.get_diocese_slug())
 
 
@@ -279,11 +280,11 @@ def validate_schedules_for_website(request, website_uuid=None):
 
     scheduling_moderation = SchedulingModeration.objects.get(website=website)
     if scheduling_moderation is not None:
-        if scheduling_moderation.validated_at is None:
+        if scheduling_moderation.status != ModerationStatus.VALIDATED:
             scheduling_moderation.validate(request.user)
     crawling_moderation = CrawlingModeration.objects.get(website=website)
     if crawling_moderation is not None:
-        if crawling_moderation.validated_at is None:
+        if crawling_moderation.status != ModerationStatus.VALIDATED:
             crawling_moderation.validate(request.user)
 
     validate_website_indexed_schedules(website, request.user)

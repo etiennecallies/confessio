@@ -114,7 +114,7 @@ def parsing_needs_moderation(parsing: Parsing):
         if ParsingModeration.objects.filter(
                 parsing=parsing,
                 category=ParsingModeration.Category.SCHEDULES_DIFFER,
-                validated_at__isnull=False
+                status=ModerationStatus.VALIDATED,
         ).exists():
             return False
 
@@ -131,7 +131,9 @@ def remove_useless_moderation_for_parsing(parsing: Parsing):
 
     info(f'deleting not validated moderation for parsing {parsing} since it has no '
          f'website any more')
-    ParsingModeration.objects.filter(parsing=parsing, validated_at__isnull=True).delete()
+    ParsingModeration.objects.filter(
+        parsing=parsing,
+    ).exclude(status=ModerationStatus.VALIDATED).delete()
 
 
 #######################

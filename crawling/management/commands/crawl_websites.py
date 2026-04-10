@@ -7,6 +7,7 @@ from django.utils import timezone
 from core.management.abstract_command import AbstractCommand
 from core.utils.log_utils import start_log_buffer
 from crawling.models import CrawlingModeration
+from registry.models.base_moderation_models import ModerationStatus
 from crawling.models import Log as CrawlingLog
 from crawling.services.website_worker_service import handle_crawl_website
 from crawling.tasks import worker_crawl_website
@@ -44,7 +45,9 @@ class Command(AbstractCommand):
                 crawling_moderation__category__in=[
                     CrawlingModeration.Category.NO_RESPONSE,
                     CrawlingModeration.Category.NO_PAGE],
-                moderations__validated_at__isnull=True).all()
+            ).exclude(
+                moderations__status=ModerationStatus.VALIDATED,
+            ).all()
         elif options['no_recent']:
             websites = Website.objects.filter(is_active=True) \
                 .annotate(

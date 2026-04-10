@@ -3,7 +3,7 @@ from typing import Optional
 
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.db.models.functions import Now
 from django.urls import reverse
 
@@ -93,12 +93,16 @@ class ModerationMixin(TimeStampMixin):
     @classmethod
     def get_stats_by_category(cls, diocese: Diocese | None):
         stats = []
-        objects_filter = cls.objects.filter(validated_at__isnull=True)
+        objects_filter = cls.objects.filter(
+            status__in=[ModerationStatus.TO_VALIDATE, ModerationStatus.BUG],
+        )
         if diocese:
             objects_filter = objects_filter.filter(diocese=diocese)
         query_stats = objects_filter.all()\
             .values('category')\
-            .annotate(total_count=Count('category'), bug_count=Count('marked_as_bug_at'))
+            .annotate(total_count=Count('category'),
+                      bug_count=Count('uuid',
+                                      filter=Q(status=ModerationStatus.BUG)))
         for stat in query_stats:
             if stat['bug_count']:
                 stats.append(cls.get_category_stat(stat, is_bug=True, diocese=diocese,

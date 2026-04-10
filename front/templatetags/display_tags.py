@@ -12,6 +12,7 @@ from front.services.search.map_service import (get_map_with_single_location,
                                                get_map_with_multiple_locations,
                                                get_map_with_alternative_locations)
 from registry.models import Parish, Church, Website, ModerationMixin
+from registry.models.base_moderation_models import ModerationStatus
 from scheduling.models.pruning_models import Pruning
 from scheduling.utils.list_utils import group_consecutive_indices
 
@@ -116,4 +117,4 @@ def display_image(image: Image, request) -> str:
 
 @register.simple_tag
 def display_moderation_status_emoji(moderation: ModerationMixin):
-    return '✅' if moderation.validated_at is not None else '⚠️'
+    return '✅' if moderation.status == ModerationStatus.VALIDATED else '⚠️'

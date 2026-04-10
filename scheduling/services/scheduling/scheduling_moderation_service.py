@@ -46,7 +46,7 @@ def has_crawling_moderation_been_validated(scheduling: Scheduling) -> bool:
     return CrawlingModeration.objects.filter(
         website=scheduling.website,
         category__in=[CrawlingModeration.Category.NO_RESPONSE, CrawlingModeration.Category.NO_PAGE],
-        validated_at__isnull=False
+        status=ModerationStatus.VALIDATED,
     ).exists()
 
 

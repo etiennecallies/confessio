@@ -3,7 +3,7 @@ from django.http import HttpResponseNotFound, HttpResponseBadRequest
 
 from core.views import get_moderate_response, ModerationPostError, redirect_to_moderation
 from registry.models import WebsiteModeration, ChurchModeration, ParishModeration
-from registry.models.base_moderation_models import ResourceDoesNotExistError
+from registry.models.base_moderation_models import ResourceDoesNotExistError, ModerationStatus
 from registry.public_service import registry_merge_websites
 from registry.services.church_human_service import on_church_human_validation
 from registry.services.website_moderation_service import suggest_alternative_website
@@ -129,5 +129,5 @@ def moderate_merge_websites(request, website_moderation_uuid=None):
     registry_merge_websites(website_moderation.website, website_moderation.other_website)
 
     return redirect_to_moderation(website_moderation, website_moderation.category, 'website',
-                                  website_moderation.marked_as_bug_at is not None,
+                                  website_moderation.status == ModerationStatus.BUG,
                                   website_moderation.get_diocese_slug())

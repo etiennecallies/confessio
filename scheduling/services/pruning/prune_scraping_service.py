@@ -4,6 +4,7 @@ from uuid import UUID
 from django.db import IntegrityError, transaction
 
 from core.utils.log_utils import info
+from registry.models.base_moderation_models import ModerationStatus
 from scheduling.models.pruning_models import PruningModeration, Pruning, Sentence
 from scheduling.services.pruning.classify_sentence_service import classify_and_create_sentence
 from scheduling.workflows.pruning.extract.action_interfaces import BaseActionInterface
@@ -103,7 +104,9 @@ def remove_pruning_moderation_if_orphan(pruning: Pruning):
     if not pruning.scrapings.exists() and not pruning.images.exists():
         info(f'deleting not validated moderation for pruning {pruning} since it has no scraping '
              f'nor image any more')
-        PruningModeration.objects.filter(pruning=pruning, validated_at__isnull=True).delete()
+        PruningModeration.objects.filter(
+            pruning=pruning,
+        ).exclude(status=ModerationStatus.VALIDATED).delete()
 
 
 ##############
@@ -151,7 +154,7 @@ def add_necessary_moderation(pruning: Pruning):
 
     # 1. If pruning has already moderation
     if current_moderation is not None:
-        if current_moderation.validated_at is None:
+        if current_moderation.status != ModerationStatus.VALIDATED:
             # moderation is not validated yet, we just keep it
             return
 

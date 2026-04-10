@@ -9,7 +9,7 @@
             <form method="post">
             {% csrf_token %}
             <input type="hidden" name="related_url" value="{{ parsing_moderation|get_url }}">
-            <button type="submit" class="btn {% if parsing_moderation.validated_at %}btn-primary{% else %}btn-success{% endif %}">Validate & related</button>
+            <button type="submit" class="btn {% if parsing_moderation.status == 'validated' %}btn-primary{% else %}btn-success{% endif %}">Validate & related</button>
             </form>
         </div>
     {% endif %}
@@ -61,9 +61,9 @@
 
     {% if parsing_moderation %}
         <div>
-            <a class="btn {% if parsing_moderation.validated_at %}btn-primary{% else %}btn-success{% endif %}"
+            <a class="btn {% if parsing_moderation.status == 'validated' %}btn-primary{% else %}btn-success{% endif %}"
                        href="{{ parsing_moderation|get_url }}?backPath={{ moderation|get_url }}" role="button">
-                {% if parsing_moderation.validated_at %}View {% endif %}
+                {% if parsing_moderation.status == 'validated' %}View {% endif %}
                 Parsing moderation
             </a>
         </div>

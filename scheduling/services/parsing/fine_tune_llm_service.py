@@ -1,3 +1,4 @@
+from registry.models.base_moderation_models import ModerationStatus
 from scheduling.models import ParsingModeration, FineTunedLLM
 from scheduling.workflows.parsing.fine_tune_llm import build_jsonl_file, upload_file_on_openai, \
     launch_fine_tuning_job, check_fine_tuning_job_completion
@@ -7,7 +8,7 @@ LLM_MIN_ITEMS_FOR_TRAIN = 15
 
 
 def build_parsing_moderation_dataset() -> list[ParsingModeration]:
-    return ParsingModeration.objects.filter(validated_at__isnull=False).all()
+    return ParsingModeration.objects.filter(status=ModerationStatus.VALIDATED).all()
 
 
 def train_llm(parsing_moderation_dataset: list[ParsingModeration]) -> FineTunedLLM:

@@ -10,7 +10,7 @@
         </div>
     </form>
 </div>
-{% if not moderation.marked_as_bug_at %}
+{% if moderation.status != 'bug' %}
     <div>
         <form method="post">
             <label>

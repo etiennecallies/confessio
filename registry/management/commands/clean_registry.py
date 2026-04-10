@@ -1,5 +1,6 @@
 from core.management.abstract_cleaning_command import AbstractCleaningCommand
 from registry.models import ChurchModeration, Website, WebsiteModeration
+from registry.models.base_moderation_models import ModerationStatus
 
 
 class Command(AbstractCleaningCommand):
@@ -11,8 +12,7 @@ class Command(AbstractCleaningCommand):
         counter = 0
         for church_moderation in ChurchModeration.objects.filter(
             category=ChurchModeration.Category.LOCATION_DIFFERS,
-            validated_at__isnull=True,
-        ).all():
+        ).exclude(status=ModerationStatus.VALIDATED).all():
             if not church_moderation.location_desc_differs():
                 church_moderation.delete()
                 counter += 1

@@ -105,8 +105,8 @@ def add_church_moderation_if_not_exists(church_moderation: ChurchModeration,
                                                        church_moderation.parish) \
                 or not church_retriever.is_same_church_set(
                     set(existing_moderation.similar_churches.all()), similar_churches) \
-                or (existing_moderation.validated_at is None
-                    and church_moderation.validated_at is not None):
+                or (existing_moderation.status == ModerationStatus.TO_VALIDATE
+                    and church_moderation.status != ModerationStatus.TO_VALIDATE):
             existing_moderation.delete()
             church_moderation.save()
             if similar_churches:

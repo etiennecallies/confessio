@@ -2,8 +2,8 @@
 {% if moderation.bug_description %}
     <p>Bug description : {{ moderation.bug_description }}</p>
 {% endif %}
-{% if moderation.validated_at %}
-    <p>Validated at: {{ moderation.validated_at }}</p>
+{% if moderation.status == 'validated' %}
+    <p>Status: Validated</p>
 {% else %}
     <div class="d-inline-block">
         <form method="post">

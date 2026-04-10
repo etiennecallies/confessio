@@ -4,6 +4,7 @@ from django.db.models import Q, Subquery
 from django.utils import timezone
 
 from core.management.abstract_cleaning_command import AbstractCleaningCommand
+from registry.models.base_moderation_models import ModerationStatus
 from scheduling.models import Log as SchedulingLog
 from scheduling.models import ParsingModeration, Parsing
 from scheduling.models import PruningParsing
@@ -80,8 +81,8 @@ class Command(AbstractCleaningCommand):
     @staticmethod
     def clean_parsing_moderations() -> int:
         counter = 0
-        for parsing_moderation in ParsingModeration.objects.filter(
-                validated_at__isnull=True).all():
+        for parsing_moderation in ParsingModeration.objects.exclude(
+                status=ModerationStatus.VALIDATED).all():
             if not get_websites_of_parsing(parsing_moderation.parsing):
                 parsing_moderation.delete()
                 counter += 1

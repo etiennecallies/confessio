@@ -1,11 +1,13 @@
 from registry.models import WebsiteModeration, Website
+from registry.models.base_moderation_models import ModerationStatus
 from registry.services.website_url_service import get_alternative_website_url
 
 
 def remove_not_validated_moderation(website: Website, category: WebsiteModeration.Category):
     try:
-        moderation = WebsiteModeration.objects.get(website=website, category=category,
-                                                   validated_at__isnull=True)
+        moderation = WebsiteModeration.objects.exclude(
+            status=ModerationStatus.VALIDATED,
+        ).get(website=website, category=category)
         moderation.delete()
     except WebsiteModeration.DoesNotExist:
         pass

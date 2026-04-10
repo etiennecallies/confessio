@@ -11,6 +11,7 @@ from front.services.card.website_events_service import WebsiteEvents
 from front.services.card.website_schedules_service import WebsiteSchedules
 from registry.models import WebsiteModeration, ChurchModeration, ParishModeration, \
     ModerationMixin, Diocese, Website
+from registry.models.base_moderation_models import ModerationStatus
 from scheduling.models import ParsingModeration, SchedulingModeration, \
     ValidatedSchedulesModeration, ValidatedSchedules
 from scheduling.models.pruning_models import Pruning, PruningModeration, SentenceModeration
@@ -99,7 +100,7 @@ def get_url(moderation: ModerationMixin):
     return reverse(f'moderate_one_' + moderation.resource,
                    kwargs={
                        'category': moderation.category,
-                       'is_bug': moderation.marked_as_bug_at is not None,
+                       'is_bug': moderation.status == ModerationStatus.BUG,
                        'moderation_uuid': moderation.uuid,
                        'diocese_slug': moderation.get_diocese_slug(),
                    })
@@ -108,8 +109,11 @@ def get_url(moderation: ModerationMixin):
 @register.filter
 def get_unvalidated_pruning_moderation(pruning: Pruning) -> Optional[PruningModeration]:
     try:
-        return pruning.moderations.filter(validated_at__isnull=True,
-                                          category=PruningModeration.Category.NEW_PRUNED_HTML).get()
+        return pruning.moderations.exclude(
+            status=ModerationStatus.VALIDATED,
+        ).filter(
+            category=PruningModeration.Category.NEW_PRUNED_HTML,
+        ).get()
     except PruningModeration.DoesNotExist:
         return None
 

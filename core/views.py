@@ -4,7 +4,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 
 from registry.models import ModerationMixin, Diocese
-from registry.models.base_moderation_models import BUG_DESCRIPTION_MAX_LENGTH
+from registry.models.base_moderation_models import BUG_DESCRIPTION_MAX_LENGTH, ModerationStatus
 from scheduling.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 
 
@@ -12,7 +12,7 @@ def get_moderation_url(moderation: ModerationMixin):
     return reverse(f'moderate_one_' + moderation.resource,
                    kwargs={
                        'category': moderation.category,
-                       'is_bug': moderation.marked_as_bug_at is not None,
+                       'is_bug': moderation.status == ModerationStatus.BUG,
                        'moderation_uuid': moderation.uuid,
                        'diocese_slug': moderation.get_diocese_slug(),
                    })
@@ -47,7 +47,7 @@ def get_next_url(request, moderation: ModerationMixin, diocese_slug: str) -> str
         reverse('moderate_next_' + moderation.resource,
                 kwargs={
                     'category': moderation.category,
-                    'is_bug': moderation.marked_as_bug_at is not None,
+                    'is_bug': moderation.status == ModerationStatus.BUG,
                     'diocese_slug': diocese_slug,
                 }) \
         + f'?created_after={created_at_ts_us}'
@@ -65,8 +65,7 @@ def get_position_and_count(moderation: ModerationMixin,
                            ) -> tuple[int, int]:
     objects_filter = moderation.__class__.objects.filter(
         category=moderation.category,
-        validated_at__isnull=True,
-        marked_as_bug_at__isnull=not is_bug,
+        status=ModerationStatus.BUG if is_bug else ModerationStatus.TO_VALIDATE,
     )
     if diocese:
         objects_filter = objects_filter.filter(diocese=diocese)
@@ -99,10 +98,11 @@ def get_moderate_response(request, category: str, resource: str, is_bug_as_str: 
     if moderation_uuid is None:
         created_after_ts = int(request.GET.get('created_after', '0'))
         created_after = ts_us_to_datetime(created_after_ts)
-        objects_filter = class_moderation.objects.filter(category=category,
-                                                         validated_at__isnull=True,
-                                                         marked_as_bug_at__isnull=not is_bug,
-                                                         created_at__gt=created_after)
+        objects_filter = class_moderation.objects.filter(
+            category=category,
+            status=ModerationStatus.BUG if is_bug else ModerationStatus.TO_VALIDATE,
+            created_at__gt=created_after,
+        )
         if diocese:
             objects_filter = objects_filter.filter(diocese=diocese)
         next_moderation = objects_filter.order_by('created_at').first()

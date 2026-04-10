@@ -5,6 +5,7 @@ from django.db.models import Exists, OuterRef
 from ninja import NinjaAPI, Schema, Field
 
 from registry.models import Church, ChurchModeration, Parish, Website
+from registry.models.base_moderation_models import ModerationStatus
 from scheduling.models import Scheduling, IndexEvent
 from scheduling.public_model import SourcedScheduleItem
 from scheduling.public_service import scheduling_retrieve_scheduling_elements
@@ -73,7 +74,9 @@ def api_public_churches(request, limit: int = 10, offset: int = 0, updated_from:
             ChurchModeration.history.filter(church=OuterRef('pk'), history_user_id__isnull=False)
         ),
         has_unvalidated_moderation=Exists(
-            ChurchModeration.objects.filter(church=OuterRef('pk'), validated_at__isnull=True)
+            ChurchModeration.objects.filter(
+                church=OuterRef('pk'),
+            ).exclude(status=ModerationStatus.VALIDATED)
         ),
     )
     if updated_from:

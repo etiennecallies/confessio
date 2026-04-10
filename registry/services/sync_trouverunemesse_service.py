@@ -1,6 +1,7 @@
 from django.contrib.gis.geos import Point
 
 from registry.models import Church, ChurchModeration, ExternalSource
+from registry.models.base_moderation_models import ModerationStatus
 from registry.services.church_human_service import church_location_has_been_checked_by_human
 from registry.utils.geo_utils import get_geo_distance
 from registry.utils.trouverunemesse_utils import fetch_trouverunemesse_by_messesinfo_id, \
@@ -64,8 +65,7 @@ def sync_trouverunemesse_location_and_name(church: Church,
                 ChurchModeration.Category.LOCATION_CONFLICT,
                 ChurchModeration.Category.LOCATION_FROM_API
             ],
-            validated_at__isnull=True,
-        ).delete()
+        ).exclude(status=ModerationStatus.VALIDATED).delete()
 
         trouverunemesse_point = Point(trouverunemesse_church.location.longitude,
                                       trouverunemesse_church.location.latitude)

@@ -1,4 +1,5 @@
 from registry.models import Sentence, SentenceModeration
+from registry.models.base_moderation_models import ModerationStatus
 from scheduling.workflows.pruning.extract.models import Action
 
 
@@ -24,8 +25,9 @@ def add_sentence_moderation(sentence: Sentence, other_action: Action):
 
 def remove_sentence_not_validated_moderation(sentence: Sentence):
     category = SentenceModeration.Category.ML_MISMATCH
-    SentenceModeration.objects.filter(sentence=sentence, validated_at=None, category=category
-                                      ).delete()
+    SentenceModeration.objects.filter(
+        sentence=sentence, category=category,
+    ).exclude(status=ModerationStatus.VALIDATED).delete()
 
 
 #################
