@@ -5,6 +5,7 @@ from core.utils.discord_utils import send_discord_alert, DiscordChanel
 from core.views import get_moderation_url
 from crawling.models import CrawlingModeration
 from registry.models import Website
+from registry.models.base_moderation_models import ModerationStatus
 from scheduling.models import Scheduling
 from scheduling.models.scheduling_moderation_models import SchedulingModeration, \
     ValidatedSchedulesModeration
@@ -25,12 +26,18 @@ def upsert_scheduling_moderation(website: Website, category: SchedulingModeratio
             moderation.category = category
             moderation.validated_at = Now() if moderation_validated else None
             moderation.validated_by = None
+            moderation.status = (ModerationStatus.VALIDATED
+                                 if moderation_validated
+                                 else ModerationStatus.TO_VALIDATE)
             moderation.save()
     except SchedulingModeration.DoesNotExist:
         moderation = SchedulingModeration(
             website=website, category=category,
             diocese=website.get_diocese(),
             validated_at=Now() if moderation_validated else None,
+            status=(ModerationStatus.VALIDATED
+                    if moderation_validated
+                    else ModerationStatus.TO_VALIDATE),
         )
         moderation.save()
 
@@ -95,6 +102,9 @@ def upsert_validated_schedules_moderation(website: Website,
             moderation.category = category
             moderation.validated_at = Now() if moderation_validated else None
             moderation.validated_by = None
+            moderation.status = (ModerationStatus.VALIDATED
+                                 if moderation_validated
+                                 else ModerationStatus.TO_VALIDATE)
             moderation.save()
             notify_if_relevant(moderation)
     except ValidatedSchedulesModeration.DoesNotExist:
@@ -102,6 +112,9 @@ def upsert_validated_schedules_moderation(website: Website,
             website=website, category=category,
             diocese=website.get_diocese(),
             validated_at=Now() if moderation_validated else None,
+            status=(ModerationStatus.VALIDATED
+                    if moderation_validated
+                    else ModerationStatus.TO_VALIDATE),
         )
         moderation.save()
         notify_if_relevant(moderation)

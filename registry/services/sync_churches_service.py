@@ -5,6 +5,7 @@ from django.db.models.functions import Now
 
 from registry.models import Parish, Diocese, Church, ExternalSource, \
     ChurchModeration
+from registry.models.base_moderation_models import ModerationStatus
 from registry.services.church_city_service import lower_church_city
 from registry.services.church_location_service import compute_church_coordinates, \
     get_church_with_same_location
@@ -245,6 +246,9 @@ def sync_churches(external_churches: list[Church],
                     source=church_retriever.source,
                     diocese=diocese,
                     validated_at=Now() if validated else None,
+                    status=(ModerationStatus.VALIDATED
+                            if validated
+                            else ModerationStatus.TO_VALIDATE),
                 ), church_retriever)
 
             if alert_on_new:

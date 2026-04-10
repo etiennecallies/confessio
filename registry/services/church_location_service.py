@@ -4,6 +4,7 @@ from django.contrib.gis.geos import Point
 from django.db.models.functions import Now
 
 from registry.models import ChurchModeration, Church, ExternalSource, Diocese
+from registry.models.base_moderation_models import ModerationStatus
 from registry.utils.geo_utils import get_distances_to_barycenter, check_coordinates_validity
 from registry.utils.google_maps_api_utils import google_maps_geocode
 from registry.utils.wikidata_utils import get_church_by_messesinfo_id
@@ -88,6 +89,7 @@ def add_church_moderation_if_not_exists(church: Church, category: ChurchModerati
     if church_moderation:
         if validated and church_moderation.validated_at is None:
             church_moderation.validated_at = Now()
+            church_moderation.status = ModerationStatus.VALIDATED
             church_moderation.save()
     else:
         church_moderation = ChurchModeration(
@@ -100,6 +102,9 @@ def add_church_moderation_if_not_exists(church: Church, category: ChurchModerati
             city=church.city,
             diocese=church.parish.diocese,
             validated_at=Now() if validated else None,
+            status=(ModerationStatus.VALIDATED
+                    if validated
+                    else ModerationStatus.TO_VALIDATE),
         )
         church_moderation.save()
 

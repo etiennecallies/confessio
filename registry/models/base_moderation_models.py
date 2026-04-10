@@ -115,6 +115,7 @@ class ModerationMixin(TimeStampMixin):
         else:
             self.validated_at = Now()
             self.validated_by = user
+            self.status = ModerationStatus.VALIDATED
             self.save()
 
     @abstractmethod
@@ -125,6 +126,7 @@ class ModerationMixin(TimeStampMixin):
         self.marked_as_bug_at = Now()
         self.marked_as_bug_by = user
         self.bug_description = bug_description
+        self.status = ModerationStatus.BUG
         self.save()
 
     def get_diocese_slug(self) -> str:

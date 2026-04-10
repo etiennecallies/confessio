@@ -3,6 +3,7 @@ from django.db.models.functions import Now
 from crawling.models import CrawlingModeration
 from crawling.workflows.crawl.download_and_search_urls import CrawlingResult
 from registry.models import Website
+from registry.models.base_moderation_models import ModerationStatus
 
 
 def upsert_crawling_moderation(website: Website, category: CrawlingModeration.Category,
@@ -13,12 +14,18 @@ def upsert_crawling_moderation(website: Website, category: CrawlingModeration.Ca
             moderation.category = category
             moderation.validated_at = Now() if moderation_validated else None
             moderation.validated_by = None
+            moderation.status = (ModerationStatus.VALIDATED
+                                 if moderation_validated
+                                 else ModerationStatus.TO_VALIDATE)
             moderation.save()
     except CrawlingModeration.DoesNotExist:
         moderation = CrawlingModeration(
             website=website, category=category,
             diocese=website.get_diocese(),
             validated_at=Now() if moderation_validated else None,
+            status=(ModerationStatus.VALIDATED
+                    if moderation_validated
+                    else ModerationStatus.TO_VALIDATE),
         )
         moderation.save()
 
