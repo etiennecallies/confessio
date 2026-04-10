@@ -1,5 +1,3 @@
-from django.db.models.functions import Now
-
 from django.conf import settings
 from core.utils.discord_utils import send_discord_alert, DiscordChanel
 from core.views import get_moderation_url
@@ -48,8 +46,6 @@ def upsert_matching_moderation(oclocher_organization: OClocherOrganization,
         if moderation.oclocher_matching != oclocher_matching or moderation.category != category:
             moderation.oclocher_matching = oclocher_matching
             moderation.category = category
-            moderation.validated_at = Now() if moderation_validated else None
-            moderation.validated_by = None
             moderation.status = (ModerationStatus.VALIDATED
                                  if moderation_validated
                                  else ModerationStatus.TO_VALIDATE)
@@ -60,7 +56,6 @@ def upsert_matching_moderation(oclocher_organization: OClocherOrganization,
             oclocher_matching=oclocher_matching, category=category,
             oclocher_organization=oclocher_organization,
             diocese=oclocher_organization.website.get_diocese(),
-            validated_at=Now() if moderation_validated else None,
             status=(ModerationStatus.VALIDATED
                     if moderation_validated
                     else ModerationStatus.TO_VALIDATE),

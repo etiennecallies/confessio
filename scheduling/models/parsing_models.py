@@ -37,10 +37,6 @@ class ParsingModeration(ModerationMixin):
         LLM_ERROR = "llm_error"
 
     resource = 'parsing'
-    validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
-                                     on_delete=models.SET_NULL, null=True)
-    marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
-                                         on_delete=models.SET_NULL, null=True)
     diocese = models.ForeignKey('registry.Diocese', on_delete=models.CASCADE,
                                 related_name=f'{resource}_moderations', null=True)
     history = HistoricalRecords()

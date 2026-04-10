@@ -2,8 +2,6 @@ import asyncio
 import re
 from dataclasses import dataclass
 
-from django.db.models.functions import Now
-
 from core.utils.log_utils import info
 from registry.models import Church
 from registry.models.base_moderation_models import ModerationStatus
@@ -72,17 +70,13 @@ def add_parsing_moderation(parsing: Parsing, category: ParsingModeration.Categor
         parsing_moderation = ParsingModeration.objects.filter(parsing=parsing,
                                                               category=category).get()
         if needs_moderation:
-            if parsing_moderation.validated_at is not None \
-                    or parsing_moderation.validated_by is not None:
-                parsing_moderation.validated_at = None
-                parsing_moderation.validated_by = None
+            if parsing_moderation.status != ModerationStatus.TO_VALIDATE:
                 parsing_moderation.status = ModerationStatus.TO_VALIDATE
                 parsing_moderation.save()
     except ParsingModeration.DoesNotExist:
         parsing_moderation = ParsingModeration(
             parsing=parsing,
             category=category,
-            validated_at=None if needs_moderation else Now(),
             status=(ModerationStatus.TO_VALIDATE
                     if needs_moderation
                     else ModerationStatus.VALIDATED),

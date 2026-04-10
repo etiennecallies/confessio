@@ -17,10 +17,6 @@ class WebsiteModeration(ModerationMixin):
         GOOGLE_SEARCH = "google_search"
 
     resource = 'website'
-    validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
-                                     on_delete=models.SET_NULL, null=True)
-    marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
-                                         on_delete=models.SET_NULL, null=True)
     diocese = models.ForeignKey('Diocese', on_delete=models.CASCADE,
                                 related_name=f'{resource}_moderations')
     history = HistoricalRecords()
@@ -67,10 +63,6 @@ class ParishModeration(ModerationMixin):
         DELETED_PARISH = "deleted_parish"
 
     resource = 'parish'
-    validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
-                                     on_delete=models.SET_NULL, null=True)
-    marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
-                                         on_delete=models.SET_NULL, null=True)
     diocese = models.ForeignKey('Diocese', on_delete=models.CASCADE,
                                 related_name=f'{resource}_moderations')
     history = HistoricalRecords()
@@ -150,10 +142,6 @@ class ChurchModeration(ModerationMixin):
         LOCATION_OUTLIER = "location_outlier"
 
     resource = 'church'
-    validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
-                                     on_delete=models.SET_NULL, null=True)
-    marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
-                                         on_delete=models.SET_NULL, null=True)
     diocese = models.ForeignKey('Diocese', on_delete=models.CASCADE,
                                 related_name=f'{resource}_moderations')
     history = HistoricalRecords()

@@ -1,17 +1,13 @@
 from abc import abstractmethod
-from typing import Optional
 
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models import Count, Q
-from django.db.models.functions import Now
 from django.urls import reverse
 
 from core.models.base_models import TimeStampMixin
 from registry.utils.color_utils import get_color_from_string
 from registry.models import Diocese
-
-BUG_DESCRIPTION_MAX_LENGTH = 200
 
 
 class ModerationStatus(models.TextChoices):
@@ -26,36 +22,12 @@ class ModerationMixin(TimeStampMixin):
     def resource(self):
         pass
 
-    validated_at = models.DateTimeField(null=True)
-    marked_as_bug_at = models.DateTimeField(null=True)
-    bug_description = models.CharField(max_length=BUG_DESCRIPTION_MAX_LENGTH, null=True,
-                                       default=None)
     comment = models.TextField(null=True, default=None, blank=True)
     status = models.CharField(
         max_length=12,
         choices=ModerationStatus,
         default=ModerationStatus.TO_VALIDATE,
     )
-
-    @property
-    @abstractmethod
-    def validated_by(self):
-        pass
-
-    @validated_by.setter
-    @abstractmethod
-    def validated_by(self, validated_by):
-        pass
-
-    @property
-    @abstractmethod
-    def marked_as_bug_by(self):
-        pass
-
-    @marked_as_bug_by.setter
-    @abstractmethod
-    def marked_as_bug_by(self, marked_as_bug_by):
-        pass
 
     @property
     @abstractmethod
@@ -120,8 +92,6 @@ class ModerationMixin(TimeStampMixin):
         if self.delete_on_validate():
             self.delete()
         else:
-            self.validated_at = Now()
-            self.validated_by = user
             self.status = ModerationStatus.VALIDATED
             self.save()
 
@@ -129,23 +99,11 @@ class ModerationMixin(TimeStampMixin):
     def delete_on_validate(self) -> bool:
         pass
 
-    def mark_as_bug(self, user: User, bug_description: Optional[str]):
-        self.marked_as_bug_at = Now()
-        self.marked_as_bug_by = user
-        self.bug_description = bug_description
-        self.status = ModerationStatus.BUG
-        self.save()
-
     def set_status(self, new_status: str, user: User):
         if new_status == ModerationStatus.VALIDATED:
             self.validate(user)
-        elif new_status == ModerationStatus.BUG:
-            self.marked_as_bug_at = Now()
-            self.marked_as_bug_by = user
-            self.status = ModerationStatus.BUG
-            self.save()
-        elif new_status == ModerationStatus.TO_VALIDATE:
-            self.status = ModerationStatus.TO_VALIDATE
+        else:
+            self.status = new_status
             self.save()
 
     def get_diocese_slug(self) -> str:

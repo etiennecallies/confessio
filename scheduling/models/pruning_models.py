@@ -90,10 +90,6 @@ class PruningModeration(ModerationMixin):
         V2_DIFF_V1 = "v2_diff_v1"
 
     resource = 'pruning'
-    validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
-                                     on_delete=models.SET_NULL, null=True)
-    marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
-                                         on_delete=models.SET_NULL, null=True)
     diocese = models.ForeignKey('registry.Diocese', on_delete=models.CASCADE,
                                 related_name=f'{resource}_moderations', null=True)
     history = HistoricalRecords()
@@ -115,10 +111,6 @@ class SentenceModeration(ModerationMixin):
         CONFESSION_OUTLIER = "confession_outlier"
 
     resource = 'sentence'
-    validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
-                                     on_delete=models.SET_NULL, null=True)
-    marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
-                                         on_delete=models.SET_NULL, null=True)
     diocese = models.ForeignKey('registry.Diocese', on_delete=models.CASCADE,
                                 related_name=f'{resource}_moderations', null=True)
     history = HistoricalRecords()

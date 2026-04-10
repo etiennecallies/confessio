@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.db.models.functions import Now
 
 from core.utils.discord_utils import send_discord_alert, DiscordChanel
 from core.views import get_moderation_url
@@ -24,8 +23,6 @@ def upsert_scheduling_moderation(website: Website, category: SchedulingModeratio
         moderation = SchedulingModeration.objects.get(website=website)
         if moderation.category != category:
             moderation.category = category
-            moderation.validated_at = Now() if moderation_validated else None
-            moderation.validated_by = None
             moderation.status = (ModerationStatus.VALIDATED
                                  if moderation_validated
                                  else ModerationStatus.TO_VALIDATE)
@@ -34,7 +31,6 @@ def upsert_scheduling_moderation(website: Website, category: SchedulingModeratio
         moderation = SchedulingModeration(
             website=website, category=category,
             diocese=website.get_diocese(),
-            validated_at=Now() if moderation_validated else None,
             status=(ModerationStatus.VALIDATED
                     if moderation_validated
                     else ModerationStatus.TO_VALIDATE),
@@ -100,8 +96,6 @@ def upsert_validated_schedules_moderation(website: Website,
         moderation = ValidatedSchedulesModeration.objects.get(website=website)
         if moderation.category != category:
             moderation.category = category
-            moderation.validated_at = Now() if moderation_validated else None
-            moderation.validated_by = None
             moderation.status = (ModerationStatus.VALIDATED
                                  if moderation_validated
                                  else ModerationStatus.TO_VALIDATE)
@@ -111,7 +105,6 @@ def upsert_validated_schedules_moderation(website: Website,
         moderation = ValidatedSchedulesModeration(
             website=website, category=category,
             diocese=website.get_diocese(),
-            validated_at=Now() if moderation_validated else None,
             status=(ModerationStatus.VALIDATED
                     if moderation_validated
                     else ModerationStatus.TO_VALIDATE),

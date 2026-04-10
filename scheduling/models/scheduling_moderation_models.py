@@ -13,10 +13,6 @@ class SchedulingModeration(ModerationMixin):
         OK = "ok"
 
     resource = 'scheduling'
-    validated_by = models.ForeignKey('auth.User', related_name=f'{resource}_validated_by',
-                                     on_delete=models.SET_NULL, null=True)
-    marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
-                                         on_delete=models.SET_NULL, null=True)
     diocese = models.ForeignKey('registry.Diocese', on_delete=models.CASCADE,
                                 related_name=f'{resource}_moderations')
     history = HistoricalRecords()
@@ -34,11 +30,6 @@ class ValidatedSchedulesModeration(ModerationMixin):
         OK = "ok"
 
     resource = 'validated_schedules'
-    validated_by = models.ForeignKey('auth.User',
-                                     related_name=f'{resource}_validated_by',
-                                     on_delete=models.SET_NULL, null=True)
-    marked_as_bug_by = models.ForeignKey('auth.User', related_name=f'{resource}_marked_as_bug_by',
-                                         on_delete=models.SET_NULL, null=True)
     diocese = models.ForeignKey('registry.Diocese', on_delete=models.CASCADE,
                                 related_name=f'{resource}_moderations')
     history = HistoricalRecords()

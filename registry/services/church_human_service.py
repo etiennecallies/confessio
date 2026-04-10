@@ -1,4 +1,5 @@
 from registry.models import ChurchModeration, Church, ExternalSource
+from registry.models.base_moderation_models import ModerationStatus
 from registry.utils.trouverunemesse_utils import fetch_trouverunemesse_by_slug, \
     TrouverUneMesseLocation, post_new_update_on_trouverunemesse
 
@@ -10,7 +11,7 @@ def church_name_has_been_checked_by_human(church: Church) -> bool:
         if ChurchModeration.objects.filter(
             church=church,
             category=category,
-            validated_by_id__isnull=False,
+            status=ModerationStatus.VALIDATED,
         ).exists():
             return True
         if ChurchModeration.history.filter(
@@ -41,7 +42,7 @@ def church_location_has_been_checked_by_human(church: Church) -> bool:
         if ChurchModeration.objects.filter(
             church=church,
             category=category,
-            validated_by_id__isnull=False,
+            status=ModerationStatus.VALIDATED,
         ).exists():
             return True
         if ChurchModeration.history.filter(

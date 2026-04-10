@@ -1,8 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 
-from django.db.models.functions import Now
-
 from registry.models import Parish, Diocese, Church, ExternalSource, \
     ChurchModeration
 from registry.models.base_moderation_models import ModerationStatus
@@ -245,7 +243,6 @@ def sync_churches(external_churches: list[Church],
                     category=category,
                     source=church_retriever.source,
                     diocese=diocese,
-                    validated_at=Now() if validated else None,
                     status=(ModerationStatus.VALIDATED
                             if validated
                             else ModerationStatus.TO_VALIDATE),
