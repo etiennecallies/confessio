@@ -1,0 +1,7 @@
+{% if status == 'to_validate' %}
+<span class="badge bg-info">To validate</span>
+{% elif status == 'validated' %}
+<span class="badge bg-success">Validated</span>
+{% elif status == 'bug' %}
+<span class="badge bg-danger">Bug</span>
+{% endif %}

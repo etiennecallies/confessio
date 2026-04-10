@@ -118,3 +118,10 @@ def display_image(image: Image, request) -> str:
 @register.simple_tag
 def display_moderation_status_emoji(moderation: ModerationMixin):
     return '✅' if moderation.status == ModerationStatus.VALIDATED else '⚠️'
+
+
+@register.simple_tag
+def display_status_badge(status: str) -> str:
+    return render_to_string(
+        'displays/status_badge_display.html', {'status': status}
+    )

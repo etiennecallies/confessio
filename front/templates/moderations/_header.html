@@ -1,13 +1,6 @@
+{% load display_tags %}
 <h2 class="mb-3">{{ title_prefix }}: {{ moderation.get_category_display }} ({{ position }} / {{ count }})</h2>
-<p>Status:
-    {% if moderation.status == 'to_validate' %}
-        <span class="badge bg-info">To validate</span>
-    {% elif moderation.status == 'validated' %}
-        <span class="badge bg-success">Validated</span>
-    {% elif moderation.status == 'bug' %}
-        <span class="badge bg-danger">Bug</span>
-    {% endif %}
-</p>
+<p>Status: {% display_status_badge moderation.status %}</p>
 {% if moderation.status != 'validated' %}
     <div class="d-inline-block">
         <form method="post">
