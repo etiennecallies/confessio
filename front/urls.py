@@ -45,9 +45,9 @@ urlpatterns = [
     ), name='password_reset_complete'),
 
     # moderation
-    path('moderate/report/<category>/<str:is_bug>/<str:diocese_slug>',
+    path('moderate/report/<category>/<str:status>/<str:diocese_slug>',
          views.moderate_report, name='moderate_next_report'),
-    path('moderate/report/<category>/<str:is_bug>/<str:diocese_slug>/<uuid:moderation_uuid>',
+    path('moderate/report/<category>/<str:status>/<str:diocese_slug>/<uuid:moderation_uuid>',
          views.moderate_report, name='moderate_one_report'),
 
     # contact

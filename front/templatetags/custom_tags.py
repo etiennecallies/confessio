@@ -100,7 +100,7 @@ def get_url(moderation: ModerationMixin):
     return reverse(f'moderate_one_' + moderation.resource,
                    kwargs={
                        'category': moderation.category,
-                       'is_bug': moderation.status == ModerationStatus.BUG,
+                       'status': moderation.status,
                        'moderation_uuid': moderation.uuid,
                        'diocese_slug': moderation.get_diocese_slug(),
                    })

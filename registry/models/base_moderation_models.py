@@ -76,16 +76,16 @@ class ModerationMixin(TimeStampMixin):
         abstract = True
 
     @classmethod
-    def get_category_stat(cls, stat, is_bug: bool, diocese: Diocese | None, count: int):
+    def get_category_stat(cls, stat, status: str, diocese: Diocese | None, count: int):
         diocese_slug = diocese.slug if diocese else 'no_diocese'
 
         return {
             'resource': cls.resource,
             'url': reverse('moderate_next_' + str(cls.resource),
-                           kwargs={'category': stat['category'], 'is_bug': is_bug,
+                           kwargs={'category': stat['category'], 'status': status,
                                    'diocese_slug': diocese_slug}),
             'category': stat['category'],
-            'is_bug': is_bug,
+            'status': status,
             'total': count,
             'color': get_color_from_string(f"{cls.resource}{stat['category']}"),
         }
@@ -105,11 +105,14 @@ class ModerationMixin(TimeStampMixin):
                                       filter=Q(status=ModerationStatus.BUG)))
         for stat in query_stats:
             if stat['bug_count']:
-                stats.append(cls.get_category_stat(stat, is_bug=True, diocese=diocese,
-                                                   count=stat['bug_count']))
+                stats.append(cls.get_category_stat(
+                    stat, status=ModerationStatus.BUG,
+                    diocese=diocese, count=stat['bug_count']))
             if stat['total_count'] - stat['bug_count']:
-                stats.append(cls.get_category_stat(stat, is_bug=False, diocese=diocese,
-                                                   count=stat['total_count'] - stat['bug_count']))
+                stats.append(cls.get_category_stat(
+                    stat, status=ModerationStatus.TO_VALIDATE,
+                    diocese=diocese,
+                    count=stat['total_count'] - stat['bug_count']))
 
         return stats
 

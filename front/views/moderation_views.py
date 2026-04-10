@@ -6,8 +6,8 @@ from front.models import ReportModeration
 
 @login_required
 @permission_required("scheduling.change_sentence")
-def moderate_report(request, category, is_bug, diocese_slug, moderation_uuid=None):
-    return get_moderate_response(request, category, 'report', is_bug, diocese_slug,
+def moderate_report(request, category, status, diocese_slug, moderation_uuid=None):
+    return get_moderate_response(request, category, 'report', status, diocese_slug,
                                  ReportModeration, moderation_uuid,
                                  create_report_moderation_context)
 

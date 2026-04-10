@@ -8,8 +8,8 @@ from fetching.models import OClocherOrganizationModeration, OClocherMatchingMode
 
 @login_required
 @permission_required("scheduling.change_sentence")
-def moderate_oclocher_organization(request, category, is_bug, diocese_slug, moderation_uuid=None):
-    return get_moderate_response(request, category, 'oclocher_organization', is_bug, diocese_slug,
+def moderate_oclocher_organization(request, category, status, diocese_slug, moderation_uuid=None):
+    return get_moderate_response(request, category, 'oclocher_organization', status, diocese_slug,
                                  OClocherOrganizationModeration,
                                  moderation_uuid,
                                  create_oclocher_organization_moderation_context)
@@ -27,8 +27,8 @@ def create_oclocher_organization_moderation_context(
 
 @login_required
 @permission_required("scheduling.change_sentence")
-def moderate_oclocher_matching(request, category, is_bug, diocese_slug, moderation_uuid=None):
-    return get_moderate_response(request, category, 'oclocher_matching', is_bug, diocese_slug,
+def moderate_oclocher_matching(request, category, status, diocese_slug, moderation_uuid=None):
+    return get_moderate_response(request, category, 'oclocher_matching', status, diocese_slug,
                                  OClocherMatchingModeration,
                                  moderation_uuid,
                                  create_oclocher_matching_moderation_context)

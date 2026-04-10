@@ -36,8 +36,8 @@ from scheduling.workflows.pruning.extract_v2.split_content import create_line_an
 
 @login_required
 @permission_required("scheduling.change_sentence")
-def moderate_pruning(request, category, is_bug, diocese_slug, moderation_uuid=None):
-    return get_moderate_response(request, category, 'pruning', is_bug, diocese_slug,
+def moderate_pruning(request, category, status, diocese_slug, moderation_uuid=None):
+    return get_moderate_response(request, category, 'pruning', status, diocese_slug,
                                  PruningModeration, moderation_uuid,
                                  create_pruning_moderation_context,
                                  pruning_moderation_post_process)
@@ -94,8 +94,8 @@ def pruning_moderation_post_process(request, moderation: PruningModeration) -> b
 
 @login_required
 @permission_required("scheduling.change_sentence")
-def moderate_sentence(request, category, is_bug, diocese_slug, moderation_uuid=None):
-    return get_moderate_response(request, category, 'sentence', is_bug, diocese_slug,
+def moderate_sentence(request, category, status, diocese_slug, moderation_uuid=None):
+    return get_moderate_response(request, category, 'sentence', status, diocese_slug,
                                  SentenceModeration, moderation_uuid,
                                  create_sentence_moderation_context,
                                  sentence_moderation_post_process)
@@ -130,8 +130,8 @@ def sentence_moderation_post_process(request, moderation: SentenceModeration) ->
 
 @login_required
 @permission_required("scheduling.change_sentence")
-def moderate_parsing(request, category, is_bug, diocese_slug, moderation_uuid=None):
-    return get_moderate_response(request, category, 'parsing', is_bug, diocese_slug,
+def moderate_parsing(request, category, status, diocese_slug, moderation_uuid=None):
+    return get_moderate_response(request, category, 'parsing', status, diocese_slug,
                                  ParsingModeration, moderation_uuid,
                                  create_parsing_moderation_context,
                                  parsing_moderation_post_process)
@@ -180,8 +180,8 @@ def parsing_moderation_post_process(request, moderation: ParsingModeration) -> b
 
 @login_required
 @permission_required("scheduling.change_sentence")
-def moderate_scheduling(request, category, is_bug, diocese_slug, moderation_uuid=None):
-    return get_moderate_response(request, category, 'scheduling', is_bug, diocese_slug,
+def moderate_scheduling(request, category, status, diocese_slug, moderation_uuid=None):
+    return get_moderate_response(request, category, 'scheduling', status, diocese_slug,
                                  SchedulingModeration, moderation_uuid,
                                  create_scheduling_moderation_context)
 
@@ -194,8 +194,8 @@ def create_scheduling_moderation_context(moderation: SchedulingModeration) -> di
 
 @login_required
 @permission_required("scheduling.change_sentence")
-def moderate_validated_schedules(request, category, is_bug, diocese_slug, moderation_uuid=None):
-    return get_moderate_response(request, category, 'validated_schedules', is_bug, diocese_slug,
+def moderate_validated_schedules(request, category, status, diocese_slug, moderation_uuid=None):
+    return get_moderate_response(request, category, 'validated_schedules', status, diocese_slug,
                                  ValidatedSchedulesModeration, moderation_uuid,
                                  create_validated_schedules_moderation_context)
 
@@ -242,7 +242,7 @@ def moderate_erase_human_by_llm(request, parsing_moderation_uuid=None):
     set_llm_json_as_human_json(parsing)
 
     return redirect_to_moderation(parsing_moderation, parsing_moderation.category, 'parsing',
-                                  parsing_moderation.status == ModerationStatus.BUG,
+                                  parsing_moderation.status,
                                   parsing_moderation.get_diocese_slug())
 
 
@@ -263,7 +263,7 @@ def moderate_set_v2_indices_as_human_by(request, pruning_moderation_uuid=None):
     set_v2_indices_as_human(pruning)
 
     return redirect_to_moderation(pruning_moderation, pruning_moderation.category, 'pruning',
-                                  pruning_moderation.status == ModerationStatus.BUG,
+                                  pruning_moderation.status,
                                   pruning_moderation.get_diocese_slug())
 
 

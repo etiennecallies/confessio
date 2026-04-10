@@ -6,8 +6,8 @@ from crawling.models import CrawlingModeration
 
 @login_required
 @permission_required("scheduling.change_sentence")
-def moderate_crawling(request, category, is_bug, diocese_slug, moderation_uuid=None):
-    return get_moderate_response(request, category, 'crawling', is_bug, diocese_slug,
+def moderate_crawling(request, category, status, diocese_slug, moderation_uuid=None):
+    return get_moderate_response(request, category, 'crawling', status, diocese_slug,
                                  CrawlingModeration, moderation_uuid,
                                  create_crawling_moderation_context)
 
