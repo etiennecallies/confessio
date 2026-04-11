@@ -15,7 +15,7 @@ from front.services.card.sources_service import get_website_parsings_and_pruning
 from front.services.search.aggregation_service import get_search_results
 from front.services.search.autocomplete_service import get_aggregated_response, AutocompleteResult
 from front.services.search.search_service import TimeFilter, AggregationItem, BoundingBox, \
-    get_dioceses_bounding_box, get_churches_by_uuid
+    get_dioceses_bounding_box, get_churches_by_uuid, get_churches_by_diocese, get_popular_churches
 from registry.models import Church, Website, Diocese
 from scheduling.models import IndexEvent
 from scheduling.public_model import SourcedScheduleItem, BaseSource, ParsingSource, OClocherSource
@@ -304,6 +304,25 @@ class ErrorSchema(Schema):
     detail: str
 
 
+##########
+# HELPER #
+##########
+
+def build_search_result(churches: list[Church],
+                        index_events: list[IndexEvent],
+                        aggregations: list[AggregationItem],
+                        ) -> SearchResult:
+    index_events_by_church = {}
+    for index_event in index_events:
+        index_events_by_church.setdefault(index_event.church.uuid, []).append(index_event)
+
+    return SearchResult.from_result(
+        churches,
+        index_events_by_church,
+        aggregations
+    )
+
+
 #############
 # ENDPOINTS #
 #############
@@ -324,22 +343,57 @@ def api_front_search(request,
         hour_min=hour_min,
         hour_max=hour_max,
     )
-
-    index_events, churches, events_truncated_by_website_uuid, aggregations = \
+    index_events, churches, aggregations = \
         get_search_results(latitude, longitude, min_lat, min_lng, max_lat, max_lng, time_filter)
-
-    index_events_by_church = {}
-    for index_event in index_events:
-        index_events_by_church.setdefault(index_event.church.uuid, []).append(index_event)
 
     # TODO add search hit
     # new_search_hit(request, len(websites))
 
-    return SearchResult.from_result(
-        churches,
-        index_events_by_church,
-        aggregations
+    return build_search_result(churches, index_events, aggregations)
+
+
+@api.get("/search/home", response=SearchResult)
+def api_front_search_home(request,
+                          min_lat: float,
+                          min_lng: float,
+                          max_lat: float,
+                          max_lng: float,
+                          date_filter: date | None = None,
+                          hour_min: int = 0, hour_max: int = 24 * 60 - 1,
+                          ) -> SearchResult:
+    time_filter = TimeFilter(
+        day_filter=date_filter,
+        hour_min=hour_min,
+        hour_max=hour_max,
     )
+    index_events, churches, _, _ = \
+        get_popular_churches(min_lat, max_lat, min_lng, max_lng, time_filter)
+    aggregations = []
+
+    return build_search_result(churches, index_events, aggregations)
+
+
+@api.get("/search/diocese/{diocese_uuid}", response={200: SearchResult, 404: ErrorSchema})
+def api_front_search_diocese(request,
+                             diocese_uuid: UUID,
+                             date_filter: date | None = None,
+                             hour_min: int = 0, hour_max: int = 24 * 60 - 1,
+                             ) -> SearchResult:
+    time_filter = TimeFilter(
+        day_filter=date_filter,
+        hour_min=hour_min,
+        hour_max=hour_max,
+    )
+    try:
+        diocese = Diocese.objects.get(uuid=diocese_uuid)
+    except Diocese.DoesNotExist:
+        raise Http404(f'Diocese with uuid {diocese_uuid} not found')
+
+    index_events, churches, _, _ = \
+        get_churches_by_diocese(diocese, time_filter)
+    aggregations = []
+
+    return build_search_result(churches, index_events, aggregations)
 
 
 @api.get("/autocomplete", response=list[AutocompleteItem])

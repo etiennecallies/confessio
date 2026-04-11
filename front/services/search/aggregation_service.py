@@ -1,5 +1,3 @@
-from uuid import UUID
-
 from front.services.search.search_service import get_churches_in_box, MAX_CHURCHES_IN_RESULTS, \
     get_count_per_diocese, TimeFilter, get_count_per_municipality, get_count_per_parish, \
     get_churches_in_area, get_churches_around, AggregationItem, \
@@ -16,9 +14,9 @@ def get_search_results(
         max_lat: float | None,
         max_lng: float | None,
         time_filter: TimeFilter,
-) -> tuple[list[IndexEvent], list[Church], dict[UUID, bool], list[AggregationItem]]:
+) -> tuple[list[IndexEvent], list[Church], list[AggregationItem]]:
     if min_lat and min_lng and max_lat and max_lng:
-        index_events, churches, _, events_truncated_by_website_uuid = \
+        index_events, churches, _, _ = \
             get_churches_in_box(min_lat, max_lat, min_lng, max_lng, time_filter)
         if len(churches) == MAX_CHURCHES_IN_RESULTS:
             diocese_count = len(set(church.parish.diocese for church in churches))
@@ -40,14 +38,14 @@ def get_search_results(
                                                         time_filter)
 
             singleton_aggregations = list(filter(lambda a: a.church_count == 1, aggregations))
-            index_events, churches, _, events_truncated_by_website_uuid = \
+            index_events, churches, _, _ = \
                 get_churches_in_area(singleton_aggregations, time_filter)
             aggregations = list(filter(lambda a: a.church_count > 1, aggregations))
         else:
             aggregations = []
     elif latitude and longitude:
         center = [latitude, longitude]
-        index_events, churches, _, events_truncated_by_website_uuid = \
+        index_events, churches, _, _ = \
             get_churches_around(center, time_filter)
         aggregations = []
     else:
@@ -55,4 +53,4 @@ def get_search_results(
         return get_search_results(latitude, longitude, min_lat, min_lng, max_lat, max_lng,
                                   time_filter)
 
-    return index_events, churches, events_truncated_by_website_uuid, aggregations
+    return index_events, churches, aggregations
