@@ -242,8 +242,12 @@ class SearchResult(Schema):
     @classmethod
     def from_result(cls,
                     churches: list[Church],
-                    index_events_by_church: dict[UUID, list[IndexEvent]],
-                    aggregation_items: list[AggregationItem]):
+                    index_events: list[IndexEvent],
+                    aggregation_items: list[AggregationItem],):
+        index_events_by_church = {}
+        for index_event in index_events:
+            index_events_by_church.setdefault(index_event.church.uuid, []).append(index_event)
+
         churches = [ChurchOut.from_church_and_events(church,
                                                      index_events_by_church.get(church.uuid, []))
                     for church in churches]
@@ -304,25 +308,6 @@ class ErrorSchema(Schema):
     detail: str
 
 
-##########
-# HELPER #
-##########
-
-def build_search_result(churches: list[Church],
-                        index_events: list[IndexEvent],
-                        aggregations: list[AggregationItem],
-                        ) -> SearchResult:
-    index_events_by_church = {}
-    for index_event in index_events:
-        index_events_by_church.setdefault(index_event.church.uuid, []).append(index_event)
-
-    return SearchResult.from_result(
-        churches,
-        index_events_by_church,
-        aggregations
-    )
-
-
 #############
 # ENDPOINTS #
 #############
@@ -349,7 +334,7 @@ def api_front_search(request,
     # TODO add search hit
     # new_search_hit(request, len(websites))
 
-    return build_search_result(churches, index_events, aggregations)
+    return SearchResult.from_result(churches, index_events, aggregations)
 
 
 @api.get("/search/home", response=SearchResult)
@@ -370,7 +355,7 @@ def api_front_search_home(request,
         get_popular_churches(min_lat, max_lat, min_lng, max_lng, time_filter)
     aggregations = []
 
-    return build_search_result(churches, index_events, aggregations)
+    return SearchResult.from_result(churches, index_events, aggregations)
 
 
 @api.get("/search/diocese/{diocese_uuid}", response={200: SearchResult, 404: ErrorSchema})
@@ -393,7 +378,7 @@ def api_front_search_diocese(request,
         get_churches_by_diocese(diocese, time_filter)
     aggregations = []
 
-    return build_search_result(churches, index_events, aggregations)
+    return SearchResult.from_result(churches, index_events, aggregations)
 
 
 @api.get("/autocomplete", response=list[AutocompleteItem])
