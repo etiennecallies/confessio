@@ -121,7 +121,8 @@ def truncate_results(church_query: QuerySet[Church],
         church_by_uuid = {church.uuid: church for church in churches}
         events = fetch_events(church_by_uuid, time_filter)
         all_churches_have_events = all(church.next_event_uuid is not None for church in churches)
-        events_truncated_by_website_uuid = {church.parish.website.uuid: True for church in churches}
+        events_truncated_by_website_uuid = {church.parish.website.uuid: False
+                                            for church in churches}
     else:
         non_truncated_count = 0
         non_truncated_churches = []
