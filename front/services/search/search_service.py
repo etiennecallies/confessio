@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from datetime import date, datetime
 from typing import Literal
 from uuid import UUID
@@ -34,6 +35,14 @@ class TimeFilter(BaseModel):
         return self.day_filter is None \
             and (self.hour_min is None or self.hour_min == 0) \
             and (self.hour_max is None or self.hour_max == 24 * 60 - 1)
+
+
+@dataclass
+class SearchResult:
+    index_events: list[IndexEvent]
+    churches: list[Church]
+    too_many_results: bool
+    events_truncated_by_website_uuid: dict[UUID, bool]
 
 
 ###############
@@ -105,8 +114,8 @@ def add_event_filters(event_query: QuerySet[IndexEvent],
 
 def truncate_results(church_query: QuerySet[Church],
                      time_filter: TimeFilter
-                     ) -> tuple[list[IndexEvent], list[Church], bool, dict[UUID, bool]]:
-    churches = church_query.all()[:MAX_CHURCHES_IN_RESULTS]
+                     ) -> SearchResult:
+    churches = list(church_query.all()[:MAX_CHURCHES_IN_RESULTS])
 
     if not time_filter.legacy_search:
         church_by_uuid = {church.uuid: church for church in churches}
@@ -143,8 +152,12 @@ def truncate_results(church_query: QuerySet[Church],
         events = fetch_events(non_truncated_church_by_uuid, time_filter) \
             + fetch_next_event(truncated_church_by_uuid)
 
-    return (events, churches, all_churches_have_events and len(churches) == MAX_CHURCHES_IN_RESULTS,
-            events_truncated_by_website_uuid)
+    return SearchResult(
+        index_events=events,
+        churches=churches,
+        too_many_results=all_churches_have_events and len(churches) == MAX_CHURCHES_IN_RESULTS,
+        events_truncated_by_website_uuid=events_truncated_by_website_uuid
+    )
 
 
 def fetch_events(church_by_uuid: dict[UUID, Church],
@@ -178,7 +191,7 @@ def filter_in_box(church_query: QuerySet[Church], min_lat, max_lat, min_long, ma
 ###########
 
 def get_churches_around(center, time_filter: TimeFilter,
-                        ) -> tuple[list[IndexEvent], list[Church], bool, dict[UUID, bool]]:
+                        ) -> SearchResult:
     latitude, longitude = center
     center_as_point = Point(x=longitude, y=latitude)
 
@@ -192,7 +205,7 @@ def get_churches_around(center, time_filter: TimeFilter,
 
 
 def get_churches_in_box(min_lat, max_lat, min_long, max_long, time_filter: TimeFilter
-                        ) -> tuple[list[IndexEvent], list[Church], bool, dict[UUID, bool]]:
+                        ) -> SearchResult:
     church_query = filter_in_box(build_church_query(time_filter),
                                  min_lat, max_lat, min_long, max_long)\
         .annotate(has_event=Exists(build_event_subquery(time_filter)))\
@@ -207,7 +220,7 @@ def get_churches_in_box(min_lat, max_lat, min_long, max_long, time_filter: TimeF
 def get_churches_by_website(
         website: Website,
         time_filter: TimeFilter,
-) -> tuple[list[IndexEvent], list[Church], bool, dict[UUID, bool]]:
+) -> SearchResult:
     church_query = build_church_query(time_filter)\
         .filter(parish__website=website)
 
@@ -217,7 +230,7 @@ def get_churches_by_website(
 def get_churches_by_uuid(
         church_uuid: UUID,
         time_filter: TimeFilter,
-) -> tuple[list[IndexEvent], list[Church], bool, dict[UUID, bool]]:
+) -> SearchResult:
     church_query = build_church_query(time_filter)\
         .filter(uuid=church_uuid)
 
@@ -227,7 +240,7 @@ def get_churches_by_uuid(
 def get_churches_by_diocese(
         diocese: Diocese,
         time_filter: TimeFilter,
-) -> tuple[list[IndexEvent], list[Church], bool, dict[UUID, bool]]:
+) -> SearchResult:
     event_query = build_event_subquery(time_filter)
     church_query = build_church_query(time_filter).annotate(has_event=Exists(event_query))\
         .filter(parish__diocese=diocese)\
@@ -240,7 +253,7 @@ def get_churches_by_diocese(
 
 
 def get_popular_churches(min_lat, max_lat, min_long, max_long, time_filter: TimeFilter,
-                         ) -> tuple[list[IndexEvent], list[Church], bool, dict[UUID, bool]]:
+                         ) -> SearchResult:
     event_query = build_event_subquery(time_filter)
     church_query = filter_in_box(build_church_query(time_filter),
                                  min_lat, max_lat, min_long, max_long)\
@@ -365,9 +378,14 @@ def get_count_per_municipality(
 
 def get_churches_in_area(aggregations: list[AggregationItem],
                          time_filter: TimeFilter
-                         ) -> tuple[list[IndexEvent], list[Church], bool, dict[UUID, bool]]:
+                         ) -> SearchResult:
     if not aggregations:
-        return [], [], False, {}
+        return SearchResult(
+            index_events=[],
+            churches=[],
+            too_many_results=False,
+            events_truncated_by_website_uuid={}
+        )
 
     assert len(set(map(lambda a: a.type, aggregations))) == 1, \
         "All aggregations must be of the same type (diocese, parish, municipality)"

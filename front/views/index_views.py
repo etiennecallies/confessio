@@ -1,7 +1,6 @@
 import dataclasses
 import json
 from datetime import date
-from uuid import UUID
 
 from django.core.exceptions import ValidationError
 from django.http import HttpResponseNotFound, JsonResponse, HttpResponseBadRequest, HttpResponse
@@ -23,24 +22,21 @@ from front.services.search.filter_service import get_filter_days
 from front.services.search.map_service import prepare_map, get_center, get_cities_label
 from front.services.search.search_service import TimeFilter, get_churches_in_box, \
     get_churches_by_website, get_churches_around, get_churches_by_diocese, get_popular_churches, \
-    fetch_events, DEFAULT_SEARCH_BOX
+    fetch_events, DEFAULT_SEARCH_BOX, SearchResult
 from front.services.search.stat_service import new_search_hit
 from front.utils.web_utils import redirect_with_url_params
 from registry.models import Website, Diocese, Church
 from registry.utils.string_utils import lower_first, city_and_prefix
-from scheduling.models import IndexEvent
 from scheduling.public_service import scheduling_get_indexed_scheduling, \
     scheduling_get_scheduling_sources, scheduling_get_scheduling_primary_sources
 from scheduling.utils.date_utils import get_current_day, get_current_year
 
 
 def render_map(request, center,
-               index_events: list[IndexEvent],
-               events_truncated_by_website_uuid: dict[UUID, bool],
-               churches, h1_title: str,
+               search_result: SearchResult,
+               h1_title: str,
                meta_title: str, display_sub_title: bool,
-               bounds, location, too_many_results: bool,
-               is_around_me: bool, time_filter: TimeFilter,
+               bounds, location, is_around_me: bool, time_filter: TimeFilter,
                page_website: Website | None, success_message: str | None,
                welcome_message: str | None, display_quick_search_cities: bool):
     upload_success = extract_bool('upload_success', request)
@@ -53,7 +49,7 @@ def render_map(request, center,
     # We get all websites and their churches
     websites_by_uuid = {}
     website_churches = {}
-    for church in churches:
+    for church in search_result.churches:
         websites_by_uuid[church.parish.website.uuid] = church.parish.website
         website_churches.setdefault(church.parish.website.uuid, []).append(church)
     websites = list(websites_by_uuid.values())
@@ -66,7 +62,7 @@ def render_map(request, center,
             json.dumps([str(church.uuid) for church in churches_list])
 
     index_events_by_website = {}
-    for index_event in index_events:
+    for index_event in search_result.index_events:
         index_events_by_website.setdefault(index_event.church.parish.website.uuid, [])\
             .append(index_event)
 
@@ -74,13 +70,13 @@ def render_map(request, center,
     for website in websites:
         events_by_website[website.uuid] = get_website_events(
             index_events_by_website.get(website.uuid, []),
-            events_truncated_by_website_uuid[website.uuid],
+            search_result.events_truncated_by_website_uuid[website.uuid],
             time_filter.day_filter is not None
         )
 
     # We prepare the map
     folium_map, church_marker_names_json_by_website = prepare_map(
-        center, churches, bounds, events_by_website, is_around_me)
+        center, search_result.churches, bounds, events_by_website, is_around_me)
 
     # Get HTML Representation of Map Object
     map_html = folium_map._repr_html_()
@@ -141,7 +137,7 @@ def render_map(request, center,
         'websites': websites,
         'events_by_website': events_by_website,
         'website_city_label': website_city_label,
-        'too_many_results': too_many_results,
+        'too_many_results': search_result.too_many_results,
         'welcome_message': welcome_message,
         'display_quick_search_cities': display_quick_search_cities,
         'website_reports_count': website_reports_count,
@@ -236,8 +232,7 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
     if min_lat and min_lng and max_lat and max_lng:
         bounds = (min_lat, max_lat, min_lng, max_lng)
         center = [min_lat + max_lat / 2, min_lng + max_lng / 2]
-        index_events, churches, too_many_results, events_truncated_by_website_uuid = \
-            get_churches_in_box(min_lat, max_lat, min_lng, max_lng, time_filter)
+        search_result = get_churches_in_box(min_lat, max_lat, min_lng, max_lng, time_filter)
 
         display_sub_title = False
     elif website_uuid:
@@ -252,10 +247,9 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
             except NewReportError as e:
                 return e.response
 
-        index_events, churches, too_many_results, events_truncated_by_website_uuid = \
-            get_churches_by_website(website, time_filter)
+        search_result = get_churches_by_website(website, time_filter)
 
-        if len(churches) == 0:
+        if len(search_result.churches) == 0:
             website_churches = [church for p in website.parishes.all()
                                 for church in p.churches.all()]
             if len(website_churches) == 0:
@@ -263,7 +257,7 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
 
             center = get_center(website_churches)
         else:
-            center = get_center(churches)
+            center = get_center(search_result.churches)
         bounds = None
 
         h1_title = f'{website.name}'
@@ -271,9 +265,8 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
         display_sub_title = False
     elif latitude and longitude:
         center = [latitude, longitude]
-        index_events, churches, _, events_truncated_by_website_uuid = \
-            get_churches_around(center, time_filter)
-        too_many_results = False
+        search_result = get_churches_around(center, time_filter)
+        search_result.too_many_results = False
         bounds = None
 
         if location:
@@ -286,9 +279,8 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
         except Diocese.DoesNotExist:
             return HttpResponseNotFound("Diocese not found")
 
-        index_events, churches, too_many_results, events_truncated_by_website_uuid = \
-            get_churches_by_diocese(diocese, time_filter)
-        if len(churches) == 0:
+        search_result = get_churches_by_diocese(diocese, time_filter)
+        if len(search_result.churches) == 0:
             diocese_churches = [church for p in diocese.parishes.all()
                                 for church in p.churches.all()]
             if len(diocese_churches) == 0:
@@ -296,39 +288,38 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
 
             center = get_center(diocese_churches)
         else:
-            center = get_center(churches)
+            center = get_center(search_result.churches)
         bounds = None
 
         h1_title = f'Se confesser au {lower_first(diocese.name)}'
         meta_title = f"{h1_title} | {gettext('confessioTitle')}"
         display_sub_title = False
         if time_filter.is_null():
-            too_many_results = False
+            search_result.too_many_results = False
             welcome_message = f"""👋 Voici quelques horaires de confession au
 {lower_first(diocese.name)}. N'hésitez pas à préciser votre recherche grâce aux filtres.
 Merci de nous remonter d'éventuelles erreurs. Bonne confession !"""
 
     else:
         min_lat, max_lat, min_lng, max_lng = DEFAULT_SEARCH_BOX
-        index_events, churches, too_many_results, events_truncated_by_website_uuid = \
-            get_popular_churches(min_lat, max_lat, min_lng, max_lng, time_filter)
-        if churches:
-            center = get_center(churches)
+        search_result = get_popular_churches(min_lat, max_lat, min_lng, max_lng, time_filter)
+        if search_result.churches:
+            center = get_center(search_result.churches)
         else:
             center = [min_lat + max_lat / 2, min_lng + max_lng / 2]
         bounds = None
 
         display_sub_title = True
         if time_filter.is_null():
-            too_many_results = False
+            search_result.too_many_results = False
             welcome_message = """👋 Bienvenue ! Confessio affiche les horaires des confessions
 indiqués sur les sites web des paroisses. N'hésitez pas à
 remonter d'éventuelles erreurs. Merci et bonne confession !"""
             display_quick_search_cities = True
 
-    return render_map(request, center, index_events, events_truncated_by_website_uuid, churches,
+    return render_map(request, center, search_result,
                       h1_title, meta_title, display_sub_title,
-                      bounds, location, too_many_results, is_around_me,
+                      bounds, location, is_around_me,
                       time_filter, website, success_message, welcome_message,
                       display_quick_search_cities)
 

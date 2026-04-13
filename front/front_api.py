@@ -15,7 +15,8 @@ from front.services.card.sources_service import get_website_parsings_and_pruning
 from front.services.search.aggregation_service import get_search_results
 from front.services.search.autocomplete_service import get_aggregated_response, AutocompleteResult
 from front.services.search.search_service import TimeFilter, AggregationItem, BoundingBox, \
-    get_dioceses_bounding_box, get_churches_by_uuid, get_churches_by_diocese, get_popular_churches
+    get_dioceses_bounding_box, get_churches_by_uuid, get_churches_by_diocese, \
+    get_popular_churches, SearchResult
 from registry.models import Church, Website, Diocese
 from scheduling.models import IndexEvent
 from scheduling.public_model import SourcedScheduleItem, BaseSource, ParsingSource, OClocherSource
@@ -235,22 +236,21 @@ class AggregationOut(Schema):
         )
 
 
-class SearchResult(Schema):
+class SearchResultOut(Schema):
     churches: list[ChurchOut]
     aggregations: list[AggregationOut]
 
     @classmethod
     def from_result(cls,
-                    churches: list[Church],
-                    index_events: list[IndexEvent],
+                    search_result: SearchResult,
                     aggregation_items: list[AggregationItem],):
         index_events_by_church = {}
-        for index_event in index_events:
+        for index_event in search_result.index_events:
             index_events_by_church.setdefault(index_event.church.uuid, []).append(index_event)
 
         churches = [ChurchOut.from_church_and_events(church,
                                                      index_events_by_church.get(church.uuid, []))
-                    for church in churches]
+                    for church in search_result.churches]
         aggregations = [AggregationOut.from_aggregation(aggregation)
                         for aggregation in aggregation_items]
 
@@ -312,7 +312,7 @@ class ErrorSchema(Schema):
 # ENDPOINTS #
 #############
 
-@api.get("/search", response=SearchResult)
+@api.get("/search", response=SearchResultOut)
 def api_front_search(request,
                      latitude: float | None = None,
                      longitude: float | None = None,
@@ -322,22 +322,22 @@ def api_front_search(request,
                      max_lng: float | None = None,
                      date_filter: date | None = None,
                      hour_min: int = 0, hour_max: int = 24 * 60 - 1
-                     ) -> SearchResult:
+                     ) -> SearchResultOut:
     time_filter = TimeFilter(
         day_filter=date_filter,
         hour_min=hour_min,
         hour_max=hour_max,
     )
-    index_events, churches, aggregations = \
+    search_result, aggregations = \
         get_search_results(latitude, longitude, min_lat, min_lng, max_lat, max_lng, time_filter)
 
     # TODO add search hit
     # new_search_hit(request, len(websites))
 
-    return SearchResult.from_result(churches, index_events, aggregations)
+    return SearchResultOut.from_result(search_result, aggregations)
 
 
-@api.get("/search/home", response=SearchResult)
+@api.get("/search/home", response=SearchResultOut)
 def api_front_search_home(request,
                           min_lat: float,
                           min_lng: float,
@@ -345,25 +345,24 @@ def api_front_search_home(request,
                           max_lng: float,
                           date_filter: date | None = None,
                           hour_min: int = 0, hour_max: int = 24 * 60 - 1,
-                          ) -> SearchResult:
+                          ) -> SearchResultOut:
     time_filter = TimeFilter(
         day_filter=date_filter,
         hour_min=hour_min,
         hour_max=hour_max,
     )
-    index_events, churches, _, _ = \
-        get_popular_churches(min_lat, max_lat, min_lng, max_lng, time_filter)
+    search_result = get_popular_churches(min_lat, max_lat, min_lng, max_lng, time_filter)
     aggregations = []
 
-    return SearchResult.from_result(churches, index_events, aggregations)
+    return SearchResultOut.from_result(search_result, aggregations)
 
 
-@api.get("/search/diocese/{diocese_uuid}", response={200: SearchResult, 404: ErrorSchema})
+@api.get("/search/diocese/{diocese_uuid}", response={200: SearchResultOut, 404: ErrorSchema})
 def api_front_search_diocese(request,
                              diocese_uuid: UUID,
                              date_filter: date | None = None,
                              hour_min: int = 0, hour_max: int = 24 * 60 - 1,
-                             ) -> SearchResult:
+                             ) -> SearchResultOut:
     time_filter = TimeFilter(
         day_filter=date_filter,
         hour_min=hour_min,
@@ -374,11 +373,10 @@ def api_front_search_diocese(request,
     except Diocese.DoesNotExist:
         raise Http404(f'Diocese with uuid {diocese_uuid} not found')
 
-    index_events, churches, _, _ = \
-        get_churches_by_diocese(diocese, time_filter)
+    search_result = get_churches_by_diocese(diocese, time_filter)
     aggregations = []
 
-    return SearchResult.from_result(churches, index_events, aggregations)
+    return SearchResultOut.from_result(search_result, aggregations)
 
 
 @api.get("/autocomplete", response=list[AutocompleteItem])
@@ -401,9 +399,8 @@ def api_front_church_details(request, church_uuid: UUID,
         hour_max=hour_max,
     )
 
-    index_events, churches, too_many_results, events_truncated_by_website_uuid = \
-        get_churches_by_uuid(church_uuid, time_filter)
-    churches = list(churches)
+    search_result = get_churches_by_uuid(church_uuid, time_filter)
+    churches = list(search_result.churches)
 
     if not churches:
         raise Http404(f'Church with uuid {church_uuid} not found')
@@ -434,7 +431,9 @@ def api_front_church_details(request, church_uuid: UUID,
                       in scheduling_elements.church_by_id.items() if church.uuid == church_uuid]
     if not church_id_list:
         # Church is not indexed yet, we return it with no schedule
-        return ChurchDetails.from_church_and_schedules(church, index_events, website_out, [], [])
+        return ChurchDetails.from_church_and_schedules(church,
+                                                       search_result.index_events,
+                                                       website_out, [], [])
 
     assert len(church_id_list) == 1, f'Multiple church ids found for church uuid {church_uuid}'
     church_id = church_id_list[0]
@@ -455,8 +454,8 @@ def api_front_church_details(request, church_uuid: UUID,
                                                     scraping_parsing_urls)
                 for parsing_uuid in parsing_uuids]
 
-    return ChurchDetails.from_church_and_schedules(church, index_events, website_out, schedules,
-                                                   parsings)
+    return ChurchDetails.from_church_and_schedules(church, search_result.index_events, website_out,
+                                                   schedules, parsings)
 
 
 @api.get("/dioceses", response={200: list[DioceseOut], 404: ErrorSchema})
