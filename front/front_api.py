@@ -7,7 +7,7 @@ from django.http import Http404
 from ninja import NinjaAPI, Schema
 
 from attaching.public_service import attaching_get_image_public_url
-from front.models import Report
+from front.models import Report, AutocompleteHit
 from front.services.card.report_service import save_report
 from front.services.card.scraping_url_service import get_scraping_parsing_urls
 from front.services.card.sources_service import get_website_parsings_and_prunings, \
@@ -284,6 +284,14 @@ class AutocompleteItem(Schema):
         )
 
 
+class AutocompleteHitIn(Schema):
+    query: str
+    latitude: float | None
+    longitude: float | None
+    rank: int
+    item: AutocompleteItem
+
+
 class DioceseOut(Schema):
     uuid: UUID
     name: str
@@ -381,14 +389,6 @@ def api_front_search_diocese(request,
     return SearchResultOut.from_result(search_result, aggregations)
 
 
-@api.get("/autocomplete", response=list[AutocompleteItem])
-async def api_front_autocomplete(request, query: str,
-                                 latitude: float | None = None,
-                                 longitude: float | None = None) -> list[AutocompleteItem]:
-    results = await get_aggregated_response(query, latitude, longitude)
-    return list(map(lambda r: AutocompleteItem.from_autocomplete_result(r), results))
-
-
 @api.get("/church/{church_uuid}", response={200: ChurchDetails, 404: ErrorSchema})
 def api_front_church_details(request, church_uuid: UUID,
                              date_filter: date | None = None,
@@ -458,6 +458,34 @@ def api_front_church_details(request, church_uuid: UUID,
 
     return ChurchDetails.from_church_and_schedules(church, search_result.index_events, website_out,
                                                    schedules, parsings)
+
+
+@api.get("/autocomplete", response=list[AutocompleteItem])
+async def api_front_autocomplete(request, query: str,
+                                 latitude: float | None = None,
+                                 longitude: float | None = None) -> list[AutocompleteItem]:
+    results = await get_aggregated_response(query, latitude, longitude)
+    return list(map(lambda r: AutocompleteItem.from_autocomplete_result(r), results))
+
+
+@api.post("/autocomplete/hits", response=AutocompleteHitIn)
+def api_front_post_autocomplete_hit(request,
+                                    autocomplete_hit_in: AutocompleteHitIn
+                                    ) -> AutocompleteHitIn:
+    autocomplete_hit = AutocompleteHit(
+        query=autocomplete_hit_in.query,
+        rank=autocomplete_hit_in.rank,
+        latitude=autocomplete_hit_in.latitude,
+        longitude=autocomplete_hit_in.longitude,
+        item_type=autocomplete_hit_in.item.type,
+        item_name=autocomplete_hit_in.item.name,
+        item_context=autocomplete_hit_in.item.context,
+        item_latitude=autocomplete_hit_in.item.latitude,
+        item_longitude=autocomplete_hit_in.item.longitude,
+        item_uuid=autocomplete_hit_in.item.uuid,
+    )
+    autocomplete_hit.save()
+    return autocomplete_hit_in
 
 
 @api.get("/dioceses", response={200: list[DioceseOut], 404: ErrorSchema})

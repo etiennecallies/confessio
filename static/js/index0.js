@@ -21,6 +21,7 @@ function popupChurch(markerName){
  */
 $( function() {
     let autocompleteUrl = $('#search-input').attr('data-autocomplete-url');
+    let autocompleteHitsUrl = $('#search-input').attr('data-autocomplete-hits-url');
     let latitude = $('#search-input').attr('data-autocomplete-latitude') || '';
     let longitude = $('#search-input').attr('data-autocomplete-longitude') || '';
 
@@ -40,7 +41,9 @@ $( function() {
           longitude: longitude,
         }, function( data, status, xhr ) {
           let optionList = [];
-          data.forEach(obj => {
+          data.forEach((obj, idx) => {
+            obj._rank = idx;
+            obj._query = term;
             optionList.push(obj);
           });
           cache[term] = optionList;
@@ -51,6 +54,24 @@ $( function() {
         $("ul.ui-menu").width( $(this).innerWidth());
       },
       select: function( event, ui ) {
+        let payload = {
+          query: ui.item._query,
+          latitude: latitude ? parseFloat(latitude) : null,
+          longitude: longitude ? parseFloat(longitude) : null,
+          rank: ui.item._rank,
+          item: {
+            type: ui.item.type,
+            name: ui.item.name,
+            context: ui.item.context,
+            url: ui.item.url,
+            latitude: ui.item.latitude,
+            longitude: ui.item.longitude,
+            uuid: ui.item.uuid,
+          },
+        };
+        let blob = new Blob([JSON.stringify(payload)], {type: 'application/json'});
+        navigator.sendBeacon(autocompleteHitsUrl, blob);
+
         $("#search-input").val(ui.item.name);
         $("#latitude-input").val(ui.item.latitude);
         $("#longitude-input").val(ui.item.longitude);

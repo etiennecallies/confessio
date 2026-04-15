@@ -62,6 +62,7 @@
                                    placeholder="{% trans 'searchPlaceHolder' %}"
                                    value="{{ location }}"
                                    data-autocomplete-url="{% url 'autocomplete' %}"
+                                   data-autocomplete-hits-url="/front/api/autocomplete/hits"
                                    data-autocomplete-latitude="{{ latitude|unlocalize }}"
                                    data-autocomplete-longitude="{{ longitude|unlocalize }}"
                                    >
