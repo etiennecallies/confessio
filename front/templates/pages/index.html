@@ -20,7 +20,15 @@
         </div>
         {% if welcome_message %}
             <div class="alert alert-info alert-dismissible fade show" role="alert">
-                <span class="alert-inner--text">{{ welcome_message }}</span>
+                {% if welcome_message == 'welcome_home' %}
+                    <span class="alert-inner--text"><span class="fw-bold">Alleluia !</span>
+                        Christ est ressuscité 🎉
+                        Essayez la nouvelle version de <a class="link-info" style="text-decoration: underline;" href="https://new.confessio.fr/">l’interface de recherche</a> ✨
+                        N'hésitez pas à nous faire des retours et à remonter d'éventuelles erreurs.
+                        Merci et bonne confession !</span>
+                {% else %}
+                    <span class="alert-inner--text">{{ welcome_message }}</span>
+                {% endif %}
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>

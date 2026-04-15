@@ -312,9 +312,7 @@ Merci de nous remonter d'éventuelles erreurs. Bonne confession !"""
         display_sub_title = True
         if time_filter.is_null():
             search_result.too_many_results = False
-            welcome_message = """👋 Bienvenue ! Confessio affiche les horaires des confessions
-indiqués sur les sites web des paroisses. N'hésitez pas à
-remonter d'éventuelles erreurs. Merci et bonne confession !"""
+            welcome_message = "welcome_home"
             display_quick_search_cities = True
 
     return render_map(request, center, search_result,
