@@ -214,6 +214,7 @@ class AggregationOut(Schema):
     type: Literal['diocese', 'parish', 'municipality']
     name: str
     church_count: int
+    church_with_event_count: int
     centroid_latitude: float
     centroid_longitude: float
     min_latitude: float
@@ -227,6 +228,7 @@ class AggregationOut(Schema):
             type=aggregation.type,
             name=aggregation.name,
             church_count=aggregation.church_count,
+            church_with_event_count=aggregation.church_with_event_count,
             centroid_latitude=aggregation.centroid_latitude,
             centroid_longitude=aggregation.centroid_longitude,
             min_latitude=aggregation.min_latitude,
@@ -351,7 +353,7 @@ def api_front_search_home(request,
         hour_min=hour_min,
         hour_max=hour_max,
     )
-    search_result = get_popular_churches(min_lat, max_lat, min_lng, max_lng, time_filter)
+    search_result = get_popular_churches(min_lat, min_lng, max_lat, max_lng, time_filter)
     aggregations = []
 
     return SearchResultOut.from_result(search_result, aggregations)

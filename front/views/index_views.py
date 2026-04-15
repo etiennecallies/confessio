@@ -232,7 +232,7 @@ def index(request, diocese_slug=None, website_uuid: str = None, is_around_me: bo
     if min_lat and min_lng and max_lat and max_lng:
         bounds = (min_lat, max_lat, min_lng, max_lng)
         center = [min_lat + max_lat / 2, min_lng + max_lng / 2]
-        search_result = get_churches_in_box(min_lat, max_lat, min_lng, max_lng, time_filter)
+        search_result = get_churches_in_box(min_lat, min_lng, max_lat, max_lng, time_filter)
 
         display_sub_title = False
     elif website_uuid:
@@ -302,7 +302,7 @@ Merci de nous remonter d'éventuelles erreurs. Bonne confession !"""
 
     else:
         min_lat, max_lat, min_lng, max_lng = DEFAULT_SEARCH_BOX
-        search_result = get_popular_churches(min_lat, max_lat, min_lng, max_lng, time_filter)
+        search_result = get_popular_churches(min_lat, min_lng, max_lat, max_lng, time_filter)
         if search_result.churches:
             center = get_center(search_result.churches)
         else:

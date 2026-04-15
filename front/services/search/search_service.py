@@ -7,7 +7,7 @@ from django.contrib.gis.db.models import Collect, Extent
 from django.contrib.gis.db.models.functions import Distance, Centroid
 from django.contrib.gis.geos import Point, Polygon
 from django.db.models import QuerySet, OuterRef, Subquery, Exists, Q, \
-    Count
+    Count, Case, When
 from django.utils.timezone import make_aware
 from pydantic import BaseModel
 
@@ -181,7 +181,7 @@ def fetch_next_event(church_by_uuid: dict[UUID, Church]) -> list[IndexEvent]:
     return list(events)
 
 
-def filter_in_box(church_query: QuerySet[Church], min_lat, max_lat, min_long, max_long
+def filter_in_box(church_query: QuerySet[Church], min_lat, min_long, max_lat, max_long
                   ) -> QuerySet[Church]:
     polygon = Polygon.from_bbox((min_long, min_lat, max_long, max_lat))
     return church_query.filter(location__within=polygon)
@@ -205,10 +205,10 @@ def get_churches_around(center, time_filter: TimeFilter,
     return truncate_results(church_query, time_filter)
 
 
-def get_churches_in_box(min_lat, max_lat, min_long, max_long, time_filter: TimeFilter
+def get_churches_in_box(min_lat, min_long, max_lat, max_long, time_filter: TimeFilter
                         ) -> SearchResult:
     church_query = filter_in_box(build_church_query(time_filter),
-                                 min_lat, max_lat, min_long, max_long)\
+                                 min_lat, min_long, max_lat, max_long)\
         .annotate(has_event=Exists(build_event_subquery(time_filter)))\
         .order_by(
         '-has_event',
@@ -253,11 +253,11 @@ def get_churches_by_diocese(
     return truncate_results(church_query, time_filter)
 
 
-def get_popular_churches(min_lat, max_lat, min_long, max_long, time_filter: TimeFilter,
+def get_popular_churches(min_lat, min_long, max_lat, max_long, time_filter: TimeFilter,
                          ) -> SearchResult:
     event_query = build_event_subquery(time_filter)
     church_query = filter_in_box(build_church_query(time_filter),
-                                 min_lat, max_lat, min_long, max_long)\
+                                 min_lat, min_long, max_lat, max_long)\
         .annotate(has_event=Exists(event_query))\
         .order_by(
         '-has_event',
@@ -276,6 +276,7 @@ class AggregationItem(BaseModel):
     type: Literal['diocese', 'parish', 'municipality']
     name: str
     church_count: int
+    church_with_event_count: int
     centroid_latitude: float
     centroid_longitude: float
     min_latitude: float
@@ -286,25 +287,32 @@ class AggregationItem(BaseModel):
 
 
 def get_count_per_area(
-        min_lat, max_lat, min_long, max_long,
+        min_lat, min_long, max_lat, max_long,
         time_filter: TimeFilter,
         area_type: Literal['diocese', 'parish', 'municipality'],
         area_name_keys: list[str],
         identifier_keys: list[str],
 ) -> list[AggregationItem]:
-    church_query = filter_in_box(build_base_church_query(),
-                                 min_lat, max_lat, min_long, max_long) \
-        .values(*set(area_name_keys + identifier_keys)) \
-        .annotate(
-        church_count=Count('uuid'),
-        centroid=Centroid(Collect('location')),
-        bounds=Extent('location'),
-    )
+    church_query = filter_in_box(build_base_church_query(), min_lat, min_long, max_lat, max_long)
 
     if not time_filter.is_null():
         church_query = church_query \
             .annotate(has_event=Exists(build_event_subquery(time_filter))) \
             .filter(has_event=True)
+
+    church_query = church_query \
+        .values(*set(area_name_keys + identifier_keys)) \
+        .annotate(church_count=Count('uuid'),
+                  centroid=Centroid(Collect('location')),
+                  bounds=Extent('location'),
+                  )
+
+    if time_filter.is_null():
+        church_query = church_query \
+            .annotate(church_with_event_count=Count(Case(
+                When(Exists(build_event_subquery(time_filter)), then='uuid'),
+                default=None,
+            )))
 
     results = []
     for row in church_query.all():
@@ -313,6 +321,8 @@ def get_count_per_area(
             type=area_type,
             name=';'.join(row[k] for k in area_name_keys),
             church_count=row['church_count'],
+            church_with_event_count=row['church_with_event_count'] if time_filter.is_null()
+            else row['church_count'],
             centroid_latitude=row['centroid'].y,
             centroid_longitude=row['centroid'].x,
             min_latitude=min_latitude,
@@ -326,11 +336,11 @@ def get_count_per_area(
 
 
 def get_count_per_diocese(
-    min_lat, max_lat, min_long, max_long,
+    min_lat, min_long, max_lat, max_long,
     time_filter: TimeFilter,
 ) -> list[AggregationItem]:
     return get_count_per_area(
-        min_lat, max_lat, min_long, max_long,
+        min_lat, min_long, max_lat, max_long,
         time_filter,
         area_type='diocese',
         area_name_keys=['parish__diocese__name'],
@@ -339,11 +349,11 @@ def get_count_per_diocese(
 
 
 def get_count_per_parish(
-    min_lat, max_lat, min_long, max_long,
+    min_lat, min_long, max_lat, max_long,
     time_filter: TimeFilter,
 ) -> list[AggregationItem]:
     return get_count_per_area(
-        min_lat, max_lat, min_long, max_long,
+        min_lat, min_long, max_lat, max_long,
         time_filter,
         area_type='parish',
         area_name_keys=['parish__name'],
@@ -352,11 +362,11 @@ def get_count_per_parish(
 
 
 def get_count_per_municipality(
-    min_lat, max_lat, min_long, max_long,
+    min_lat, min_long, max_lat, max_long,
     time_filter: TimeFilter,
 ) -> list[AggregationItem]:
     results = get_count_per_area(
-        min_lat, max_lat, min_long, max_long,
+        min_lat, min_long, max_lat, max_long,
         time_filter,
         area_type='municipality',
         area_name_keys=['city', 'zipcode'],
@@ -378,6 +388,10 @@ def get_count_per_municipality(
 
 
 def get_churches_in_area(aggregations: list[AggregationItem],
+                         min_lat: float | None,
+                         min_lng: float | None,
+                         max_lat: float | None,
+                         max_lng: float | None,
                          time_filter: TimeFilter
                          ) -> SearchResult:
     if not aggregations:
@@ -391,7 +405,8 @@ def get_churches_in_area(aggregations: list[AggregationItem],
     assert len(set(map(lambda a: a.type, aggregations))) == 1, \
         "All aggregations must be of the same type (diocese, parish, municipality)"
 
-    church_query = build_church_query(time_filter)
+    church_query = filter_in_box(build_church_query(time_filter),
+                                 min_lat, min_lng, max_lat, max_lng)
 
     aggregations_type = aggregations[0].type
     if aggregations_type == 'diocese':
