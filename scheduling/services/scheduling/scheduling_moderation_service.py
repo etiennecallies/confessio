@@ -9,6 +9,7 @@ from scheduling.models import Scheduling
 from scheduling.models.scheduling_moderation_models import SchedulingModeration, \
     ValidatedSchedulesModeration
 from scheduling.services.merging.schedules_conflict_service import website_has_schedules_conflict
+from scheduling.services.parsing.church_desc_service import churches_have_desc_conflict
 from scheduling.services.scheduling.index_scheduling_service import SchedulingIndexingObjects
 from scheduling.services.scheduling.scheduling_service import get_scheduling_sources
 
@@ -56,6 +57,9 @@ def get_scheduling_moderation_category(scheduling: Scheduling,
 
     if not indexing_objects.index_events:
         return SchedulingModeration.Category.NO_SCHEDULE, False
+
+    if churches_have_desc_conflict(scheduling_sources.churches):
+        return SchedulingModeration.Category.DESC_CONFLICT, False
 
     if not all(map(lambda s: s.is_real_church(),
                    indexing_objects.sourced_schedules_list.sourced_schedules_of_churches)):

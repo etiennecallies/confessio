@@ -8,10 +8,10 @@ from registry.models.base_moderation_models import ModerationStatus
 from scheduling.models import ParsingModeration, Parsing
 from scheduling.models.pruning_models import Pruning
 from scheduling.services.parsing.parsing_service import get_existing_parsing
+from scheduling.services.parsing.church_desc_service import get_church_desc_by_id
 from scheduling.services.scheduling.scheduling_service import get_websites_of_parsing
 from scheduling.utils.hash_utils import hash_string_to_hex
 from scheduling.utils.html_utils import stringify_html
-from scheduling.utils.list_utils import get_desc_by_id
 from scheduling.workflows.parsing.llm_client import LLMClientInterface
 from scheduling.workflows.parsing.parse_with_llm import parse_with_llm, get_prompt_template, \
     get_llm_client
@@ -150,9 +150,7 @@ def prepare_parsing(pruning: Pruning, churches: list[Church]) -> None | ParsingP
     truncated_html = get_truncated_html(pruning)
     truncated_html_hash = hash_string_to_hex(truncated_html) if truncated_html else None
 
-    church_desc_list = list(set(church.get_desc() for church in churches))
-    # TODO add warning if len(church_desc_list) != len(churches)
-    church_desc_by_id = get_desc_by_id(church_desc_list)
+    church_desc_by_id = get_church_desc_by_id(churches)
 
     if not truncated_html:
         info(f'No truncated html for pruning {pruning}')

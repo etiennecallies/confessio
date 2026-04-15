@@ -8,6 +8,7 @@ class SchedulingModeration(ModerationMixin):
     class Category(models.TextChoices):
         NO_SOURCE = "no_source"
         NO_SCHEDULE = "no_schedule"
+        DESC_CONFLICT = "desc_conflict"
         UNKNOWN_PLACE = "unknown_place"
         SCHEDULES_CONFLICT = "sched_conflict"
         OK = "ok"
