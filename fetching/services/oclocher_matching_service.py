@@ -1,5 +1,5 @@
 from fetching.models import OClocherMatching, OClocherMatchingModeration, \
-    OClocherLocation
+    OClocherLocation, OClocherOrganization
 from fetching.services.oclocher_moderations_service import upsert_matching_moderation
 from fetching.workflows.oclocher.match_with_llm import match_oclocher_with_llm
 from fetching.workflows.oclocher.oclocher_matrix import OClocherMatrix
@@ -45,6 +45,10 @@ def get_matching_matrix(oclocher_matching: OClocherMatching) -> OClocherMatrix |
     if oclocher_matching.human_matrix is not None:
         return OClocherMatrix(**oclocher_matching.human_matrix)
 
+    return get_llm_matrix(oclocher_matching)
+
+
+def get_llm_matrix(oclocher_matching: OClocherMatching) -> OClocherMatrix | None:
     if oclocher_matching.llm_matrix is not None:
         return OClocherMatrix(**oclocher_matching.llm_matrix)
 
@@ -69,6 +73,7 @@ def match_churches_and_locations(
         locations: list[OClocherLocation]
 ) -> OClocherMatching:
     assert churches and locations
+    oclocher_organization = locations[0].organization
 
     church_desc_by_id = get_church_desc_by_id_from_churches(churches)
     church_desc_by_id_hash = hash_dict_to_hex(church_desc_by_id)
@@ -78,9 +83,8 @@ def match_churches_and_locations(
     # GET OClocherMatching if any
     existing_matching = get_existing_matching(church_desc_by_id_hash, location_desc_by_id_hash)
     if existing_matching:
+        handle_matching_moderation(oclocher_organization, existing_matching)
         return existing_matching
-
-    oclocher_organization = locations[0].organization
 
     print(f'Matching organization {oclocher_organization.organization_id} '
           f'with {len(location_desc_by_id)} locations.')
@@ -102,10 +106,17 @@ def match_churches_and_locations(
     oclocher_matching.save()
 
     # moderation
-    if llm_error_detail:
+    handle_matching_moderation(oclocher_organization, oclocher_matching)
+
+    return oclocher_matching
+
+
+def handle_matching_moderation(oclocher_organization: OClocherOrganization,
+                               oclocher_matching: OClocherMatching):
+    if oclocher_matching.llm_error_detail:
         moderation_validated = False
         category = OClocherMatchingModeration.Category.LLM_ERROR
-    elif not has_matched_every_location(llm_matrix):
+    elif not has_matched_every_location(get_llm_matrix(oclocher_matching)):
         moderation_validated = False
         category = OClocherMatchingModeration.Category.CHURCHES_MISSING
     else:
@@ -114,5 +125,3 @@ def match_churches_and_locations(
 
     upsert_matching_moderation(oclocher_organization, oclocher_matching, category,
                                moderation_validated)
-
-    return oclocher_matching
