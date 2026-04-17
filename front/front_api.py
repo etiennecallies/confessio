@@ -341,9 +341,6 @@ def api_front_search(request,
     search_result, aggregations = \
         get_search_results(latitude, longitude, min_lat, min_lng, max_lat, max_lng, time_filter)
 
-    # TODO add search hit
-    # new_search_hit(request, len(websites))
-
     return SearchResultOut.from_result(search_result, aggregations)
 
 

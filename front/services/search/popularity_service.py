@@ -5,13 +5,13 @@ from django.db.models import Q
 from django.utils.timezone import make_aware
 from request.models import Request
 
-from registry.models import Website
+from registry.models import Website, Church
 from scheduling.models import IndexEvent
 
 
 def update_popularity_of_websites():
     now_minus_14_days = datetime.now() - timedelta(days=14)
-    all_requests = Request.objects.filter(
+    all_website_requests = Request.objects.filter(
         Q(path__startswith='/paroisse/')
         | Q(path__startswith='/website_churches/')
         | Q(path__startswith='/website_sources/')
@@ -19,7 +19,7 @@ def update_popularity_of_websites():
         time__gt=make_aware(now_minus_14_days)).all()
 
     count_by_website_uuids = {}
-    for request in all_requests:
+    for request in all_website_requests:
         request_path = request.path
         website_uuid = request_path.split('/')[2]
         try:
@@ -29,6 +29,32 @@ def update_popularity_of_websites():
             continue
 
         count_by_website_uuids[website_uuid] = count_by_website_uuids.get(website_uuid, 0) + 1
+
+    all_church_requests = Request.objects.filter(
+        path__startswith='/front/api/church/',
+        time__gt=make_aware(now_minus_14_days)).all()
+
+    count_by_church_uuids = {}
+    for request in all_church_requests:
+        request_path = request.path
+        church_uuid = request_path.split('/')[4]
+        try:
+            church_uuid = UUID(church_uuid)
+        except ValueError:
+            print(f'Invalid UUID: {church_uuid}')
+            continue
+
+        count_by_church_uuids[church_uuid] = count_by_website_uuids.get(church_uuid, 0) + 1
+
+    for church_uuid, count in count_by_church_uuids.items():
+        try:
+            church = Church.objects.get(uuid=church_uuid)
+        except Church.DoesNotExist:
+            print(f'Church not found: {church_uuid}')
+            continue
+
+        website_uuid = church.parish.website_id
+        count_by_website_uuids[website_uuid] = count_by_website_uuids.get(website_uuid, 0) + count
 
     count_by_diocese = {}
     for website_uuid, count in count_by_website_uuids.items():
