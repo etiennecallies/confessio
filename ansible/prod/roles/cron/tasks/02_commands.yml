@@ -46,7 +46,7 @@
       memory_max: "800M"
     - name: daily_check_data
       command: "check_data"
-      hour: "7"
+      hour: "8"
       minute: 0
       memory_max: "800M"
 #    - name: hourly_scrape_pages
