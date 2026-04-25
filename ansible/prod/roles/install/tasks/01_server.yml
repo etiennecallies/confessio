@@ -39,6 +39,12 @@
     state: present
     key: "{{ additional_pub_key1 }}"
 
+- name: Authorize additional_pub_key2
+  authorized_key:
+    user: "{{ deployer_user }}"
+    state: present
+    key: "{{ additional_pub_key2 }}"
+
 - name: Add fr-FR locale
   community.general.locale_gen:
     name: fr_FR.UTF-8
