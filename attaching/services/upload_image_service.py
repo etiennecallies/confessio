@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.utils.timezone import make_aware
 
 from attaching.models import Image
+from attaching.services.image_moderation_service import add_necessary_moderation_for_image
 from core.utils.discord_utils import send_discord_alert, DiscordChanel
 from registry.models import Website
 from core.services.admin_email_service import send_email_to_admin
@@ -72,6 +73,8 @@ def upload_image(document, website: Website, request, comment: str | None = None
         print(f'Document uploaded successfully! unique_filename: {unique_filename}')
 
         if not user:
+            add_necessary_moderation_for_image(image)
+
             website_url = request.build_absolute_uri(
                 reverse('website_view', kwargs={'website_uuid': website.uuid})
             )

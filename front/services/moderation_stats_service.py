@@ -1,5 +1,6 @@
 from collections import defaultdict
 
+from attaching.models import ImageModeration
 from crawling.models import CrawlingModeration
 from fetching.models import OClocherOrganizationModeration, OClocherMatchingModeration
 from front.models import ConversationModeration, ReportModeration
@@ -23,6 +24,7 @@ MODERATION_CLASSES = [
     OClocherOrganizationModeration,
     OClocherMatchingModeration,
     ConversationModeration,
+    ImageModeration,
 ]
 
 

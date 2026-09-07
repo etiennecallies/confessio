@@ -19,6 +19,10 @@ def get_client_ip(request) -> str:
     return ip
 
 
+def is_staff_user(request) -> bool:
+    return request.user.is_authenticated and request.user.is_staff
+
+
 def get_user_user_agent_and_ip(request) -> tuple[User | None, str | None, str | None]:
     user = request.user if request.user.is_authenticated else None
     user_agent = request.META.get('HTTP_USER_AGENT', None)

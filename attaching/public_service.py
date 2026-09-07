@@ -1,4 +1,5 @@
-from attaching.models import Image
+from attaching.models import Image, ImageModeration
+from attaching.services.image_moderation_service import get_new_image_moderation
 from attaching.services.image_progress_service import \
     get_image_recognition_status_by_website_uuid
 from attaching.services.upload_image_service import upload_image, get_image_public_url, \
@@ -24,6 +25,10 @@ def attaching_recognize_and_extract_image(image: Image):
 
 def attaching_get_image_public_url(image: Image) -> str:
     return get_image_public_url(image)
+
+
+def attaching_get_new_image_moderation(image: Image) -> ImageModeration | None:
+    return get_new_image_moderation(image)
 
 
 def attaching_recognize_pdf(pdf_url: str, pdf_bytes: bytes) -> str | None:

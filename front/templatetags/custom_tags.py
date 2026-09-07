@@ -6,6 +6,7 @@ from django.urls import reverse
 
 from front.services.card.website_events_service import WebsiteEvents
 from front.services.card.website_schedules_service import WebsiteSchedules
+from front.utils.web_utils import is_staff_user
 from registry.models import ModerationMixin, Website
 from registry.models.base_moderation_models import ModerationStatus
 from scheduling.models import ValidatedSchedules
@@ -88,6 +89,11 @@ def has_validated_schedules(website: Website) -> bool:
         return validated_schedules is not None
     except ValidatedSchedules.DoesNotExist:
         return False
+
+
+@register.filter
+def is_staff(request) -> bool:
+    return is_staff_user(request)
 
 
 @register.filter

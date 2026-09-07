@@ -1,0 +1,17 @@
+{% extends 'layouts/moderation_card.html' %}
+{% load display_tags %}
+
+{% block card %}
+    {% include 'moderations/_header.html' with title_prefix='Image' %}
+
+    Website: {{ image.website.name }}<br>
+    Link: <a href="{% url 'website_view' image.website.uuid %}" target="_blank">Go to website</a>
+
+    {% display_image image request show_moderation=False %}
+
+    {% if image_html %}
+        <div class="border rounded p-2 mt-2">{{ image_html|safe }}</div>
+    {% endif %}
+
+    {% include 'moderations/_footer.html' %}
+{% endblock card %}

@@ -1,10 +1,16 @@
+{% load custom_tags display_tags %}
 <div>
     <div><img src="{{ image_url }}" alt="{{ image.name }}" class="img-fluid"></div>
     <div>Ajouté le {{ image.created_at|date:"d F Y à H:i" }}</div>
     <div>{{ image.comment|urlize|linebreaksbr }}</div>
-    {% if request.user.is_authenticated and request.user.is_staff %}
+    {% if request|is_staff %}
         <a class="text-muted small" href="{% url 'admin:attaching_image_change' image.uuid %}" target="_blank">
             - Admin <i class="fas fa-up-right-from-square"></i>
         </a>
+        {% if image_moderation %}
+            <a href="{{ image_moderation|get_url }}" target="_blank">
+                {% display_status_badge image_moderation.status %}
+            </a>
+        {% endif %}
     {% endif %}
 </div>

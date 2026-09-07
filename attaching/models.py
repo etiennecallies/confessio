@@ -3,6 +3,7 @@ from simple_history.models import HistoricalRecords
 
 from core.models.base_models import TimeStampMixin
 from core.utils.llm_utils import LLMProvider
+from registry.models import ModerationMixin
 
 
 class Image(TimeStampMixin):
@@ -33,3 +34,22 @@ class PdfRecognition(TimeStampMixin):
     llm_error_detail = models.TextField(null=True, blank=True)
     pdf_size = models.PositiveIntegerField(null=True, blank=True)
     nb_pages = models.PositiveIntegerField(null=True, blank=True)
+
+
+class ImageModeration(ModerationMixin):
+    class Category(models.TextChoices):
+        NEW_IMAGE = "new_image"
+
+    resource = 'image'
+    diocese = models.ForeignKey('registry.Diocese', on_delete=models.CASCADE,
+                                related_name=f'{resource}_moderations', null=True)
+    history = HistoricalRecords()
+    image = models.ForeignKey(Image, on_delete=models.CASCADE, related_name='moderations')
+    category = models.CharField(max_length=16, choices=Category)
+
+    class Meta:
+        unique_together = ('image', 'category')
+
+    def delete_on_validate(self) -> bool:
+        # we keep the row, to keep track of which images have been reviewed
+        return False
