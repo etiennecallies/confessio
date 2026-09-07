@@ -1,0 +1,13 @@
+{% extends 'layouts/moderation_card.html' %}
+
+{% block card %}
+    {% include 'moderations/_header.html' with title_prefix='Conversation' %}
+
+    Sujet : {{ conversation.subject }}<br>
+    De : {{ conversation.name }} &lt;{{ conversation.email }}&gt;<br>
+    {% if last_message %}{{ last_message.body|linebreaks }}{% endif %}
+    Lien : <a href="{% url 'messaging_view' conversation.uuid %}" target="_blank">Ouvrir la
+        conversation</a>
+
+    {% include 'moderations/_footer.html' %}
+{% endblock card %}
