@@ -127,6 +127,12 @@
                                             <button type="submit" class="btn btn-gray-400">Re-crawl</button>
                                         </form>
                                     </div>
+                                    <div class="d-inline-block">
+                                        <a class="btn btn-gray-400" role="button" target="_blank"
+                                           href="{% url 'admin:crawling_log_changelist' %}?website__uuid__exact={{ website.uuid }}&amp;type__exact=crawling">
+                                            Logs <i class="fas fa-up-right-from-square"></i>
+                                        </a>
+                                    </div>
                                 {% endif %}
                             </div>
                             <h3 class="col-md-4 text-md-end">
