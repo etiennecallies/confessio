@@ -21,6 +21,8 @@ from email.utils import formataddr
 
 from core.utils.discord_utils import DiscordChanel, send_discord_alert
 from front.models import Conversation, Message
+from front.services.messaging.conversation_moderation_service import (
+    upsert_conversation_moderation)
 from front.utils.messaging_utils import (HistoryEntry, build_outbound_bodies,
                                          build_reply_subject, build_ses_message_id,
                                          build_thread_headers, extract_conversation_uuid,
@@ -108,6 +110,7 @@ def record_contact_form(request, name: str, email: str, subject: str, body: str)
         from_email=_fit(Message, 'from_email', formataddr((name, email))),
         status=Message.Status.RECEIVED,
     )
+    upsert_conversation_moderation(conversation)
     _notify_discord(request, message)
 
     mail = _build_mail(
@@ -164,6 +167,7 @@ def ingest_received_email(request, from_header: str, reply_to: str, subject: str
         message_id=_fit(Message, 'message_id', message_id),
     )
     _touch(conversation)
+    upsert_conversation_moderation(conversation)
     _notify_discord(request, message)
 
     if is_new:

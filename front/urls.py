@@ -66,6 +66,11 @@ urlpatterns = [
          views.moderate_report, name='moderate_next_report'),
     path('moderate/report/<category>/<str:status>/<str:diocese_slug>/<uuid:moderation_uuid>',
          views.moderate_report, name='moderate_one_report'),
+    path('moderate/conversation/<category>/<str:status>/<str:diocese_slug>',
+         views.moderate_conversation, name='moderate_next_conversation'),
+    path('moderate/conversation/<category>/<str:status>/<str:diocese_slug>'
+         '/<uuid:moderation_uuid>',
+         views.moderate_conversation, name='moderate_one_conversation'),
 
     # contact
     path('contact', views.contact, name='contact'),

@@ -19,13 +19,18 @@ def _conversations():
 def messaging(request, conversation_uuid=None):
     conversation = None
     messages = []
+    moderation = None
     if conversation_uuid is not None:
         conversation = get_object_or_404(Conversation, uuid=conversation_uuid)
         messages = list(conversation.messages.all())
+        # At most one, since ConversationModeration has a single category. A thread we opened
+        # ourselves from here has none until the correspondent answers.
+        moderation = conversation.moderations.first()
     return render(request, 'pages/messaging.html', {
         'conversations': _conversations(),
         'conversation': conversation,
         'messages': messages,
+        'moderation': moderation,
     })
 
 

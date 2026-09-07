@@ -1,5 +1,7 @@
 {% extends 'layouts/base.html' %}
 {% load static %}
+{% load custom_tags %}
+{% load display_tags %}
 
 {% block stylesheets %}
     <link type="text/css" rel="stylesheet" href="{% static 'css/messaging.css' %}">
@@ -40,7 +42,14 @@
       <div class="col-12 col-md-9 messaging-main">
         {% if conversation %}
           <div class="messaging-header">
-            <h4 class="mb-0">{{ conversation.subject }}</h4>
+            <div class="d-flex align-items-baseline gap-2">
+              <h4 class="mb-0">{{ conversation.subject }}</h4>
+              {% if moderation %}
+                <a href="{{ moderation|get_url }}" title="Voir la modération">
+                  {% display_status_badge moderation.status %}
+                </a>
+              {% endif %}
+            </div>
             <p class="mb-0 text-muted small">
               {% if conversation.name %}{{ conversation.name }} — {% endif %}{{ conversation.email }}
             </p>

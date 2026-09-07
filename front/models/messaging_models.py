@@ -1,6 +1,8 @@
 from django.db import models
+from simple_history.models import HistoricalRecords
 
 from core.models.base_models import TimeStampMixin
+from registry.models import ModerationMixin
 
 
 class Conversation(TimeStampMixin):
@@ -49,3 +51,24 @@ class Message(TimeStampMixin):
 
     def __str__(self):
         return f'{self.conversation_id} {self.direction} {self.created_at}'
+
+
+class ConversationModeration(ModerationMixin):
+    class Category(models.TextChoices):
+        NEW_MESSAGE = "new_message"
+
+    resource = 'conversation'
+    # A conversation hangs off no diocese: these moderations land in the "Autre" bucket.
+    diocese = models.ForeignKey('registry.Diocese', on_delete=models.CASCADE,
+                                related_name=f'{resource}_moderations', null=True)
+    history = HistoricalRecords()
+    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE,
+                                     related_name='moderations')
+    category = models.CharField(max_length=16, choices=Category)
+
+    class Meta:
+        unique_together = ('conversation', 'category')
+
+    def delete_on_validate(self) -> bool:
+        # We keep the row: the next inbound message puts it back to TO_VALIDATE.
+        return False

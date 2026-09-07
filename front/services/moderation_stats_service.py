@@ -2,7 +2,7 @@ from collections import defaultdict
 
 from crawling.models import CrawlingModeration
 from fetching.models import OClocherOrganizationModeration, OClocherMatchingModeration
-from front.models import ReportModeration
+from front.models import ConversationModeration, ReportModeration
 from registry.models import Diocese, WebsiteModeration, ChurchModeration, ParishModeration
 from registry.models.base_moderation_models import ModerationStatus
 from scheduling.models import ParsingModeration, SchedulingModeration, \
@@ -22,6 +22,7 @@ MODERATION_CLASSES = [
     ValidatedSchedulesModeration,
     OClocherOrganizationModeration,
     OClocherMatchingModeration,
+    ConversationModeration,
 ]
 
 
