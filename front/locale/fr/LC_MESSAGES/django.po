@@ -204,13 +204,13 @@ msgstr "Lieu inconnu (consulter les sources)"
 #: templates/partials/website_sources.html:112
 #: templates/partials/website_sources.html:155
 msgid "EditPruning"
-msgstr "Corriger"
+msgstr "Edit pruning"
 
 #: templates/partials/website_sources.html:54
 #: templates/partials/website_sources.html:124
 #: templates/partials/website_sources.html:167
 msgid "EditParsing"
-msgstr "Corriger"
+msgstr "Edit parsing"
 
 #: templates/partials/website_sources.html:92
 msgid "NoConfessionExtractFound"

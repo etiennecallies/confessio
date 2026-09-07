@@ -34,7 +34,7 @@
                                 {% if unvalidated_pruning_moderation %}
                                     <div class="col-xl-6">
                                         <a href="{{ unvalidated_pruning_moderation|get_url }}" class="link-info">
-                                            <i class="fas fa-tags"></i> Valider
+                                            <i class="fas fa-tags"></i> Pruning mod.
                                         </a>
                                     </div>
                                 {% else %}
@@ -48,7 +48,7 @@
                             {% with parsing_moderation=parsing.moderations.first %}
                                 {% if parsing_moderation %}
                                     <a href="{{ parsing_moderation|get_url }}" class="link-info">
-                                        <i class="fas fa-code"></i> Modérer
+                                        <i class="fas fa-code"></i> Parsing mod.
                                     </a>
                                 {% else %}
                                     <a href="{% url 'edit_parsing' parsing.uuid %}" class="link-info"><i class="fas fa-code"></i> {% trans 'EditParsing' %}</a>
@@ -104,7 +104,7 @@
                             {% if unvalidated_pruning_moderation %}
                                 <div class="col-xl-6">
                                     <a href="{{ unvalidated_pruning_moderation|get_url }}" class="link-info">
-                                        <i class="fas fa-tags"></i> Valider
+                                        <i class="fas fa-tags"></i> Pruning mod.
                                     </a>
                                 </div>
                             {% else %}
@@ -118,7 +118,7 @@
                                 {% with parsing_moderation=parsing.moderations.first %}
                                     {% if parsing_moderation %}
                                         <a href="{{ parsing_moderation|get_url }}" class="link-info">
-                                            <i class="fas fa-code"></i> Modérer
+                                            <i class="fas fa-code"></i> Parsing mod.
                                         </a>
                                     {% else %}
                                         <a href="{% url 'edit_parsing' parsing.uuid %}" class="link-info"><i class="fas fa-code"></i> {% trans 'EditParsing' %}</a>
@@ -147,7 +147,7 @@
                             {% if unvalidated_pruning_moderation %}
                                 <div class="col-xl-6">
                                     <a href="{{ unvalidated_pruning_moderation|get_url }}" class="link-info">
-                                        <i class="fas fa-tags"></i> Valider
+                                        <i class="fas fa-tags"></i> Pruning mod.
                                     </a>
                                 </div>
                             {% else %}
@@ -161,7 +161,7 @@
                                 {% with parsing_moderation=parsing.moderations.first %}
                                     {% if parsing_moderation %}
                                         <a href="{{ parsing_moderation|get_url }}" class="link-info">
-                                            <i class="fas fa-code"></i> Modérer
+                                            <i class="fas fa-code"></i> Parsing mod.
                                         </a>
                                     {% else %}
                                         <a href="{% url 'edit_parsing' parsing.uuid %}" class="link-info"><i class="fas fa-code"></i> {% trans 'EditParsing' %}</a>
