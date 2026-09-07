@@ -22,5 +22,6 @@ urlpatterns = [
     path('', include('scheduling.urls')),
     path('', include('fetching.urls')),
     path('', include('crawling.urls')),
+    path('', include('attaching.urls')),
     path("admin/", admin.site.urls),
 ]
