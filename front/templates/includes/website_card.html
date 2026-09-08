@@ -29,16 +29,14 @@
                                         {% if scheduling_moderation %}
                                             {% if scheduling_moderation.category == 'no_source' %}
                                                 {% with crawling_moderation=crawling_moderation_by_website|get_item:website.uuid %}
-                                                    {% if crawling_moderation %}
-                                                        {% if crawling_moderation.category == 'no_response' %}
-                                                            <a href="{{ crawling_moderation|get_url }}" class="link-info" target="_blank">
-                                                                <span class="border rounded px-2 py-1">Erreur sur le site web {% display_moderation_status_emoji crawling_moderation %}</span>
-                                                            </a>
-                                                        {% elif crawling_moderation.category == 'no_page' %}
-                                                            <a href="{{ crawling_moderation|get_url }}" class="link-info" target="_blank">
-                                                                <span class="border rounded px-2 py-1">Pas d’extrait trouvé {% display_moderation_status_emoji crawling_moderation %}</span>
-                                                            </a>
-                                                        {% endif %}
+                                                    {% if crawling_moderation.category == 'no_resp' %}
+                                                        <a href="{{ crawling_moderation|get_url }}" class="link-info" target="_blank">
+                                                            <span class="border rounded px-2 py-1">Erreur sur le site web {% display_moderation_status_emoji crawling_moderation %}</span>
+                                                        </a>
+                                                    {% elif crawling_moderation.category == 'no_page' %}
+                                                        <a href="{{ crawling_moderation|get_url }}" class="link-info" target="_blank">
+                                                            <span class="border rounded px-2 py-1">Pas d’extrait trouvé {% display_moderation_status_emoji crawling_moderation %}</span>
+                                                        </a>
                                                     {% else %}
                                                         <a href="{{ scheduling_moderation|get_url }}" class="link-info" target="_blank">
                                                             <span class="border rounded px-2 py-1">Aucune page retenue (cf empty sources) {% display_moderation_status_emoji scheduling_moderation %}</span>
