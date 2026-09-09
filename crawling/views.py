@@ -11,8 +11,8 @@ from registry.models import Website
 
 @login_required
 @permission_required("scheduling.change_sentence")
-def moderate_crawling(request, category, status, diocese_slug, moderation_uuid=None):
-    return get_moderate_response(request, category, 'crawling', status, diocese_slug,
+def moderate_crawling(request, category, status, moderation_uuid=None):
+    return get_moderate_response(request, category, 'crawling', status,
                                  CrawlingModeration, moderation_uuid,
                                  create_crawling_moderation_context)
 

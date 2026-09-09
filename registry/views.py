@@ -12,8 +12,8 @@ from crawling.models import Log as CrawlingLog
 
 @login_required
 @permission_required("scheduling.change_sentence")
-def moderate_website(request, category, status, diocese_slug, moderation_uuid=None):
-    return get_moderate_response(request, category, 'website', status, diocese_slug,
+def moderate_website(request, category, status, moderation_uuid=None):
+    return get_moderate_response(request, category, 'website', status,
                                  WebsiteModeration, moderation_uuid,
                                  create_website_moderation_context,
                                  website_moderation_post_process)
@@ -42,8 +42,8 @@ def website_moderation_post_process(request, moderation: WebsiteModeration) -> b
 
 @login_required
 @permission_required("scheduling.change_sentence")
-def moderate_parish(request, category, status, diocese_slug, moderation_uuid=None):
-    return get_moderate_response(request, category, 'parish', status, diocese_slug,
+def moderate_parish(request, category, status, moderation_uuid=None):
+    return get_moderate_response(request, category, 'parish', status,
                                  ParishModeration, moderation_uuid,
                                  create_parish_moderation_context)
 
@@ -72,8 +72,8 @@ def parish_moderation_post_process(request, moderation: ParishModeration) -> boo
 
 @login_required
 @permission_required("scheduling.change_sentence")
-def moderate_church(request, category, status, diocese_slug, moderation_uuid=None):
-    return get_moderate_response(request, category, 'church', status, diocese_slug,
+def moderate_church(request, category, status, moderation_uuid=None):
+    return get_moderate_response(request, category, 'church', status,
                                  ChurchModeration, moderation_uuid,
                                  create_church_moderation_context)
 
@@ -129,5 +129,4 @@ def moderate_merge_websites(request, website_moderation_uuid=None):
     registry_merge_websites(website_moderation.website, website_moderation.other_website)
 
     return redirect_to_moderation(website_moderation, website_moderation.category, 'website',
-                                  website_moderation.status,
-                                  website_moderation.get_diocese_slug())
+                                  website_moderation.status)

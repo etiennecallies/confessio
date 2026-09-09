@@ -1,0 +1,8 @@
+{% load custom_tags %}
+<ul class="list-style-none">
+    {% for moderation_stat in moderation_stats %}
+        <li><a href="{{ moderation_stat|get_item:'url' }}"><span style="color: {{ moderation_stat|get_item:'color' }}">{{ moderation_stat|get_item:'resource' }} {{ moderation_stat|get_item:'category' }}</span>{% if moderation_stat|get_item:'status' == 'bug' %} <span class="badge badge-danger m-1">Bug</span>{% endif %} {{ moderation_stat|get_item:'total' }}</a></li>
+    {% empty %}
+        <li>Aucune modération en attente. 🎉</li>
+    {% endfor %}
+</ul>

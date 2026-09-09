@@ -62,14 +62,13 @@ urlpatterns = [
 
     # moderation
     path('moderate', views.moderation_home, name='moderation_home'),
-    path('moderate/report/<category>/<str:status>/<str:diocese_slug>',
+    path('moderate/report/<category>/<str:status>',
          views.moderate_report, name='moderate_next_report'),
-    path('moderate/report/<category>/<str:status>/<str:diocese_slug>/<uuid:moderation_uuid>',
+    path('moderate/report/<category>/<str:status>/<uuid:moderation_uuid>',
          views.moderate_report, name='moderate_one_report'),
-    path('moderate/conversation/<category>/<str:status>/<str:diocese_slug>',
+    path('moderate/conversation/<category>/<str:status>',
          views.moderate_conversation, name='moderate_next_conversation'),
-    path('moderate/conversation/<category>/<str:status>/<str:diocese_slug>'
-         '/<uuid:moderation_uuid>',
+    path('moderate/conversation/<category>/<str:status>/<uuid:moderation_uuid>',
          views.moderate_conversation, name='moderate_one_conversation'),
 
     # contact

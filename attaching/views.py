@@ -7,8 +7,8 @@ from core.views import get_moderate_response
 
 @login_required
 @permission_required("scheduling.change_sentence")
-def moderate_image(request, category, status, diocese_slug, moderation_uuid=None):
-    return get_moderate_response(request, category, 'image', status, diocese_slug,
+def moderate_image(request, category, status, moderation_uuid=None):
+    return get_moderate_response(request, category, 'image', status,
                                  ImageModeration, moderation_uuid,
                                  create_image_moderation_context)
 

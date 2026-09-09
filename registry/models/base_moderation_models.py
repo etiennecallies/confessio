@@ -44,14 +44,11 @@ class ModerationMixin(TimeStampMixin):
         abstract = True
 
     @classmethod
-    def get_category_stat(cls, stat, status: str, diocese: Diocese | None, count: int):
-        diocese_slug = diocese.slug if diocese else 'no_diocese'
-
+    def get_category_stat(cls, stat, status: str, count: int):
         return {
             'resource': cls.resource,
             'url': reverse('moderate_next_' + str(cls.resource),
-                           kwargs={'category': stat['category'], 'status': status,
-                                   'diocese_slug': diocese_slug}),
+                           kwargs={'category': stat['category'], 'status': status}),
             'category': stat['category'],
             'status': status,
             'total': count,
@@ -59,10 +56,10 @@ class ModerationMixin(TimeStampMixin):
         }
 
     @classmethod
-    def get_stats_by_diocese_and_category(cls):
+    def get_stats_by_category(cls):
         return cls.objects.filter(
             status__in=[ModerationStatus.TO_VALIDATE, ModerationStatus.BUG],
-        ).values('diocese', 'category').annotate(
+        ).values('category').annotate(
             total_count=Count('category'),
             bug_count=Count('uuid', filter=Q(status=ModerationStatus.BUG)),
         )
@@ -91,9 +88,6 @@ class ModerationMixin(TimeStampMixin):
         else:
             self.status = new_status
             self.save()
-
-    def get_diocese_slug(self) -> str:
-        return self.diocese.slug if self.diocese else 'no_diocese'
 
 
 class ResourceDoesNotExistError(Exception):

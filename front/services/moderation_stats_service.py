@@ -1,10 +1,10 @@
-from collections import defaultdict
+from django.contrib.auth.models import User
 
 from attaching.models import ImageModeration
 from crawling.models import CrawlingModeration
 from fetching.models import OClocherOrganizationModeration, OClocherMatchingModeration
 from front.models import ConversationModeration, ReportModeration
-from registry.models import Diocese, WebsiteModeration, ChurchModeration, ParishModeration
+from registry.models import WebsiteModeration, ChurchModeration, ParishModeration
 from registry.models.base_moderation_models import ModerationStatus
 from scheduling.models import ParsingModeration, SchedulingModeration, \
     ValidatedSchedulesModeration
@@ -28,36 +28,46 @@ MODERATION_CLASSES = [
 ]
 
 
-def get_moderation_stats_by_diocese() -> list[tuple[Diocese | None, list[dict]]]:
-    """Return [(diocese | None, [stat, ...]), ...] for every diocese with pending moderations.
+# Groups are created by hand in the Django admin: anyone outside `developer` is a moderator.
+DEVELOPER_GROUP_NAME = 'developer'
 
-    Runs one grouped query per moderation model (instead of one per diocese per model), then
-    buckets the rows by diocese in Python. The None bucket ("Autre") comes first, followed by
-    dioceses sorted by name. Dioceses without any pending moderation are omitted.
+# A moderator only handles what visitors send us, and only the rows still to validate:
+# a bug is always a developer matter.
+MODERATOR_RESOURCES = {
+    ReportModeration.resource,
+    ConversationModeration.resource,
+    ImageModeration.resource,
+}
+
+
+def is_developer(user: User) -> bool:
+    return user.groups.filter(name=DEVELOPER_GROUP_NAME).exists()
+
+
+def get_moderation_stats(user: User) -> tuple[list[dict], list[dict]]:
+    """Return (mine, others): the stats this user is expected to handle, then all the rest.
+
+    Runs one grouped query per moderation model. The two scopes are complementary: a moderator
+    owns the to_validate rows of the report/conversation/image resources, a developer owns
+    everything else, every bug included.
     """
-    dioceses_by_pk = {diocese.pk: diocese for diocese in Diocese.objects.all()}
-    stats_by_diocese_pk = defaultdict(list)
+    moderator_stats = []
+    developer_stats = []
 
     for moderation_class in MODERATION_CLASSES:
-        for stat in moderation_class.get_stats_by_diocese_and_category():
-            diocese = dioceses_by_pk.get(stat['diocese'])
+        for stat in moderation_class.get_stats_by_category():
             if stat['bug_count']:
-                stats_by_diocese_pk[stat['diocese']].append(
-                    moderation_class.get_category_stat(
-                        stat, status=ModerationStatus.BUG,
-                        diocese=diocese, count=stat['bug_count']))
+                developer_stats.append(moderation_class.get_category_stat(
+                    stat, status=ModerationStatus.BUG, count=stat['bug_count']))
             to_validate_count = stat['total_count'] - stat['bug_count']
             if to_validate_count:
-                stats_by_diocese_pk[stat['diocese']].append(
-                    moderation_class.get_category_stat(
-                        stat, status=ModerationStatus.TO_VALIDATE,
-                        diocese=diocese, count=to_validate_count))
+                stats = moderator_stats \
+                    if moderation_class.resource in MODERATOR_RESOURCES \
+                    else developer_stats
+                stats.append(moderation_class.get_category_stat(
+                    stat, status=ModerationStatus.TO_VALIDATE, count=to_validate_count))
 
-    dioceses_with_stats = []
-    if None in stats_by_diocese_pk:
-        dioceses_with_stats.append((None, stats_by_diocese_pk[None]))
-    for diocese in sorted(dioceses_by_pk.values(), key=lambda d: d.name):
-        if diocese.pk in stats_by_diocese_pk:
-            dioceses_with_stats.append((diocese, stats_by_diocese_pk[diocese.pk]))
+    if is_developer(user):
+        return developer_stats, moderator_stats
 
-    return dioceses_with_stats
+    return moderator_stats, developer_stats
