@@ -3,11 +3,11 @@ from datetime import datetime
 
 from django.contrib.auth.models import User
 from django.db.models import Count, Q
-from django.http import HttpResponseBadRequest, HttpResponseNotFound, HttpResponse
+from django.http import HttpResponseBadRequest, HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 
-from registry.models import ModerationMixin, Diocese
+from registry.models import ModerationMixin
 from registry.models.base_moderation_models import ModerationStatus
 from scheduling.utils.date_utils import datetime_to_ts_us, ts_us_to_datetime
 
@@ -18,20 +18,18 @@ def get_moderation_url(moderation: ModerationMixin):
                        'category': moderation.category,
                        'status': moderation.status,
                        'moderation_uuid': moderation.uuid,
-                       'diocese_slug': moderation.get_diocese_slug(),
                    })
 
 
 def redirect_to_moderation(moderation: ModerationMixin, category: str, resource: str,
-                           status: str, diocese_slug: str):
+                           status: str):
     if moderation is None:
         return redirect('moderation_home')
     else:
         return redirect(f'moderate_one_' + resource,
                         category=category,
                         status=status,
-                        moderation_uuid=moderation.uuid,
-                        diocese_slug=diocese_slug)
+                        moderation_uuid=moderation.uuid)
 
 
 class ModerationPostError(Exception):
@@ -41,7 +39,7 @@ class ModerationPostError(Exception):
         self.response = response
 
 
-def get_next_url(request, moderation: ModerationMixin, diocese_slug: str) -> str:
+def get_next_url(request, moderation: ModerationMixin) -> str:
     created_at_ts_us = datetime_to_ts_us(moderation.created_at)
     back_path = request.GET.get('backPath', '')
     if back_path:
@@ -52,7 +50,6 @@ def get_next_url(request, moderation: ModerationMixin, diocese_slug: str) -> str
                 kwargs={
                     'category': moderation.category,
                     'status': moderation.status,
-                    'diocese_slug': diocese_slug,
                 }) \
         + f'?created_after={created_at_ts_us}'
 
@@ -63,17 +60,11 @@ def get_next_url(request, moderation: ModerationMixin, diocese_slug: str) -> str
     return next_url
 
 
-def get_position_and_count(moderation: ModerationMixin,
-                           diocese: Diocese | None,
-                           status: str,
-                           ) -> tuple[int, int]:
-    objects_filter = moderation.__class__.objects.filter(
+def get_position_and_count(moderation: ModerationMixin, status: str) -> tuple[int, int]:
+    counts = moderation.__class__.objects.filter(
         category=moderation.category,
         status=status,
-    )
-    if diocese:
-        objects_filter = objects_filter.filter(diocese=diocese)
-    counts = objects_filter.aggregate(
+    ).aggregate(
         position=Count("uuid", filter=Q(created_at__lte=moderation.created_at)),
         total=Count("uuid"),
     )
@@ -134,7 +125,7 @@ def get_moderation_history(
 
 
 def get_moderate_response(request, category: str, resource: str, status: str,
-                          diocese_slug: str, class_moderation, moderation_uuid, create_context,
+                          class_moderation, moderation_uuid, create_context,
                           moderation_post_process=None):
     if status not in ModerationStatus.values:
         return HttpResponseBadRequest(f"status {status} is not valid")
@@ -142,26 +133,15 @@ def get_moderate_response(request, category: str, resource: str, status: str,
     if category not in class_moderation.Category.values:
         return HttpResponseBadRequest(f"category {category} is not valid for {resource}")
 
-    if diocese_slug == 'no_diocese':
-        diocese = None
-    else:
-        try:
-            diocese = Diocese.objects.get(slug=diocese_slug)
-        except Diocese.DoesNotExist:
-            return HttpResponseNotFound(f"diocese {diocese_slug} not found")
-
     if moderation_uuid is None:
         created_after_ts = int(request.GET.get('created_after', '0'))
         created_after = ts_us_to_datetime(created_after_ts)
-        objects_filter = class_moderation.objects.filter(
+        next_moderation = class_moderation.objects.filter(
             category=category,
             status=status,
             created_at__gt=created_after,
-        )
-        if diocese:
-            objects_filter = objects_filter.filter(diocese=diocese)
-        next_moderation = objects_filter.order_by('created_at').first()
-        return redirect_to_moderation(next_moderation, category, resource, status, diocese_slug)
+        ).order_by('created_at').first()
+        return redirect_to_moderation(next_moderation, category, resource, status)
 
     try:
         moderation = class_moderation.objects.get(uuid=moderation_uuid)
@@ -169,11 +149,10 @@ def get_moderate_response(request, category: str, resource: str, status: str,
         print(f"{resource} {moderation_uuid} not found. "
               f"Probably because problem was solved meanwhile. "
               f"Redirecting to first moderation.")
-        return redirect('moderate_next_' + resource, category=category, status=status,
-                        diocese_slug=diocese_slug)
+        return redirect('moderate_next_' + resource, category=category, status=status)
 
     do_redirect = True
-    next_url = get_next_url(request, moderation, diocese_slug)
+    next_url = get_next_url(request, moderation)
     if request.method == "POST":
         if 'change_status' in request.POST:
             new_status = request.POST.get('change_status')
@@ -201,7 +180,7 @@ def get_moderate_response(request, category: str, resource: str, status: str,
         if do_redirect:
             return redirect(next_url)
 
-    position, count = get_position_and_count(moderation, diocese, status)
+    position, count = get_position_and_count(moderation, status)
     history_entries = get_moderation_history(moderation)
 
     return render(request, f'moderations/moderate_{moderation.resource}.html', {

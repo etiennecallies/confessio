@@ -103,7 +103,6 @@ def get_url(moderation: ModerationMixin):
                        'category': moderation.category,
                        'status': moderation.status,
                        'moderation_uuid': moderation.uuid,
-                       'diocese_slug': moderation.get_diocese_slug(),
                    })
 
 
