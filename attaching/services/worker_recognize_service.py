@@ -1,4 +1,5 @@
 from attaching.models import Image, PdfRecognition
+from attaching.services.file_note_mirror_service import mirror_image_prunings
 from attaching.services.image_service import get_image_html
 from attaching.services.upload_image_service import get_image_public_url
 from attaching.workflows.recognize.recognize_image_with_llm import (get_html_from_image, get_prompt,
@@ -83,3 +84,4 @@ def extract_image(image: Image):
     image.prunings.clear()
     for pruning in prunings:
         image.prunings.add(pruning)
+    mirror_image_prunings(image)
