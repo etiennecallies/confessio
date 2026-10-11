@@ -196,6 +196,9 @@ msgstr "👍 Tout semble bon !"
 msgid "report_feedback_error"
 msgstr "👎 Il y a une erreur"
 
+msgid "report_feedback_error_solved"
+msgstr "✅ Il y avait une erreur"
+
 #: templates/partials/website_churches.html:28
 msgid "OutsideThisParish"
 msgstr "En dehors de cette paroisse (consulter les sources)"

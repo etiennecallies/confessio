@@ -287,6 +287,8 @@
                                 <strong>
                                     {% if thread.is_approval %}
                                         {% trans 'report_feedback_good' %}
+                                    {% elif thread.head.solved_at %}
+                                        {% trans 'report_feedback_error_solved' %}
                                     {% else %}
                                         {% trans 'report_feedback_error' %}
                                     {% endif %}
