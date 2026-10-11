@@ -91,3 +91,22 @@ class ImageModeration(ModerationMixin):
     def delete_on_validate(self) -> bool:
         # we keep the row, to keep track of which images have been reviewed
         return False
+
+
+class FileNoteModeration(ModerationMixin):
+    class Category(models.TextChoices):
+        NEW_FILE_NOTE = "new_file_note"
+
+    resource = 'file_note'
+    diocese = models.ForeignKey('registry.Diocese', on_delete=models.CASCADE,
+                                related_name=f'{resource}_moderations', null=True)
+    history = HistoricalRecords()
+    file_note = models.ForeignKey(FileNote, on_delete=models.CASCADE, related_name='moderations')
+    category = models.CharField(max_length=16, choices=Category)
+
+    class Meta:
+        unique_together = ('file_note', 'category')
+
+    def delete_on_validate(self) -> bool:
+        # we keep the row, to keep track of which file notes have been reviewed
+        return False

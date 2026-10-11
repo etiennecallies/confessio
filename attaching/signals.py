@@ -1,9 +1,11 @@
 from django.db import transaction
-from django.db.models.signals import pre_delete, pre_save, post_save
+from django.db.models.signals import post_delete, pre_delete, pre_save, post_save
 from django.dispatch import receiver
 
-from attaching.models import Image
+from attaching.models import Image, ImageModeration
 from attaching.public_service import attaching_recognize_and_extract_image
+from attaching.services.file_note_mirror_service import delete_image_mirror, \
+    delete_image_moderation_mirror, mirror_image, mirror_image_moderation
 from registry.models import Website
 from scheduling.public_service import scheduling_init_scheduling
 
@@ -42,3 +44,23 @@ def image_post_save(sender, instance, created, update_fields=None, **kwargs):
         print(f'Image post_save signal triggered for image {instance.uuid},'
               f' website {instance.website.name}')
         transaction.on_commit(lambda: attaching_recognize_and_extract_image(instance))
+
+
+@receiver(post_save, sender=Image)
+def image_post_save_mirror(sender, instance, **kwargs):
+    mirror_image(instance)
+
+
+@receiver(post_delete, sender=Image)
+def image_post_delete_mirror(sender, instance, **kwargs):
+    delete_image_mirror(instance)
+
+
+@receiver(post_save, sender=ImageModeration)
+def image_moderation_post_save_mirror(sender, instance, **kwargs):
+    mirror_image_moderation(instance)
+
+
+@receiver(post_delete, sender=ImageModeration)
+def image_moderation_post_delete_mirror(sender, instance, **kwargs):
+    delete_image_moderation_mirror(instance)
