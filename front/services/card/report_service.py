@@ -175,10 +175,15 @@ def get_moderations_by_thread_uuid(threads: list[ReportThread]
 ##################
 
 def get_count_and_label(website: Website):
+    # Filtered in Python to reuse the prefetched issues
+    issues = website.issues.all()
+    # A solved issue means the data is now right
+    solved_issue_count = sum(1 for issue in issues if issue.solved_at is not None)
+
     count_and_label = []
     for count, label, singular_tooltip, plural_tooltip in [
-        (len(website.approvals.all()), '👍', 'avis positif', 'avis positifs'),
-        (len(website.issues.all()), '👎', 'erreur signalée', 'erreurs signalées'),
+        (len(website.approvals.all()) + solved_issue_count, '👍', 'avis positif', 'avis positifs'),
+        (len(issues) - solved_issue_count, '👎', 'erreur signalée', 'erreurs signalées'),
     ]:
         if count:
             count_and_label.append({
