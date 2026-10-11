@@ -1,4 +1,6 @@
+from django.contrib.auth.models import User
 from django.db import models
+from django.utils import timezone
 from simple_history.models import HistoricalRecords
 
 from core.models.base_models import BaseComment, BaseUserReport
@@ -38,3 +40,9 @@ class IssueModeration(ModerationMixin):
     def delete_on_validate(self) -> bool:
         # we keep the row, to keep track of which issues have been reviewed
         return False
+
+    def validate(self, user: User | None):
+        super().validate(user)
+        if self.issue.solved_at is None:
+            self.issue.solved_at = timezone.now()
+            self.issue.save()
