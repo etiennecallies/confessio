@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
-from attaching.models import Image
+from attaching.models import FileNote, Image
 from crawling.models import Scraping
-from scheduling.models import Scheduling, ScrapingPruning, ImagePruning
+from scheduling.models import Scheduling, ScrapingPruning, ImagePruning, FileNotePruning
 from scheduling.services.pruning.prune_scraping_service import prune_pruning
 
 
@@ -10,6 +10,7 @@ from scheduling.services.pruning.prune_scraping_service import prune_pruning
 class SchedulingPruningObjects:
     scraping_pruning_history_ids: list[tuple[int, int]]
     image_pruning_history_ids: list[tuple[int, int]]
+    file_note_pruning_history_ids: list[tuple[int, int]]
 
 
 def do_prune_scheduling(scheduling: Scheduling) -> SchedulingPruningObjects:
@@ -37,9 +38,22 @@ def do_prune_scheduling(scheduling: Scheduling) -> SchedulingPruningObjects:
             pruning_history_id = pruning.history.latest().history_id
             image_pruning_history_ids.append((image_history_id, pruning_history_id))
 
+    file_note_pruning_history_ids = []
+    for scheduling_historical_file_note in scheduling.historical_file_notes.all():
+        file_note_history_id = scheduling_historical_file_note.file_note_history_id
+        historical_file_note = FileNote.history.get(history_id=file_note_history_id)
+        file_note = historical_file_note.instance
+
+        for pruning in file_note.prunings.all():
+            prune_pruning(pruning)
+
+            pruning_history_id = pruning.history.latest().history_id
+            file_note_pruning_history_ids.append((file_note_history_id, pruning_history_id))
+
     return SchedulingPruningObjects(
         scraping_pruning_history_ids=scraping_pruning_history_ids,
         image_pruning_history_ids=image_pruning_history_ids,
+        file_note_pruning_history_ids=file_note_pruning_history_ids,
     )
 
 
@@ -67,3 +81,14 @@ def bulk_create_scheduling_pruning_objects(
         in scheduling_pruning_objects.image_pruning_history_ids
     ]
     ImagePruning.objects.bulk_create(image_objs)
+
+    # FileNotePruning
+    file_note_objs = [
+        FileNotePruning(
+            scheduling=scheduling,
+            file_note_history_id=file_note_history_id,
+            pruning_history_id=pruning_history_id,
+        ) for file_note_history_id, pruning_history_id
+        in scheduling_pruning_objects.file_note_pruning_history_ids
+    ]
+    FileNotePruning.objects.bulk_create(file_note_objs)
