@@ -47,6 +47,15 @@ class SchedulingHistoricalImage(TimeStampMixin):
         unique_together = ('scheduling', 'image_history_id')
 
 
+class SchedulingHistoricalFileNote(TimeStampMixin):
+    scheduling = models.ForeignKey('Scheduling', on_delete=models.CASCADE,
+                                   related_name='historical_file_notes')
+    file_note_history_id = models.PositiveIntegerField()
+
+    class Meta:
+        unique_together = ('scheduling', 'file_note_history_id')
+
+
 class SchedulingHistoricalOClocherLocation(TimeStampMixin):
     scheduling = models.ForeignKey('Scheduling', on_delete=models.CASCADE,
                                    related_name='historical_oclocher_locations')
@@ -83,6 +92,16 @@ class ImagePruning(TimeStampMixin):
 
     class Meta:
         unique_together = ('scheduling', 'image_history_id', 'pruning_history_id')
+
+
+class FileNotePruning(TimeStampMixin):
+    scheduling = models.ForeignKey('Scheduling', on_delete=models.CASCADE,
+                                   related_name='file_note_prunings')
+    file_note_history_id = models.PositiveIntegerField()
+    pruning_history_id = models.PositiveIntegerField()
+
+    class Meta:
+        unique_together = ('scheduling', 'file_note_history_id', 'pruning_history_id')
 
 
 class PruningParsing(TimeStampMixin):
