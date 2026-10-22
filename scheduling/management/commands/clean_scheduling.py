@@ -7,7 +7,7 @@ from core.management.abstract_cleaning_command import AbstractCleaningCommand
 from registry.models.base_moderation_models import ModerationStatus
 from scheduling.models import Log as SchedulingLog
 from scheduling.models import ParsingModeration, Parsing
-from scheduling.models import PruningParsing, ScrapingPruning, ImagePruning, FileNotePruning
+from scheduling.models import PruningParsing, ScrapingPruning, FileNotePruning
 from scheduling.models.pruning_models import Pruning, Sentence, Classifier
 from scheduling.services.scheduling.scheduling_service import get_websites_of_parsing
 
@@ -42,7 +42,7 @@ class Command(AbstractCleaningCommand):
         self.info('Starting removing orphan prunings')
         orphan_prunings = Pruning.objects.filter(scrapings__isnull=True,
                                                  human_indices__isnull=True,
-                                                 images__isnull=True).all()
+                                                 file_notes__isnull=True).all()
         counter = self.delete_objects(orphan_prunings)
         self.success(f'Done removing {counter} orphan prunings')
 
@@ -96,7 +96,6 @@ class Command(AbstractCleaningCommand):
             ~Q(uuid__in=Pruning.objects.values_list('uuid', flat=True)),
         ).exclude(
             Q(history_id__in=ScrapingPruning.objects.values('pruning_history_id'))
-            | Q(history_id__in=ImagePruning.objects.values('pruning_history_id'))
             | Q(history_id__in=FileNotePruning.objects.values('pruning_history_id'))
             | Q(history_id__in=PruningParsing.objects.values('pruning_history_id'))
         )
