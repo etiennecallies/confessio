@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 
-from attaching.models import ImageModeration
+from attaching.models import FileNoteModeration
 from crawling.models import CrawlingModeration
 from fetching.models import OClocherOrganizationModeration, OClocherMatchingModeration
 from front.models import ApprovalModeration, ConversationModeration, IssueModeration
@@ -25,7 +25,7 @@ MODERATION_CLASSES = [
     OClocherOrganizationModeration,
     OClocherMatchingModeration,
     ConversationModeration,
-    ImageModeration,
+    FileNoteModeration,
 ]
 
 
@@ -38,7 +38,7 @@ MODERATOR_RESOURCES = {
     IssueModeration.resource,
     ApprovalModeration.resource,
     ConversationModeration.resource,
-    ImageModeration.resource,
+    FileNoteModeration.resource,
 }
 
 

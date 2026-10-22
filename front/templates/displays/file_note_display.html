@@ -1,0 +1,16 @@
+{% load custom_tags display_tags %}
+<div>
+    <div><img src="{{ file_note_url }}" alt="{{ file_note.name }}" class="img-fluid"></div>
+    <div>Ajouté le {{ file_note.created_at|date:"d F Y à H:i" }}</div>
+    <div>{{ file_note.caption|urlize|linebreaksbr }}</div>
+    {% if request|is_staff %}
+        <a class="text-muted small" href="{% url 'admin:attaching_filenote_change' file_note.uuid %}" target="_blank">
+            - Admin <i class="fas fa-up-right-from-square"></i>
+        </a>
+        {% if file_note_moderation %}
+            <a href="{{ file_note_moderation|get_url }}" target="_blank">
+                {% display_status_badge file_note_moderation.status %}
+            </a>
+        {% endif %}
+    {% endif %}
+</div>
