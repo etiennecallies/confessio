@@ -4,7 +4,7 @@ from uuid import UUID
 
 from django.db.models import Q, Subquery
 
-from attaching.models import Image
+from attaching.models import FileNote
 from crawling.models import Scraping
 from fetching.models import OClocherSchedule, OClocherMatching, OClocherLocation
 from registry.models import Website, Church
@@ -94,9 +94,9 @@ def get_scheduling_sources(scheduling: Scheduling | None) -> SchedulingSources:
 @dataclass
 class SchedulingPrimarySources:
     scrapings: list[Scraping] = field(default_factory=list)
-    images: list[Image] = field(default_factory=list)
+    file_notes: list[FileNote] = field(default_factory=list)
     prunings_by_scraping_uuid: dict[UUID, list[Pruning]] = field(default_factory=dict)
-    prunings_by_image_uuid: dict[UUID, list[Pruning]] = field(default_factory=dict)
+    prunings_by_file_note_uuid: dict[UUID, list[Pruning]] = field(default_factory=dict)
     parsing_by_pruning_uuid: dict[UUID, Parsing] = field(default_factory=dict)
 
 
@@ -145,29 +145,29 @@ def get_scheduling_primary_sources(scheduling: Scheduling | None
                                             pruning_by_history_id)
         prunings_by_scraping_uuid[scraping.uuid].append(pruning)
 
-    images = []
-    image_by_history_id = {}
-    prunings_by_image_uuid = {}
-    for scheduling_image in scheduling.historical_images.all():
-        image_history_id = scheduling_image.image_history_id
-        historical_image = Image.history.get(history_id=image_history_id)
-        image = historical_image.instance
-        image_by_history_id[image_history_id] = image
-        images.append(image)
-        prunings_by_image_uuid[image.uuid] = []
+    file_notes = []
+    file_note_by_history_id = {}
+    prunings_by_file_note_uuid = {}
+    for scheduling_file_note in scheduling.historical_file_notes.all():
+        file_note_history_id = scheduling_file_note.file_note_history_id
+        historical_file_note = FileNote.history.get(history_id=file_note_history_id)
+        file_note = historical_file_note.instance
+        file_note_by_history_id[file_note_history_id] = file_note
+        file_notes.append(file_note)
+        prunings_by_file_note_uuid[file_note.uuid] = []
 
-    for image_pruning in scheduling.image_prunings.all():
-        image_history_id = image_pruning.image_history_id
-        image = image_by_history_id[image_history_id]
-        pruning = get_pruning_by_history_id(image_pruning.pruning_history_id,
+    for file_note_pruning in scheduling.file_note_prunings.all():
+        file_note_history_id = file_note_pruning.file_note_history_id
+        file_note = file_note_by_history_id[file_note_history_id]
+        pruning = get_pruning_by_history_id(file_note_pruning.pruning_history_id,
                                             pruning_by_history_id)
-        prunings_by_image_uuid[image.uuid].append(pruning)
+        prunings_by_file_note_uuid[file_note.uuid].append(pruning)
 
     return SchedulingPrimarySources(
         scrapings=scrapings,
-        images=images,
+        file_notes=file_notes,
         prunings_by_scraping_uuid=prunings_by_scraping_uuid,
-        prunings_by_image_uuid=prunings_by_image_uuid,
+        prunings_by_file_note_uuid=prunings_by_file_note_uuid,
         parsing_by_pruning_uuid=parsing_by_pruning_uuid,
     )
 
