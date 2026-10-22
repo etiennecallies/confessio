@@ -216,11 +216,11 @@
                 <div class="card-body">
                     <h4>📸 Ajouter la photo d'une feuille paroissiale</h4>
                     <p>Tout ou partie des horaires figurent sur une feuille d'assemblée ? Un panneau d'affichage ? Une conversation whatsapp ? Vous pouvez l'ajouter ci-dessous !</p>
-                    {% if website_images %}
+                    {% if website_file_notes %}
                         <div class="row justify-content-center align-items-end	">
-                            {% for image in website_images %}
+                            {% for file_note in website_file_notes %}
                                 <div class="col-12 col-lg-4">
-                                    {% display_image image request %}
+                                    {% display_file_note file_note request %}
                                 </div>
                             {% endfor %}
                         </div>

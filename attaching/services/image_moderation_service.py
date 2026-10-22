@@ -11,7 +11,3 @@ def add_necessary_moderation_for_image(image: Image):
         status=ModerationStatus.TO_VALIDATE,
     )
     image_moderation.save()
-
-
-def get_new_image_moderation(image: Image) -> ImageModeration | None:
-    return image.moderations.filter(category=ImageModeration.Category.NEW_IMAGE).first()

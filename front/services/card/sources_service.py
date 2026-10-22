@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from uuid import UUID
 
-from attaching.models import Image
+from attaching.models import FileNote
 from crawling.models import Scraping
 from scheduling.models import Parsing
 from scheduling.models.pruning_models import Pruning
@@ -17,8 +17,8 @@ class WebsiteParsingsAndPrunings:
     parsings: list[Parsing]
     scraping_by_parsing_uuid: dict[UUID, Scraping]
     all_scrapings_by_parsing_uuid: dict[UUID, list[Scraping]]
-    image_by_parsing_uuid: dict[UUID, Image]
-    all_images_by_parsing_uuid: dict[UUID, list[Image]]
+    file_note_by_parsing_uuid: dict[UUID, FileNote]
+    all_file_notes_by_parsing_uuid: dict[UUID, list[FileNote]]
     prunings_by_parsing_uuid: dict[UUID, list[Pruning]]
 
 
@@ -52,29 +52,29 @@ def get_website_parsings_and_prunings(
                 scraping_last_created_at_by_parsing_uuid[parsing.uuid] = scraping.created_at
                 scraping_by_parsing_uuid[parsing.uuid] = scraping
 
-    # Images
-    image_by_parsing_uuid = {}
-    all_images_by_parsing_uuid = {}
-    image_last_created_at_by_parsing_uuid = {}
-    for image in scheduling_prunings_and_parsings.images:
-        for pruning in scheduling_prunings_and_parsings.prunings_by_image_uuid[image.uuid]:
+    # FileNotes
+    file_note_by_parsing_uuid = {}
+    all_file_notes_by_parsing_uuid = {}
+    last_created_at_by_parsing_uuid = {}
+    for file_note in scheduling_prunings_and_parsings.file_notes:
+        for pruning in scheduling_prunings_and_parsings.prunings_by_file_note_uuid[file_note.uuid]:
             parsing = scheduling_prunings_and_parsings.parsing_by_pruning_uuid.get(pruning.uuid)
             if parsing is None:
                 continue
 
-            all_images_by_parsing_uuid.setdefault(parsing.uuid, [])
-            if image not in all_images_by_parsing_uuid[parsing.uuid]:
-                all_images_by_parsing_uuid[parsing.uuid].append(image)
+            all_file_notes_by_parsing_uuid.setdefault(parsing.uuid, [])
+            if file_note not in all_file_notes_by_parsing_uuid[parsing.uuid]:
+                all_file_notes_by_parsing_uuid[parsing.uuid].append(file_note)
             prunings_by_parsing_uuid.setdefault(parsing.uuid, [])
             if pruning not in prunings_by_parsing_uuid[parsing.uuid]:
                 prunings_by_parsing_uuid[parsing.uuid].append(pruning)
             if parsing not in parsings:
                 parsings.append(parsing)
 
-            if image_last_created_at_by_parsing_uuid.setdefault(parsing.uuid, None) is None \
-                    or image.created_at > image_last_created_at_by_parsing_uuid[parsing.uuid]:
-                image_last_created_at_by_parsing_uuid[parsing.uuid] = image.created_at
-                image_by_parsing_uuid[parsing.uuid] = image
+            if last_created_at_by_parsing_uuid.setdefault(parsing.uuid, None) is None \
+                    or file_note.created_at > last_created_at_by_parsing_uuid[parsing.uuid]:
+                last_created_at_by_parsing_uuid[parsing.uuid] = file_note.created_at
+                file_note_by_parsing_uuid[parsing.uuid] = file_note
 
     sorted_parsings = sort_parsings(parsings)
 
@@ -82,8 +82,8 @@ def get_website_parsings_and_prunings(
         parsings=sorted_parsings,
         scraping_by_parsing_uuid=scraping_by_parsing_uuid,
         all_scrapings_by_parsing_uuid=all_scrapings_by_parsing_uuid,
-        image_by_parsing_uuid=image_by_parsing_uuid,
-        all_images_by_parsing_uuid=all_images_by_parsing_uuid,
+        file_note_by_parsing_uuid=file_note_by_parsing_uuid,
+        all_file_notes_by_parsing_uuid=all_file_notes_by_parsing_uuid,
         prunings_by_parsing_uuid=prunings_by_parsing_uuid,
     )
 
@@ -100,9 +100,9 @@ def sort_parsings(parsings: list[Parsing]) -> list[Parsing]:
 @dataclass
 class WebsiteEmptySources:
     scrapings: list[Scraping]
-    images: list[Image]
+    file_notes: list[FileNote]
     prunings_by_scraping_uuid: dict[UUID, Pruning]
-    prunings_by_image_uuid: dict[UUID, Pruning]
+    prunings_by_file_note_uuid: dict[UUID, Pruning]
     parsings_by_pruning_uuid: dict[UUID, list[Parsing]]
 
 
@@ -128,29 +128,29 @@ def get_empty_sources(scheduling_prunings_and_parsings: SchedulingPrimarySources
         if is_scraping_to_add:
             scrapings.append(scraping)
 
-    images = []
-    prunings_by_image_uuid = {}
-    for image in scheduling_prunings_and_parsings.images:
-        prunings = scheduling_prunings_and_parsings.prunings_by_image_uuid[image.uuid]
+    file_notes = []
+    prunings_by_file_note_uuid = {}
+    for file_note in scheduling_prunings_and_parsings.file_notes:
+        prunings = scheduling_prunings_and_parsings.prunings_by_file_note_uuid[file_note.uuid]
         if not prunings:
-            images.append(image)
+            file_notes.append(file_note)
             continue
 
-        is_image_to_add = handle_prunings(
+        is_file_note_to_add = handle_prunings(
             prunings,
             scheduling_prunings_and_parsings,
-            prunings_by_image_uuid.setdefault(image.uuid, []),
+            prunings_by_file_note_uuid.setdefault(file_note.uuid, []),
             parsings_by_pruning_uuid
         )
 
-        if is_image_to_add:
-            images.append(image)
+        if is_file_note_to_add:
+            file_notes.append(file_note)
 
     return WebsiteEmptySources(
         scrapings=scrapings,
-        images=images,
+        file_notes=file_notes,
         prunings_by_scraping_uuid=prunings_by_scraping_uuid,
-        prunings_by_image_uuid=prunings_by_image_uuid,
+        prunings_by_file_note_uuid=prunings_by_file_note_uuid,
         parsings_by_pruning_uuid=parsings_by_pruning_uuid,
     )
 

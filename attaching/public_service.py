@@ -1,6 +1,5 @@
-from attaching.models import FileNote, FileNoteModeration, Image, ImageModeration
+from attaching.models import FileNote, FileNoteModeration, Image
 from attaching.services.file_note_moderation_service import get_new_file_note_moderation
-from attaching.services.image_moderation_service import get_new_image_moderation
 from attaching.services.image_progress_service import \
     get_image_recognition_status_by_website_uuid
 from attaching.services.upload_image_service import upload_image, get_image_public_url, \
@@ -26,10 +25,6 @@ def attaching_recognize_and_extract_image(image: Image):
 
 def attaching_get_image_public_url(image: Image) -> str:
     return get_image_public_url(image)
-
-
-def attaching_get_new_image_moderation(image: Image) -> ImageModeration | None:
-    return get_new_image_moderation(image)
 
 
 def attaching_get_file_note_public_url(file_note: FileNote) -> str:
