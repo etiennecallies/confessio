@@ -5,7 +5,7 @@ from django.conf import settings
 from django.urls import reverse
 from django.utils.timezone import make_aware
 
-from attaching.models import Image
+from attaching.models import FileNote, Image
 from attaching.services.image_moderation_service import add_necessary_moderation_for_image
 from core.utils.telegram_utils import TelegramTopic, send_telegram_alert
 from registry.models import Website
@@ -119,6 +119,12 @@ def get_image_public_url(image: Image) -> str:
     """Get the public URL of an image stored in S3."""
     host = f"{settings.AWS_STORAGE_BUCKET_NAME}.s3.{settings.AWS_S3_REGION_NAME}.amazonaws.com"
     return f"https://{host}/{image.uuid}/{image.name}"
+
+
+def get_file_note_public_url(file_note: FileNote) -> str:
+    """Get the public URL of a file note stored in S3."""
+    host = f"{settings.AWS_STORAGE_BUCKET_NAME}.s3.{settings.AWS_S3_REGION_NAME}.amazonaws.com"
+    return f"https://{host}/{file_note.uuid}/{file_note.name}"
 
 
 def too_many_recent_images() -> bool:
