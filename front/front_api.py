@@ -8,13 +8,13 @@ from ninja import NinjaAPI, Schema, File, Form
 from ninja.errors import HttpError
 from ninja.files import UploadedFile
 
-from attaching.models import Image
-from attaching.public_service import attaching_get_image_public_url, \
-    attaching_upload_image, attaching_find_error_in_document_to_upload, \
-    attaching_recognize_and_extract_image
+from attaching.models import FileNote
+from attaching.public_service import attaching_get_file_note_public_url, \
+    attaching_upload_file_note, attaching_find_error_in_document_to_upload, \
+    attaching_recognize_and_extract_file_note
 from front.models import Approval, ApprovalComment, AutocompleteHit, Issue, IssueComment
-from front.services.card.report_service import save_report, get_report_threads, ReportThread, \
-    NewReportError, FeedbackType
+from front.services.card.report_service import save_report, NewReportError, FeedbackType
+from front.services.card.report_thread_service import get_report_threads, ReportThread
 from front.services.card.scraping_url_service import get_scraping_parsing_urls
 from front.services.card.sources_service import get_website_parsings_and_prunings, \
     WebsiteParsingsAndPrunings
@@ -135,11 +135,11 @@ class ParsingOut(Schema):
         scraping = parsings_and_prunings.scraping_by_parsing_uuid.get(parsing_uuid)
         scraping_url = scraping_parsing_urls[scraping.uuid][parsing_uuid] \
             if scraping else None
-        image = parsings_and_prunings.image_by_parsing_uuid.get(parsing_uuid)
+        file_note = parsings_and_prunings.file_note_by_parsing_uuid.get(parsing_uuid)
         return cls(
             uuid=parsing_uuid,
             scraping_url=scraping_url,
-            image_url=attaching_get_image_public_url(image) if image else None,
+            image_url=attaching_get_file_note_public_url(file_note) if file_note else None,
         )
 
 
@@ -193,11 +193,11 @@ class ImageOut(Schema):
     comment: str | None
 
     @classmethod
-    def from_image(cls, image: Image) -> 'ImageOut':
+    def from_file_note(cls, file_note: FileNote) -> 'ImageOut':
         return cls(
-            image_uuid=image.uuid,
-            public_url=attaching_get_image_public_url(image),
-            comment=image.comment,
+            image_uuid=file_note.uuid,
+            public_url=attaching_get_file_note_public_url(file_note),
+            comment=file_note.caption,
         )
 
 
@@ -475,11 +475,12 @@ def api_front_church_details(request, church_uuid: UUID,
     website = church.parish.website
 
     # Reports
-    reports = [ReportOut.from_thread(thread) for thread in get_report_threads(website)]
+    reports = [ReportOut.from_thread(thread) for thread in get_report_threads(website)
+               if not thread.is_file_note]
 
     # Images
-    website_images = list(Image.objects.filter(website=website).order_by('created_at').all())
-    images = [ImageOut.from_image(image) for image in website_images]
+    file_notes = FileNote.objects.filter(website=website).order_by('created_at')
+    images = [ImageOut.from_file_note(file_note) for file_note in file_notes]
 
     website_out = WebsiteOut.from_website(website, reports, images)
 
@@ -613,11 +614,11 @@ def api_front_post_images(request,
     if validation_error:
         raise HttpError(400, validation_error)
 
-    image, error_message = attaching_upload_image(document, website, request,
-                                                  comment=comment)
-    if image is None:
+    file_note, error_message = attaching_upload_file_note(document, website, request,
+                                                          caption=comment)
+    if file_note is None:
         raise HttpError(400, error_message or 'Upload failed')
 
-    attaching_recognize_and_extract_image(image)
+    attaching_recognize_and_extract_file_note(file_note)
 
-    return ImageOut.from_image(image)
+    return ImageOut.from_file_note(file_note)

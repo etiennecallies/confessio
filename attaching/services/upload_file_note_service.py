@@ -1,12 +1,15 @@
+import mimetypes
 from datetime import datetime, timedelta
 
 import boto3
 from django.conf import settings
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.timezone import make_aware
 
-from attaching.models import Image
-from attaching.services.image_moderation_service import add_necessary_moderation_for_image
+from attaching.models import FileNote
+from attaching.services.file_note_moderation_service import \
+    add_necessary_moderation_for_file_note
 from core.utils.telegram_utils import TelegramTopic, send_telegram_alert
 from registry.models import Website
 from core.services.admin_email_service import send_email_to_admin
@@ -17,6 +20,7 @@ IMAGE_SIZE_LIMIT = 10 * 1024 * 1024  # 10MB limit for uploaded images
 MAX_IMAGES_IN_30_DAYS = 2000  # Maximum number of images allowed in the last 30 days
 ALLOWED_IMAGE_EXTENSIONS = {'jpg', 'jpeg', 'png', 'webp'}
 ALLOWED_IMAGE_MIME_TYPES = {'image/jpeg', 'image/png', 'image/webp'}
+FILE_NOTE_DEFAULT_TTL = timedelta(days=365)
 
 
 def find_error_in_document_to_upload(document) -> str | None:
@@ -44,9 +48,9 @@ def find_error_in_document_to_upload(document) -> str | None:
     return None
 
 
-def upload_image(document, website: Website, request, comment: str | None = None,
-                 ) -> tuple[Image | None, str | None]:
-    if too_many_recent_images():
+def upload_file_note(document, website: Website, request, caption: str | None = None,
+                     ) -> tuple[FileNote | None, str | None]:
+    if too_many_recent_file_notes():
         subject = 'Too many images uploaded recently'
         send_email_to_admin(subject, subject)
         send_telegram_alert(message=subject, topic=TelegramTopic.NEW_IMAGES)
@@ -57,39 +61,48 @@ def upload_image(document, website: Website, request, comment: str | None = None
     image_name = document.name.replace(' ', '_').replace('/', '_')
     user, user_agent, ip_address_hash = get_user_user_agent_and_ip(request)
 
-    image = Image(
+    file_note = FileNote(
         website=website,
         name=image_name,
-        comment=comment,
+        caption=caption,
+        mime_type=get_mime_type(document, image_name),
+        expire_at=timezone.now() + FILE_NOTE_DEFAULT_TTL,
         user=user,
         user_agent=user_agent,
         ip_address_hash=ip_address_hash,
     )
-    image.save()
-    unique_filename = f"{image.uuid}/{image_name}"
+    file_note.save()
+    unique_filename = f"{file_note.uuid}/{image_name}"
 
     s3_success = upload_to_s3(document, unique_filename)
     if s3_success:
         print(f'Document uploaded successfully! unique_filename: {unique_filename}')
 
         if not user:
-            add_necessary_moderation_for_image(image)
+            add_necessary_moderation_for_file_note(file_note)
 
             website_url = request.build_absolute_uri(
                 reverse('website_view', kwargs={'website_uuid': website.uuid})
             )
             email_body = (f"New image on website {website.name}\n"
                           f"url: {website_url}\n"
-                          f"\n\ncomment:\n{comment}")
+                          f"\n\ncomment:\n{caption}")
             subject = f'New image on confessio for {website.name}'
             send_email_to_admin(subject, email_body)
             send_telegram_alert(message=email_body, topic=TelegramTopic.NEW_IMAGES)
 
-        return image, None
+        return file_note, None
 
-    image.delete()
+    file_note.delete()
 
     return None, 'Une erreur est survenue lors du chargement du fichier.'
+
+
+def get_mime_type(document, name: str) -> str:
+    content_type = (document.content_type or '').lower()
+    if content_type in ALLOWED_IMAGE_MIME_TYPES:
+        return content_type
+    return mimetypes.guess_type(name)[0] or 'application/octet-stream'
 
 
 def upload_to_s3(file, filename) -> bool:
@@ -115,14 +128,14 @@ def upload_to_s3(file, filename) -> bool:
         return False
 
 
-def get_image_public_url(image: Image) -> str:
-    """Get the public URL of an image stored in S3."""
+def get_file_note_public_url(file_note: FileNote) -> str:
+    """Get the public URL of a file note stored in S3."""
     host = f"{settings.AWS_STORAGE_BUCKET_NAME}.s3.{settings.AWS_S3_REGION_NAME}.amazonaws.com"
-    return f"https://{host}/{image.uuid}/{image.name}"
+    return f"https://{host}/{file_note.uuid}/{file_note.name}"
 
 
-def too_many_recent_images() -> bool:
+def too_many_recent_file_notes() -> bool:
     last_30_days = datetime.now() - timedelta(days=30)
-    recent_images_count = Image.objects.filter(created_at__gt=make_aware(last_30_days)).count()
+    recent_images_count = FileNote.objects.filter(created_at__gt=make_aware(last_30_days)).count()
 
     return recent_images_count > MAX_IMAGES_IN_30_DAYS

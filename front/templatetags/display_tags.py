@@ -5,9 +5,9 @@ from django.contrib.gis.geos import Point
 from django.template.defaulttags import register
 from django.template.loader import render_to_string
 
-from attaching.models import Image
-from attaching.public_service import attaching_get_image_public_url, \
-    attaching_get_new_image_moderation
+from attaching.models import FileNote
+from attaching.public_service import attaching_get_file_note_public_url, \
+    attaching_get_new_file_note_moderation
 from front.services.card.church_color_service import get_color_of_nullable_church
 from front.services.search.map_service import (get_map_with_single_location,
                                                get_map_with_multiple_locations,
@@ -109,15 +109,16 @@ def display_other_church_icon(is_church_explicitly_other: bool) -> str:
 
 
 @register.simple_tag
-def display_image(image: Image, request, show_moderation: bool = True) -> str:
+def display_file_note(file_note: FileNote, request, show_moderation: bool = True) -> str:
     # only staff sees the link, so only staff pays for the query. It is turned off on the
     # moderation card itself, where the link would point back to the page being displayed.
     show_moderation = show_moderation and is_staff_user(request)
 
-    return render_to_string('displays/image_display.html', {
-        'image': image,
-        'image_url': attaching_get_image_public_url(image),
-        'image_moderation': attaching_get_new_image_moderation(image) if show_moderation else None,
+    return render_to_string('displays/file_note_display.html', {
+        'file_note': file_note,
+        'file_note_url': attaching_get_file_note_public_url(file_note),
+        'file_note_moderation': attaching_get_new_file_note_moderation(file_note)
+        if show_moderation else None,
         'request': request,
     })
 

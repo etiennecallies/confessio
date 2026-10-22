@@ -216,16 +216,6 @@
                 <div class="card-body">
                     <h4>📸 Ajouter la photo d'une feuille paroissiale</h4>
                     <p>Tout ou partie des horaires figurent sur une feuille d'assemblée ? Un panneau d'affichage ? Une conversation whatsapp ? Vous pouvez l'ajouter ci-dessous !</p>
-                    {% if website_images %}
-                        <div class="row justify-content-center align-items-end	">
-                            {% for image in website_images %}
-                                <div class="col-12 col-lg-4">
-                                    {% display_image image request %}
-                                </div>
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-
                     <form id="feedbackForm" action="{% url 'website_upload_image' page_website.uuid %}" method="POST" enctype="multipart/form-data">
                         {% csrf_token %}
                         <div id="file-upload-section">
@@ -281,11 +271,13 @@
                 </div>
 
                 {% for thread in report_threads %}
-                    {% if thread.head.content %}
+                    {% if thread.is_file_note or thread.head.content %}
                         <div class="card border-0 mt-4">
                             <div class="card-body">
                                 <strong>
-                                    {% if thread.is_approval %}
+                                    {% if thread.is_file_note %}
+                                        📸 Photo ajoutée
+                                    {% elif thread.is_approval %}
                                         {% trans 'report_feedback_good' %}
                                     {% elif thread.head.solved_at %}
                                         {% trans 'report_feedback_error_solved' %}
@@ -300,28 +292,36 @@
                                         </a>
                                     {% endfor %}
                                 {% endif %}
-                                {% if thread.is_approval %}
-                                    {% url 'admin:front_approval_change' thread.head.uuid as admin_url %}
+                                {% if thread.is_file_note %}
+                                    {% url 'admin:attaching_filenote_change' thread.head.uuid as admin_url %}
+                                    {% display_file_note thread.head request show_moderation=False %}
+                                    <hr class="hr" />
                                 {% else %}
-                                    {% url 'admin:front_issue_change' thread.head.uuid as admin_url %}
+                                    {% if thread.is_approval %}
+                                        {% url 'admin:front_approval_change' thread.head.uuid as admin_url %}
+                                    {% else %}
+                                        {% url 'admin:front_issue_change' thread.head.uuid as admin_url %}
+                                    {% endif %}
+                                    {% include 'includes/report_message.html' with message=thread.head %}
                                 {% endif %}
-                                {% include 'includes/report_message.html' with message=thread.head %}
                                 {% for comment in thread.comments %}
                                     {% include 'includes/report_message.html' with message=comment %}
                                 {% endfor %}
-                                <form method="POST">
-                                    <input type="hidden" name="main_report_uuid" value="{{ thread.head.uuid }}">
-                                    <input type="hidden" name="feedback_type" value="comment">
-                                    {% csrf_token %}
-                                    <div class="row">
-                                        <div class="col-12 col-md-10">
-                                            <textarea placeholder="Commentaire" name='comment' class="form-control" rows="1" required></textarea>
+                                {% if not thread.is_file_note %}
+                                    <form method="POST">
+                                        <input type="hidden" name="main_report_uuid" value="{{ thread.head.uuid }}">
+                                        <input type="hidden" name="feedback_type" value="comment">
+                                        {% csrf_token %}
+                                        <div class="row">
+                                            <div class="col-12 col-md-10">
+                                                <textarea placeholder="Commentaire" name='comment' class="form-control" rows="1" required></textarea>
+                                            </div>
+                                            <div class="col-12 mt-2 mt-md-0 col-md-2 text-right">
+                                                <button type="submit" class="btn rounded btn-secondary">Répondre</button>
+                                            </div>
                                         </div>
-                                        <div class="col-12 mt-2 mt-md-0 col-md-2 text-right">
-                                            <button type="submit" class="btn rounded btn-secondary">Répondre</button>
-                                        </div>
-                                    </div>
-                                </form>
+                                    </form>
+                                {% endif %}
                             </div>
                         </div>
                     {% endif %}

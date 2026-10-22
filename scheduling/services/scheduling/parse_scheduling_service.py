@@ -22,8 +22,8 @@ def do_parse_scheduling(scheduling: Scheduling) -> SchedulingParsingObjects:
     for scraping_pruning in scheduling.scraping_prunings.all():
         all_pruning_history_ids.append(scraping_pruning.pruning_history_id)
 
-    for image_pruning in scheduling.image_prunings.all():
-        all_pruning_history_ids.append(image_pruning.pruning_history_id)
+    for file_note_pruning in scheduling.file_note_prunings.all():
+        all_pruning_history_ids.append(file_note_pruning.pruning_history_id)
 
     pruning_parsing_history_ids = set()
     for pruning_history_id in all_pruning_history_ids:

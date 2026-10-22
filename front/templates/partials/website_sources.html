@@ -17,12 +17,12 @@
             {% else %}
                 <div class="col-md-9 lead">
                     [{{ forloop.counter }}]
-                    {% with image=parsings_and_prunings.image_by_parsing_uuid|get_item:parsing.uuid %}
+                    {% with file_note=parsings_and_prunings.file_note_by_parsing_uuid|get_item:parsing.uuid %}
                     Extrait de cette image
-                    {% with image_counter=parsings_and_prunings.all_images_by_parsing_uuid|get_item:parsing.uuid|length %}
-                        {% if image_counter > 1 %}<span><small class="text-muted">(et {{ image_counter|subtract:1 }} autres images)</small></span>{% endif %}
+                    {% with file_note_counter=parsings_and_prunings.all_file_notes_by_parsing_uuid|get_item:parsing.uuid|length %}
+                        {% if file_note_counter > 1 %}<span><small class="text-muted">(et {{ file_note_counter|subtract:1 }} autres images)</small></span>{% endif %}
                     {% endwith %}:
-                    {% display_image image request %}
+                    {% display_file_note file_note request %}
                     {% endwith %}
                 </div>
             {% endif %}
@@ -135,12 +135,12 @@
         {% empty %}
             No empty scrapings.
         {% endfor %}
-        {% for image in empty_sources.images %}
+        {% for file_note in empty_sources.file_notes %}
             <div>
                 Extrait de cette image
-                {% display_image image request %}
+                {% display_file_note file_note request %}
             </div>
-            {% for pruning in empty_sources.prunings_by_image_uuid|get_item:image.uuid %}
+            {% for pruning in empty_sources.prunings_by_file_note_uuid|get_item:file_note.uuid %}
                 <div class="margin-left-indent">
                     <div class="row">
                         {% with unvalidated_pruning_moderation=pruning|get_unvalidated_pruning_moderation %}

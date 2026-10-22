@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from enum import StrEnum
 from uuid import UUID
 
@@ -9,7 +8,7 @@ from core.utils.telegram_utils import TelegramTopic, send_telegram_alert
 from front.models import Approval, ApprovalComment, ApprovalModeration, Issue, IssueComment, \
     IssueModeration
 from registry.models import Church, Website
-from registry.models.base_moderation_models import ModerationStatus, ModerationMixin
+from registry.models.base_moderation_models import ModerationStatus
 from core.services.admin_email_service import send_email_to_admin
 from front.utils.web_utils import get_user_user_agent_and_ip
 
@@ -131,43 +130,6 @@ def add_necessary_moderation(website: Website, head: Issue | Approval, is_commen
     if not created and moderation.status != ModerationStatus.TO_VALIDATE:
         moderation.status = ModerationStatus.TO_VALIDATE
         moderation.save()
-
-
-####################
-# PREVIOUS REPORTS #
-####################
-
-@dataclass
-class ReportThread:
-    head: Issue | Approval
-    comments: list[IssueComment | ApprovalComment]
-
-    @property
-    def is_approval(self) -> bool:
-        return isinstance(self.head, Approval)
-
-
-def get_report_threads(website: Website) -> list[ReportThread]:
-    heads = list(Issue.objects.filter(website=website).prefetch_related('comments__user')) \
-        + list(Approval.objects.filter(website=website).prefetch_related('comments__user'))
-    heads.sort(key=lambda head: head.created_at, reverse=True)
-
-    return [ReportThread(head=head,
-                         comments=sorted(head.comments.all(), key=lambda c: c.created_at))
-            for head in heads]
-
-
-def get_moderations_by_thread_uuid(threads: list[ReportThread]
-                                   ) -> dict[UUID, list[ModerationMixin]]:
-    head_uuids = [thread.head.uuid for thread in threads]
-
-    moderations_by_thread_uuid = {}
-    for moderation in IssueModeration.objects.filter(issue_id__in=head_uuids):
-        moderations_by_thread_uuid.setdefault(moderation.issue_id, []).append(moderation)
-    for moderation in ApprovalModeration.objects.filter(approval_id__in=head_uuids):
-        moderations_by_thread_uuid.setdefault(moderation.approval_id, []).append(moderation)
-
-    return moderations_by_thread_uuid
 
 
 ##################
