@@ -7,7 +7,7 @@ from core.management.abstract_cleaning_command import AbstractCleaningCommand
 from registry.models.base_moderation_models import ModerationStatus
 from scheduling.models import Log as SchedulingLog
 from scheduling.models import ParsingModeration, Parsing
-from scheduling.models import PruningParsing, ScrapingPruning, ImagePruning
+from scheduling.models import PruningParsing, ScrapingPruning, ImagePruning, FileNotePruning
 from scheduling.models.pruning_models import Pruning, Sentence, Classifier
 from scheduling.services.scheduling.scheduling_service import get_websites_of_parsing
 
@@ -97,6 +97,7 @@ class Command(AbstractCleaningCommand):
         ).exclude(
             Q(history_id__in=ScrapingPruning.objects.values('pruning_history_id'))
             | Q(history_id__in=ImagePruning.objects.values('pruning_history_id'))
+            | Q(history_id__in=FileNotePruning.objects.values('pruning_history_id'))
             | Q(history_id__in=PruningParsing.objects.values('pruning_history_id'))
         )
         counter = query.count()

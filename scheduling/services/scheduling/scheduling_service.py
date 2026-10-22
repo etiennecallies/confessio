@@ -190,13 +190,13 @@ def build_resources_hash(scheduling: Scheduling,
         lambda historical_church: historical_church.church_history_id,
         scheduling.historical_churches.all()))
 
-    # Scrapings & Images
+    # Scrapings & FileNotes
     elements_to_hash += sorted(map(
         lambda historical_scraping: historical_scraping.scraping_history_id,
         scheduling.historical_scrapings.all()))
     elements_to_hash += sorted(map(
-        lambda historical_image: historical_image.image_history_id,
-        scheduling.historical_images.all()))
+        lambda historical_file_note: historical_file_note.file_note_history_id,
+        scheduling.historical_file_notes.all()))
 
     # Prunings & Parsings
     elements_to_hash += sorted(map(
@@ -205,9 +205,9 @@ def build_resources_hash(scheduling: Scheduling,
         scheduling.scraping_prunings.all()
     ))
     elements_to_hash += sorted(map(
-        lambda image_pruning: (image_pruning.image_history_id,
-                               image_pruning.pruning_history_id),
-        scheduling.image_prunings.all()
+        lambda file_note_pruning: (file_note_pruning.file_note_history_id,
+                                   file_note_pruning.pruning_history_id),
+        scheduling.file_note_prunings.all()
     ))
     elements_to_hash += sorted(map(
         lambda pruning_parsing: (pruning_parsing.pruning_history_id,
@@ -268,7 +268,7 @@ def get_websites_of_prunings(prunings: list[Pruning]) -> list[Website]:
         Website.objects.filter(
             schedulings__in=Scheduling.objects.filter(
                 Q(scraping_prunings__pruning_history_id__in=history_ids)
-                | Q(image_prunings__pruning_history_id__in=history_ids),
+                | Q(file_note_prunings__pruning_history_id__in=history_ids),
                 status=Scheduling.Status.INDEXED,
             )
         ).distinct()
