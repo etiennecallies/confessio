@@ -73,3 +73,22 @@ class FileNoteModeration(ModerationMixin):
     def delete_on_validate(self) -> bool:
         # we keep the row, to keep track of which file notes have been reviewed
         return False
+
+
+class TextNoteModeration(ModerationMixin):
+    class Category(models.TextChoices):
+        NEW_TEXT_NOTE = "new_text_note"
+
+    resource = 'text_note'
+    diocese = models.ForeignKey('registry.Diocese', on_delete=models.CASCADE,
+                                related_name=f'{resource}_moderations', null=True)
+    history = HistoricalRecords()
+    text_note = models.ForeignKey(TextNote, on_delete=models.CASCADE, related_name='moderations')
+    category = models.CharField(max_length=16, choices=Category)
+
+    class Meta:
+        unique_together = ('text_note', 'category')
+
+    def delete_on_validate(self) -> bool:
+        # we keep the row, to keep track of which text notes have been reviewed
+        return False
