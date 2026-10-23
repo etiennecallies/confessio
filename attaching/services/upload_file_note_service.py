@@ -20,7 +20,7 @@ IMAGE_SIZE_LIMIT = 10 * 1024 * 1024  # 10MB limit for uploaded images
 MAX_IMAGES_IN_30_DAYS = 2000  # Maximum number of images allowed in the last 30 days
 ALLOWED_IMAGE_EXTENSIONS = {'jpg', 'jpeg', 'png', 'webp'}
 ALLOWED_IMAGE_MIME_TYPES = {'image/jpeg', 'image/png', 'image/webp'}
-FILE_NOTE_DEFAULT_TTL = timedelta(days=365)
+NOTE_DEFAULT_TTL = timedelta(days=365)
 
 
 def find_error_in_document_to_upload(document) -> str | None:
@@ -66,7 +66,7 @@ def upload_file_note(document, website: Website, request, caption: str | None = 
         name=image_name,
         caption=caption,
         mime_type=get_mime_type(document, image_name),
-        expire_at=timezone.now() + FILE_NOTE_DEFAULT_TTL,
+        expire_at=timezone.now() + NOTE_DEFAULT_TTL,
         user=user,
         user_agent=user_agent,
         ip_address_hash=ip_address_hash,

@@ -237,6 +237,24 @@
             </div>
 
 
+            <div class="card border-0 mt-4" id="text-note-form">
+                <div class="card-body">
+                    <h4>📝 Ajouter des horaires en texte</h4>
+                    <p>Les horaires figurent dans un mail, un message ou une page qu'on ne trouve pas ? Copiez-les ci-dessous !</p>
+                    <form action="{% url 'website_add_text_note' page_website.uuid %}" method="POST">
+                        {% csrf_token %}
+                        <div class="mt-1">
+                            <label for="text-note-content" style="display: none"></label>
+                            <textarea placeholder="Copiez ici les horaires de confession" class="form-control" id="text-note-content" name="content" rows="4" maxlength="10000" required></textarea>
+                        </div>
+                        <div class="mt-3">
+                            <button type="submit" class="btn rounded btn-secondary">Ajouter le texte !</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+
             <div class="card border-0 mt-4" id="report-form">
                 <div class="card-body">
                     <h4>💬 Votre retour</h4>

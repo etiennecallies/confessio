@@ -11,7 +11,9 @@ from django.utils.translation import gettext
 from django.views.decorators.http import require_POST
 
 from attaching.public_service import attaching_upload_file_note, \
-    attaching_recognize_and_extract_file_note, attaching_find_error_in_document_to_upload
+    attaching_recognize_and_extract_file_note, attaching_find_error_in_document_to_upload, \
+    attaching_add_text_note, attaching_extract_text_note, \
+    attaching_find_error_in_text_note_content
 from fetching.models import OClocherOrganization
 from front.models import Issue
 from front.services.card.report_service import get_count_and_label, new_report, NewReportError, \
@@ -46,11 +48,14 @@ def render_map(request, center,
                page_website: Website | None, success_message: str | None,
                welcome_message: str | None, display_quick_search_cities: bool):
     upload_success = extract_bool('upload_success', request)
+    text_note_success = extract_bool('text_note_success', request)
     upload_error_message = request.GET.get('upload_error_message', None)
-    success_message = success_message or (
-        "L'image a été chargée avec succès ! Elle sera analysée dans les deux minutes."
-        if upload_success else None
-    )
+    if success_message is None and upload_success:
+        success_message = "L'image a été chargée avec succès ! " \
+                          "Elle sera analysée dans les deux minutes."
+    if success_message is None and text_note_success:
+        success_message = "Le texte a été ajouté avec succès ! " \
+                          "Il sera analysé dans les deux minutes."
 
     # We get all websites and their churches
     websites_by_uuid = {}
@@ -128,7 +133,8 @@ def render_map(request, center,
         if key not in ['dateFilter', 'hourMin', 'hourMax']:
             hidden_inputs[key] = request.GET[key]
 
-    if request.resolver_match.url_name != 'index' and upload_success is None:
+    if request.resolver_match.url_name != 'index' and upload_success is None \
+            and text_note_success is None:
         new_search_hit(request, len(websites))
 
     latitude, longitude = center
@@ -507,6 +513,28 @@ def website_upload_image(request, website_uuid: str):
                                         })
 
     return HttpResponseBadRequest("Invalid request method")
+
+
+@require_POST
+def website_add_text_note(request, website_uuid: str):
+    try:
+        website = Website.objects.get(uuid=website_uuid)
+    except Website.DoesNotExist:
+        return HttpResponseNotFound("Website does not exist with this uuid")
+
+    content = request.POST.get('content', None)
+    error_message = attaching_find_error_in_text_note_content(content)
+    if not error_message:
+        text_note, error_message = attaching_add_text_note(content, website, request)
+        if text_note:
+            attaching_extract_text_note(text_note)
+
+    return redirect_with_url_params(
+        "website_view", website_uuid=website_uuid,
+        query_params={
+            'text_note_success': not error_message,
+            'upload_error_message': error_message or '',
+        })
 
 
 @require_POST
