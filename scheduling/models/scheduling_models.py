@@ -47,6 +47,15 @@ class SchedulingHistoricalFileNote(TimeStampMixin):
         unique_together = ('scheduling', 'file_note_history_id')
 
 
+class SchedulingHistoricalTextNote(TimeStampMixin):
+    scheduling = models.ForeignKey('Scheduling', on_delete=models.CASCADE,
+                                   related_name='historical_text_notes')
+    text_note_history_id = models.PositiveIntegerField()
+
+    class Meta:
+        unique_together = ('scheduling', 'text_note_history_id')
+
+
 class SchedulingHistoricalOClocherLocation(TimeStampMixin):
     scheduling = models.ForeignKey('Scheduling', on_delete=models.CASCADE,
                                    related_name='historical_oclocher_locations')
@@ -83,6 +92,16 @@ class FileNotePruning(TimeStampMixin):
 
     class Meta:
         unique_together = ('scheduling', 'file_note_history_id', 'pruning_history_id')
+
+
+class TextNotePruning(TimeStampMixin):
+    scheduling = models.ForeignKey('Scheduling', on_delete=models.CASCADE,
+                                   related_name='text_note_prunings')
+    text_note_history_id = models.PositiveIntegerField()
+    pruning_history_id = models.PositiveIntegerField()
+
+    class Meta:
+        unique_together = ('scheduling', 'text_note_history_id', 'pruning_history_id')
 
 
 class PruningParsing(TimeStampMixin):
