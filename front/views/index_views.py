@@ -10,8 +10,9 @@ from django.utils.translation import gettext
 from attaching.public_service import attaching_upload_image, \
     attaching_recognize_and_extract_image, attaching_find_error_in_document_to_upload
 from fetching.models import OClocherOrganization
-from front.services.card.report_service import get_count_and_label, new_report, NewReportError, \
-    get_report_threads, get_moderations_by_thread_uuid
+from front.services.card.report_service import get_count_and_label, new_report, NewReportError
+from front.services.card.report_thread_service import get_report_threads, \
+    get_moderations_by_thread_uuid
 from front.services.card.scraping_url_service import get_scraping_parsing_urls
 from front.services.card.sources_service import get_website_parsings_and_prunings, get_empty_sources
 from front.services.card.website_events_service import get_website_events
@@ -163,7 +164,6 @@ def render_map(request, center,
         'report_threads': report_threads,
         'moderations_by_thread_uuid': moderations_by_thread_uuid,
         'upload_error_message': upload_error_message,
-        'website_file_notes': page_website.file_notes.all() if page_website else None,
         'scheduling_moderation_by_website': scheduling_moderation_by_website,
         'crawling_moderation_by_website': crawling_moderation_by_website,
         'validated_schedules_moderation_by_website': validated_schedules_moderation_by_website,

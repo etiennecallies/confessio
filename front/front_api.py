@@ -13,8 +13,8 @@ from attaching.public_service import attaching_get_file_note_public_url, \
     attaching_get_image_public_url, attaching_upload_image, \
     attaching_find_error_in_document_to_upload, attaching_recognize_and_extract_image
 from front.models import Approval, ApprovalComment, AutocompleteHit, Issue, IssueComment
-from front.services.card.report_service import save_report, get_report_threads, ReportThread, \
-    NewReportError, FeedbackType
+from front.services.card.report_service import save_report, NewReportError, FeedbackType
+from front.services.card.report_thread_service import get_report_threads, ReportThread
 from front.services.card.scraping_url_service import get_scraping_parsing_urls
 from front.services.card.sources_service import get_website_parsings_and_prunings, \
     WebsiteParsingsAndPrunings
@@ -483,7 +483,8 @@ def api_front_church_details(request, church_uuid: UUID,
     website = church.parish.website
 
     # Reports
-    reports = [ReportOut.from_thread(thread) for thread in get_report_threads(website)]
+    reports = [ReportOut.from_thread(thread) for thread in get_report_threads(website)
+               if not thread.is_file_note]
 
     # Images
     file_notes = FileNote.objects.filter(website=website).order_by('created_at')
