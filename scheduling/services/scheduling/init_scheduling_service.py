@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from registry.models import Website
 from scheduling.models import Scheduling, SchedulingHistoricalChurch, \
-    SchedulingHistoricalScraping, SchedulingHistoricalImage, SchedulingHistoricalOClocherSchedule, \
+    SchedulingHistoricalScraping, SchedulingHistoricalOClocherSchedule, \
     SchedulingHistoricalOClocherLocation, SchedulingHistoricalFileNote
 
 
@@ -10,7 +10,6 @@ from scheduling.models import Scheduling, SchedulingHistoricalChurch, \
 class SchedulingRelatedObjects:
     church_history_ids: list[int]
     scraping_history_ids: list[int]
-    image_history_ids: list[int]
     file_note_history_ids: list[int]
     oclocher_location_history_ids: list[int]
     oclocher_schedule_history_ids: list[int]
@@ -30,13 +29,6 @@ def get_scraping_history_ids(website: Website) -> list[int]:
         scraping_history_ids.append(scraping.history.latest().history_id)
 
     return scraping_history_ids
-
-
-def get_image_history_ids(website: Website) -> list[int]:
-    image_history_ids = []
-    for image in website.images.all():
-        image_history_ids.append(image.history.latest().history_id)
-    return image_history_ids
 
 
 def get_file_note_history_ids(website: Website) -> list[int]:
@@ -80,7 +72,6 @@ def build_scheduling(website: Website) -> tuple[Scheduling, SchedulingRelatedObj
 
     church_history_ids = get_church_history_ids(website)
     scraping_history_ids = get_scraping_history_ids(website)
-    image_history_ids = get_image_history_ids(website)
     file_note_history_ids = get_file_note_history_ids(website)
     oclocher_location_history_ids = get_oclocher_location_history_ids(website)
     oclocher_schedule_history_ids = get_oclocher_schedule_history_ids(website)
@@ -88,7 +79,6 @@ def build_scheduling(website: Website) -> tuple[Scheduling, SchedulingRelatedObj
     scheduling_related_objects = SchedulingRelatedObjects(
         church_history_ids=church_history_ids,
         scraping_history_ids=scraping_history_ids,
-        image_history_ids=image_history_ids,
         file_note_history_ids=file_note_history_ids,
         oclocher_location_history_ids=oclocher_location_history_ids,
         oclocher_schedule_history_ids=oclocher_schedule_history_ids,
@@ -118,15 +108,6 @@ def bulk_create_scheduling_related_objects(
         ) for scraping_id in scheduling_related_objects.scraping_history_ids
     ]
     SchedulingHistoricalScraping.objects.bulk_create(scraping_objs)
-
-    # SchedulingHistoricalImage
-    image_objs = [
-        SchedulingHistoricalImage(
-            scheduling=scheduling,
-            image_history_id=image_id
-        ) for image_id in scheduling_related_objects.image_history_ids
-    ]
-    SchedulingHistoricalImage.objects.bulk_create(image_objs)
 
     # SchedulingHistoricalFileNote
     file_note_objs = [

@@ -77,9 +77,9 @@ class MLSentenceQualifyLineInterface(SentenceQualifyLineInterface):
 ##############################
 
 def remove_pruning_moderation_if_orphan(pruning: Pruning):
-    if not pruning.scrapings.exists() and not pruning.images.exists():
+    if not pruning.scrapings.exists() and not pruning.file_notes.exists():
         info(f'deleting not validated moderation for pruning {pruning} since it has no scraping '
-             f'nor image any more')
+             f'nor file note any more')
         PruningModeration.objects.filter(
             pruning=pruning,
         ).exclude(status=ModerationStatus.VALIDATED).delete()
