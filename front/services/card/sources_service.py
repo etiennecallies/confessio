@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from uuid import UUID
 
-from attaching.models import FileNote
+from attaching.models import FileNote, TextNote
 from crawling.models import Scraping
 from scheduling.models import Parsing
 from scheduling.models.pruning_models import Pruning
@@ -19,6 +19,8 @@ class WebsiteParsingsAndPrunings:
     all_scrapings_by_parsing_uuid: dict[UUID, list[Scraping]]
     file_note_by_parsing_uuid: dict[UUID, FileNote]
     all_file_notes_by_parsing_uuid: dict[UUID, list[FileNote]]
+    text_note_by_parsing_uuid: dict[UUID, TextNote]
+    all_text_notes_by_parsing_uuid: dict[UUID, list[TextNote]]
     prunings_by_parsing_uuid: dict[UUID, list[Pruning]]
 
 
@@ -52,29 +54,15 @@ def get_website_parsings_and_prunings(
                 scraping_last_created_at_by_parsing_uuid[parsing.uuid] = scraping.created_at
                 scraping_by_parsing_uuid[parsing.uuid] = scraping
 
-    # FileNotes
-    file_note_by_parsing_uuid = {}
-    all_file_notes_by_parsing_uuid = {}
-    last_created_at_by_parsing_uuid = {}
-    for file_note in scheduling_prunings_and_parsings.file_notes:
-        for pruning in scheduling_prunings_and_parsings.prunings_by_file_note_uuid[file_note.uuid]:
-            parsing = scheduling_prunings_and_parsings.parsing_by_pruning_uuid.get(pruning.uuid)
-            if parsing is None:
-                continue
-
-            all_file_notes_by_parsing_uuid.setdefault(parsing.uuid, [])
-            if file_note not in all_file_notes_by_parsing_uuid[parsing.uuid]:
-                all_file_notes_by_parsing_uuid[parsing.uuid].append(file_note)
-            prunings_by_parsing_uuid.setdefault(parsing.uuid, [])
-            if pruning not in prunings_by_parsing_uuid[parsing.uuid]:
-                prunings_by_parsing_uuid[parsing.uuid].append(pruning)
-            if parsing not in parsings:
-                parsings.append(parsing)
-
-            if last_created_at_by_parsing_uuid.setdefault(parsing.uuid, None) is None \
-                    or file_note.created_at > last_created_at_by_parsing_uuid[parsing.uuid]:
-                last_created_at_by_parsing_uuid[parsing.uuid] = file_note.created_at
-                file_note_by_parsing_uuid[parsing.uuid] = file_note
+    # Notes
+    file_note_by_parsing_uuid, all_file_notes_by_parsing_uuid = add_notes_parsings(
+        scheduling_prunings_and_parsings.file_notes,
+        scheduling_prunings_and_parsings.prunings_by_file_note_uuid,
+        scheduling_prunings_and_parsings, prunings_by_parsing_uuid, parsings)
+    text_note_by_parsing_uuid, all_text_notes_by_parsing_uuid = add_notes_parsings(
+        scheduling_prunings_and_parsings.text_notes,
+        scheduling_prunings_and_parsings.prunings_by_text_note_uuid,
+        scheduling_prunings_and_parsings, prunings_by_parsing_uuid, parsings)
 
     sorted_parsings = sort_parsings(parsings)
 
@@ -84,8 +72,43 @@ def get_website_parsings_and_prunings(
         all_scrapings_by_parsing_uuid=all_scrapings_by_parsing_uuid,
         file_note_by_parsing_uuid=file_note_by_parsing_uuid,
         all_file_notes_by_parsing_uuid=all_file_notes_by_parsing_uuid,
+        text_note_by_parsing_uuid=text_note_by_parsing_uuid,
+        all_text_notes_by_parsing_uuid=all_text_notes_by_parsing_uuid,
         prunings_by_parsing_uuid=prunings_by_parsing_uuid,
     )
+
+
+def add_notes_parsings(notes: list[FileNote] | list[TextNote],
+                       prunings_by_note_uuid: dict[UUID, list[Pruning]],
+                       scheduling_prunings_and_parsings: SchedulingPrimarySources,
+                       prunings_by_parsing_uuid: dict[UUID, list[Pruning]],
+                       parsings: list[Parsing],
+                       ) -> tuple[dict[UUID, FileNote | TextNote],
+                                  dict[UUID, list[FileNote | TextNote]]]:
+    note_by_parsing_uuid = {}
+    all_notes_by_parsing_uuid = {}
+    last_created_at_by_parsing_uuid = {}
+    for note in notes:
+        for pruning in prunings_by_note_uuid[note.uuid]:
+            parsing = scheduling_prunings_and_parsings.parsing_by_pruning_uuid.get(pruning.uuid)
+            if parsing is None:
+                continue
+
+            all_notes_by_parsing_uuid.setdefault(parsing.uuid, [])
+            if note not in all_notes_by_parsing_uuid[parsing.uuid]:
+                all_notes_by_parsing_uuid[parsing.uuid].append(note)
+            prunings_by_parsing_uuid.setdefault(parsing.uuid, [])
+            if pruning not in prunings_by_parsing_uuid[parsing.uuid]:
+                prunings_by_parsing_uuid[parsing.uuid].append(pruning)
+            if parsing not in parsings:
+                parsings.append(parsing)
+
+            if last_created_at_by_parsing_uuid.setdefault(parsing.uuid, None) is None \
+                    or note.created_at > last_created_at_by_parsing_uuid[parsing.uuid]:
+                last_created_at_by_parsing_uuid[parsing.uuid] = note.created_at
+                note_by_parsing_uuid[parsing.uuid] = note
+
+    return note_by_parsing_uuid, all_notes_by_parsing_uuid
 
 
 def sort_parsings(parsings: list[Parsing]) -> list[Parsing]:
@@ -101,8 +124,10 @@ def sort_parsings(parsings: list[Parsing]) -> list[Parsing]:
 class WebsiteEmptySources:
     scrapings: list[Scraping]
     file_notes: list[FileNote]
+    text_notes: list[TextNote]
     prunings_by_scraping_uuid: dict[UUID, Pruning]
     prunings_by_file_note_uuid: dict[UUID, Pruning]
+    prunings_by_text_note_uuid: dict[UUID, Pruning]
     parsings_by_pruning_uuid: dict[UUID, list[Parsing]]
 
 
@@ -128,31 +153,50 @@ def get_empty_sources(scheduling_prunings_and_parsings: SchedulingPrimarySources
         if is_scraping_to_add:
             scrapings.append(scraping)
 
-    file_notes = []
-    prunings_by_file_note_uuid = {}
-    for file_note in scheduling_prunings_and_parsings.file_notes:
-        prunings = scheduling_prunings_and_parsings.prunings_by_file_note_uuid[file_note.uuid]
-        if not prunings:
-            file_notes.append(file_note)
-            continue
-
-        is_file_note_to_add = handle_prunings(
-            prunings,
-            scheduling_prunings_and_parsings,
-            prunings_by_file_note_uuid.setdefault(file_note.uuid, []),
-            parsings_by_pruning_uuid
-        )
-
-        if is_file_note_to_add:
-            file_notes.append(file_note)
+    file_notes, prunings_by_file_note_uuid = get_empty_notes(
+        scheduling_prunings_and_parsings.file_notes,
+        scheduling_prunings_and_parsings.prunings_by_file_note_uuid,
+        scheduling_prunings_and_parsings, parsings_by_pruning_uuid)
+    text_notes, prunings_by_text_note_uuid = get_empty_notes(
+        scheduling_prunings_and_parsings.text_notes,
+        scheduling_prunings_and_parsings.prunings_by_text_note_uuid,
+        scheduling_prunings_and_parsings, parsings_by_pruning_uuid)
 
     return WebsiteEmptySources(
         scrapings=scrapings,
         file_notes=file_notes,
+        text_notes=text_notes,
         prunings_by_scraping_uuid=prunings_by_scraping_uuid,
         prunings_by_file_note_uuid=prunings_by_file_note_uuid,
+        prunings_by_text_note_uuid=prunings_by_text_note_uuid,
         parsings_by_pruning_uuid=parsings_by_pruning_uuid,
     )
+
+
+def get_empty_notes(notes: list[FileNote] | list[TextNote],
+                    prunings_by_note_uuid: dict[UUID, list[Pruning]],
+                    scheduling_prunings_and_parsings: SchedulingPrimarySources,
+                    parsings_by_pruning_uuid: dict[UUID, list[Parsing]],
+                    ) -> tuple[list[FileNote | TextNote], dict[UUID, list[Pruning]]]:
+    empty_notes = []
+    empty_prunings_by_note_uuid = {}
+    for note in notes:
+        prunings = prunings_by_note_uuid[note.uuid]
+        if not prunings:
+            empty_notes.append(note)
+            continue
+
+        is_note_to_add = handle_prunings(
+            prunings,
+            scheduling_prunings_and_parsings,
+            empty_prunings_by_note_uuid.setdefault(note.uuid, []),
+            parsings_by_pruning_uuid
+        )
+
+        if is_note_to_add:
+            empty_notes.append(note)
+
+    return empty_notes, empty_prunings_by_note_uuid
 
 
 def add_pruning_if_empty(parsing: Parsing | None, pruning: Pruning, prunings: list[Pruning],

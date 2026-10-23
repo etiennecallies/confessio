@@ -2,8 +2,9 @@ from django.db import transaction
 from django.db.models.signals import pre_delete, pre_save, post_save
 from django.dispatch import receiver
 
-from attaching.models import FileNote
-from attaching.public_service import attaching_recognize_and_extract_file_note
+from attaching.models import FileNote, TextNote
+from attaching.public_service import attaching_recognize_and_extract_file_note, \
+    attaching_extract_text_note
 from registry.models import Website
 from scheduling.public_service import scheduling_init_scheduling
 
@@ -42,3 +43,39 @@ def file_note_post_save(sender, instance, created, update_fields=None, **kwargs)
         print(f'FileNote post_save signal triggered for file note {instance.uuid},'
               f' website {instance.website.name}')
         transaction.on_commit(lambda: attaching_recognize_and_extract_file_note(instance))
+
+
+@receiver(pre_delete, sender=TextNote)
+def text_note_pre_delete(sender, instance, origin, **kwargs):
+    if origin and isinstance(origin, Website):
+        print(f'TextNote pre_delete signal triggered by {type(origin)}. Ignoring signal.')
+        return
+
+    print(f'TextNote pre_delete signal triggered for text note {instance.uuid},'
+          f' website {instance.website.name}')
+    transaction.on_commit(lambda: scheduling_init_scheduling(instance.website))
+
+
+@receiver(pre_save, sender=TextNote)
+def text_note_pre_save(sender, instance, update_fields=None, **kwargs):
+    instance._content_changed = False
+    if update_fields is None:
+        # Full save - need to check against DB value
+        try:
+            old_instance = sender.objects.get(pk=instance.pk)
+            if old_instance.content != instance.content:
+                instance._content_changed = True
+        except sender.DoesNotExist:
+            # we do not trigger any action on creation
+            instance._content_changed = False
+    else:
+        if 'content' in update_fields:
+            instance._content_changed = True
+
+
+@receiver(post_save, sender=TextNote)
+def text_note_post_save(sender, instance, created, update_fields=None, **kwargs):
+    if instance._content_changed:
+        print(f'TextNote post_save signal triggered for text note {instance.uuid},'
+              f' website {instance.website.name}')
+        transaction.on_commit(lambda: attaching_extract_text_note(instance))

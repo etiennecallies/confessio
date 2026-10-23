@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from uuid import UUID
 
-from attaching.models import FileNote, FileNoteComment, FileNoteModeration
+from attaching.models import FileNote, FileNoteComment, FileNoteModeration, TextNote, \
+    TextNoteComment, TextNoteModeration
 from front.models import Approval, ApprovalComment, ApprovalModeration, Issue, IssueComment, \
     IssueModeration
 from registry.models import Website
@@ -10,8 +11,8 @@ from registry.models.base_moderation_models import ModerationMixin
 
 @dataclass
 class ReportThread:
-    head: Issue | Approval | FileNote
-    comments: list[IssueComment | ApprovalComment | FileNoteComment]
+    head: Issue | Approval | FileNote | TextNote
+    comments: list[IssueComment | ApprovalComment | FileNoteComment | TextNoteComment]
 
     @property
     def is_approval(self) -> bool:
@@ -25,11 +26,16 @@ class ReportThread:
     def is_file_note(self) -> bool:
         return isinstance(self.head, FileNote)
 
+    @property
+    def is_text_note(self) -> bool:
+        return isinstance(self.head, TextNote)
+
 
 def get_report_threads(website: Website) -> list[ReportThread]:
     heads = list(Issue.objects.filter(website=website).prefetch_related('comments__user')) \
         + list(Approval.objects.filter(website=website).prefetch_related('comments__user')) \
-        + list(FileNote.objects.filter(website=website).prefetch_related('comments__user'))
+        + list(FileNote.objects.filter(website=website).prefetch_related('comments__user')) \
+        + list(TextNote.objects.filter(website=website).prefetch_related('comments__user'))
     heads.sort(key=lambda head: head.created_at, reverse=True)
 
     return [ReportThread(head=head,
@@ -48,5 +54,7 @@ def get_moderations_by_thread_uuid(threads: list[ReportThread]
         moderations_by_thread_uuid.setdefault(moderation.approval_id, []).append(moderation)
     for moderation in FileNoteModeration.objects.filter(file_note_id__in=head_uuids):
         moderations_by_thread_uuid.setdefault(moderation.file_note_id, []).append(moderation)
+    for moderation in TextNoteModeration.objects.filter(text_note_id__in=head_uuids):
+        moderations_by_thread_uuid.setdefault(moderation.text_note_id, []).append(moderation)
 
     return moderations_by_thread_uuid

@@ -1,5 +1,6 @@
-from attaching.models import FileNote, PdfRecognition
+from attaching.models import FileNote, PdfRecognition, TextNote
 from attaching.services.file_note_service import get_file_note_html
+from attaching.services.text_note_service import get_text_note_html
 from attaching.services.upload_file_note_service import get_file_note_public_url
 from attaching.workflows.recognize.recognize_image_with_llm import (get_html_from_image, get_prompt,
                                                                     get_llm_model)
@@ -72,7 +73,15 @@ def recognize_pdf(pdf_url: str, pdf_bytes: bytes) -> str | None:
 
 
 def extract_file_note(file_note: FileNote):
-    extracted_html_list = crawling_get_extracted_v2_html_list(get_file_note_html(file_note))
+    extract_html_into_prunings(get_file_note_html(file_note), file_note)
+
+
+def extract_text_note(text_note: TextNote):
+    extract_html_into_prunings(get_text_note_html(text_note), text_note)
+
+
+def extract_html_into_prunings(html: str | None, note: FileNote | TextNote):
+    extracted_html_list = crawling_get_extracted_v2_html_list(html)
     if not extracted_html_list:
         return
 
@@ -80,6 +89,6 @@ def extract_file_note(file_note: FileNote):
     for extracted_html_item in extracted_html_list:
         prunings.append(scheduling_create_pruning(extracted_html_item))
 
-    file_note.prunings.clear()
+    note.prunings.clear()
     for pruning in prunings:
-        file_note.prunings.add(pruning)
+        note.prunings.add(pruning)

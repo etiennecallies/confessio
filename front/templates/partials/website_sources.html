@@ -14,6 +14,17 @@
                         {% if scraping_counter > 1 %}<span><small class="text-muted">(et {{ scraping_counter|subtract:1 }} autres pages)</small></span>{% endif %}
                     {% endwith %}
                 </div>
+            {% elif parsings_and_prunings.text_note_by_parsing_uuid|get_item:parsing.uuid %}
+                <div class="col-md-9 lead">
+                    [{{ forloop.counter }}]
+                    {% with text_note=parsings_and_prunings.text_note_by_parsing_uuid|get_item:parsing.uuid %}
+                    Extrait de ce texte
+                    {% with text_note_counter=parsings_and_prunings.all_text_notes_by_parsing_uuid|get_item:parsing.uuid|length %}
+                        {% if text_note_counter > 1 %}<span><small class="text-muted">(et {{ text_note_counter|subtract:1 }} autres textes)</small></span>{% endif %}
+                    {% endwith %}:
+                    {% display_text_note text_note request %}
+                    {% endwith %}
+                </div>
             {% else %}
                 <div class="col-md-9 lead">
                     [{{ forloop.counter }}]
@@ -140,43 +151,16 @@
                 Extrait de cette image
                 {% display_file_note file_note request %}
             </div>
-            {% for pruning in empty_sources.prunings_by_file_note_uuid|get_item:file_note.uuid %}
-                <div class="margin-left-indent">
-                    <div class="row">
-                        {% with unvalidated_pruning_moderation=pruning|get_unvalidated_pruning_moderation %}
-                            {% if unvalidated_pruning_moderation %}
-                                <div class="col-xl-6">
-                                    <a href="{{ unvalidated_pruning_moderation|get_url }}" class="link-info">
-                                        <i class="fas fa-tags"></i> Pruning mod.
-                                    </a>
-                                </div>
-                            {% else %}
-                                <div class="col-xl-6">
-                                    <a href="{% url 'edit_pruning_v2' pruning.uuid %}" class="link-info"><i class="fas fa-tags"></i> {% trans 'EditPruning' %}</a>
-                                </div>
-                            {% endif %}
-                        {% endwith %}
-                        {% for parsing in empty_sources.parsings_by_pruning_uuid|get_item:pruning.uuid %}
-                            <div class="col-xl-6">
-                                {% with parsing_moderation=parsing.moderations.first %}
-                                    {% if parsing_moderation %}
-                                        <a href="{{ parsing_moderation|get_url }}" class="link-info">
-                                            <i class="fas fa-code"></i> Parsing mod.
-                                        </a>
-                                    {% else %}
-                                        <a href="{% url 'edit_parsing' parsing.uuid %}" class="link-info"><i class="fas fa-code"></i> {% trans 'EditParsing' %}</a>
-                                    {% endif %}
-                                {% endwith %}
-                            </div>
-                        {% endfor %}
-                    </div>
-                    {% display_expandable_pruning pruning %}
-                </div>
-            {% empty %}
-                <div class="margin-left-indent">No pruning found for this image.</div>
-            {% endfor %}
+            {% include 'includes/empty_source_prunings.html' with prunings=empty_sources.prunings_by_file_note_uuid|get_item:file_note.uuid source_label='image' %}
         {% empty %}
             No empty images.
+        {% endfor %}
+        {% for text_note in empty_sources.text_notes %}
+            <div>
+                Extrait de ce texte
+                {% display_text_note text_note request %}
+            </div>
+            {% include 'includes/empty_source_prunings.html' with prunings=empty_sources.prunings_by_text_note_uuid|get_item:text_note.uuid source_label='text' %}
         {% endfor %}
     </div>
 {% endif %}
