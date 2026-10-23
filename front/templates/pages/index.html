@@ -294,7 +294,7 @@
                                 {% endif %}
                                 {% if thread.is_file_note %}
                                     {% url 'admin:attaching_filenote_change' thread.head.uuid as admin_url %}
-                                    <small>Ajouté le {{ thread.head.created_at|date:"d F Y à H:i" }}</small>
+                                    <small>le {{ thread.head.created_at|date:"d F Y à H:i" }}</small>
                                     {% if request|is_staff %}
                                         <a class="text-muted" href="{{ admin_url }}" target="_blank">
                                             - Admin <i class="fas fa-up-right-from-square"></i>
