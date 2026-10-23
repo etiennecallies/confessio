@@ -1,7 +1,6 @@
-from attaching.models import Image, PdfRecognition
-from attaching.services.file_note_mirror_service import mirror_image_prunings
-from attaching.services.image_service import get_image_html
-from attaching.services.upload_image_service import get_image_public_url
+from attaching.models import FileNote, PdfRecognition
+from attaching.services.file_note_service import get_file_note_html
+from attaching.services.upload_file_note_service import get_file_note_public_url
 from attaching.workflows.recognize.recognize_image_with_llm import (get_html_from_image, get_prompt,
                                                                     get_llm_model)
 from attaching.workflows.recognize.recognize_pdf_with_llm import (get_html_from_pdf,
@@ -13,28 +12,28 @@ from scheduling.public_service import scheduling_create_pruning
 from scheduling.utils.hash_utils import hash_string_to_hex, hash_bytes_to_sha256_hex
 
 
-def recognize_image(image: Image):
-    if image.llm_provider is not None:
-        print(f'Image {image.uuid} already recognized with LLM')
+def recognize_file_note(file_note: FileNote):
+    if file_note.llm_provider is not None:
+        print(f'FileNote {file_note.uuid} already recognized with LLM')
         return
 
-    print(f'Recognizing image {image.uuid} with LLM')
+    print(f'Recognizing file note {file_note.uuid} with LLM')
 
     prompt = get_prompt()
     prompt_hash = hash_string_to_hex(prompt)
     llm_provider = LLMProvider.OPENAI
     llm_model = get_llm_model()
-    llm_html, llm_error_detail = get_html_from_image(get_image_public_url(image),
+    llm_html, llm_error_detail = get_html_from_image(get_file_note_public_url(file_note),
                                                      prompt, llm_provider, llm_model)
 
     if llm_error_detail:
-        image.llm_error_detail = llm_error_detail
+        file_note.llm_error_detail = llm_error_detail
     else:
-        image.llm_html = llm_html
-    image.prompt_hash = prompt_hash
-    image.llm_provider = llm_provider
-    image.llm_model = llm_model
-    image.save()
+        file_note.llm_html = llm_html
+    file_note.llm_prompt_hash = prompt_hash
+    file_note.llm_provider = llm_provider
+    file_note.llm_model = llm_model
+    file_note.save()
 
 
 def recognize_pdf(pdf_url: str, pdf_bytes: bytes) -> str | None:
@@ -72,8 +71,8 @@ def recognize_pdf(pdf_url: str, pdf_bytes: bytes) -> str | None:
     return pdf_recognition.llm_html
 
 
-def extract_image(image: Image):
-    extracted_html_list = crawling_get_extracted_v2_html_list(get_image_html(image))
+def extract_file_note(file_note: FileNote):
+    extracted_html_list = crawling_get_extracted_v2_html_list(get_file_note_html(file_note))
     if not extracted_html_list:
         return
 
@@ -81,7 +80,6 @@ def extract_image(image: Image):
     for extracted_html_item in extracted_html_list:
         prunings.append(scheduling_create_pruning(extracted_html_item))
 
-    image.prunings.clear()
+    file_note.prunings.clear()
     for pruning in prunings:
-        image.prunings.add(pruning)
-    mirror_image_prunings(image)
+        file_note.prunings.add(pruning)

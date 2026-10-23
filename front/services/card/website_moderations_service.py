@@ -1,6 +1,7 @@
 from uuid import UUID
 
-from attaching.public_service import attaching_get_image_recognition_status_by_website_uuid
+from attaching.public_service import \
+    attaching_get_file_note_recognition_status_by_website_uuid
 from core.services.background_task_service import TaskStatus
 from crawling.models import CrawlingModeration
 from crawling.public_service import crawling_get_crawling_status_by_website_uuid
@@ -49,7 +50,8 @@ def get_all_website_moderations(websites: list[Website]
         if crawling_status:
             pending_crawling_by_website[website.uuid] = crawling_status
 
-    image_status_by_uuid = attaching_get_image_recognition_status_by_website_uuid(website_uuids)
+    image_status_by_uuid = \
+        attaching_get_file_note_recognition_status_by_website_uuid(website_uuids)
     pending_image_by_website = {}
     for website in websites:
         image_status = image_status_by_uuid.get(str(website.uuid))
