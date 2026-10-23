@@ -127,13 +127,14 @@ posthog_host: "{{ lookup('ansible.builtin.env', 'NEXT_PUBLIC_POSTHOG_HOST') }}"
 
 # Self-hosted map tiles
 # One PMTiles archive cut from a Protomaps daily build, served straight off disk by
-# nginx. To refresh it, set tiles_build_date to a build from the last 7 days (older
-# ones are deleted upstream) and re-run tiles_install.
+# nginx. Each tiles_install run refreshes it to the latest build; pin one with
+# -e tiles_build_date=YYYYMMDD (upstream only keeps the last 7 days).
 tiles_root: /var/www
 tiles_dir: "{{ tiles_root }}/tiles"
 tiles_work_dir: "{{ tiles_root }}/tiles-work"
 tiles_archive: "{{ tiles_dir }}/france.pmtiles"
-tiles_build_date: "20261005"
+tiles_build_date: latest
+tiles_builds_index_url: https://build-metadata.protomaps.dev/builds.json
 tiles_build_url: "https://build.protomaps.com/{{ tiles_build_date }}.pmtiles"
 tiles_extract_timeout: 3600
 tiles_free_gb_required: 15  # the live archive, its replacement, and headroom

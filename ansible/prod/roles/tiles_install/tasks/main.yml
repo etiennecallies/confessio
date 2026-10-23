@@ -8,3 +8,4 @@
 - import_tasks: 03_assets.yml
 - import_tasks: 04_extract.yml
 - import_tasks: 05_nginx.yml
+- import_tasks: 06_cleanup.yml

@@ -180,13 +180,15 @@ no build step: `pmtiles extract` downloads only the covered area.
 ```shell
 # dry run: architecture, build availability, free disk, and what would change (writes nothing)
 source .env; ANSIBLE_CONFIG=ansible/ansible.cfg ansible-playbook ansible/prod/tiles_install.yml --tags preflight -K -u ubuntu -i ansible/prod/hosts
-# install, or refresh after changing tiles_build_date in group_vars/all
+# install, or refresh to the latest build
 ./prod.sh tiles_install
 ```
 
-Refresh about every 6 months. Protomaps only keeps the last 7 days of builds, so pick a
-recent `tiles_build_date`. Re-running with the same date does nothing; the swap is
-atomic and needs no front deploy.
+Refresh about every 6 months. Each run picks the latest Protomaps build; to pin one,
+pass `-e tiles_build_date=YYYYMMDD` (Protomaps only keeps the last 7 days of builds).
+Re-running on a build that is already live does nothing; the swap is atomic and needs no
+front deploy. The pmtiles binary and the downloaded assets are removed once the
+archive is in place.
 
 The covered area is `roles/tiles_install/files/france.geojson`: mainland France,
 Corsica, the overseas departments, Saint-Pierre-et-Miquelon, Saint-Martin and

@@ -8,6 +8,21 @@
     that: ansible_architecture == "x86_64"
     fail_msg: "pmtiles_sha256 is for the Linux x86_64 build, but this host is {{ ansible_architecture }}."
 
+- name: List the published Protomaps builds
+  ansible.builtin.uri:
+    url: "{{ tiles_builds_index_url }}"
+    return_content: true
+  register: tiles_builds_index
+  check_mode: false
+  when: tiles_build_date == "latest"
+
+# The index also lists builds that were since deleted; the HEAD check below catches a
+# latest one that is not downloadable.
+- name: Pick the latest build
+  ansible.builtin.set_fact:
+    tiles_build_date: "{{ tiles_builds_index.json | map(attribute='key') | max | regex_replace('\\.pmtiles$', '') }}"
+  when: tiles_build_date == "latest"
+
 - name: Check which build the live archive came from
   ansible.builtin.slurp:
     src: "{{ tiles_work_dir }}/france.build"
@@ -43,7 +58,7 @@
     that: tiles_build_head.status == 200
     fail_msg: >-
       {{ tiles_build_url }} answered {{ tiles_build_head.status }}. Protomaps keeps daily
-      builds for 7 days: set tiles_build_date to a recent one.
+      builds for 7 days: pass -e tiles_build_date=YYYYMMDD with a recent one.
     quiet: true
   when: tiles_needs_extract | bool
 
