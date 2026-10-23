@@ -1,0 +1,13 @@
+##
+# Drop what was only needed to build the tileset. tiles_work_dir keeps the stamp and the
+# region file, a few KB that 00_preflight reads to know what is live.
+##
+- name: Remove the build-only files
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ pmtiles_bin | dirname }}"
+    - "{{ tiles_work_dir }}/basemaps-assets-{{ basemaps_assets_commit }}.tar.gz"
+    - "{{ tiles_work_dir }}/france.pmtiles.tmp"
+  become: true
