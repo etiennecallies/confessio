@@ -5,6 +5,7 @@ from attaching.services.file_note_progress_service import \
 from attaching.services.upload_file_note_service import upload_file_note, \
     get_file_note_public_url, find_error_in_document_to_upload
 from attaching.services.text_note_moderation_service import get_new_text_note_moderation
+from attaching.services.text_note_service import add_text_note, find_error_in_text_note_content
 from attaching.services.worker_recognize_service import recognize_pdf
 from attaching.tasks import worker_recognize_and_extract_file_note, worker_extract_text_note
 from core.services.background_task_service import TaskStatus
@@ -30,6 +31,15 @@ def attaching_get_file_note_public_url(file_note: FileNote) -> str:
 
 def attaching_get_new_file_note_moderation(file_note: FileNote) -> FileNoteModeration | None:
     return get_new_file_note_moderation(file_note)
+
+
+def attaching_add_text_note(content: str, website: Website, request
+                            ) -> tuple[TextNote | None, str | None]:
+    return add_text_note(content, website, request)
+
+
+def attaching_find_error_in_text_note_content(content: str | None) -> str | None:
+    return find_error_in_text_note_content(content)
 
 
 def attaching_extract_text_note(text_note: TextNote):
