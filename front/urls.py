@@ -25,6 +25,8 @@ urlpatterns = [
     path('paroisse/<uuid:website_uuid>', views.index, name='website_view'),
     path('paroisse/<uuid:website_uuid>/upload_image', views.website_upload_image,
          name='website_upload_image'),
+    path('paroisse/<uuid:website_uuid>/issue/<uuid:issue_uuid>/solved',
+         views.website_issue_solved, name='website_issue_solved'),
 
     # Authentication
     path('accounts/login/', views.UserLoginView.as_view(), name='login'),

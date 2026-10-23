@@ -5,6 +5,7 @@ from simple_history.models import HistoricalRecords
 
 from core.models.base_models import BaseComment, BaseUserReport
 from registry.models import ModerationMixin
+from registry.models.base_moderation_models import ModerationStatus
 
 
 class Issue(BaseUserReport):
@@ -45,4 +46,10 @@ class IssueModeration(ModerationMixin):
         super().validate(user)
         if self.issue.solved_at is None:
             self.issue.solved_at = timezone.now()
+            self.issue.save()
+
+    def set_status(self, new_status: str, user: User):
+        super().set_status(new_status, user)
+        if new_status != ModerationStatus.VALIDATED and self.issue.solved_at is not None:
+            self.issue.solved_at = None
             self.issue.save()

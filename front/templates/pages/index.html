@@ -291,6 +291,18 @@
                                             {% display_status_badge moderation.status %}
                                         </a>
                                     {% endfor %}
+                                    {% if thread.is_issue %}
+                                        <form method="POST" class="d-inline" action="{% url 'website_issue_solved' website_uuid=page_website.uuid issue_uuid=thread.head.uuid %}">
+                                            {% csrf_token %}
+                                            {% if thread.head.solved_at %}
+                                                <input type="hidden" name="solved" value="0">
+                                                <button type="submit" class="btn btn-sm btn-outline-secondary">Unsolve issue</button>
+                                            {% else %}
+                                                <input type="hidden" name="solved" value="1">
+                                                <button type="submit" class="btn btn-sm btn-outline-success">Solve issue</button>
+                                            {% endif %}
+                                        </form>
+                                    {% endif %}
                                 {% endif %}
                                 {% if thread.is_file_note %}
                                     {% url 'admin:attaching_filenote_change' thread.head.uuid as admin_url %}
@@ -327,6 +339,12 @@
                                                 <button type="submit" class="btn rounded btn-secondary">Répondre</button>
                                             </div>
                                         </div>
+                                        {% if request|is_staff and thread.is_issue and not thread.head.solved_at %}
+                                            <div class="form-check mt-2">
+                                                <input class="form-check-input" type="checkbox" name="mark_solved" value="1" id="mark-solved-{{ thread.head.uuid }}">
+                                                <label class="form-check-label" for="mark-solved-{{ thread.head.uuid }}">Marquer le problème comme résolu</label>
+                                            </div>
+                                        {% endif %}
                                     </form>
                                 {% endif %}
                             </div>
