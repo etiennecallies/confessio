@@ -48,7 +48,7 @@ class IssueModeration(ModerationMixin):
             self.issue.solved_at = timezone.now()
             self.issue.save()
 
-    def set_status(self, new_status: str, user: User):
+    def set_status(self, new_status: ModerationStatus, user: User):
         super().set_status(new_status, user)
         if new_status != ModerationStatus.VALIDATED and self.issue.solved_at is not None:
             self.issue.solved_at = None
