@@ -5,6 +5,8 @@ from django.http import HttpRequest
 from django.urls import reverse
 from django.utils import timezone
 
+from attaching.models import FileNote, FileNoteComment, FileNoteModeration, TextNote, \
+    TextNoteComment, TextNoteModeration
 from core.utils.telegram_utils import TelegramTopic, send_telegram_alert
 from front.models import Approval, ApprovalComment, ApprovalModeration, Issue, IssueComment, \
     IssueModeration
@@ -31,18 +33,17 @@ class NewReportError(Exception):
         super().__init__(message)
 
 
-def get_thread_head(website: Website, head_uuid: UUID | str) -> Issue | Approval:
-    issue = Issue.objects.filter(uuid=head_uuid, website=website).first()
-    if issue:
-        return issue
-
-    approval = Approval.objects.filter(uuid=head_uuid, website=website).first()
-    if approval:
-        return approval
+def get_thread_head(website: Website, head_uuid: UUID | str
+                    ) -> Issue | Approval | FileNote | TextNote:
+    for head_class in (Issue, Approval, FileNote, TextNote):
+        head = head_class.objects.filter(uuid=head_uuid, website=website).first()
+        if head:
+            return head
 
     # Threads are one level deep
-    if IssueComment.objects.filter(uuid=head_uuid).exists() \
-            or ApprovalComment.objects.filter(uuid=head_uuid).exists():
+    if any(comment_class.objects.filter(uuid=head_uuid).exists()
+           for comment_class in (IssueComment, ApprovalComment, FileNoteComment,
+                                 TextNoteComment)):
         raise NewReportError(400, 'Cannot reply to a reply')
 
     raise NewReportError(404, f'Report {head_uuid} does not exist')
@@ -51,7 +52,8 @@ def get_thread_head(website: Website, head_uuid: UUID | str) -> Issue | Approval
 def save_report(request: HttpRequest, website: Website, church: Church | None,
                 feedback_type: FeedbackType, comment: str | None,
                 main_report_uuid: UUID | str | None
-                ) -> Issue | Approval | IssueComment | ApprovalComment:
+                ) -> Issue | Approval | IssueComment | ApprovalComment | FileNoteComment \
+        | TextNoteComment:
     head = get_thread_head(website, main_report_uuid) if main_report_uuid else None
 
     user, user_agent, ip_address_hash = get_user_user_agent_and_ip(request)
@@ -66,6 +68,12 @@ def save_report(request: HttpRequest, website: Website, church: Church | None,
                                                 **user_fields)
     elif isinstance(head, Issue):
         report = IssueComment.objects.create(issue=head, content=comment or '', **user_fields)
+    elif isinstance(head, FileNote):
+        report = FileNoteComment.objects.create(file_note=head, content=comment or '',
+                                                **user_fields)
+    elif isinstance(head, TextNote):
+        report = TextNoteComment.objects.create(text_note=head, content=comment or '',
+                                                **user_fields)
     elif feedback_type == FeedbackType.GOOD:
         report = Approval.objects.create(website=website, church=church, content=comment,
                                          **user_fields)
@@ -114,7 +122,8 @@ def new_report(request, website: Website) -> str:
     return 'Merci pour votre retour !'
 
 
-def add_necessary_moderation(website: Website, head: Issue | Approval, is_comment: bool):
+def add_necessary_moderation(website: Website, head: Issue | Approval | FileNote | TextNote,
+                             is_comment: bool):
     if isinstance(head, Approval):
         # A thumbs-up with no comment says nothing a moderator could act on
         if not is_comment and not head.content:
@@ -122,6 +131,13 @@ def add_necessary_moderation(website: Website, head: Issue | Approval, is_commen
         category = ApprovalModeration.Category.NEW_COMMENT if is_comment \
             else ApprovalModeration.Category.NEW_APPROVAL
         moderation_class, thread_field = ApprovalModeration, 'approval'
+    elif isinstance(head, FileNote):
+        # A new note is flagged on upload, only comments reach this function
+        category = FileNoteModeration.Category.NEW_COMMENT
+        moderation_class, thread_field = FileNoteModeration, 'file_note'
+    elif isinstance(head, TextNote):
+        category = TextNoteModeration.Category.NEW_COMMENT
+        moderation_class, thread_field = TextNoteModeration, 'text_note'
     else:
         category = IssueModeration.Category.NEW_COMMENT if is_comment \
             else IssueModeration.Category.NEW_ISSUE

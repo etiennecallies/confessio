@@ -59,6 +59,7 @@ class PdfRecognition(TimeStampMixin):
 class FileNoteModeration(ModerationMixin):
     class Category(models.TextChoices):
         NEW_FILE_NOTE = "new_file_note"
+        NEW_COMMENT = "new_comment"
 
     resource = 'file_note'
     diocese = models.ForeignKey('registry.Diocese', on_delete=models.CASCADE,
@@ -78,6 +79,7 @@ class FileNoteModeration(ModerationMixin):
 class TextNoteModeration(ModerationMixin):
     class Category(models.TextChoices):
         NEW_TEXT_NOTE = "new_text_note"
+        NEW_COMMENT = "new_comment"
 
     resource = 'text_note'
     diocese = models.ForeignKey('registry.Diocese', on_delete=models.CASCADE,

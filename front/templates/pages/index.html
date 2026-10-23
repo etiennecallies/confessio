@@ -306,7 +306,7 @@
                                     {% endif %}
                                 </strong>{% if not thread.is_file_note %}<small> - </small>{% endif %}
                                 {% if request|is_staff %}
-                                    {% for moderation in moderations_by_thread_uuid|get_item:thread.head.uuid %}
+                                    {% for moderation in head_moderations_by_thread_uuid|get_item:thread.head.uuid %}
                                         <a href="{{ moderation|get_url }}" target="_blank">
                                             {% display_status_badge moderation.status %}
                                         </a>
@@ -334,7 +334,7 @@
                                     {% endif %}
                                     <div><img src="{{ thread.head|file_note_url }}" alt="{{ thread.head.name }}" class="img-fluid"></div>
                                     <div>{{ thread.head.caption|urlize|linebreaksbr }}</div>
-                                    {% if thread.comments %}<hr class="hr" />{% endif %}
+                                    <hr class="hr" />
                                 {% else %}
                                     {% if thread.is_text_note %}
                                         {% url 'admin:attaching_textnote_change' thread.head.uuid as admin_url %}
@@ -346,29 +346,31 @@
                                     {% include 'includes/report_message.html' with message=thread.head %}
                                 {% endif %}
                                 {% for comment in thread.comments %}
-                                    {% include 'includes/report_message.html' with message=comment %}
+                                    {% if forloop.last %}
+                                        {% include 'includes/report_message.html' with message=comment moderations=comment_moderations_by_thread_uuid|get_item:thread.head.uuid %}
+                                    {% else %}
+                                        {% include 'includes/report_message.html' with message=comment moderations=None %}
+                                    {% endif %}
                                 {% endfor %}
-                                {% if not thread.is_file_note and not thread.is_text_note %}
-                                    <form method="POST">
-                                        <input type="hidden" name="main_report_uuid" value="{{ thread.head.uuid }}">
-                                        <input type="hidden" name="feedback_type" value="comment">
-                                        {% csrf_token %}
-                                        <div class="row">
-                                            <div class="col-12 col-md-10">
-                                                <textarea placeholder="Commentaire" name='comment' class="form-control" rows="1" required></textarea>
-                                            </div>
-                                            <div class="col-12 mt-2 mt-md-0 col-md-2 text-right">
-                                                <button type="submit" class="btn rounded btn-secondary">Répondre</button>
-                                            </div>
+                                <form method="POST">
+                                    <input type="hidden" name="main_report_uuid" value="{{ thread.head.uuid }}">
+                                    <input type="hidden" name="feedback_type" value="comment">
+                                    {% csrf_token %}
+                                    <div class="row">
+                                        <div class="col-12 col-md-10">
+                                            <textarea placeholder="Commentaire" name='comment' class="form-control" rows="1" required></textarea>
                                         </div>
-                                        {% if request|is_staff and thread.is_issue and not thread.head.solved_at %}
-                                            <div class="form-check mt-2">
-                                                <input class="form-check-input" type="checkbox" name="mark_solved" value="1" id="mark-solved-{{ thread.head.uuid }}">
-                                                <label class="form-check-label" for="mark-solved-{{ thread.head.uuid }}">Marquer le problème comme résolu</label>
-                                            </div>
-                                        {% endif %}
-                                    </form>
-                                {% endif %}
+                                        <div class="col-12 mt-2 mt-md-0 col-md-2 text-right">
+                                            <button type="submit" class="btn rounded btn-secondary">Répondre</button>
+                                        </div>
+                                    </div>
+                                    {% if request|is_staff and thread.is_issue and not thread.head.solved_at %}
+                                        <div class="form-check mt-2">
+                                            <input class="form-check-input" type="checkbox" name="mark_solved" value="1" id="mark-solved-{{ thread.head.uuid }}">
+                                            <label class="form-check-label" for="mark-solved-{{ thread.head.uuid }}">Marquer le problème comme résolu</label>
+                                        </div>
+                                    {% endif %}
+                                </form>
                             </div>
                         </div>
                     {% endif %}

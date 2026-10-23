@@ -141,9 +141,10 @@ def render_map(request, center,
 
     # only staff sees the badge, so only staff pays for the query
     report_threads = get_report_threads(page_website) if page_website else None
-    moderations_by_thread_uuid = {}
+    head_moderations_by_thread_uuid, comment_moderations_by_thread_uuid = {}, {}
     if report_threads and is_staff_user(request):
-        moderations_by_thread_uuid = get_moderations_by_thread_uuid(report_threads)
+        head_moderations_by_thread_uuid, comment_moderations_by_thread_uuid = \
+            get_moderations_by_thread_uuid(report_threads)
 
     return render(request, 'pages/index.html', {
         'h1_title': h1_title,
@@ -173,7 +174,8 @@ def render_map(request, center,
         'page_website': page_website,
         'success_message': success_message,
         'report_threads': report_threads,
-        'moderations_by_thread_uuid': moderations_by_thread_uuid,
+        'head_moderations_by_thread_uuid': head_moderations_by_thread_uuid,
+        'comment_moderations_by_thread_uuid': comment_moderations_by_thread_uuid,
         'upload_error_message': upload_error_message,
         'scheduling_moderation_by_website': scheduling_moderation_by_website,
         'crawling_moderation_by_website': crawling_moderation_by_website,

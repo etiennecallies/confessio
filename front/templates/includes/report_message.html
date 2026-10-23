@@ -1,4 +1,4 @@
-{% load custom_tags %}
+{% load custom_tags display_tags %}
 {% if message.user %}
 <span class="fw-bold text-success">{{ message.user.first_name }} <i class="fas fa-user-check"></i></span>
 {% endif %}
@@ -11,5 +11,10 @@
     <a class="text-muted" href="{{ admin_url }}" target="_blank">
         - Admin <i class="fas fa-up-right-from-square"></i>
     </a>
+    {% for moderation in moderations %}
+        <a href="{{ moderation|get_url }}" target="_blank">
+            {% display_status_badge moderation.status %}
+        </a>
+    {% endfor %}
 {% endif %}
 <hr class="hr" />

@@ -18,9 +18,9 @@
                 <div class="col-md-9 lead">
                     [{{ forloop.counter }}]
                     {% with text_note=parsings_and_prunings.text_note_by_parsing_uuid|get_item:parsing.uuid %}
-                    Extrait de ce texte
+                    Extrait de cette note
                     {% with text_note_counter=parsings_and_prunings.all_text_notes_by_parsing_uuid|get_item:parsing.uuid|length %}
-                        {% if text_note_counter > 1 %}<span><small class="text-muted">(et {{ text_note_counter|subtract:1 }} autres textes)</small></span>{% endif %}
+                        {% if text_note_counter > 1 %}<span><small class="text-muted">(et {{ text_note_counter|subtract:1 }} autres notes)</small></span>{% endif %}
                     {% endwith %}:
                     {% display_text_note text_note request %}
                     {% endwith %}
@@ -157,7 +157,7 @@
         {% endfor %}
         {% for text_note in empty_sources.text_notes %}
             <div>
-                Extrait de ce texte
+                Extrait de cette note
                 {% display_text_note text_note request %}
             </div>
             {% include 'includes/empty_source_prunings.html' with prunings=empty_sources.prunings_by_text_note_uuid|get_item:text_note.uuid source_label='text' %}
