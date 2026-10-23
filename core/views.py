@@ -156,10 +156,12 @@ def get_moderate_response(request, category: str, resource: str, status: str,
     next_url = get_next_url(request, moderation)
     if request.method == "POST":
         if 'change_status' in request.POST:
-            new_status = request.POST.get('change_status')
-            if new_status not in ModerationStatus.values:
+            new_status_str = request.POST.get('change_status')
+            try:
+                new_status = ModerationStatus(new_status_str)
+            except ValueError:
                 return HttpResponseBadRequest(
-                    f"status {new_status} is not valid")
+                    f"status {new_status_str} is not valid")
             comment = request.POST.get('comment') or None
             moderation.comment = comment
             if new_status != moderation.status:

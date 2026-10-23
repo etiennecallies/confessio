@@ -3,6 +3,7 @@ from uuid import UUID
 
 from django.http import HttpRequest
 from django.urls import reverse
+from django.utils import timezone
 
 from core.utils.telegram_utils import TelegramTopic, send_telegram_alert
 from front.models import Approval, ApprovalComment, ApprovalModeration, Issue, IssueComment, \
@@ -10,7 +11,7 @@ from front.models import Approval, ApprovalComment, ApprovalModeration, Issue, I
 from registry.models import Church, Website
 from registry.models.base_moderation_models import ModerationStatus
 from core.services.admin_email_service import send_email_to_admin
-from front.utils.web_utils import get_user_user_agent_and_ip
+from front.utils.web_utils import get_user_user_agent_and_ip, is_staff_user
 
 
 class FeedbackType(StrEnum):
@@ -105,6 +106,11 @@ def new_report(request, website: Website) -> str:
 
     save_report(request, website, None, feedback_type, comment, main_report_uuid)
 
+    if is_staff_user(request) and request.POST.get('mark_solved') and main_report_uuid:
+        head = get_thread_head(website, main_report_uuid)
+        if isinstance(head, Issue):
+            solve_issue(head)
+
     return 'Merci pour votre retour !'
 
 
@@ -128,6 +134,32 @@ def add_necessary_moderation(website: Website, head: Issue | Approval, is_commen
         defaults={'diocese': website.get_diocese(), 'status': ModerationStatus.TO_VALIDATE},
     )
     if not created and moderation.status != ModerationStatus.TO_VALIDATE:
+        moderation.status = ModerationStatus.TO_VALIDATE
+        moderation.save()
+
+
+###############
+# SOLVE ISSUE #
+###############
+
+# Moderation statuses are set directly: IssueModeration.set_status would write back to the issue
+
+def solve_issue(issue: Issue):
+    if issue.solved_at is None:
+        issue.solved_at = timezone.now()
+        issue.save()
+
+    for moderation in issue.moderations.exclude(status=ModerationStatus.VALIDATED):
+        moderation.status = ModerationStatus.VALIDATED
+        moderation.save()
+
+
+def unsolve_issue(issue: Issue):
+    if issue.solved_at is not None:
+        issue.solved_at = None
+        issue.save()
+
+    for moderation in issue.moderations.filter(status=ModerationStatus.VALIDATED):
         moderation.status = ModerationStatus.TO_VALIDATE
         moderation.save()
 

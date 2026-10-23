@@ -3,14 +3,19 @@ import json
 from datetime import date
 
 from django.core.exceptions import ValidationError
-from django.http import HttpResponseNotFound, JsonResponse, HttpResponseBadRequest, HttpResponse
+from django.http import HttpResponseNotFound, JsonResponse, HttpResponseBadRequest, HttpResponse, \
+    HttpResponseForbidden
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.utils.translation import gettext
+from django.views.decorators.http import require_POST
 
 from attaching.public_service import attaching_upload_file_note, \
     attaching_recognize_and_extract_file_note, attaching_find_error_in_document_to_upload
 from fetching.models import OClocherOrganization
-from front.services.card.report_service import get_count_and_label, new_report, NewReportError
+from front.models import Issue
+from front.services.card.report_service import get_count_and_label, new_report, NewReportError, \
+    solve_issue, unsolve_issue
 from front.services.card.report_thread_service import get_report_threads, \
     get_moderations_by_thread_uuid
 from front.services.card.scraping_url_service import get_scraping_parsing_urls
@@ -502,3 +507,22 @@ def website_upload_image(request, website_uuid: str):
                                         })
 
     return HttpResponseBadRequest("Invalid request method")
+
+
+@require_POST
+def website_issue_solved(request, website_uuid: str, issue_uuid: str):
+    if not is_staff_user(request):
+        return HttpResponseForbidden()
+
+    try:
+        issue = Issue.objects.get(uuid=issue_uuid, website_id=website_uuid)
+    except Issue.DoesNotExist:
+        return HttpResponseNotFound("Issue does not exist for this website")
+
+    if request.POST.get('solved') == '1':
+        solve_issue(issue)
+    else:
+        unsolve_issue(issue)
+
+    return redirect(reverse('website_view', kwargs={'website_uuid': website_uuid})
+                    + '#previous-reports')

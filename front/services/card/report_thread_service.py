@@ -18,6 +18,10 @@ class ReportThread:
         return isinstance(self.head, Approval)
 
     @property
+    def is_issue(self) -> bool:
+        return isinstance(self.head, Issue)
+
+    @property
     def is_file_note(self) -> bool:
         return isinstance(self.head, FileNote)
 

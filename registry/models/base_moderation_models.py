@@ -82,7 +82,7 @@ class ModerationMixin(TimeStampMixin):
     def delete_on_validate(self) -> bool:
         pass
 
-    def set_status(self, new_status: str, user: User):
+    def set_status(self, new_status: ModerationStatus, user: User):
         if new_status == ModerationStatus.VALIDATED:
             self.validate(user)
         else:
