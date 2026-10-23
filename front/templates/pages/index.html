@@ -306,7 +306,7 @@
                                     {% endif %}
                                 </strong>{% if not thread.is_file_note %}<small> - </small>{% endif %}
                                 {% if request|is_staff %}
-                                    {% for moderation in moderations_by_thread_uuid|get_item:thread.head.uuid %}
+                                    {% for moderation in head_moderations_by_thread_uuid|get_item:thread.head.uuid %}
                                         <a href="{{ moderation|get_url }}" target="_blank">
                                             {% display_status_badge moderation.status %}
                                         </a>
@@ -346,7 +346,11 @@
                                     {% include 'includes/report_message.html' with message=thread.head %}
                                 {% endif %}
                                 {% for comment in thread.comments %}
-                                    {% include 'includes/report_message.html' with message=comment %}
+                                    {% if forloop.last %}
+                                        {% include 'includes/report_message.html' with message=comment moderations=comment_moderations_by_thread_uuid|get_item:thread.head.uuid %}
+                                    {% else %}
+                                        {% include 'includes/report_message.html' with message=comment moderations=None %}
+                                    {% endif %}
                                 {% endfor %}
                                 <form method="POST">
                                     <input type="hidden" name="main_report_uuid" value="{{ thread.head.uuid }}">
