@@ -284,7 +284,7 @@
                                     {% else %}
                                         {% trans 'report_feedback_error' %}
                                     {% endif %}
-                                </strong><small> - </small>
+                                </strong>{% if not thread.is_file_note %}<small> - </small>{% endif %}
                                 {% if request|is_staff %}
                                     {% for moderation in moderations_by_thread_uuid|get_item:thread.head.uuid %}
                                         <a href="{{ moderation|get_url }}" target="_blank">
@@ -294,8 +294,15 @@
                                 {% endif %}
                                 {% if thread.is_file_note %}
                                     {% url 'admin:attaching_filenote_change' thread.head.uuid as admin_url %}
-                                    {% display_file_note thread.head request show_moderation=False %}
-                                    <hr class="hr" />
+                                    <small>Ajouté le {{ thread.head.created_at|date:"d F Y à H:i" }}</small>
+                                    {% if request|is_staff %}
+                                        <a class="text-muted" href="{{ admin_url }}" target="_blank">
+                                            - Admin <i class="fas fa-up-right-from-square"></i>
+                                        </a>
+                                    {% endif %}
+                                    <div><img src="{{ thread.head|file_note_url }}" alt="{{ thread.head.name }}" class="img-fluid"></div>
+                                    <div>{{ thread.head.caption|urlize|linebreaksbr }}</div>
+                                    {% if thread.comments %}<hr class="hr" />{% endif %}
                                 {% else %}
                                     {% if thread.is_approval %}
                                         {% url 'admin:front_approval_change' thread.head.uuid as admin_url %}

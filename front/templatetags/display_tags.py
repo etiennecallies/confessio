@@ -108,6 +108,11 @@ def display_other_church_icon(is_church_explicitly_other: bool) -> str:
     return '⚠️' if is_church_explicitly_other else '❔'
 
 
+@register.filter
+def file_note_url(file_note: FileNote) -> str:
+    return attaching_get_file_note_public_url(file_note)
+
+
 @register.simple_tag
 def display_file_note(file_note: FileNote, request, show_moderation: bool = True) -> str:
     # only staff sees the link, so only staff pays for the query. It is turned off on the
