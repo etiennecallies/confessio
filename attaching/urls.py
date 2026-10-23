@@ -7,4 +7,8 @@ urlpatterns = [
          views.moderate_file_note, name='moderate_next_file_note'),
     path('moderate/file_note/<category>/<str:status>/<uuid:moderation_uuid>',
          views.moderate_file_note, name='moderate_one_file_note'),
+    path('moderate/text_note/<category>/<str:status>',
+         views.moderate_text_note, name='moderate_next_text_note'),
+    path('moderate/text_note/<category>/<str:status>/<uuid:moderation_uuid>',
+         views.moderate_text_note, name='moderate_one_text_note'),
 ]

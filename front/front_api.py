@@ -476,7 +476,7 @@ def api_front_church_details(request, church_uuid: UUID,
 
     # Reports
     reports = [ReportOut.from_thread(thread) for thread in get_report_threads(website)
-               if not thread.is_file_note]
+               if not thread.is_file_note and not thread.is_text_note]
 
     # Images
     file_notes = FileNote.objects.filter(website=website).order_by('created_at')

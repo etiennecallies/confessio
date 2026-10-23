@@ -4,7 +4,7 @@ from uuid import UUID
 
 from django.db.models import Q, Subquery
 
-from attaching.models import FileNote
+from attaching.models import FileNote, TextNote
 from crawling.models import Scraping
 from fetching.models import OClocherSchedule, OClocherMatching, OClocherLocation
 from registry.models import Website, Church
@@ -95,8 +95,10 @@ def get_scheduling_sources(scheduling: Scheduling | None) -> SchedulingSources:
 class SchedulingPrimarySources:
     scrapings: list[Scraping] = field(default_factory=list)
     file_notes: list[FileNote] = field(default_factory=list)
+    text_notes: list[TextNote] = field(default_factory=list)
     prunings_by_scraping_uuid: dict[UUID, list[Pruning]] = field(default_factory=dict)
     prunings_by_file_note_uuid: dict[UUID, list[Pruning]] = field(default_factory=dict)
+    prunings_by_text_note_uuid: dict[UUID, list[Pruning]] = field(default_factory=dict)
     parsing_by_pruning_uuid: dict[UUID, Parsing] = field(default_factory=dict)
 
 
@@ -163,11 +165,31 @@ def get_scheduling_primary_sources(scheduling: Scheduling | None
                                             pruning_by_history_id)
         prunings_by_file_note_uuid[file_note.uuid].append(pruning)
 
+    text_notes = []
+    text_note_by_history_id = {}
+    prunings_by_text_note_uuid = {}
+    for scheduling_text_note in scheduling.historical_text_notes.all():
+        text_note_history_id = scheduling_text_note.text_note_history_id
+        historical_text_note = TextNote.history.get(history_id=text_note_history_id)
+        text_note = historical_text_note.instance
+        text_note_by_history_id[text_note_history_id] = text_note
+        text_notes.append(text_note)
+        prunings_by_text_note_uuid[text_note.uuid] = []
+
+    for text_note_pruning in scheduling.text_note_prunings.all():
+        text_note_history_id = text_note_pruning.text_note_history_id
+        text_note = text_note_by_history_id[text_note_history_id]
+        pruning = get_pruning_by_history_id(text_note_pruning.pruning_history_id,
+                                            pruning_by_history_id)
+        prunings_by_text_note_uuid[text_note.uuid].append(pruning)
+
     return SchedulingPrimarySources(
         scrapings=scrapings,
         file_notes=file_notes,
+        text_notes=text_notes,
         prunings_by_scraping_uuid=prunings_by_scraping_uuid,
         prunings_by_file_note_uuid=prunings_by_file_note_uuid,
+        prunings_by_text_note_uuid=prunings_by_text_note_uuid,
         parsing_by_pruning_uuid=parsing_by_pruning_uuid,
     )
 
@@ -190,13 +212,16 @@ def build_resources_hash(scheduling: Scheduling,
         lambda historical_church: historical_church.church_history_id,
         scheduling.historical_churches.all()))
 
-    # Scrapings & FileNotes
+    # Scrapings, FileNotes & TextNotes
     elements_to_hash += sorted(map(
         lambda historical_scraping: historical_scraping.scraping_history_id,
         scheduling.historical_scrapings.all()))
     elements_to_hash += sorted(map(
         lambda historical_file_note: historical_file_note.file_note_history_id,
         scheduling.historical_file_notes.all()))
+    elements_to_hash += sorted(map(
+        lambda historical_text_note: historical_text_note.text_note_history_id,
+        scheduling.historical_text_notes.all()))
 
     # Prunings & Parsings
     elements_to_hash += sorted(map(
@@ -208,6 +233,11 @@ def build_resources_hash(scheduling: Scheduling,
         lambda file_note_pruning: (file_note_pruning.file_note_history_id,
                                    file_note_pruning.pruning_history_id),
         scheduling.file_note_prunings.all()
+    ))
+    elements_to_hash += sorted(map(
+        lambda text_note_pruning: (text_note_pruning.text_note_history_id,
+                                   text_note_pruning.pruning_history_id),
+        scheduling.text_note_prunings.all()
     ))
     elements_to_hash += sorted(map(
         lambda pruning_parsing: (pruning_parsing.pruning_history_id,
@@ -268,7 +298,8 @@ def get_websites_of_prunings(prunings: list[Pruning]) -> list[Website]:
         Website.objects.filter(
             schedulings__in=Scheduling.objects.filter(
                 Q(scraping_prunings__pruning_history_id__in=history_ids)
-                | Q(file_note_prunings__pruning_history_id__in=history_ids),
+                | Q(file_note_prunings__pruning_history_id__in=history_ids)
+                | Q(text_note_prunings__pruning_history_id__in=history_ids),
                 status=Scheduling.Status.INDEXED,
             )
         ).distinct()

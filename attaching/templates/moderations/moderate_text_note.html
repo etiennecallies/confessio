@@ -1,0 +1,13 @@
+{% extends 'layouts/moderation_card.html' %}
+{% load display_tags %}
+
+{% block card %}
+    {% include 'moderations/_header.html' with title_prefix='Text note' %}
+
+    Website: {{ text_note.website.name }}<br>
+    Link: <a href="{% url 'website_view' text_note.website.uuid %}" target="_blank">Go to website</a>
+
+    {% display_text_note text_note request show_moderation=False %}
+
+    {% include 'moderations/_footer.html' %}
+{% endblock card %}

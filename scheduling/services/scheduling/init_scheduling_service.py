@@ -3,7 +3,8 @@ from dataclasses import dataclass
 from registry.models import Website
 from scheduling.models import Scheduling, SchedulingHistoricalChurch, \
     SchedulingHistoricalScraping, SchedulingHistoricalOClocherSchedule, \
-    SchedulingHistoricalOClocherLocation, SchedulingHistoricalFileNote
+    SchedulingHistoricalOClocherLocation, SchedulingHistoricalFileNote, \
+    SchedulingHistoricalTextNote
 
 
 @dataclass
@@ -11,6 +12,7 @@ class SchedulingRelatedObjects:
     church_history_ids: list[int]
     scraping_history_ids: list[int]
     file_note_history_ids: list[int]
+    text_note_history_ids: list[int]
     oclocher_location_history_ids: list[int]
     oclocher_schedule_history_ids: list[int]
 
@@ -36,6 +38,13 @@ def get_file_note_history_ids(website: Website) -> list[int]:
     for file_note in website.file_notes.all():
         file_note_history_ids.append(file_note.history.latest().history_id)
     return file_note_history_ids
+
+
+def get_text_note_history_ids(website: Website) -> list[int]:
+    text_note_history_ids = []
+    for text_note in website.text_notes.all():
+        text_note_history_ids.append(text_note.history.latest().history_id)
+    return text_note_history_ids
 
 
 def get_oclocher_location_history_ids(website: Website) -> list[int]:
@@ -73,6 +82,7 @@ def build_scheduling(website: Website) -> tuple[Scheduling, SchedulingRelatedObj
     church_history_ids = get_church_history_ids(website)
     scraping_history_ids = get_scraping_history_ids(website)
     file_note_history_ids = get_file_note_history_ids(website)
+    text_note_history_ids = get_text_note_history_ids(website)
     oclocher_location_history_ids = get_oclocher_location_history_ids(website)
     oclocher_schedule_history_ids = get_oclocher_schedule_history_ids(website)
 
@@ -80,6 +90,7 @@ def build_scheduling(website: Website) -> tuple[Scheduling, SchedulingRelatedObj
         church_history_ids=church_history_ids,
         scraping_history_ids=scraping_history_ids,
         file_note_history_ids=file_note_history_ids,
+        text_note_history_ids=text_note_history_ids,
         oclocher_location_history_ids=oclocher_location_history_ids,
         oclocher_schedule_history_ids=oclocher_schedule_history_ids,
     )
@@ -117,6 +128,15 @@ def bulk_create_scheduling_related_objects(
         ) for file_note_id in scheduling_related_objects.file_note_history_ids
     ]
     SchedulingHistoricalFileNote.objects.bulk_create(file_note_objs)
+
+    # SchedulingHistoricalTextNote
+    text_note_objs = [
+        SchedulingHistoricalTextNote(
+            scheduling=scheduling,
+            text_note_history_id=text_note_id
+        ) for text_note_id in scheduling_related_objects.text_note_history_ids
+    ]
+    SchedulingHistoricalTextNote.objects.bulk_create(text_note_objs)
 
     # SchedulingHistoricalOClocherLocation
     oclocher_location_objs = [
