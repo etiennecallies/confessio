@@ -9,5 +9,10 @@
 
     {% display_text_note text_note request show_moderation=False %}
 
+    {% for comment in comments %}
+        Comment ({{ comment.created_at|date:"d M Y" }}): {{ comment.content|urlize|linebreaksbr }}<br>
+    {% endfor %}
+    Link: <a href="{% url 'website_view' text_note.website.uuid %}#previous-reports" target="_blank">Go to thread</a>
+
     {% include 'moderations/_footer.html' %}
 {% endblock card %}

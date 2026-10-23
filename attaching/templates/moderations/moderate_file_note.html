@@ -13,5 +13,10 @@
         <div class="border rounded p-2 mt-2">{{ file_note_html|safe }}</div>
     {% endif %}
 
+    {% for comment in comments %}
+        Comment ({{ comment.created_at|date:"d M Y" }}): {{ comment.content|urlize|linebreaksbr }}<br>
+    {% endfor %}
+    Link: <a href="{% url 'website_view' file_note.website.uuid %}#previous-reports" target="_blank">Go to thread</a>
+
     {% include 'moderations/_footer.html' %}
 {% endblock card %}
